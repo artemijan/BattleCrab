@@ -1733,3 +1733,116 @@ fn counter_physical_skill_answers_melee_skills_only() {
         "only melee-range skills can be countered"
     );
 }
+
+/// G34 S4 sub-slice 5 — `EnlargeAbnormalSlot` (Divine Inspiration 1405) raises
+/// the **good-buff** slot cap, and only that pool: Java's `setMaxBuffCount` is
+/// read by `EffectList` for buffs, never for dances.
+///
+/// Modelled as a `Stat` rather than Java's setter on purpose — `apply_buff`
+/// rebuilds `StatModifiers` from the surviving buffs on every change, so the
+/// bonus is *derived* and cannot drift the way an add/subtract pair can when a
+/// buff leaves by some other path. The expiry case is asserted for exactly
+/// that reason.
+#[test]
+fn enlarge_abnormal_slot_raises_the_buff_cap_and_gives_it_back() {
+    use crate::model::stats::{Stat, StatModifierType};
+    let (mut world, _db, _l) = cc2_world();
+    world.data.combat_caps.max_buff_count = 2; // small enough to observe
+    let mut boost = cc_skill(9361, SkillEffect::Root, "SLOT_BOOST");
+    boost.effects = vec![SkillEffect::StatModifier(
+        crate::model::skill::StatModifierEffect {
+            stat: Stat::MaxBuffSlots,
+            mode: StatModifierType::Diff,
+            amount: 2.0,
+            armor_condition: 0,
+            weapon_condition: 0,
+            qualifier: None,
+            two_handed: false,
+        },
+    )];
+    boost.effect_point = 100;
+    boost.is_debuff = false;
+    world.data.skill_data.insert_for_test(boost);
+    // Three ordinary buffs, so the cap is what decides how many survive.
+    for id in 9371..9374 {
+        let mut b = cc_skill(id, SkillEffect::Root, &format!("B{id}"));
+        b.effect_point = 100;
+        b.is_debuff = false;
+        world.data.skill_data.insert_for_test(b);
+    }
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    let buff_count = |world: &World| {
+        world
+            .objects
+            .get_component::<Buffs>(&CASTER)
+            .map(|b| b.0.len())
+            .unwrap_or(0)
+    };
+
+    // Without the boost the cap holds at 2.
+    for id in 9371..9374 {
+        land(&mut world, id, CASTER);
+    }
+    assert_eq!(buff_count(&world), 2, "the base cap of 2 holds");
+
+    // With it, four fit (2 base + 2 granted) — the boost itself occupies one.
+    land(&mut world, 9361, CASTER);
+    for id in 9371..9374 {
+        land(&mut world, id, CASTER);
+    }
+    assert_eq!(
+        buff_count(&world),
+        4,
+        "Divine Inspiration's slots are real, not cosmetic"
+    );
+}
+
+/// `DispelBySlotMyself` (Flames of Invincibility 1427) strips the bearer's own
+/// buffs of the listed abnormal types — but **spares an `irreplacableBuff`**,
+/// which `DispelBySlot` does not. Both halves asserted, since a version that
+/// dispelled everything would look correct against ordinary buffs.
+#[test]
+fn dispel_by_slot_myself_spares_irreplacable_buffs() {
+    let (mut world, _db, _l) = cc2_world();
+    let mut stance = cc_skill(9381, SkillEffect::Root, "MAGICAL_STANCE");
+    stance.effect_point = 100;
+    stance.is_debuff = false;
+    world.data.skill_data.insert_for_test(stance);
+
+    // Same abnormal type, but flagged to survive death — Java's
+    // `isIrreplacableBuff()`, which the port folds into `stay_after_death`.
+    let mut protected = cc_skill(9382, SkillEffect::Root, "MAGICAL_STANCE");
+    protected.effect_point = 100;
+    protected.is_debuff = false;
+    protected.stay_after_death = true;
+    world.data.skill_data.insert_for_test(protected);
+
+    let mut dispeller = cc_skill(
+        9383,
+        SkillEffect::DispelBySlotMyself {
+            dispel: vec!["MAGICAL_STANCE".into()],
+        },
+        "NONE",
+    );
+    dispeller.effect_point = 100;
+    dispeller.is_debuff = false;
+    world.data.skill_data.insert_for_test(dispeller);
+
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    land(&mut world, 9381, CASTER);
+    land(&mut world, 9382, CASTER);
+    land(&mut world, 9383, CASTER);
+
+    let has = |world: &World, id: i32| {
+        world
+            .objects
+            .get_component::<Buffs>(&CASTER)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id))
+    };
+    assert!(!has(&world, 9381), "the ordinary MAGICAL_STANCE buff goes");
+    assert!(
+        has(&world, 9382),
+        "…but an irreplacable one of the same type stays"
+    );
+}

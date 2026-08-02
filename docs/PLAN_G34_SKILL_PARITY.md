@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 145 | **190 unhandled** (1 766 reachable skills, **37 learnable names**) |
+| Effect handler names used by dist skills | **335** | 147 | **188 unhandled** (1 763 reachable skills, **35 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -676,6 +676,27 @@ the exact anti-pattern this slice's own preamble warns about. Caught before
 commit; the counter is now implemented. And the empty-effects guard claimed a
 **sixth** victim: `SkillEvasion`'s per-bucket merge is unmerged only by
 `handle_buff_expire`, so a dropped buff made the dodge permanent.
+
+#### Sub-slice 5 ✅ — buff slots and self-dispel
+
+Two effects, both with an existing consumer to hook into:
+
+- **`EnlargeAbnormalSlot`** (Divine Inspiration 1405, +1..+6) raises the
+  **good-buff** slot cap and only that pool — Java's `setMaxBuffCount` is read
+  by `EffectList` for buffs, never for dances. Modelled as a `Stat`
+  (`MaxBuffSlots`) rather than Java's setter **on purpose**: `apply_buff`
+  rebuilds `StatModifiers` from the surviving buffs on every change, so the
+  bonus is *derived* and cannot drift the way an add/subtract pair can when a
+  buff leaves by an unexpected path. It also reads `<slots>`, not `<amount>`,
+  so the generic registry could not have taken it.
+- **`DispelBySlotMyself`** (Flames of Invincibility 1427) strips the bearer's
+  own buffs of the listed abnormal types, with two differences from
+  `DispelBySlot` that both matter: the list carries **no levels**, and an
+  **`irreplacableBuff` is spared** — the same tag S3 folded into
+  `stay_after_death`.
+
+Census: effect names **190 → 188**, learnable-affected **49 → 47**, headline
+**51 → 49**. Sabotage-verified both.
 
 #### Remaining sub-slices ⏳
 

@@ -1773,6 +1773,37 @@ fn build_skill(
                             static_chance: value_at(params, "staticChance", level)
                                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
                         }],
+                        // `EnlargeAbnormalSlot` reads `<slots>`, not the
+                        // `<amount>` the generic registry expects, so it needs
+                        // its own arm to become a stat modifier.
+                        "EnlargeAbnormalSlot" => value_at(params, "slots", level)
+                            .and_then(|v| v.parse::<f64>().ok())
+                            .map(|slots| {
+                                vec![SkillEffect::StatModifier(StatModifierEffect {
+                                    stat: Stat::MaxBuffSlots,
+                                    mode: StatModifierType::Diff,
+                                    amount: slots,
+                                    armor_condition: 0,
+                                    weapon_condition: 0,
+                                    qualifier: None,
+                                    two_handed: false,
+                                })]
+                            })
+                            .unwrap_or_default(),
+                        // `DispelBySlotMyself` — `<dispel>` is a `;`-separated
+                        // list of abnormal *types* with no levels, unlike
+                        // `DispelBySlot`'s `TYPE=level` pairs.
+                        "DispelBySlotMyself" => value_at(params, "dispel", level)
+                            .map(|d| {
+                                vec![SkillEffect::DispelBySlotMyself {
+                                    dispel: d
+                                        .split(';')
+                                        .map(|t| t.trim().to_string())
+                                        .filter(|t| !t.is_empty())
+                                        .collect(),
+                                }]
+                            })
+                            .unwrap_or_default(),
                         "TargetMe" => vec![SkillEffect::TargetMe],
                         "TargetMeProbability" => vec![SkillEffect::TargetMeProbability {
                             chance: param("chance").unwrap_or(100.0) as i32,
@@ -4343,8 +4374,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 190 name(s), 49 learnable
-    /// skill(s) affected, 1766 reachable.
+    /// the work list, worst first. Category totals: 188 name(s), 47 learnable
+    /// skill(s) affected, 1763 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4365,6 +4396,8 @@ mod coverage_census {
     /// → 190 at sub-slice 4: the mitigation/counter family — `AreaDamage`,
     /// `TransferDamageToSummon`, `CounterPhysicalSkill`, `SkillEvasion`,
     /// `SkillTurning`.
+    /// → 188 at sub-slice 5: `EnlargeAbnormalSlot` (the buff-slot cap) and
+    /// `DispelBySlotMyself` (which spares an `irreplacableBuff`).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("Bluff", 2),
@@ -4382,8 +4415,6 @@ mod coverage_census {
         ("ChameleonRest", 1),
         ("CubicMastery", 1),
         ("DeathLink", 1),
-        ("DispelBySlotMyself", 1),
-        ("EnlargeAbnormalSlot", 1),
         ("ImmobilePetBuff", 1),
         ("Lucky", 1),
         ("MpVampiricAttack", 1),
@@ -4475,7 +4506,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 190, 49, 1766),
+            ("effect", &gaps.effects, EFFECTS, 188, 47, 1763),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4527,7 +4558,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            51,
+            49,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

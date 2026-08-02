@@ -1644,8 +1644,16 @@ impl Player {
 
         // Slot count cap: drop the oldest same-pool buff until this one fits
         // (Java removes the oldest in-use buff of the exceeding category).
+        // `EnlargeAbnormalSlot` (Divine Inspiration 1405) raises the *good
+        // buff* cap only — Java's `setMaxBuffCount`, which `EffectList` reads
+        // for the buff pool and never for dances (G34 S4).
+        let bonus_slots = mods
+            .add
+            .get(&crate::model::stats::Stat::MaxBuffSlots)
+            .copied()
+            .unwrap_or(0.0) as i32;
         let cap = match buff.slot {
-            BuffSlot::Buff => Some(data.combat_caps.max_buff_count),
+            BuffSlot::Buff => Some(data.combat_caps.max_buff_count + bonus_slots),
             BuffSlot::Dance => Some(data.combat_caps.max_dance_count),
             BuffSlot::Uncapped => None,
         };
