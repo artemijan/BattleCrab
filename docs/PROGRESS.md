@@ -3857,7 +3857,12 @@ command bodies (G13.B) are next.
   - **EditChar breadth**: `//current_player`/`//character_info`/
     `//character_list`/`//show_characters`/`//find_character`/`//find_account`/
     `//edit_character`/`//changename`/`//set_pvp_flag`/`//partyinfo`/
-    `//remove_clan_penalty`.
+    `//remove_clan_penalty`. `//character_info <name>` (and `//current_player`)
+    now also **re-targets the GM** onto that character, as Java
+    `showCharacterInfo` does (2026-08-03): the port only rendered the html, so
+    picking a name off the `//show_characters` roster left the GM's target
+    untouched and every `charinfo.htm` button behind it (`Lv/Exp/Sp` first)
+    answered `INVALID_TARGET`.
   - **B2 items** (`items`): `//create_item`/`//give_item_target`/
     `//give_item_to_all`/`//create_coin`/`//itemcreate`/`//enchant` menus,
     `//destroy_items`/`//destroy_all_items` (+`destroyitems`/`destroyallitems`).
