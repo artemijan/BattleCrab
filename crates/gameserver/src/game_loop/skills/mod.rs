@@ -252,6 +252,19 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             &world.cfg.character,
             crate::game_loop::party::calculate_relation(world, v.p),
         ));
+        // Java `RequestAcquireSkill`: "If skill is expand type then sends
+        // packet" — 1368-1372 are the `EnlargeSlot` passives (Expand Dwarven
+        // Craft / Common Craft / Trade / Warehouse / Inventory). Each raises a
+        // capacity the client caches from `ExStorageMaxCount`, so without this
+        // resend the new slots only appear after a relog.
+        if (1368..=1372).contains(&skill_id) {
+            cs.send(crate::network::enter_world::ex_storage_max_count(
+                v.p.race,
+                v.p.is_gm(&world.data),
+                &world.cfg.character,
+                v.mods,
+            ));
+        }
     }
     // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding
     // the upgraded skill.

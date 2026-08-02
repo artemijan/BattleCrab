@@ -315,11 +315,7 @@ pub(crate) fn inventory_limit(world: &World, object_id: i32) -> i32 {
         return 0;
     };
     let cfg = &world.cfg.character;
-    let base = if player.is_gm(&world.data) {
-        cfg.inventory_max_gm
-    } else {
-        cfg.inventory_limit(player.race)
-    };
+    let base = cfg.inventory_limit_for(player.race, player.is_gm(&world.data));
     let Some(mods) = world.objects.get_component::<StatModifiers>(&object_id) else {
         return base;
     };

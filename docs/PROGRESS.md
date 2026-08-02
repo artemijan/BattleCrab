@@ -4130,6 +4130,47 @@ relog "fixed" it. Both causes were in the two packets a quest gain sends.
   sabotage-verified: change type 1 on the first pelt, 2 on a merge, and no bare
   `ExQuestItemList` on either the gain or the take.
 
+### Post-G33 — the Quest Items tab reported "N/0" ✅ (2026-08-02)
+
+The inventory's Quest Items tab showed the slot counter as `5/0`: the right
+count, no capacity. The value the client wants is `Character.ini`'s
+`MaximumSlotsForQuestItems` (100), and `ExStorageMaxCount` was already carrying
+it — **in the wrong field**.
+
+- **`_inventoryExtraSlots` must be written *after* `_inventoryQuestItems`.**
+  Stock L2J Mobius writes the belt bonus first, so the protocol-110 client reads
+  the quest-tab capacity out of the belt field. That field is 0 for every
+  character in this chronicle (no belt items exist, and the only
+  `Stat::InventoryNormal` contributor is a skill almost nobody has), so the
+  quest limit was invisible and the real 100 landed in a field the client
+  ignores. This is **an upstream bug, not a port bug** — the port was a faithful
+  copy. Both fields are swapped here and in the Java reference tree, which is
+  the ground truth this port follows; the two trailing `40`s and the packet
+  length are unchanged. Ordinary inventory capacity was never affected: it is
+  field 0, and `UserInfo`'s INVENTORY_LIMIT block carries it too.
+- **The extra-slots field now carries a real number** instead of a hard-coded 0
+  — Java's `getStat().getValue(Stat.INVENTORY_NORMAL, 0)`, i.e. the bonus
+  *alone* (field 0 already includes it in the total). Only `EnlargeSlot`'s
+  Expand Inventory (1372) feeds it on this dist.
+- **Every reported and enforced bag size now comes from one helper**,
+  `CharacterConfig::inventory_limit_for(race, is_gm)`, so raising a
+  `MaximumSlotsFor…` key in `Character.ini` moves all of them together. This
+  closed a real gap: `ExStorageMaxCount` and `UserInfo` both skipped Java's
+  `isGM()` branch and told a GM the plain race base, while `weight::
+  inventory_limit` (the enforcing side) honoured `MaximumSlotsForGMPlayer` —
+  the report and the enforcement disagreed for GMs.
+- **`RequestAcquireSkill` now resends the packet for skills 1368-1372**, Java's
+  "if skill is expand type then sends packet" — the `EnlargeSlot` passives
+  (Expand Dwarven Craft / Common Craft / Trade / Warehouse / Inventory). Without
+  it the client kept the capacity it cached at login and the bought slots only
+  appeared after a relog. (Java's other resend sites — subclass change,
+  `ClassChange`, and the equip path's `getInventoryLimit() != oldInvLimit` —
+  are `TODO(G34+)`: nothing on this dist changes those limits by those routes.)
+- `skills_tests::ex_storage_max_count_reports_the_configured_capacities` decodes
+  all 12 ints and pins the quest limit to field 8, the bonus to field 9, the GM
+  bag, and the Expand-Inventory total. Sabotage-verified: restoring the upstream
+  field order fails it with `left: 0, right: 100` — the exact symptom.
+
 ---
 
 ## Deferred TODOs (by system)

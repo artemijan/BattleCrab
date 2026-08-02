@@ -607,6 +607,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::ex_adena_inven_count(&bundle.inventory));
     session.send(ew::ex_storage_max_count(
         player.race,
+        player.is_gm(&world.data),
         &world.cfg.character,
         &bundle.stat_modifiers,
     ));
