@@ -1465,6 +1465,55 @@ fn admin_add_exp_sp_to_character_opens_menu() {
     );
 }
 
+/// Picking a name off the `//show_characters` roster leaves the GM *targeting*
+/// that character (Java `showCharacterInfo`'s `activeChar.setTarget(player)`),
+/// so the `charinfo.htm` buttons that follow — `Lv/Exp/Sp` first among them —
+/// act on him instead of answering INVALID_TARGET.
+#[test]
+fn admin_character_info_by_name_sets_target() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7311, 100);
+    let _victim_rx = ingame_player_access(&mut world, 2, 7312, 0);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&7312) {
+        p.level = 33;
+        p.exp = 555111;
+        p.sp = 4242;
+    }
+    drain(&mut gm_rx);
+
+    // The roster link — `admin_character_info P7312` — with nothing targeted.
+    on_packet(&mut world, 1, build_admin("character_info P7312"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&7311)
+            .and_then(|t| t.0),
+        Some(7312),
+        "the listed character becomes the GM's target"
+    );
+    drain(&mut gm_rx);
+
+    // The `Lv/Exp/Sp` button on charinfo.htm: no name argument, target only.
+    on_packet(&mut world, 1, build_admin("add_exp_sp_to_character"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        !pkts
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::INVALID_TARGET),
+        "no INVALID_TARGET after picking the character from the list"
+    );
+    let html = pkts
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("expsp.htm sent for the listed character");
+    assert!(
+        html.contains("555111") && html.contains("4242"),
+        "the menu carries the listed character's xp/sp, not the GM's"
+    );
+}
+
 /// `//add_exp_sp` with no player target is refused (Java `INVALID_TARGET`),
 /// not silently applied to the GM.
 #[test]

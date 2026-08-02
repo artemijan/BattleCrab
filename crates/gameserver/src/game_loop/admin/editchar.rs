@@ -96,11 +96,18 @@ pub(super) fn admin_character_info(
     args: &[&str],
     self_only: bool,
 ) {
-    let target = if self_only {
-        object_id
+    // Java `showCharacterInfo` reaches the player one of three ways, and the two
+    // that name him explicitly (`//current_player`, or a name coming from the
+    // char list / find-results links) also run `activeChar.setTarget(player)` —
+    // the `else` branch of `showCharacterInfo`. Every button on `charinfo.htm`
+    // (`Lv/Exp/Sp`, enchant, karma, …) then acts on that target, so the GM's
+    // pick from the list has to carry over. The third way — a bare
+    // `//character_info` describing the already-selected target — leaves it be.
+    let (target, retarget) = if self_only {
+        (object_id, true)
     } else if let Some(name) = args.first() {
         match find_online_player(world, name) {
-            Some(t) => t,
+            Some(t) => (t, true),
             None => {
                 send_sm(world, client_id, sm_ids::INVALID_TARGET);
                 return;
@@ -110,13 +117,16 @@ pub(super) fn admin_character_info(
         match current_target(world, object_id)
             .filter(|oid| world.objects.has_component::<Player>(oid))
         {
-            Some(t) => t,
+            Some(t) => (t, false),
             None => {
                 send_sm(world, client_id, sm_ids::INVALID_TARGET);
                 return;
             }
         }
     };
+    if retarget {
+        crate::game_loop::target::set_target(world, client_id, object_id, Some(target));
+    }
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
         return;
     };
