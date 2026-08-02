@@ -95,6 +95,17 @@ pub enum Stat {
     /// base landing chance. Fed by the `PhysicalAbnormalResist` /
     /// `MagicalAbnormalResist` effects, which have no reachable source on this
     /// dist (G34 S2).
+    /// Java `Stat.BREATH` — how long a swimmer can hold their breath, in ms,
+    /// against a base of 60 000 (`Player.startWaterTask`'s
+    /// `getValue(Stat.BREATH, 60000)`). Boost Breath (195) and Eva's Kiss
+    /// (1073) are the learnable sources; the Doom armour set adds 19 more.
+    Breath,
+    /// Java `Stat.WEIGHT_LIMIT` / `WEIGHT_PENALTY` — `Creature.getMaxLoad()`
+    /// (`getValue(WEIGHT_LIMIT, CON bonus × 69000 × config)`) and
+    /// `getBonusWeightPenalty()` (`getValue(WEIGHT_PENALTY, 1)`), the extra
+    /// penalty *bands* a skill grants before the overload steps bite.
+    WeightLimit,
+    WeightPenalty,
     AbnormalResistPhysical,
     AbnormalResistMagical,
     /// Java `Stat.RESIST_DISPEL_BUFF` ("cancelVuln") — the same shape for being

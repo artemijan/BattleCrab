@@ -111,6 +111,17 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // base landing chance (G34 S2, `game_loop::basic_property`). No learnable
     // source on this dist — 3 items each — but the consumer exists now, so the
     // registry entry is what makes those items real rather than inert.
+    // G34 S4 — `Breath` (Boost Breath 195, Eva's Kiss 1073 + 19 Doom-set item
+    // skills), consumed by `game_loop::water`'s breath gauge. Note the two
+    // modes read very differently against the 60 000 ms base: Eva's Kiss is
+    // `PER 400` (×5, five minutes), Boost Breath is `DIFF 180` (+0.18 s).
+    // The second looks like a datapack unit slip, but Java computes exactly
+    // that, so it is ported as written ([[l2r-port-behaviour-not-intent]]).
+    ("Breath", Stat::Breath),
+    // `WeightLimit` (Weight Limit 150, Quiver of Holding 418, Super Haste 7029)
+    // and `WeightPenalty` (Decrease Weight 1257, Master's Blessing 7049).
+    ("WeightLimit", Stat::WeightLimit),
+    ("WeightPenalty", Stat::WeightPenalty),
     ("PhysicalAbnormalResist", Stat::AbnormalResistPhysical),
     ("MagicalAbnormalResist", Stat::AbnormalResistMagical),
 ];
@@ -4283,8 +4294,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 205 name(s), 70 learnable
-    /// skill(s) affected, 1877 reachable.
+    /// the work list, worst first. Category totals: 202 name(s), 63 learnable
+    /// skill(s) affected, 1821 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4293,12 +4304,13 @@ mod coverage_census {
     /// 214 → 205 at G34 S3: the nine flag-only effects, five of them with a
     /// learnable source (`BuffBlock`, `PhysicalShieldAngleAll`, `Passive`,
     /// `BlockResurrection`, `BlockEscape`).
+    /// 205 → 202 at G34 S4's first sub-slice: `Breath`, `WeightLimit`,
+    /// `WeightPenalty` — each one a `Stat` **plus a consumer**, since a
+    /// registry line on its own only makes the census shrink.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
-        ("WeightLimit", 3),
         ("AreaDamage", 2),
         ("Bluff", 2),
-        ("Breath", 2),
         ("CounterPhysicalSkill", 2),
         ("CpHealPercent", 2),
         ("CriticalRatePositionBonus", 2),
@@ -4311,7 +4323,6 @@ mod coverage_census {
         ("SkillEvasion", 2),
         ("SkillMastery", 2),
         ("TargetMe", 2),
-        ("WeightPenalty", 2),
         ("Betray", 1),
         ("CallParty", 1),
         ("CallPc", 1),
@@ -4411,7 +4422,7 @@ mod coverage_census {
         );
 
         for (label, map, expected, names, learn_hit, reach_hit) in [
-            ("effect", &gaps.effects, EFFECTS, 205, 70, 1877),
+            ("effect", &gaps.effects, EFFECTS, 202, 63, 1821),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4457,7 +4468,7 @@ mod coverage_census {
         wrong.extend(affected(&gaps.conditions, &learn));
         assert_eq!(
             wrong.len(),
-            72,
+            65,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

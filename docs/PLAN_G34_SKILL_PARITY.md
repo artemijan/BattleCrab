@@ -1,7 +1,7 @@
 # PLAN_G34 — Skills, effects & abnormal-state parity (epic)
 
-**Status:** 🚧 **S0–S3 landed** (S0–S2 merged to `main`; S3 on
-`feat/g34-effect-flags`) · **Milestone:**
+**Status:** 🚧 **S0–S3 landed and merged; S4 in progress** (first sub-slice on
+`feat/g34-effect-sweep`) · **Milestone:**
 G34 (follows G33) · **Kind:** epic (9 slices, each a landable branch with its
 own gate + sabotage-verified regression test).
 
@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 130 | **205 unhandled** (1 877 reachable skills, **45 learnable names**) |
+| Effect handler names used by dist skills | **335** | 133 | **202 unhandled** (1 821 reachable skills, **46 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -546,31 +546,59 @@ as does reverting the three-tag fold.
 
 ---
 
-### S4 — The learnable-skill effect sweep (77 skills, 5 families)
+### S4 — The learnable-skill effect sweep 🚧 **in progress** (`feat/g34-effect-sweep`)
 
-- **S4a Defensive stances & counters** — `PhysicalShieldAngleAll`,
-  `CounterPhysicalSkill`, `SkillEvasion`, `SkillTurning`,
-  `TriggerSkillByDamage`, `TargetMeProbability`, `TransferDamageToSummon`,
-  `AreaDamage`.
-- **S4b Aggro & control** — `TargetMe`, `Bluff`, `Betray` (with S3's flag),
-  `Unsummon`, `CallSkill`, `DeathLink`, `HateAttack`, `BuffBlock`,
-  `TriggerSkillByMagicType`.
-- **S4c Noblesse / high-level utility** — `ResurrectionSpecial`, `LimitHp`,
-  `LimitCp`, `ReduceDropPenalty`, `EnlargeAbnormalSlot`, `RebalanceHP`,
-  `CallPc`, `CallParty`, `DispelBySlotMyself`, `BlockEscape`,
-  `BlockResurrection`.
-- **S4d Passives & masteries** — `SkillMastery`, `SkillMasteryRate`,
-  `PhysicalSkillPower`, `PhysicalSkillCriticalDamage`,
-  `CriticalRatePositionBonus`, `MpVampiricAttack`, `NightStatModify`,
-  `CubicMastery`, `SafeFallHeight`, `Lucky`, `Passive`, `PolearmSingleTarget`,
-  `PhysicalAttackHpLink`, the `Pvp*Bonus` pair.
-- **S4e Utility & sustain** — `OpenDoor`/`OpenChest`, `WeightLimit`/
-  `WeightPenalty`, `Breath`, `HpByLevel`, `CpHealPercent`, `ManaHealOverTime`,
-  `ChameleonRest`, `ImmobilePetBuff`.
+**The biggest remaining slice, and the one that cannot be done in bulk.** The
+49 effect names left with a learnable source split by Java superclass:
 
-**Method note:** several of these are "parsed but unconsumed stat" shapes — the
-stat exists, nothing reads it. Grep the consumer *before* declaring the effect
-done ([[l2r-skill-rate-stats]], [[l2r-regen-stat-pipeline]]).
+- **14 are plain `AbstractStat*Effect`** — one `Stat` and a mode, nothing else.
+- **35 are `AbstractEffect`** — real per-effect mechanics.
+
+The stat ones look like one registry line each. They are not: **none of their
+`Stat`s exists in this port**, so each needs a variant, a registry entry **and
+a consumer wired into the right formula**. Adding only the registry line makes
+the census shrink while the effect still does nothing — which is precisely what
+the harness warns against ("recognised ≠ correctly ported"). Every entry below
+therefore lands with its consumer, or not at all.
+
+#### Sub-slice 1 ✅ — `Breath`, `WeightLimit`, `WeightPenalty`
+
+Three stats whose consumers already existed in the port, so the work was
+wiring them and correcting what was there:
+
+- **`Breath`** (`Stat::Breath`, consumed by `water::breath_ms`). `water.rs`
+  hard-coded a 60 s gauge behind a comment stating that "no skill or item on
+  this dist declares" `Stat.BREATH`. **21 skills do** — Boost Breath (195) and
+  Eva's Kiss (1073) are learnable, plus 19 Doom-set item skills. Third
+  self-justifying deviation comment this epic has turned up.
+- **`WeightLimit`** (`weight::max_load`). The CON formula is the *base* Java's
+  `getValue(WEIGHT_LIMIT, …)` applies add/mul to; Weight Limit (150) is `PER
+  300`, i.e. ×4 capacity.
+- **`WeightPenalty`** (`weight::refresh_weight_penalty`). **The name lies** —
+  it reads like a penalty *band*, but every Java caller subtracts it from
+  `getCurrentLoad()`, and Decrease Weight (1257) grants 3000/6000/9000, which
+  are weight units. A first pass here implemented the band reading; the
+  datapack settled it.
+
+Census: effect names **205 → 202**, learnable-affected **70 → 63**, headline
+**72 → 65**. Regressions in `weight_tests`/`water_tests`, sabotage-verified —
+and the breath one needed a second assertion on `start_water_task`, because
+testing `breath_ms` alone left the call site free to keep reading the constant
+(the first draft survived its own sabotage).
+
+#### Remaining sub-slices ⏳
+
+- **Stat effects still needing a `Stat` + consumer:** `PhysicalSkillPower`,
+  `PhysicalSkillCriticalDamage`, `SkillMasteryRate`, `HateAttack`,
+  `CounterPhysicalSkill`, `TransferDamageToSummon`, `CubicMastery`,
+  `AreaDamage`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
+  `LimitHp`/`LimitCp` (whose `MAX_RECOVERABLE_*` is read only by Java's
+  vampiric-absorb cap — check that before wiring a heal clamp).
+- **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
+  stances & counters, aggro & control, noblesse utility, passives & masteries,
+  utility & sustain. Five of them also stamp flags S3 already defined and
+  gated — `Betray`, `Relax`, `ChameleonRest`, `ResurrectionSpecial`, `Disarm`.
+- `StatUp` (9 learnable) stays **out of scope** — Territory War content.
 
 ---
 
@@ -667,7 +695,7 @@ gap.
 | S1 condition engine ✅ | XL | S0 |
 | S2 basicProperty / BasicPropertyResist ✅ | M | S0 |
 | S3 EffectFlag breadth + lifecycle tags ✅ | L | S0 |
-| S4 learnable effect sweep (a–e) | XL | S0, S3 (for flag-backed effects) |
+| S4 learnable effect sweep (a–e) 🚧 | XL | S0, S3 (for flag-backed effects) |
 | S5 targeting/scope breadth | M | S0 |
 | S6 item/NPC effects | M | S0 |
 | S7 tag & formula tail | S | S0 |

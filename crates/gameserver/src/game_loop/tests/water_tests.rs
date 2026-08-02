@@ -281,3 +281,64 @@ fn a_long_swim_click_is_clamped_to_700_units() {
         "clamped to 700/3500 of the requested vector, z included"
     );
 }
+
+/// G34 S4 — `Stat.BREATH`. The port hard-coded 60 s behind a comment claiming
+/// no skill on this dist grants the stat; **21 do**, two of them learnable
+/// (Boost Breath 195, Eva's Kiss 1073), plus the 19 Doom-set item skills.
+///
+/// Both modes are asserted because they read so differently against the
+/// 60 000 ms base: Eva's Kiss is `PER 400` → ×5, five minutes; Boost Breath is
+/// `DIFF 180` → +0.18 s, which looks like a datapack unit slip but is exactly
+/// what Java computes.
+#[test]
+fn the_breath_stat_extends_the_gauge() {
+    use crate::model::stats::Stat;
+    let (mut world, ..) = test_world();
+    let oid = 6201;
+    let _rx = ingame_player_access(&mut world, 1, oid, 0);
+
+    assert_eq!(
+        crate::game_loop::water::breath_ms(&world, oid),
+        crate::game_loop::water::BREATH_BASE_MS,
+        "60 s unbuffed"
+    );
+
+    let mut mods = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&oid)
+        .cloned()
+        .expect("stat modifiers");
+    // Eva's Kiss level 2: `PER 600` → ×7.
+    mods.mul.insert(Stat::Breath, 7.0);
+    world.objects.add_components(&oid, mods.clone());
+    assert_eq!(
+        crate::game_loop::water::breath_ms(&world, oid),
+        420_000,
+        "a PER source multiplies the whole gauge"
+    );
+
+    // Boost Breath level 2: `DIFF 300`, applied before the multiplier as Java's
+    // `(base + add) × mul` does.
+    mods.add.insert(Stat::Breath, 300.0);
+    world.objects.add_components(&oid, mods);
+    assert_eq!(
+        crate::game_loop::water::breath_ms(&world, oid),
+        (60_000 + 300) * 7,
+        "add lands inside the multiply, not after it"
+    );
+
+    // …and the *drowning task* must use it. Asserting only `breath_ms` leaves
+    // the call site free to keep reading the old constant — the first draft of
+    // this test did exactly that and survived its own sabotage.
+    crate::game_loop::water::start_water_task(&mut world, oid);
+    let due = world
+        .objects
+        .get_component::<WaterTask>(&oid)
+        .expect("task armed")
+        .next_damage_tick;
+    assert_eq!(
+        due - world.tick,
+        ((60_000 + 300) * 7) / 100,
+        "the first drown tick is the buffed gauge, not the 60 s base"
+    );
+}
