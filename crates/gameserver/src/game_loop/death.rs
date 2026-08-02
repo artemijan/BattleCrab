@@ -2495,7 +2495,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     if let Some(cs) = client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid)) {
         cs.send(server_packets::action_failed());
     }
-    super::skills::cast::abort_cast_on_teleport(world, player_oid);
+    super::skills::cast::abort_cast_when_untargeted(world, player_oid);
     super::target::drop_target_notify(world, player_oid);
     let Some(heading) = world
         .objects
