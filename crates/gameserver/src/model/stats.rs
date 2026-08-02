@@ -114,6 +114,14 @@ pub enum Stat {
     /// damage-zone ticks: `multiplier = 1 + (value / 100)`. Iron Body (295)
     /// and Dance of Protection (311) grant it *negative* (−40 / −30), so the
     /// stat's name notwithstanding, the learnable sources are mitigation.
+    /// Java has no `Stat` for this — `EnlargeAbnormalSlot` calls
+    /// `setMaxBuffCount(getMaxBuffCount() + slots)` directly. Modelled as a
+    /// stat here **on purpose**: `apply_buff` rebuilds `StatModifiers` from the
+    /// surviving buffs on every change, so the bonus is *derived* rather than
+    /// accumulated and cannot drift the way an add/subtract pair can when a
+    /// buff is dropped by some other path. Divine Inspiration (1405) is the
+    /// learnable source (+1..+6 slots).
+    MaxBuffSlots,
     DamageZoneVuln,
     /// Java `Stat.TRANSFER_DAMAGE_SUMMON_PERCENT` — the share of incoming
     /// player damage redirected to a nearby servitor (Transfer Pain 1262).

@@ -1116,6 +1116,34 @@ pub(crate) fn apply_skill_effects(
             // added to the effect list — i.e. only if the debuff landed. It is
             // applied after `apply_continuous_effects` reports that, below.
             SkillEffect::DamOverTime { .. } => {}
+            // `DispelBySlotMyself.instant` — same shape as `DispelBySlot` with
+            // two differences that both matter: the list carries **no levels**
+            // (every level of a listed abnormal goes), and an
+            // **`irreplacableBuff` is spared**, which is what stops Flames of
+            // Invincibility from stripping the clan/transform buffs that
+            // `isStayAfterDeath()` also protects.
+            SkillEffect::DispelBySlotMyself { dispel } => {
+                let candidates: Vec<(i32, i32)> = world
+                    .objects
+                    .get_component::<Buffs>(&target_oid)
+                    .map(|buffs| buffs.0.iter().map(|b| (b.skill_id, b.skill_level)).collect())
+                    .unwrap_or_default();
+                let to_dispel: Vec<i32> = candidates
+                    .into_iter()
+                    .filter(|&(sid, slvl)| {
+                        world.data.skill_data.get(sid, slvl).is_some_and(|bs| {
+                            // `!info.getSkill().isIrreplacableBuff()` — the port
+                            // folds that tag into `stay_after_death` (G34 S3),
+                            // which is the same predicate Java's getter uses.
+                            !bs.stay_after_death && dispel.contains(&bs.abnormal_type)
+                        })
+                    })
+                    .map(|(sid, _)| sid)
+                    .collect();
+                for skill_id in to_dispel {
+                    handle_buff_expire(world, target_oid, skill_id);
+                }
+            }
             SkillEffect::DispelBySlot { dispel } => {
                 // Java `DispelBySlot.instant`: stop each active effect whose
                 // originating skill's `<abnormalType>` is in the dispel set and

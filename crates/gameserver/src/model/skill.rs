@@ -520,6 +520,13 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// `DispelBySlotMyself` — strip the bearer's own buffs of the listed
+    /// abnormal types (Flames of Invincibility 1427 clears `MAGICAL_STANCE`
+    /// before it lands). Two differences from `DispelBySlot`: the list carries
+    /// **no levels**, and an `irreplacableBuff` is **spared**.
+    DispelBySlotMyself {
+        dispel: Vec<String>,
+    },
     /// `SkillEvasion` — a flat % chance to dodge an incoming skill of a given
     /// `magicType` (Ultimate Evasion 111, Evasion 446; both `magicType 0`, the
     /// physical-skill bucket). Java keeps a **per-magicType map**, not a single
