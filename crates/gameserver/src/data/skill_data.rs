@@ -1727,6 +1727,17 @@ fn build_skill(
                         "Mute" => vec![SkillEffect::Mute],
                         "PhysicalMute" => vec![SkillEffect::PhysicalMute],
                         "DebuffBlock" => vec![SkillEffect::DebuffBlock],
+                        // G34 S3 — flag-only effects. Each maps to one
+                        // `effect_flag` bit; see `Skill::effect_flags`.
+                        "BuffBlock" => vec![SkillEffect::BuffBlock],
+                        "PhysicalShieldAngleAll" => vec![SkillEffect::PhysicalShieldAngleAll],
+                        "Passive" => vec![SkillEffect::Passive],
+                        "Untargetable" => vec![SkillEffect::Untargetable],
+                        "DisableTargeting" => vec![SkillEffect::DisableTargeting],
+                        "PhysicalAttackMute" => vec![SkillEffect::PhysicalAttackMute],
+                        "BlockResurrection" => vec![SkillEffect::BlockResurrection],
+                        "BlockEscape" => vec![SkillEffect::BlockEscape],
+                        "AbnormalShield" => vec![SkillEffect::AbnormalShield],
                         "BlockControl" => vec![SkillEffect::BlockControl],
                         "TargetCancel" => {
                             let chance = value_at(params, "chance", level)
@@ -2673,8 +2684,17 @@ fn build_skill(
             // Java `set.getBoolean("stayAfterDeath", false)`. The dist writes
             // both `true` and `True` for this tag and `Boolean.parseBoolean`
             // is case-insensitive, so compare loosely.
-            stay_after_death: value_at(values, "stayAfterDeath", level)
-                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+            // Java `isStayAfterDeath()` is `_stayAfterDeath || _irreplacableBuff
+            // || _isNecessaryToggle` — one getter over three tags, so all three
+            // are folded here (G34 S3). `irreplacableBuff` alone is on 30
+            // learnable skills (the clan/pledge buffs and the noblesse line);
+            // reading only `<stayAfterDeath>` stripped every one of them on
+            // death.
+            stay_after_death: ["stayAfterDeath", "irreplacableBuff", "isNecessaryToggle"]
+                .iter()
+                .any(|tag| {
+                    value_at(values, tag, level).is_some_and(|v| v.eq_ignore_ascii_case("true"))
+                }),
             // Java `set.getBoolean("removedOnDamage", false)` — same loose
             // compare as above, the dist writes `true` and `True` both.
             removed_on_damage: value_at(values, "removedOnDamage", level)
@@ -4263,13 +4283,16 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 214 name(s), 77 learnable
-    /// skill(s) affected, 1900 reachable.
+    /// the work list, worst first. Category totals: 205 name(s), 70 learnable
+    /// skill(s) affected, 1877 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
     /// consumer. Neither has a learnable source, so the *learnable* count is
     /// unchanged — which is the shape to expect from the item-only tail.
+    /// 214 → 205 at G34 S3: the nine flag-only effects, five of them with a
+    /// learnable source (`BuffBlock`, `PhysicalShieldAngleAll`, `Passive`,
+    /// `BlockResurrection`, `BlockEscape`).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("WeightLimit", 3),
@@ -4283,8 +4306,6 @@ mod coverage_census {
         ("LimitCp", 2),
         ("LimitHp", 2),
         ("ManaHealOverTime", 2),
-        ("Passive", 2),
-        ("PhysicalShieldAngleAll", 2),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
         ("SkillEvasion", 2),
@@ -4292,9 +4313,6 @@ mod coverage_census {
         ("TargetMe", 2),
         ("WeightPenalty", 2),
         ("Betray", 1),
-        ("BlockEscape", 1),
-        ("BlockResurrection", 1),
-        ("BuffBlock", 1),
         ("CallParty", 1),
         ("CallPc", 1),
         ("ChameleonRest", 1),
@@ -4393,7 +4411,7 @@ mod coverage_census {
         );
 
         for (label, map, expected, names, learn_hit, reach_hit) in [
-            ("effect", &gaps.effects, EFFECTS, 214, 77, 1900),
+            ("effect", &gaps.effects, EFFECTS, 205, 70, 1877),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4439,7 +4457,7 @@ mod coverage_census {
         wrong.extend(affected(&gaps.conditions, &learn));
         assert_eq!(
             wrong.len(),
-            79,
+            72,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

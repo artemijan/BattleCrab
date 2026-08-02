@@ -497,7 +497,11 @@ fn think_active(world: &mut World, npc_oid: i32) {
         (
             t.map(|t| t.is_monster() && t.is_aggressive && t.aggro_range > 0)
                 .unwrap_or(false)
-                && !champion_passive,
+                && !champion_passive
+                // Java `Monster.isAggressive()`'s second term: a monster under
+                // the `PASSIVE` flag (Veil 106, Requiem 1049) stops aggroing
+                // whatever its template says (G34 S3).
+                && !super::abnormal::is_pacified(world, npc_oid),
             t.map(|t| t.aggro_range).unwrap_or(0),
         )
     };
