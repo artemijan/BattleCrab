@@ -1348,7 +1348,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0 + S1 landed**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0 + S1 + S2 landed**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1368,10 +1368,11 @@ to 1 and the headline from **275 → 79**.
 Nine slices: a coverage-census test + fail-loud parse warnings (nothing else is
 measurable without it); the **skill-condition engine** (largest single hole and
 the only slice needing a new subsystem — `EquipWeapon` alone gates 89 learnable
-skills); `<basicProperty>` and the **`BasicPropertyResist` mesmerizing-debuff
-chain** (1.0/0.6/0.3/0 over a 15 s window — live for every NPC/pet/servitor
-here, off for players since `SIXTH_CLASS_GROUP` is empty, and currently absent
-behind a `formulas.rs` comment that justifies it on a false premise); the
+skills); **S2 landed** `<basicProperty>` and the **`BasicPropertyResist`
+mesmerizing-debuff chain** (1.0/0.6/0.3/0 over a 15 s window, multiplied *after*
+the clamp so level 3 is a hard immunity — live for every NPC/pet/servitor, off
+for players since `SIXTH_CLASS_GROUP` is empty, and previously absent behind a
+`formulas.rs` comment that justified it on a false premise); the
 remaining `EffectFlag`s plus the buff-lifecycle tags (`removedOnDamage` landed
 separately at `e58c7f64`); the learnable-skill effect sweep (Aegis,
 Bluff, Betray, Erase, Anchor, Spell Turning, Balance Life, Salvation, Summon

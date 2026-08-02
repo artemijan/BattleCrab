@@ -42,6 +42,7 @@ mod attribute_tests;
 mod auto_play_tests;
 mod auto_potions_tests;
 mod baium_tests;
+mod basic_property_tests;
 mod boats_tests;
 mod boss_respawn_tests;
 mod boss_zone_tests;
@@ -526,6 +527,7 @@ fn cast_test_world() -> (
     data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![template]);
 
     let base = Skill {
+        basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
@@ -1447,6 +1449,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
@@ -1525,6 +1528,7 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),

@@ -1,7 +1,7 @@
 # PLAN_G34 — Skills, effects & abnormal-state parity (epic)
 
-**Status:** 🚧 **S0 + S1 landed** (branches `feat/g34-skill-census`,
-`feat/g34-skill-conditions`) · **Milestone:**
+**Status:** 🚧 **S0 + S1 + S2 landed** (S0/S1 merged to `main`; S2 on
+`feat/g34-basic-property`) · **Milestone:**
 G34 (follows G33) · **Kind:** epic (9 slices, each a landable branch with its
 own gate + sabotage-verified regression test).
 
@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 119 | **216 unhandled** (1 902 reachable skills, **54 learnable names**) |
+| Effect handler names used by dist skills | **335** | 121 | **214 unhandled** (1 900 reachable skills, **54 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 15 | **23 missing** |
@@ -433,27 +433,53 @@ nothing. Regressions in `skill_condition_tests`, sabotage-verified (disabling
 
 ---
 
-### S2 — `basicProperty` + `BasicPropertyResist` (mesmerizing-debuff chain)
+### S2 — `basicProperty` + `BasicPropertyResist` ✅ **DONE** (`feat/g34-basic-property`)
 
-Parse `<basicProperty>` (`NONE`/`PHYSICAL`/`MAGIC`) onto `Skill`. Add a
-per-creature two-slot resist record (level + expiry tick, 15 s window) as an ECS
-component; bump it in the debuff-landed path exactly where
-`Skill.applyEffects` does; read it in `calc_effect_land_rate` as Java's
-`basicPropertyResist` multiplier (`1.0/0.6/0.3/0` — note **0 means the debuff
-cannot land at all**, and it multiplies the already-clamped rate, so it can push
-below the 10 floor). Gate on `hasBasicPropertyResist()`: true for
-NPC/monster/pet/servitor, **false for players** (`SIXTH_CLASS_GROUP` is empty
-here) — get this backwards and PvP silently changes.
+Retail's PvE stun-lock resistance, which the port did not have — and which a
+comment in `formulas.rs` had written off on a false premise.
 
-Also port `getAbnormalResist` properly: the `ABNORMAL_RESIST_PHYSICAL/MAGICAL`
-stats and the `PhysicalAbnormalResist`/`MagicalAbnormalResist` effects that feed
-them (cheap once the stat exists).
+`<basicProperty>` (390 learnable skills) now parses onto `Skill`, and
+`game_loop::basic_property` implements **both** terms
+`Formulas.calcEffectSuccess` reads off it, which the old comment had conflated
+into one:
 
-**Delete the false comment in `formulas.rs` and replace it with the corrected
-account.**
+| Java | what it is | where it enters |
+|---|---|---|
+| `getAbnormalResist` | the `ABNORMAL_RESIST_PHYSICAL/_MAGICAL` **stat** | **subtracted inside `baseMod`** — still subject to the 10–90 clamp |
+| `getBasicPropertyResistBonus` | the **accrual chain**, earned by being debuffed | **multiplied after the clamp** — so it can reach 0 |
 
-**Gate:** stun a mob 4× in a row — 2nd lands at 0.6×, 3rd at 0.3×, 4th cannot
-land; wait 16 s and the chain resets. A player takes 4 stuns at full rate.
+That second row is the whole mechanic: every landed debuff with a non-`NONE`
+property bumps a per-target counter, worth **1.0 / 0.6 / 0.3 / 0** at level
+0/1/2/3+, decaying **15 s after the last one landed**. Level 3 is a hard
+immunity precisely because Java multiplies it in *after* `constrain(rate, min,
+max)` — port it before the clamp and a chain-stunned mob keeps taking a 10 %
+stun forever.
+
+Details that matter:
+
+- **Accrual is on the landed path only.** Java's call sits inside
+  `applyEffects`' `if (addContinuousEffects)` branch, past `calcEffectSuccess`,
+  so a debuff you keep *failing* to land never builds the resistance that would
+  lock you out of it. An expired chain restarts at 1, not where it left off.
+- **Mobs accrue; players do not.** `Creature.hasBasicPropertyResist()` is
+  unconditionally `true`, but `Player` overrides it to
+  `isInCategory(SIXTH_CLASS_GROUP)` — awakened classes only, so empty in
+  Interlude. PvE gets stun-lock resistance, PvP chain-CC is untouched. Getting
+  this backwards silently rewrites PvP, so it is asserted directly.
+- Expiry is checked **on read**, never swept — Java's own `isExpired()` inside
+  `getResistLevel`. No scheduler entry, no cleanup pass.
+- `PhysicalAbnormalResist`/`MagicalAbnormalResist` (plain
+  `AbstractStatAddEffect`s) joined `EFFECT_REGISTRY` now that the stat has a
+  consumer: **effect names 216 → 214**. Neither has a learnable source, so the
+  learnable count is unchanged — the shape to expect from the item-only tail.
+
+**Gate met:** stun a mob repeatedly — the 2nd lands at 0.6×, the 3rd at 0.3×,
+the 4th cannot land at all; 16 s later the chain is gone. A player takes all
+four at full rate. Regressions in `basic_property_tests` (ladder, decay window,
+the mob/player asymmetry, both formula insertion points, and an end-to-end real-
+dist Stun Attack), **sabotage-verified twice**: disabling the accrual fails the
+end-to-end test, and moving the chain term to *before* the clamp — the subtle
+wrong port — fails the formula test.
 
 ---
 
@@ -599,7 +625,7 @@ gap.
 |---|---|---|
 | S0 harness ✅ | S | — |
 | S1 condition engine ✅ | XL | S0 |
-| S2 basicProperty / BasicPropertyResist | M | S0 |
+| S2 basicProperty / BasicPropertyResist ✅ | M | S0 |
 | S3 EffectFlag breadth + lifecycle tags | L | S0 |
 | S4 learnable effect sweep (a–e) | XL | S0, S3 (for flag-backed effects) |
 | S5 targeting/scope breadth | M | S0 |

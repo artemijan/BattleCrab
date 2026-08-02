@@ -90,6 +90,13 @@ pub enum Stat {
     /// `buffDebuffMod`). Below 1 = resistant (Guts `amount=-50` → ×0.5), above
     /// 1 = vulnerable (Touch of Death `amount=+30` → ×1.3).
     ResistAbnormalDebuff,
+    /// Java `Stat.ABNORMAL_RESIST_PHYSICAL` / `_MAGICAL` — read by
+    /// `Formulas.getAbnormalResist` and subtracted from a mesmerizing debuff's
+    /// base landing chance. Fed by the `PhysicalAbnormalResist` /
+    /// `MagicalAbnormalResist` effects, which have no reachable source on this
+    /// dist (G34 S2).
+    AbnormalResistPhysical,
+    AbnormalResistMagical,
     /// Java `Stat.RESIST_DISPEL_BUFF` ("cancelVuln") — the same shape for being
     /// *dispelled*: Ultimate Defense (`amount=-80`) makes its buffs ×0.2 as
     /// likely to be cancelled.
