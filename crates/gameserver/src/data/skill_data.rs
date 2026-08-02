@@ -117,6 +117,20 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // `PER 400` (×5, five minutes), Boost Breath is `DIFF 180` (+0.18 s).
     // The second looks like a datapack unit slip, but Java computes exactly
     // that, so it is ported as written ([[l2r-port-behaviour-not-intent]]).
+    // G34 S4 sub-slice 2 — the skill-damage multipliers. Each is consumed
+    // where Java reads it: the two `*SkillPower`s multiply a skill's finished
+    // damage, the crit pair replaces the flat 2.0 in `crit_damage_skill`'s
+    // physical branch.
+    ("PhysicalSkillPower", Stat::PhysicalSkillPower),
+    ("MagicalSkillPower", Stat::MagicalSkillPower),
+    (
+        "PhysicalSkillCriticalDamage",
+        Stat::PhysicalSkillCriticalDamage,
+    ),
+    (
+        "DefencePhysicalSkillCriticalDamage",
+        Stat::DefencePhysicalSkillCriticalDamage,
+    ),
     ("Breath", Stat::Breath),
     // `WeightLimit` (Weight Limit 150, Quiver of Holding 418, Super Haste 7029)
     // and `WeightPenalty` (Decrease Weight 1257, Master's Blessing 7049).
@@ -4294,8 +4308,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 202 name(s), 63 learnable
-    /// skill(s) affected, 1821 reachable.
+    /// the work list, worst first. Category totals: 199 name(s), 62 learnable
+    /// skill(s) affected, 1809 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4307,6 +4321,9 @@ mod coverage_census {
     /// 205 → 202 at G34 S4's first sub-slice: `Breath`, `WeightLimit`,
     /// `WeightPenalty` — each one a `Stat` **plus a consumer**, since a
     /// registry line on its own only makes the census shrink.
+    /// 202 → 199 at sub-slice 2: `PhysicalSkillPower`, `MagicalSkillPower`,
+    /// `PhysicalSkillCriticalDamage` (+ its defence twin), all wired into the
+    /// damage paths Java reads them from.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("AreaDamage", 2),
@@ -4339,8 +4356,6 @@ mod coverage_census {
         ("OpenChest", 1),
         ("OpenDoor", 1),
         ("PhysicalAttackHpLink", 1),
-        ("PhysicalSkillCriticalDamage", 1),
-        ("PhysicalSkillPower", 1),
         ("PolearmSingleTarget", 1),
         ("PvpMagicalSkillDamageBonus", 1),
         ("PvpPhysicalAttackDamageBonus", 1),
@@ -4422,7 +4437,7 @@ mod coverage_census {
         );
 
         for (label, map, expected, names, learn_hit, reach_hit) in [
-            ("effect", &gaps.effects, EFFECTS, 202, 63, 1821),
+            ("effect", &gaps.effects, EFFECTS, 199, 62, 1809),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4468,7 +4483,7 @@ mod coverage_census {
         wrong.extend(affected(&gaps.conditions, &learn));
         assert_eq!(
             wrong.len(),
-            65,
+            64,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 133 | **202 unhandled** (1 821 reachable skills, **46 learnable names**) |
+| Effect handler names used by dist skills | **335** | 136 | **199 unhandled** (1 809 reachable skills, **45 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -586,10 +586,36 @@ and the breath one needed a second assertion on `start_water_task`, because
 testing `breath_ms` alone left the call site free to keep reading the constant
 (the first draft survived its own sabotage).
 
+#### Sub-slice 2 ✅ — the skill-damage multipliers
+
+Four stats on the damage paths, all previously pinned at identity:
+
+- **`PhysicalSkillPower` / `MagicalSkillPower`** — the last multiplier a
+  skill's damage passes through. Java applies the physical one from each
+  `PhysicalAttack`-family *effect handler*, but the magical one from **inside
+  `calcMagicDam`**, so every caller of that function gets it — `HpDrain`
+  included, even though its own handler never mentions the stat. Both damage
+  paths wired for that reason. Focus Skill Mastery (334) is the learnable
+  source.
+- **`PhysicalSkillCriticalDamage` + `DefencePhysicalSkillCriticalDamage`** —
+  `Formulas.calcCritDamage` reads the *skill* crit stats when a skill is
+  involved, not `CRITICAL_DAMAGE`. The port's physical branch was a flat
+  `2.0`, i.e. both stats pinned at 1, so Heroic Berserker (396) did nothing.
+  `balanceMod` stays 1: its `Config.PV*_*_CRITICAL_DAMAGE_MULTIPLIERS` tables
+  are per-class, default `1f`, and this dist sets none.
+
+Census: effect names **202 → 199**, learnable-affected **63 → 62**, headline
+**65 → 64**. Sabotage-verified both.
+
+**Fixture trap hit here:** the skill-power test first ran against the standard
+fixture mob's 100 HP, so the doubled hit was clamped to "everything it had
+left" and read as ×1.1. Damage-multiplier tests need a pool deeper than the
+biggest hit under test.
+
 #### Remaining sub-slices ⏳
 
-- **Stat effects still needing a `Stat` + consumer:** `PhysicalSkillPower`,
-  `PhysicalSkillCriticalDamage`, `SkillMasteryRate`, `HateAttack`,
+- **Stat effects still needing a `Stat` + consumer:** `SkillMasteryRate`,
+  `HateAttack`,
   `CounterPhysicalSkill`, `TransferDamageToSummon`, `CubicMastery`,
   `AreaDamage`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
   `LimitHp`/`LimitCp` (whose `MAX_RECOVERABLE_*` is read only by Java's

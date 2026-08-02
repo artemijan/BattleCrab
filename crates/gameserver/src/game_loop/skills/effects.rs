@@ -16,6 +16,29 @@ use crate::world::World;
 /// The `callSkill` → `activateSkill` → effect-handler chain for the effect
 /// kinds ported so far. Continuous stat modifiers land as an `ActiveBuff` on
 /// the target; `MagicalAttack`/`Heal` are instant.
+/// Java's `damage *= getValue(Stat.PHYSICAL_SKILL_POWER, 1)` /
+/// `MAGICAL_SKILL_POWER` — the last multiplier a skill's damage passes
+/// through. The physical one is applied by every `PhysicalAttack`-family
+/// *effect handler* rather than by the shared formula, and the magical one
+/// inside `calcMagicDam`; both land at the same point in the arithmetic, so
+/// they share this reader (G34 S4).
+fn skill_power_mul(world: &World, caster_oid: i32, magic: bool) -> f64 {
+    use crate::model::stats::Stat;
+    let stat = if magic {
+        Stat::MagicalSkillPower
+    } else {
+        Stat::PhysicalSkillPower
+    };
+    world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&caster_oid)
+        .map(|m| {
+            (1.0 + m.add.get(&stat).copied().unwrap_or(0.0))
+                * m.mul.get(&stat).copied().unwrap_or(1.0)
+        })
+        .unwrap_or(1.0)
+}
+
 pub(crate) fn apply_skill_effects(
     world: &mut World,
     caster_oid: i32,
@@ -190,7 +213,10 @@ pub(crate) fn apply_skill_effects(
                     magic_shots_bonus,
                     failure,
                 ) * attribute_mod(world, caster_oid, target_oid, skill)
-                    * skill_trait_mod(world, caster_oid, target_oid, skill, false);
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false)
+                    // `calcMagicDam`'s own tail:
+                    // `damage *= getValue(Stat.MAGICAL_SKILL_POWER, 1)`.
+                    * skill_power_mul(world, caster_oid, true);
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
@@ -446,6 +472,7 @@ pub(crate) fn apply_skill_effects(
                             ranged,
                         ) * attribute_mod(world, caster_oid, target_oid, skill)
                             * skill_trait_mod(world, caster_oid, target_oid, skill, true)
+                            * skill_power_mul(world, caster_oid, false)
                     }
                 };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
@@ -664,7 +691,11 @@ pub(crate) fn apply_skill_effects(
                     magic_shots_bonus,
                     failure,
                 ) * attribute_mod(world, caster_oid, target_oid, skill)
-                    * skill_trait_mod(world, caster_oid, target_oid, skill, false);
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false)
+                    // `MAGICAL_SKILL_POWER` lives *inside* Java's `calcMagicDam`,
+                    // so every caller gets it — HpDrain included, even though
+                    // its own handler never mentions the stat.
+                    * skill_power_mul(world, caster_oid, true);
 
                 // `HpDrain.instant()`: the drained HP is what's actually removed
                 // — CP absorbs first (player targets only; NPCs have no CP),

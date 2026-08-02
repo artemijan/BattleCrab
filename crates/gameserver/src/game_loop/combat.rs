@@ -251,9 +251,6 @@ pub(crate) fn crit_damage_skill(
 ) -> f64 {
     use crate::model::components::StatModifiers;
     use crate::model::stats::Stat;
-    if !magic {
-        return 2.0;
-    }
     let mul_of = |oid: i32, s: Stat| {
         world
             .objects
@@ -261,8 +258,21 @@ pub(crate) fn crit_damage_skill(
             .and_then(|m| m.mul.get(&s).copied())
             .unwrap_or(1.0)
     };
-    2.0 * mul_of(attacker_oid, Stat::MagicCriticalDamage)
-        * mul_of(target_oid, Stat::DefenceMagicCriticalDamage)
+    // `Formulas.calcCritDamage`: with a skill involved the *skill* crit stats
+    // are read, not `CRITICAL_DAMAGE` — the magic pair for a magic skill, the
+    // physical-skill pair otherwise. The physical branch used to be a flat
+    // 2.0, i.e. both its stats pinned at identity (G34 S4).
+    // `balanceMod` stays 1: its `Config.PV*_*_CRITICAL_DAMAGE_MULTIPLIERS`
+    // tables are per-class and default to 1f, and this dist sets none of them.
+    let (attack_stat, defence_stat) = if magic {
+        (Stat::MagicCriticalDamage, Stat::DefenceMagicCriticalDamage)
+    } else {
+        (
+            Stat::PhysicalSkillCriticalDamage,
+            Stat::DefencePhysicalSkillCriticalDamage,
+        )
+    };
+    2.0 * mul_of(attacker_oid, attack_stat) * mul_of(target_oid, defence_stat)
 }
 
 /// The `StatByMoveType` contribution to evasion for whoever is being snapshot

@@ -99,6 +99,20 @@ pub enum Stat {
     /// against a base of 60 000 (`Player.startWaterTask`'s
     /// `getValue(Stat.BREATH, 60000)`). Boost Breath (195) and Eva's Kiss
     /// (1073) are the learnable sources; the Doom armour set adds 19 more.
+    /// Java `Stat.PHYSICAL_SKILL_POWER` / `MAGICAL_SKILL_POWER` — a flat
+    /// multiplier on a *skill's* damage, applied last. Java reads the physical
+    /// one from each `PhysicalAttack`-family effect handler
+    /// (`damage *= getValue(PHYSICAL_SKILL_POWER, 1)`) and the magical one
+    /// inside `calcMagicDam`. Focus Skill Mastery (334) is the learnable
+    /// source of the first; the second is item-only here.
+    PhysicalSkillPower,
+    MagicalSkillPower,
+    /// Java `Stat.PHYSICAL_SKILL_CRITICAL_DAMAGE` and its defence twin — the
+    /// crit multiplier for a *physical skill*, which `Formulas.calcCritDamage`
+    /// reads instead of `CRITICAL_DAMAGE` when a skill is involved. Heroic
+    /// Berserker (396) is the learnable source.
+    PhysicalSkillCriticalDamage,
+    DefencePhysicalSkillCriticalDamage,
     Breath,
     /// Java `Stat.WEIGHT_LIMIT` / `WEIGHT_PENALTY` — `Creature.getMaxLoad()`
     /// (`getValue(WEIGHT_LIMIT, CON bonus × 69000 × config)`) and
