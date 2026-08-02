@@ -713,6 +713,7 @@ pub(crate) fn player_combat_tick(world: &mut World) {
             Some(Intent(PlayerIntent::Attack { .. })) => player_attack_think(world, object_id),
             Some(Intent(PlayerIntent::Cast { .. })) => player_cast_think(world, object_id),
             Some(Intent(PlayerIntent::Interact { .. })) => player_interact_think(world, object_id),
+            Some(Intent(PlayerIntent::PickUp { .. })) => player_pickup_think(world, object_id),
             None => {}
         }
     }
@@ -807,6 +808,22 @@ fn player_attack_think(world: &mut World, object_id: i32) {
 /// target): walk to `range` + collision radii of it, re-pathed every 5 ticks
 /// (Java's 500 ms `CreatureFollowTaskManager.ATTACK_FOLLOW_WEIGHT` cadence).
 fn chase_target(world: &mut World, object_id: i32, target_object_id: i32, range: i32) {
+    let Some(target) = combatant(world, target_object_id) else {
+        return;
+    };
+    chase_pawn(world, object_id, target_object_id, &target, range);
+}
+
+/// `chase_target` with the pawn already resolved — the ground-item pickup path
+/// chases something that isn't a `Combatant` in the store (an item has no
+/// Vitals/Collision/CombatStats), so it synthesizes one and calls in here.
+fn chase_pawn(
+    world: &mut World,
+    object_id: i32,
+    target_object_id: i32,
+    target: &Combatant,
+    range: i32,
+) {
     if !world.tick.is_multiple_of(5) {
         // Keep walking on the current path between re-paths.
         if world.objects.has_component::<Movement>(&object_id) {
@@ -816,12 +833,8 @@ fn chase_target(world: &mut World, object_id: i32, target_object_id: i32, range:
     let Some(attacker) = combatant(world, object_id) else {
         return;
     };
-    let Some(target) = combatant(world, target_object_id) else {
-        return;
-    };
     let reach = range as f64 + attacker.collision_radius + target.collision_radius;
-    let Some((dest_x, dest_y, dest_z, heading)) = pawn_destination(&attacker, &target, reach)
-    else {
+    let Some((dest_x, dest_y, dest_z, heading)) = pawn_destination(&attacker, target, reach) else {
         return;
     };
 
@@ -1061,6 +1074,144 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     // branch reaches here (attackable targets chase via the attack loop, not
     // this walk-to-interact path), so the dontMove flag is moot.
     super::target::interact_with_npc(world, client_id, object_id, target_object_id, false);
+}
+
+/// `maybeMoveToPawn`'s offset for the pick-up/interact think loops — Java
+/// `PlayerAI.thinkPickUp` passes 36, on top of which `maybeMoveToPawn` adds the
+/// actor's collision radius (a ground item is not a `Creature`, so it
+/// contributes none of its own).
+const PICKUP_APPROACH_RANGE: i32 = 36;
+
+/// `CreatureAI.onIntentionPickUp` — the ground-item click. Java never picks up
+/// on the spot: the click only *sets* `AI_INTENTION_PICK_UP` and fires
+/// `moveToPawn(object, 20)`; the lift happens later in `thinkPickUp`, once
+/// `maybeMoveToPawn(target, 36)` reports the player has arrived.
+pub(crate) fn start_pickup_intent(world: &mut World, object_id: i32, item_object_id: i32) {
+    // `if (getIntention() == AI_INTENTION_REST) { clientActionFailed(); return; }`
+    // — loot stays on the floor until the player stands up.
+    if super::sit_stand::is_resting(world, object_id) {
+        if let Some(client_id) = client_for_player(world, object_id)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+    // `if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())` — same
+    // refusal, same bare ActionFailed.
+    if world.objects.has_component::<Casting>(&object_id) {
+        if let Some(client_id) = client_for_player(world, object_id)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+    // `changeIntention(AI_INTENTION_PICK_UP, object)` replaces whatever was
+    // running, so an attack loop in progress ends here. (Java's preceding
+    // `clientStopAutoAttack()` sends nothing for a player — it only tops up the
+    // attack-stance task — so there is no packet to port.)
+    world
+        .objects
+        .add_components(&object_id, Intent(PlayerIntent::PickUp { item_object_id }));
+    // Java's `moveToPawn(object, 20)` fires from the intention itself; thinking
+    // once synchronously reaches the same place via `thinkPickUp`, and also
+    // lifts the item immediately when the player already stands on it.
+    player_pickup_think(world, object_id);
+}
+
+/// `PlayerAI.thinkPickUp`: chase to `maybeMoveToPawn(target, 36)` range, then
+/// `setIntention(AI_INTENTION_IDLE)` + `Player.doPickupItem`.
+fn player_pickup_think(world: &mut World, object_id: i32) {
+    let Some(Intent(PlayerIntent::PickUp { item_object_id })) =
+        world.objects.get_component::<Intent>(&object_id).copied()
+    else {
+        return;
+    };
+    // `Player.doPickupItem`'s `isAlikeDead()` guard plus thinkPickUp's own
+    // `isAllSkillsDisabled() || isCastingNow()` bail (which does *not* drop the
+    // intention — the walk resumes once the cast ends).
+    if world
+        .objects
+        .get_component::<Vitals>(&object_id)
+        .is_none_or(|v| v.dead)
+        || world.objects.has_component::<Casting>(&object_id)
+    {
+        return;
+    }
+    // `checkTargetLost` — someone else got there first, or it decayed.
+    let (Some(item_pos), true) = (
+        world
+            .objects
+            .get_component::<Position>(&item_object_id)
+            .copied(),
+        world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&item_object_id),
+    ) else {
+        world.objects.remove_component::<Intent>(&object_id);
+        return;
+    };
+    let Some(picker) = combatant(world, object_id) else {
+        return;
+    };
+    // The item is a plain `WorldObject`, so `maybeMoveToPawn` adds only the
+    // picker's collision radius to the 36-unit offset.
+    let item = stationary_pawn(item_pos);
+    let reach = PICKUP_APPROACH_RANGE as f64 + picker.collision_radius;
+    if distance_2d(&picker, &item) > reach {
+        chase_pawn(
+            world,
+            object_id,
+            item_object_id,
+            &item,
+            PICKUP_APPROACH_RANGE,
+        );
+        return;
+    }
+    // Arrived: `setIntention(AI_INTENTION_IDLE)` then `doPickupItem`, which
+    // itself sends the `StopMove` that ends the walk client-side.
+    world.objects.remove_component::<Intent>(&object_id);
+    if world.objects.has_component::<Movement>(&object_id) {
+        world.objects.remove_component::<Movement>(&object_id);
+        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+            broadcast_including_self(
+                world,
+                object_id,
+                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
+            );
+        }
+    }
+    let Some(client_id) = client_for_player(world, object_id) else {
+        return;
+    };
+    super::ground_items::pickup_ground_item(world, client_id, object_id, item_object_id);
+}
+
+/// A zero-extent `Combatant` standing at a point — lets the shared chase/reach
+/// geometry (`distance_2d`/`pawn_destination`/`chase_pawn`) run against a plain
+/// `WorldObject` such as a ground item, which carries none of the combat
+/// components. Every stat field is inert; only the coordinates are read.
+pub(crate) fn stationary_pawn(pos: Position) -> Combatant {
+    Combatant {
+        x: pos.x,
+        y: pos.y,
+        z: pos.z,
+        heading: pos.heading,
+        collision_radius: 0.0,
+        dead: false,
+        p_atk: 0.0,
+        p_def: 0.0,
+        crit_stat: 0.0,
+        accuracy: 0,
+        evasion: 0,
+        p_atk_spd: 0,
+        random_dmg: 0,
+        atk_range: 0,
+        shield_def: 0.0,
+        shield_rate: 0.0,
+        con_bonus: 1.0,
+    }
 }
 
 // ---------------------------------------------------------------------------

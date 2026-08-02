@@ -171,9 +171,23 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         .objects
         .has_component::<crate::model::components::GroundItem>(&pkt.object_id)
     {
-        // `Item.onAction` → `Player.doPickupItem`: pick it straight up (the
-        // walk-to-item approach path is a simplification).
-        super::ground_items::pickup_ground_item(world, client_id, object_id, pkt.object_id);
+        // `handlers.actionhandlers.ItemAction`: `if (!player.isFlying())
+        // player.getAI().setIntention(AI_INTENTION_PICK_UP, target)`. The click
+        // does *not* pick the item up — it starts a walk to it, and
+        // `PlayerAI.thinkPickUp` lifts it once inside `maybeMoveToPawn(target,
+        // 36)`. A wyvern rider gets nothing at all (no ActionFailed either;
+        // the handler returns `true` having done nothing).
+        // TODO(G24): `ItemAction` first refuses mercenary-ticket items during a
+        // siege for anyone without `CS_MERCENARIES` in the owning clan
+        // (`SiegeGuardManager.getSiegeGuardByItem`) — mercenary tickets aren't
+        // modelled yet.
+        if !world
+            .objects
+            .get_component::<crate::model::Player>(&object_id)
+            .is_some_and(crate::model::Player::is_flying)
+        {
+            super::combat::start_pickup_intent(world, object_id, pkt.object_id);
+        }
     } else if world
         .objects
         .get_component::<crate::model::components::AdminFlags>(&pkt.object_id)

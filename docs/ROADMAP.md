@@ -120,7 +120,9 @@ unused in the ported set). **G14 done.**
 ### G15 — Economy & item actions ✅ COMPLETE (gate verified 2026-07-31)
 🚧 **In progress.** ✅ `RequestDestroyItem` (0x60). ✅ **Ground items** — a
 `GroundItem` world-object kind (`World.ground_item_regions`), `SpawnItem`/
-`DropItem`/`GetItem` packets, `RequestDropItem` (0x17), pickup via `Action`,
+`DropItem`/`GetItem` packets, `RequestDropItem` (0x17), pickup via `Action`
+(`AI_INTENTION_PICK_UP` — the click walks the character to the item and
+`thinkPickUp` lifts it on arrival, never at range),
 visibility on enter + region-change deltas, the **auto-loot=false** death path
 drops onto the ground, and **decay** (`ItemsOnGroundManager`, 600 s lifetime).
 ✅ **Personal warehouse** — a `Warehouse` container (newtype over `Inventory`,
