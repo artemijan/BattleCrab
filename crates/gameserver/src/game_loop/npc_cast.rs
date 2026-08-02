@@ -352,6 +352,10 @@ pub(crate) fn resolve_npc_cast_target(
         // falls through to null there, so NPC GROUND skills are inert in Java
         // too.
         TargetType::Ground => return None,
+        // `DoorTreasure.java` reads `creature.getTarget()` and accepts only a
+        // door or a chest. No NPC on this dist casts Unlock, and an NPC has no
+        // reason to pick a lock, so this is inert on both sides.
+        TargetType::DoorTreasure => return None,
         // `Summon.java`: the caster's own servitor.
         TargetType::Summon => super::servitor::servitor_of(world, npc_oid)?,
         // `Target.java`: any creature, self included (self returns early and

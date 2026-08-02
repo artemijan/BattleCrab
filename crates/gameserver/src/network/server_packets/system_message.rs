@@ -730,6 +730,9 @@ pub mod sm_ids {
     pub const THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED: i16 = 1434;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_HAS_BEEN_DEACTIVATED: i16 = 1435;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_CANNOT_BE_ACTIVATED: i16 = 1436;
+    // Unlock (skill 27 — OpenDoor)
+    pub const THIS_DOOR_CANNOT_BE_UNLOCKED: i16 = 319;
+    pub const YOU_HAVE_FAILED_TO_UNLOCK_THE_DOOR: i16 = 320;
     // Recommendations (RequestVoteNew / RecoGiveTask / GiveRecommendation)
     pub const SELECT_TARGET: i16 = 242;
     pub const THAT_IS_AN_INCORRECT_TARGET: i16 = 144;

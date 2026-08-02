@@ -1476,6 +1476,7 @@ fn build_skill(
             Some("ENEMY_ONLY") => TargetType::EnemyOnly,
             Some("ENEMY_NOT") => TargetType::EnemyNot,
             Some("NPC_BODY") => TargetType::NpcBody,
+            Some("DOOR_TREASURE") => TargetType::DoorTreasure,
             Some("SUMMON") => TargetType::Summon,
             Some("PC_BODY") => TargetType::PcBody,
             Some("GROUND") => TargetType::Ground,
@@ -1836,6 +1837,14 @@ fn build_skill(
                         // lives in `Player.isLucky()`, which asks whether the
                         // *buff* is present, so all this has to do is land.
                         "Lucky" => vec![SkillEffect::Lucky],
+                        // Java's `chance` default is 0 — a door skill with no
+                        // `<chance>` never opens anything. Unlock declares one
+                        // at every level, so the default is only a guard.
+                        "OpenDoor" => vec![SkillEffect::OpenDoor {
+                            chance: param("chance").unwrap_or(0.0) as i32,
+                            is_item: value_at(params, "isItem", level) == Some("true"),
+                        }],
+                        "OpenChest" => vec![SkillEffect::OpenChest],
                         "Bluff" => vec![SkillEffect::Bluff {
                             chance: param("chance").unwrap_or(100.0) as i32,
                         }],
@@ -4486,8 +4495,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 175 name(s), 29 learnable
-    /// skill(s) affected, 1727 reachable.
+    /// the work list, worst first. Category totals: 173 name(s), 28 learnable
+    /// skill(s) affected, 1695 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4521,6 +4530,9 @@ mod coverage_census {
     /// → 175 at sub-slice 9: `Bluff` (the Backstab set-up spin, with Java's
     /// raid exemption), `Unsummon` and `DeathLink` (power scaled by the
     /// caster's *missing* HP — it does nothing at full health).
+    /// → 173 at sub-slice 10: `OpenDoor` and `OpenChest`, i.e. the whole of
+    /// Unlock (27) — which also needed the `DOOR_TREASURE` target type, so
+    /// the target axis loses its last learnable entry too.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("ManaHealOverTime", 2),
@@ -4531,8 +4543,6 @@ mod coverage_census {
         ("ChameleonRest", 1),
         ("ImmobilePetBuff", 1),
         ("NightStatModify", 1),
-        ("OpenChest", 1),
-        ("OpenDoor", 1),
         ("PhysicalAttackHpLink", 1),
         ("PolearmSingleTarget", 1),
         ("PvpMagicalSkillDamageBonus", 1),
@@ -4564,7 +4574,7 @@ mod coverage_census {
     /// `<targetType>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 11 name(s), 4 learnable
     /// skill(s) affected, 532 reachable.
-    const TARGET_TYPES: &[(&str, usize)] = &[("OTHERS", 3), ("DOOR_TREASURE", 1)];
+    const TARGET_TYPES: &[(&str, usize)] = &[("OTHERS", 3)];
 
     /// `<affectScope>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 7 name(s), 0 learnable
@@ -4616,10 +4626,10 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 175, 29, 1727),
+            ("effect", &gaps.effects, EFFECTS, 173, 28, 1695),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
-            ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
+            ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
             ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
             (
                 "affectObject",
@@ -4668,7 +4678,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            31,
+            30,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

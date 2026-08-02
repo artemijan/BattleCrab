@@ -373,6 +373,23 @@ pub(crate) fn resolve_cast_target(
         // `INVALID_TARGET` before this arm existed.
         TargetType::Summon => super::super::servitor::servitor_of(world, caster.object_id)
             .ok_or(sm_ids::INVALID_TARGET)?,
+        // `targethandlers/DoorTreasure.java` — the selection itself is the
+        // whole validation: a door or a chest passes, anything else (including
+        // no selection) is `THAT_IS_AN_INCORRECT_TARGET`. Unlock is the only
+        // learnable skill that uses it.
+        TargetType::DoorTreasure => {
+            let t = caster_target.ok_or(sm_ids::THAT_IS_AN_INCORRECT_TARGET)?;
+            let is_door = world.objects.has_component::<crate::model::door::Door>(&t);
+            let is_chest = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&t)
+                .and_then(|n| world.data.npc_data.get(n.npc_id))
+                .is_some_and(|tpl| tpl.type_name == "Chest");
+            if !is_door && !is_chest {
+                return Err(sm_ids::THAT_IS_AN_INCORRECT_TARGET);
+            }
+            t
+        }
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
     let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;

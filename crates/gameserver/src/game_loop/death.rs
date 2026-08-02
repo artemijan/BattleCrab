@@ -605,7 +605,18 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             }
         }
 
-        let drops = roll_drops(world, &t, looter, is_champion);
+        // `Chest.doItemDrop` — a chest that was **not** unlocked rolls a
+        // *different* npc id's drop list (18265-18286 shift by +3536, the
+        // 18287-18298 pairs map onto six fixed ids). So smashing a box open
+        // and picking its lock are two different loot tables, and only the
+        // Unlock path (`setSpecialDrop`) gets the box's own.
+        let drop_template = chest_drop_template(world, npc_oid, &t);
+        let drops = roll_drops(
+            world,
+            drop_template.as_ref().unwrap_or(&t),
+            looter,
+            is_champion,
+        );
         let party_id = world
             .objects
             .get_component::<crate::model::components::PartyRef>(&looter)
@@ -669,6 +680,15 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     }
 
     if total_damage <= 0.0 {
+        return;
+    }
+    // `Attackable.calculateRewards`: `if (!_mustRewardExpSp) return;` — an
+    // unlocked chest hands out its loot but pays no exp or sp.
+    if world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .is_some_and(|n| !n.must_reward_exp_sp)
+    {
         return;
     }
     // `calculateExpAndSp` per attacker: template reward × rate × damage
@@ -858,6 +878,43 @@ pub(crate) fn roll_champion_drops_for_test(
     killer_oid: i32,
 ) -> Vec<(i32, i64)> {
     roll_drops(world, t, killer_oid, true)
+}
+
+/// `Chest.doItemDrop`'s template swap. Returns `Some(other_template)` when
+/// this corpse is a chest that was killed *without* being unlocked — every
+/// other NPC (and every unlocked chest) drops from its own list.
+/// Test hook for [`chest_drop_template`], which is private to this module.
+#[cfg(test)]
+pub(crate) fn chest_drop_template_for_test(
+    world: &World,
+    npc_oid: i32,
+    t: &NpcTemplate,
+) -> Option<NpcTemplate> {
+    chest_drop_template(world, npc_oid, t)
+}
+
+fn chest_drop_template(world: &World, npc_oid: i32, t: &NpcTemplate) -> Option<NpcTemplate> {
+    if t.type_name != "Chest" {
+        return None;
+    }
+    if world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .is_some_and(|n| n.special_drop)
+    {
+        return None;
+    }
+    let id = match t.id {
+        18265..=18286 => t.id + 3536,
+        18287 | 18288 => 21671,
+        18289 | 18290 => 21694,
+        18291 | 18292 => 21717,
+        18293 | 18294 => 21740,
+        18295 | 18296 => 21763,
+        18297 | 18298 => 21786,
+        _ => return None,
+    };
+    world.data.npc_data.get(id).cloned()
 }
 
 fn roll_drops(

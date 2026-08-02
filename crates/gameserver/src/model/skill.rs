@@ -69,6 +69,13 @@ pub enum TargetType {
     /// Player-only: Java returns null for NPC casters, so NPC GROUND skills
     /// are inert on both sides.
     Ground,
+    /// `DOOR_TREASURE` (`targethandlers/DoorTreasure.java`): whatever is
+    /// currently selected, **if** it is a door or a chest — nothing else.
+    /// Unlike every other type this runs no range, LOS, peace-zone or
+    /// alive/dead gate of its own; the selection *is* the validation, which is
+    /// what lets Unlock be cast on a closed door (not attackable) and on a
+    /// chest (attackable) through the same path.
+    DoorTreasure,
     /// `SUMMON`: the caster's own summon (Java `targethandlers/Summon.java`).
     ///
     /// **Servitors only.** Java is
@@ -520,6 +527,20 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// `OpenDoor` (Unlock 27) — pick a lock. `chance` is per skill level
+    /// (30/50/75, then 100 from level 4). Java refuses outright, with its own
+    /// message, when the door is not `openMethod="BY_SKILL"` (unless the cast
+    /// came from an *item*, which is what `is_item` records) or belongs to a
+    /// fort; a roll that misses gets the softer "failed to unlock" message.
+    OpenDoor {
+        chance: i32,
+        is_item: bool,
+    },
+    /// `OpenChest` (Unlock 27) — the treasure-box half of the same skill, and
+    /// a parameterless effect whose entire behaviour is a **level check**:
+    /// within 6 levels (5 above 77) the box pops open, dies without exp/sp and
+    /// rolls its *own* drop list; outside that band it turns on you instead.
+    OpenChest,
     /// `Bluff` (Blinding Blow 321, Bluff 358) — spin the target to face the
     /// **caster's** heading, so a rogue behind you leaves you facing away.
     /// Chance-rolled through `calcProbability`; raid bosses and their minions
