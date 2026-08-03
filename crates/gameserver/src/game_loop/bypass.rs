@@ -254,8 +254,9 @@ fn npc_bypass(
         "learn_clan_skills" if is_village_master(world, npc_object_id) => {
             super::clans::show_pledge_skill_list(world, client_id, object_id);
         }
-        // `VillageMaster`: the delegated leader transfer (applied at the daily
-        // reset — TODO(G33)) and its cancellation.
+        // `VillageMaster`: the delegated leader transfer and its cancellation.
+        // Delivery is `daily_tasks::clan_leader_apply`, gated on the weekly
+        // (Wednesday) reset like Java's `DailyTaskManager.onReset`.
         "change_clan_leader" if is_village_master(world, npc_object_id) => {
             let args = command
                 .strip_prefix("change_clan_leader")

@@ -108,8 +108,9 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     // handler runs and the text is never broadcast. Java's `MasterHandler`
     // registers each handler only when its `Custom/*.ini` flag is on, so an
     // unregistered command falls through to being *said*; the gates below keep
-    // that shape. Still unported: `.premium`, `.password`, auto-play/potions
-    // (`TODO(G33)`).
+    // that shape. Still unported: `.premium` and `.password` (`TODO(G33)`) —
+    // auto-play and auto-potions landed with the `Custom/*.ini` audit and are
+    // dispatched below.
     if chat_type == ChatType::General
         && let Some(rest) = pkt.text.strip_prefix('.')
     {
