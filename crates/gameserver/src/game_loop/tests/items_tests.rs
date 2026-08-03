@@ -268,6 +268,111 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
     );
 }
 
+/// Destroying a *worn* item must repaint the client's paperdoll, not just the
+/// inventory list. Java gets this for free — `Inventory.removeItem` unequips
+/// whatever it takes out of the bag, and `setPaperdollItem` pushes
+/// `ExUserInfoEquipSlot` — but here the paperdoll lives in a data component
+/// that cannot reach the client, so `quests::take_items` has to drive it.
+///
+/// Reported against Q229 `Test of Witchcraft`: the Sword of Seal (3029) is a
+/// registered quest item *and* a weapon, so the hand-in's `exitQuest` sweep
+/// destroys it straight out of the player's hand. Without the unequip the
+/// client kept rendering the sword — `UserInfo` carries only the right-hand
+/// *enchant level*, never the paperdoll item ids — while the inventory window
+/// correctly showed nothing equipped.
+#[test]
+fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
+    use crate::data::item_data::{CrystalType, ItemHandler, ItemKind, ItemTemplate, SLOT_R_HAND};
+    use crate::enums::InventorySlot;
+    use crate::model::inventory::Inventory;
+
+    const SWORD: i32 = 3029;
+    const SWORD_OID: i32 = 9101;
+
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
+        duration: -1,
+        immediate_effect: true,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
+        item_id: SWORD,
+        name: "Sword of Seal".to_string(),
+        kind: ItemKind::Weapon,
+        body_part: SLOT_R_HAND,
+        weight: 1200,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        // Registered as a quest item by Q229 — and still equippable.
+        is_quest_item: true,
+        is_sellable: false,
+        is_freightable: false,
+        price: 0,
+        handler: ItemHandler::None,
+        crystal_type: CrystalType::None,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    });
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, SWORD_OID, SWORD, 1);
+    }
+
+    // The object id the latest ExUserInfoEquipSlot reports for the right hand.
+    fn rhand_oid(packets: &[Vec<u8>]) -> i32 {
+        let pkt = packets
+            .iter()
+            .rev()
+            .find(|p| p.len() > 2 && p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0x156)
+            .expect("ExUserInfoEquipSlot not sent");
+        let mut offset = 14usize;
+        for slot in InventorySlot::VALUES {
+            let block_len = u16::from_le_bytes([pkt[offset], pkt[offset + 1]]) as usize;
+            if slot == InventorySlot::RHand {
+                return i32::from_le_bytes(pkt[offset + 2..offset + 6].try_into().unwrap());
+            }
+            offset += block_len;
+        }
+        panic!("no RHand block in ExUserInfoEquipSlot");
+    }
+
+    items::handle_use_item(&mut world, 1, &use_item_body(SWORD_OID));
+    let packets = drain(&mut a_rx);
+    assert_eq!(rhand_oid(&packets), SWORD_OID, "sword equipped in RHand");
+
+    // `exitQuest`'s registered-quest-item sweep: destroy every one of them.
+    let taken = crate::game_loop::quests::take_items(&mut world, 1, 3001, SWORD, -1);
+    assert!(taken, "the sword was destroyed");
+
+    let packets = drain(&mut a_rx);
+    assert_eq!(
+        rhand_oid(&packets),
+        0,
+        "destroying the worn sword must clear the client's RHand slot"
+    );
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert!(
+        inv.paperdoll_slot_of(SWORD_OID).is_none() && inv.count_of(SWORD) == 0,
+        "sword gone from both the paperdoll and the bag"
+    );
+}
+
 /// The bug this guards: equipping gear moved the paperdoll but never recomputed
 /// combat stats, so a freshly-equipped weapon's P.Atk / armor's P.Def never
 /// reached the client's stat panel. `finish_equip_change` now reruns

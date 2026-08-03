@@ -109,6 +109,49 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 > been done for milestones, and five `TODO` markers PROGRESS said existed were
 > absent from the code entirely — all five turned out to be finished work.
 
+## A destroyed *worn* item stayed in the character's hand (2026-08-03)
+
+**Reported from the live server against Q229 `Test of Witchcraft`: after the
+Zeruel step the Sword of Seal was gone from the inventory window, but the
+character still visibly held it.** Branch
+`fix/equipped-item-destroy-paperdoll`.
+
+The sword (3029) is a *weapon* and a **registered quest item**, so
+`exitQuest`'s sweep at the Shadow Orim hand-in destroys it straight out of the
+player's right hand. `Inventory::remove_item` did clear the paperdoll slot —
+under a comment asserting it never had to ("quest items can't be equipped"),
+which 3029 disproves — and `quests::take_items` then sent only the
+`InventoryUpdate`. That is enough to retire the inventory row and nothing
+else: **`UserInfo` carries the right-hand *enchant level*, never the paperdoll
+item ids**, so the client had no reason to stop rendering the sword.
+
+Java never has to think about this. `Inventory.removeItem` is overridden to
+`unEquipItemInSlot` whatever it is about to take out of the bag, and
+`setPaperdollItem(slot, null)` then drops the item's bonuses, calls
+`recalculateStats` and pushes `ExUserInfoEquipSlot` — all *before* the
+destroy's own `InventoryUpdate`. Here the paperdoll is a plain data component
+with no route to the client, so each destroy path has to drive that tail
+itself. `finish_equip_change` was split into `apply_paperdoll_change` +
+`refresh_after_paperdoll_change` (behavior unchanged), and the two halves are
+reused by a new `items::finish_equipped_item_destroyed`, which
+`quests::take_items` calls with whatever the removal unequipped — computed by
+snapshotting `Inventory::equipped_object_ids` before the removal and
+intersecting it with the `ItemChange::Removed` ids.
+
+One regression test in `items_tests.rs`, sabotage-verified: with the call
+removed it fails on "ExUserInfoEquipSlot not sent", the exact reported
+symptom.
+
+**Audited alongside, no change needed:** the other destroy/transfer paths that
+reach `remove_item`/`remove_by_object_id` either reject equipped items up
+front (`trade`, `mail`, `private_store` all gate on `paperdoll_slot_of`) or
+already push the paperdoll themselves (`death`, `cursed_weapon`, `augment`);
+the rest move items that cannot be worn (manor seeds, servitor food, boat
+tickets). The quest sweep was the only hole. **Noted, not fixed:**
+`refresh_weight_penalty` still only runs on paperdoll changes, so destroying a
+*non*-worn heavy stack leaves the movement penalty stale until the next equip
+— a separate, pre-existing gap.
+
 ## G34 S8 — the epic gate, and G34 closes (2026-08-03)
 
 Branch `feat/g34-s8-gate`. The gate was meant to be bookkeeping; forcing every
