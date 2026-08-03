@@ -346,6 +346,14 @@ pub(super) fn admin_server_shutdown(
         send_message(world, client_id, "Usage: //server_shutdown <seconds>");
         return;
     };
+    begin_shutdown(world, secs as i32, restart);
+}
+
+/// `Shutdown.startShutdown(null, seconds, restart)` — the countdown itself,
+/// shared by `//server_shutdown`, the scheduled restart and the watchdog, so
+/// all three announce alike and all three are cancelled by `//server_abort`.
+pub(crate) fn begin_shutdown(world: &mut World, seconds: i32, restart: bool) {
+    let secs = seconds.max(0) as u64;
     let deadline = world.tick + secs * 10;
     world.pending_shutdown = Some((deadline, restart));
     announce_all(

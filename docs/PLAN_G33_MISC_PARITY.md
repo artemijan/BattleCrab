@@ -80,9 +80,23 @@ This plan entry was simply stale. Recorded rather than re-ported.
   (`admin/gm_util.rs`, `admin/mod.rs`, `db.rs`).
 - Still open, re-verified against the code 2026-08-03:
   - **AdminPForge** and **AdminMissingHtmls** — no trace in the port.
-  - **Precautionary/scheduled restart + deadlock detector** — the config keys
-    parse (`config/server.rs`) but **nothing reads them**: a parsed flag with
-    no consumer, which is this project's most-repeated failure shape.
+  - ~~**Scheduled restart**~~ **DONE** — `game_loop::restart`, armed at boot,
+    picking the soonest `ServerRestartSchedule` entry (skipping to a permitted
+    `ServerRestartDays` weekday) and starting the countdown
+    `ServerRestartScheduleCountdown` seconds early so the server goes down
+    *at* the configured time, as Java does. Shares `pending_shutdown` with
+    `//server_restart`, so `//server_abort` cancels it.
+  - **Deadlock detector — deliberately NOT ported**, on structural grounds
+    rather than as a deferral. Java's calls
+    `ThreadMXBean.findDeadlockedThreads()`; this port owns all mutable game
+    state on one thread and has **exactly one lock in the entire gameserver**
+    (`geo::GeoEngine::nswe_overrides`), taken only as a leaf. Deadlock needs two
+    differently-ordered locks or a re-entrant acquisition, and neither is
+    expressible. The three config keys stay parsed-and-inert with the reasoning
+    recorded at the fields, plus the command to re-check it.
+  - **Precautionary restart** — still open, and it needs a system CPU/memory
+    reading the port has no dependency for. Worth a decision rather than a
+    default: adding one for a feature this dist ships `False` is a poor trade.
   - **`NpcNameLocalisationData` / multilang** — absent.
   - **Dockerfile parity** — no `Dockerfile` in the tree.
 

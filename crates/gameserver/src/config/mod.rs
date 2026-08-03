@@ -53,6 +53,9 @@ pub use server::ServerConfig;
 /// defaults via `Default` (notably ×1 rates).
 #[derive(Debug, Clone, Default)]
 pub struct CombatConfig {
+    /// `Server.ini`. Carried here so the game loop can reach the scheduled
+    /// restart settings; the network half is read once at boot in `main`.
+    pub server: ServerConfig,
     pub character: CharacterConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
@@ -241,6 +244,7 @@ impl Config {
     /// The runtime bundle the game thread keeps on `World`.
     pub fn combat(&self) -> CombatConfig {
         CombatConfig {
+            server: ServerConfig::default(),
             character: self.character.clone(),
             npc: self.npc.clone(),
             rates: self.rates.clone(),
