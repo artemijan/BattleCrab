@@ -5924,3 +5924,68 @@ fn geomap_missing_htmls_is_scoped_to_the_tile() {
         "outside it is not"
     );
 }
+
+/// **`//forge_send sc`** puts the forged bytes on the GM's own socket — the
+/// whole point of the tool, and the half that unit tests of the encoder cannot
+/// see.
+///
+/// `$oid` is resolved before the operand is written, so the packet carries the
+/// GM's object id rather than the literal token.
+#[test]
+fn forge_send_sc_writes_the_forged_packet_to_the_gm() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    drain(&mut gm_rx);
+
+    // opcode 0x2F, one dword operand: the GM's own object id.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("forge_send sc 0x2F d $oid"),
+        ]
+        .concat(),
+    );
+
+    let pkts = drain(&mut gm_rx);
+    let forged = pkts
+        .iter()
+        .find(|p| p.len() == 5 && p[0] == 0x2F)
+        .expect("the forged packet reached the GM");
+    assert_eq!(
+        i32::from_le_bytes(forged[1..5].try_into().unwrap()),
+        5001,
+        "$oid was substituted, not written literally"
+    );
+}
+
+/// `cs` refuses rather than forging an inbound packet — matching Java, whose
+/// branch throws `UnsupportedOperationException`. The refusal is the ported
+/// behaviour, so it must be visible rather than silent.
+#[test]
+fn forge_send_cs_refuses_like_java() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("forge_send cs 0x2F"),
+        ]
+        .concat(),
+    );
+
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        count_system_messages(&pkts) > 0,
+        "the refusal is reported to the GM"
+    );
+    assert!(
+        !pkts.iter().any(|p| p.len() == 1 && p[0] == 0x2F),
+        "and nothing is forged"
+    );
+}

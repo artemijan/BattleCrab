@@ -84,7 +84,13 @@ This plan entry was simply stale. Recorded rather than re-ported.
     the builder audit that lists talkable NPCs with no dialog page of their
     own, honouring Java's three exclusions (monsters, non-talkable NPCs, and
     NPCs whose chat window comes from an `ON_NPC_FIRST_TALK` script).
-  - **AdminPForge** — the packet-forging tool (659 lines in Java). Next up.
+  - ~~**AdminPForge**~~ **DONE** — `admin/pforge.rs` (`//forge`,
+    `//forge_values`, `//forge_send`): opcode triple typed by position
+    (byte/word/dword), the seven operand types (`c h d q f s b|x`), the
+    `$oid`/`$tname`/… substitution table, and `sc`/`sb` dispatch. **`cs`
+    refuses, as Java does** — its body is commented out upstream behind a
+    `throw new UnsupportedOperationException`, so forging *inbound* packets
+    was never shipped and is not a port gap.
 
 **Priority, set 2026-08-03:** `AdminPForge` and `AdminMissingHtmls` are the
 focus; **precautionary restart, multilang and Dockerfile parity are low

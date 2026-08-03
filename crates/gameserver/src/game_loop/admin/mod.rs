@@ -40,6 +40,7 @@ mod mobgroup;
 pub(crate) mod moderation;
 pub(crate) mod mounts;
 pub(crate) mod npc_info;
+mod pforge;
 pub(crate) use world_cmds::{begin_shutdown, server_shutdown_tick};
 /// `PlayerCondOverride.SEE_ALL_PLAYERS.ordinal()` — the visibility consumer.
 pub(crate) const SEE_ALL_PLAYERS_ORDINAL: u8 = 13;
@@ -718,6 +719,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             &args,
             command == "admin_dw",
         ),
+        "admin_forge" => pforge::admin_forge(world, client_id),
+        "admin_forge_values" => pforge::admin_forge_values(world, client_id, &args),
+        "admin_forge_send" => pforge::admin_forge_send(world, client_id, object_id, &args),
         "admin_geomap_missing_htmls" => {
             missing_htmls::admin_geomap_missing_htmls(world, client_id, object_id)
         }

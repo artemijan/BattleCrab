@@ -2109,7 +2109,7 @@ fn grant_and_equip(world: &mut World, player_oid: i32, client_id: u32, item_id: 
 
 /// A datapack-backed world (real `AdminData`) so `is_gm`/access gating and the
 /// name colors resolve; the synthetic `test_world` otherwise loads empty admin.
-fn admin_world() -> (
+pub(crate) fn admin_world() -> (
     World,
     db::CmdTx,
     db::CmdRx,
