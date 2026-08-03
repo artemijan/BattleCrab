@@ -4021,6 +4021,9 @@ command bodies (G13.B) are next.
   - **B4 movement** (`teleport`): `//teleport`/`//recall`/`//teleto`,
     directional `//go*`, `//walk`/`//sendhome`/`//teleport_character`/
     `//recall_npc`, teleport HTML menus, `//gmspeed`/`//superhaste`/`//speed`.
+    The `move.htm` half of that page — `//tele`, the click-to-move latch and a
+    `//walk` that actually walks — landed later; see *the GM "Additional
+    Movement Options" window* below.
   - **B5 GM utility & comms** (`gm_util`/`moderation`/`menu`): `//serverinfo`,
     `//gmchat`/`//announce`/`//announce_crit`/`//announce_screen`/`//worldchat`
     (`//announce_screen` now sends a real **`ExShowScreenMessage`** top-centre
@@ -4793,3 +4796,58 @@ clanless mob titles as `"Lv 20 "`.
   drops_the_line, an_item_link_raises_the_chat_length_cap, logging_out_kills_
   the_publishers_links}`; the round trip was verified by sabotage (drop the
   dispatch arm → it fails, the other four still pass).
+
+### Post-G33 — the GM "Additional Movement Options" window ✅ (2026-08-03)
+
+`html/admin/teleports.htm` has a button labelled **Additional Movement Options**
+(`bypass -h admin_tele`). Java answers it with `AdminTeleport.showTeleportWindow`
+→ `html/admin/move.htm`: the directional nudge pad, the click-to-move **Move:**
+row, the GM-speed row and the tele/walk coordinate box. None of that page was
+reachable — `admin_tele` was aliased onto the *coordinate* teleport, so the
+button answered "Usage: //teleport \<x\> \<y\> \<z\>" and the window never opened.
+The whole page is now ported.
+
+- **`//tele` opens `move.htm`** (`admin::teleport::admin_teleport_menu`), and the
+  directional `//go*` handlers re-open it after each nudge, as Java's
+  `showTeleportWindow` call at the end of its `admin_go` arm does — the arrows
+  stay under the cursor for the next click.
+- **The click-to-move latch** (`Player.setTeleMode`, ported as
+  `Player::tele_mode` + `enums::AdminTeleportType`, transient like Java's field).
+  `//instant_move` arms DEMONIC, `//teleto sayune|charge` the other two, and
+  `//teleto end` disarms; each armed mode announces itself with Java's exact
+  line, and "Normal mode" is silent. A bare `//teleto` keeps its
+  teleport-to-target meaning, so the char-management pages are unaffected.
+- **`MoveBackwardToLocation` consumes the latch** (`take_admin_tele_mode`),
+  placed exactly where Java's `switch (teleMode)` sits: **before** the
+  movement-disabled / rest / dead gates, which live inside
+  `PlayerAI.onIntentionMoveTo` (the `default:` arm) — so an armed GM warps even
+  while stunned or seated. DEMONIC teleports (loading screen) and disarms;
+  SAYUNE slides and disarms; CHARGE slides with skill 30012's flourish
+  (MagicSkillUse 500 ms → FlyToLocation → MagicSkillLaunched) and **stays
+  armed**, because Java's `case CHARGE` is the one arm that never calls
+  `setTeleMode(NORMAL)`.
+- **`blinkActive` had to come with it.** Java arms it inside the
+  `FlyToLocation` constructor and spends it in `ValidatePosition`'s out-of-sync
+  branch: right after a slide the client is still reporting its pre-slide spot,
+  and adopting that report snaps the player straight back. Without the flag both
+  slide modes were self-defeating. The same fix applies to the pre-existing
+  `CallPc` drag (Porta's Summon), which had the identical hole.
+- **`//walk` now walks.** Java sets `AI_INTENTION_MOVE_TO`; the port had it
+  aliased onto the coordinate teleport, which made the "Tele" and "Walk" buttons
+  on that page do the same thing. It routes through `position::intention_move_to`
+  now — the same pipeline a move click uses (geo clamp, pathfinder, arrival).
+- **Known gap:** `TODO(G33)` on the SAYUNE arm. Java sends `ExFlyMove` /
+  `ExFlyMoveBroadcast` (`0xFE:0xE8` / `0xFE:0x108`), Ertheia-era opcodes with no
+  counterpart in the Interlude protocol this server speaks; the hop itself is
+  ported and the port substitutes `FlyToLocation(DUMMY)` — the Interlude
+  "slide, no animation" packet — so the client follows the server instead of
+  staying put.
+- Regressions: `admin_tests::{admin_tele_opens_the_additional_movement_options_window,
+  teleto_mode_words_arm_the_click_to_move_latch, bare_teleto_still_teleports_to_the_target,
+  admin_walk_walks_instead_of_teleporting}` and
+  `movement_tests::{demonic_tele_mode_teleports_the_click_and_disarms,
+  charge_tele_mode_slides_with_the_flourish_and_stays_armed,
+  sayune_tele_mode_slides_and_disarms,
+  a_slide_survives_the_clients_stale_position_report}`. The blink-guard test was
+  verified by sabotage (drop the guard → the slide is reverted to 1000 and the
+  assertion fires).

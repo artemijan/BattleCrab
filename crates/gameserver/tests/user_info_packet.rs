@@ -44,6 +44,8 @@ async fn user_info_test() {
         base_sp: 0,
         is_hero: false,
         true_hero: false,
+        tele_mode: Default::default(),
+        blink_active: false,
         level: 1,
         class_id: 10,
         base_class_id: 10, // Defaulting to class_id

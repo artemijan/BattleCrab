@@ -237,6 +237,17 @@ pub struct Player {
     /// (`AdminAdmin`) and never persists it, so it is transient here too.
     /// The port had the byte hard-coded to 0, which made the flag untestable.
     pub true_hero: bool,
+    /// Java `Player._teleportType` — the GM click-to-move latch armed from the
+    /// "Additional Movement Options" window (`//instant_move`, `//teleto
+    /// sayune|charge|end`). Consumed by `MoveBackwardToLocation`. Transient,
+    /// exactly like Java (a field, no DB column).
+    pub tele_mode: crate::enums::AdminTeleportType,
+    /// Java `Player._blinkActive`, set by every `FlyToLocation` sent for a
+    /// player (the packet's own constructor does it) and consumed by the next
+    /// `ValidatePosition`: it skips the out-of-sync snap once, so the slide the
+    /// server just performed is not immediately reverted to the position the
+    /// client is still reporting from before the fly.
+    pub blink_active: bool,
 
     pub level: i32,
     pub class_id: i32,
@@ -1092,6 +1103,8 @@ impl Player {
             base_sp: c.sp,
             is_hero: false,
             true_hero: false,
+            tele_mode: crate::enums::AdminTeleportType::Normal,
+            blink_active: false,
             level: c.level,
             class_id: c.class_id,
             base_class_id: c.base_class_id,

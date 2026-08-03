@@ -2833,6 +2833,147 @@ fn admin_gonorth_moves_gm() {
     );
 }
 
+/// The "Additional Movement Options" button on `teleports.htm` fires
+/// `bypass -h admin_tele`, which Java answers with `showTeleportWindow` →
+/// `html/admin/move.htm`: the nudge pad, the click-to-move mode row, the GM
+/// speed row and the tele/walk box. The port used to alias `admin_tele` onto
+/// the *coordinate* teleport, so the button answered "Usage: //teleport <x> <y>
+/// <z>" and the window never opened.
+#[test]
+fn admin_tele_opens_the_additional_movement_options_window() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8920, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("tele"));
+    let out = drain(&mut gm_rx);
+    let html = last_admin_html(&out).expect("a page came back");
+    assert!(
+        html.contains("Teleport Menu") && html.contains("admin_instant_move"),
+        "move.htm, not teleports.htm: {html}"
+    );
+    // The old aliasing answered with the usage line instead of a page.
+    assert_eq!(
+        count_system_messages(&out),
+        0,
+        "the button opens a window, it does not complain about coordinates"
+    );
+}
+
+/// The "Move:" row of `move.htm` arms `Player.setTeleMode(...)`; the click that
+/// follows is consumed by `MoveBackwardToLocation`. Each of the three armed
+/// modes announces itself with Java's exact line; "Normal mode" (`//teleto
+/// end`) disarms silently.
+#[test]
+fn teleto_mode_words_arm_the_click_to_move_latch() {
+    use crate::enums::AdminTeleportType;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8921, 100);
+    drain(&mut gm_rx);
+    let mode = |w: &World| w.objects.get_component::<Player>(&8921).unwrap().tele_mode;
+
+    assert_eq!(mode(&world), AdminTeleportType::Normal, "off by default");
+
+    on_packet(&mut world, 1, build_admin("instant_move"));
+    assert_eq!(mode(&world), AdminTeleportType::Demonic);
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "ready line");
+
+    on_packet(&mut world, 1, build_admin("teleto sayune"));
+    assert_eq!(mode(&world), AdminTeleportType::Sayune);
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1);
+
+    on_packet(&mut world, 1, build_admin("teleto charge"));
+    assert_eq!(mode(&world), AdminTeleportType::Charge);
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1);
+
+    on_packet(&mut world, 1, build_admin("teleto end"));
+    assert_eq!(mode(&world), AdminTeleportType::Normal, "disarmed");
+    assert_eq!(
+        count_system_messages(&drain(&mut gm_rx)),
+        0,
+        "Java's `admin_teleto end` arm sends no line"
+    );
+}
+
+/// A bare `//teleto` keeps its teleport-to-target meaning — only the three mode
+/// words are latches, so the alias the char-management pages use is not
+/// swallowed by the new arm.
+#[test]
+fn bare_teleto_still_teleports_to_the_target() {
+    use crate::enums::AdminTeleportType;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8922, 100);
+    let mut other_rx = ingame_player_access(&mut world, 2, 8923, 0);
+    drain(&mut gm_rx);
+    drain(&mut other_rx);
+    if let Some(p) = world.objects.get_component_mut::<Position>(&8923) {
+        p.x = 2500;
+        p.y = 2600;
+        p.z = 2700;
+    }
+    world
+        .objects
+        .add_components(&8922, crate::model::components::TargetRef(Some(8923)));
+
+    on_packet(&mut world, 1, build_admin("teleto"));
+    let pos = *world.objects.get_component::<Position>(&8922).unwrap();
+    assert_eq!((pos.x, pos.y), (2500, 2600), "teleported to the target");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&8922)
+            .unwrap()
+            .tele_mode,
+        AdminTeleportType::Normal,
+        "no latch armed"
+    );
+}
+
+/// `//walk <x> <y> <z>` — the "Walk" button beside "Tele" on `move.htm`. Java
+/// sets `AI_INTENTION_MOVE_TO`, so the GM *walks* there; the port used to alias
+/// it onto the coordinate teleport, which made the two buttons identical.
+#[test]
+fn admin_walk_walks_instead_of_teleporting() {
+    use crate::model::components::{Movement, Speeds};
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8924, 100);
+    {
+        let speeds = world.objects.get_component_mut::<Speeds>(&8924).unwrap();
+        speeds.run_spd = 120.0;
+        speeds.running = true;
+    }
+    if let Some(p) = world.objects.get_component_mut::<Position>(&8924) {
+        p.x = 1000;
+        p.y = 1000;
+        p.z = 0;
+    }
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("walk 1300 1000 0"));
+
+    assert!(
+        world.objects.has_component::<Movement>(&8924),
+        "a walk is in flight"
+    );
+    assert_eq!(
+        world.objects.get_component::<Position>(&8924).unwrap().x,
+        1000,
+        "still at the start — it walks there, it does not jump"
+    );
+    let out = drain(&mut gm_rx);
+    assert!(
+        !out.iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
+        "no teleport"
+    );
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION),
+        "a MoveToLocation instead"
+    );
+}
+
 /// `//geo_pos` with no geodata loaded answers the "no geodata" line (does not
 /// crash on the empty geo engine).
 #[test]

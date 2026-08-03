@@ -12,6 +12,7 @@
 
 use tracing::{info, warn};
 
+use crate::enums::AdminTeleportType;
 use crate::model::Player;
 use crate::model::components::TargetRef;
 use crate::model::inventory::PaperdollSlot;
@@ -259,8 +260,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_sendhome" => admin_sendhome(world, client_id, object_id, &args),
         "admin_teleport_character" => admin_teleport_character(world, client_id, object_id, &args),
         "admin_recall_npc" => admin_recall_npc(world, client_id, object_id),
-        // Teleport HTML menus.
-        "admin_show_moves" | "admin_show_moves_other" | "admin_show_teleport" => {
+        // Teleport HTML menus — `admin_tele` is the "Additional Movement
+        // Options" window (`move.htm`), NOT a coordinate teleport.
+        "admin_show_moves" | "admin_show_moves_other" | "admin_show_teleport" | "admin_tele" => {
             admin_teleport_menu(world, client_id, command)
         }
         // AdminRide — strider/wolf/wyvern are mounts; horse/bike are transforms.
@@ -282,13 +284,32 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // "Teleport" main-menu button: coords → teleport, empty → teleports.htm.
         "admin_move_to" => admin_move_to(world, client_id, object_id, &args),
         // Self-teleport to explicit coordinates.
-        "admin_teleport" | "admin_tele" | "admin_instant_move" => {
-            admin_teleport_coords(world, client_id, object_id, &args)
-        }
+        "admin_teleport" => admin_teleport_coords(world, client_id, object_id, &args),
         // Bring a player to the GM.
         "admin_recall" => admin_recall(world, client_id, object_id, &args),
-        // Send the GM to the current target.
-        "admin_teleto" | "admin_teleportto" | "admin_teleport_to_character" => {
+        // "Additional Movement Options" click-to-move latches (`move.htm`'s
+        // "Move:" row). `//instant_move` is a command of its own; the other
+        // three ride on `//teleto <word>`, which otherwise teleports the GM to
+        // its target.
+        "admin_instant_move" => {
+            admin_teleto_mode(world, client_id, object_id, AdminTeleportType::Demonic)
+        }
+        // Only the `//teleto` spelling carries the mode words in Java; the two
+        // aliases are the plain teleport-to-character forms.
+        "admin_teleto" => match args.first().copied() {
+            Some("sayune") => {
+                admin_teleto_mode(world, client_id, object_id, AdminTeleportType::Sayune)
+            }
+            Some("charge") => {
+                admin_teleto_mode(world, client_id, object_id, AdminTeleportType::Charge)
+            }
+            Some("end") => {
+                admin_teleto_mode(world, client_id, object_id, AdminTeleportType::Normal)
+            }
+            // Send the GM to the current target.
+            _ => admin_teleto(world, client_id, object_id),
+        },
+        "admin_teleportto" | "admin_teleport_to_character" => {
             admin_teleto(world, client_id, object_id)
         }
         // Create an item on the GM.
