@@ -79,7 +79,17 @@ This plan entry was simply stale. Recorded rather than re-ported.
 - ~~AdminFightCalculator / AdminRepairChar / AdminPcCondOverride~~ **DONE**
   (`admin/gm_util.rs`, `admin/mod.rs`, `db.rs`).
 - Still open, re-verified against the code 2026-08-03:
-  - **AdminPForge** and **AdminMissingHtmls** — no trace in the port.
+  - ~~**AdminMissingHtmls**~~ **DONE** — `admin/missing_htmls.rs`
+    (`//geomap_missing_htmls`, `//world_missing_htmls`, `//next_missing_html`):
+    the builder audit that lists talkable NPCs with no dialog page of their
+    own, honouring Java's three exclusions (monsters, non-talkable NPCs, and
+    NPCs whose chat window comes from an `ON_NPC_FIRST_TALK` script).
+  - **AdminPForge** — the packet-forging tool (659 lines in Java). Next up.
+
+**Priority, set 2026-08-03:** `AdminPForge` and `AdminMissingHtmls` are the
+focus; **precautionary restart, multilang and Dockerfile parity are low
+priority** — none blocks parity, and the first needs a new dependency for a
+feature this dist ships `False`.
   - ~~**Scheduled restart**~~ **DONE** — `game_loop::restart`, armed at boot,
     picking the soonest `ServerRestartSchedule` entry (skipping to a permitted
     `ServerRestartDays` weekday) and starting the countdown
