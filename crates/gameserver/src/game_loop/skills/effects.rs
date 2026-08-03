@@ -4499,7 +4499,9 @@ fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32) {
     }
     // `takeSweep()` — atomically claim the loot (a second sweep gets nothing).
     // TODO(G15): `checkInventorySlotsAndWeight` (inventory-full refusal) is
-    // skipped — item weight/slot limits aren't modeled for this path yet.
+    // skipped. Weight *is* modelled (`game_loop::weight`, and G34 S4.1 added
+    // the `WEIGHT_LIMIT`/`WEIGHT_PENALTY` stats); this path simply does not
+    // consult it, so the gap is the check rather than the machinery.
     let Some(items) = world
         .objects
         .get_component_mut::<Npc>(&target_oid)

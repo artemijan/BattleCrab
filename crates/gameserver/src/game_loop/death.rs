@@ -1253,9 +1253,18 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 /// Items the datapack marks `is_dropable="false"` and time-limited items are
 /// skipped, per Java's filter.
 ///
-/// Not modelled: shadow items (mana-fuelled gear, absent from this dist), pet
-/// control items (G29), the `KarmaListNonDroppableItems` whitelists, and the
-/// clan-war exemption (`TODO(G18)` — warring clans don't make each other drop).
+/// Not modelled, and the first is a live gap rather than a chronicle
+/// technicality: Java's filter is `isShadowItem() || isTimeLimitedItem() ||
+/// !isDropable() || ADENA || TYPE2_QUEST`, and the loop below checks every leg
+/// **except `isShadowItem()`** — so a shadow item can be dropped on death here
+/// when Java would keep it. **295 shadow items sit in the Interlude id range**
+/// (`<set name="duration">`), and `items.rs` already models their mana, so
+/// this is a missing check rather than a missing subsystem. `TODO(G15)`.
+///
+/// Also not modelled: pet control items (Java skips them too; pets landed with
+/// G29, so this is likewise a check that was never added), the
+/// `KarmaListNonDroppableItems` whitelists, and the clan-war exemption
+/// (`TODO(G18)` — warring clans don't make each other drop).
 fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     use crate::data::item_data;
 
@@ -1342,6 +1351,8 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
         // Adena, quest items, items the datapack marks non-droppable, and
         // time-limited items never drop (Java: `isShadowItem() ||
         // isTimeLimitedItem() || !isDropable() || ADENA || TYPE2_QUEST`).
+        // TODO(G15): the `isShadowItem()` leg is missing — see this function's
+        // doc comment; 295 shadow items are reachable on this chronicle.
         if item_id == item_data::ADENA_ID
             || t.is_quest_item
             || t.type2 == item_data::TYPE2_QUEST

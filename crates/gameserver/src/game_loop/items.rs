@@ -1317,8 +1317,10 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 /// the cast is interrupted, since `useMagic` returning true is what sets
 /// `successfulUse`.
 ///
-/// Narrowing: no pets (none exist yet), no Olympiad guard (no Olympiad), no
-/// `<cond>` gating (not parsed for items — see `item_data`'s header comment).
+/// Narrowing: no `<cond>` gating (not parsed for items — see `item_data`'s
+/// header comment). Java's pet and Olympiad legs are not narrowings any more —
+/// both subsystems landed (G29, G25) — but this path has never routed to
+/// them; wiring them is the open half, not their absence.
 /// TODO(G15): Java's busy check is `!isPotion && !isElixir && !isScroll &&
 /// isCastingNow()`, and its `useMagic` would *queue* a skill that loses that
 /// race. `QueuedAction::Skill` replays by skill id through `use_magic_on`,

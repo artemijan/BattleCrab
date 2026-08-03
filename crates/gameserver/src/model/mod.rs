@@ -1118,8 +1118,8 @@ impl Player {
             pk_kills: c.pk_kills,
             raidboss_points: c.raidboss_points,
             pvp_kills: c.pvp_kills,
-            // Restored by CursedWeaponsManager at enter-world if held (TODO(G21):
-            // cursedOnLogin); a fresh session starts unowned.
+            // A fresh session starts unowned; `cursed_weapon::on_enter_world`
+            // (G28) restores it for a player who logged out still cursed.
             cursed_weapon_equipped_id: 0,
             charges: 0,
             vitality_points: c.vitality_points,

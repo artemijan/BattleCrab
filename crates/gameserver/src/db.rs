@@ -97,8 +97,10 @@ pub struct NewCharacter {
 /// `Disconnection.storeMe().deleteMe()`. Covers the `storeCharBase` columns the
 /// Rust `Player` actually tracks; the rest (clan, title, online time, faction,
 /// …) keep their stored values. Java's companion stores — `storeCharSub`,
-/// `storeEffect` (`character_skills_save`), item reuse — need systems that
-/// don't exist yet (subclasses, buff restore on login) and are TODO(G-later).
+/// `storeEffect` (`character_skills_save`), item reuse — write through their
+/// own paths rather than this one: subclasses landed with G17
+/// (`character_subclasses`) and buff restore on login with G19's relative
+/// `remaining_time` rows, both flushed where they are mutated.
 /// Items and learned skills are already persisted at mutation time.
 #[derive(Debug, Clone)]
 pub struct PlayerSnapshot {
