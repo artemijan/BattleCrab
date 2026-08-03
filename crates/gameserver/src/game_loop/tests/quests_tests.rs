@@ -14810,12 +14810,18 @@ fn quest_q00214_trial_of_the_scholar() {
     inject(&mut world, 3001, 0x0214_0004, 2717, 11);
     kill(&mut world, 20158); // Medusa's Blood → 12
     inject(&mut world, 3001, 0x0214_0005, 2716, 9);
-    kill(&mut world, 20201); // Ghoul's Skin → 10, cond 29
-    assert_eq!(quest_cond(&world, 3001, q), Some(29));
+    kill(&mut world, 20201); // Ghoul's Skin → 10 — but ichor and nails are still owed
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(28),
+        "a single finished reagent must not send the player back to Casian"
+    );
     inject(&mut world, 3001, 0x0214_0006, 2718, 4);
     kill(&mut world, 20552); // Fettered Soul's Ichor → 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(28));
     inject(&mut world, 3001, 0x0214_0007, 2719, 4);
-    kill(&mut world, 20567); // Gargoyle's Nail → 5 (total 32)
+    kill(&mut world, 20567); // Gargoyle's Nail → 5: the set completes (32), cond 29
+    assert_eq!(quest_cond(&world, 3001, q), Some(29));
     ev(&mut world, casian, "30612-07.html"); // → Scripture Chapter 4, cond 30
     assert_eq!(item_count(&world, 3001, 2709), 1, "Scripture Chapter 4");
     assert_eq!(quest_cond(&world, 3001, q), Some(30));
