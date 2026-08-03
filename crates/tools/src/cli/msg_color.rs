@@ -1,12 +1,12 @@
 //! `l2r-tools msg-color` — a terminal editor for system-message colours.
 //!
-//! Opens the decrypted `SystemMsg*` table, lets you find messages by id or by
-//! text, recolour as many as you like in one session, and writes the result
-//! back through pack + encrypt so the client can read it.
+//! Opens the `SystemMsg*` table straight out of the client, lets you find
+//! messages by id or by text, and recolour as many as you like.
 //!
-//! Saving is explicit and all-at-once: edits live in memory until `Ctrl-S`, so
-//! a session can be abandoned with `Esc`/`q` without touching either
-//! directory. See [`tools::system_msg`] for the model.
+//! The whole session is in memory — nothing on disk changes until you say so.
+//! Closing with unsaved edits asks first, and answering yes packs and
+//! re-encrypts the file back into `system/` so the client reads it. See
+//! [`tools::system_msg`] for the model.
 
 use ratatui::Frame;
 use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -15,7 +15,6 @@ use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap};
 use std::path::PathBuf;
-use tools::client_files;
 use tools::dat_schema::SchemaSet;
 use tools::system_msg::{MsgFile, PRESETS};
 
@@ -33,10 +32,6 @@ pub struct Args {
     #[arg(long)]
     system_dir: Option<PathBuf>,
 
-    /// Decrypted files. Defaults to `<client-dir>/system_decrypted`.
-    #[arg(long)]
-    decrypted_dir: Option<PathBuf>,
-
     /// The vendored schema set.
     #[arg(long, default_value = "dist/client/structure")]
     structure_dir: PathBuf,
@@ -50,6 +45,8 @@ enum Mode {
     Browse,
     /// Picking a colour for the selected message.
     Colour { input: String, preset: usize },
+    /// Closing with unsaved edits: save, discard, or keep editing.
+    ConfirmQuit,
 }
 
 struct App {
@@ -71,7 +68,7 @@ impl App {
             matches: Vec::new(),
             list: ListState::default(),
             mode: Mode::Search,
-            status: "Type to search, Tab to browse, Enter to recolour, Ctrl-S to save".into(),
+            status: "Type to search, Tab to browse, Enter to recolour, Esc to close".into(),
             quit: false,
         };
         app.refilter();
@@ -120,17 +117,12 @@ pub fn run(args: &Args) {
         .system_dir
         .clone()
         .unwrap_or_else(|| args.client_dir.join("system"));
-    let decrypted = args
-        .decrypted_dir
-        .clone()
-        .unwrap_or_else(|| args.client_dir.join("system_decrypted"));
-
     let mut set = SchemaSet::load(&args.structure_dir).unwrap_or_else(|e| fail(&e));
-    let file = MsgFile::open(&decrypted, &args.file).unwrap_or_else(|e| fail(&e));
+    let file = MsgFile::open(&mut set, &system, &args.file).unwrap_or_else(|e| fail(&e));
     let mut app = App::new(file);
 
     let mut terminal = ratatui::init();
-    let result = event_loop(&mut terminal, &mut app, &mut set, &system, &decrypted);
+    let result = event_loop(&mut terminal, &mut app, &mut set);
     ratatui::restore();
 
     if let Err(e) = result {
@@ -143,8 +135,6 @@ fn event_loop(
     terminal: &mut ratatui::DefaultTerminal,
     app: &mut App,
     set: &mut SchemaSet,
-    system: &std::path::Path,
-    decrypted: &std::path::Path,
 ) -> std::io::Result<()> {
     while !app.quit {
         terminal.draw(|frame| draw(frame, app))?;
@@ -156,16 +146,24 @@ fn event_loop(
             continue;
         }
         if save_requested(&key) {
-            let cfg = client_files::Config {
-                system_dir: system,
-                decrypted_dir: decrypted,
-                chronicle: None,
-            };
-            let edited = app.file.edited_count();
-            app.status = match app.file.save(set, &cfg) {
-                Ok(()) => format!("saved {edited} change(s) to {}", app.file.name),
-                Err(e) => format!("SAVE FAILED, nothing written: {e}"),
-            };
+            save(app, set);
+            continue;
+        }
+        if matches!(app.mode, Mode::ConfirmQuit) {
+            match key.code {
+                KeyCode::Char('y') => {
+                    save(app, set);
+                    // Only leave if it actually landed; otherwise the prompt
+                    // stays up with the reason.
+                    app.quit = app.file.edited_count() == 0;
+                    if !app.quit {
+                        app.mode = Mode::Browse;
+                    }
+                }
+                KeyCode::Char('n') => app.quit = true,
+                KeyCode::Esc | KeyCode::Char('c') => app.mode = Mode::Browse,
+                _ => {}
+            }
             continue;
         }
         handle_key(app, key);
@@ -173,8 +171,29 @@ fn event_loop(
     Ok(())
 }
 
+fn save(app: &mut App, set: &mut SchemaSet) {
+    let edited = app.file.edited_count();
+    if edited == 0 {
+        app.status = "no changes to save".into();
+        return;
+    }
+    app.status = match app.file.save(set) {
+        Ok(()) => format!("saved {edited} change(s) to {}", app.file.name),
+        Err(e) => format!("SAVE FAILED, nothing written: {e}"),
+    };
+}
+
 fn save_requested(key: &KeyEvent) -> bool {
     key.modifiers.contains(KeyModifiers::CONTROL) && matches!(key.code, KeyCode::Char('s'))
+}
+
+/// Close, or ask first when there is something to lose.
+fn request_quit(app: &mut App) {
+    if app.file.edited_count() == 0 {
+        app.quit = true;
+    } else {
+        app.mode = Mode::ConfirmQuit;
+    }
 }
 
 fn handle_key(app: &mut App, key: KeyEvent) {
@@ -189,12 +208,12 @@ fn handle_key(app: &mut App, key: KeyEvent) {
                 app.refilter();
             }
             KeyCode::Tab | KeyCode::Down | KeyCode::Enter => app.mode = Mode::Browse,
-            KeyCode::Esc => app.quit = true,
+            KeyCode::Esc => request_quit(app),
             _ => {}
         },
 
         Mode::Browse => match key.code {
-            KeyCode::Char('q') | KeyCode::Esc => app.mode = Mode::Search,
+            KeyCode::Char('q') | KeyCode::Esc => request_quit(app),
             KeyCode::Char('/') | KeyCode::Tab => app.mode = Mode::Search,
             KeyCode::Down | KeyCode::Char('j') => app.step(1),
             KeyCode::Up | KeyCode::Char('k') => app.step(-1),
@@ -216,6 +235,8 @@ fn handle_key(app: &mut App, key: KeyEvent) {
             }
             _ => {}
         },
+
+        Mode::ConfirmQuit => {}
 
         Mode::Colour { input, preset } => match key.code {
             KeyCode::Esc => app.mode = Mode::Browse,
@@ -259,6 +280,7 @@ fn draw(frame: &mut Frame, app: &mut App) {
     // the detail pane is sized to whatever it is currently showing.
     let detail_height = match app.mode {
         Mode::Colour { .. } => PRESETS.len() as u16 + 4,
+        Mode::ConfirmQuit => 6,
         _ => 6,
     };
     let areas = Layout::default()
@@ -328,11 +350,12 @@ fn draw(frame: &mut Frame, app: &mut App) {
     draw_detail(frame, app, areas[2]);
 
     let help = match app.mode {
-        Mode::Search => "type to filter · Tab/↓ list · Esc quit",
-        Mode::Browse => "↑↓ move · Enter recolour · r revert · / search · Ctrl-S save · Esc back",
+        Mode::Search => "type to filter · Tab/↓ list · Esc close",
+        Mode::Browse => "↑↓ move · Enter recolour · r revert · / search · Ctrl-S save · Esc close",
         Mode::Colour { .. } => {
             "type hex · ↑↓ preset · Space apply preset · Enter confirm · Esc cancel"
         }
+        Mode::ConfirmQuit => "y save and close · n discard and close · Esc keep editing",
     };
     frame.render_widget(
         Paragraph::new(Line::from(vec![
@@ -358,6 +381,19 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect) {
     let message = &app.file.messages[index];
 
     let body = match &app.mode {
+        Mode::ConfirmQuit => vec![
+            Line::from(Span::styled(
+                format!("{} unsaved change(s)", app.file.edited_count()),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+            )),
+            Line::raw(format!(
+                "Pack and re-encrypt them into {} before closing?",
+                app.file.name
+            )),
+            Line::raw("y = save and close    n = discard and close    Esc = keep editing"),
+        ],
         Mode::Colour { input, preset } => {
             let mut lines = vec![Line::from(vec![
                 Span::raw("new colour: "),
@@ -433,11 +469,21 @@ mod tests {
     }
 
     fn app() -> App {
-        let dir = std::env::temp_dir().join(format!("l2r-msgui-{}", std::process::id()));
-        std::fs::create_dir_all(&dir).unwrap();
         let line = "msg_begin\t0\t1\t[Disconnected.]\t2\t799BB0FF\t1\t1\tmsg_end";
-        std::fs::write(dir.join("SystemMsg-t.dat"), format!("{line}\r\n")).unwrap();
-        App::new(MsgFile::open(&dir, "SystemMsg-t.dat").unwrap())
+        App::new(
+            MsgFile::from_text(
+                "SystemMsg-t.dat",
+                line,
+                "413".into(),
+                tools::dat_schema::Layout {
+                    version: "Helios".into(),
+                    safe_package: true,
+                    nodes: Vec::new(),
+                },
+                std::path::PathBuf::from("/nonexistent/SystemMsg-t.dat"),
+            )
+            .unwrap(),
+        )
     }
 
     /// The bug this guards: a fixed-height detail pane showed only the first
@@ -510,6 +556,33 @@ mod tests {
         handle_key(&mut app, KeyEvent::from(KeyCode::Enter));
         assert_eq!(app.file.messages[0].colour, PRESETS[4].1);
         assert_eq!(app.file.edited_count(), 1);
+    }
+
+    /// Closing with edits must not lose them silently.
+    #[test]
+    fn closing_with_edits_asks_first() {
+        // Nothing changed yet: Esc just closes.
+        let mut clean = app();
+        handle_key(&mut clean, KeyEvent::from(KeyCode::Esc));
+        assert!(clean.quit);
+
+        let mut dirty = app();
+        dirty.file.set_colour(0, "FF0000FF").unwrap();
+        dirty.mode = Mode::Browse;
+        handle_key(&mut dirty, KeyEvent::from(KeyCode::Esc));
+        assert!(!dirty.quit, "must not close straight away");
+        assert!(matches!(dirty.mode, Mode::ConfirmQuit));
+    }
+
+    #[test]
+    fn the_close_prompt_names_the_file_and_the_count() {
+        let mut app = app();
+        app.file.set_colour(0, "FF0000FF").unwrap();
+        app.mode = Mode::ConfirmQuit;
+        let screen = render(&mut app, 100, 30).join("\n");
+        assert!(screen.contains("1 unsaved change"), "{screen}");
+        assert!(screen.contains("SystemMsg-t.dat"));
+        assert!(screen.contains("y save and close"));
     }
 
     #[test]

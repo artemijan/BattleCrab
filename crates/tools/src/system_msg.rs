@@ -1,9 +1,11 @@
 //! The client's system-message table, as an editable model.
 //!
 //! `SystemMsg*-eu.dat` is what the client prints for every server message —
-//! the text and the colour it appears in. Once [`crate::client_files`] has
-//! turned it into text it is one record per line, so this works on those lines
-//! directly rather than re-deriving the schema:
+//! the text and the colour it appears in. A session owns the whole thing in
+//! memory: opening decrypts and unpacks straight from `system/`, so nothing
+//! has to have been run first and no intermediate file is left behind, and
+//! saving packs and re-encrypts back over the same file. Unpacked, a record
+//! is one line:
 //!
 //! ```text
 //! msg_begin  0  1  [You have been disconnected...]  2  799BB0FF  1  1  ...  msg_end
@@ -19,8 +21,8 @@
 //! nothing outside the colour can drift; the file still has to survive
 //! [`crate::dat_pack`]'s verify step before it reaches the client.
 
-use crate::client_files;
-use crate::dat_schema::SchemaSet;
+use crate::dat_schema::{Layout, SchemaSet};
+use crate::{client_dat, dat_pack, dat_text};
 use std::path::{Path, PathBuf};
 
 /// Tab-separated position of each field within a record line.
@@ -57,23 +59,55 @@ impl Message {
 
 pub struct MsgFile {
     pub name: String,
+    /// The encrypted file this was read from and will be written back to.
     path: PathBuf,
+    /// `Lineage2Ver` code it was enciphered with.
+    version: String,
+    /// The layout that unpacked it, reused verbatim to pack it again.
+    layout: Layout,
     lines: Vec<String>,
     pub messages: Vec<Message>,
 }
 
 impl MsgFile {
-    /// Read the decrypted text form of `name` from `decrypted_dir`.
-    pub fn open(decrypted_dir: &Path, name: &str) -> Result<Self, String> {
-        let path = decrypted_dir.join(name);
-        let raw = std::fs::read_to_string(&path).map_err(|e| {
-            format!(
-                "cannot read {} ({e}) — run `client-dat decrypt` first",
-                path.display()
-            )
-        })?;
-        let lines: Vec<String> = raw.lines().map(str::to_owned).collect();
+    /// Decrypt and unpack `name` from the client's `system` directory.
+    ///
+    /// Everything stays in memory: no `system_decrypted` is read or written,
+    /// so an editing session leaves no trace unless it is saved.
+    pub fn open(set: &mut SchemaSet, system_dir: &Path, name: &str) -> Result<Self, String> {
+        let path = system_dir.join(name);
+        let raw =
+            std::fs::read(&path).map_err(|e| format!("cannot read {}: {e}", path.display()))?;
+        let version = client_dat::read_version(&raw)
+            .ok_or_else(|| format!("{} has no Lineage2Ver header", path.display()))?;
+        let plain = client_dat::decrypt(&raw, &version)?;
 
+        // Whichever layout consumes the file exactly is the one that describes
+        // it; the same one is kept for packing so the two cannot disagree.
+        let enums = set.enums.clone();
+        let (text, layout) = set
+            .candidates(name)
+            .into_iter()
+            .find_map(|(_label, layout)| {
+                let outcome = dat_text::read(&plain, &layout, &enums, false);
+                outcome.exact().then_some((outcome.text, layout))
+            })
+            .ok_or_else(|| format!("no schema layout fits {name}"))?;
+
+        Self::from_text(name, &text, version, layout, path)
+    }
+
+    /// Parse already-unpacked text into a session. `open` is the normal entry
+    /// point; this is separate so the record parsing can be exercised without
+    /// a client to decrypt.
+    pub fn from_text(
+        name: &str,
+        text: &str,
+        version: String,
+        layout: Layout,
+        path: PathBuf,
+    ) -> Result<Self, String> {
+        let lines: Vec<String> = text.lines().map(str::to_owned).collect();
         let mut messages = Vec::new();
         for (index, line) in lines.iter().enumerate() {
             let fields: Vec<&str> = line.split('\t').collect();
@@ -98,13 +132,14 @@ impl MsgFile {
         }
         if messages.is_empty() {
             return Err(format!(
-                "{} has no `msg_begin` records — is it a system-message file?",
-                path.display()
+                "{name} has no `msg_begin` records — is it a system-message file?"
             ));
         }
         Ok(MsgFile {
             name: name.to_string(),
             path,
+            version,
+            layout,
             lines,
             messages,
         })
@@ -140,12 +175,37 @@ impl MsgFile {
         }
     }
 
-    /// Write the edits back to the decrypted text, then pack and encrypt the
-    /// file so the client can read it.
+    /// Pack and re-encrypt the session over the client file.
     ///
-    /// The text is only rewritten once packing has succeeded, so a failure
-    /// leaves both directories as they were rather than a half-applied edit.
-    pub fn save(&mut self, set: &mut SchemaSet, cfg: &client_files::Config) -> Result<(), String> {
+    /// The packed bytes are re-read and must reproduce the text they came
+    /// from before anything is written, so a `.dat` the client cannot parse is
+    /// never produced.
+    pub fn save(&mut self, set: &mut SchemaSet) -> Result<(), String> {
+        let text = self.to_text();
+        let bytes = dat_pack::pack(&text, &self.layout)?;
+
+        let enums = set.enums.clone();
+        let back = dat_text::read(&bytes, &self.layout, &enums, false);
+        if !back.exact() || back.text.trim_end() != text.trim_end() {
+            return Err(format!(
+                "packed bytes did not re-read as the same text ({}) — nothing written",
+                back.summary()
+            ));
+        }
+
+        let encrypted = client_dat::encrypt(&bytes, &self.version)?;
+        std::fs::write(&self.path, &encrypted)
+            .map_err(|e| format!("{}: {e}", self.path.display()))?;
+
+        self.lines = text.lines().map(str::to_owned).collect();
+        for message in &mut self.messages {
+            message.original_colour = message.colour.clone();
+        }
+        Ok(())
+    }
+
+    /// The session rendered back to unpacked text, edits applied.
+    fn to_text(&self) -> String {
         let mut lines = self.lines.clone();
         for message in &self.messages {
             let mut fields: Vec<String> =
@@ -153,16 +213,7 @@ impl MsgFile {
             fields[COLOUR] = message.colour.clone();
             lines[message.line] = fields.join("\t");
         }
-        let text = lines.join("\r\n");
-
-        client_files::write_one(set, cfg, &self.name, text.as_bytes())?;
-
-        std::fs::write(&self.path, &text).map_err(|e| format!("{}: {e}", self.path.display()))?;
-        self.lines = lines;
-        for message in &mut self.messages {
-            message.original_colour = message.colour.clone();
-        }
-        Ok(())
+        lines.join("\r\n")
     }
 }
 
@@ -186,9 +237,22 @@ mod tests {
 
     const LINE: &str = "msg_begin\t0\t1\t[You have been disconnected.]\t2\t799BB0FF\t1\t1\tmsg_end";
 
-    fn open(dir: &Path) -> MsgFile {
-        std::fs::write(dir.join("SystemMsg-test.dat"), format!("{LINE}\r\n")).unwrap();
-        MsgFile::open(dir, "SystemMsg-test.dat").unwrap()
+    fn session(text: &str) -> Result<MsgFile, String> {
+        MsgFile::from_text(
+            "SystemMsg-test.dat",
+            text,
+            "413".into(),
+            Layout {
+                version: "Helios".into(),
+                safe_package: true,
+                nodes: Vec::new(),
+            },
+            PathBuf::from("/nonexistent/SystemMsg-test.dat"),
+        )
+    }
+
+    fn open(_dir: &Path) -> MsgFile {
+        session(LINE).unwrap()
     }
 
     fn tmp() -> PathBuf {
@@ -245,8 +309,16 @@ mod tests {
 
     #[test]
     fn a_file_with_no_records_is_an_error_not_an_empty_session() {
-        let dir = tmp();
-        std::fs::write(dir.join("NotMessages.dat"), "something\telse\r\n").unwrap();
-        assert!(MsgFile::open(&dir, "NotMessages.dat").is_err());
+        assert!(session("something\telse").is_err());
+    }
+
+    /// Edits go back into the same tab positions, leaving every other field
+    /// on the line exactly as it was.
+    #[test]
+    fn rendering_back_to_text_touches_only_the_colour() {
+        let mut file = open(&tmp());
+        file.set_colour(0, "FF0000FF").unwrap();
+        let out = file.to_text();
+        assert_eq!(out, LINE.replace("799BB0FF", "FF0000FF"));
     }
 }

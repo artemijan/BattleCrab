@@ -338,37 +338,3 @@ fn pack(
     }
     Err(last)
 }
-
-/// Pack and encrypt one already-decrypted file straight into `system`.
-///
-/// This is the single-file half of [`encrypt`], for editors that change one
-/// table and want it in the client without rewriting the whole directory. The
-/// content is packed and verified exactly as a full run would; nothing is
-/// written unless it survives that.
-pub fn write_one(
-    set: &mut SchemaSet,
-    cfg: &Config,
-    name: &str,
-    content: &[u8],
-) -> Result<(), String> {
-    let manifest_path = cfg.decrypted_dir.join(MANIFEST_NAME);
-    let manifest: BTreeMap<String, Record> = serde_json::from_str(
-        &std::fs::read_to_string(&manifest_path)
-            .map_err(|e| format!("cannot read {} ({e})", manifest_path.display()))?,
-    )
-    .map_err(|e| format!("cannot parse {}: {e}", manifest_path.display()))?;
-
-    let record = manifest
-        .get(name)
-        .ok_or_else(|| format!("{name} is not in {MANIFEST_NAME}"))?;
-    let enums = set.enums.clone();
-
-    let plain = match record.form {
-        Form::Cipher | Form::Raw => content.to_vec(),
-        Form::Schema => pack(set, name, content, record, &enums)?,
-    };
-    let bytes = client_dat::encrypt(&plain, &record.version)?;
-    std::fs::create_dir_all(cfg.system_dir)
-        .map_err(|e| format!("cannot create {}: {e}", cfg.system_dir.display()))?;
-    std::fs::write(cfg.system_dir.join(name), &bytes).map_err(|e| format!("write: {e}"))
-}
