@@ -71,10 +71,24 @@ This plan entry was simply stale. Recorded rather than re-ported.
   `config/offline_trade.rs`): logout/`.offline` leaves the shop standing, it
   keeps trading through `world.offline_traders`, and `DbEvent::
   OfflineTradersLoaded` brings it back at boot.
-- `//geosave` binary-region serializer; the niche admin
-  tools (AdminFightCalculator / AdminRepairChar / AdminPForge / AdminMissingHtmls
-  / AdminPcCondOverride); precautionary/scheduled restart + deadlock detector;
-  `NpcNameLocalisationData` / multilang; Dockerfile parity.
+- ~~`//geosave` binary-region serializer~~ **DONE** — `geo::save_region` +
+  `admin::geo_editor` (`//geosave`, `//geosaveall`), with the runtime NSWE
+  overrides folded into the written cells. Round-trip tested
+  (`geosave_writes_the_edited_region`: write, reload, find the edit, and
+  confirm untouched cells did not move).
+- ~~AdminFightCalculator / AdminRepairChar / AdminPcCondOverride~~ **DONE**
+  (`admin/gm_util.rs`, `admin/mod.rs`, `db.rs`).
+- Still open, re-verified against the code 2026-08-03:
+  - **AdminPForge** and **AdminMissingHtmls** — no trace in the port.
+  - **Precautionary/scheduled restart + deadlock detector** — the config keys
+    parse (`config/server.rs`) but **nothing reads them**: a parsed flag with
+    no consumer, which is this project's most-repeated failure shape.
+  - **`NpcNameLocalisationData` / multilang** — absent.
+  - **Dockerfile parity** — no `Dockerfile` in the tree.
+
+  Everything above this line was listed as outstanding until it was checked;
+  five of the eight items had already landed. Check the code before working
+  from this list.
 
 ## Watch-list
 
