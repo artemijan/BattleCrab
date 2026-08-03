@@ -3446,9 +3446,9 @@ const FEAR_RANGE: f64 = 500.0;
 /// same `isRaid()` bail `Mute` has), and on the NPC side only the `Attackable`
 /// subtree qualifies, minus the siege-defence family: a fear must not scatter
 /// stationed defenders off a castle wall or push a siege golem around.
-/// A player is always fearable. (Java's `isSummon()` leg has no ported
-/// counterpart — servitors are `TODO(G29)` — and folds into the player case
-/// once they exist.)
+/// A player is always fearable. Java's `isSummon()` leg folds into the same
+/// case, and servitors landed with G29 — so nothing is missing here; the two
+/// legs are simply one branch in this port.
 fn fear_can_start(world: &World, target_oid: i32) -> bool {
     let Some(npc) = world
         .objects
