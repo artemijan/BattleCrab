@@ -33,6 +33,8 @@ use std::path::Path;
 const ID: usize = 1;
 const MESSAGE: usize = 3;
 const COLOUR: usize = 5;
+const GROUP: usize = 4;
+const TYPE: usize = 16;
 /// `msg_begin` + 16 fields + `msg_end`.
 const FIELDS: usize = 18;
 
@@ -184,6 +186,15 @@ fn new_row(info: &MessageInfo, defaults: &[String]) -> String {
     fields[ID] = info.id.to_string();
     fields[MESSAGE] = bracket(info.text);
     fields[COLOUR] = swap_rb(info.color);
+    // A message that names its render class overrides the modal default: a
+    // `[none]`/`0` row draws in the client's default grey however the colour
+    // column is set, which is exactly what the modal value gives you.
+    if let Some(group) = info.group {
+        fields[GROUP] = group.to_string();
+    }
+    if let Some(kind) = info.msg_type {
+        fields[TYPE] = kind.to_string();
+    }
     fields.join("\t")
 }
 
@@ -261,6 +272,8 @@ mod tests {
             color: "FF6666FF",
             params: 1,
             custom: true,
+            group: None,
+            msg_type: None,
         };
         let built = new_row(&info, &defaults);
         let fields: Vec<&str> = built.split('\t').collect();
@@ -281,6 +294,28 @@ mod tests {
         assert_eq!(escape("a]b"), "a\\]b");
         assert_eq!(escape("a\tb"), "a\\tb");
         assert_eq!(escape("plain"), "plain");
+    }
+
+    /// The bug this guards: a `[none]` row draws grey whatever its colour.
+    #[test]
+    fn a_message_that_names_its_render_class_overrides_the_default() {
+        let defaults = modal_fields(&[row(1, "a", "799BB0FF")]).unwrap();
+        let info = MessageInfo {
+            id: 9000,
+            name: "X_S1",
+            text: "x",
+            color: "FF6666FF",
+            params: 1,
+            custom: true,
+            group: Some(3),
+            msg_type: Some("[damage]"),
+        };
+        let fields: Vec<String> = new_row(&info, &defaults)
+            .split('\t')
+            .map(str::to_owned)
+            .collect();
+        assert_eq!(fields[GROUP], "3");
+        assert_eq!(fields[TYPE], "[damage]");
     }
 
     /// The bug this guards: 53 retail messages end in `…`, which packs as

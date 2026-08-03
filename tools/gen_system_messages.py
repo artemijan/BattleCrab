@@ -79,6 +79,8 @@ def parse_java(path):
                 "message": message.replace('\\"', '"'),
                 "color": None,
                 "custom": False,
+                "group": None,
+                "msg_type": None,
             }
         )
     return out
@@ -103,6 +105,14 @@ def parse_dat_colors(path):
             except ValueError:
                 pass
     return colors
+
+
+def fmt_opt_int(v):
+    return "None" if v is None else f"Some({v})"
+
+
+def fmt_opt_str(v):
+    return "None" if v is None else f'Some("{v}")'
 
 
 def rust_string(s):
@@ -175,6 +185,8 @@ def main(argv):
                 "message": c["message"],
                 "color": c["color"].upper(),
                 "custom": True,
+                "group": c.get("group"),
+                "msg_type": c.get("type"),
             }
         )
 
@@ -238,7 +250,8 @@ def main(argv):
         parts.append(
             f'    MessageInfo {{ id: {e["id"]}, name: "{e["name"]}", '
             f'text: "{rust_string(e["message"])}", color: "{e["color"]}", '
-            f'params: {arity(e["name"])}, custom: {str(e["custom"]).lower()} }},\n'
+            f'params: {arity(e["name"])}, custom: {str(e["custom"]).lower()}, '
+            f'group: {fmt_opt_int(e.get("group"))}, msg_type: {fmt_opt_str(e.get("msg_type"))} }},\n'
         )
     parts.append("];\n")
 

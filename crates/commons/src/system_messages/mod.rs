@@ -189,6 +189,15 @@ pub struct MessageInfo {
     pub params: usize,
     /// Added by this server rather than shipped by the client.
     pub custom: bool,
+    /// `group` column, when this message dictates one.
+    ///
+    /// Together with [`Self::msg_type`] this picks how the client draws the
+    /// line. A `[none]`/`0` row renders in the default grey whatever the
+    /// colour column says, which is why a custom message needs to name the
+    /// class it belongs to rather than take the file's modal value.
+    pub group: Option<i32>,
+    /// `type` column (`[damage]`, `[server]`, `[none]`, …), when dictated.
+    pub msg_type: Option<&'static str>,
 }
 
 /// Look a message up by id — for tooling and diagnostics, not the send path.
