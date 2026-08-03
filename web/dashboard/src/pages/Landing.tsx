@@ -59,8 +59,8 @@ function ProjectStatus() {
                 </span>
               </p>
               <p className="mt-1 text-sm/relaxed  text-(--text-muted)">
-                Roughly a month out. The target is a server steady enough to play properly, with the
-                rest of the Interlude Classic content in place.
+                The target is a server steady enough to play properly, with the rest of the
+                Interlude Classic content in place.
               </p>
             </div>
           </li>
