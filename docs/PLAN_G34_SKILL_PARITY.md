@@ -1218,15 +1218,45 @@ is identity here. `TODO(G34)` at the formula.
 Census: unchanged — these are skill *tags*, not effect names, so no axis
 counts them. Three tests, all sabotage-verified.
 
-### S8 — Epic gate & close-out
+### S8 — Epic gate & close-out ✅ — **G34 IS CLOSED**
 
-Re-run S0's census; every remaining entry must be either **ported** or
-**explicitly recorded as out-of-chronicle with the reason**, with no silent
-third category. Update `docs/PROGRESS.md`, `docs/ROADMAP.md`, and write the
-memory entry.
+The gate was meant to be bookkeeping. Forcing every residual entry to be
+*examined* instead of counted turned up one more real gap.
 
-**Epic gate:** of the 758 learnable skills, 0 carry an unhandled effect or an
-unported condition that is not on the recorded out-of-scope list.
+**Anchor (1170) was doing half its job.** Its own description promises the body
+goes "completely rigid for 5 seconds **and** causes paralysis for 5 seconds" —
+and that second half is an `<endEffects>` block firing `CallSkill(6091)` when
+the first stage comes off. Neither the `END` effect scope nor `CallSkill`
+existed here, and the scope enum carried a comment saying `START`/`END` "hang
+off lifecycle hooks this port doesn't have (cast start, buff end)" — the port
+has had `handle_buff_expire` for milestones. The **fifth** deviation comment
+this epic caught resting on a false premise.
+
+**The gate itself is now a named list, not a number.** A count says nothing
+about whether what is left was *decided* or merely never looked at, so
+`datapack_skill_coverage_census` asserts:
+
+1. every learnable skill still carrying an unhandled effect or unenforced
+   condition appears in a `(skill_id, reason)` table, and
+2. nothing in that table has *stopped* failing — a since-ported id must come
+   off the list rather than sit there excusing a gap that no longer exists.
+
+Both directions sabotage-verified. The first check caught a real mistake while
+being written: the ids guessed for `StatUp` and `SafeFallHeight` were wrong,
+and the assertion named the right ones (848-856, 173) immediately.
+
+**The recorded residue — 11 learnable skills of 758:**
+
+| skills | why |
+|---|---|
+| 848-856, the nine `<Town> Territory Benefaction` | `StatUp` is Territory War content; this chronicle has none |
+| 173 Acrobatics | `SafeFallHeight` — the port has no fall damage, so the stat would have no consumer |
+| 42 Sweeper | `OpSweeper` enforced at *apply* time by `effects::sweep`, with the right per-corpse messages; gating the cast too would double every one |
+
+**Final numbers.** Learnable skills that drop an effect or ignore a condition:
+**275 → 11**, all recorded. Effect names 216 → **142**; reachable 1154. Every
+non-effect axis is at **0 learnable**: target types 11 → 9, affect objects
+5 → 4, operate types 13 → 7, effect scopes 5 → 2.
 
 ---
 

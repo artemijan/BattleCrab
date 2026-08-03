@@ -1001,10 +1001,15 @@ fn log_gaps(gaps: &SkillGaps) {
 
 /// Which `<*Effects>` block an effect was declared in — Java `EffectScope`.
 ///
-/// `START` and `END` are parsed as [`Self::Other`] and dropped: they hang off
-/// lifecycle hooks this port doesn't have (cast start, buff end). `CHANNELING`
-/// feeds `Skill.channeling_effects`, applied per `ChannelingTick`
-/// (PLAN_G19_GROUND_CHANNELING.md).
+/// `END` feeds `Skill.end_effects`, fired by `handle_buff_expire` — Java's
+/// `EffectList` runs `applyEffectScope(EffectScope.END, …)` as the last thing
+/// it does when a buff comes off. Anchor (1170) is the learnable carrier: the
+/// first stage holds the body rigid, the end-effect fires skill 6091 for the
+/// paralysis its own description promises.
+///
+/// `START` is still parsed as [`Self::Other`] and dropped — no reachable skill
+/// on this dist declares one. `CHANNELING` feeds `Skill.channeling_effects`,
+/// applied per `ChannelingTick` (PLAN_G19_GROUND_CHANNELING.md).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum EffectScope {
     General,
@@ -1012,6 +1017,7 @@ enum EffectScope {
     Pve,
     Pvp,
     Channeling,
+    End,
     Other,
 }
 
@@ -1023,6 +1029,7 @@ impl EffectScope {
             "pveEffects" => Self::Pve,
             "pvpEffects" => Self::Pvp,
             "channelingEffects" => Self::Channeling,
+            "endEffects" => Self::End,
             _ => Self::Other,
         }
     }
@@ -2237,6 +2244,19 @@ fn build_skill(
                                 ignore_shield_defence: false,
                             }]
                         }
+                        // `CallSkill.java` — cast another skill outright.
+                        // Java's `skillLevel` default is 1; a declared 0 means
+                        // "the effector's own learned level", and
+                        // `skillLevelScaleTo` scales off an existing buff —
+                        // neither is used by any reachable carrier here.
+                        "CallSkill" => match param("skillId") {
+                            Some(sid) if sid > 0.0 => vec![SkillEffect::CallSkill {
+                                skill_id: sid as i32,
+                                skill_level: param("skillLevel").unwrap_or(1.0).max(1.0) as i32,
+                                chance: param("chance").unwrap_or(100.0) as i32,
+                            }],
+                            _ => Vec::new(),
+                        },
                         "PolearmSingleTarget" => vec![SkillEffect::PolearmSingleTarget],
                         "ReduceDropPenalty" => {
                             use crate::model::skill::ReduceDropKind;
@@ -3036,6 +3056,7 @@ fn build_skill(
         let pve_effects = build_scope(EffectScope::Pve);
         let pvp_effects = build_scope(EffectScope::Pvp);
         let channeling_effects = build_scope(EffectScope::Channeling);
+        let end_effects = build_scope(EffectScope::End);
 
         // Effect names present in the XML but not in `EFFECT_REGISTRY` are
         // silently dropped (see module docs) — expected for the vast majority
@@ -3132,6 +3153,7 @@ fn build_skill(
             pve_effects,
             pvp_effects,
             channeling_effects,
+            end_effects,
             basic_property: value_at(values, "basicProperty", level)
                 .map(BasicProperty::from_xml)
                 .unwrap_or_default(),
@@ -4831,7 +4853,7 @@ mod coverage_census {
     /// `<effect-scope>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 5 name(s), 1 learnable
     /// skill(s) affected, 10 reachable.
-    const EFFECT_SCOPES: &[(&str, usize)] = &[("endEffects/CallSkill", 1)];
+    const EFFECT_SCOPES: &[(&str, usize)] = &[];
 
     /// `<condition>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 69 name(s), 1 learnable
@@ -4900,8 +4922,8 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 143, 10, 1167),
-            ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
+            ("effect", &gaps.effects, EFFECTS, 142, 10, 1154),
+            ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 9, 0, 476),
             ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
@@ -4950,13 +4972,62 @@ mod coverage_census {
         // as unhandled even though the player half of the same handler — the
         // `ConfirmDlg` recall — is still a TODO(G30) no-op. Whatever this
         // number is, it does not mean "Summon Friend works".
-        assert_eq!(
-            wrong.len(),
-            12,
-            "learnable skills carrying an unhandled effect or an unenforced condition \
-             (was 275/758 before G34 S1 landed the condition engine; the residue is \
-             now almost entirely unhandled *effects*, out of {}) — G34's headline gap",
+        //
+        // **G34's close-out gate (S8).** Counting the residue is not enough —
+        // a shrinking number says nothing about whether what is left was
+        // *decided* or merely never looked at. So the gate names every
+        // remaining skill and the reason it is out of scope. A new gap cannot
+        // hide inside the count; it shows up as an id with no entry here.
+        let out_of_scope: &[(i32, &str)] = &[
+            // `StatUp` — the nine "<Town> Territory Benefaction" skills, i.e.
+            // Territory War content, which this chronicle has none of.
+            (848, "StatUp: Gludio Territory Benefaction (Territory War)"),
+            (849, "StatUp: Dion Territory Benefaction (Territory War)"),
+            (850, "StatUp: Giran Territory Benefaction (Territory War)"),
+            (851, "StatUp: Oren Territory Benefaction (Territory War)"),
+            (852, "StatUp: Aden Territory Benefaction (Territory War)"),
+            (
+                853,
+                "StatUp: Innadril Territory Benefaction (Territory War)",
+            ),
+            (854, "StatUp: Goddard Territory Benefaction (Territory War)"),
+            (855, "StatUp: Rune Territory Benefaction (Territory War)"),
+            (
+                856,
+                "StatUp: Schuttgart Territory Benefaction (Territory War)",
+            ),
+            // `SafeFallHeight` — Acrobatics (173). This port has no fall damage
+            // at all, so the stat would have nothing to modify: a stat with no
+            // consumer is the exact anti-pattern this epic spent S4 fighting.
+            (
+                173,
+                "SafeFallHeight: Acrobatics — the port has no fall damage",
+            ),
+            // `OpSweeper` — Sweeper (42), deliberate: see `CONDITIONS` above.
+            // Java's cast condition re-runs the whole per-corpse sweep that
+            // `effects::sweep` already does at apply time, with the right
+            // per-corpse messages. Gating the cast on it too would double
+            // every one of them.
+            (42, "OpSweeper: Sweeper — enforced at apply time instead"),
+        ];
+        let recorded: BTreeSet<i32> = out_of_scope.iter().map(|(id, _)| *id).collect();
+        let unexplained: Vec<i32> = wrong.difference(&recorded).copied().collect();
+        assert!(
+            unexplained.is_empty(),
+            "G34's gate: every learnable skill still carrying an unhandled effect or an \
+             unenforced condition must be on the recorded out-of-scope list with a \
+             reason. These are not: {unexplained:?} (of {} learnable; was 275 before \
+             G34 S1)",
             learn.len()
+        );
+        // And the list must not rot the other way: an id that has since been
+        // ported should come *off* the list rather than sit there excusing a
+        // gap that no longer exists.
+        let stale: Vec<i32> = recorded.difference(&wrong).copied().collect();
+        assert!(
+            stale.is_empty(),
+            "recorded as out of scope but no longer failing — delete these entries: \
+             {stale:?}"
         );
     }
 
