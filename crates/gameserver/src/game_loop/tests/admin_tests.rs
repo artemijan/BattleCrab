@@ -4826,7 +4826,7 @@ fn server_gm_only_sends_server_status() {
 fn setcharquest_and_menu_roundtrip() {
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7821, 100);
-    let _p_rx = ingame_player_access(&mut world, 2, 7822, 0);
+    let mut p_rx = ingame_player_access(&mut world, 2, 7822, 0);
     let name = world
         .objects
         .get_component::<Player>(&7822)
@@ -4834,6 +4834,7 @@ fn setcharquest_and_menu_roundtrip() {
         .name
         .clone();
     drain(&mut gm_rx);
+    drain(&mut p_rx);
 
     on_packet(
         &mut world,
@@ -4841,6 +4842,15 @@ fn setcharquest_and_menu_roundtrip() {
         build_admin(&format!(
             "setcharquest {name} Q00101_SwordOfSolidarity cond 3"
         )),
+    );
+    // Java closes setQuestVar with QuestList + ExShowQuestMark on the edited
+    // player: the journal must move without a relog.
+    let to_target = drain(&mut p_rx);
+    assert!(
+        to_target
+            .iter()
+            .any(|p| p[0] == crate::network::server_packets::opcodes::QUEST_LIST),
+        "QuestList pushed to the edited player"
     );
     on_packet(
         &mut world,
