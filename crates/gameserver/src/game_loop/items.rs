@@ -611,13 +611,41 @@ pub(crate) fn finish_equip_change(
     if changed.is_empty() {
         return;
     }
-    // Java's equip/unequip listeners fire the augment bonuses first
-    // (`Inventory.equipItem`: "Apply augmentation bonuses on equip";
-    // `unEquipItemInBodySlot`: "Remove augmentation bonuses on unequip"), and
-    // *then* recalculate stats — so an option's modifiers are already in the
-    // maps when the recompute below runs. `changed` carries the object ids
-    // whose paperdoll slot moved either way; which direction it went is read
-    // off the inventory here.
+    apply_paperdoll_change(world, client_id, object_id, changed);
+
+    let Some(inventory) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+    else {
+        return;
+    };
+    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
+    // …and finally Java's `sendInventoryUpdate` — the `InventoryUpdate` plus the
+    // adena counter and weight bar it always drags along.
+    super::helpers::send_inventory_update(world, client_id, object_id, iu);
+    refresh_after_paperdoll_change(world, object_id);
+    // NB: no shadow-item mana is spent here. Java burns a point in
+    // `Player.useEquipableItem` alone — for the one item the player clicked —
+    // and this helper stands in for a good deal more than that click: an
+    // enchant refreshing a worn item's glow, an augment re-applying its
+    // options, `//mount` stripping a weapon. Charging mana from here made a
+    // shadow weapon die early for reasons Java never charges for; the call
+    // lives at the `use_equipable_item` equip branch instead. See
+    // [`super::item_mana`].
+}
+
+/// The head of [`finish_equip_change`]: re-apply or drop each changed item's
+/// option bonuses, then recompute stats and push the paperdoll to the client.
+///
+/// Java's equip/unequip listeners fire the augment bonuses first
+/// (`Inventory.equipItem`: "Apply augmentation bonuses on equip";
+/// `unEquipItemInBodySlot`: "Remove augmentation bonuses on unequip"), and
+/// *then* recalculate stats — so an option's modifiers are already in the maps
+/// when the recompute runs. `changed` carries the object ids whose paperdoll
+/// slot moved either way; which direction it went is read off the inventory
+/// here, so an id that has since left the bag entirely (a destroy) correctly
+/// takes the "remove" branch.
+fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, changed: &[i32]) {
     for &item_oid in changed {
         let equipped = world
             .objects
@@ -633,38 +661,77 @@ pub(crate) fn finish_equip_change(
     // component; the new `loc`/`loc_data` of each changed slot persists on the
     // next flush (`Inventory::to_rows`), so equip/unequip spam can't drive DB
     // writes.
-
     refresh_equip_state(world, client_id, object_id);
+}
 
-    let Some(inventory) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
-    else {
-        return;
-    };
-    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
-    // …and finally Java's `sendInventoryUpdate` — the `InventoryUpdate` plus the
-    // adena counter and weight bar it always drags along.
-    super::helpers::send_inventory_update(world, client_id, object_id, iu);
+/// The tail of [`finish_equip_change`]: the owner-wide penalties and passives
+/// a paperdoll change can flip. Each sends its own packets, and only when the
+/// value it owns actually moved.
+fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) {
     // Java `Inventory.equipItem`/`unEquipItemInBodySlot` fire
     // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
-    // (or one just removed) changes the grade penalty. Runs last so the borrow
-    // of `inventory` above is released; it sends its own EtcStatusUpdate +
-    // UserInfo when the penalty actually changed.
+    // (or one just removed) changes the grade penalty. It sends its own
+    // EtcStatusUpdate + UserInfo when the penalty actually changed.
     crate::game_loop::expertise::refresh_expertise_penalty(world, object_id);
     crate::game_loop::weight::refresh_weight_penalty(world, object_id);
     // Java re-pumps passive skill effects on the same equip listeners: an
     // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
     // robe is worn or removed. Resends its own UserInfo when the set changed.
     crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
-    // NB: no shadow-item mana is spent here. Java burns a point in
-    // `Player.useEquipableItem` alone — for the one item the player clicked —
-    // and this helper stands in for a good deal more than that click: an
-    // enchant refreshing a worn item's glow, an augment re-applying its
-    // options, `//mount` stripping a weapon. Charging mana from here made a
-    // shadow weapon die early for reasons Java never charges for; the call
-    // lives at the `use_equipable_item` equip branch instead. See
-    // [`super::item_mana`].
+}
+
+/// The unequip Java runs for free when a *worn* item leaves the bag:
+/// `Inventory.removeItem` is overridden to `unEquipItemInSlot` whatever it is
+/// about to take out, so `setPaperdollItem(slot, null)` drops the item's
+/// bonuses, recalculates the wearer's stats and pushes `ExUserInfoEquipSlot`
+/// before the destroy's own `InventoryUpdate` goes out. Here the paperdoll is
+/// a plain data component that cannot reach the client, so each destroy path
+/// has to call this with the object ids the removal unequipped — snapshot
+/// [`crate::model::inventory::Inventory::equipped_object_ids`] before the
+/// removal and intersect it with the removal's result via
+/// [`unequipped_by_removal`].
+///
+/// Skipping it is not a cosmetic inventory-window bug: `UserInfo` carries only
+/// the right-hand *enchant level*, never the paperdoll item ids, so the client
+/// keeps rendering a weapon the character no longer owns while the inventory
+/// window correctly shows nothing equipped. Q229 `Test of Witchcraft` hits
+/// this — the Sword of Seal is a registered quest item *and* a weapon, so the
+/// hand-in's `exitQuest` destroys it straight out of the player's hand.
+///
+/// Call before the caller's own `InventoryUpdate`, matching Java's ordering.
+pub(crate) fn finish_equipped_item_destroyed(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    unequipped: &[i32],
+) {
+    if unequipped.is_empty() {
+        return;
+    }
+    // The ids are gone from the item list, so `apply_paperdoll_change` reads
+    // them as unequipped and takes the option-removal branch — what Java's
+    // `notifyUnequiped` listeners do for a destroyed worn item.
+    apply_paperdoll_change(world, client_id, object_id, unequipped);
+    refresh_after_paperdoll_change(world, object_id);
+}
+
+/// The object ids in `changes` that were worn before the removal ran — i.e.
+/// the ones [`finish_equipped_item_destroyed`] has to be told about. `before`
+/// is an `Inventory::equipped_object_ids` snapshot taken *before* the removal.
+pub(crate) fn unequipped_by_removal(
+    before: &[i32],
+    changes: &[crate::model::inventory::ItemChange],
+) -> Vec<i32> {
+    use crate::model::inventory::ItemChange;
+    changes
+        .iter()
+        .filter_map(|c| match c {
+            // Only a full removal clears a paperdoll slot; a partial
+            // decrement leaves the instance — and its slot — in place.
+            ItemChange::Removed(it) if before.contains(&it.object_id) => Some(it.object_id),
+            _ => None,
+        })
+        .collect()
 }
 
 /// The stat-and-paperdoll half of [`finish_equip_change`]: recompute the

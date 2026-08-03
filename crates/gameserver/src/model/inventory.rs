@@ -403,12 +403,19 @@ impl Inventory {
     }
 
     /// Destroy up to `count` of an item id (negative = all, Java
-    /// `takeItems`' clamp) — the first item-removal path in the codebase
-    /// (quest `takeItems`; drop/trade/crystallize are later milestones).
-    /// Never touches the paperdoll: quest items can't be equipped, and the
-    /// game-loop wrapper (`quests::take_items`) is the only caller. Returns
-    /// what happened per touched instance so the caller can mirror it to the
-    /// client (`InventoryUpdate`) and the DB.
+    /// `takeItems`' clamp). Returns what happened per touched instance so the
+    /// caller can mirror it to the client (`InventoryUpdate`) and the DB.
+    ///
+    /// A destroyed instance is lifted off the paperdoll first, mirroring
+    /// Java's `Inventory.removeItem` ("Unequip item if equiped"). Worn items
+    /// *do* reach this path — a registered quest item can be equipment (Q229
+    /// `Test of Witchcraft` registers the Sword of Seal, a weapon, which
+    /// `exitQuest` then destroys while it is still in the player's hand). The
+    /// clearing alone is not enough: Java's `setPaperdollItem` also drops the
+    /// item's bonuses, recalculates stats and pushes `ExUserInfoEquipSlot`,
+    /// none of which a plain data component can do. Snapshot
+    /// [`Self::equipped_object_ids`] before calling and hand what this
+    /// unequipped to `game_loop::items::finish_equipped_item_destroyed`.
     pub fn remove_item(&mut self, item_id: i32, count: i64) -> Vec<ItemChange> {
         let mut remaining = if count < 0 { i64::MAX } else { count };
         let mut changes = Vec::new();
@@ -425,7 +432,7 @@ impl Inventory {
             remaining -= removed.count;
             self.paperdoll.iter_mut().for_each(|s| {
                 if *s == Some(removed.object_id) {
-                    *s = None; // defensive; see doc comment
+                    *s = None; // Java `Inventory.removeItem`; see doc comment
                 }
             });
             changes.push(ItemChange::Removed(removed));
@@ -692,6 +699,14 @@ impl Inventory {
     /// equip/unequip changes.
     pub fn paperdoll_slot_of(&self, object_id: i32) -> Option<usize> {
         self.paperdoll.iter().position(|s| *s == Some(object_id))
+    }
+
+    /// Every object id currently sitting in a paperdoll slot. Snapshot this
+    /// *before* a destroy to learn which instances the removal unequipped —
+    /// see [`Self::remove_item`] for why that has to be driven by hand here
+    /// when Java gets it for free inside `Inventory.removeItem`.
+    pub fn equipped_object_ids(&self) -> Vec<i32> {
+        self.paperdoll.iter().flatten().copied().collect()
     }
 
     /// `getPaperdollObjectId` — 0 when the slot is empty.

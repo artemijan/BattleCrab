@@ -1932,11 +1932,19 @@ pub(crate) fn take_items(
     item_id: i32,
     count: i64,
 ) -> bool {
-    let changes = {
+    let (changes, unequipped) = {
         let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) else {
             return false;
         };
-        inv.remove_item(item_id, count)
+        // Java's `Inventory.removeItem` unequips whatever it takes out of the
+        // bag; here the paperdoll clearing is silent, so note which worn
+        // instances the removal took. A quest item can be equipment — Q229
+        // `Test of Witchcraft` registers the Sword of Seal (a weapon), and its
+        // `exitQuest` sweep destroys it while it is still in the player's hand.
+        let equipped_before = inv.equipped_object_ids();
+        let changes = inv.remove_item(item_id, count);
+        let unequipped = super::items::unequipped_by_removal(&equipped_before, &changes);
+        (changes, unequipped)
     };
     if changes.is_empty() {
         return false;
@@ -1944,6 +1952,10 @@ pub(crate) fn take_items(
     // Memory-first: the count decrements / removals already applied to the
     // `Inventory` component; they persist on the next flush.
     //
+    // Java unequips *before* the destroy's `InventoryUpdate` goes out (the
+    // `ExUserInfoEquipSlot` comes from inside `setPaperdollItem`), so this
+    // runs first — without it the client keeps rendering a destroyed weapon.
+    super::items::finish_equipped_item_destroyed(world, client_id, player, &unequipped);
     // As in `give_item_with_earned_message`, no bare `ExQuestItemList` — Java's
     // `takeItems` → `destroyItemByItemId` sends only the `InventoryUpdate`, and
     // the change-type-3 entries below are what retire the client's rows.
