@@ -1293,6 +1293,51 @@ fn sysmsg_text(p: &[u8]) -> Option<String> {
     commons::network::PacketReader::new(&p[5..]).read_string()
 }
 
+/// The id of a `SystemMessage` packet, whatever its parameters. Used where the
+/// assertion is about *which* message was sent rather than its text — the
+/// generated messages carry typed parameters, so there is no string to match.
+fn sysmsg_id(p: &[u8]) -> Option<i16> {
+    (p.first() == Some(&server_packets::opcodes::SYSTEM_MESSAGE) && p.len() >= 3)
+        .then(|| i16::from_le_bytes([p[1], p[2]]))
+}
+
+/// The first `Int` parameter of a `SystemMessage`, walking the parameter list
+/// by its type bytes. Lets a test assert on a computed number — a landing
+/// chance, say — now that such messages carry typed parameters rather than a
+/// pre-formatted sentence.
+fn sysmsg_int(p: &[u8]) -> Option<i32> {
+    if p.first() != Some(&server_packets::opcodes::SYSTEM_MESSAGE) || p.len() < 4 {
+        return None;
+    }
+    let mut r = commons::network::PacketReader::new(&p[4..]);
+    for _ in 0..p[3] {
+        match r.read_u8()? {
+            1 => return r.read_i32(),
+            0 | 12 => {
+                r.read_string()?;
+            }
+            2 | 3 | 5 | 13 => {
+                r.read_i32()?;
+            }
+            4 => {
+                r.read_i32()?;
+                r.read_i16()?;
+                r.read_i16()?;
+            }
+            6 => {
+                r.read_i64()?;
+            }
+            7 | 16 => {
+                for _ in 0..3 {
+                    r.read_i32()?;
+                }
+            }
+            _ => return None,
+        }
+    }
+    None
+}
+
 fn ex_subs_of(pkts: &[Vec<u8>]) -> Vec<i16> {
     pkts.iter()
         .filter(|p| p[0] == server_packets::opcodes::EX)

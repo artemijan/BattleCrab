@@ -1,4 +1,7 @@
 use super::*;
+use commons::system_messages::generated::{
+    C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
+};
 
 /// Arm a test player with `item_id` in the right hand.
 ///
@@ -2615,12 +2618,14 @@ fn single_target_debuff_lands_and_reports_chance() {
         "run speed debuffed to 96, got {speed}"
     );
 
-    // The caster sees the landed-outcome line (single-target only).
+    // The caster sees the landed-outcome line (single-target only). It is now
+    // this server's own message 9001, so the assertion is on which message was
+    // sent rather than on a sentence we formatted.
     let msgs = drain(&mut a_rx);
     assert!(
-        msgs.iter().any(|p| sysmsg_text(p).as_deref()
-            == Some("Decrease Speed landed with 90% chance on Test Gremlin")),
-        "caster received the debuff landed S1_TEXT line",
+        msgs.iter()
+            .any(|p| sysmsg_id(p) == Some(S1_LANDED_ON_C2_CHANCE_WAS_S3::ID as i16)),
+        "caster received the debuff-landed message",
     );
 }
 
@@ -2656,12 +2661,12 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
     );
 
     let msgs = drain(&mut a_rx);
-    // The resisted-outcome line carries the target, skill, and computed chance.
+    // The resisted-outcome line carries the target, skill and computed chance
+    // as typed parameters (message 9000).
     assert!(
         msgs.iter()
-            .any(|p| sysmsg_text(p).as_deref()
-                == Some("Test Gremlin has resisted Decrease Speed: 90%")),
-        "caster received the debuff resisted S1_TEXT line",
+            .any(|p| sysmsg_id(p) == Some(C1_HAS_RESISTED_S2_CHANCE_WAS_S3::ID as i16)),
+        "caster received the debuff-resisted message",
     );
 }
 
@@ -2695,9 +2700,10 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let msgs = drain(&mut a_rx);
     assert!(
-        msgs.iter()
-            .any(|p| sysmsg_text(p).as_deref()
-                == Some("Test Gremlin has resisted Decrease Speed: 90%")),
+        msgs.iter().any(|p| {
+            sysmsg_id(p) == Some(C1_HAS_RESISTED_S2_CHANCE_WAS_S3::ID as i16)
+                && sysmsg_int(p) == Some(90)
+        }),
         "unprotected, the stun is offered at the 90 cap",
     );
 
@@ -2707,9 +2713,10 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let msgs = drain(&mut a_rx);
     assert!(
-        msgs.iter()
-            .any(|p| sysmsg_text(p).as_deref()
-                == Some("Test Gremlin has resisted Decrease Speed: 0%")),
+        msgs.iter().any(|p| {
+            sysmsg_id(p) == Some(C1_HAS_RESISTED_S2_CHANCE_WAS_S3::ID as i16)
+                && sysmsg_int(p) == Some(0)
+        }),
         "SHOCK invulnerability refuses the debuff outright",
     );
 }
