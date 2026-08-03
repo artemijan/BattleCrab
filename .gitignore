@@ -25,5 +25,3 @@ crates/launcher/.env
 # not ours to redistribute.
 dist/client/system_decrypted
 
-# Readable text mirror produced by `l2r-tools dat-text unpack`.
-dist/client/system_text

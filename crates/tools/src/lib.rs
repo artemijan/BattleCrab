@@ -9,6 +9,7 @@
 //! argument parsing live in the binary's `cli` module tree instead.
 
 pub mod client_dat;
+pub mod client_files;
 pub mod dat_pack;
 pub mod dat_schema;
 pub mod dat_text;
