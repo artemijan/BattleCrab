@@ -27,6 +27,9 @@ enum Command {
 
     /// Decrypt the game client's `system` files to plaintext, or pack them back.
     ClientDat(cli::client_dat::Args),
+
+    /// Render decrypted `.dat` files as editable text using their schema.
+    DatText(cli::dat_text::Args),
 }
 
 fn main() {
@@ -34,5 +37,6 @@ fn main() {
     match cli.command {
         Command::SpawnPockets(args) => cli::spawn_pockets::run(&cli.game_dir, &args),
         Command::ClientDat(args) => cli::client_dat::run(&args),
+        Command::DatText(args) => cli::dat_text::run(&args),
     }
 }
