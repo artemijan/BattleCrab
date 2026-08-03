@@ -258,7 +258,7 @@ impl QuestScript for Q00214TrialOfTheScholar {
             "30103-04.html" => {
                 ctx.give_items(VALKONS_REQUEST, 1);
                 // Mark Maria - the only maker of the Crystal of Purity (see MARIA_LOC).
-                ctx.add_radar(MARIA_LOC.0, MARIA_LOC.1, MARIA_LOC.2);
+                ctx.add_quest_radar(MARIA_LOC.0, MARIA_LOC.1, MARIA_LOC.2);
                 Some(event.to_string())
             }
             "30111-05.html" => guarded(ctx, has(ctx, CRONOS_LETTER), event, |c| {
@@ -620,7 +620,7 @@ fn valkon_talk(ctx: &mut QuestCtx) -> String {
         {
             // Re-mark Maria on the reminder page, so a player who logged out
             // mid-errand can recover the marker by asking Valkon again.
-            ctx.add_radar(MARIA_LOC.0, MARIA_LOC.1, MARIA_LOC.2);
+            ctx.add_quest_radar(MARIA_LOC.0, MARIA_LOC.1, MARIA_LOC.2);
             "30103-05.html".to_string()
         } else if has(ctx, CRYSTAL_OF_PURITY2) && !has(ctx, SCRIPTURE_CHAPTER_2) {
             ctx.give_items(SCRIPTURE_CHAPTER_2, 1);
@@ -802,6 +802,8 @@ fn maria_talk(ctx: &mut QuestCtx) -> String {
         } else {
             ctx.take_items(VALKONS_REQUEST, 1);
             ctx.give_items(CRYSTAL_OF_PURITY2, 1);
+            // Errand done — retire the marker that pointed here (Q348's pattern).
+            ctx.clear_radar();
             "30608-18.html".to_string()
         }
     } else {

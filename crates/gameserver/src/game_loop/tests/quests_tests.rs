@@ -14773,14 +14773,31 @@ fn quest_q00214_trial_of_the_scholar() {
     talk(&mut world, casian); // 30612-01 — only chapter 1 in hand
     assert_eq!(quest_cond(&world, 3001, q), Some(27));
     // Chapter 2 (Valkon/Maria) — the hand-over marks Maria on the radar, since
-    // neither Valkon's page nor any journal step named her before.
+    // neither Valkon's page nor any journal step named her before. Every
+    // RadarControl in the drained batch, as (showRadar, radarType) pairs.
+    let radar = |pkts: &[Vec<u8>]| -> Vec<(i32, i32)> {
+        pkts.iter()
+            .filter(|p| p[0] == 0xF1)
+            .map(|p| {
+                (
+                    i32::from_le_bytes(p[1..5].try_into().unwrap()),
+                    i32::from_le_bytes(p[5..9].try_into().unwrap()),
+                )
+            })
+            .collect()
+    };
     drain(&mut rx);
     ev(&mut world, valkon, "30103-04.html"); // Valkon's Request
-    assert!(
-        drain(&mut rx).iter().any(|p| p[0] == 0xF1),
-        "RadarControl marking Maria sent with Valkon's Request"
+    assert_eq!(
+        radar(&drain(&mut rx)),
+        vec![(0, 2)],
+        "quest-type marker (not the red flag) on Maria with Valkon's Request"
     );
     talk(&mut world, maria); // → Crystal of Purity 2
+    assert!(
+        radar(&drain(&mut rx)).contains(&(2, 2)),
+        "marker retired once the Crystal of Purity is in hand"
+    );
     talk(&mut world, valkon); // → Scripture Chapter 2
     assert_eq!(item_count(&world, 3001, 2707), 1, "Scripture Chapter 2");
     // Chapter 3 (Grandis)

@@ -946,10 +946,33 @@ impl<'w> QuestCtx<'w> {
             .and_then(|t| t.race)
     }
 
-    /// `AbstractScript.addRadar` — drop a radar marker on the player's map
-    /// (`RadarControl(0, 1, x, y, z)`).
+    /// `AbstractScript.addRadar` → `Radar.addMarker` — drop a radar marker on
+    /// the player's map (`RadarControl(0, 1, x, y, z)`). Type 1 is the plain
+    /// red flag the "find an NPC" services use; for a quest objective prefer
+    /// [`add_quest_radar`], which the client draws as the quest pin.
+    ///
+    /// [`add_quest_radar`]: QuestCtx::add_quest_radar
     pub fn add_radar(&mut self, x: i32, y: i32, z: i32) {
         let pkt = server_packets::radar_control(0, 1, x, y, z);
+        self.send(pkt);
+    }
+
+    /// `RadarControl(0, 2, x, y, z)` — the *quest* marker, as Q211 sends it
+    /// raw in Java. Same packet as [`add_radar`] but radar type 2, which the
+    /// client renders as the quest pin rather than the red flag.
+    ///
+    /// [`add_radar`]: QuestCtx::add_radar
+    pub fn add_quest_radar(&mut self, x: i32, y: i32, z: i32) {
+        let pkt = server_packets::radar_control(0, 2, x, y, z);
+        self.send(pkt);
+    }
+
+    /// `RadarControl(2, 2, 0, 0, 0)` — drop every marker on the player's map.
+    /// This is how Q348 retires its marker once the objective is reached; the
+    /// client has no "remove this one type-2 marker" form, so reaching an
+    /// objective clears the board.
+    pub fn clear_radar(&mut self) {
+        let pkt = server_packets::radar_control(2, 2, 0, 0, 0);
         self.send(pkt);
     }
 

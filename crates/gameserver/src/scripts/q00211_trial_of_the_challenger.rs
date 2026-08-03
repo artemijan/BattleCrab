@@ -212,9 +212,8 @@ impl QuestScript for Q00211TrialOfTheChallenger {
                 }
                 9 => {
                     // Java sends RadarControl(0, 2, ...) pointing at the Queen of
-                    // Succubus lair; add_radar sends type 1, close enough for the
-                    // client map hint.
-                    ctx.add_radar(151589, -174823, -1776);
+                    // Succubus lair — the quest pin, not the red flag.
+                    ctx.add_quest_radar(151589, -174823, -1776);
                     Some("30535-02.html".to_string())
                 }
                 10 => Some("30535-03.html".to_string()),
