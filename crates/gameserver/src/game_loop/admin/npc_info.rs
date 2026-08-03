@@ -8,9 +8,6 @@
 //! ([`npc_view`](crate::game_loop::npc_view)).
 //!
 //! Scope vs. Java, all of it html-cosmetic:
-//! - `%spawnfile%` — `SpawnTemplate` here carries no source path (the loader
-//!   folds every `data/spawns/**.xml` into one list), so the file line shows
-//!   Java's `--` placeholder. Spawn *name*/*group*/*AI* do resolve.
 //! - `%mpReward*%` — the MP-reward system is Goddess-era; no Interlude npc
 //!   template declares it and the port doesn't parse it, so the line shows
 //!   `0 NONE 0 NONE` (Java's own defaults for a template without one).
@@ -84,7 +81,7 @@ pub(crate) fn send_npc_info(
         .map(|h| h.name.clone())
         .unwrap_or_else(|| "none".to_string());
 
-    let (spawn_name, spawn_group, spawn_ai) = spawn_line_labels(world, npc, t);
+    let (spawn_file, spawn_name, spawn_group, spawn_ai) = spawn_line_labels(world, npc, t);
     let replacements: Vec<(&str, String)> = vec![
         ("objid", npc_object_id.to_string()),
         // Java prints the runtime class simple name; the template `type` *is*
@@ -151,7 +148,7 @@ pub(crate) fn send_npc_info(
         ("ele_dearth", "0".to_string()),
         ("ele_dholy", "0".to_string()),
         ("ele_ddark", "0".to_string()),
-        ("spawnfile", MISSING.to_string()),
+        ("spawnfile", spawn_file),
         ("spawnname", spawn_name),
         ("spawngroup", spawn_group),
         ("spawnai", spawn_ai),
@@ -180,12 +177,16 @@ pub(crate) fn send_npc_info(
 /// cannot resolve.
 const MISSING: &str = "<font color=FF0000>--</font>";
 
-/// `Spawn.getNpcSpawnTemplate()`'s name/group/AI labels. `Npc.spawn_ref` is
-/// `(0, 0, 0)` for runtime spawns (minions, quest and `//spawn` NPCs), which
+/// `Spawn.getNpcSpawnTemplate()`'s file/name/group/AI labels. `Npc.spawn_ref`
+/// is `(0, 0, 0)` for runtime spawns (minions, quest and `//spawn` NPCs), which
 /// would otherwise read an unrelated spawn line — so the reference only counts
 /// when the line it points at actually declares this npc id, mirroring Java's
 /// `getNpcSpawnTemplate() == null` fallback.
-fn spawn_line_labels(world: &World, npc: &Npc, t: &NpcTemplate) -> (String, String, String) {
+fn spawn_line_labels(
+    world: &World,
+    npc: &Npc,
+    t: &NpcTemplate,
+) -> (String, String, String, String) {
     let line = world
         .data
         .spawn_data
@@ -202,6 +203,7 @@ fn spawn_line_labels(world: &World, npc: &Npc, t: &NpcTemplate) -> (String, Stri
             MISSING.to_string(),
             MISSING.to_string(),
             MISSING.to_string(),
+            MISSING.to_string(),
         );
     };
     // Java uses `String.valueOf` on both — an unnamed template/group prints
@@ -215,7 +217,7 @@ fn spawn_line_labels(world: &World, npc: &Npc, t: &NpcTemplate) -> (String, Stri
         Some(ai) => format!("<font color=FF0000>{ai}</font>"),
         None => "<font color=FF0000>null</font>".to_string(),
     };
-    (name, group_name, ai)
+    (template.file.clone(), name, group_name, ai)
 }
 
 /// `NpcActionShift`'s respawn line: `None` when the line never respawns, else

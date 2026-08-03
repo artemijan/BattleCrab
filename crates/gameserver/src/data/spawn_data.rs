@@ -17,6 +17,10 @@ pub const SPAWNS_DIR: &str = "data/spawns";
 /// One `<spawn>` element (Java `SpawnTemplate`).
 pub struct SpawnTemplate {
     pub name: Option<String>,
+    /// Source file, relative to [`SPAWNS_DIR`] and always `/`-separated —
+    /// Java's `SpawnTemplate.getFile()`, which `NpcActionShift` prints as
+    /// `%spawnfile%` after stripping the datapack root and `data/spawns/`.
+    pub file: String,
     /// `ai="…"` — the script that owns this template's lifecycle
     /// (`DayNightSpawns`, `NoRandomActivity`, `ClassMaster`). Java resolves it
     /// through `SpawnData`'s script map; here the consumers match on the name.
@@ -186,7 +190,7 @@ impl SpawnData {
         collect_xml_files(&dir, &mut paths);
         paths.sort();
         for path in &paths {
-            parse_file(path, &mut spawns);
+            parse_file(path, &relative_spawn_path(&dir, path), &mut spawns);
         }
         info!(
             "SpawnData: Loaded {} spawns.",
@@ -225,6 +229,20 @@ fn collect_xml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
     }
 }
 
+/// The path a spawn file is known by inside the server: relative to
+/// `data/spawns/`, `/`-separated on every platform. Java derives the same
+/// string by trimming the datapack root off the absolute path and swapping
+/// `\` for `/`. A file that somehow sits outside the spawns dir keeps its full
+/// path rather than being dropped.
+fn relative_spawn_path(dir: &std::path::Path, path: &std::path::Path) -> String {
+    path.strip_prefix(dir)
+        .unwrap_or(path)
+        .components()
+        .map(|c| c.as_os_str().to_string_lossy())
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
 /// `TimeUtil.parseDuration` narrowed to the units the spawn files use
 /// (`sec`/`min`/`hour`, singular or plural; `day` kept for completeness).
 pub fn parse_duration_secs(s: &str) -> Option<i32> {
@@ -240,7 +258,7 @@ pub fn parse_duration_secs(s: &str) -> Option<i32> {
     Some(value * mult)
 }
 
-fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
+fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplate>) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
@@ -294,6 +312,7 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
             b"spawn" => {
                 cur_spawn = Some(SpawnTemplate {
                     name: attr_str(&e, b"name"),
+                    file: rel_path.to_string(),
                     ai: attr_str(&e, b"ai"),
                     parameters: std::collections::HashMap::new(),
                     territories: Vec::new(),
@@ -481,6 +500,9 @@ mod tests {
             .iter()
             .find(|s| s.name.as_deref() == Some("Giran"))
             .expect("Giran spawn template");
+        // `NpcActionShift`'s %spawnfile%: the path below `data/spawns/`, with
+        // the subdirectory kept (two files on this dist are named Giran.xml).
+        assert_eq!(giran.file, "Giran/Giran.xml");
         let first = &giran.groups[0].npcs[0];
         assert_eq!(first.npc_id, 30878);
         let loc = first.loc.expect("fixed loc");

@@ -1094,6 +1094,7 @@ fn dead_monster_decays_and_respawns() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     world.data.spawn_data = crate::data::SpawnData {
         spawns: vec![crate::data::spawn_data::SpawnTemplate {
+            file: "test/combat.xml".to_string(),
             ai: None,
             parameters: Default::default(),
             name: None,

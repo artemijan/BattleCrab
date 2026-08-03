@@ -4102,11 +4102,21 @@ command bodies (G13.B) are next.
   rows (intention, AI, AIType, clan & range, ignore & range) that Java emits only
   for an NPC with an AI. The spawn *name*/*group*/*AI* labels resolve through
   `Npc.spawn_ref`, guarded by an npc-id match so a runtime spawn's placeholder
-  `(0, 0, 0)` reference cannot report an unrelated spawn line; `%spawnfile%`
-  stays Java's `--` (the loader keeps no per-template source path). 2 tests
+  `(0, 0, 0)` reference cannot report an unrelated spawn line. 2 tests
   (GM gets the admin window with **every** placeholder substituted and no
   attack/interact intent; a non-GM with `AltGameViewNpc` on still gets the
   player view), sabotage-verified.
+  - **`%spawnfile%`** — ✅ **LANDED 2026-08-03**, on the report that a GM's
+    shift-click must show the spawn file. The line previously printed Java's
+    red `--` because the loader folded every `data/spawns/**.xml` into one list
+    without keeping the source path. `SpawnTemplate` now carries `file` — the
+    path below `data/spawns/`, `/`-separated, the same string Java builds by
+    trimming `Config.DATAPACK_ROOT` off `getFile()` — and the admin window
+    prints it through the same npc-id-guarded `spawn_ref` lookup as the
+    name/group/AI labels, so a minion or `//spawn` NPC still shows `--`. 2
+    tests (the loader reads `Giran/Giran.xml`, keeping the subdirectory that
+    tells this dist's two `Giran.xml` files apart; the GM window names the file
+    only for an NPC whose reference resolves), sabotage-verified.
 - **…and its sub-pages** — ✅ **LANDED 2026-08-01**, on the report that "there
   are problems with sub pages". Opening the window exposed that the whole
   `NpcViewMod` surface behind it was partial; a Java-line-by-line audit found

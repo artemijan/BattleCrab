@@ -428,6 +428,82 @@ fn gm_shift_click_npc_opens_admin_npc_info_window() {
     );
 }
 
+/// `%spawnfile%` names the XML the NPC was placed from — Java prints
+/// `SpawnTemplate.getFile()` relative to `data/spawns/`, which is how a GM
+/// finds the line to edit. An NPC with no spawn line behind it (minions,
+/// `//spawn`, quest spawns) keeps Java's red `--`.
+#[test]
+fn gm_npc_info_names_the_spawn_file() {
+    use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate};
+
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    // Index 0 is the `spawn_ref` sentinel a runtime spawn carries, so the line
+    // under test has to sit past it for the "unreferenced" half to mean
+    // anything — an unrelated template holds that slot.
+    world.data.spawn_data.spawns.push(SpawnTemplate {
+        file: "Other/Filler.xml".to_string(),
+        name: None,
+        ai: None,
+        parameters: Default::default(),
+        territories: Vec::new(),
+        groups: Vec::new(),
+    });
+    let template_idx = world.data.spawn_data.spawns.len();
+    world.data.spawn_data.spawns.push(SpawnTemplate {
+        file: "Giran/Giran.xml".to_string(),
+        name: Some("Giran".to_string()),
+        ai: None,
+        parameters: Default::default(),
+        territories: Vec::new(),
+        groups: vec![SpawnGroup {
+            name: Some("dayTime".to_string()),
+            spawn_by_default: true,
+            territories: Vec::new(),
+            npcs: vec![NpcSpawnDef {
+                npc_id: 30001,
+                count: 1,
+                loc: None,
+                respawn_secs: 60,
+                respawn_random_secs: 0,
+                chase_range: 0,
+                db_save: false,
+            }],
+        }],
+    });
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
+
+    // A runtime spawn (the default `(0, 0, 0)` reference) shows the placeholder.
+    handle_action(&mut world, 1, &action_body(NPC_OID, 1));
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("admin npc info window");
+    assert!(
+        !html.contains("Giran/Giran.xml"),
+        "an unreferenced npc must not borrow another line's file"
+    );
+
+    // Point the NPC at the spawn line above: now the file, name and group all
+    // resolve off that template.
+    world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&NPC_OID)
+        .unwrap()
+        .spawn_ref = (template_idx, 0, 0);
+    handle_action(&mut world, 1, &action_body(NPC_OID, 1));
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("admin npc info window");
+    assert!(
+        html.contains("Giran/Giran.xml"),
+        "spawn file path shown in the GM window"
+    );
+    assert!(html.contains("dayTime"), "spawn group still resolves");
+}
+
 /// A non-GM never reaches the admin window even with `AltGameViewNpc` on —
 /// Java's `NpcActionShift` gates it on `isGM()` and falls through to the
 /// player-facing `NpcViewMod` view.

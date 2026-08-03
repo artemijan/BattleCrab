@@ -29,6 +29,7 @@ fn boss_world() -> (
         .spawn_data
         .spawns
         .push(crate::data::spawn_data::SpawnTemplate {
+            file: "test/boss.xml".to_string(),
             ai: None,
             parameters: Default::default(),
             groups: vec![crate::data::spawn_data::SpawnGroup {

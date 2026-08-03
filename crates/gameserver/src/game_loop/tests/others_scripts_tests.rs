@@ -1099,6 +1099,7 @@ fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
         db_save: false,
     };
     SpawnTemplate {
+        file: "test/day-night.xml".to_string(),
         name: Some("test-day-night".to_string()),
         ai: Some("DayNightSpawns".to_string()),
         parameters: Default::default(),
