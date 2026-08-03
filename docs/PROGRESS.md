@@ -94,6 +94,21 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 | Game  | G34 Skills, effects & abnormal-state parity                 | ✅ **CLOSED 2026-08-03** (plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md); nine slices, S4 alone took 17 sub-slices) — the skill parser was *fail-open*: an unrecognised `<effect name>` yielded no `SkillEffect`, an empty effect list was dropped by `apply_skill_effects`' guard, and an unrecognised `<condition>` was never enforced, so a skill could cast, animate, burn MP and reuse and do nothing — or fire where Java refuses it. **S0** built the census that makes the gap measurable (`SkillGaps` records every drop at the fallback arm itself, across 7 axes); **S1** the condition engine (28 kinds; condition axis 111 pairs / 215 learnable skills → 69 / 1); **S2** `BasicPropertyResist`; **S3** nine flag-only `EffectFlag`s plus the three-tag `isStayAfterDeath()` fold; **S4** the effect sweep in 17 sub-slices; **S5** the three non-effect axes — including the epic's only gap that failed *closed*, seven learnable skills that could not be cast at all because `use_magic_on` bails on an unmapped `operateType`; **S6** the item tail (**every destination Scroll of Escape was inert** — 107 skills loaded with an empty effect list); **S7** the skill-tag tail (`<nextAction>`, `<abnormalResists>`, and the finding that `magicCriticalRate` is dead data in Java); **S8** the gate, which found Anchor (1170) doing half its job — its second, paralysing stage is an `<endEffects>` `CallSkill`. **Final: 275 → 11 of 758 learnable skills wrong, and all 11 are recorded out-of-scope decisions** (the nine Territory Benefaction skills, Acrobatics, Sweeper). Effect names 216 → 142; reachable 1154; every non-effect axis at 0 learnable. The gate is a named `(skill_id, reason)` list asserted in both directions, not a count — a new gap cannot hide inside the number, and a since-ported id must come off the list. Six dead stats/tags were found along the way where the correct outcome was to record the finding and change no code. |
 | Game  | (out of scope) Gracia/Hellbound/elemental, sayune/shuttle/airship, `tools/`, MariaDB/Postgres, Swing UI, Mobius `Custom/*` | ⛔ non-Interlude / per PLAN §11 + ROADMAP scope gate |
 
+
+> **Every row above is ✅ or an explicit scope-out — and that is not the whole
+> picture.** A milestone is marked complete when its *gate* is met; each one
+> also shipped a handful of narrow behaviours deliberately deferred and marked
+> at the site. There are **145** such `TODO(G<N>)` markers, inventoried in
+> [DEFERRALS.md](DEFERRALS.md) and asserted by
+> `deferral_markers_match_the_recorded_inventory`, so the number cannot drift
+> without someone deciding it should. Read that file alongside this table: the
+> ✅ marks say the gates were met, not that nothing is left.
+>
+> This exists because prose about "what remains" is the least reliable artefact
+> in the repo. On 2026-08-03 two documents were found claiming work that had
+> been done for milestones, and five `TODO` markers PROGRESS said existed were
+> absent from the code entirely — all five turned out to be finished work.
+
 ## G34 S8 — the epic gate, and G34 closes (2026-08-03)
 
 Branch `feat/g34-s8-gate`. The gate was meant to be bookkeeping; forcing every

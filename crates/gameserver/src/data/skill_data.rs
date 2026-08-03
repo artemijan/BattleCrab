@@ -5031,6 +5031,104 @@ mod coverage_census {
         );
     }
 
+    /// The `TODO(G<N>)` deferral inventory — see `docs/DEFERRALS.md`.
+    ///
+    /// Every milestone row in `PROGRESS.md` is ✅, and each one still shipped a
+    /// handful of deliberately-deferred behaviours marked at the site. That is the
+    /// intended end state, not a contradiction — but it is invisible from the
+    /// status table, and prose about "what is left" is the least reliable artefact
+    /// in this repo: on 2026-08-03 two separate documents were found claiming work
+    /// was outstanding that had been done for milestones, and five `TODO` markers
+    /// PROGRESS said existed were absent from the code entirely.
+    ///
+    /// So the count is asserted rather than described. It moves only deliberately:
+    /// adding a gap without recording it fails, and closing one without updating
+    /// the number fails too — the same two-way discipline G34's close-out gate
+    /// uses.
+    #[test]
+    fn deferral_markers_match_the_recorded_inventory() {
+        use std::collections::BTreeMap;
+
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .expect("crates/")
+            .to_path_buf();
+        let mut counts: BTreeMap<String, usize> = BTreeMap::new();
+        let mut stack = vec![root];
+        while let Some(dir) = stack.pop() {
+            let Ok(entries) = std::fs::read_dir(&dir) else {
+                continue;
+            };
+            for e in entries.flatten() {
+                let path = e.path();
+                if path.is_dir() {
+                    // Skip build output — `target/` mirrors sources into deps.
+                    if path.file_name().is_some_and(|n| n == "target") {
+                        continue;
+                    }
+                    stack.push(path);
+                } else if path.extension().is_some_and(|x| x == "rs") {
+                    let Ok(text) = std::fs::read_to_string(&path) else {
+                        continue;
+                    };
+                    for (i, _) in text.match_indices("TODO(G") {
+                        let rest = &text[i + "TODO(".len()..];
+                        if let Some(end) = rest.find(')') {
+                            let tag = &rest[..end];
+                            if tag.chars().all(|c| {
+                                c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_'
+                            }) {
+                                *counts.entry(tag.to_owned()).or_default() += 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sorted by milestone, as `docs/DEFERRALS.md` lists them. Update both
+        // together — the doc is the human-readable half of this assertion.
+        let expected: &[(&str, usize)] = &[
+            ("G-later", 2),
+            ("G-pvp", 3),
+            ("G14", 2),
+            ("G15", 2),
+            ("G15.5", 1),
+            ("G17", 2),
+            ("G18", 3),
+            ("G18.6", 2),
+            ("G19", 11),
+            ("G20", 5),
+            ("G21", 10),
+            ("G22", 12),
+            ("G23", 5),
+            ("G24", 17),
+            ("G24.5", 1),
+            ("G25", 4),
+            ("G26.5", 2),
+            ("G27", 4),
+            ("G28", 9),
+            ("G29", 5),
+            ("G30", 12),
+            ("G32", 1),
+            ("G33", 15),
+            ("G34", 12),
+            ("G7", 1),
+            ("G7.5", 2),
+        ];
+        let actual: Vec<(String, usize)> = counts.into_iter().collect();
+        let expected: Vec<(String, usize)> = expected
+            .iter()
+            .map(|(t, n)| ((*t).to_owned(), *n))
+            .collect();
+        assert_eq!(
+            actual, expected,
+            "the TODO(G<N>) deferral inventory moved. If you recorded a new gap, add it \
+             here and to docs/DEFERRALS.md; if you closed one, take it off both. A gap \
+             that is not in this list is invisible to everyone who reads PROGRESS.md."
+        );
+    }
+
     #[test]
     #[ignore = "reporting aid, not an assertion — run with --ignored --nocapture"]
     fn print_coverage_report() {
