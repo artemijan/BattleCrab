@@ -1,4 +1,5 @@
 .idea
+dist/client/system
 .claude
 .worktrees
 target/
