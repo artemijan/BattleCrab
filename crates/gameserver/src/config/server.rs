@@ -14,6 +14,7 @@ use commons::config::PropertiesParser;
 /// neither relative to this server's datapack nor to its working directory.
 pub const SERVER_CONFIG_FILE: &str = "config/Server.ini";
 
+#[derive(Debug, Clone, Default)]
 pub struct ServerConfig {
     // Network binding.
     pub gameserver_hostname: String,
@@ -63,6 +64,21 @@ pub struct ServerConfig {
     pub threads_for_loading: bool,
 
     // Stability.
+    /// **Parsed and deliberately unread.** Java's `DeadLockDetector` calls
+    /// `ThreadMXBean.findDeadlockedThreads()`, which reports cycles in monitor
+    /// ownership — a real hazard in Mobius, where game state is shared across a
+    /// thread pool behind `synchronized`. This port owns all mutable game state
+    /// on the single game thread and has **exactly one lock in the whole
+    /// gameserver** (`geo::GeoEngine::nswe_overrides`), taken only as a leaf:
+    /// every call site acquires it, reads or inserts, and drops it without
+    /// calling out. A deadlock needs two locks ordered differently or a
+    /// re-entrant acquisition; neither is expressible here, so the detector
+    /// would be a thread searching for a condition the architecture excludes.
+    ///
+    /// Kept because an operator's `Server.ini` sets it and a silently-dropped
+    /// key is worse than an honestly-inert one. **Re-check the lock count**
+    /// (`rg 'Mutex<|RwLock<' crates/gameserver/src`) before assuming this still
+    /// holds — the moment a second lock appears, the reasoning does not.
     pub deadlock_detector: bool,
     pub deadlock_check_interval: i32,
     pub restart_on_deadlock: bool,

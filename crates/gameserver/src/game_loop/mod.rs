@@ -92,6 +92,7 @@ mod raid_curse;
 mod ranged;
 mod reco;
 pub(crate) mod regen;
+pub(crate) mod restart;
 pub(crate) mod sailren;
 pub(crate) mod sell_buffs;
 mod servitor;
@@ -256,6 +257,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // Java `DailyTaskManager`: the daily 06:30 reset (recommends + vitality
     // refill). Scheduled once here; the task reschedules itself every 24 h.
     daily_tasks::schedule_initial_daily_reset(&mut world);
+    restart::schedule_server_restart(&mut world);
     // Grand bosses spawn/respawn once their data lands — the `grandboss_data`
     // table arrives asynchronously as `DbEvent::GrandBossesLoaded`, so
     // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
@@ -406,6 +408,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::Noop { .. } => {}
             ScheduledTask::ServerShutdownTick => {
                 admin::server_shutdown_tick(world);
+            }
+            ScheduledTask::ServerRestartSchedule => {
+                restart::handle_server_restart_schedule(world);
             }
             ScheduledTask::DebugDoorTick { object_id } => {
                 admin::debug_draw::door_tick(world, object_id);

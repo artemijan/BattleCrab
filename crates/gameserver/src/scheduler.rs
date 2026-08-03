@@ -21,6 +21,9 @@ pub enum ScheduledTask {
     /// The `//server_shutdown|restart` countdown beat (announce marks + the
     /// final `Shutdown::request`).
     ServerShutdownTick,
+    /// `ServerRestartManager`'s scheduled restart moment: begin the countdown
+    /// and re-arm for the next slot.
+    ServerRestartSchedule,
     /// `Player.dismount()`'s 1.5 s post-dismount `broadcastUserInfo()`, armed
     /// only when there is water below — the client needs the swim speeds once
     /// the rider has actually gone under.
