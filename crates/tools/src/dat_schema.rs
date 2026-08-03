@@ -116,6 +116,11 @@ pub enum Node {
         field: Field,
         hidden: bool,
         enum_name: Option<String>,
+        /// This field is some `<for size="#name">`'s count. Such a field is
+        /// *not* printed: it is redundant with the number of records that
+        /// follow, and packing recomputes it. Emitting it would let a hand
+        /// edit disagree with reality.
+        iterator: bool,
     },
     /// `<write name="\r\n"/>` — literal text, consumes nothing.
     Constant { text: String },
@@ -406,7 +411,8 @@ fn load_schema(path: &Path, defs: &HashMap<String, Vec<Node>>) -> Result<Vec<Lay
             Ok(Event::Start(e)) if e.name().as_ref() == b"file" => {
                 let version = attr(&e, "pattern").unwrap_or_default();
                 let safe_package = attr(&e, "isSafePackage").as_deref() == Some("true");
-                let nodes = read_children(&mut reader, b"file", defs, path)?;
+                let mut nodes = read_children(&mut reader, b"file", defs, path)?;
+                mark_iterators(&mut nodes);
                 out.push(Layout {
                     version,
                     safe_package,
@@ -547,7 +553,47 @@ fn build_leaf(
         field,
         hidden,
         enum_name: attr(e, "enumName"),
+        iterator: false,
     }])
+}
+
+/// Mark every field that some `<for size="#name">` uses as its count.
+///
+/// Java resolves the name against the cycle's siblings first and then walks out
+/// to the enclosing scopes, so this recurses depth-first and hands names it
+/// could not resolve back up to the parent level.
+fn mark_iterators(nodes: &mut [Node]) -> std::collections::HashSet<String> {
+    let mut wanted: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+    for node in nodes.iter_mut() {
+        if let Node::Cycle { count, .. } = node
+            && let Count::Var(name) = count
+        {
+            wanted.insert(name.clone());
+        }
+        if let Some(children) = children_of(node) {
+            wanted.extend(mark_iterators(children.as_mut_slice()));
+        }
+    }
+
+    for node in nodes.iter_mut() {
+        if let Node::Value { name, iterator, .. } = node
+            && wanted.remove(name)
+        {
+            *iterator = true;
+        }
+    }
+    wanted
+}
+
+fn children_of(node: &mut Node) -> Option<&mut Vec<Node>> {
+    match node {
+        Node::Cycle { children, .. }
+        | Node::Wrapper { children, .. }
+        | Node::If { children, .. }
+        | Node::Mask { children, .. } => Some(children),
+        _ => None,
+    }
 }
 
 fn rename(node: Node, name: &str, hide: bool) -> Node {
@@ -556,12 +602,14 @@ fn rename(node: Node, name: &str, hide: bool) -> Node {
             field,
             hidden,
             enum_name,
+            iterator,
             ..
         } => Node::Value {
             name: name.to_string(),
             field,
             hidden: hidden || hide,
             enum_name,
+            iterator,
         },
         Node::Cycle {
             count,

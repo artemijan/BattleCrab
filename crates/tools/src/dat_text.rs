@@ -290,10 +290,7 @@ impl Walker<'_> {
         }
         // Fields that actually print, which decides whether a hidden-name group
         // needs `{}` around it.
-        let printing = nodes
-            .iter()
-            .filter(|n| !matches!(n, Node::Constant { .. }))
-            .count();
+        let printing = nodes.iter().filter(|n| prints(n)).count();
 
         // A visible cycle labels *every* iteration, not the loop as a whole —
         // that is what puts one record per line.
@@ -313,8 +310,7 @@ impl Walker<'_> {
             }
             for (index, node) in nodes.iter().enumerate() {
                 self.walk_node(node, name_hidden, body_depth, out)?;
-                let prints = !matches!(node, Node::Constant { .. });
-                if prints && name_hidden && index + 1 != nodes.len() {
+                if prints(node) && name_hidden && index + 1 != nodes.len() {
                     out.push(';');
                 }
             }
@@ -418,12 +414,19 @@ impl Walker<'_> {
                 field,
                 hidden,
                 enum_name,
+                iterator,
             } => {
-                if !name_hidden && *hidden {
+                if !name_hidden && *hidden && !*iterator {
                     let _ = write!(out, "\t{name}=");
                 }
                 let value = read_field(&mut self.cur, *field)
                     .map_err(|e| format!("field `{name}` ({field:?}): {e}"))?;
+                if *iterator {
+                    // Redundant with the record count that follows; packing
+                    // recomputes it, so it never reaches the text.
+                    self.vars.insert(name.clone(), value);
+                    return Ok(());
+                }
                 match (&value, field) {
                     // Strings print bracketed.
                     (Value::Str(s), Field::Ascf | Field::Unicode) => {
@@ -449,6 +452,15 @@ impl Walker<'_> {
         }
         Ok(())
     }
+}
+
+/// Whether a node contributes to the text at all. Constants emit literal
+/// characters but are not fields, and iterator counts are suppressed entirely.
+fn prints(node: &Node) -> bool {
+    !matches!(
+        node,
+        Node::Constant { .. } | Node::Value { iterator: true, .. }
+    )
 }
 
 fn escape_newlines(s: &str) -> String {
@@ -594,6 +606,37 @@ pub fn unpack_dir(set: &mut crate::dat_schema::SchemaSet, cfg: &Config) -> Resul
         }
     }
     Ok(Report { entries })
+}
+
+// --- test hooks -------------------------------------------------------------
+//
+// `dat_pack`'s encoders are only correct if they invert these exactly, so its
+// tests decode through the very same code the reader uses rather than a copy.
+
+/// Decode a compact int, returning the value and how many bytes it used.
+pub fn decode_compact_for_test(bytes: &[u8]) -> Option<(i64, usize)> {
+    let mut cur = Cursor {
+        data: bytes,
+        pos: 0,
+    };
+    let value = cur.compact().ok()?;
+    Some((value, cur.pos))
+}
+
+pub fn decode_ascf_for_test(bytes: &[u8]) -> Option<String> {
+    read_ascf(&mut Cursor {
+        data: bytes,
+        pos: 0,
+    })
+    .ok()
+}
+
+pub fn decode_unicode_for_test(bytes: &[u8]) -> Option<String> {
+    read_unicode(&mut Cursor {
+        data: bytes,
+        pos: 0,
+    })
+    .ok()
 }
 
 #[cfg(test)]
