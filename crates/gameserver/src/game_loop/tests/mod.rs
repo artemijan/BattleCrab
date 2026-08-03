@@ -84,6 +84,7 @@ mod henna_tests;
 mod hwid_tests;
 mod instance_tests;
 mod item_auction_tests;
+mod item_link_tests;
 mod items_tests;
 mod lobby_tests;
 mod lottery_tests;

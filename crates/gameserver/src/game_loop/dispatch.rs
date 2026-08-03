@@ -645,6 +645,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_SAVE_INVENTORY_ORDER => {
             handle_request_save_inventory_order(world, client_id, ex_body)
         }
+        // RequestExRqItemLink (IN_GAME): the "?" on a shift-clicked item link
+        // in chat was clicked; answer with that item's row.
+        exop::REQUEST_EX_RQ_ITEM_LINK => {
+            super::chat::handle_request_item_link(world, client_id, ex_body)
+        }
         // RequestStopMove (IN_GAME): empty body; stop the walk at the current spot.
         exop::REQUEST_STOP_MOVE => handle_request_stop_move(world, client_id),
         // ExSendSelectedQuestZoneID (IN_GAME): store the selected quest zone id.

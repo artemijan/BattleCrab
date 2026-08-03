@@ -578,6 +578,16 @@ pub fn ex_quest_item_list(
     w.into_bytes()
 }
 
+/// `ExRpItemLink` (0x6D) — the answer to `RequestExRqItemLink`: the item row
+/// behind a shift-clicked chat link, so the client can pop its description
+/// window. Java's `ExRpItemLink` is an `AbstractItemPacket` whose entire body
+/// is one `writeItem`.
+pub fn ex_rp_item_link(item: &ItemInstance, template: &ItemTemplate, equipped: bool) -> Vec<u8> {
+    let mut w = ex(0x6D);
+    write_item_entry(&mut w, item, template, equipped);
+    w.into_bytes()
+}
+
 /// `ExBasicActionList` (0x60) — the default action-bar ids from `ActionData`.
 pub fn ex_basic_action_list(data: &GameData) -> Vec<u8> {
     let ids = data.action_data.action_ids();

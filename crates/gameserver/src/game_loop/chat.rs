@@ -1,13 +1,15 @@
 //! Port of `clientpackets/Say2` + the `handlers/chathandlers/*` scripts
-//! (General/Shout/Trade/Whisper/Party/Clan/Alliance). Guards that need absent
+//! (General/Shout/Trade/Whisper/Party/Clan/Alliance), plus the shift-click
+//! item link pair `RequestExRqItemLink`/`ExRpItemLink`. Guards that need absent
 //! systems (chat bans, jail, olympiad, block list, say filter, voiced
-//! commands, item links) are skipped — see PLAN_G10_SOCIAL.md §2/§4.
+//! commands) are skipped — see PLAN_G10_SOCIAL.md §2/§4.
 
 use tracing::warn;
 
 use crate::enums::ChatType;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
+use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
@@ -15,6 +17,17 @@ use crate::world::{World, regions_adjacent};
 
 /// Java `Say2`'s no-item-link cap (105 chars, "verified on official").
 const MAX_CHAT_LENGTH: usize = 105;
+
+/// Java `Say2`'s cap for a line that carries at least one shift-clicked item
+/// link: the link markup alone runs well past 105 chars, so the limit is
+/// raised to 500 whenever the text contains [`ITEM_LINK_MARKER`].
+const MAX_CHAT_LENGTH_WITH_ITEM_LINK: usize = 500;
+
+/// The delimiter the client wraps a shift-clicked item link in — an ASCII
+/// backspace (Java's bare `8` in `_text.indexOf(8)`). The markup between a
+/// pair of them looks like
+/// `\x08\tType=1\tID=268501230\tColor=0\tUnderline=0\tTitle=Squire's Sword\x08`.
+const ITEM_LINK_MARKER: char = '\u{8}';
 
 /// `ChatGeneral`'s `forEachVisibleObjectInRange` radius.
 const GENERAL_CHAT_RANGE: f64 = 1250.0;
@@ -42,7 +55,21 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         warn!("Say2: empty text from object {sender_oid}.");
         return;
     }
-    if pkt.text.chars().count() > MAX_CHAT_LENGTH {
+    // Java: "Allow higher limit if player shift some item (text is longer
+    // then)" — a line carrying an item link gets 500 chars instead of 105, and
+    // a GM is exempt from both caps. Without the item-link branch every
+    // shift-clicked link past the 105th character is swallowed as spam.
+    let has_item_link = pkt.text.contains(ITEM_LINK_MARKER);
+    let limit = if has_item_link {
+        MAX_CHAT_LENGTH_WITH_ITEM_LINK
+    } else {
+        MAX_CHAT_LENGTH
+    };
+    let is_gm = world
+        .objects
+        .get_component::<Player>(&sender_oid)
+        .is_some_and(|p| p.is_gm(&world.data));
+    if !is_gm && pkt.text.chars().count() > limit {
         send_sm(world, client_id, sm_ids::KEYBOARD_INPUT_SPAM_WARNING);
         return;
     }
@@ -152,6 +179,15 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             }
             _ => {}
         }
+    }
+
+    // Java `Say2`: `if ((_text.indexOf(8) >= 0) && !parseAndPublishItem(...))
+    // return;` — every item the speaker shift-clicked into the line is
+    // *published*, which is the sole gate `RequestExRqItemLink` checks before
+    // answering another player's click on the link. A line that links an item
+    // the speaker does not own is dropped whole.
+    if has_item_link && !parse_and_publish_item(world, sender_oid, &pkt.text) {
+        return;
     }
 
     match chat_type {
@@ -405,6 +441,156 @@ fn send_sm(world: &World, client_id: u32, message_id: i16) {
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::system_message_with(message_id, &[]));
     }
+}
+
+// ---------------------------------------------------------------------------
+// Shift-click item links (`Say2.parseAndPublishItem` + `RequestExRqItemLink`)
+// ---------------------------------------------------------------------------
+
+/// Java `Say2.parseAndPublishItem`. Walk every `\x08 … ID=<objectId> … \x08`
+/// span in the line, check the speaker really owns that inventory item, and
+/// *publish* it — Java sets `Item._published`, the one flag
+/// `RequestExRqItemLink` consults before answering a reader's click. Returns
+/// false exactly where Java does (an id the speaker does not own, an
+/// unparseable id, a link with no closing marker); the caller then drops the
+/// whole line, as Java does.
+fn parse_and_publish_item(world: &mut World, sender_oid: i32, text: &str) -> bool {
+    let chars: Vec<char> = text.chars().collect();
+    let Some(owned) = world
+        .objects
+        .get_component::<Inventory>(&sender_oid)
+        .map(|inv| inv.items().iter().map(|i| i.object_id).collect::<Vec<_>>())
+    else {
+        return false;
+    };
+
+    let mut publish = Vec::new();
+    let mut cursor = 0;
+    while let Some(open) = find_char(&chars, ITEM_LINK_MARKER, cursor) {
+        // Java `_text.indexOf("ID=", pos1)`: the object id is the only field
+        // the server reads out of the markup — everything else (Type, Color,
+        // Underline, Title) is client-side decoration.
+        let Some(id_at) = find_str(&chars, "ID=", open) else {
+            return false;
+        };
+        let digits_at = id_at + 3;
+        let mut pos = digits_at;
+        while pos < chars.len() && chars[pos].is_ascii_digit() {
+            pos += 1;
+        }
+        let Ok(object_id) = chars[digits_at..pos]
+            .iter()
+            .collect::<String>()
+            .parse::<i32>()
+        else {
+            return false;
+        };
+        if !owned.contains(&object_id) {
+            warn!("Say2: object {sender_oid} tried to publish item {object_id} it does not own.");
+            return false;
+        }
+        publish.push(object_id);
+
+        // Java `pos1 = _text.indexOf(8, pos) + 1` with `pos1 == 0` — i.e. no
+        // closing marker — logged as an invalid publish message and dropped.
+        let Some(close) = find_char(&chars, ITEM_LINK_MARKER, pos) else {
+            warn!("Say2: object {sender_oid} sent an item link with no closing marker.");
+            return false;
+        };
+        cursor = close + 1;
+    }
+
+    for object_id in publish {
+        world.published_items.insert(object_id, sender_oid);
+    }
+    true
+}
+
+/// `chars[from..].position(needle)`, in `char` units — the port of Java's
+/// `String.indexOf(int, int)` on a UTF-16 string. Working in chars rather than
+/// bytes keeps the offsets valid for non-ASCII item names in the link title.
+fn find_char(chars: &[char], needle: char, from: usize) -> Option<usize> {
+    chars[from.min(chars.len())..]
+        .iter()
+        .position(|&c| c == needle)
+        .map(|i| i + from)
+}
+
+/// Java's `String.indexOf(String, int)`, in `char` units.
+fn find_str(chars: &[char], needle: &str, from: usize) -> Option<usize> {
+    let needle: Vec<char> = needle.chars().collect();
+    if needle.is_empty() || chars.len() < needle.len() {
+        return None;
+    }
+    (from..=chars.len() - needle.len()).find(|&i| chars[i..i + needle.len()] == needle[..])
+}
+
+/// Java `RequestExRqItemLink` (ex `0x1E`): a reader clicked the link in the
+/// chat line, so the client asks for the item behind that object id. Java
+/// answers `ExRpItemLink` — the same item row `ItemList` writes — for any
+/// *published* item; with no answer the client has nothing to show and the
+/// link stays a bare "?".
+pub(crate) fn handle_request_item_link(world: &World, client_id: u32, body: &[u8]) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::InGame(_))
+    ) {
+        return;
+    }
+    let Some(object_id) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    // Java's `item.isPublished()` gate: an object id that was never shift-
+    // clicked into a chat line is not answered, so a client cannot fish for
+    // the contents of someone's inventory by guessing ids.
+    if !world.published_items.contains_key(&object_id) {
+        return;
+    }
+    let Some((item, equipped)) = find_published_item(world, object_id) else {
+        return;
+    };
+    let Some(template) = world.data.item_data.get(item.item_id) else {
+        return;
+    };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::enter_world::ex_rp_item_link(
+            &item, template, equipped,
+        ));
+    }
+}
+
+/// Java `World.findObject(objectId)` narrowed to items: the published item is
+/// looked up live, so the reader sees its *current* state (enchant, count) and
+/// the link keeps working after a trade. Only inventories of loaded players
+/// are searched — an item whose owner logged off is gone from the world in
+/// Java too, and its `_published` flag died with the `Item` instance.
+fn find_published_item(world: &World, object_id: i32) -> Option<(ItemInstance, bool)> {
+    let owners = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .chain(world.offline_traders.keys().copied());
+    for owner in owners {
+        let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
+            continue;
+        };
+        if let Some(item) = inv.items().iter().find(|i| i.object_id == object_id) {
+            let equipped = inv.paperdoll_slot_of(object_id).is_some();
+            return Some((*item, equipped));
+        }
+    }
+    None
+}
+
+/// The publish flags of a leaving player's items die with them, as Java's
+/// per-`Item` `_published` does when the instance is dropped at logout.
+pub(crate) fn on_player_leave_world(world: &mut World, player_object_id: i32) {
+    world
+        .published_items
+        .retain(|_, publisher| *publisher != player_object_id);
 }
 
 // ---------------------------------------------------------------------------

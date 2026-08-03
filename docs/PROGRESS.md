@@ -3624,10 +3624,13 @@ mail/community board/matching rooms/command channels.
   SHOUT/TRADE = same map-region tile bucket (`GlobalChat/TradeChat = ON`
   semantics), WHISPER by name with the relation-mask tail (friend bit 0x01
   live, other bits await clans), PARTY via the party broadcast, CLAN/
-  ALLIANCE answer SM 4202/4203. Guards: 105-char cap (SM 1078); malformed
-  type/empty text **log-and-drop instead of Java's force disconnect**
-  (deliberate deviation). Chat bans/jail/olympiad/block-list/say-filter/
-  voiced commands/item links skipped with their systems.
+  ALLIANCE answer SM 4202/4203. Guards: 105-char cap (SM 1078), raised to
+  500 for a line carrying a shift-clicked item link and skipped entirely for
+  a GM; malformed type/empty text **log-and-drop instead of Java's force
+  disconnect** (deliberate deviation). Shift-click item links are live —
+  `Say2.parseAndPublishItem` + `RequestExRqItemLink`/`ExRpItemLink`, see the
+  entry at the end of this file. Chat bans/jail/olympiad/block-list/
+  say-filter/voiced commands skipped with their systems.
 - **Party** (`model/party.rs` + `game_loop/party.rs`): `World.parties`
   id-keyed map + `PartyRef` component back-pointer; one `PendingRequest`
   component slot covers Java's request map + `_activeRequester` for party
@@ -4413,7 +4416,7 @@ Empty/placeholder now, to be filled in the owning milestone:
   command channels (MPCC); tactical signs; block list (`BlockList` checks
   skipped everywhere); friend memos + `RequestExFriendListExtended`;
   pet/servitor party-window packets; chat bans/say filter/voiced
-  commands/item links in chat; `GlobalChat`/`TradeChat` OFF/GM modes;
+  commands (item links in chat are done); `GlobalChat`/`TradeChat` OFF/GM modes;
   skill/reuse persistence for party-relevant buffs unchanged (see skills
   section).
 - **Misc:** ~~macros~~ (✅ G9.6), `HennaInfo` empty, `ExUserBanInfo`, `ExVitalityEffectInfo`
@@ -4708,3 +4711,32 @@ clanless mob titles as `"Lv 20 "`.
   Known gap, same as Java's: a player with no live session (logout raced the
   sweep) is skipped rather than spawned, since the visibility exchange needs a
   client to send to.
+
+- **Shift-clicked item links in chat (2026-08-03):** linking an item into a
+  chat line produced a link the reader could see but not open — clicking the
+  "?" showed nothing. Two halves were missing. (1) The client answers a click
+  by sending `RequestExRqItemLink` (**ex `0x1E`**, body = the item's object id)
+  and expects `ExRpItemLink` (**`0xFE:0x6D`**, body = one `AbstractItemPacket.
+  writeItem` row) back; ex `0x1E` was not in the dispatch table at all, so the
+  request fell through unhandled and the client, having nothing to render, left
+  the link as a bare "?". (2) `Say2.parseAndPublishItem` was unported: Java
+  walks each `\x08 … ID=<objectId> … \x08` span, verifies the speaker actually
+  owns that inventory item, and calls `item.publish()` — and `isPublished()` is
+  the *only* gate `RequestExRqItemLink` checks, so without it every answer
+  would either be refused or (worse, if ungated) let a client read any
+  inventory by guessing object ids. A line linking an item the speaker does not
+  own is dropped whole, as in Java. The publish flag lives world-side as
+  `World.published_items` (item oid → publisher oid) rather than on
+  `ItemInstance`, because it is session state, not saved item state; the
+  publisher id lets `chat::on_player_leave_world` drop those entries at logout,
+  matching Java's flag dying with the `Item` instance. Lookup at click time
+  scans loaded inventories (Java's `World.findObject` narrowed to items), so the
+  reader sees the item's *current* enchant/count and the link survives a trade.
+  Also fixed alongside: the chat length cap ignored Java's item-link branch —
+  Java allows 500 chars when the text contains `\x08` (105 otherwise) and
+  exempts GMs entirely, so a longer linked line was being swallowed as spam.
+  Regressions: `item_link_tests::{a_shift_clicked_item_can_be_inspected_by_the_
+  reader, an_unpublished_item_is_never_answered, linking_an_item_you_do_not_own_
+  drops_the_line, an_item_link_raises_the_chat_length_cap, logging_out_kills_
+  the_publishers_links}`; the round trip was verified by sabotage (drop the
+  dispatch arm → it fails, the other four still pass).

@@ -207,6 +207,10 @@ pub mod ex_opcodes {
     /// `RequestSetCrop` — the manor owner submits the next-period crop setup.
     pub const REQUEST_SET_CROP: u16 = 0x04;
     pub const REQUEST_KEY_MAPPING: u16 = 0x21;
+    /// `RequestExRqItemLink` — a reader clicked a shift-clicked item link in a
+    /// chat line; the body is that item's object id. Answered with
+    /// `ExRpItemLink`, without which the link stays a bare "?".
+    pub const REQUEST_EX_RQ_ITEM_LINK: u16 = 0x1E;
     pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
     pub const REQUEST_USER_BAN_INFO: u16 = 0x138;
     /// `ExSendClientIni` — the client reports its `client.ini` after auth.
