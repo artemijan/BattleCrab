@@ -25,10 +25,11 @@ enum Command {
     /// Find spawn rows buried under the floor by geodata layer snapping.
     SpawnPockets(cli::spawn_pockets::Args),
 
-    /// Decrypt the game client's `system` files to plaintext, or pack them back.
+    /// Client data, end to end: decrypt `system` to editable text, or pack and
+    /// re-encrypt it back.
     ClientDat(cli::client_dat::Args),
 
-    /// Render decrypted `.dat` files as editable text using their schema.
+    /// One stage of that pipeline on its own: decrypted `.dat` <-> text.
     DatText(cli::dat_text::Args),
 }
 
