@@ -402,10 +402,10 @@ impl QuestScript for Q00214TrialOfTheScholar {
                     ctx.play_sound(quest_sounds::MIDDLE);
                 }
             }
-            MEDUSA => casian_kill(ctx, MEDUSAS_BLOOD, 12, false),
-            GHOUL => casian_kill(ctx, GHOULS_SKIN, 10, true),
-            FETTERED_SOUL => casian_kill(ctx, FETTERED_SOULS_ICHOR, 5, false),
-            ENCHANTED_GARGOYLE => casian_kill(ctx, ENCHANTED_GARGOYLES_NAIL, 5, false),
+            MEDUSA => casian_kill(ctx, MEDUSAS_BLOOD, 12),
+            GHOUL => casian_kill(ctx, GHOULS_SKIN, 10),
+            FETTERED_SOUL => casian_kill(ctx, FETTERED_SOULS_ICHOR, 5),
+            ENCHANTED_GARGOYLE => casian_kill(ctx, ENCHANTED_GARGOYLES_NAIL, 5),
             _ => {}
         }
     }
@@ -483,16 +483,31 @@ fn jurek_kill(ctx: &mut QuestCtx, item: i32, cap: i64) {
     }
 }
 
-/// A Casian reagent leg (Symbol of Cronos, Chapter 4); the Ghoul leg advances to
-/// cond 29 at 10 skins.
-fn casian_kill(ctx: &mut QuestCtx, item: i32, cap: i64, is_ghoul: bool) {
+/// True when all four of Casian's reagents are at their limits — the same set
+/// the talk handler tests as a sum of 32.
+fn casian_set_done(ctx: &QuestCtx) -> bool {
+    ctx.quest_items_count(GHOULS_SKIN) >= 10
+        && ctx.quest_items_count(MEDUSAS_BLOOD) >= 12
+        && ctx.quest_items_count(FETTERED_SOULS_ICHOR) >= 5
+        && ctx.quest_items_count(ENCHANTED_GARGOYLES_NAIL) >= 5
+}
+
+/// A Casian reagent leg (Symbol of Cronos, Chapter 4). Cond 29 ("return to
+/// Casian") belongs to the *whole* set, like the Jurek trophies above.
+///
+/// The Mobius Classic-Interlude script fires it from the Ghoul leg alone, at 10
+/// skins, so a player who hunted ghouls first was sent back to Casian while
+/// still owing blood, ichor and nails. `L2J_Mobius_CT_0_Interlude` tests all
+/// four counts in each leg and l2j-server gates the same `setCond(29)` behind
+/// `hasItemsAtLimit(...)` over all four; follow them.
+fn casian_kill(ctx: &mut QuestCtx, item: i32, cap: i64) {
     if has(ctx, TRIFFS_RING)
         && has(ctx, POITANS_NOTES)
         && has(ctx, CASIANS_LIST)
         && ctx.quest_items_count(item) < cap
     {
         ctx.give_items(item, 1);
-        if is_ghoul && ctx.quest_items_count(item) == cap {
+        if casian_set_done(ctx) {
             ctx.set_cond(29, true);
         } else if ctx.quest_items_count(item) >= cap {
             ctx.play_sound(quest_sounds::MIDDLE);

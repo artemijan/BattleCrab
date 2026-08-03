@@ -241,6 +241,189 @@ pub(super) fn admin_destroy_items(
     );
 }
 
+/// `AdminCreateItem`'s `//delete_item <objectId> [count]` — destroy part or all
+/// of a single stack from its owner's inventory.
+///
+/// The argument is the *item's object id*, not its template id: Java resolves it
+/// through `World.findObject(idval)` and then destroys by that same id. Object
+/// ids are what the `GMViewItemList` windows (`//show_pet_inv`) and the `items`
+/// table's `object_id` column carry. Java's token parse is 1 token → count 1,
+/// 2 tokens → the given count, and a count of 0 means the whole stack.
+///
+/// Deviation: Java looks the item up in the world object table and reports
+/// "Player is not online." when the owner is offline. The Rust world only holds
+/// items that live in a loaded inventory, so the owner scan *is* the lookup, and
+/// an unknown id and an offline owner collapse into one message.
+pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(item_oid) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //delete_item <objectId> [count]");
+        return;
+    };
+    let requested = args.get(1).and_then(|s| s.parse::<i64>().ok()).unwrap_or(1);
+    let players: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .collect();
+    let owned = players.into_iter().find_map(|oid| {
+        let inv = world.objects.get_component::<Inventory>(&oid)?;
+        let stack = inv.items().iter().find(|it| it.object_id == item_oid)?;
+        Some((oid, stack.count))
+    });
+    let Some((owner, stack_count)) = owned else {
+        send_message(
+            world,
+            client_id,
+            &format!("No online player owns item object {item_oid}."),
+        );
+        return;
+    };
+    // Java: `numval == 0` destroys the whole stack.
+    let count = if requested <= 0 {
+        stack_count
+    } else {
+        requested.min(stack_count)
+    };
+    let Some(change) = world
+        .objects
+        .get_component_mut::<Inventory>(&owner)
+        .and_then(|inv| inv.remove_by_object_id(item_oid, count))
+    else {
+        send_message(world, client_id, "Item could not be destroyed.");
+        return;
+    };
+    // The owner's own client needs the InventoryUpdate; the GM gets the same
+    // refreshed item list Java answers with.
+    if let Some(owner_cid) = super::helpers::client_for_player(world, owner) {
+        let packet = crate::network::enter_world::inventory_update_changes(
+            &world.data,
+            std::slice::from_ref(&change),
+        );
+        super::helpers::send_inventory_update(world, owner_cid, owner, packet);
+    }
+    if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
+        let name = world
+            .objects
+            .get_component::<Player>(&owner)
+            .map(|p| p.name.clone())
+            .unwrap_or_default();
+        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(pkt);
+        }
+    }
+    super::party::broadcast_user_info(world, owner);
+    send_message(world, client_id, "Item deleted.");
+}
+
+/// `//delete_quest_item <itemId> [count] [charName]` — destroy items by their
+/// *template* id, the counterpart to [`admin_delete_item`]'s object-id form.
+///
+/// `count` defaults to **everything** the holder has of that id, which is what
+/// clearing a quest reagent means; pass a count to trim a stack instead (`…
+/// 2716 1` takes one Ghoul's Skin off the pile). `charName` defaults to the
+/// GM's target, and to the GM when nothing playable is targeted. The count and
+/// name are told apart by parsing, so `… 2716 Ameno` and `… 2716 3 Ameno` both
+/// work.
+///
+/// Custom command — Java has no item-id destroyer other than
+/// `//destroy_all_items`, which wipes the whole inventory. Deliberately *not*
+/// gated on `is_quest_item`: most quest reagents (2716 Ghoul's Skin among them)
+/// carry no `is_questitem` flag in the item XML at all, so that gate would
+/// refuse exactly the items this exists for.
+///
+/// [`admin_delete_item`]: admin_delete_item
+pub(super) fn admin_delete_quest_item(
+    world: &mut World,
+    client_id: u32,
+    gm_oid: i32,
+    args: &[&str],
+) {
+    let Some(item_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(
+            world,
+            client_id,
+            "Usage: //delete_quest_item <itemId> [count] [charName] (no count = all)",
+        );
+        return;
+    };
+    // `[count] [name]`, either omitted: a numeric second token is the count.
+    let (count_arg, name_arg) = match (args.get(1), args.get(2)) {
+        (Some(a), Some(b)) => (a.parse::<i64>().ok(), Some(*b)),
+        (Some(a), None) => match a.parse::<i64>() {
+            Ok(n) => (Some(n), None),
+            Err(_) => (None, Some(*a)),
+        },
+        _ => (None, None),
+    };
+    let target = match name_arg {
+        Some(name) => match super::find_online_player(world, name) {
+            Some(oid) => oid,
+            None => {
+                send_message(world, client_id, &format!("Player '{name}' is not online."));
+                return;
+            }
+        },
+        None => current_target(world, gm_oid)
+            .filter(|oid| world.objects.has_component::<Player>(oid))
+            .unwrap_or(gm_oid),
+    };
+    let held = world
+        .objects
+        .get_component::<Inventory>(&target)
+        .map(|inv| inv.count_of(item_id))
+        .unwrap_or(0);
+    let name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    if held <= 0 {
+        send_message(
+            world,
+            client_id,
+            &format!("{name} holds no item {item_id}."),
+        );
+        return;
+    }
+    // No count, or a non-positive one, clears the lot.
+    let count = match count_arg {
+        Some(n) if n > 0 => n.min(held),
+        _ => held,
+    };
+    let changes = world
+        .objects
+        .get_component_mut::<Inventory>(&target)
+        .map(|inv| inv.remove_item(item_id, count))
+        .unwrap_or_default();
+    if changes.is_empty() {
+        send_message(world, client_id, "Item could not be destroyed.");
+        return;
+    }
+    if let Some(target_cid) = super::helpers::client_for_player(world, target) {
+        let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+        super::helpers::send_inventory_update(world, target_cid, target, packet);
+    }
+    if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
+        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(pkt);
+        }
+    }
+    super::party::broadcast_user_info(world, target);
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "Destroyed {count} of item {item_id} on {name} ({} left).",
+            held - count
+        ),
+    );
+}
+
 /// Parse `<id> [count]` — item id (required) and count (default 1, min 1).
 fn parse_item_args(args: &[&str]) -> (Option<i32>, i64) {
     let item_id = args.first().and_then(|s| s.parse::<i32>().ok());

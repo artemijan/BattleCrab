@@ -1001,6 +1001,7 @@ pub(super) fn admin_setcharquest(world: &mut World, client_id: u32, args: &[&str
     };
     if var == "state" && value.eq_ignore_ascii_case("DELETE") {
         quests.0.remove(quest);
+        refresh_quest_journal(world, target, quest);
         send_message(world, client_id, &format!("Quest {quest} state removed."));
         return;
     }
@@ -1022,9 +1023,42 @@ pub(super) fn admin_setcharquest(world: &mut World, client_id: u32, args: &[&str
     } else {
         st.vars.insert(var.to_string(), value.to_string());
     }
+    refresh_quest_journal(world, target, quest);
     send_message(
         world,
         client_id,
         &format!("Quest {quest}: {var} = {value} set on {name}."),
     );
+}
+
+/// Java's `AdminShowQuests.setQuestVar` closes every branch with `QuestList` +
+/// `ExShowQuestMark` on the *edited* player, so the journal reflects the edit
+/// immediately. The port set the vars in memory and sent nothing, which left
+/// the client showing the step it had before — a `//setcharquest … cond 28`
+/// looked like it had done nothing until the next relog rebuilt the journal.
+fn refresh_quest_journal(world: &mut World, target: i32, quest: &str) {
+    let Some(target_cid) = super::helpers::client_for_player(world, target) else {
+        return;
+    };
+    let Some(quests) = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&target)
+    else {
+        return;
+    };
+    let list = crate::network::enter_world::quest_list(quests, &world.quests);
+    // Java passes `qs.getCond()`; ExShowQuestMark is skipped for a custom quest
+    // (id 0) and while the cond is still 0, as in `QuestState.setCond`.
+    let cond = quests.0.get(quest).map(|qs| qs.cond()).unwrap_or(0);
+    let mark = world
+        .quests
+        .quest_id(quest)
+        .filter(|&id| id > 0 && cond > 0)
+        .map(|id| crate::network::server_packets::ex_show_quest_mark(id, cond));
+    if let Some(cs) = world.clients.get(&target_cid) {
+        cs.send(list);
+        if let Some(mark) = mark {
+            cs.send(mark);
+        }
+    }
 }
