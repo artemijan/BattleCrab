@@ -7,9 +7,17 @@
 //!
 //! Two things happen per run:
 //!
-//! * every id the table and the dat share has its text and colour overwritten
-//!   from the table;
-//! * every message marked `custom` that the dat has no row for is appended.
+//! * every id the table and the dat share has its text and render class
+//!   (`group`, `type`) overwritten from the table;
+//! * every message marked `custom` that the dat has no row for is appended,
+//!   in [`DEFAULT_COLOUR`].
+//!
+//! # Colour is not synced
+//!
+//! Colour belongs to whoever is looking at the client, not to the server, and
+//! `l2r-tools msg-color` is how it is set. Rewriting it here would silently
+//! undo every such edit on the next run, so an existing row keeps whatever
+//! colour it has and a new one starts neutral, to be coloured deliberately.
 //!
 //! # Defaults for the columns we do not model
 //!
@@ -38,9 +46,13 @@ const TYPE: usize = 16;
 /// `msg_begin` + 16 fields + `msg_end`.
 const FIELDS: usize = 18;
 
+/// What an appended row is coloured until someone chooses otherwise. Grey has
+/// equal channels, so it reads the same whichever way round they are stored.
+pub const DEFAULT_COLOUR: &str = "999999FF";
+
 pub struct Report {
     pub file: String,
-    /// Rows whose text or colour was changed.
+    /// Rows whose text or render class was changed. Colour is never touched.
     pub updated: usize,
     /// Custom messages appended because the client had no row.
     pub appended: Vec<i32>,
@@ -93,21 +105,15 @@ pub fn sync(
         let Some(info) = commons::system_messages::by_id(id) else {
             continue;
         };
-        // Render class too, not just text and colour: a message that already
-        // has a row still needs correcting when it changes class, and only
-        // updating text and colour left custom rows stuck in whatever class
-        // they were first appended with.
+        // Text and render class, never colour — see the module docs.
         let want_text = bracket(info.text);
-        let want_colour = swap_rb(info.color);
         let want_group = info.group.map(|g| g.to_string());
         let want_type = info.msg_type.map(str::to_owned);
         let changed = fields[MESSAGE] != want_text
-            || fields[COLOUR] != want_colour
             || want_group.as_ref().is_some_and(|g| &fields[GROUP] != g)
             || want_type.as_ref().is_some_and(|k| &fields[TYPE] != k);
         if changed {
             fields[MESSAGE] = want_text;
-            fields[COLOUR] = want_colour;
             if let Some(g) = want_group {
                 fields[GROUP] = g;
             }
@@ -201,7 +207,7 @@ fn new_row(info: &MessageInfo, defaults: &[String]) -> String {
     let mut fields = defaults.to_vec();
     fields[ID] = info.id.to_string();
     fields[MESSAGE] = bracket(info.text);
-    fields[COLOUR] = swap_rb(info.color);
+    fields[COLOUR] = DEFAULT_COLOUR.to_string();
     // A message that names its render class overrides the modal default: a
     // `[none]`/`0` row draws in the client's default grey however the colour
     // column is set, which is exactly what the modal value gives you.
@@ -212,14 +218,6 @@ fn new_row(info: &MessageInfo, defaults: &[String]) -> String {
         fields[TYPE] = kind.to_string();
     }
     fields.join("\t")
-}
-
-/// The table is RGBA; the dat stores B,G,R,A. Its own inverse.
-fn swap_rb(hex: &str) -> String {
-    if hex.len() != 8 {
-        return hex.to_string();
-    }
-    format!("{}{}{}{}", &hex[4..6], &hex[2..4], &hex[0..2], &hex[6..8])
 }
 
 /// Wrap message text the way the reader would have emitted it.
@@ -296,8 +294,8 @@ mod tests {
         assert_eq!(fields.len(), FIELDS, "must have every column");
         assert_eq!(fields[ID], "9000");
         assert_eq!(fields[MESSAGE], "[hello $s1]");
-        // The table's RGBA lands in the file's B,G,R,A order.
-        assert_eq!(fields[COLOUR], "6666FFFF");
+        // A new row starts neutral; colour is msg-color's business.
+        assert_eq!(fields[COLOUR], DEFAULT_COLOUR);
         // Untouched columns keep the client's own habit.
         assert_eq!(fields[6], "1");
         assert_eq!(fields[16], "[none]");
@@ -363,9 +361,28 @@ mod tests {
         );
     }
 
+    /// Grey reads the same in either channel order, which is why it is safe
+    /// as the neutral default for a row nobody has coloured yet.
     #[test]
-    fn colours_are_written_in_the_file_s_channel_order() {
-        assert_eq!(swap_rb("FF0000FF"), "0000FFFF");
+    fn the_default_colour_is_channel_order_agnostic() {
+        let (r, g, b) = (
+            &DEFAULT_COLOUR[0..2],
+            &DEFAULT_COLOUR[2..4],
+            &DEFAULT_COLOUR[4..6],
+        );
+        assert_eq!((r, g), (g, b));
+    }
+
+    /// Colour belongs to msg-color; a sync must not quietly undo those edits.
+    #[test]
+    fn an_existing_row_keeps_its_colour() {
+        let before = row(1, "a", "123456AB");
+        let mut fields: Vec<String> = before.split('\t').map(str::to_owned).collect();
+        // What the update path touches, and what it leaves alone.
+        fields[MESSAGE] = bracket("new text");
+        fields[GROUP] = "3".into();
+        fields[TYPE] = "[damage]".into();
+        assert_eq!(fields[COLOUR], "123456AB");
     }
 
     #[test]

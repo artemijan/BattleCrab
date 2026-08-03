@@ -53,7 +53,7 @@ pub fn run(args: &Args) {
         match tools::msg_sync::sync(&mut set, &system, name, args.dry_run) {
             Ok(report) => {
                 println!(
-                    "{}: {} row(s) retext/recoloured, {} appended, {} rows total{}",
+                    "{}: {} row(s) updated (text/class; colour left alone), {} appended, {} rows total{}",
                     report.file,
                     report.updated,
                     report.appended.len(),
