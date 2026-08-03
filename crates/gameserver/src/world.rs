@@ -135,6 +135,14 @@ pub struct World {
     /// a beat left in flight by a previous session must not be mistaken for
     /// this one's. See [`crate::game_loop::item_mana`].
     pub item_mana_consuming: std::collections::HashMap<i32, u64>,
+    /// Items shift-clicked into a chat line, as item object id → the object id
+    /// of the player who linked it — Java's per-`Item` `_published` flag, set
+    /// by `Say2.parseAndPublishItem` and read by `RequestExRqItemLink` before
+    /// it answers a reader's click on the link. Held world-side (not on the
+    /// item) because it is session state, not saved item state; the publisher
+    /// id lets it die with that player's logout, as Java's flag does with the
+    /// `Item` instance. See [`crate::game_loop::chat`].
+    pub published_items: HashMap<i32, i32>,
     pub minions_placed: usize,
     /// Forge of the Gods: kills since the last 15 s `FogRefresh` reset — the
     /// escalation counter behind the Lavasaurus ambush tiers (Java's static
@@ -473,6 +481,7 @@ impl World {
             npc_regions: HashMap::new(),
             effect_zone_next_tick: HashMap::new(),
             item_mana_consuming: std::collections::HashMap::new(),
+            published_items: HashMap::new(),
             minions_placed: 0,
             fog_kill_count: 0,
             mammon_spawns: HashMap::new(),

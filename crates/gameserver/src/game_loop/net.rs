@@ -81,6 +81,10 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     super::party_room::on_player_leave_world(world, player_object_id);
     // deleteMe → notifyFriends(MODE_OFFLINE).
     super::friends::on_leave_world(world, player_object_id);
+    // The `Item._published` flags of this player's items die with the `Item`
+    // instances, so their chat links stop resolving (Java: the objects leave
+    // the world with them).
+    super::chat::on_player_leave_world(world, player_object_id);
     // A servitor does not outlive its owner's session. Java stores it in
     // `CharSummonTable` for `RestoreServitorOnReconnect`; persistence is a
     // later slice, so for now it simply goes away with them — which is at

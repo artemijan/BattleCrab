@@ -169,8 +169,9 @@ other (persisted), and message friends. All against the real client.
 - `handle_say2`: parse (text, type, target), port the Say2 guards we can
   represent (unknown type / empty text → just log + ActionFailed, **no
   disconnect** — one botched packet shouldn't kill a session we can't
-  re-auth transparently; documented deviation), 105-char cap (no item-link
-  branch — item links in chat are out of scope), then match:
+  re-auth transparently; documented deviation), 105-char cap — with Java's
+  item-link branch (500 chars when the text carries a `\x08` link, GMs
+  exempt) since item links landed on 2026-08-03, then match:
   - GENERAL → `CreatureSay` to self + in-game players within 1250 units
     (adjacent-region prefilter, then euclidean check — Java's
     `forEachVisibleObjectInRange`).
@@ -297,7 +298,8 @@ tactical signs, block list (`BlockList` — all is-blocked checks skipped),
 friend memos (`RequestUpdateFriendMemo`/`RequestBlockMemo` — consumed,
 no-op), `RequestExFriendListExtended`, party substitute, pets/summons in
 party windows, hero/petition/announce chat types, voiced commands, say
-filter, chat bans, item links in chat, `RelationChanged` packets.
+filter, chat bans, `RelationChanged` packets. (Item links in chat were out
+of scope here and landed later — 2026-08-03, see PROGRESS.md.)
 
 ## 5. Tests
 
