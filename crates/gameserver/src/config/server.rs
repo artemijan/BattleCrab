@@ -75,6 +75,12 @@ pub struct ServerConfig {
     /// re-entrant acquisition; neither is expressible here, so the detector
     /// would be a thread searching for a condition the architecture excludes.
     ///
+    /// A stall watchdog behind this key — restarting when the game loop stops
+    /// advancing — **will not be ported**: it answers a different question
+    /// (wedged loop, not lock cycle), and putting it here would tell an
+    /// operator who set `DeadLockDetector = True` that they have Java's
+    /// guarantee. If wanted, it is a separate feature under its own key.
+    ///
     /// Kept because an operator's `Server.ini` sets it and a silently-dropped
     /// key is worse than an honestly-inert one. **Re-check the lock count**
     /// (`rg 'Mutex<|RwLock<' crates/gameserver/src`) before assuming this still

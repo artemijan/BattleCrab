@@ -19,6 +19,18 @@
 //! `DeadLockDetector`/`DeadLockCheckInterval`/`RestartOnDeadlock` are therefore
 //! parsed and unread, which `config/server.rs` records at the fields. Re-check
 //! the lock count before concluding this is still true.
+//!
+//! **A stall watchdog is also not being ported**, and that is a settled
+//! decision rather than an open item. The tempting substitute — a thread
+//! watching a heartbeat the game loop bumps each tick, restarting when it stops
+//! advancing — was written and then removed on purpose. It detects a *different*
+//! condition from the one the config keys name (a wedged loop, not a lock
+//! cycle), so shipping it behind `DeadLockDetector` would make an operator who
+//! enables that key believe they have Java's guarantee when they do not. This
+//! codebase's most-repeated failure is exactly that gap between a flag being on
+//! and the behaviour matching. If a stall watchdog is ever wanted it belongs
+//! under its own config key, as its own feature, argued on its own merits — not
+//! as a stand-in for a detector whose condition cannot arise here.
 
 use tracing::info;
 

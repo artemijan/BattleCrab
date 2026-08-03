@@ -94,6 +94,14 @@ This plan entry was simply stale. Recorded rather than re-ported.
     differently-ordered locks or a re-entrant acquisition, and neither is
     expressible. The three config keys stay parsed-and-inert with the reasoning
     recorded at the fields, plus the command to re-check it.
+  - **Stall watchdog — WILL NOT BE PORTED.** The obvious substitute (a thread
+    watching a game-loop heartbeat and restarting on a stall) was written and
+    deliberately removed. It detects a different condition from the one the
+    config keys name — a wedged loop, not a lock cycle — so shipping it behind
+    `DeadLockDetector` would tell an operator who enables that key that they
+    have Java's guarantee when they do not. Not an open item; if a watchdog is
+    ever wanted it is a new feature under its own key, argued on its own
+    merits.
   - **Precautionary restart** — still open, and it needs a system CPU/memory
     reading the port has no dependency for. Worth a decision rather than a
     default: adding one for a feature this dist ships `False` is a poor trade.
