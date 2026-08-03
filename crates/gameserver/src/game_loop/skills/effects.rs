@@ -3326,8 +3326,10 @@ fn target_level(world: &World, oid: i32) -> i32 {
 /// system message.
 ///
 /// Java clamps against `getMaxRecoverableMp()` (`MAX_RECOVERABLE_MP` over
-/// `maxMp`). **No skill on this dist grants that stat** — the `LimitMp` handler
-/// exists but nothing uses it — so the ceiling is plain `maxMp` here.
+/// `maxMp`). Two skills declare `LimitMp` — Seal of Limit (1509) and Mass
+/// Restriction (11603) — but **neither is reachable**: 1509 appears on no
+/// skill tree, NPC or item, and 11603 is post-Interlude. So the stat is
+/// identity and the ceiling is plain `maxMp` here.
 fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) {
     use server_packets::{SmParam, sm_ids};
     // `effected.isDead() || effected.isDoor() || effected.isMpBlocked()`.
@@ -5548,8 +5550,8 @@ pub(crate) fn handle_dam_over_time_tick(
                     continue;
                 }
                 // `getMaxRecoverableMp()` — `MAX_RECOVERABLE_MP` over `maxMp`.
-                // No skill on this dist grants that stat (`LimitMp` exists but
-                // is used by nothing), so the ceiling is plain `maxMp`.
+                // `LimitMp`'s two carriers are unreachable here (see
+                // `restore_mp`), so the ceiling is plain `maxMp`.
                 let ceiling = v.max_mp as f64;
                 if *power > 0.0 {
                     if v.cur_mp >= ceiling {

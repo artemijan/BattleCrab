@@ -738,7 +738,10 @@ pub(crate) fn use_magic_on(
     // in a group first stops the others in that group, then casts normally.
     //
     // Java's `isNecessaryToggle()` exemption (a toggle that may never be
-    // switched off) is not ported — no skill on this dist sets it.
+    // switched off) is not ported. **Ten** skills on this dist do set it —
+    // the Borna and elemental/Holy/Dark Stances — but every one is 11xxx /
+    // 19xxx / 23xxx, i.e. post-Interlude, so none is reachable here. Re-check
+    // the carriers, not this sentence, before relying on it.
     if skill.operate_type == OperateType::Toggle {
         let already_on = world
             .objects
