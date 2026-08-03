@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **145** such
+of narrow behaviours deferred and marked at the site. There are **146** such
 markers. A reader looking only at the status table cannot see them.
 
 This file is that missing half — generated from the code, not written by hand,
@@ -46,7 +46,7 @@ close-out gate uses.
 | marker | count | files |
 |---|---:|---|
 | `TODO(G24)` | 17 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +6 more |
-| `TODO(G33)` | 15 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, +9 more |
+| `TODO(G33)` | 16 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, `game_loop/position.rs`, +9 more |
 | `TODO(G22)` | 12 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `model/skill.rs`, `scripts/feedable_beasts.rs`, +6 more |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, +2 more |
 | `TODO(G34)` | 12 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
@@ -78,8 +78,13 @@ close-out gate uses.
   and named: castle crests, the members-inside-the-zone fame task,
   `Castle.removeUpgrade()`, `ItemAction`'s mercenary-ticket refusal, a
   scheduled hit-time delay.
-- **`TODO(G33)` (15)** — the optional tooling tail: `//geosave`, the niche
-  admin tools, scheduled restart, multilang, Dockerfile parity.
+- **`TODO(G33)` (16)** — the optional tooling tail: `//geosave`, the niche
+  admin tools, scheduled restart, multilang, Dockerfile parity. One is not
+  optional but *impossible*: the GM Sayune click-to-move mode
+  (`game_loop/position.rs`) needs `ExFlyMove`/`ExFlyMoveBroadcast`
+  (`0xFE:0xE8` / `0xFE:0x108`), Ertheia-era opcodes with no counterpart in the
+  Interlude protocol — the hop is ported with a `FlyToLocation(DUMMY)`
+  substitute.
 - **`TODO(G34)` (12)** — the skill epic's recorded residue, each argued in
   `PLAN_G34_SKILL_PARITY.md`: A3's `isSelfContinuous` icon rule (no effector on
   `ActiveBuff` to test), `nextAction=CAST` (needs an intention queue),
