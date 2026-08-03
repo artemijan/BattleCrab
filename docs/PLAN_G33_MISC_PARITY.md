@@ -46,9 +46,20 @@ checklist complete. Delivered slice-by-slice, highest leverage first.
 - Port `GameTimeTaskManager`: a game-time counter off `world.tick`, fed into
   `CharSelected` and `UserInfo` (both hardcode `0`), plus the day/night state.
 
-### Slice 3 — Periodic autosave cadence
-- Java `DailyTaskManager.onSave` / `AutoSaveManager`: the 30-min store sweep
-  (the port autosaves on logout/shutdown; add the periodic beat).
+### Slice 3 — Periodic autosave cadence ✅ **already done — verified 2026-08-03**
+
+Checked rather than ported, and it was already complete: `game_loop::autosave_tick`
+is `PlayerAutoSaveTaskManager.run`, on the same 1 s fixed-rate sweep, flushing
+**at most one** due player per sweep — Java's `break; // Prevent SQL flood` —
+and rescheduling it one `CharacterDataStoreInterval` (15 min on this dist) out.
+
+The snapshot covers everything `Player.autoSave()` does: `storeMe`,
+`storeRecommendations` (`rec_have`/`rec_left` are on the save struct) and, per
+`UpdateItemsOnCharStore`, all three item containers — inventory, warehouse and
+freight. `lobby_tests::autosave_flushes_one_due_player_and_reschedules` already
+pins the one-per-sweep guard and the reschedule.
+
+This plan entry was simply stale. Recorded rather than re-ported.
 
 ### Slice 4 — Parity audit
 - Mechanical diff of Java `network/clientpackets` (298 handlers) against the
