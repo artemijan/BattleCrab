@@ -3538,3 +3538,76 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
         "mid-ritual the same stun is resisted outright"
     );
 }
+
+/// **Anchor (1170) was doing half its job.** Its own description promises the
+/// body goes "completely rigid for 5 seconds **and** causes paralysis for 5
+/// seconds" — and that second half is an `<endEffects>` block firing
+/// `CallSkill(6091)` when the first stage comes off. Neither the `END` effect
+/// scope nor `CallSkill` existed, so the second stage never happened.
+///
+/// This is the last learnable gap G34's census had left, and it only surfaced
+/// because the S8 gate forced every residual entry to be *examined* rather
+/// than counted.
+#[test]
+fn anchors_second_stage_fires_when_the_first_expires() {
+    let skills = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let anchor = skills.get(1170, 1).expect("Anchor");
+    assert_eq!(
+        anchor.end_effects.len(),
+        1,
+        "the <endEffects> block is parsed, not dropped"
+    );
+    assert!(
+        matches!(
+            anchor.end_effects[0],
+            SkillEffect::CallSkill { skill_id: 6091, .. }
+        ),
+        "and it calls Anchor's paralysis stage, got {:?}",
+        anchor.end_effects[0]
+    );
+}
+
+/// The behavioural half: the called skill has to actually land when the first
+/// stage expires.
+#[test]
+fn an_end_effect_call_skill_lands_on_expiry() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+
+    // The second stage, and a first stage whose *end* calls it.
+    world
+        .data
+        .skill_data
+        .insert_for_test(cc_skill(9461, SkillEffect::Root, "PARALYZE"));
+    let mut first = cc_skill(9460, SkillEffect::Root, "RIGID");
+    first.end_effects = vec![SkillEffect::CallSkill {
+        skill_id: 9461,
+        skill_level: 1,
+        chance: 100,
+    }];
+    world.data.skill_data.insert_for_test(first.clone());
+
+    let has = |world: &World, id: i32| {
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&victim)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id))
+    };
+
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &first);
+    assert!(has(&world, 9460), "the first stage is up");
+    assert!(!has(&world, 9461), "the second has not fired yet");
+
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, victim, 9460);
+
+    assert!(!has(&world, 9460), "the first stage is gone");
+    assert!(
+        has(&world, 9461),
+        "and its expiry fired the second — the half Anchor was missing"
+    );
+}

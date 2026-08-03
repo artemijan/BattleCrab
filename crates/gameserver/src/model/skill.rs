@@ -1048,6 +1048,14 @@ pub enum SkillEffect {
         amount: f64,
         percent: bool,
     },
+    /// `handlers/effecthandlers/CallSkill.java` — cast another skill outright,
+    /// no cast time and no cost. Java guards against the obvious infinite loop
+    /// (a skill that calls itself at the same level returns immediately).
+    CallSkill {
+        skill_id: i32,
+        skill_level: i32,
+        chance: i32,
+    },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
         power: f64,
@@ -2100,6 +2108,12 @@ pub struct Skill {
     /// `SkillChannelizer` tick to each swept target while a `CA1` cast runs
     /// (Volcano's `MagicalAttack power=500`), never at cast finish.
     pub channeling_effects: Vec<SkillEffect>,
+    /// Java `EffectScope.END` (`<endEffects>`) — applied when the buff comes
+    /// **off**, as the last thing `EffectList` does on removal. Anchor (1170)
+    /// is the learnable carrier: its first stage holds the body rigid, and the
+    /// end-effect fires skill 6091 for the paralysis its own description
+    /// promises. Without it Anchor did half its job.
+    pub end_effects: Vec<SkillEffect>,
     /// Java `mpPerChanneling` — MP drained per channeling tick, **defaulting
     /// to `mpConsume`** (`set.getInt("mpPerChanneling", _mpConsume)`), so a
     /// channeling skill without the tag still drains. Running dry aborts the
@@ -2420,6 +2434,7 @@ impl Default for Skill {
             pve_effects: Vec::new(),
             pvp_effects: Vec::new(),
             channeling_effects: Vec::new(),
+            end_effects: Vec::new(),
             mp_per_channeling: 0,
             channeling_skill_id: 0,
             channeling_tick_ms: 0,

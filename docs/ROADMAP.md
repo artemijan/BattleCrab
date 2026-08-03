@@ -1360,7 +1360,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S7 landed (headline 275 → 12; reachable 1167); S8 close-out remains**
+### G34 — Skills, effects & abnormal-state parity (epic) ✅ **CLOSED — 275 → 11 wrong learnable skills, all 11 recorded out-of-scope with a reason**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1422,8 +1422,15 @@ every offensive skill *ended* your combat instead of leaving you swinging) and
 `<abnormalResists>` (the cast-time immunity that makes long rituals
 uninterruptible), plus the finding that `magicCriticalRate` is **dead data** —
 Java's `calcCrit` overwrites the per-skill value with the creature stat on its
-first line, so this port was right all along. **Gate:** 0 learnable skills carry an unhandled effect or unported
-condition that is not on a recorded out-of-chronicle list.
+first line, so this port was right all along. **Gate (met):** `datapack_skill_coverage_census` asserts that every learnable
+skill still carrying an unhandled effect or unenforced condition is on a
+`(skill_id, reason)` list — and that nothing on that list has since been
+ported. The residue is 11 skills: the nine Territory Benefaction skills
+(`StatUp`, Territory War), Acrobatics (`SafeFallHeight`, no fall damage in
+this port) and Sweeper (`OpSweeper`, enforced at apply time instead). S8 also
+found one last real gap while checking: **Anchor (1170) was doing half its
+job** — its second, paralysing stage is an `<endEffects>` `CallSkill`, and
+neither the END scope nor `CallSkill` existed.
 
 ---
 

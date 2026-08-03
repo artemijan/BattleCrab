@@ -657,6 +657,27 @@ pub(crate) fn apply_skill_effects(
             // removes it. Both halves ride the buff lifecycle in
             // `apply_continuous_effects`, so the instant pass does nothing.
             SkillEffect::PolearmSingleTarget => {}
+            // `CallSkill.instant` — cast another skill outright, no cast time
+            // and no cost (`SkillCaster.triggerCast`'s shape). Java's
+            // self-reference guard is ported: a skill that calls itself at the
+            // same level returns rather than looping.
+            SkillEffect::CallSkill {
+                skill_id,
+                skill_level,
+                chance,
+            } => {
+                if *skill_id == skill.id && *skill_level == skill.level {
+                    continue;
+                }
+                if *chance < 100 && world.roll(100) > *chance {
+                    continue;
+                }
+                let Some(called) = world.data.skill_data.get(*skill_id, *skill_level).cloned()
+                else {
+                    continue;
+                };
+                apply_skill_effects(world, caster_oid, target_oid, &called);
+            }
             // `NightStatModify` grants nothing at instant time; the buff's
             // stored modifiers are (re)written by `night_stats::refresh_one`,
             // which runs here so a cast made *at* night takes effect at once
@@ -5689,7 +5710,48 @@ pub(crate) fn handle_dam_over_time_tick(
 /// `BuffFinishTask`, fired when a buff's `abnormalTime` elapses
 /// (`ScheduledTask::BuffExpire`). A buff already gone (re-cast/replaced) is a
 /// no-op, matching the scheduler's dead-id contract.
+/// Java `EffectList.remove` — take the buff off and run everything that hangs
+/// off its removal, ending with `applyEffectScope(EffectScope.END, …)`.
+///
+/// The END scope is applied *here* rather than inside the removal body because
+/// that body has several early exits (the NPC path returns before the player
+/// broadcasts); hanging the end-effects off the wrapper means every removal
+/// route fires them exactly once, which is what Java's single call site does.
 pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill_id: i32) {
+    // Read before the removal — the buff has to still be there to know whether
+    // this call is the one that actually took it off.
+    let was_active = world
+        .objects
+        .get_component::<Buffs>(&player_object_id)
+        .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
+    let end_effects = world
+        .data
+        .skill_data
+        .get(skill_id, 1)
+        .map(|s| s.end_effects.clone())
+        .unwrap_or_default();
+
+    handle_buff_expire_inner(world, player_object_id, skill_id);
+
+    // Anchor (1170) is the learnable carrier: its first stage holds the body
+    // rigid and this fires skill 6091 for the paralysis its own description
+    // promises. Applied after the removal, so a called skill that re-buffs the
+    // same target cannot race it.
+    if was_active && !end_effects.is_empty() {
+        let called = Skill {
+            effects: end_effects,
+            ..world
+                .data
+                .skill_data
+                .get(skill_id, 1)
+                .cloned()
+                .unwrap_or_default()
+        };
+        apply_skill_effects(world, player_object_id, player_object_id, &called);
+    }
+}
+
+fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: i32) {
     // Forced/unconditional removal — also used by dispel/cure, which strip a
     // buff before its timer. The natural-timeout path gates on `expires_at_tick`
     // at the scheduler dispatch so a stale `BuffExpire` from a re-cast can't drop
