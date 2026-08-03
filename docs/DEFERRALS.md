@@ -46,7 +46,7 @@ close-out gate uses.
 | marker | count | files |
 |---|---:|---|
 | `TODO(G24)` | 17 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +6 more |
-| `TODO(G33)` | 15 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, +9 more |
+| `TODO(G33)` | 14 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, +9 more |
 | `TODO(G22)` | 12 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `model/skill.rs`, `scripts/feedable_beasts.rs`, +6 more |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, +2 more |
 | `TODO(G34)` | 12 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
@@ -71,6 +71,24 @@ close-out gate uses.
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
+
+**First use, 2026-08-03.** Triaging the 15 `TODO(G33)` markers against the code
+found two describing work that is **already done**:
+
+- the delegated clan-leader transfer, delivered by
+  `daily_tasks::clan_leader_apply` on the weekly reset — exactly as Java gates
+  it on Wednesday. Marker removed (15 → 14).
+- the auto-play/auto-potions voiced commands, which landed with the
+  `Custom/*.ini` audit. That marker also covered `.premium` and `.password`,
+  which really are unported, so it was **narrowed** rather than deleted.
+
+A third, item expiry, is a *real* deferral that now records why: all 3230
+time-limited items on this dist are id ≥ 10015 — entirely post-Interlude — so
+nothing reachable here expires and the timer would have no consumer.
+
+That is the failure this file exists to catch: markers rot in the code the same
+way prose rots in the docs, and a marker describing done work is worse than no
+marker — it makes finished work look outstanding.
 
 ## How to read the big ones
 

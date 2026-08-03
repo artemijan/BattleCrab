@@ -750,7 +750,13 @@ pub struct ItemTemplate {
     /// "is this time-limited at all" question is modelled: expiry itself is not
     /// ported yet, but Java's `Player.onDieDropItem` refuses to scatter such
     /// items and that guard is honoured.
-    /// TODO(G33): actual expiry (`Item.scheduleLifeTimeTask`) is unported.
+    /// TODO(G33): actual expiry (`Item.scheduleLifeTimeTask`) is unported —
+    /// and deliberately so. All **3230** items on this dist declaring a
+    /// positive `time` have ids in the 10015-47923 band: every one is
+    /// post-Interlude content, the lowest being Prison Gate Key (10015).
+    /// Nothing reachable on this chronicle expires, so the timer would be
+    /// machinery with no consumer. Re-check the id range, not this prose,
+    /// before porting it.
     pub time: i32,
     /// `<set name="duration">` — a **shadow item**'s starting mana, in
     /// minutes of wear (Java `ItemTemplate.getDuration()`, `-1`/absent =
