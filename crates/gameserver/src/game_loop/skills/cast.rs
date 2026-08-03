@@ -1885,7 +1885,9 @@ fn matchup_effects(
     target_oid: i32,
     skill: &Skill,
 ) -> Option<Vec<SkillEffect>> {
-    // `isPlayable()` — a player (summons are TODO(G29)).
+    // `isPlayable()` — a player. Java's `Playable` covers summons too, but this
+    // path is only ever reached for a player caster, so the narrowing is the
+    // call site's rather than a missing subsystem (servitors landed with G29).
     if !world.objects.has_component::<Player>(&caster_oid) {
         return None;
     }

@@ -45,26 +45,26 @@ close-out gate uses.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G24)` | 14 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +6 more |
-| `TODO(G33)` | 15 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, `game_loop/position.rs`, +9 more |
-| `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `model/skill.rs`, `scripts/feedable_beasts.rs`, +6 more |
+| `TODO(G33)` | 15 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, +9 more |
+| `TODO(G24)` | 14 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +4 more |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, +2 more |
 | `TODO(G34)` | 12 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects.rs`, +4 more |
+| `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, +5 more |
 | `TODO(G21)` | 9 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs`, +1 more |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
 | `TODO(G20)` | 5 | `data/skill_data.rs`, `game_loop/combat.rs`, `game_loop/duel.rs`, `game_loop/skills/effects.rs`, +1 more |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
-| `TODO(G29)` | 5 | `game_loop/admin/mounts.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects.rs`, `game_loop/tests/servitor_tests.rs` |
-| `TODO(G25)` | 4 | `game_loop/olympiad.rs`, `model/mod.rs`, `scripts/oly_manager.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data.rs`, `game_loop/skills/effects.rs`, `model/skill.rs` |
 | `TODO(G18)` | 3 | `game_loop/death.rs`, `game_loop/pvp.rs`, `scripts/alliance_master.rs` |
+| `TODO(G29)` | 3 | `game_loop/admin/mounts.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-later)` | 2 | `db.rs`, `network/server_packets/manor.rs` |
 | `TODO(G14)` | 2 | `config/general.rs`, `model/mod.rs` |
 | `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
 | `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans.rs` |
+| `TODO(G25)` | 2 | `game_loop/olympiad.rs`, `scripts/oly_manager.rs` |
 | `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
@@ -124,11 +124,27 @@ finished work.
 - The cursed-weapon markers (drop-on-PK-death, the "hungry" HP drain) were
   checked and are **accurate** — neither is implemented.
 
+**Fourth pass: G20, G23, G25, G27, G29 and the small groups.** Four more, all
+of the same kind — a marker naming a *subsystem* as absent when that subsystem
+had since landed:
+
+- Two sites (`skills/effects.rs`'s fear check, `skills/cast.rs`'s `isPlayable`
+  narrowing) said "servitors are `TODO(G29)`". Servitors landed **with G29**.
+  Neither site had a gap at all: Java's summon leg folds into the same branch,
+  so the comments described a missing subsystem that exists and a gap that
+  never was.
+- Two more (`model/mod.rs`, twice) said "Olympiad crowning is unported
+  (TODO(G25))". It is ported — `olympiad::crown` calls
+  `admin::hero::set_hero`, and the period end clears it.
+
 That is the failure this file exists to catch: markers rot in the code the same
 way prose rots in the docs, and a marker describing done work is worse than no
-marker — it makes finished work look outstanding. Across three passes, **9 of
-~55 markers examined were stale or misjustified (16 %)**, every one of them
-understating progress.
+marker — it makes finished work look outstanding.
+
+**Tally across four passes: 13 of ~85 markers examined were stale or
+misjustified (15 %)**, every one understating progress. The dominant failure is
+not "this small thing is still missing" — those held up well — but *"subsystem
+X is not ported"* written before X landed and never revisited.
 
 ## How to read the big ones
 

@@ -227,9 +227,11 @@ pub struct Player {
     pub base_level: i32,
     pub base_exp: i64,
     pub base_sp: i64,
-    /// Java `Player._hero`. Olympiad crowning is unported (TODO(G25)), so a
-    /// fresh session starts `false`; `//sethero` toggles it (grant/remove the
-    /// hero skill tree + refresh the aura).
+    /// Java `Player._hero`. Set by the olympiad's period-end crowning
+    /// (`olympiad::crown` → `admin::hero::set_hero`, G25) and cleared when the
+    /// next period starts; a fresh session loads whatever was persisted.
+    /// `//sethero` toggles it by hand (grant/remove the hero skill tree +
+    /// refresh the aura).
     pub is_hero: bool,
     /// Java `Player._trueHero` — a *second*, independent hero flag with its own
     /// `100 : 0` byte in both `CharInfo` and `UserInfo`, separate from the
@@ -1072,8 +1074,8 @@ impl Player {
             (DEFAULT_NAME_COLOR, DEFAULT_TITLE_COLOR)
         };
         // Java `CharInfo`/`UserInfo`: hero glow = `isHero() || (isGM() &&
-        // GM_HERO_AURA)`. `isHero()` starts false (Olympiad crowning unported,
-        // TODO(G25)); `//sethero` flips it and recomputes this.
+        // GM_HERO_AURA)`. `isHero()` is set by the olympiad's crowning (G25)
+        // and by `//sethero`; either recomputes this.
         let hero_aura = access.is_gm && data.gm.hero_aura;
         let p = Player {
             object_id: c.object_id,
