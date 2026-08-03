@@ -46,6 +46,7 @@ mod basic_property_tests;
 mod boats_tests;
 mod boss_respawn_tests;
 mod boss_zone_tests;
+mod bypass_verb_case_tests;
 mod castle_treasury_tests;
 mod champion_tests;
 mod chase_parity_tests;

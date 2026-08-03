@@ -74,7 +74,13 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
             npc_bypass(world, client_id, object_id, npc_object_id, &command);
         }
     } else if let Some(html_path) = command.strip_prefix("Link ") {
-        handle_link(world, client_id, object_id, html_path.trim());
+        let npc_object_id = world
+            .objects
+            .get_component::<LastFolkNpc>(&object_id)
+            .map(|&LastFolkNpc(id)| id)
+            .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
+            .unwrap_or(0);
+        handle_link(world, client_id, npc_object_id, html_path.trim());
     } else if command == "NpcViewMod" || command.starts_with("NpcViewMod ") {
         // `bypasshandlers/NpcViewMod`: the shift-click NPC info window's own
         // buttons (Show Drop / pages). Java resolves the target by object id
@@ -156,20 +162,16 @@ const VALID_LINKS: &[&str] = &[
 
 /// Port of `bypasshandlers/Link.java`: serve a whitelisted `data/html/`
 /// page through a plain `NpcHtmlMessage`. The dialog anchor (`%objectId%`
-/// and the html window's owner) is the last clicked NPC — Java passes the
-/// `validateHtmlAction` origin, 0 when there is none. The teleporter
-/// precaution is skipped (no teleporter pages are in the whitelist).
-fn handle_link(world: &mut World, client_id: u32, object_id: i32, html_path: &str) {
+/// and the html window's owner) is `useBypass`'s `target` — the NPC the
+/// bypass was invoked on for the `npc_<id>_Link` form, and the last clicked
+/// NPC (Java: the `validateHtmlAction` origin, 0 when there is none) for the
+/// bare form. The teleporter precaution is skipped (no teleporter pages are
+/// in the whitelist).
+fn handle_link(world: &mut World, client_id: u32, npc_object_id: i32, html_path: &str) {
     if html_path.is_empty() || html_path.contains("..") {
         warn!("Bypass: client {client_id} sent invalid link html [{html_path}].");
         return;
     }
-    let npc_object_id = world
-        .objects
-        .get_component::<LastFolkNpc>(&object_id)
-        .map(|&LastFolkNpc(id)| id)
-        .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
-        .unwrap_or(0);
     let content = if VALID_LINKS.contains(&html_path) {
         crate::data::htm_cache::read_htm(format!("{}data/html/{html_path}", world.data.root))
     } else {
@@ -193,9 +195,35 @@ fn npc_bypass(
     npc_object_id: i32,
     command: &str,
 ) {
-    let verb = command.split(' ').next().unwrap_or("");
+    let raw_verb = command.split(' ').next().unwrap_or("");
+    // `BypassHandler` registers every handler verb lower-cased *and* lower-cases
+    // the incoming one before the map lookup, so the whole `bypasshandlers/` set
+    // is case-insensitive in Java — and the dist leans on it. Fold any casing
+    // back onto the spelling the arms below use; verbs answered by an NPC
+    // subclass override (`VillageMaster`, `Teleporter`, `PetManager`,
+    // `RaceManager`, `SymbolMaker`) are deliberately absent from the table
+    // because Java matches those with a case-sensitive `startsWith`.
+    let verb = canonical_handler_verb(raw_verb).unwrap_or(raw_verb);
+    // Re-case the whole command too: the arms below (and the handlers they call)
+    // cut their argument tail with `strip_prefix(verb)`, which would miss on a
+    // differently-spelled original.
+    let recased;
+    let command = if verb == raw_verb {
+        command
+    } else {
+        recased = format!("{verb}{}", &command[raw_verb.len()..]);
+        recased.as_str()
+    };
     match verb {
         "Quest" => super::quests::quest_link(world, client_id, object_id, npc_object_id, command),
+        // `bypasshandlers/Link.java` in its NPC-scoped form: the fisherman
+        // manuals, warehouse/pet-manager info pages, craft and skill-enchant
+        // help. Java routes both `Link <page>` and `npc_<id>_Link <page>` to
+        // the same handler; here the NPC is the one that was clicked.
+        "Link" => {
+            let html_path = command.strip_prefix("Link").unwrap_or("").trim();
+            handle_link(world, client_id, npc_object_id, html_path);
+        }
         // `bypasshandlers/Loto.java` — the Lucky Lottery ticket seller dialog.
         "Loto" => super::lottery::loto_bypass(world, client_id, object_id, npc_object_id, command),
         // `bypasshandlers/ItemAuctionLink.java` — the auctioneer NPC (G30.5).
@@ -420,6 +448,42 @@ fn npc_bypass(
             warn!("Bypass: unhandled npc bypass verb [{verb}] in [{command}].");
         }
     }
+}
+
+/// The `bypasshandlers/` verbs this module answers, in the spelling
+/// [`npc_bypass`]'s match arms use. `BypassHandler.registerHandler` lower-cases
+/// each `getBypassList()` entry and `getHandler` lower-cases the command, so a
+/// html may spell them any way it likes — this dist does: Giran's luxury shop
+/// (`30097` Galladucci / `30098` Alexandria) and six other merchant htmls emit
+/// `Multisell`, and `ClanHallManager-10.html` emits `withdrawc`.
+///
+/// Verbs handled by an NPC `onBypassFeedback` override are *not* here: those go
+/// through case-sensitive `startsWith` checks in Java, so they stay exact.
+fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
+    const HANDLER_VERBS: &[&str] = &[
+        "Quest",
+        "Link",
+        "Chat",
+        "Loto",
+        "ItemAuction",
+        "Buy",
+        "Augment",
+        "multisell",
+        "exc_multisell",
+        "WithdrawP",
+        "DepositP",
+        "WithdrawC",
+        "DepositC",
+        "package_withdraw",
+        "package_deposit",
+        "GiveBlessing",
+        "SupportMagic",
+        "SupportMagicServitor",
+    ];
+    HANDLER_VERBS
+        .iter()
+        .find(|v| v.eq_ignore_ascii_case(verb))
+        .copied()
 }
 
 fn is_village_master(world: &World, npc_object_id: i32) -> bool {
