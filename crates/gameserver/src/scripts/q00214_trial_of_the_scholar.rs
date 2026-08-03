@@ -92,6 +92,15 @@ const LEVEL: i32 = 36;
 const WIZARD: i32 = 11;
 const ELVEN_WIZARD: i32 = 26;
 const DARK_WIZARD: i32 = 39;
+/// Maria's spawn in the Town of Dion (`spawns/Dion/Dion.xml`), and the target
+/// the client's own quest data gives for her steps.
+///
+/// Deviation from the Java datapack: Valkon sends the player after a Crystal of
+/// Purity without naming its only maker, and no journal step names her either,
+/// so the errand is unfindable without a walkthrough. We drop a radar marker on
+/// her when the request is handed over (and on every reminder), the way the
+/// quest engine already guides players elsewhere.
+const MARIA_LOC: (i32, i32, i32) = (19041, 145964, -3068);
 
 fn has(ctx: &QuestCtx, item: i32) -> bool {
     ctx.quest_items_count(item) > 0
@@ -248,6 +257,8 @@ impl QuestScript for Q00214TrialOfTheScholar {
             }),
             "30103-04.html" => {
                 ctx.give_items(VALKONS_REQUEST, 1);
+                // Mark Maria - the only maker of the Crystal of Purity (see MARIA_LOC).
+                ctx.add_radar(MARIA_LOC.0, MARIA_LOC.1, MARIA_LOC.2);
                 Some(event.to_string())
             }
             "30111-05.html" => guarded(ctx, has(ctx, CRONOS_LETTER), event, |c| {
@@ -607,6 +618,9 @@ fn valkon_talk(ctx: &mut QuestCtx) -> String {
             && !has(ctx, CRYSTAL_OF_PURITY2)
             && !has(ctx, SCRIPTURE_CHAPTER_2)
         {
+            // Re-mark Maria on the reminder page, so a player who logged out
+            // mid-errand can recover the marker by asking Valkon again.
+            ctx.add_radar(MARIA_LOC.0, MARIA_LOC.1, MARIA_LOC.2);
             "30103-05.html".to_string()
         } else if has(ctx, CRYSTAL_OF_PURITY2) && !has(ctx, SCRIPTURE_CHAPTER_2) {
             ctx.give_items(SCRIPTURE_CHAPTER_2, 1);
