@@ -348,3 +348,15 @@ voiced command and an html panel, and the port added no opcodes.
 **All 17 features are ported**, across eight slices. The ROADMAP's
 `config/Custom/*` scope gate is now settled: every flag this dist enables is
 live in the port, and every one it disables is documented as a deliberate skip.
+
+**Re-verified 2026-08-03, flag-by-flag against the code rather than these
+notes**, because PROGRESS and the memory index had both drifted back to
+claiming 16 were outstanding. For each of the 17: the master flag parses
+(`config/{champion,auto_play,auto_potions,sell_buffs,dualbox,custom_misc,
+custom_pvp}.rs`), it has a **live consumer** outside `config/` — the check that
+matters, since a parsed flag with no reader is this project's most-repeated
+failure — and at least one test exercises it. The three whose consumers are
+least obvious, recorded so the next audit does not have to re-derive them:
+L2Walker protection in `game_loop/chat.rs`, the private-store spacing rule in
+`game_loop/private_store.rs`, and the boss spawn announcement in
+`model/npc.rs` (tested from `social_tests.rs`).
