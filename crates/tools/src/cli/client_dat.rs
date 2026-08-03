@@ -41,6 +41,17 @@ pub struct Args {
     /// List every file, not just the failures.
     #[arg(long)]
     verbose: bool,
+
+    /// `sync-messages`: the tables to write. Repeatable.
+    #[arg(long = "message-file", default_values_t = [
+        "SystemMsg_Classic-eu.dat".to_string(),
+        "SystemMsg-eu.dat".to_string(),
+    ])]
+    message_files: Vec<String>,
+
+    /// `sync-messages`: report what would change without writing.
+    #[arg(long)]
+    dry_run: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
@@ -49,6 +60,9 @@ enum Direction {
     Decrypt,
     /// Editable text -> `system`.
     Encrypt,
+    /// Push `commons::system_messages` into the client's SystemMsg tables:
+    /// overwrite text and colour, append this server's own messages.
+    SyncMessages,
 }
 
 pub fn run(args: &Args) {
@@ -72,6 +86,11 @@ pub fn run(args: &Args) {
         ));
     }
 
+    if matches!(args.mode, Direction::SyncMessages) {
+        sync_messages(args, &mut set, &system);
+        return;
+    }
+
     let cfg = client_files::Config {
         system_dir: &system,
         decrypted_dir: &decrypted,
@@ -86,6 +105,8 @@ pub fn run(args: &Args) {
             println!("{} -> {}", decrypted.display(), system.display());
             (client_files::encrypt(&mut set, &cfg), "encrypted")
         }
+        // Handled above; it never reaches the directory converter.
+        Direction::SyncMessages => unreachable!(),
     };
     let report = report.unwrap_or_else(|e| fail(&e));
 
@@ -118,6 +139,48 @@ pub fn run(args: &Args) {
                 e.error.as_deref().unwrap_or("")
             );
         }
+        std::process::exit(1);
+    }
+}
+
+fn sync_messages(args: &Args, set: &mut SchemaSet, system: &std::path::Path) {
+    let mut failed = false;
+    for name in &args.message_files {
+        if !system.join(name).is_file() {
+            println!("{name}: not in {} — skipped", system.display());
+            continue;
+        }
+        match tools::msg_sync::sync(set, system, name, args.dry_run) {
+            Ok(report) => {
+                println!(
+                    "{}: {} row(s) retext/recoloured, {} appended, {} of {} rows{}",
+                    report.file,
+                    report.updated,
+                    report.appended.len(),
+                    report.total_rows,
+                    report.total_rows,
+                    if args.dry_run { " (dry run)" } else { "" },
+                );
+                if !report.appended.is_empty() {
+                    println!("  appended ids: {:?}", report.appended);
+                }
+                if report.missing_not_custom > 0 {
+                    // Not an error: the Java reference is newer than this
+                    // client. Adding rows it was never built to use is not
+                    // something to do silently.
+                    println!(
+                        "  {} table message(s) this client has no row for, left alone",
+                        report.missing_not_custom
+                    );
+                }
+            }
+            Err(e) => {
+                eprintln!("{name}: {e}");
+                failed = true;
+            }
+        }
+    }
+    if failed {
         std::process::exit(1);
     }
 }

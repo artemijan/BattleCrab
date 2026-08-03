@@ -14,5 +14,6 @@ pub mod dat_pack;
 pub mod dat_schema;
 pub mod dat_text;
 pub mod datapack;
+pub mod msg_sync;
 pub mod spawn_pockets;
 pub mod system_msg;

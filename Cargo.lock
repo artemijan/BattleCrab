@@ -7045,6 +7045,7 @@ name = "tools"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "commons",
  "crc32fast",
  "flate2",
  "gameserver",

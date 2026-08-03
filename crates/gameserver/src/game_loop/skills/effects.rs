@@ -2376,8 +2376,6 @@ pub(crate) fn apply_continuous_effects(
     skill: &Skill,
     abnormal_time_override: Option<i32>,
 ) -> bool {
-    use server_packets::{SmParam, sm_ids};
-
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
     let buff_effects = skill.stat_modifier_effects();
     // A `DamOverTime` (poison/bleed) debuff has no stat modifier but still
@@ -2516,25 +2514,29 @@ pub(crate) fn apply_continuous_effects(
         // message so the outcome line reflects it and the roll order stays stable.
         let resisted = rate <= world.roll(100) as f64;
         if skill.affect_scope == crate::model::skill::AffectScope::Single {
+            // Two of this server's own messages (ids 9000/9001), so the client
+            // renders and colours them like any other rather than receiving a
+            // sentence we formatted. They only display once the client table
+            // has been rebuilt — `l2r-tools client-dat sync-messages`.
+            use commons::system_messages::SmValue;
+            use commons::system_messages::generated::{
+                C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
+            };
             let target_name = creature_name(world, target_oid);
-            let text = if resisted {
-                format!(
-                    "{} has resisted {}: {}%",
-                    target_name, skill.name, rate as i64
-                )
+            let spell = SmValue::Skill {
+                id: skill.id,
+                level: skill.level,
+            };
+            let chance = rate as i32;
+            let message = if resisted {
+                C1_HAS_RESISTED_S2_CHANCE_WAS_S3::new(target_name, spell, chance)
             } else {
-                format!(
-                    "{} landed with {}% chance on {}",
-                    skill.name, rate as i64, target_name
-                )
+                S1_LANDED_ON_C2_CHANCE_WAS_S3::new(spell, target_name, chance)
             };
             if let Some(client_id) = client_for_player(world, caster_oid)
                 && let Some(cs) = world.clients.get(&client_id)
             {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S1_TEXT,
-                    &[SmParam::Text(text)],
-                ));
+                cs.send(server_packets::system_message(&message));
             }
         }
         if resisted {

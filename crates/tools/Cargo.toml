@@ -17,6 +17,7 @@ path = "src/main.rs"
 # The whole point of these tools is to answer questions with the *server's*
 # geo code rather than a reimplementation of it, so they link the game server
 # and call `GeoEngine` directly.
+commons = { path = "../commons" }
 gameserver = { path = "../gameserver" }
 clap = { version = "4", features = ["derive"] }
 # `client-dat`: raw RSA over the client's 128-byte blocks, the zlib stream they

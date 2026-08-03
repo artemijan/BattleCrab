@@ -834,43 +834,17 @@ pub mod sm_ids {
     pub const YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL: i16 = 2337;
 }
 
-/// One `SystemMessage` parameter (Java `SystemMessage.SMParam`), scoped to the
-/// types the cast pipeline emits.
-pub enum SmParam {
-    /// `TYPE_TEXT` (0) — `addString`.
-    Text(String),
-    /// `TYPE_INT_NUMBER` (1) — `addInt`.
-    Int(i32),
-    /// `TYPE_SKILL_NAME` (4) — `addSkillName` (id, level, sub-level 0).
-    SkillName { id: i32, level: i32 },
-    /// `TYPE_NPC_NAME` (2) — `addNpcName` (template id + 1000000).
-    NpcName(i32),
-    /// `TYPE_ITEM_NAME` (3) — `addItemName`.
-    ItemName(i32),
-    /// `TYPE_CASTLE_NAME` (5) — `addCastleId` (the client resolves the name).
-    CastleName(i32),
-    /// `TYPE_ZONE_NAME` (7) — `addZoneName(x, y, z)`.
-    ///
-    /// The **client** resolves the region name from the coordinates; there is
-    /// no server-side lookup and no sysstring id involved. Several sites here
-    /// used to send `SysString(0)` instead, which is a different parameter type
-    /// (13) carrying a system-string id of zero — hence the blank region name.
-    ZoneName { x: i32, y: i32, z: i32 },
-    /// `TYPE_LONG_NUMBER` (6) — `addLong`.
-    Long(i64),
-    /// `TYPE_PLAYER_NAME` (12) — `addPcName`.
-    PlayerName(String),
-    /// `TYPE_SYSTEM_STRING` (13) — `addSystemString` (sysstring-e.dat id).
-    SysString(i32),
-    /// `TYPE_POPUP_ID` (16) — `addPopup(target, attacker, damage)`. Mobius's
-    /// on-screen floating damage number: the client draws it over `target`'s
-    /// head when the "show damage" client option is enabled. `damage` is passed
-    /// negative (`-damage`) exactly as `Player.sendDamageMessage` does.
-    Popup {
-        target: i32,
-        attacker: i32,
-        damage: i32,
-    },
+// The parameter type now lives in `commons` alongside the generated message
+// table, so a call site can build a message with the typed constructors and
+// hand its params straight to the writer below without a conversion.
+pub use commons::system_messages::SmParam;
+
+/// Encode a message built from the generated table.
+///
+/// The typed constructors return a `commons` `SystemMessage`; this is the only
+/// place that turns one into bytes.
+pub fn system_message(sm: &commons::system_messages::SystemMessage) -> Vec<u8> {
+    system_message_with(sm.id as i16, &sm.params)
 }
 
 /// Port of `serverpackets/SystemMessage.writeImpl` (localisation branch
