@@ -24,3 +24,6 @@ crates/launcher/.env
 # client itself is ignored at the top of this file; both are bulk NCsoft data,
 # not ours to redistribute.
 dist/client/system_decrypted
+
+# Readable text mirror produced by `l2r-tools dat-text unpack`.
+dist/client/system_text

@@ -243,6 +243,9 @@ fn format_float(v: f64) -> String {
 
 struct Walker<'a> {
     cur: Cursor<'a>,
+    /// Nesting depth of the cycle being walked, so only the outermost one
+    /// breaks the line — a record stays on one line however deep it nests.
+    depth: usize,
     vars: HashMap<String, Value>,
     enums: &'a HashMap<String, HashMap<i64, String>>,
     use_enums: bool,
@@ -257,6 +260,7 @@ pub fn read(
 ) -> Outcome {
     let mut walker = Walker {
         cur: Cursor { data, pos: 0 },
+        depth: 0,
         vars: HashMap::new(),
         enums,
         use_enums,
@@ -295,6 +299,9 @@ impl Walker<'_> {
         if cycles <= 0 {
             return Ok(());
         }
+        if cycle_name.is_some() {
+            self.depth += 1;
+        }
         for _ in 0..cycles {
             if let Some(name) = cycle_name {
                 emit(out, &format!("{name}_begin"));
@@ -304,7 +311,13 @@ impl Walker<'_> {
             }
             if let Some(name) = cycle_name {
                 emit(out, &format!("{name}_end"));
+                if self.depth == 1 {
+                    out.push_str("\r\n");
+                }
             }
+        }
+        if cycle_name.is_some() {
+            self.depth -= 1;
         }
         Ok(())
     }
