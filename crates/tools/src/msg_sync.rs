@@ -93,11 +93,27 @@ pub fn sync(
         let Some(info) = commons::system_messages::by_id(id) else {
             continue;
         };
+        // Render class too, not just text and colour: a message that already
+        // has a row still needs correcting when it changes class, and only
+        // updating text and colour left custom rows stuck in whatever class
+        // they were first appended with.
         let want_text = bracket(info.text);
         let want_colour = swap_rb(info.color);
-        if fields[MESSAGE] != want_text || fields[COLOUR] != want_colour {
+        let want_group = info.group.map(|g| g.to_string());
+        let want_type = info.msg_type.map(str::to_owned);
+        let changed = fields[MESSAGE] != want_text
+            || fields[COLOUR] != want_colour
+            || want_group.as_ref().is_some_and(|g| &fields[GROUP] != g)
+            || want_type.as_ref().is_some_and(|k| &fields[TYPE] != k);
+        if changed {
             fields[MESSAGE] = want_text;
             fields[COLOUR] = want_colour;
+            if let Some(g) = want_group {
+                fields[GROUP] = g;
+            }
+            if let Some(k) = want_type {
+                fields[TYPE] = k;
+            }
             *line = fields.join("\t");
             updated += 1;
         }
@@ -294,6 +310,24 @@ mod tests {
         assert_eq!(escape("a]b"), "a\\]b");
         assert_eq!(escape("a\tb"), "a\\tb");
         assert_eq!(escape("plain"), "plain");
+    }
+
+    /// The bug this guards: a custom row that already existed kept the render
+    /// class it was first appended with, so changing it in the table did
+    /// nothing and the message stayed grey.
+    #[test]
+    fn an_existing_row_has_its_render_class_corrected_too() {
+        let mut fields: Vec<String> = row(9000, "x", "799BB0FF")
+            .split('\t')
+            .map(str::to_owned)
+            .collect();
+        assert_eq!(fields[GROUP], "0");
+        assert_eq!(fields[TYPE], "[none]");
+        // What the update path does to a row whose message names a class.
+        fields[GROUP] = 3.to_string();
+        fields[TYPE] = "[damage]".to_string();
+        assert_eq!(fields[GROUP], "3");
+        assert_eq!(fields[TYPE], "[damage]");
     }
 
     /// The bug this guards: a `[none]` row draws grey whatever its colour.
