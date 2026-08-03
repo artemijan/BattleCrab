@@ -3,6 +3,7 @@
 //! `//sendhome`, `//walk`, `//teleport_character`, `//recall_npc`, and the
 //! teleport HTML menus).
 
+use crate::enums::AdminTeleportType;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell, Speeds};
 use crate::model::npc::Npc;
@@ -112,6 +113,13 @@ pub(super) fn admin_recall(world: &mut World, client_id: u32, object_id: i32, ar
 }
 
 /// `AdminTeleport`'s `//teleto` — send the GM to the current target's position.
+///
+/// Java reaches this only through the *aliases* (`//teleportto <name>`,
+/// `//teleport_to_character`); its own `admin_teleto` arm is the mode latch
+/// below, and a bare `//teleto` falls off the end of the if-chain doing
+/// nothing. The port keeps the bare form as the target-teleport (it is the
+/// documented behaviour of `AdminMenu.teleportToCharacter`) and routes the
+/// three mode words to [`admin_teleto_mode`] before ever getting here.
 pub(super) fn admin_teleto(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = current_target(world, object_id) else {
         send_message(world, client_id, "Select a target first.");
@@ -121,6 +129,38 @@ pub(super) fn admin_teleto(world: &mut World, client_id: u32, object_id: i32) {
         return;
     };
     super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
+}
+
+/// `AdminTeleport`'s click-to-move latches — the "Move:" row of
+/// `html/admin/move.htm` ("Additional Movement Options"). Java arms
+/// `Player.setTeleMode(...)` and the next `MoveBackwardToLocation` consumes it
+/// (see [`crate::game_loop::position::handle_move_backward_to_location`]):
+///
+/// * `//instant_move` → `DEMONIC` ("Demonic mode")
+/// * `//teleto sayune` → `SAYUNE`
+/// * `//teleto charge` → `CHARGE`
+/// * `//teleto end` → `NORMAL` ("Normal mode"), the only one with no chat line
+///
+/// The confirmation strings are Java's verbatim (`BuilderUtil.sendSysMessage`).
+pub(super) fn admin_teleto_mode(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    mode: AdminTeleportType,
+) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.tele_mode = mode;
+    } else {
+        return;
+    }
+    let msg = match mode {
+        AdminTeleportType::Demonic => "Instant move ready. Click where you want to go.",
+        AdminTeleportType::Sayune => "Sayune move ready. Click where you want to go.",
+        AdminTeleportType::Charge => "Charge move ready. Click where you want to go.",
+        // Java's `admin_teleto end` arm only calls `setTeleMode(NORMAL)`.
+        AdminTeleportType::Normal => return,
+    };
+    send_message(world, client_id, msg);
 }
 
 /// `AdminMenu`'s `admin_goto_char_menu <name>` — the "Go To" button on
@@ -172,7 +212,9 @@ pub(super) fn admin_goto_char(world: &mut World, client_id: u32, object_id: i32,
 
 /// `AdminTeleport`'s directional `//gonorth|gosouth|goeast|gowest|goup|godown
 /// [offset]` — nudge the GM by `offset` (default 150) units along one axis
-/// (Java: north = -y, south = +y, east = +x, west = -x, up = +z, down = -z).
+/// (Java: north = -y, south = +y, east = +x, west = -x, up = +z, down = -z),
+/// then re-open the `move.htm` nudge pad (`showTeleportWindow`) so the arrows
+/// stay under the cursor for the next click.
 pub(super) fn admin_go(
     world: &mut World,
     client_id: u32,
@@ -204,13 +246,28 @@ pub(super) fn admin_go(
         }
     }
     super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
+    super::menu::show_admin_html(world, client_id, "move.htm");
 }
 
-/// `AdminTeleport`'s `//walk <x> <y> <z>` — Java sets a move-to AI intention;
-/// this server teleports the GM there instead (the admin move-intent path is a
-/// documented simplification).
+/// `AdminTeleport`'s `//walk <x> <y> <z>` — the "Walk" button next to "Tele" on
+/// `move.htm`. Java sets `AI_INTENTION_MOVE_TO`, i.e. the GM *walks* there
+/// under the ordinary movement pipeline (geodata clamp, pathfinder, arrival
+/// events) rather than teleporting; the pair only makes sense as a pair, so
+/// this routes to the same [`intention_move_to`](crate::game_loop::position::intention_move_to)
+/// the move packet uses. A malformed coordinate is swallowed silently, as in
+/// Java (`catch (Exception e) {}` with an empty body).
 pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    admin_teleport_coords(world, client_id, object_id, args);
+    let (Some(x), Some(y), Some(z)) = (
+        args.first().and_then(|s| s.parse::<i32>().ok()),
+        args.get(1).and_then(|s| s.parse::<i32>().ok()),
+        args.get(2).and_then(|s| s.parse::<i32>().ok()),
+    ) else {
+        return;
+    };
+    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
+    crate::game_loop::position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
 }
 
 /// `AdminTeleport`'s `//sendhome [name]` — teleport the targeted or named player
@@ -332,10 +389,18 @@ pub(super) fn admin_recall_npc(world: &mut World, client_id: u32, object_id: i32
 }
 
 /// `AdminTeleport`'s teleport HTML menus (`//show_moves`, `//show_moves_other`,
-/// `//show_teleport`).
+/// `//show_teleport`, `//tele`).
+///
+/// `//tele` is Java's `showTeleportWindow` → `move.htm`, the "Additional
+/// Movement Options" window reached from the button of that name on
+/// `teleports.htm`: the directional nudge pad, the click-to-move mode row, the
+/// GM-speed row and the tele/walk coordinate box. It is a *different* page from
+/// `teleports.htm` (`//show_moves`), and the directional `//go*` handlers
+/// re-open it after each nudge, exactly as Java does.
 pub(super) fn admin_teleport_menu(world: &mut World, client_id: u32, command: &str) {
     let page = match command {
         "admin_show_moves_other" => "tele/other.html",
+        "admin_tele" => "move.htm",
         _ => "teleports.htm",
     };
     super::menu::show_admin_html(world, client_id, page);

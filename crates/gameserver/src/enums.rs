@@ -484,3 +484,25 @@ impl ChatType {
         }
     }
 }
+
+/// Port of `enums/AdminTeleportType` — the GM "Additional Movement Options"
+/// click-to-move modes (`html/admin/move.htm`). The mode is a *latch* on the
+/// GM: once armed, the next `MoveBackwardToLocation` click is consumed by the
+/// matching branch instead of starting an ordinary walk. Never persisted
+/// (Java: a plain `Player` field defaulting to `NORMAL`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AdminTeleportType {
+    /// Ordinary movement — the click starts a walk.
+    #[default]
+    Normal,
+    /// `//instant_move` ("Demonic mode") — the click teleports the GM there.
+    /// One-shot: the latch falls back to [`Normal`](Self::Normal) after it fires.
+    Demonic,
+    /// `//teleto sayune` ("Sayune mode") — the click slides the GM there
+    /// without a loading screen. One-shot, like `Demonic`.
+    Sayune,
+    /// `//teleto charge` ("Charge mode") — the click slides the GM there with
+    /// the charge animation. **Sticky**: Java never resets this one, so every
+    /// subsequent click charges until `//teleto end`.
+    Charge,
+}

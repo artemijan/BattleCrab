@@ -4013,6 +4013,16 @@ fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
         &server_packets::stop_move(target_oid, from.x, from.y, from.z, from.heading),
     );
 
+    // Java's `FlyToLocation` constructor arms `blinkActive` for a player
+    // target, which makes the next `ValidatePosition` skip its out-of-sync
+    // snap — otherwise the victim's own stale position report drags it back
+    // out of the mob's lap.
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&target_oid)
+    {
+        p.blink_active = true;
+    }
     // Java sends `FlyToLocation` to the effected player only; everyone else
     // learns the new position from the movement/validate-position stream. The
     // port broadcasts it so bystanders see the yank rather than a silent

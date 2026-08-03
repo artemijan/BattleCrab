@@ -1349,7 +1349,11 @@ vitality daily (+25 %) / weekly (full) refills deferred from G16, without which
 pattern); `AutoSaveManager` periodic save cadence; ~~the teleport watchdog
 (`TeleportWatchdogTimeout` / `TeleportWatchdogTask`)~~ (done 2026-08-01 — ships
 disabled at `0`, Java's default); precautionary/scheduled restart +
-deadlock detector; ~~offline-trader restore~~ (done 2026-07-31); the `//geosave` binary-region
+deadlock detector; ~~offline-trader restore~~ (done 2026-07-31); ~~the GM
+"Additional Movement Options" window (`//tele` → `move.htm`, the DEMONIC/SAYUNE/
+CHARGE click-to-move latch, `blinkActive`, walking `//walk`)~~ (done 2026-08-03 —
+one `TODO(G33)` left: Sayune's `ExFlyMove` pair has no Interlude opcode);
+the `//geosave` binary-region
 serializer; `NpcNameLocalisationData`/multilang; remaining packets and the last
 data loaders; the niche admin tools (AdminFightCalculator, AdminRepairChar,
 AdminPForge, AdminMissingHtmls, AdminPcCondOverride); Dockerfile parity. Close

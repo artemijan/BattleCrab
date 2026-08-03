@@ -1283,3 +1283,234 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
         "and the client is told to sheathe it"
     );
 }
+
+/// "Demonic mode" (`//instant_move`): the armed GM's next click teleports
+/// instead of walking, and the latch is spent — the click after it walks
+/// normally again (Java `MoveBackwardToLocation`'s `case DEMONIC`, which ends
+/// with `setTeleMode(NORMAL)`).
+#[test]
+fn demonic_tele_mode_teleports_the_click_and_disarms() {
+    use crate::enums::AdminTeleportType;
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 4101, 1000, 1000, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&4101)
+        .unwrap()
+        .tele_mode = AdminTeleportType::Demonic;
+    drain(&mut rx);
+
+    handle_move_backward_to_location(
+        &mut world,
+        1,
+        &move_body((1500, 1000, 0), (1000, 1000, 0), 1),
+    );
+
+    let pos = *world.objects.get_component::<Position>(&4101).unwrap();
+    assert_eq!((pos.x, pos.y), (1500, 1000), "warped to the click");
+    assert!(
+        !world.objects.has_component::<Movement>(&4101),
+        "a teleport, not a walk"
+    );
+    let out = drain(&mut rx);
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
+        "TeleportToLocation went out"
+    );
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
+        "Java answers the consumed click with ActionFailed"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&4101)
+            .unwrap()
+            .tele_mode,
+        AdminTeleportType::Normal,
+        "one-shot latch"
+    );
+
+    // Disarmed: the next click is an ordinary walk.
+    world
+        .objects
+        .get_component_mut::<Player>(&4101)
+        .unwrap()
+        .teleporting = false;
+    handle_move_backward_to_location(
+        &mut world,
+        1,
+        &move_body((1700, 1000, 0), (1500, 1000, 0), 1),
+    );
+    assert!(
+        world.objects.has_component::<Movement>(&4101),
+        "back to walking"
+    );
+}
+
+/// "Charge mode" (`//teleto charge`): the click slides the GM there with the
+/// charge flourish (skill 30012) and — unlike the other two modes — leaves the
+/// latch armed, because Java's `case CHARGE` never calls `setTeleMode(NORMAL)`.
+#[test]
+fn charge_tele_mode_slides_with_the_flourish_and_stays_armed() {
+    use crate::enums::AdminTeleportType;
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 4102, 1000, 1000, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&4102)
+        .unwrap()
+        .tele_mode = AdminTeleportType::Charge;
+    drain(&mut rx);
+
+    handle_move_backward_to_location(
+        &mut world,
+        1,
+        &move_body((1600, 1000, 0), (1000, 1000, 0), 1),
+    );
+
+    let pos = *world.objects.get_component::<Position>(&4102).unwrap();
+    assert_eq!((pos.x, pos.y), (1600, 1000), "slid to the click");
+    let out = drain(&mut rx);
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::FLY_TO_LOCATION),
+        "the charge fly"
+    );
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "skill 30012's cast"
+    );
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_LAUNCHED),
+        "…and its launch"
+    );
+    assert!(
+        !out.iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
+        "a slide, not a teleport — no loading screen"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&4102)
+            .unwrap()
+            .tele_mode,
+        AdminTeleportType::Charge,
+        "charge mode is sticky until //teleto end"
+    );
+}
+
+/// "Sayune mode" (`//teleto sayune`): a silent slide, latch spent. Java's own
+/// `ExFlyMove`/`ExFlyMoveBroadcast` are Ertheia opcodes with no Interlude
+/// counterpart, so the port substitutes the plain `FlyToLocation` slide — what
+/// must hold either way is that the GM ends up at the click without a loading
+/// screen and the mode disarms.
+#[test]
+fn sayune_tele_mode_slides_and_disarms() {
+    use crate::enums::AdminTeleportType;
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 4103, 1000, 1000, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&4103)
+        .unwrap()
+        .tele_mode = AdminTeleportType::Sayune;
+    drain(&mut rx);
+
+    handle_move_backward_to_location(
+        &mut world,
+        1,
+        &move_body((1400, 1000, 0), (1000, 1000, 0), 1),
+    );
+
+    let pos = *world.objects.get_component::<Position>(&4103).unwrap();
+    assert_eq!((pos.x, pos.y), (1400, 1000));
+    let out = drain(&mut rx);
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::FLY_TO_LOCATION)
+    );
+    assert!(
+        !out.iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "no charge flourish on a sayune hop"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&4103)
+            .unwrap()
+            .tele_mode,
+        AdminTeleportType::Normal,
+        "one-shot latch"
+    );
+}
+
+/// Java arms `blinkActive` inside the `FlyToLocation` constructor and
+/// `ValidatePosition` spends it on its out-of-sync branch: right after a slide
+/// the client is still reporting the pre-slide spot, and adopting that report
+/// would undo the slide. The first stale report is swallowed; a later one is
+/// honoured as usual.
+#[test]
+fn a_slide_survives_the_clients_stale_position_report() {
+    use crate::enums::AdminTeleportType;
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 4104, 1000, 1000, 0);
+    {
+        let speeds = world.objects.get_component_mut::<Speeds>(&4104).unwrap();
+        speeds.run_spd = 120.0;
+        speeds.running = true;
+    }
+    world
+        .objects
+        .get_component_mut::<Player>(&4104)
+        .unwrap()
+        .tele_mode = AdminTeleportType::Sayune;
+    handle_move_backward_to_location(
+        &mut world,
+        1,
+        &move_body((1400, 1000, 0), (1000, 1000, 0), 1),
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&4104)
+            .unwrap()
+            .blink_active,
+        "the fly armed the blink guard"
+    );
+    drain(&mut rx);
+
+    // The in-flight report from the old spot: swallowed, position kept.
+    handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 0, 0));
+    assert_eq!(
+        world.objects.get_component::<Position>(&4104).unwrap().x,
+        1400,
+        "the slide stands"
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&4104)
+            .unwrap()
+            .blink_active,
+        "guard spent"
+    );
+
+    // Guard spent: a genuine desync snaps the server to the client again.
+    handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 0, 0));
+    assert_eq!(
+        world.objects.get_component::<Position>(&4104).unwrap().x,
+        1000,
+        "ordinary out-of-sync handling is back"
+    );
+}

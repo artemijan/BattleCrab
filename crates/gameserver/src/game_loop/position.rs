@@ -22,8 +22,8 @@ use super::helpers::{broadcast_including_self, broadcast_to_others};
 /// more than 30 units the destination goes to the path worker instead —
 /// the move then starts from `handle_path_result` when the route lands
 /// (Java runs `CellPathFinding.findPath` synchronously at this point).
-/// Door-crossing and teleport-mode switches are skipped as out of scope (no
-/// doors/admin-teleport). Java's "remove queued skill upon move request" is
+/// Door-crossing is skipped as out of scope; the GM teleport-mode switch is
+/// ported (see [`take_admin_tele_mode`]). Java's "remove queued skill upon move request" is
 /// covered by the busy branch overwriting the `QueuedAction` slot — outside
 /// a cast/swing the slot is always empty, so there is nothing to clear.
 pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
@@ -73,6 +73,21 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         .get_component::<crate::model::components::Collision>(&object_id)
         .map_or(0.0, |c| c.height);
     let target_z = (pkt.target_z as f64 + collision_height) as i32;
+
+    // Java `MoveBackwardToLocation`'s `switch (player.getTeleMode())`, armed
+    // from the GM "Additional Movement Options" window (`//instant_move`,
+    // `//teleto sayune|charge`). It sits here — *before* the movement-disabled
+    // / rest / dead gates, which live inside `PlayerAI.onIntentionMoveTo`, i.e.
+    // inside the `default:` arm — so an armed GM warps even while stunned or
+    // seated. `NORMAL` falls through to the ordinary walk below.
+    if take_admin_tele_mode(
+        world,
+        object_id,
+        (pkt.target_x, pkt.target_y, target_z),
+        client_id,
+    ) {
+        return;
+    }
 
     // Stunned/asleep/paralyzed or rooted players can't move either — the rest
     // of `isMovementDisabled`'s effect-driven terms.
@@ -150,6 +165,154 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         cur,
         (pkt.target_x, pkt.target_y, target_z),
     );
+}
+
+/// The GM click-to-move latch (`Player.getTeleMode()`) armed from the
+/// "Additional Movement Options" window — `MoveBackwardToLocation`'s
+/// `switch (teleMode)`. Returns `true` when the click was consumed by a mode
+/// and must not start an ordinary walk.
+///
+/// The three armed modes differ in how the GM travels and in whether the latch
+/// survives the click:
+///
+/// | mode | travel | latch after |
+/// |---|---|---|
+/// | `DEMONIC` | `teleToLocation` — full teleport, loading screen | cleared |
+/// | `SAYUNE` | `setXYZ` — silent slide, no loading screen | cleared |
+/// | `CHARGE` | `setXYZ` + charge animation (skill 30012) | **kept** |
+///
+/// `CHARGE` keeping the latch is Java's, not an oversight here: its arm is the
+/// only one of the three that never calls `setTeleMode(NORMAL)`, so charge mode
+/// stays on until "Normal mode" (`//teleto end`) turns it off.
+fn take_admin_tele_mode(
+    world: &mut World,
+    object_id: i32,
+    dest: (i32, i32, i32),
+    client_id: u32,
+) -> bool {
+    let mode = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map_or(crate::enums::AdminTeleportType::Normal, |p| p.tele_mode);
+    let (x, y, z) = dest;
+    match mode {
+        crate::enums::AdminTeleportType::Normal => return false,
+        crate::enums::AdminTeleportType::Demonic => {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            super::death::teleport_player(world, object_id, x, y, z);
+            set_tele_mode(world, object_id, crate::enums::AdminTeleportType::Normal);
+        }
+        crate::enums::AdminTeleportType::Sayune => {
+            // Java sends `ExFlyMove` to the GM and `ExFlyMoveBroadcast` to
+            // everyone else around the Sayune hop, then `setXYZ`.
+            //
+            // TODO(G33): those two are `0xFE:0xE8` / `0xFE:0x108`, Ertheia-era
+            // ex-opcodes with no counterpart in the Interlude protocol this
+            // server speaks — there is no way to send them to this client. The
+            // hop itself (the `setXYZ` half) is ported; the port substitutes a
+            // `FlyToLocation(DUMMY)` — the Interlude "slide, no animation"
+            // packet — so the client actually follows the server instead of
+            // staying put and being snapped back.
+            slide_to(world, object_id, dest, server_packets::FlyType::Dummy);
+            set_tele_mode(world, object_id, crate::enums::AdminTeleportType::Normal);
+        }
+        crate::enums::AdminTeleportType::Charge => {
+            // Java: `setXYZ` first, then MagicSkillUse(30012, lvl 10, 500ms) →
+            // FlyToLocation(CHARGE) → MagicSkillLaunched, all to self and known
+            // players, then ActionFailed. Because `setXYZ` runs first, Java's
+            // `FlyToLocation` constructor reads the *destination* as its origin
+            // — the client flies to `dest` regardless, so the port keeps that
+            // ordering rather than "fixing" the origin.
+            let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+                return true;
+            };
+            let skill_use = world
+                .objects
+                .get_component::<Player>(&object_id)
+                .map(|p| {
+                    let mut at = pos;
+                    at.x = x;
+                    at.y = y;
+                    at.z = z;
+                    server_packets::magic_skill_use(
+                        p,
+                        &at,
+                        (object_id, x, y, z),
+                        CHARGE_SKILL_ID,
+                        CHARGE_SKILL_LEVEL,
+                        500,
+                        -1,
+                        0,
+                    )
+                })
+                .unwrap_or_default();
+            slide_to(world, object_id, dest, server_packets::FlyType::Charge);
+            // The two skill packets bracket the fly in Java; the fly itself is
+            // sent by `slide_to`, which also moves the server position.
+            broadcast_including_self(world, object_id, &skill_use);
+            let launched = server_packets::magic_skill_launched(
+                object_id,
+                CHARGE_SKILL_ID,
+                CHARGE_SKILL_LEVEL,
+                &[object_id],
+            );
+            broadcast_including_self(world, object_id, &launched);
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+        }
+    }
+    true
+}
+
+/// Java `AdminTeleport`'s charge animation — "Rush Impact"-style flourish the
+/// CHARGE tele mode plays on arrival (`new MagicSkillUse(player, 30012, 10,
+/// 500, 0)`).
+const CHARGE_SKILL_ID: i32 = 30012;
+const CHARGE_SKILL_LEVEL: i32 = 10;
+
+fn set_tele_mode(world: &mut World, object_id: i32, mode: crate::enums::AdminTeleportType) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.tele_mode = mode;
+    }
+}
+
+/// Java `Creature.setXYZ` + a `FlyToLocation` — move the player without a
+/// teleport (no fade, no decay/respawn round trip) and let the clients animate
+/// the slide. `FlyToLocation`'s constructor arms `blinkActive`, which makes the
+/// next `ValidatePosition` skip its out-of-sync snap so the slide survives the
+/// client's stale position report.
+fn slide_to(
+    world: &mut World,
+    object_id: i32,
+    dest: (i32, i32, i32),
+    fly_type: server_packets::FlyType,
+) {
+    let Some(from) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
+    let (x, y, z) = dest;
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+        pos.x = x;
+        pos.y = y;
+        pos.z = z;
+    }
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.blink_active = true;
+    }
+    // A slide leaves any in-flight walk behind: without dropping it the mover
+    // keeps interpolating from the new point toward the old destination.
+    world.objects.remove_component::<Movement>(&object_id);
+    world.objects.remove_component::<PathWait>(&object_id);
+    broadcast_including_self(
+        world,
+        object_id,
+        &server_packets::fly_to_location(object_id, (from.x, from.y, from.z), dest, fly_type),
+    );
+    super::visibility::update_region(world, object_id);
+    super::zones::revalidate_zone(world, object_id, false);
 }
 
 /// Port of `clientpackets/RequestStopMove.runImpl`:
@@ -521,7 +684,7 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     {
         return;
     }
-    let Some((player, mut pos, speeds, mut client)) =
+    let Some((mut player, mut pos, speeds, mut client)) =
         objects.get_many_mut::<(&mut Player, &mut Position, &Speeds, &mut ClientPos)>(&object_id)
     else {
         return;
@@ -573,20 +736,28 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
 
     // Out-of-sync check: a jump larger than one second of movement snaps the
     // server to the client position, geodata-correcting z when the server
-    // was above the client (falling through a floor edge).
+    // was above the client (falling through a floor edge). Java guards this
+    // with `isBlinkActive()`: right after a `FlyToLocation` the client is still
+    // reporting its pre-fly position, and adopting it would undo the slide the
+    // server just performed — so the first such report is swallowed and only
+    // clears the flag.
     let sdx = (pkt.x - pos.x) as f64;
     let sdy = (pkt.y - pos.y) as f64;
     let sdz = (pkt.z - pos.z) as f64;
     let move_speed = speeds.move_speed();
     if (sdx * sdx + sdy * sdy + sdz * sdz).sqrt() > move_speed {
-        let z = if pos.z > pkt.z {
-            geo.get_height(pkt.x, pkt.y, pos.z)
+        if player.blink_active {
+            player.blink_active = false;
         } else {
-            pkt.z
-        };
-        pos.x = pkt.x;
-        pos.y = pkt.y;
-        pos.z = z;
+            let z = if pos.z > pkt.z {
+                geo.get_height(pkt.x, pkt.y, pos.z)
+            } else {
+                pkt.z
+            };
+            pos.x = pkt.x;
+            pos.y = pkt.y;
+            pos.z = z;
+        }
     }
 
     client.x = pkt.x;
