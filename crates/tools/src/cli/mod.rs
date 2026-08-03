@@ -10,4 +10,5 @@
 //! nothing that prints ever ends up behind `tools::`.
 
 pub mod client_dat;
+pub mod dat_text;
 pub mod spawn_pockets;
