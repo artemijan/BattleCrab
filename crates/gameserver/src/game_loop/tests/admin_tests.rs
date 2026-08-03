@@ -1360,6 +1360,76 @@ fn admin_create_item_adds_to_gm_inventory() {
     );
 }
 
+/// `//delete_item <objectId> [count]` trims a stack by the item's object id,
+/// and a count of 0 destroys the whole stack (Java's `numval == 0`).
+#[test]
+fn admin_delete_item_trims_a_stack_by_object_id() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0200..0x4000_0300;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7211, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("create_item 57 1000"));
+    fn inv(w: &World) -> &crate::model::inventory::Inventory {
+        w.objects
+            .get_component::<crate::model::inventory::Inventory>(&7211)
+            .unwrap()
+    }
+    let adena_oid = inv(&world)
+        .items()
+        .iter()
+        .find(|it| it.item_id == 57)
+        .expect("adena stack")
+        .object_id;
+
+    // Partial: 400 off the 1000.
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("delete_item {adena_oid} 400")),
+    );
+    assert_eq!(inv(&world).count_of(57), 600, "400 adena destroyed");
+
+    // Count 0 means the whole remaining stack.
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("delete_item {adena_oid} 0")),
+    );
+    assert_eq!(inv(&world).count_of(57), 0, "stack destroyed outright");
+}
+
+/// `//delete_item` on an object id nobody online owns reports it and changes
+/// nothing (Java's "Item doesn't have owner." / "Player is not online.").
+#[test]
+fn admin_delete_item_rejects_unowned_object_id() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0300..0x4000_0400;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7212, 100);
+    on_packet(&mut world, 1, build_admin("create_item 57 50"));
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("delete_item 123456789 1"));
+    assert_eq!(
+        count_system_messages(&drain(&mut gm_rx)),
+        1,
+        "one message, no destruction"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&7212)
+            .unwrap()
+            .count_of(57),
+        50,
+        "inventory untouched"
+    );
+}
+
 /// `//create_item` with a bogus id answers "does not exist" and adds nothing.
 #[test]
 fn admin_create_item_rejects_unknown_id() {
