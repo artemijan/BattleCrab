@@ -34,6 +34,10 @@ enum Command {
 
     /// Edit system-message colours in a terminal UI.
     MsgColor(cli::msg_color::Args),
+
+    /// Push this server's system-message table into the client's SystemMsg
+    /// files: overwrite text and colour, append messages the client lacks.
+    SyncMessages(cli::sync_messages::Args),
 }
 
 fn main() {
@@ -43,5 +47,6 @@ fn main() {
         Command::ClientDat(args) => cli::client_dat::run(&args),
         Command::DatText(args) => cli::dat_text::run(&args),
         Command::MsgColor(args) => cli::msg_color::run(&args),
+        Command::SyncMessages(args) => cli::sync_messages::run(&args),
     }
 }
