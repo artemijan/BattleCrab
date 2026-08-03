@@ -92,7 +92,7 @@ pub fn sync(
             continue;
         };
         let want_text = bracket(info.text);
-        let want_colour = info.color.to_string();
+        let want_colour = swap_rb(info.color);
         if fields[MESSAGE] != want_text || fields[COLOUR] != want_colour {
             fields[MESSAGE] = want_text;
             fields[COLOUR] = want_colour;
@@ -183,8 +183,16 @@ fn new_row(info: &MessageInfo, defaults: &[String]) -> String {
     let mut fields = defaults.to_vec();
     fields[ID] = info.id.to_string();
     fields[MESSAGE] = bracket(info.text);
-    fields[COLOUR] = info.color.to_string();
+    fields[COLOUR] = swap_rb(info.color);
     fields.join("\t")
+}
+
+/// The table is RGBA; the dat stores B,G,R,A. Its own inverse.
+fn swap_rb(hex: &str) -> String {
+    if hex.len() != 8 {
+        return hex.to_string();
+    }
+    format!("{}{}{}{}", &hex[4..6], &hex[2..4], &hex[0..2], &hex[6..8])
 }
 
 /// Wrap message text the way the reader would have emitted it.
@@ -259,7 +267,8 @@ mod tests {
         assert_eq!(fields.len(), FIELDS, "must have every column");
         assert_eq!(fields[ID], "9000");
         assert_eq!(fields[MESSAGE], "[hello $s1]");
-        assert_eq!(fields[COLOUR], "FF6666FF");
+        // The table's RGBA lands in the file's B,G,R,A order.
+        assert_eq!(fields[COLOUR], "6666FFFF");
         // Untouched columns keep the client's own habit.
         assert_eq!(fields[6], "1");
         assert_eq!(fields[16], "[none]");
@@ -283,6 +292,11 @@ mod tests {
             bracket("Summoning your pet\u{2026}"),
             "w[Summoning your pet\u{2026}]"
         );
+    }
+
+    #[test]
+    fn colours_are_written_in_the_file_s_channel_order() {
+        assert_eq!(swap_rb("FF0000FF"), "0000FFFF");
     }
 
     #[test]

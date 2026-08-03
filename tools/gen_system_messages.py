@@ -21,7 +21,8 @@ plain constants, which keeps the generated file about a quarter the size it
 would otherwise be.
 
 The output is committed. This script exists so it can be re-run against a newer
-client or Java drop and the diff reviewed.
+client or Java drop and the diff reviewed. Run `cargo fmt` afterwards — the
+emitted lines are not pre-wrapped and the repo gates on formatting.
 
 Usage:
     python3 tools/gen_system_messages.py \\
@@ -83,6 +84,14 @@ def parse_java(path):
     return out
 
 
+def bgra_to_rgba(hex8):
+    """The dat stores B, G, R, A; everything in Rust is RGBA."""
+    if len(hex8) != 8:
+        return hex8
+    b, g, r, a = hex8[0:2], hex8[2:4], hex8[4:6], hex8[6:8]
+    return (r + g + b + a).upper()
+
+
 def parse_dat_colors(path):
     """id -> RRGGBBAA, read from the unpacked text form of the client table."""
     colors = {}
@@ -90,7 +99,7 @@ def parse_dat_colors(path):
         fields = line.split("\t")
         if len(fields) > 5 and fields[0] == "msg_begin":
             try:
-                colors[int(fields[1])] = fields[5].upper()
+                colors[int(fields[1])] = bgra_to_rgba(fields[5].upper())
             except ValueError:
                 pass
     return colors

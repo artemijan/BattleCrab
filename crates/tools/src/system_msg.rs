@@ -12,10 +12,11 @@
 //!            ^id                          ^message     ^colour
 //! ```
 //!
-//! The colour is `RRGGBBAA`, one byte each, and the alpha is almost always
-//! `FF`. Java's reader calls the first byte "a", but the bytes on disk are in
-//! red-green-blue-alpha order — `799BB0FF` is the pale blue the client uses
-//! for ordinary notices, not a 47%-opaque orange.
+//! The colour bytes on disk are **blue, green, red, alpha** — not RGB. Java's
+//! reader names the first byte "a", which is misleading twice over. A session
+//! works in RGBA throughout and swaps only at the file boundary, so a colour
+//! typed here is the colour that appears: message 0's `B09B79` is the pale
+//! tan the client uses for ordinary notices.
 //!
 //! Editing a field in place keeps every other token on the line untouched, so
 //! nothing outside the colour can drift; the file still has to survive
@@ -118,7 +119,7 @@ impl MsgFile {
             let Ok(id) = fields[ID].parse::<i64>() else {
                 continue;
             };
-            let colour = fields[COLOUR].to_ascii_uppercase();
+            let colour = swap_rb(&fields[COLOUR].to_ascii_uppercase());
             messages.push(Message {
                 id,
                 text: fields[MESSAGE]
@@ -210,16 +211,28 @@ impl MsgFile {
         for message in &self.messages {
             let mut fields: Vec<String> =
                 lines[message.line].split('\t').map(str::to_owned).collect();
-            fields[COLOUR] = message.colour.clone();
+            fields[COLOUR] = swap_rb(&message.colour);
             lines[message.line] = fields.join("\t");
         }
         lines.join("\r\n")
     }
 }
 
+/// Exchange the red and blue bytes of an 8-digit colour.
+///
+/// The dat stores B,G,R,A and everything above works in R,G,B,A; the swap is
+/// its own inverse, so one function serves both directions. Getting this wrong
+/// is invisible in the editor and obvious in game — red comes out blue.
+fn swap_rb(hex: &str) -> String {
+    if hex.len() != 8 {
+        return hex.to_string();
+    }
+    format!("{}{}{}{}", &hex[4..6], &hex[2..4], &hex[0..2], &hex[6..8])
+}
+
 /// Colours the client itself already uses, offered as presets.
 pub const PRESETS: [(&str, &str); 10] = [
-    ("Notice (default)", "799BB0FF"),
+    ("Notice (default)", "B09B79FF"),
     ("White", "FFFFFFFF"),
     ("Yellow", "FFFF00FF"),
     ("Orange", "FFA500FF"),
@@ -267,9 +280,9 @@ mod tests {
         let m = &file.messages[0];
         assert_eq!(m.id, 0);
         assert_eq!(m.text, "You have been disconnected.");
-        assert_eq!(m.colour, "799BB0FF");
-        // Red-green-blue order, not Java's misleading "a" first.
-        assert_eq!(m.rgb(), (0x79, 0x9B, 0xB0));
+        // The line stores 799BB0FF as B,G,R,A; the session shows it as RGBA.
+        assert_eq!(m.colour, "B09B79FF");
+        assert_eq!(m.rgb(), (0xB0, 0x9B, 0x79));
         assert!(!m.edited());
     }
 
@@ -295,7 +308,7 @@ mod tests {
         assert!(file.set_colour(0, "nothex!!").is_err());
         assert!(file.set_colour(0, "FFF").is_err());
         // The message keeps what it had.
-        assert_eq!(file.messages[0].colour, "799BB0FF");
+        assert_eq!(file.messages[0].colour, "B09B79FF");
     }
 
     #[test]
@@ -303,8 +316,15 @@ mod tests {
         let mut file = open(&tmp());
         file.set_colour(0, "FF0000FF").unwrap();
         file.revert(0);
-        assert_eq!(file.messages[0].colour, "799BB0FF");
+        assert_eq!(file.messages[0].colour, "B09B79FF");
         assert_eq!(file.edited_count(), 0);
+    }
+
+    /// The bug this guards: picking red showed blue in game.
+    #[test]
+    fn red_and_blue_are_exchanged_at_the_file_boundary() {
+        assert_eq!(swap_rb("FF0000FF"), "0000FFFF");
+        assert_eq!(swap_rb(&swap_rb("123456AB")), "123456AB", "its own inverse");
     }
 
     #[test]
@@ -319,6 +339,7 @@ mod tests {
         let mut file = open(&tmp());
         file.set_colour(0, "FF0000FF").unwrap();
         let out = file.to_text();
-        assert_eq!(out, LINE.replace("799BB0FF", "FF0000FF"));
+        // Written back in the file's own B,G,R,A order: red is 0000FF there.
+        assert_eq!(out, LINE.replace("799BB0FF", "0000FFFF"));
     }
 }

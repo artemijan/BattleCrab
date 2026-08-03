@@ -178,7 +178,12 @@ pub struct MessageInfo {
     pub id: i32,
     pub name: &'static str,
     pub text: &'static str,
-    /// `RRGGBBAA`, as the dat stores it.
+    /// `RRGGBBAA`.
+    ///
+    /// The dat itself stores the channels **B, G, R, A** — a colour written
+    /// `FF0000..` there draws blue, not red. Everything in Rust is RGBA and
+    /// the swap happens only where the file is read or written, so a colour
+    /// here reads the way it looks.
     pub color: &'static str,
     /// How many parameters the name implies.
     pub params: usize,
