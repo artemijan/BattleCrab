@@ -4585,6 +4585,20 @@ fn queued_far_retarget_with_real_datapack_timings() {
     world.data =
         crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // The first cast's damage makes the (passive, level-1) Gremlin retaliate,
+    // and a melee hit on a still-abortable cast rolls `Formulas.calcAtkBreak`
+    // — `15 + sqrt(13 * dmg)`, ~20 % at this damage — which then decides the
+    // *last* assertion below. That made this test fail ~2 % of the time for a
+    // reason it does not cover. `isInvul` returns out of `reduce_hp` ahead of
+    // the break roll, so the retaliation lands no damage and rolls nothing,
+    // leaving the queue/retarget flow under test untouched.
+    world.objects.add_components(
+        &3001,
+        crate::model::components::AdminFlags {
+            invul: true,
+            ..Default::default()
+        },
+    );
     let near = NPC_OID + 74;
     let far = NPC_OID + 75;
     // Real-datapack monsters (Gremlin, 20001) at 100 and 900 units.
