@@ -51,21 +51,21 @@ close-out gate uses.
 | `TODO(G34)` | 12 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects.rs`, +4 more |
 | `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, +5 more |
-| `TODO(G21)` | 9 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs`, +1 more |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
+| `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
 | `TODO(G20)` | 5 | `data/skill_data.rs`, `game_loop/combat.rs`, `game_loop/duel.rs`, `game_loop/skills/effects.rs`, +1 more |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
+| `TODO(G15)` | 4 | `game_loop/death.rs`, `game_loop/items.rs`, `game_loop/skills/effects.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data.rs`, `game_loop/skills/effects.rs`, `model/skill.rs` |
 | `TODO(G29)` | 3 | `game_loop/admin/mounts.rs`, `game_loop/tests/servitor_tests.rs` |
-| `TODO(G-later)` | 2 | `db.rs`, `network/server_packets/manor.rs` |
 | `TODO(G14)` | 2 | `config/general.rs`, `model/mod.rs` |
-| `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
 | `TODO(G18)` | 2 | `game_loop/death.rs`, `game_loop/pvp.rs` |
 | `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans.rs` |
 | `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data.rs` |
+| `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
@@ -156,8 +156,35 @@ exactly that shape:
   `create_ally` and `dissolve_ally` to `clans::handle_create_ally` /
   `handle_dissolve_ally`.
 
-**Tally across five passes: 15 of ~107 markers examined were stale or
-misjustified (14 %)**, every one understating progress. The dominant failure is
+**Sixth pass: the remainder, line by line.** Six more, and one of them cuts
+against the pattern:
+
+- `db.rs` said `storeCharSub`/`storeEffect` "need systems that don't exist yet
+  (subclasses, buff restore on login)". Both exist — subclasses with G17, buff
+  restore with G19's relative `remaining_time` rows.
+- `items.rs` narrowed item use with "no pets (none exist yet), no Olympiad
+  guard (no Olympiad)". Both subsystems landed (G29, G25); the path simply
+  never routed to them, which is a different and smaller statement.
+- `skills/effects.rs`'s sweep said "item weight/slot limits aren't modeled".
+  Weight is modelled (`game_loop::weight`, plus G34 S4.1's `WEIGHT_LIMIT` /
+  `WEIGHT_PENALTY`); the sweep just does not consult it.
+- `model/mod.rs` carried `TODO(G21): cursedOnLogin`; `cursed_weapon::
+  on_enter_world` (G28) does exactly that.
+- **`death.rs` claimed shadow items were "absent from this dist". They are
+  not — 295 sit in the Interlude id range, and `items.rs` already models their
+  mana.** Correcting that exposed a **real bug**: the drop filter implements
+  every leg of Java's `isShadowItem() || isTimeLimitedItem() || !isDropable()
+  || ADENA || TYPE2_QUEST` **except `isShadowItem()`**, so a shadow item can
+  drop on death here when Java would keep it. Now marked `TODO(G15)` at both
+  the doc comment and the check.
+
+That last one is the counter-example worth recording: a **false** claim of
+absence hid a live gap, where every other stale marker had merely overstated
+one. The first draft of this pass removed the line as "not a real deferral" —
+reading the filter, rather than the comment above it, is what caught that.
+
+**Tally across six passes: 21 of ~134 markers examined were stale or
+misjustified (16 %)**, every one understating progress. The dominant failure is
 not "this small thing is still missing" — those held up almost perfectly — but
 *"subsystem X is not ported"* written before X landed and never revisited.
 Module headers are where those live, which makes them the place to look first.
