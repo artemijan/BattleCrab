@@ -19,3 +19,8 @@ deploy-web.sh
 deploy.env
 # Launcher build-time config: points a build at a specific deployment
 crates/launcher/.env
+
+# The game client, and the plaintext mirror tools/l2_dat_cipher.py unpacks it
+# into — both are bulk NCsoft data, not ours to redistribute.
+dist/client/system
+dist/client/system_decrypted

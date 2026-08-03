@@ -6438,7 +6438,12 @@ name = "tools"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "crc32fast",
+ "flate2",
  "gameserver",
+ "num-bigint-dig",
+ "rayon",
+ "serde_json",
 ]
 
 [[package]]

@@ -3,9 +3,10 @@
 //! These run the *server's* engine code over the datapack rather than a
 //! reimplementation of it, so a verdict here is a verdict in game.
 
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use gameserver::geo::GeoEngine;
 use std::path::{Path, PathBuf};
+use tools::client_dat;
 use tools::datapack;
 use tools::spawn_pockets::{self, Candidate};
 
@@ -24,6 +25,38 @@ struct Cli {
 enum Command {
     /// Find spawn rows buried under the floor by geodata layer snapping.
     SpawnPockets(SpawnPocketsArgs),
+
+    /// Decrypt the game client's `system` files to plaintext, or pack them back.
+    ClientDat(ClientDatArgs),
+}
+
+#[derive(Args)]
+struct ClientDatArgs {
+    /// Which way to convert.
+    mode: ClientDatMode,
+
+    /// Source directory. Defaults to `<client-dir>/system` when decrypting and
+    /// `<client-dir>/system_decrypted` when encrypting.
+    in_dir: Option<PathBuf>,
+
+    /// Destination directory. Defaults to the other one of that pair.
+    out_dir: Option<PathBuf>,
+
+    /// Where the client lives, used to build the defaults above.
+    #[arg(long, default_value = "dist/client")]
+    client_dir: PathBuf,
+
+    /// Also mirror files that carry no `Lineage2Ver` header. Off by default:
+    /// the client's ~200 MB of executables and libraries need no conversion
+    /// and stay valid where they are.
+    #[arg(long)]
+    include_plain: bool,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum ClientDatMode {
+    Decrypt,
+    Encrypt,
 }
 
 #[derive(Args)]
@@ -111,6 +144,78 @@ fn main() {
     let cli = Cli::parse();
     match cli.command {
         Command::SpawnPockets(args) => spawn_pockets_cmd(&cli.game_dir, &args),
+        Command::ClientDat(args) => client_dat_cmd(&args),
+    }
+}
+
+fn client_dat_cmd(args: &ClientDatArgs) {
+    let (mode, default_in, default_out) = match args.mode {
+        ClientDatMode::Decrypt => (client_dat::Mode::Decrypt, "system", "system_decrypted"),
+        ClientDatMode::Encrypt => (client_dat::Mode::Encrypt, "system_decrypted", "system"),
+    };
+    let in_dir = args
+        .in_dir
+        .clone()
+        .unwrap_or_else(|| args.client_dir.join(default_in));
+    let out_dir = args
+        .out_dir
+        .clone()
+        .unwrap_or_else(|| args.client_dir.join(default_out));
+
+    println!("{} -> {}", in_dir.display(), out_dir.display());
+    let report = client_dat::run(&client_dat::Config {
+        mode,
+        in_dir: &in_dir,
+        out_dir: &out_dir,
+        include_plain: args.include_plain,
+    })
+    .unwrap_or_else(|e| {
+        eprintln!("{e}");
+        std::process::exit(2);
+    });
+
+    let verb = match args.mode {
+        ClientDatMode::Decrypt => "decrypted",
+        ClientDatMode::Encrypt => "encrypted",
+    };
+    println!("{} file(s) {verb}", report.converted());
+    if !report.copied.is_empty() {
+        println!(
+            "{} unencrypted file(s) copied verbatim",
+            report.copied.len()
+        );
+    }
+    if !report.skipped.is_empty() {
+        println!(
+            "{} unencrypted file(s) left alone (pass --include-plain to mirror them)",
+            report.skipped.len()
+        );
+    }
+    if let Some(err) = &report.manifest_error {
+        eprintln!("manifest: {err}");
+    }
+    if !report.unresolved.is_empty() {
+        // Not fatal — a stray .DS_Store lands here too — but never silent: an
+        // edited file that quietly missed the client is the worst outcome.
+        eprintln!(
+            "\n{} file(s) NOT packed, no crypt version known (absent from {} and \
+             nothing to compare against in the destination):",
+            report.unresolved.len(),
+            client_dat::MANIFEST_NAME,
+        );
+        for rel in &report.unresolved {
+            eprintln!("  {rel}");
+        }
+    }
+
+    let failures: Vec<_> = report.failures().collect();
+    if !failures.is_empty() {
+        eprintln!("\n{} failure(s):", failures.len());
+        for entry in &failures {
+            let reason = entry.error.as_deref().unwrap_or("");
+            eprintln!("  {} (Ver{}): {reason}", entry.rel, entry.version);
+        }
+        std::process::exit(1);
     }
 }
 
