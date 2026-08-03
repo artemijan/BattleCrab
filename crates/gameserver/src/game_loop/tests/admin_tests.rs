@@ -1430,6 +1430,63 @@ fn admin_delete_item_rejects_unowned_object_id() {
     );
 }
 
+/// `//delete_quest_item <itemId> [count] [charName]`: no count clears the lot,
+/// a count trims, and a trailing name overrides the target.
+#[test]
+fn admin_delete_quest_item_by_template_id() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0400..0x4000_0500;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7213, 100);
+    let _p_rx = ingame_player_access(&mut world, 2, 7214, 0);
+    let pname = world
+        .objects
+        .get_component::<Player>(&7214)
+        .unwrap()
+        .name
+        .clone();
+    world
+        .objects
+        .add_components(&7213, crate::model::components::TargetRef(Some(7214)));
+    crate::game_loop::items::add_inventory_item(&mut world, 7214, 57, 10);
+    drain(&mut gm_rx);
+
+    let held = |w: &World, oid: i32| {
+        w.objects
+            .get_component::<crate::model::inventory::Inventory>(&oid)
+            .map(|i| i.count_of(57))
+            .unwrap_or(0)
+    };
+    assert_eq!(held(&world, 7214), 10, "target stocked");
+
+    // A count trims the target's stack.
+    on_packet(&mut world, 1, build_admin("delete_quest_item 57 4"));
+    assert_eq!(held(&world, 7214), 6, "4 destroyed off the target");
+
+    // No count clears whatever is left.
+    on_packet(&mut world, 1, build_admin("delete_quest_item 57"));
+    assert_eq!(held(&world, 7214), 0, "no count = all of it");
+
+    // A trailing name wins over the target: stock the GM, aim at the player.
+    crate::game_loop::items::add_inventory_item(&mut world, 7213, 57, 8);
+    assert_eq!(held(&world, 7213), 8, "GM stocked");
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("delete_quest_item 57 3 {pname}")),
+    );
+    assert_eq!(held(&world, 7213), 8, "named player, not the GM");
+    on_packet(&mut world, 1, build_admin("delete_quest_item 57 3"));
+    assert_eq!(held(&world, 7213), 8, "still the target, not the GM");
+
+    // An unheld id reports and destroys nothing.
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin("delete_quest_item 2716"));
+    assert_eq!(count_system_messages(&drain(&mut gm_rx)), 1, "one message");
+    assert_eq!(held(&world, 7213), 8, "nothing destroyed");
+}
+
 /// `//create_item` with a bogus id answers "does not exist" and adds nothing.
 #[test]
 fn admin_create_item_rejects_unknown_id() {
