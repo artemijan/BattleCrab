@@ -305,6 +305,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_destroy_items" | "admin_destroyitems" => {
             admin_destroy_items(world, client_id, object_id, false)
         }
+        // Destroy part or all of one stack, by the item's object id.
+        "admin_delete_item" => admin_delete_item(world, client_id, &args),
         // Give an item to the targeted player.
         "admin_give_item_target" => admin_give_item_target(world, client_id, object_id, &args),
         // Give an item to every online player.
