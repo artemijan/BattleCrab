@@ -84,6 +84,33 @@ const BREKA_ORC_SHAMAN: i32 = 20269;
 const SHACKLE2: i32 = 20279;
 const FETTERED_SOUL: i32 = 20552;
 const GRANDIS: i32 = 20554;
+/// TODO(q214-gargoyle-name): this mob carries four different names across the
+/// server data, the NPC dialogue and the client's own text tables, so Casian's
+/// reagent step reads as an errand against a monster the player never finds:
+///
+/// - `stats/npcs/20500-20599.xml` names 20567 "Reinforced Gargoyle",
+/// - `stats/items/02700-02799.xml` names 2719 "Reinforced Gargoyle's Nail",
+/// - the client's `ItemName` table agrees — id 2719 is "Reinforced Gargoyle's
+///   Nail" there too,
+/// - but the client's `QuestName` journal entry for quest 214 step 28
+///   ("Casian's Magic Ingredient") tells the player to hunt "Enchanted
+///   Gargoyles" in the Crater of Ivory Tower,
+/// - and `Q00214_TrialOfTheScholar/30612-04.html` calls them "Enhanced
+///   Gargoyles" dropping "Enhanced Gargoyle Nails",
+/// - these constants follow the journal: `ENCHANTED_GARGOYLE` /
+///   `ENCHANTED_GARGOYLES_NAIL`.
+///
+/// Note this is not fixable server-side alone: the journal line the player reads
+/// in the quest window lives in the client's `QuestName` .dat, so whichever name
+/// wins, that entry has to be repacked and shipped with a client patch.
+///
+/// Cheapest consistent fix is "Reinforced Gargoyle" everywhere — three of the
+/// five surfaces, including the client's own item table, already say it, so only
+/// the journal step and `30612-04.html` change and the mob keeps its name. The
+/// alternative, renaming the NPC to match the journal, additionally means
+/// editing the client npcname table and both item names.
+///
+/// Either way rename these constants to match whichever name wins.
 const ENCHANTED_GARGOYLE: i32 = 20567;
 const LETO_LIZARDMAN_WARRIOR: i32 = 20580;
 // Misc
