@@ -55,11 +55,11 @@ close-out gate uses.
 | `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
 | `TODO(G20)` | 5 | `data/skill_data.rs`, `game_loop/combat.rs`, `game_loop/duel.rs`, `game_loop/skills/effects.rs`, +1 more |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
-| `TODO(G15)` | 4 | `game_loop/death.rs`, `game_loop/items.rs`, `game_loop/skills/effects.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
+| `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data.rs`, `game_loop/skills/effects.rs`, `model/skill.rs` |
-| `TODO(G29)` | 3 | `game_loop/admin/mounts.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G14)` | 2 | `config/general.rs`, `model/mod.rs` |
+| `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
 | `TODO(G18)` | 2 | `game_loop/death.rs`, `game_loop/pvp.rs` |
 | `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans.rs` |
@@ -175,8 +175,10 @@ against the pattern:
   mana.** Correcting that exposed a **real bug**: the drop filter implements
   every leg of Java's `isShadowItem() || isTimeLimitedItem() || !isDropable()
   || ADENA || TYPE2_QUEST` **except `isShadowItem()`**, so a shadow item can
-  drop on death here when Java would keep it. Now marked `TODO(G15)` at both
-  the doc comment and the check.
+  drop on death here when Java would keep it. **Fixed** rather than recorded:
+  the filter now carries the missing leg, reading the *instance's* `mana_left`
+  (Java `Item._mana >= 0`) rather than the template, because two copies of one
+  item id can differ. Sabotage-verified.
 
 That last one is the counter-example worth recording: a **false** claim of
 absence hid a live gap, where every other stale marker had merely overstated
