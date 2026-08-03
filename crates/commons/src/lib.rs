@@ -7,4 +7,5 @@ pub mod crypt;
 pub mod db;
 pub mod network;
 pub mod shutdown;
+pub mod system_messages;
 pub mod util;
