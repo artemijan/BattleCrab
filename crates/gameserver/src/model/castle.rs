@@ -6,8 +6,10 @@
 //! Scope: the `//castlemanage` admin surface — the castle roster, owner/side
 //! display, the ownership actions (set/take owner, switch side) — plus the
 //! **treasury** (Java `Castle._treasury` / `castle.treasury`) and the tax
-//! percent its side implies. The functions, residential skills and crests are
-//! later milestones (TODO(G24) at their sites). The treasury's arithmetic and
+//! percent its side implies. Residential skills landed with G24
+//! (`clans::grant_residential_skills_to_clan`); castle **functions** (the
+//! chamberlain's door/trap upgrade tiers) and crests are still deferred, marked
+//! at their sites. The treasury's arithmetic and
 //! persistence live in [`crate::game_loop::castle`].
 
 /// Java `enums/CastleSide`.
