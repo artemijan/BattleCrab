@@ -1253,18 +1253,18 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 /// Items the datapack marks `is_dropable="false"` and time-limited items are
 /// skipped, per Java's filter.
 ///
-/// Not modelled, and the first is a live gap rather than a chronicle
-/// technicality: Java's filter is `isShadowItem() || isTimeLimitedItem() ||
-/// !isDropable() || ADENA || TYPE2_QUEST`, and the loop below checks every leg
-/// **except `isShadowItem()`** — so a shadow item can be dropped on death here
-/// when Java would keep it. **295 shadow items sit in the Interlude id range**
-/// (`<set name="duration">`), and `items.rs` already models their mana, so
-/// this is a missing check rather than a missing subsystem. `TODO(G15)`.
+/// Java's per-item filter is ported in full: `isShadowItem() ||
+/// isTimeLimitedItem() || !isDropable() || ADENA || TYPE2_QUEST`. The
+/// shadow-item leg reads the **instance's** mana, not the template's
+/// `duration`, because two copies of one item id can differ.
 ///
-/// Also not modelled: pet control items (Java skips them too; pets landed with
-/// G29, so this is likewise a check that was never added), the
-/// `KarmaListNonDroppableItems` whitelists, and the clan-war exemption
-/// (`TODO(G18)` — warring clans don't make each other drop).
+/// Not modelled: the active pet's control item — Java compares
+/// `_pet.getControlObjectId()` (an *object* id) against `itemDrop.getId()` (an
+/// *item* id), a comparison that cannot match, so porting it would add a
+/// branch that never fires; `TODO(G29)` if a capture ever shows otherwise. Nor
+/// the `KarmaListNonDroppableItems`/`..._PET_ITEMS` whitelists (neither is
+/// populated on this dist), nor the clan-war exemption (`TODO(G18)` — warring
+/// clans don't make each other drop).
 fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     use crate::data::item_data;
 
@@ -1320,14 +1320,25 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
         return;
     }
 
-    // Snapshot first: dropping mutates the inventory underneath us.
-    let candidates: Vec<(i32, i32, i64, i32)> = world
+    // Snapshot first: dropping mutates the inventory underneath us. `mana_left`
+    // rides along because `isShadowItem()` is a property of the **instance**
+    // (Java `Item._mana >= 0`), not of the template — two copies of the same
+    // item id can differ.
+    let candidates: Vec<(i32, i32, i64, i32, i32)> = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&victim_oid)
         .map(|inv| {
             inv.items()
                 .iter()
-                .map(|i| (i.object_id, i.item_id, i.count, i.enchant_level))
+                .map(|i| {
+                    (
+                        i.object_id,
+                        i.item_id,
+                        i.count,
+                        i.enchant_level,
+                        i.mana_left,
+                    )
+                })
                 .collect()
         })
         .unwrap_or_default();
@@ -1341,23 +1352,25 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
 
     let mut dropped = 0;
     let mut dropped_equipped = false;
-    for (obj_id, item_id, count, enchant) in candidates {
+    for (obj_id, item_id, count, enchant, mana_left) in candidates {
         if limit > 0 && dropped >= limit {
             break;
         }
         let Some(t) = world.data.item_data.get(item_id) else {
             continue;
         };
-        // Adena, quest items, items the datapack marks non-droppable, and
-        // time-limited items never drop (Java: `isShadowItem() ||
-        // isTimeLimitedItem() || !isDropable() || ADENA || TYPE2_QUEST`).
-        // TODO(G15): the `isShadowItem()` leg is missing — see this function's
-        // doc comment; 295 shadow items are reachable on this chronicle.
+        // Java's filter, in full: `isShadowItem() || isTimeLimitedItem() ||
+        // !isDropable() || ADENA || TYPE2_QUEST`. The shadow-item leg is the
+        // *instance's* mana (`_mana >= 0`), which is why `mana_left` is carried
+        // through the snapshot rather than read off the template — 295 shadow
+        // items are reachable on this chronicle, and without this a Shadow
+        // weapon scattered on a karma death.
         if item_id == item_data::ADENA_ID
             || t.is_quest_item
             || t.type2 == item_data::TYPE2_QUEST
             || !t.is_dropable()
             || t.is_time_limited()
+            || crate::game_loop::item_mana::is_shadow_item(mana_left)
         {
             continue;
         }

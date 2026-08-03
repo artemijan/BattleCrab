@@ -338,3 +338,67 @@ fn pvp_zone_death_drops_nothing() {
 
     assert_eq!(inventory_len(&world, VICTIM), 1, "arena deaths are free");
 }
+
+/// **A shadow item never drops on death.** Java's filter is `isShadowItem() ||
+/// isTimeLimitedItem() || !isDropable() || ADENA || TYPE2_QUEST`, and this port
+/// implemented every leg *except* the first — so a Shadow weapon scattered on a
+/// karma death where retail keeps it. 295 shadow items are reachable on this
+/// chronicle.
+///
+/// The half that makes this more than a one-line filter: `isShadowItem()` is
+/// `_mana >= 0` on the **item instance**, not a template property. Two copies
+/// of the same item id can differ, which is why the test gives the victim two
+/// stacks of one id and expects exactly the un-manaed one to fall.
+#[test]
+fn a_shadow_item_is_never_dropped_on_death() {
+    let (mut world, _db, _l) = drop_world();
+    let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 0, 0);
+    let _k = ingame_caster(&mut world, KILLER_CID, KILLER, 50, 0);
+    pk_victim(&mut world, 0);
+    // A **non-stackable** template, like every real shadow item (they are
+    // weapons and armour): two `give`s must yield two instances, not one
+    // stack of two, or the instance-vs-template distinction this test exists
+    // to prove cannot be set up at all.
+    {
+        let mut t = crate::data::item_data::ItemTemplate {
+            item_id: LOOT_ITEM,
+            name: "Shadow Weapon".into(),
+            ..items_tests_template()
+        };
+        t.type2 = 5;
+        t.is_stackable = false;
+        world.data.item_data.insert_for_test(t);
+    }
+
+    // Two instances of the *same* template: one ordinary, one shadow.
+    let plain_oid = 0x6100_0000;
+    let shadow_oid = 0x6100_0001;
+    give(&mut world, VICTIM, LOOT_ITEM, 1, plain_oid);
+    give(&mut world, VICTIM, LOOT_ITEM, 1, shadow_oid);
+    // `Item._mana >= 0` is what makes an instance shadow.
+    world
+        .objects
+        .get_component_mut::<Inventory>(&VICTIM)
+        .unwrap()
+        .set_mana_left(shadow_oid, 20);
+    // Drop everything that is eligible.
+    world.cfg.rates.karma_drop_limit = 10;
+    world.forced_rolls.clear();
+    world.forced_rolls.extend([0; 32]);
+
+    kill_by_player(&mut world);
+
+    let still_held: Vec<i32> = world
+        .objects
+        .get_component::<Inventory>(&VICTIM)
+        .map(|i| i.items().iter().map(|x| x.object_id).collect())
+        .unwrap_or_default();
+    assert!(
+        still_held.contains(&shadow_oid),
+        "the shadow instance is kept, like retail: {still_held:x?}"
+    );
+    assert!(
+        !still_held.contains(&plain_oid),
+        "while the ordinary copy of the same item id drops: {still_held:x?}"
+    );
+}
