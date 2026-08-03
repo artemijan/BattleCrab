@@ -20,7 +20,7 @@ deploy.env
 # Launcher build-time config: points a build at a specific deployment
 crates/launcher/.env
 
-# The game client, and the plaintext mirror tools/l2_dat_cipher.py unpacks it
-# into — both are bulk NCsoft data, not ours to redistribute.
-dist/client/system
+# The plaintext mirror `l2r-tools client-dat` unpacks the client into. The
+# client itself is ignored at the top of this file; both are bulk NCsoft data,
+# not ours to redistribute.
 dist/client/system_decrypted
