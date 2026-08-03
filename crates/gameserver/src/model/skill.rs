@@ -1140,10 +1140,17 @@ pub enum SkillEffect {
     /// rolled at all — like `MAX_MOMENTUM`, no skill/item/npc in this
     /// datapack ever sets it, so Java's own roll against it is unconditionally
     /// lost and would never change the outcome.
-    /// TODO(G19): `isHpBlocked()` (this port's `DamageBlock` gap, same as
-    /// `HealPercent`'s); `calcCounterAttack`'s reflect-on-lethal (no counter
-    /// mechanic modeled yet); grand-boss/door lethal-immunity (only the raid
-    /// case is covered).
+    /// TODO(G19): three checks Java's lethal roll makes that this arm does not.
+    /// Note the *reasons* have changed even though the gaps have not — both
+    /// subsystems named here have since landed, so what is left is wiring, not
+    /// absence:
+    /// - `isHpBlocked()` — `abnormal::is_hp_blocked` exists (G19's
+    ///   `DamageBlock`); the lethal arm simply does not consult it.
+    /// - `calcCounterAttack`'s reflect-on-lethal — the counter mechanic landed
+    ///   with G34 S4.4 (`effects::calc_counter_attack`); lethal does not feed
+    ///   it.
+    /// - grand-boss/door lethal-immunity — genuinely unmodelled; only the raid
+    ///   case is covered.
     Lethal {
         full_lethal: f64,
         half_lethal: f64,

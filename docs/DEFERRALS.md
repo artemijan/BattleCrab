@@ -106,10 +106,29 @@ finished work.
   NPC on this dist carries a resurrect skill**, which is a datapack fact and is
   now what the comment says.
 
+**Third pass: G30, G28, G19.** Two more, and a distinction worth keeping.
+
+- The **TvT module header** still called per-kill scoring, respawn and winner
+  rewards "slices 3–4". All three landed: `on_player_death` is called from
+  `death::player_do_die` for every death, and `reward_team` pays the winners.
+  What is genuinely left — party/command-channel grouping, the logout forfeit
+  listener, and Java's immobilise + skill-lock during the freeze — is now what
+  the header says.
+- The **`Lethal` effect's** deferral list named two subsystems as missing that
+  have since landed: `abnormal::is_hp_blocked` (G19's `DamageBlock`) and
+  `effects::calc_counter_attack` (G34 S4.4). **The gaps are real — the lethal
+  arm does not consult either — but the stated reasons were wrong.** That is a
+  different failure from a stale marker and a more insidious one: the deferral
+  looks justified by an absence that no longer exists, so nobody re-examines
+  it. Corrected to say what is actually left: wiring, not absence.
+- The cursed-weapon markers (drop-on-PK-death, the "hungry" HP drain) were
+  checked and are **accurate** — neither is implemented.
+
 That is the failure this file exists to catch: markers rot in the code the same
 way prose rots in the docs, and a marker describing done work is worse than no
-marker — it makes finished work look outstanding. Across two passes, **7 of 32
-markers examined were stale (22 %)**, every one of them understating progress.
+marker — it makes finished work look outstanding. Across three passes, **9 of
+~55 markers examined were stale or misjustified (16 %)**, every one of them
+understating progress.
 
 ## How to read the big ones
 
