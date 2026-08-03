@@ -33,35 +33,39 @@ enum Chunk {
 }
 
 struct Packer<'a> {
-    text: &'a str,
+    tokens: Vec<&'a str>,
     pos: usize,
     chunks: Vec<Chunk>,
     /// Iterator field name -> index into `chunks` of its hole.
     holes: HashMap<String, usize>,
-    /// Values read so far, for `<if>` / `<mask>` / fixed-size lookups.
+    /// Values read so far, for `<if>` and `<mask>`.
     vars: HashMap<String, String>,
+    /// Field type of each filled hole, so a second cycle sharing that count
+    /// can re-encode its own tally and compare.
+    hole_fields: HashMap<String, Field>,
 }
 
 /// Rebuild the `.dat` body for `text` under `layout`.
 pub fn pack(text: &str, layout: &Layout) -> Result<Vec<u8>, String> {
-    // The reader ends visible cycles with `\r\n`; treat it as a plain separator
-    // the way `DescriptorWriter` does.
-    let normalised = text.replace("\r\n", "\t");
+    let tokens: Vec<&str> = text
+        .split(['\t', '\r', '\n'])
+        .filter(|s| !s.is_empty())
+        .collect();
     let mut packer = Packer {
-        text: &normalised,
+        tokens,
         pos: 0,
         chunks: Vec::new(),
         holes: HashMap::new(),
         vars: HashMap::new(),
+        hole_fields: HashMap::new(),
     };
-    packer.walk(&layout.nodes, false)?;
-    packer.skip_ws();
-    if packer.pos < packer.text.len() {
+    packer.walk(&layout.nodes, 1, None)?;
+    if packer.pos < packer.tokens.len() {
         return Err(format!(
-            "{} characters of text left over at offset {}: {:?}",
-            packer.text.len() - packer.pos,
+            "{} tokens left over at {}: {:?}",
+            packer.tokens.len() - packer.pos,
             packer.pos,
-            &packer.text[packer.pos..(packer.pos + 40).min(packer.text.len())]
+            &packer.tokens[packer.pos..(packer.pos + 6).min(packer.tokens.len())]
         ));
     }
 
@@ -81,46 +85,53 @@ pub fn pack(text: &str, layout: &Layout) -> Result<Vec<u8>, String> {
 }
 
 impl Packer<'_> {
-    fn rest(&self) -> &str {
-        &self.text[self.pos..]
+    fn peek(&self) -> Option<&str> {
+        self.tokens.get(self.pos).copied()
     }
 
-    fn skip_ws(&mut self) {
-        while self.rest().starts_with(['\t', '\r', '\n']) {
-            self.pos += 1;
-        }
+    fn next_token(&mut self) -> Result<&str, String> {
+        let token = self
+            .tokens
+            .get(self.pos)
+            .copied()
+            .ok_or_else(|| "ran out of text".to_string())?;
+        self.pos += 1;
+        Ok(token)
     }
 
-    fn eat(&mut self, token: &str) -> bool {
-        if self.rest().starts_with(token) {
-            self.pos += token.len();
-            true
-        } else {
-            false
-        }
-    }
-
-    fn push(&mut self, bytes: Vec<u8>) {
-        self.chunks.push(Chunk::Bytes(bytes));
-    }
-
-    fn walk(&mut self, nodes: &[Node], name_hidden: bool) -> Result<(), String> {
-        for node in nodes {
-            self.walk_node(node, name_hidden)?;
-            if name_hidden {
-                self.eat(";");
+    fn walk(
+        &mut self,
+        nodes: &[Node],
+        cycles: i64,
+        cycle_name: Option<&str>,
+    ) -> Result<(), String> {
+        for _ in 0..cycles {
+            if let Some(name) = cycle_name {
+                let want = format!("{name}_begin");
+                let got = self.next_token()?;
+                if got != want {
+                    return Err(format!("expected `{want}`, found `{got}`"));
+                }
+            }
+            for node in nodes {
+                self.walk_node(node)?;
+            }
+            if let Some(name) = cycle_name {
+                let want = format!("{name}_end");
+                let got = self.next_token()?;
+                if got != want {
+                    return Err(format!("expected `{want}`, found `{got}`"));
+                }
             }
         }
         Ok(())
     }
 
-    fn walk_node(&mut self, node: &Node, name_hidden: bool) -> Result<(), String> {
+    fn walk_node(&mut self, node: &Node) -> Result<(), String> {
         match node {
-            // Constants are literal text the reader emitted; skip them.
-            Node::Constant { text } => {
-                let normalised = text.replace("\r\n", "\t");
-                self.eat(&normalised);
-            }
+            // Constants are schema-supplied punctuation; they carry no data and
+            // the reader does not tokenise them.
+            Node::Constant { .. } => {}
 
             Node::If {
                 param,
@@ -133,7 +144,7 @@ impl Packer<'_> {
                     .get(param)
                     .is_some_and(|v| v.eq_ignore_ascii_case(val));
                 if hit != *negate {
-                    self.walk(children, name_hidden)?;
+                    self.walk(children, 1, None)?;
                 }
             }
 
@@ -148,45 +159,40 @@ impl Packer<'_> {
                     .and_then(|v| v.parse::<i64>().ok())
                     .is_some_and(|v| v & val == *val);
                 if hit {
-                    self.walk(children, name_hidden)?;
+                    self.walk(children, 1, None)?;
                 }
             }
 
-            Node::Wrapper { name, children } => {
-                if !name_hidden {
-                    self.skip_ws();
-                    self.eat(&format!("{name}="));
-                }
-                self.walk(children, true)?;
-            }
+            Node::Wrapper { children, .. } => self.walk(children, 1, None)?,
 
             Node::Cycle {
                 name,
                 count,
-                hidden,
                 children,
+                ..
             } => {
-                let iterations = if *hidden || name_hidden {
-                    self.pack_inline_cycle(children, name_hidden)?
-                } else {
-                    self.pack_labelled_cycle(name, children)?
-                };
-                if let Count::Var(var) = count {
-                    self.fill_count(var, iterations)?;
-                } else if let Count::Fixed(n) = count
-                    && *n >= 0
-                    && *n != iterations
-                {
-                    return Err(format!(
-                        "cycle `{name}` is fixed at {n} records but the text has {iterations}"
-                    ));
+                // Every cycle is labelled, so the record count is simply how
+                // many `<name>_begin` tokens follow.
+                let begin = format!("{name}_begin");
+                let mut iterations = 0i64;
+                while self.peek() == Some(begin.as_str()) {
+                    self.walk(children, 1, Some(name))?;
+                    iterations += 1;
+                }
+                match count {
+                    Count::Var(var) => self.fill_count(var, iterations)?,
+                    Count::Fixed(n) if *n >= 0 && *n != iterations => {
+                        return Err(format!(
+                            "cycle `{name}` is fixed at {n} records but the text has {iterations}"
+                        ));
+                    }
+                    Count::Fixed(_) => {}
                 }
             }
 
             Node::Value {
                 name,
                 field,
-                hidden,
                 iterator,
                 ..
             } => {
@@ -196,76 +202,34 @@ impl Packer<'_> {
                     self.chunks.push(Chunk::Hole(*field));
                     return Ok(());
                 }
-                if !name_hidden && *hidden {
-                    self.skip_ws();
-                    self.eat(&format!("{name}="));
-                }
-                let raw = self.read_token(*field)?;
-                let bytes = encode(&raw, *field)
-                    .map_err(|e| format!("field `{name}` ({field:?}) from {raw:?}: {e}"))?;
-                self.push(bytes);
-                self.vars.insert(name.clone(), raw);
+                let raw = self.next_token()?.to_string();
+                // `w[...]` marks an ASCF the client stored as UTF-16 even
+                // though it would fit in single bytes. Nothing in the text
+                // implies that, so the reader records it and we honour it —
+                // otherwise every such string would shrink on repack.
+                let wide = raw.starts_with("w[");
+                let inner = match field {
+                    Field::Ascf | Field::Unicode => raw
+                        .strip_prefix("w[")
+                        .or_else(|| raw.strip_prefix('['))
+                        .and_then(|s| s.strip_suffix(']'))
+                        .map(crate::dat_text::unescape_string)
+                        .ok_or_else(|| {
+                            format!("field `{name}` expected a bracketed string, found {raw:?}")
+                        })?,
+                    _ => raw.clone(),
+                };
+                let bytes = if wide && *field == Field::Ascf {
+                    encode_ascf_utf16(&inner)
+                } else {
+                    encode(&inner, *field)
+                        .map_err(|e| format!("field `{name}` ({field:?}) from {raw:?}: {e}"))?
+                };
+                self.chunks.push(Chunk::Bytes(bytes));
+                self.vars.insert(name.clone(), inner);
             }
         }
         Ok(())
-    }
-
-    /// `name_begin ... name_end` per record, repeated.
-    fn pack_labelled_cycle(&mut self, name: &str, children: &[Node]) -> Result<i64, String> {
-        let begin = format!("{name}_begin");
-        let end = format!("{name}_end");
-        let mut count = 0i64;
-        loop {
-            self.skip_ws();
-            if !self.eat(&begin) {
-                break;
-            }
-            self.walk(children, false)?;
-            self.skip_ws();
-            if !self.eat(&end) {
-                return Err(format!(
-                    "record {count} of `{name}` has no `{end}` at offset {}: {:?}",
-                    self.pos,
-                    &self.rest()[..40.min(self.rest().len())]
-                ));
-            }
-            count += 1;
-        }
-        Ok(count)
-    }
-
-    /// `{a;b;c}` — one `{}` group holding `;`-separated records.
-    fn pack_inline_cycle(&mut self, children: &[Node], outer_hidden: bool) -> Result<i64, String> {
-        if !self.eat("{") {
-            // A hidden cycle with no records prints nothing at all.
-            return Ok(0);
-        }
-        if self.eat("}") {
-            return Ok(0);
-        }
-        let printing = children.iter().filter(|n| prints(n)).count();
-        let mut count = 0i64;
-        loop {
-            // Each record is itself `{...}` when it has more than one field.
-            let braced = printing > 1 && self.eat("{");
-            self.walk(children, true)?;
-            if braced {
-                self.eat("}");
-            }
-            count += 1;
-            if self.eat(";") {
-                continue;
-            }
-            break;
-        }
-        if !self.eat("}") {
-            return Err(format!(
-                "inline cycle not closed at offset {} (outer_hidden={outer_hidden}): {:?}",
-                self.pos,
-                &self.rest()[..40.min(self.rest().len())]
-            ));
-        }
-        Ok(count)
     }
 
     fn fill_count(&mut self, var: &str, count: i64) -> Result<(), String> {
@@ -274,78 +238,26 @@ impl Packer<'_> {
             .get(var)
             .copied()
             .ok_or_else(|| format!("no count field was reserved for `{var}`"))?;
-        let field = match self.chunks[index] {
-            Chunk::Hole(f) => f,
-            Chunk::Bytes(_) => return Err(format!("count field `{var}` was already written")),
+        // Two cycles can share one count field. That is fine as long as they
+        // agree; if they disagree the file is unrepresentable and saying so
+        // beats writing a length that matches only one of them.
+        let field = match &self.chunks[index] {
+            Chunk::Hole(f) => *f,
+            Chunk::Bytes(existing) => {
+                let want = encode_int(count, self.hole_fields[&index.to_string()])?;
+                if *existing != want {
+                    return Err(format!(
+                        "count field `{var}` is shared by cycles of different lengths"
+                    ));
+                }
+                return Ok(());
+            }
         };
+        self.hole_fields.insert(index.to_string(), field);
         self.chunks[index] = Chunk::Bytes(encode_int(count, field)?);
         self.vars.insert(var.to_string(), count.to_string());
         Ok(())
     }
-
-    /// Pull one value's text, using the expected type to know where it ends —
-    /// fields sit directly against one another with no separator.
-    fn read_token(&mut self, field: Field) -> Result<String, String> {
-        self.skip_ws();
-        match field {
-            Field::Ascf | Field::Unicode => {
-                if !self.eat("[") {
-                    return Err(format!(
-                        "expected a bracketed string at offset {}: {:?}",
-                        self.pos,
-                        &self.rest()[..40.min(self.rest().len())]
-                    ));
-                }
-                // Unescaped `]` inside a string is genuinely ambiguous; take
-                // the first one, and let the round-trip check catch it.
-                let end = self
-                    .rest()
-                    .find(']')
-                    .ok_or_else(|| format!("unterminated string at offset {}", self.pos))?;
-                let raw = self.rest()[..end].to_string();
-                self.pos += end + 1;
-                Ok(raw)
-            }
-            // Fixed-width hex.
-            Field::Rgba => self.take_fixed(8),
-            Field::Rgb => self.take_fixed(6),
-            Field::Hex => self.take_fixed(2),
-            Field::Str => Ok(String::new()),
-            // Numbers: a maximal run of characters that can belong to one.
-            _ => {
-                let len = self
-                    .rest()
-                    .find(|c: char| !(c.is_ascii_digit() || c == '-' || c == '+' || c == '.'))
-                    .unwrap_or(self.rest().len());
-                if len == 0 {
-                    return Err(format!(
-                        "expected a number at offset {}: {:?}",
-                        self.pos,
-                        &self.rest()[..40.min(self.rest().len())]
-                    ));
-                }
-                let raw = self.rest()[..len].to_string();
-                self.pos += len;
-                Ok(raw)
-            }
-        }
-    }
-
-    fn take_fixed(&mut self, n: usize) -> Result<String, String> {
-        if self.rest().len() < n {
-            return Err(format!("expected {n} hex digits at offset {}", self.pos));
-        }
-        let raw = self.rest()[..n].to_string();
-        self.pos += n;
-        Ok(raw)
-    }
-}
-
-fn prints(node: &Node) -> bool {
-    !matches!(
-        node,
-        Node::Constant { .. } | Node::Value { iterator: true, .. }
-    )
 }
 
 fn encode_int(value: i64, field: Field) -> Result<Vec<u8>, String> {
@@ -389,7 +301,7 @@ fn encode(raw: &str, field: Field) -> Result<Vec<u8>, String> {
 /// Inverse of `read_ascf`: single-byte when every char fits, UTF-16LE with a
 /// negative length otherwise. The stored length counts the terminator.
 fn encode_ascf(s: &str) -> Vec<u8> {
-    let text = s.replace("\\r\\n", "\r\n");
+    let text = s;
     if text.is_empty() {
         return vec![0];
     }
@@ -399,19 +311,27 @@ fn encode_ascf(s: &str) -> Vec<u8> {
         out.push(0);
         out
     } else {
-        let units: Vec<u16> = text.encode_utf16().collect();
-        let mut out = encode_compact(-(units.len() as i64 + 1));
-        for u in units {
-            out.extend_from_slice(&u.to_le_bytes());
-        }
-        out.extend_from_slice(&[0, 0]);
-        out
+        encode_ascf_utf16(text)
     }
+}
+
+/// The UTF-16 form of ASCF: a negative length, then the units.
+fn encode_ascf_utf16(s: &str) -> Vec<u8> {
+    if s.is_empty() {
+        return vec![0];
+    }
+    let units: Vec<u16> = s.encode_utf16().collect();
+    let mut out = encode_compact(-(units.len() as i64 + 1));
+    for u in units {
+        out.extend_from_slice(&u.to_le_bytes());
+    }
+    out.extend_from_slice(&[0, 0]);
+    out
 }
 
 /// Inverse of `read_unicode`: `int32` byte count, then byte-swapped UTF-16.
 fn encode_unicode(s: &str) -> Vec<u8> {
-    let text = s.replace("\\r\\n", "\r\n");
+    let text = s;
     if text.is_empty() {
         return 0i32.to_le_bytes().to_vec();
     }
@@ -456,6 +376,68 @@ fn encode_compact(value: i64) -> Vec<u8> {
     out
 }
 
+// --- directory driver -------------------------------------------------------
+
+/// Pack every `<name>.dat.txt` under `in_dir` back into `<out_dir>/<name>`.
+///
+/// Each file is verified before it is written: the packed bytes are re-read
+/// with the same layout and must reproduce the text they came from. A `.dat`
+/// that fails is reported, never written — a corrupt one crashes the client.
+pub fn pack_dir(
+    set: &mut crate::dat_schema::SchemaSet,
+    in_dir: &std::path::Path,
+    out_dir: &std::path::Path,
+    chronicle: Option<&str>,
+) -> Result<Vec<(String, Option<String>)>, String> {
+    let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(in_dir)
+        .map_err(|e| format!("cannot read {}: {e}", in_dir.display()))?
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .filter(|p| p.to_string_lossy().ends_with(".dat.txt"))
+        .collect();
+    files.sort();
+    std::fs::create_dir_all(out_dir).map_err(|e| format!("{}: {e}", out_dir.display()))?;
+
+    let enums = set.enums.clone();
+    let mut results = Vec::new();
+    for path in files {
+        let stem = path.file_name().unwrap_or_default().to_string_lossy();
+        let name = stem.trim_end_matches(".txt").to_string();
+        let text = match std::fs::read_to_string(&path) {
+            Ok(t) => t,
+            Err(e) => {
+                results.push((name, Some(format!("read: {e}"))));
+                continue;
+            }
+        };
+        let candidates = match chronicle {
+            Some(c) => set
+                .layout_for(c, &name)
+                .map(|l| vec![(c.to_string(), l)])
+                .unwrap_or_default(),
+            None => set.candidates(&name),
+        };
+
+        let mut outcome = Some("no layout packed this file".to_string());
+        for (_label, layout) in candidates {
+            let Ok(bytes) = pack(&text, &layout) else {
+                continue;
+            };
+            // Prove it before writing: re-reading must give back the same text.
+            let back = crate::dat_text::read(&bytes, &layout, &enums, false);
+            if !back.exact() || back.text.trim_end() != text.trim_end() {
+                continue;
+            }
+            outcome = match std::fs::write(out_dir.join(&name), &bytes) {
+                Ok(()) => None,
+                Err(e) => Some(format!("write: {e}")),
+            };
+            break;
+        }
+        results.push((name, outcome));
+    }
+    Ok(results)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -487,13 +469,21 @@ mod tests {
                 "{s:?}"
             );
         }
-        // Beyond Latin-1 the encoder must switch to the UTF-16 form.
+        // Beyond Latin-1 the encoder must switch to the UTF-16 form, and the
+        // decoder marks it so packing reproduces the same width.
         let wide = "\u{4f60}\u{597d}";
         let bytes = encode_ascf(wide);
         assert_eq!(bytes[0] & 0x80, 0x80, "wide text needs a negative length");
         assert_eq!(
             crate::dat_text::decode_ascf_for_test(&bytes).as_deref(),
-            Some(wide)
+            Some(format!("\u{1}{wide}").as_str())
+        );
+        // Forcing the wide form for text that would fit narrow is what keeps a
+        // repacked file byte-identical.
+        let forced = encode_ascf_utf16("Equipment");
+        assert_eq!(
+            crate::dat_text::decode_ascf_for_test(&forced).as_deref(),
+            Some("\u{1}Equipment")
         );
     }
 

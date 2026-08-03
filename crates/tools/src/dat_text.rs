@@ -21,7 +21,6 @@
 
 use crate::dat_schema::{Count, Field, Layout, Node};
 use std::collections::HashMap;
-use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
 /// The 13 bytes a `isSafePackage` file ends with: compact length 12 then
@@ -182,7 +181,11 @@ fn read_ascf(cur: &mut Cursor) -> Result<String, String> {
     Ok(if len > 0 {
         decode_latin1(&bytes[..bytes.len().saturating_sub(1)])
     } else {
-        decode_utf16le(&bytes[..bytes.len().saturating_sub(2)])
+        // Prefix retained by the caller so packing can reproduce the width.
+        format!(
+            "\u{1}{}",
+            decode_utf16le(&bytes[..bytes.len().saturating_sub(2)])
+        )
     })
 }
 
@@ -245,7 +248,7 @@ struct Walker<'a> {
     use_enums: bool,
 }
 
-/// Render `data` using `layout`.
+/// Render `data` using `layout` as a tab-separated token stream.
 pub fn read(
     data: &[u8],
     layout: &Layout,
@@ -259,9 +262,7 @@ pub fn read(
         use_enums,
     };
     let mut out = String::new();
-    let error = walker
-        .walk(&layout.nodes, 1, false, 0, None, &mut out)
-        .err();
+    let error = walker.walk(&layout.nodes, 1, None, &mut out).err();
     Outcome {
         text: out.trim_end().to_string(),
         position: walker.cur.pos,
@@ -275,72 +276,49 @@ pub fn read(
     }
 }
 
+/// Append one token, tab-separated from whatever came before.
+fn emit(out: &mut String, token: &str) {
+    if !out.is_empty() && !out.ends_with('\t') && !out.ends_with('\n') {
+        out.push('\t');
+    }
+    out.push_str(token);
+}
+
 impl Walker<'_> {
     fn walk(
         &mut self,
         nodes: &[Node],
         cycles: i64,
-        name_hidden: bool,
-        depth: usize,
         cycle_name: Option<&str>,
         out: &mut String,
     ) -> Result<(), String> {
         if cycles <= 0 {
             return Ok(());
         }
-        // Fields that actually print, which decides whether a hidden-name group
-        // needs `{}` around it.
-        let printing = nodes.iter().filter(|n| prints(n)).count();
-
-        // A visible cycle labels *every* iteration, not the loop as a whole —
-        // that is what puts one record per line.
-        let label = cycle_name.filter(|_| !name_hidden);
-
-        for iteration in 0..cycles {
-            let mut body_depth = depth;
-            if let Some(name) = label {
-                for _ in 0..depth {
-                    out.push('\t');
-                }
-                let _ = write!(out, "{name}_begin");
-                body_depth += 1;
+        for _ in 0..cycles {
+            if let Some(name) = cycle_name {
+                emit(out, &format!("{name}_begin"));
             }
-            if name_hidden && printing > 1 {
-                out.push('{');
+            for node in nodes {
+                self.walk_node(node, out)?;
             }
-            for (index, node) in nodes.iter().enumerate() {
-                self.walk_node(node, name_hidden, body_depth, out)?;
-                if prints(node) && name_hidden && index + 1 != nodes.len() {
-                    out.push(';');
-                }
-            }
-            if name_hidden {
-                if printing > 1 {
-                    out.push('}');
-                }
-                if iteration + 1 < cycles {
-                    out.push(';');
-                }
-            }
-            if let Some(name) = label {
-                if !out.ends_with('\n') {
-                    out.push('\t');
-                }
-                let _ = write!(out, "{name}_end\r\n");
+            if let Some(name) = cycle_name {
+                emit(out, &format!("{name}_end"));
             }
         }
         Ok(())
     }
 
-    fn walk_node(
-        &mut self,
-        node: &Node,
-        name_hidden: bool,
-        depth: usize,
-        out: &mut String,
-    ) -> Result<(), String> {
+    fn walk_node(&mut self, node: &Node, out: &mut String) -> Result<(), String> {
         match node {
-            Node::Constant { text } => out.push_str(text),
+            // Schema-supplied literal text. It carries no data, so it is a
+            // comment as far as the round trip is concerned; the newlines it
+            // asks for are the only part worth keeping.
+            Node::Constant { text } => {
+                if text.contains('\n') {
+                    out.push_str("\r\n");
+                }
+            }
 
             Node::If {
                 param,
@@ -348,13 +326,9 @@ impl Walker<'_> {
                 negate,
                 children,
             } => {
-                let hit = self
-                    .vars
-                    .get(param)
-                    .map(|v| v.matches(val))
-                    .unwrap_or(false);
+                let hit = self.vars.get(param).is_some_and(|v| v.matches(val));
                 if hit != *negate {
-                    self.walk(children, 1, name_hidden, depth, None, out)?;
+                    self.walk(children, 1, None, out)?;
                 }
             }
 
@@ -367,25 +341,21 @@ impl Walker<'_> {
                     .vars
                     .get(param)
                     .and_then(Value::as_count)
-                    .map(|v| v & val == *val)
-                    .unwrap_or(false);
+                    .is_some_and(|v| v & val == *val);
                 if hit {
-                    self.walk(children, 1, name_hidden, depth, None, out)?;
+                    self.walk(children, 1, None, out)?;
                 }
             }
 
-            Node::Wrapper { name, children } => {
-                if !name_hidden {
-                    let _ = write!(out, "\t{name}=");
-                }
-                self.walk(children, 1, true, depth, None, out)?;
-            }
+            // A wrapper only groups fields; the schema knows its shape, so it
+            // needs no marker of its own.
+            Node::Wrapper { children, .. } => self.walk(children, 1, None, out)?,
 
             Node::Cycle {
                 name,
                 count,
-                hidden,
                 children,
+                ..
             } => {
                 let times = match count {
                     Count::Fixed(n) => *n,
@@ -398,27 +368,18 @@ impl Walker<'_> {
                 if times > 10_000_000 {
                     return Err(format!("cycle `{name}` wants {times} iterations"));
                 }
-                // A hidden cycle is one inline `{...}` group; a visible one
-                // labels each iteration, which `walk` does from `cycle_name`.
-                if *hidden {
-                    out.push('{');
-                }
-                self.walk(children, times, *hidden, depth, Some(name), out)?;
-                if *hidden {
-                    out.push('}');
-                }
+                // Every cycle is labelled, hidden or not: the label is what
+                // makes the record count recoverable when packing.
+                self.walk(children, times, Some(name), out)?;
             }
 
             Node::Value {
                 name,
                 field,
-                hidden,
                 enum_name,
                 iterator,
+                ..
             } => {
-                if !name_hidden && *hidden && !*iterator {
-                    let _ = write!(out, "\t{name}=");
-                }
                 let value = read_field(&mut self.cur, *field)
                     .map_err(|e| format!("field `{name}` ({field:?}): {e}"))?;
                 if *iterator {
@@ -427,26 +388,23 @@ impl Walker<'_> {
                     self.vars.insert(name.clone(), value);
                     return Ok(());
                 }
-                match (&value, field) {
-                    // Strings print bracketed.
+                let token = match (&value, field) {
                     (Value::Str(s), Field::Ascf | Field::Unicode) => {
-                        let _ = write!(out, "[{}]", escape_newlines(s));
-                    }
-                    (Value::Str(s), _) => out.push_str(s),
-                    (Value::Int(i), _) => {
-                        match enum_name
-                            .as_ref()
-                            .filter(|_| self.use_enums)
-                            .and_then(|e| self.enums.get(e))
-                            .and_then(|m| m.get(i))
-                        {
-                            Some(label) => out.push_str(label),
-                            None => {
-                                let _ = write!(out, "{i}");
-                            }
+                        match s.strip_prefix('\u{1}') {
+                            Some(wide) => format!("w[{}]", escape_string(wide)),
+                            None => format!("[{}]", escape_string(s)),
                         }
                     }
-                }
+                    (Value::Str(s), _) => s.clone(),
+                    (Value::Int(i), _) => enum_name
+                        .as_ref()
+                        .filter(|_| self.use_enums)
+                        .and_then(|e| self.enums.get(e))
+                        .and_then(|m| m.get(i))
+                        .cloned()
+                        .unwrap_or_else(|| i.to_string()),
+                };
+                emit(out, &token);
                 self.vars.insert(name.clone(), value);
             }
         }
@@ -454,17 +412,47 @@ impl Walker<'_> {
     }
 }
 
-/// Whether a node contributes to the text at all. Constants emit literal
-/// characters but are not fields, and iterator counts are suppressed entirely.
-fn prints(node: &Node) -> bool {
-    !matches!(
-        node,
-        Node::Constant { .. } | Node::Value { iterator: true, .. }
-    )
+/// Make a string safe to sit inside `[...]` in a tab-separated stream. Unlike
+/// L2ClientDat we escape the terminators, so a `]` or a tab in game text can
+/// survive the round trip.
+fn escape_string(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '\\' => out.push_str("\\\\"),
+            ']' => out.push_str("\\]"),
+            '\t' => out.push_str("\\t"),
+            '\r' => out.push_str("\\r"),
+            '\n' => out.push_str("\\n"),
+            _ => out.push(c),
+        }
+    }
+    out
 }
 
-fn escape_newlines(s: &str) -> String {
-    s.replace("\r\n", "\\r\\n")
+/// Inverse of [`escape_string`].
+pub fn unescape_string(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut chars = s.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            out.push(c);
+            continue;
+        }
+        match chars.next() {
+            Some('n') => out.push('\n'),
+            Some('r') => out.push('\r'),
+            Some('t') => out.push('\t'),
+            Some(']') => out.push(']'),
+            Some('\\') => out.push('\\'),
+            Some(other) => {
+                out.push('\\');
+                out.push(other);
+            }
+            None => out.push('\\'),
+        }
+    }
+    out
 }
 
 // --- directory driver -------------------------------------------------------
@@ -665,10 +653,12 @@ mod tests {
         d.extend_from_slice(b"Equipment\0");
         assert_eq!(read_ascf(&mut cur(&d)).unwrap(), "Equipment");
 
-        // A negative length selects UTF-16LE, -2*len bytes.
+        // A negative length selects UTF-16LE, -2*len bytes. The decoder keeps
+        // a \u{1} sentinel so the emitter can record that the client stored
+        // this string wide even when it would fit in single bytes.
         let mut d = vec![0x83]; // -3
         d.extend_from_slice(&[b'h', 0, b'i', 0, 0, 0]);
-        assert_eq!(read_ascf(&mut cur(&d)).unwrap(), "hi");
+        assert_eq!(read_ascf(&mut cur(&d)).unwrap(), "\u{1}hi");
     }
 
     #[test]

@@ -46,17 +46,23 @@ pub struct Args {
 enum Direction {
     /// Decrypted `.dat` -> `.dat.txt`.
     Unpack,
+    /// `.dat.txt` -> decrypted `.dat`.
+    Pack,
 }
 
 pub fn run(args: &Args) {
+    let (default_in, default_out) = match args.mode {
+        Direction::Unpack => ("system_decrypted", "system_text"),
+        Direction::Pack => ("system_text", "system_decrypted"),
+    };
     let in_dir = args
         .in_dir
         .clone()
-        .unwrap_or_else(|| args.client_dir.join("system_decrypted"));
+        .unwrap_or_else(|| args.client_dir.join(default_in));
     let out_dir = args
         .out_dir
         .clone()
-        .unwrap_or_else(|| args.client_dir.join("system_text"));
+        .unwrap_or_else(|| args.client_dir.join(default_out));
 
     let mut set = SchemaSet::load(&args.structure_dir).unwrap_or_else(|e| {
         eprintln!("{e}");
@@ -73,8 +79,29 @@ pub fn run(args: &Args) {
         std::process::exit(2);
     }
 
-    let Direction::Unpack = args.mode;
     println!("{} -> {}", in_dir.display(), out_dir.display());
+    if matches!(args.mode, Direction::Pack) {
+        let results = tools::dat_pack::pack_dir(&mut set, &in_dir, &out_dir, chronicle.as_deref())
+            .unwrap_or_else(|e| {
+                eprintln!("{e}");
+                std::process::exit(2);
+            });
+        let failed: Vec<_> = results.iter().filter(|(_, e)| e.is_some()).collect();
+        println!(
+            "{}/{} file(s) packed",
+            results.len() - failed.len(),
+            results.len()
+        );
+        if !failed.is_empty() {
+            eprintln!("\n{} file(s) NOT written:", failed.len());
+            for (name, err) in &failed {
+                eprintln!("  {name}: {}", err.as_deref().unwrap_or(""));
+            }
+            std::process::exit(1);
+        }
+        return;
+    }
+
     let report = dat_text::unpack_dir(
         &mut set,
         &dat_text::Config {
