@@ -254,12 +254,19 @@ fn swatch(rgb: (u8, u8, u8)) -> Style {
 }
 
 fn draw(frame: &mut Frame, app: &mut App) {
+    // The picker needs a row per preset plus the input line and borders. A
+    // fixed height silently cut the list off and took the cursor with it, so
+    // the detail pane is sized to whatever it is currently showing.
+    let detail_height = match app.mode {
+        Mode::Colour { .. } => PRESETS.len() as u16 + 4,
+        _ => 6,
+    };
     let areas = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3),
-            Constraint::Min(5),
-            Constraint::Length(6),
+            Constraint::Min(3),
+            Constraint::Length(detail_height),
             Constraint::Length(1),
         ])
         .split(frame.area());
@@ -403,4 +410,120 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect) {
 fn fail(message: &str) -> ! {
     eprintln!("{message}");
     std::process::exit(2)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ratatui::Terminal;
+    use ratatui::backend::TestBackend;
+
+    /// Render into a buffer and flatten it to lines of text.
+    fn render(app: &mut App, width: u16, height: u16) -> Vec<String> {
+        let mut terminal = Terminal::new(TestBackend::new(width, height)).unwrap();
+        terminal.draw(|frame| draw(frame, app)).unwrap();
+        let buffer = terminal.backend().buffer().clone();
+        (0..buffer.area.height)
+            .map(|y| {
+                (0..buffer.area.width)
+                    .map(|x| buffer[(x, y)].symbol())
+                    .collect::<String>()
+            })
+            .collect()
+    }
+
+    fn app() -> App {
+        let dir = std::env::temp_dir().join(format!("l2r-msgui-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let line = "msg_begin\t0\t1\t[Disconnected.]\t2\t799BB0FF\t1\t1\tmsg_end";
+        std::fs::write(dir.join("SystemMsg-t.dat"), format!("{line}\r\n")).unwrap();
+        App::new(MsgFile::open(&dir, "SystemMsg-t.dat").unwrap())
+    }
+
+    /// The bug this guards: a fixed-height detail pane showed only the first
+    /// few presets, and moving the cursor past them scrolled it out of sight.
+    #[test]
+    fn the_colour_picker_shows_every_preset() {
+        let mut app = app();
+        app.mode = Mode::Colour {
+            input: "799BB0FF".into(),
+            preset: 0,
+        };
+        let screen = render(&mut app, 100, 30).join("\n");
+        for (name, value) in PRESETS {
+            assert!(
+                screen.contains(value),
+                "preset {name} ({value}) not rendered"
+            );
+        }
+    }
+
+    #[test]
+    fn the_cursor_stays_visible_on_the_last_preset() {
+        let mut app = app();
+        app.mode = Mode::Colour {
+            input: "799BB0FF".into(),
+            preset: PRESETS.len() - 1,
+        };
+        let lines = render(&mut app, 100, 30);
+        let marked: Vec<&String> = lines.iter().filter(|l| l.contains("> ")).collect();
+        assert_eq!(marked.len(), 1, "expected exactly one cursor row");
+        assert!(
+            marked[0].contains(PRESETS[PRESETS.len() - 1].1),
+            "cursor is not on the selected preset: {:?}",
+            marked[0]
+        );
+    }
+
+    #[test]
+    fn arrow_keys_move_the_preset_cursor_and_stop_at_the_ends() {
+        let mut app = app();
+        app.mode = Mode::Colour {
+            input: String::new(),
+            preset: 0,
+        };
+        for _ in 0..PRESETS.len() + 5 {
+            handle_key(&mut app, KeyEvent::from(KeyCode::Down));
+        }
+        let Mode::Colour { preset, .. } = app.mode else {
+            panic!("left the picker")
+        };
+        assert_eq!(preset, PRESETS.len() - 1, "should clamp at the last preset");
+
+        for _ in 0..PRESETS.len() + 5 {
+            handle_key(&mut app, KeyEvent::from(KeyCode::Up));
+        }
+        let Mode::Colour { preset, .. } = app.mode else {
+            panic!("left the picker")
+        };
+        assert_eq!(preset, 0, "should clamp at the first preset");
+    }
+
+    #[test]
+    fn space_applies_the_highlighted_preset_and_enter_commits_it() {
+        let mut app = app();
+        app.mode = Mode::Colour {
+            input: String::new(),
+            preset: 4,
+        };
+        handle_key(&mut app, KeyEvent::from(KeyCode::Char(' ')));
+        handle_key(&mut app, KeyEvent::from(KeyCode::Enter));
+        assert_eq!(app.file.messages[0].colour, PRESETS[4].1);
+        assert_eq!(app.file.edited_count(), 1);
+    }
+
+    #[test]
+    fn search_matches_id_and_text() {
+        let mut app = app();
+        app.query = "disconn".into();
+        app.refilter();
+        assert_eq!(app.matches.len(), 1);
+        app.query = "0".into();
+        app.refilter();
+        assert_eq!(app.matches.len(), 1);
+        app.query = "nothing here".into();
+        app.refilter();
+        assert!(app.matches.is_empty());
+        assert_eq!(app.selected(), None);
+    }
 }
