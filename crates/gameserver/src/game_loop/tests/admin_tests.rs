@@ -5853,3 +5853,74 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
         "3629 still in a banked per-index flush list: {by_index:?}"
     );
 }
+
+/// **`//world_missing_htmls`** lists talkable NPCs with no dialog page of
+/// their own — the datapack audit a builder runs before shipping content.
+///
+/// The three exclusions are the point, and each is a different reason to skip:
+/// a **monster** is not folk, a **non-talkable** NPC has no chat window to
+/// miss, and an NPC whose chat window is supplied by a **script**
+/// (`ON_NPC_FIRST_TALK`) needs no file at all. A sweep that only checked "is
+/// there a .htm" would report all three as broken.
+#[test]
+fn missing_htmls_reports_folk_without_a_page_and_skips_the_three_exclusions() {
+    let (mut world, ..) = admin_world();
+
+    // A talkable Folk with no `data/html/default/<id>.htm` — the real finding.
+    // 90501 is synthetic, so no dist file can exist for it.
+    add_test_npc(&mut world, 7001, 90501, "Folk", 20, 100, 0, 0);
+    // A monster: excluded regardless of html.
+    add_test_npc(&mut world, 7002, 90502, "Monster", 20, 120, 0, 0);
+    // A non-talkable Folk: nothing to open.
+    add_test_npc(&mut world, 7003, 90503, "Folk", 20, 140, 0, 0);
+    if let Some(t) = world.data.npc_data.get(90503).cloned() {
+        let mut t = t;
+        t.talkable = false;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    let found: Vec<i32> = crate::game_loop::admin::missing_htmls::scan_for_test(&mut world, None)
+        .into_iter()
+        .map(|(id, ..)| id)
+        .collect();
+
+    assert!(
+        found.contains(&90501),
+        "the talkable folk with no page is reported: {found:?}"
+    );
+    assert!(
+        !found.contains(&90502),
+        "a monster is not folk and is skipped: {found:?}"
+    );
+    assert!(
+        !found.contains(&90503),
+        "a non-talkable NPC has no window to miss: {found:?}"
+    );
+}
+
+/// The geomap-scoped sweep only reports NPCs inside the GM's own geodata tile
+/// — that is the whole difference between it and the world sweep.
+#[test]
+fn geomap_missing_htmls_is_scoped_to_the_tile() {
+    let (mut world, ..) = admin_world();
+    add_test_npc(&mut world, 7010, 90511, "Folk", 20, 100, 0, 0);
+
+    // A box around the near NPC includes it; a far-away box does not.
+    let near = crate::game_loop::admin::missing_htmls::scan_for_test(
+        &mut world,
+        Some((-1000, -1000, 1000, 1000)),
+    );
+    let far = crate::game_loop::admin::missing_htmls::scan_for_test(
+        &mut world,
+        Some((500_000, 500_000, 600_000, 600_000)),
+    );
+
+    assert!(
+        near.iter().any(|&(id, ..)| id == 90511),
+        "inside the tile it is reported"
+    );
+    assert!(
+        !far.iter().any(|&(id, ..)| id == 90511),
+        "outside it is not"
+    );
+}

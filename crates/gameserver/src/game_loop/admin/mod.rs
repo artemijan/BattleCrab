@@ -35,6 +35,7 @@ pub(crate) mod hero;
 mod instance;
 mod items;
 mod menu;
+pub(crate) mod missing_htmls;
 mod mobgroup;
 pub(crate) mod moderation;
 pub(crate) mod mounts;
@@ -717,6 +718,13 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             &args,
             command == "admin_dw",
         ),
+        "admin_geomap_missing_htmls" => {
+            missing_htmls::admin_geomap_missing_htmls(world, client_id, object_id)
+        }
+        "admin_world_missing_htmls" => missing_htmls::admin_world_missing_htmls(world, client_id),
+        "admin_next_missing_html" => {
+            missing_htmls::admin_next_missing_html(world, client_id, object_id)
+        }
         "admin_geosave" => geo_editor::admin_geosave(world, client_id, object_id),
         "admin_geosaveall" => geo_editor::admin_geosaveall(world, client_id),
         "admin_geogrid" => debug_draw::admin_geogrid(world, client_id, object_id, &args),
