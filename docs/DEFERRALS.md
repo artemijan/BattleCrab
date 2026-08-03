@@ -57,18 +57,18 @@ close-out gate uses.
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data.rs`, `game_loop/skills/effects.rs`, `model/skill.rs` |
-| `TODO(G18)` | 3 | `game_loop/death.rs`, `game_loop/pvp.rs`, `scripts/alliance_master.rs` |
 | `TODO(G29)` | 3 | `game_loop/admin/mounts.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-later)` | 2 | `db.rs`, `network/server_packets/manor.rs` |
 | `TODO(G14)` | 2 | `config/general.rs`, `model/mod.rs` |
 | `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
+| `TODO(G18)` | 2 | `game_loop/death.rs`, `game_loop/pvp.rs` |
 | `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans.rs` |
-| `TODO(G25)` | 2 | `game_loop/olympiad.rs`, `scripts/oly_manager.rs` |
 | `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
+| `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
 
@@ -141,10 +141,26 @@ That is the failure this file exists to catch: markers rot in the code the same
 way prose rots in the docs, and a marker describing done work is worse than no
 marker — it makes finished work look outstanding.
 
-**Tally across four passes: 13 of ~85 markers examined were stale or
-misjustified (15 %)**, every one understating progress. The dominant failure is
-not "this small thing is still missing" — those held up well — but *"subsystem
-X is not ported"* written before X landed and never revisited.
+**Fifth pass: the module headers.** The rule the fourth pass produced —
+subsystem-level claims rot, itemised ones do not — was used to aim this one.
+Of the 22 markers sitting in `//!` headers, two were stale, and both were
+exactly that shape:
+
+- `scripts/oly_manager.rs` said the class leaderboards, the point→mark exchange
+  and the reward multisell "need persistence/scoring that lands in later
+  slices". All three landed with G25 and are dispatched in that same file —
+  `rank_detail`, `calculate_points_done`, and `showEquipmentReward` calling
+  `multisell::separate_and_send`.
+- `scripts/alliance_master.rs` said both of its buttons "log-drop until G18
+  lands", the alliance system being "G18 work". G18 landed; `bypass.rs` routes
+  `create_ally` and `dissolve_ally` to `clans::handle_create_ally` /
+  `handle_dissolve_ally`.
+
+**Tally across five passes: 15 of ~107 markers examined were stale or
+misjustified (14 %)**, every one understating progress. The dominant failure is
+not "this small thing is still missing" — those held up almost perfectly — but
+*"subsystem X is not ported"* written before X landed and never revisited.
+Module headers are where those live, which makes them the place to look first.
 
 ## How to read the big ones
 

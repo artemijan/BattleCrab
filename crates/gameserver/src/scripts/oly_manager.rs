@@ -3,10 +3,11 @@
 //! chat window through `addFirstTalkId`; its buttons drive registration into
 //! the 1v1 waiting list (`Quest OlyManager <event>` bypasses).
 //!
-//! Slice 2 covers the dialog + join/leave. The class leaderboards
-//! (`rank_<classId>`), the point→mark exchange (`calculatePoints*`) and the
-//! reward multisell (`showEquipmentReward`) need persistence/scoring that lands
-//! in later slices; they are stubbed with `TODO(G25)`.
+//! Slice 2 covered the dialog + join/leave; the later G25 slices then landed
+//! the rest, and all of it is live here: the class leaderboards
+//! (`rank_detail`), the point→mark exchange (`calculate_points_done`) and the
+//! equipment reward multisell (`showEquipmentReward` →
+//! `multisell::separate_and_send`).
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;

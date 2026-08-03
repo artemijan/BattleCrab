@@ -15,15 +15,12 @@
 //! masters in the list — one page set serves all of them. The same 60 NPCs as
 //! `ClanMaster`, deliberately: both scripts attach to every village master.
 //!
-//! TODO(G18): the two buttons this dialog leads to are inert. `9001-02.htm`
-//! posts `npc_%objectId%_create_ally $name` and `9001-03.htm` posts
-//! `npc_%objectId%_dissolve_ally`, both `VillageMaster.onBypassFeedback`
-//! verbs in Java — neither exists in the bypass router here, because the
-//! alliance system as a whole (ally id/name/crest, `PledgeShowInfoUpdate`
-//! ally fields, ally war) is G18 work. Porting the dialog without them is
-//! deliberate and matches how `ClanMaster` already ships with
-//! `learn_clan_skills`/`multisell` unrouted, but it does mean both buttons
-//! log-drop until G18 lands.
+//! Both buttons are live. `9001-02.htm` posts
+//! `npc_%objectId%_create_ally $name` and `9001-03.htm` posts
+//! `npc_%objectId%_dissolve_ally`; G18 landed the alliance system (ally
+//! id/name/crest, the `PledgeShowInfoUpdate` ally fields, ally war) and routed
+//! both verbs in `bypass.rs` to `clans::handle_create_ally` /
+//! `handle_dissolve_ally`.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
