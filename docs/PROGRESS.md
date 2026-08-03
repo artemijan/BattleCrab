@@ -4364,6 +4364,45 @@ it — **in the wrong field**.
   bag, and the Expand-Inventory total. Sabotage-verified: restoring the upstream
   field order fails it with `left: 0, right: 100` — the exact symptom.
 
+### Post-G33 — NPC bypass verbs were matched case-sensitively ✅ (2026-08-03)
+
+Reported against Giran's luxury shop: Galladucci's "Purchase weapon" and
+Alexandria's "I want to buy armor" / "Purchase special item" did nothing. The
+multisell lists (3009701/3009801/3009802) were loaded and correct, and the
+dialog itself rendered — the bypass never reached a handler.
+
+- **`BypassHandler` is a lower-cased map lookup.** `registerHandler` stores
+  each `getBypassList()` entry `toLowerCase()`, and `getHandler` lower-cases
+  the incoming command before the get, so *every* `bypasshandlers/` verb is
+  case-insensitive in Java. `game_loop/bypass.rs` matched the raw first token,
+  so a html whose spelling differed from the match arm fell straight through to
+  the unhandled-verb warning. The dist does differ: `merchant/30097.htm` and
+  `30098.htm` (the luxury shop) plus `30081`, `30093`, `31263`, `31952`,
+  `34037`, the HappyHours event page and the class-master test helper all write
+  `Multisell`, against 98 sites writing `multisell`; `ClanHallManager-10.html`
+  writes `withdrawc` against the port's `WithdrawC`. Fixed with a table of the
+  verbs this module answers on a registered handler's behalf — the command is
+  re-cased through it as a whole, not just the verb, because the arms cut their
+  argument tail with `strip_prefix(verb)`.
+- **Verbs answered by an NPC `onBypassFeedback` override stay case-sensitive**
+  and are deliberately absent from that table: `VillageMaster`, `Teleporter`,
+  `PetManager`, `RaceManager` and `SymbolMaker` compare with a plain
+  `startsWith`, so folding case there would be a deviation, not a fix.
+- **`Link` was only routed in its bare form.** 73 dist htmls use the NPC-scoped
+  `npc_<id>_Link <page>` — the fisherman manuals, the warehouse and pet-manager
+  info pages, the craft and skill-enchant help — and every one of those buttons
+  served nothing, even though `VALID_LINKS` already whitelisted the pages they
+  ask for (the pet-manager arm's own comment assumed the opposite). Added the
+  arm; per `Link.java` the window belongs to `useBypass`'s `target`, so
+  `handle_link` now takes the clicked NPC from its caller instead of always
+  re-deriving `LastFolkNpc` — which is still what the bare form passes.
+- `game_loop/tests/bypass_verb_case_tests.rs`, 5 tests: all three luxury-shop
+  buttons verbatim, four spellings of `multisell` reaching one handler, the
+  `create_clan` pair proving instance verbs did *not* become case-insensitive,
+  and the NPC-scoped `Link` serving a whitelisted page (with `%objectId%`
+  substituted) while refusing one off the list. Sabotage-verified: reverting
+  either half fails 4 of the 5.
+
 ---
 
 ## Deferred TODOs (by system)
