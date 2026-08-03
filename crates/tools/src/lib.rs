@@ -5,5 +5,6 @@
 //! logic can back the `l2r-tools` CLI today and a GUI later — nothing here
 //! prints, and nothing here reads the environment.
 
+pub mod client_dat;
 pub mod datapack;
 pub mod spawn_pockets;
