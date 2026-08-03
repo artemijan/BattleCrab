@@ -2,11 +2,11 @@
 //! castle has a `Siege` holding the clans registered as attackers / defenders /
 //! pending defenders and an in-progress flag. Loaded from `siege_clans` at boot.
 //!
-//! Scope: what the `//castlemanage` siege actions touch — registration
-//! (add/remove siege clans) and the start/stop state transition. The actual
-//! siege combat — control towers, siege flags, siege guards, the siege zone/
-//! PvP, teleport-to-siege, the scheduled 2h window and ownership-on-victory —
-//! is a later milestone (TODO(G24) at the call sites).
+//! Scope: the registration/state slice — add/remove siege clans and the
+//! start/stop transition. The siege combat this header once listed as "a later
+//! milestone" landed with G24 and lives in `game_loop::siege`: control and
+//! flame towers, siege flags, siege guards, the siege zone and its PvP,
+//! teleport-to-siege, the scheduled window, and ownership-on-victory.
 
 /// Java `Siege`'s `byte` type constants (the `siege_clans.type` column).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

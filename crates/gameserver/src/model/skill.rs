@@ -1555,10 +1555,9 @@ pub mod effect_flag {
     pub const BLOCK_CONTROL: u32 = 1 << 5;
     /// `NOBLESS_BLESSING` (Java's spelling) — Noblesse Blessing (1323): on
     /// death the creature keeps every other buff and loses only the blessing
-    /// itself (`Playable.doDie`). Java's sibling `RESURRECTION_SPECIAL` has the
-    /// same "keep your buffs" role there, but its self-resurrect mechanic isn't
-    /// ported, so the flag has no source yet.
-    /// TODO(G22): add RESURRECTION_SPECIAL alongside the self-res effect.
+    /// itself (`Playable.doDie`). Java's sibling [`RESURRECTION_SPECIAL`] has
+    /// the same "keep your buffs" role there and landed with G34 S4.16 —
+    /// `stop_effects_on_death` tests both flags together.
     pub const NOBLESS_BLESSING: u32 = 1 << 6;
     /// `HP_BLOCK` — incoming HP damage is refused outright (Celestial Shield
     /// 1418, Flames of Invincibility 1427, Dance of Medusa 367, Sonic/Force

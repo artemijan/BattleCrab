@@ -45,13 +45,13 @@ close-out gate uses.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G24)` | 17 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +6 more |
+| `TODO(G24)` | 14 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +6 more |
 | `TODO(G33)` | 14 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, +9 more |
-| `TODO(G22)` | 12 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `model/skill.rs`, `scripts/feedable_beasts.rs`, +6 more |
+| `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `model/skill.rs`, `scripts/feedable_beasts.rs`, +6 more |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, +2 more |
 | `TODO(G34)` | 12 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects.rs`, +4 more |
-| `TODO(G21)` | 10 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs`, +1 more |
+| `TODO(G21)` | 9 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs`, +1 more |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
 | `TODO(G20)` | 5 | `data/skill_data.rs`, `game_loop/combat.rs`, `game_loop/duel.rs`, `game_loop/skills/effects.rs`, +1 more |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
@@ -86,9 +86,30 @@ A third, item expiry, is a *real* deferral that now records why: all 3230
 time-limited items on this dist are id ≥ 10015 — entirely post-Interlude — so
 nothing reachable here expires and the timer would have no consumer.
 
+**Second pass, same day: G24, G22 and G21.** Five more markers described
+finished work.
+
+- Two siege **module headers** (`game_loop/siege.rs`, `model/siege.rs`) still
+  called the battlefield "a later milestone" — control and flame towers, siege
+  guards, the siege zone and its PvP, siege flags, teleport and
+  ownership-on-victory all landed with G24. A third header
+  (`admin/castle.rs`) already said so, which is how the contradiction showed.
+- `model/castle.rs` listed residential skills as deferred; they landed with
+  G24 (`clans::grant_residential_skills_to_clan`). Castle *functions* and
+  crests really are still out, so that header was narrowed rather than cleared.
+- `model/skill.rs` said `RESURRECTION_SPECIAL` "has no source yet" — it landed
+  in **this repo's own G34 S4.16**, and the flag sits 111 lines below the
+  comment denying it. Obsoleted by work in the same session that later wrote
+  this file.
+- `data/npc_ai_skills.rs` said "no Resurrection effect is ported yet". One is
+  (G17's `revive_request`); the real reason the AI never revives is that **no
+  NPC on this dist carries a resurrect skill**, which is a datapack fact and is
+  now what the comment says.
+
 That is the failure this file exists to catch: markers rot in the code the same
 way prose rots in the docs, and a marker describing done work is worse than no
-marker — it makes finished work look outstanding.
+marker — it makes finished work look outstanding. Across two passes, **7 of 32
+markers examined were stale (22 %)**, every one of them understating progress.
 
 ## How to read the big ones
 

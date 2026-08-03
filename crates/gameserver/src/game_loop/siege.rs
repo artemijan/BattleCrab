@@ -3,9 +3,16 @@
 //! schedule the auto-end after the siege length; the auto-end announces the
 //! finish and clears the flag.
 //!
-//! The battlefield itself — teleport, control/flame towers, castle doors, siege
-//! guards, the siege-zone PvP, and the winner/ownership change — is a later
-//! milestone (TODO(G24) at the call sites).
+//! The battlefield landed with G24 and lives here too: control/flame towers and
+//! siege guards (`spawn_siege_npcs`), the siege zone and its PvP
+//! (`zones::refresh_siege_zone_for_all`), siege flags, and the winner's
+//! ownership change (`capture`).
+//!
+//! What is still deferred is narrow and marked at its own site: castle crests,
+//! `Castle.removeUpgrade()` (castle *functions* — the chamberlain's door/trap
+//! tiers — are not modelled at all, so there is nothing to strip), the
+//! members-inside-the-zone fame task (fame has no earning path anywhere in this
+//! port), and two registration refusal messages.
 
 use crate::db::DbCommand;
 use crate::model::Player;

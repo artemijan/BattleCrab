@@ -214,7 +214,9 @@ fn is_dot(e: &SkillEffect) -> bool {
     )
 }
 fn is_resurrection(_e: &SkillEffect) -> bool {
-    // No Resurrection effect is ported yet; the RES bucket stays empty and the
-    // AI never revives its dead. TODO(G21): fill in with the effect.
+    // `SkillEffect::Resurrection` **is** ported (G17's `revive_request`), but no
+    // NPC on this dist carries a resurrect skill, so the RES bucket has nothing
+    // to hold and the AI never revives its dead. Nothing to wire: re-check the
+    // datapack, not this comment, if that ever changes.
     false
 }
