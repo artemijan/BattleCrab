@@ -14693,7 +14693,7 @@ fn quest_q00214_trial_of_the_scholar() {
     ] {
         add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
     }
-    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
         let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
         p.level = 40;
@@ -14772,8 +14772,14 @@ fn quest_q00214_trial_of_the_scholar() {
     assert_eq!(item_count(&world, 3001, 2711), 1, "Poitan's Notes");
     talk(&mut world, casian); // 30612-01 — only chapter 1 in hand
     assert_eq!(quest_cond(&world, 3001, q), Some(27));
-    // Chapter 2 (Valkon/Maria)
+    // Chapter 2 (Valkon/Maria) — the hand-over marks Maria on the radar, since
+    // neither Valkon's page nor any journal step named her before.
+    drain(&mut rx);
     ev(&mut world, valkon, "30103-04.html"); // Valkon's Request
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == 0xF1),
+        "RadarControl marking Maria sent with Valkon's Request"
+    );
     talk(&mut world, maria); // → Crystal of Purity 2
     talk(&mut world, valkon); // → Scripture Chapter 2
     assert_eq!(item_count(&world, 3001, 2707), 1, "Scripture Chapter 2");
