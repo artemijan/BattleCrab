@@ -2242,8 +2242,11 @@ fn absorb_damage_to_mp(
     let Some(drainer) = world.objects.get_component::<Vitals>(&attacker) else {
         return;
     };
-    // Java caps at `getMaxRecoverableMp() - getCurrentMp()`; `MAX_RECOVERABLE_MP`
-    // has no source on this dist, so it is `getMaxMp()`.
+    // Java caps at `getMaxRecoverableMp() - getCurrentMp()`. Two skills declare
+    // `LimitMp` (Seal of Limit 1509, Mass Restriction 11603) but **neither is
+    // reachable** — 1509 is on no skill tree, NPC or item, and 11603 is
+    // post-Interlude — so `MAX_RECOVERABLE_MP` is identity and this is
+    // `getMaxMp()`.
     let missing = drainer.max_mp as f64 - drainer.cur_mp;
     let victim_mp = world
         .objects
