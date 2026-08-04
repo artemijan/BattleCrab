@@ -41,6 +41,19 @@ impl PropertiesParser {
         parser
     }
 
+    /// Builds a parser over an in-memory ini body, for tests and for callers
+    /// that assemble config without a file on disk. `name` only ever shows up
+    /// in the missing-key / invalid-value warnings.
+    pub fn from_content(name: &str, content: &str) -> Self {
+        let mut properties = HashMap::new();
+        parse_properties(content, &mut properties);
+        Self {
+            file_name: name.to_string(),
+            env_path_prefix: Self::env_prefix(Path::new(name)),
+            properties,
+        }
+    }
+
     pub fn load(path: impl AsRef<Path>) -> Self {
         let path = path.as_ref();
         let file_name = path

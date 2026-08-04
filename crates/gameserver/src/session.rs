@@ -12,6 +12,7 @@
 use std::net::SocketAddr;
 
 use crate::character::CharData;
+use crate::game_loop::flood::FloodProtectors;
 use crate::network::OutboundTx;
 
 /// Java `LoginServerThread.SessionKey`: the two 2×int keys agreed with the login
@@ -40,6 +41,11 @@ pub struct Session<S> {
     pub client_id: u32,
     pub out: OutboundTx,
     pub addr: SocketAddr,
+    /// Java `GameClient._floodProtectors`. Lives on the connection, not on the
+    /// player: it must **survive every state transition**, or a client could
+    /// clear its flood budget by bouncing to character select and back — which
+    /// is exactly the `CharacterSelect` protector's own flood surface.
+    pub flood: FloodProtectors,
     pub state: S,
 }
 
@@ -91,6 +97,7 @@ impl Session<Connecting> {
             client_id,
             out,
             addr,
+            flood: FloodProtectors::new(),
             state: Connecting,
         }
     }
@@ -105,6 +112,7 @@ impl Session<Connecting> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
+            flood: self.flood,
             state: Authenticated {
                 account,
                 session_key,
@@ -124,6 +132,7 @@ impl Session<Authenticated> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
+            flood: self.flood,
             state: InLobby {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -172,6 +181,7 @@ impl Session<InLobby> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
+            flood: self.flood,
             state: Entering {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -227,6 +237,7 @@ impl Session<Entering> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
+            flood: self.flood,
             state: InGame {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -272,6 +283,7 @@ impl Session<InGame> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
+            flood: self.flood,
             state: Authenticated {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -307,6 +319,30 @@ impl ClientSession {
             ClientSession::InLobby(s) => s.addr,
             ClientSession::Entering(s) => s.addr,
             ClientSession::InGame(s) => s.addr,
+        }
+    }
+
+    /// The connection's flood protectors (Java `GameClient.getFloodProtectors`),
+    /// available in every state — `CharacterSelect` is rate-limited from the
+    /// lobby, long before a player exists.
+    pub fn flood_mut(&mut self) -> &mut FloodProtectors {
+        match self {
+            ClientSession::Connecting(s) => &mut s.flood,
+            ClientSession::Authenticated(s) => &mut s.flood,
+            ClientSession::InLobby(s) => &mut s.flood,
+            ClientSession::Entering(s) => &mut s.flood,
+            ClientSession::InGame(s) => &mut s.flood,
+        }
+    }
+
+    /// Java `GameClient.getAccountName()` — `None` before authentication.
+    pub fn account(&self) -> Option<&str> {
+        match self {
+            ClientSession::Connecting(_) => None,
+            ClientSession::Authenticated(s) => Some(s.account()),
+            ClientSession::InLobby(s) => Some(s.account()),
+            ClientSession::Entering(s) => Some(s.account()),
+            ClientSession::InGame(s) => Some(s.account()),
         }
     }
 
@@ -469,6 +505,7 @@ mod client_table_tests {
             client_id,
             out,
             addr: "127.0.0.1:0".parse().unwrap(),
+            flood: FloodProtectors::new(),
             state: InGame {
                 account: String::new(),
                 session_key: SessionKey::new(0, 0, 0, 0),

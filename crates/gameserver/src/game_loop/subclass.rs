@@ -13,6 +13,7 @@
 //! village-master UI flow (G22's occupation quests), and the subclass-change
 //! lock Java holds across the swap.
 
+use crate::config::flood_protector::FloodAction;
 use crate::model::components::{Position, RegionCell, SkillBook};
 use crate::model::{Player, SubClass};
 use crate::world::World;
@@ -425,6 +426,16 @@ pub(crate) fn can_add_subclass(world: &World, player_oid: i32) -> bool {
 /// The HTML is built inline rather than from `data/html/villagemaster/*.htm`
 /// because those files carry `%list%` placeholders the port's html cache
 /// doesn't template yet; the link targets and bypasses match Java's.
+/// Java `VillageMaster`'s `canChangeSubclass()` guard: refuse and log, exactly
+/// as Java does before its `return`.
+fn subclass_flood_ok(world: &mut World, client_id: u32, player_oid: i32) -> bool {
+    if super::flood::gate(world, client_id, FloodAction::Subclass) {
+        return true;
+    }
+    tracing::warn!("VillageMaster: player {player_oid} has performed a subclass change too fast");
+    false
+}
+
 pub(crate) fn handle_village_master_bypass(
     world: &mut World,
     client_id: u32,
@@ -441,6 +452,12 @@ pub(crate) fn handle_village_master_bypass(
         1 => show_add_list(world, client_id, player_oid, npc_oid),
         2 => show_change_list(world, client_id, player_oid, npc_oid),
         4 => {
+            // `FloodProtectorSubclass` — the one Java call site that is not a
+            // packet: it hangs off this bypass, so the dispatch table cannot
+            // reach it. Java guards cases 4, 5 and 7 (7 is unported here).
+            if !subclass_flood_ok(world, client_id, player_oid) {
+                return;
+            }
             // Java gates the *action* on level 75 and a free slot, not just
             // the list — a stale link must not slip past.
             if !can_add_subclass(world, player_oid) {
@@ -465,6 +482,9 @@ pub(crate) fn handle_village_master_bypass(
             }
         }
         5 => {
+            if !subclass_flood_ok(world, client_id, player_oid) {
+                return;
+            }
             if world
                 .objects
                 .get_component::<Player>(&player_oid)

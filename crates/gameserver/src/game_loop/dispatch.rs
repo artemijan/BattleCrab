@@ -14,6 +14,7 @@ use super::bypass::handle_request_bypass_to_server;
 use super::chat::handle_say2;
 use super::combat::handle_attack_request;
 use super::death::{handle_appearing, handle_request_restart_point};
+use super::flood;
 use super::friends::{
     handle_request_answer_friend_invite, handle_request_friend_del, handle_request_friend_invite,
     handle_request_friend_list, handle_request_send_friend_msg,
@@ -64,6 +65,25 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             "[packet-debug] client {client_id} → opcode 0x{opcode:02x} ({} B)",
             data.len()
         );
+    }
+    // Java calls the flood protector from inside each of 41 packet handlers;
+    // this port has one dispatch site, so the check is table-driven here
+    // (`flood::action_for_opcode`). Extended (`0xD0`) packets are charged in
+    // `on_ex_packet`, once their sub-opcode is known.
+    if let Some(action) = flood::action_for_opcode(opcode)
+        && !flood::gate(world, client_id, action)
+    {
+        // Java `MultiSellChoose` is the one call site with a side effect on
+        // rejection: the open list is dropped, so a flooded window cannot be
+        // exchanged against once the burst subsides.
+        if opcode == cop::MULTI_SELL_CHOOSE
+            && let Some(player) = world.player_oid(client_id)
+        {
+            world
+                .objects
+                .remove_component::<crate::model::components::ActiveMultisell>(&player);
+        }
+        return;
     }
     match opcode {
         cop::AUTH_LOGIN => handle_auth_login(world, client_id, body),
@@ -520,6 +540,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         "client {client_id} → ex-opcode 0x{sub:04x} ({} B)",
         ex_body.len()
     );
+    if let Some(action) = flood::action_for_ex_opcode(sub)
+        && !flood::gate(world, client_id, action)
+    {
+        return;
+    }
     match sub {
         exop::REQUEST_CHARACTER_NAME_CREATABLE => {
             handle_request_character_name_creatable(world, client_id, ex_body)

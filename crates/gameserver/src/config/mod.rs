@@ -13,6 +13,7 @@ pub mod custom_misc;
 pub mod custom_pvp;
 pub mod dualbox;
 pub mod feature;
+pub mod flood_protector;
 pub mod general;
 pub mod geoengine;
 pub mod hexid;
@@ -35,6 +36,7 @@ pub use custom_misc::{
 pub use custom_pvp::{CustomNpcConfig, PvpRewardConfig, PvpTitleColorConfig, RandomSpawnsConfig};
 pub use dualbox::DualboxConfig;
 pub use feature::FeatureConfig;
+pub use flood_protector::FloodProtectorsConfig;
 pub use general::GeneralConfig;
 pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
@@ -103,6 +105,9 @@ pub struct CombatConfig {
     pub custom_mail: CustomMailConfig,
     /// `Custom/AutoPlay.ini` — the `.play` auto-hunt panel and loops.
     pub auto_play: AutoPlayConfig,
+    /// `FloodProtector.ini` — the per-client packet rate limits, read by the
+    /// dispatch gate.
+    pub flood_protector: FloodProtectorsConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -134,6 +139,7 @@ pub struct Config {
     pub auto_potions: AutoPotionsConfig,
     pub custom_mail: CustomMailConfig,
     pub auto_play: AutoPlayConfig,
+    pub flood_protector: FloodProtectorsConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -205,6 +211,7 @@ impl Config {
         let auto_potions = AutoPotionsConfig::load_from(root);
         let custom_mail = CustomMailConfig::load_from(root);
         let auto_play = AutoPlayConfig::load_from(root);
+        let flood_protector = FloodProtectorsConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -233,6 +240,7 @@ impl Config {
             auto_potions,
             custom_mail,
             auto_play,
+            flood_protector,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -268,6 +276,7 @@ impl Config {
             auto_potions: self.auto_potions.clone(),
             custom_mail: self.custom_mail.clone(),
             auto_play: self.auto_play.clone(),
+            flood_protector: self.flood_protector.clone(),
         }
     }
 }

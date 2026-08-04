@@ -73,6 +73,7 @@ mod effect_level_tests;
 mod effect_scope_tests;
 mod effect_zone_tests;
 mod fear_tests;
+mod flood_tests;
 mod frintezza_tests;
 mod geo_editor_tests;
 mod geo_vertical_tests;
@@ -176,6 +177,10 @@ fn test_world() -> (
     // left them off would silently exercise the disabled path (G30).
     world.cfg.general.allow_mail = true;
     world.cfg.general.allow_attachments = true;
+    // See `FloodProtectorsConfig::disabled`: fixtures drive a whole interaction
+    // from a single game tick, which the shipped 1 s `Transaction` window would
+    // refuse. `flood_tests` turns the protector back on to exercise it.
+    world.cfg.flood_protector = crate::config::FloodProtectorsConfig::disabled();
     (world, db_tx, db_rx, link_rx)
 }
 

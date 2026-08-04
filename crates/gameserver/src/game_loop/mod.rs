@@ -47,6 +47,7 @@ mod enchant;
 pub(crate) mod events;
 mod expertise;
 pub(crate) mod fishing;
+pub(crate) mod flood;
 pub(crate) mod four_sepulchers;
 mod friends;
 pub(crate) mod frintezza;
