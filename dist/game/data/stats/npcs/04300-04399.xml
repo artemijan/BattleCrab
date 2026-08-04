@@ -255,7 +255,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="4308" level="70" type="Folk" name="Angel Cat" title="Love's Envoy">
+	<npc id="4308" level="70" type="Folk" name="Angel Cat" title="Herald of Love">
 		<!-- TODO: Must be confirmed -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
@@ -282,7 +282,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="4309" level="70" type="Folk" name="Follower" title="Sinister">
+	<npc id="4309" level="70" type="Folk" name="Small Angel Cat" title="Herald of Love">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2341,7 +2341,7 @@
 			<height normal="24.5" />
 		</collision>
 	</npc>
-	<npc id="4378" level="99" type="Folk" name="Manager" title="Royal Training Camp">
+	<npc id="4378" level="99" type="Folk" name="Recruiter" title="Royal Training Camp">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

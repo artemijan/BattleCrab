@@ -276,7 +276,7 @@
 			<height normal="5.15" />
 		</collision>
 	</npc>
-	<npc id="13409" level="99" type="Folk" name="Cancer">
+	<npc id="13409" level="99" type="Folk" name="Cat">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

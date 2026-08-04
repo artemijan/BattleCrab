@@ -1478,7 +1478,7 @@
 			<height normal="3.75" />
 		</collision>
 	</npc>
-	<npc id="1542" level="55" type="Folk" name="Orodriel Agathion">
+	<npc id="1542" level="55" type="Folk" name="Cheerleader Orodriel Agathion">
 		<!-- Confirmed CT2.5 -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1838,7 +1838,7 @@
 			<height normal="3.75" />
 		</collision>
 	</npc>
-	<npc id="1552" level="55" type="Folk" name="Gwanseum Nyang Nyang Agathion">
+	<npc id="1552" level="55" type="Folk" name="Gwanseum Nyang Agathion">
 		<!-- Confirmed CT2.5 -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1982,7 +1982,7 @@
 			<height normal="3.75" />
 		</collision>
 	</npc>
-	<npc id="1556" level="55" type="Folk" name="Mandarin Dress Agathion">
+	<npc id="1556" level="55" type="Folk" name="Miss Chipao Agathion">
 		<!-- Confirmed CT2.5 -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -5200,7 +5200,7 @@
 			<height normal="3.75" />
 		</collision>
 	</npc>
-	<npc id="1595" level="55" type="Monster" name="Zakensword Agathion">
+	<npc id="1595" level="55" type="Monster" name="Zaken's Spirit Swords Agathion">
 		<!-- TODO: Must be confirmed -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

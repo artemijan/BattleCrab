@@ -1221,7 +1221,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="8542" level="70" type="Folk" name="Eve" title="Crystal Seer">
+	<npc id="8542" level="70" type="Folk" name="Eve" title="Fortune Teller">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

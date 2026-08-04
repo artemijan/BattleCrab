@@ -1502,7 +1502,7 @@
 			<height normal="25" grown="31" />
 		</collision>
 	</npc>
-	<npc id="15154" level="101" type="Servitor" name="Mother Tree">
+	<npc id="15154" level="101" type="Servitor" name="Tree of Life">
 		<parameters>
 			<skill name="s_tree_heal" id="19219" level="1" />
 		</parameters>

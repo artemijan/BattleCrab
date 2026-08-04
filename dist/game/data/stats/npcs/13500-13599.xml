@@ -859,7 +859,7 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="13551" level="85" type="Folk" name="Magic Woodpile">
+	<npc id="13551" level="85" type="Folk" name="Bundle of Magical Firewood">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -878,7 +878,7 @@
 			<height normal="12" />
 		</collision>
 	</npc>
-	<npc id="13552" level="85" type="Folk" name="Large Magic Woodpile">
+	<npc id="13552" level="85" type="Folk" name="Big Bundle of Magical Firewood">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

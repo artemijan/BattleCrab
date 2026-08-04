@@ -67,7 +67,7 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="18002" level="60" type="Monster" name="Blood Queen">
+	<npc id="18002" level="60" type="Monster" name="Bomb">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="60" />

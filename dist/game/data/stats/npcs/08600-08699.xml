@@ -491,7 +491,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="8626" level="85" type="Folk" name="Babayaga">
+	<npc id="8626" level="85" type="Folk" name="Agathion - Hut on Chicken Legs">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -526,7 +526,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="8628" level="85" type="Folk" name="Frintezza" title="Enamored">
+	<npc id="8628" level="85" type="Folk" name="Frintezza" title="In Love">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>

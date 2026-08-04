@@ -1343,7 +1343,7 @@
 		<set name="time" val="10080" />
 		<skills>
 			<skill id="21143" level="1" /> <!-- Release Agathion's Seal - Gwanseum Nyang Nyang -->
-			<skill id="23125" level="1" /> <!-- Gwanseum Nyang Nyang Agathion Cute Trick -->
+			<skill id="23125" level="1" /> <!-- Gwanseum Nyang Agathion Cute Trick -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>

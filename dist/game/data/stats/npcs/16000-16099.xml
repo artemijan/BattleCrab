@@ -3372,7 +3372,7 @@
 			<height normal="7" />
 		</collision>
 	</npc>
-	<npc id="16063" level="55" type="Folk" name="Neolithica">
+	<npc id="16063" level="55" type="Folk" name="Saerom">
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>

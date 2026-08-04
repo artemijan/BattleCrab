@@ -396,7 +396,7 @@
 			<condition name="OpNeedAgathion" />
 		</conditions>
 	</skill>
-	<skill id="23125" toLevel="1" name="Gwanseum Nyang Nyang Agathion Cute Trick">
+	<skill id="23125" toLevel="1" name="Gwanseum Nyang Agathion Cute Trick">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<hitTime>3000</hitTime>
@@ -411,7 +411,7 @@
 			<condition name="OpNeedAgathion" />
 		</conditions>
 	</skill>
-	<skill id="23126" toLevel="1" name="Gwanseum Nyang Nyang Agathion Special Skill: Blessing of Mercy">
+	<skill id="23126" toLevel="1" name="Gwanseum Nyang Agathion Special Skill: Blessing of Mercy">
 		<icon>icon.skill0000</icon>
 		<blockedInOlympiad>true</blockedInOlympiad>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
