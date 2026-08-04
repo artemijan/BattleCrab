@@ -174,7 +174,7 @@ fn an_unrelated_npc_is_not_a_core_minion() {
 // ---------------------------------------------------------------------------
 
 /// `NpcSay` is opcode 0x30 — the packet Core's lines ride on.
-fn count_npc_say(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> usize {
+fn count_npc_say(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> usize {
     let mut n = 0;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&0x30) {

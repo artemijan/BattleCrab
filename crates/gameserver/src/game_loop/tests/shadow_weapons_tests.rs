@@ -220,7 +220,7 @@ fn the_c_grade_exchange_refuses_a_d_grade_coupon() {
 /// Returns its object id.
 fn equip_shadow_weapon(
     world: &mut World,
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) -> i32 {
     let oid = super::items::add_inventory_item(world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1)
         .expect("granted")[0];

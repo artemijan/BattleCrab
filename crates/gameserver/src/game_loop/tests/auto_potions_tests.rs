@@ -13,7 +13,7 @@ const HP_CHEAP: i32 = 1061;
 const MP_POTION: i32 = 728;
 
 /// A world with the loop configured and the player holding potions.
-fn potion_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn potion_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.id_pool = 0x4B00_0000..0x4B00_0100;
     let cfg = &mut world.cfg.auto_potions;

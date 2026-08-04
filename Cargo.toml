@@ -52,6 +52,23 @@ thiserror = "2"
 quick-xml = "0.37"
 if-addrs = "0.13"
 memmap2 = "0.9"
+# Replaces the system allocator in the game server. The game thread is
+# allocation-heavy and single-threaded, which is exactly mimalloc's shape.
+mimalloc = "0.1"
+
+# Cargo's default release profile is `codegen-units = 16`, which blocks
+# cross-crate inlining between the 16 partitions of each crate. Benchmarked
+# 2026-08-02: cgu=1 is a 20.6% binary-size win on the gameserver and LTO adds
+# essentially nothing on top of it (thin LTO measured 5 KB *larger*, i.e.
+# noise; fat LTO another 2 points for another 20 s). The cost is roughly 2x
+# build time, paid only by `deploy.sh`.
+#
+# `panic = "abort"` must NEVER go here: `game_loop/net.rs` wraps every packet
+# dispatch in `catch_unwind` (a port of Java's per-packet `Throwable` catch),
+# and 29 `tokio::spawn` sites rely on unwind isolation. Under abort one
+# malformed packet would take the server down instead of one client.
+[profile.release]
+codegen-units = 1
 
 # RSA keygen (LoginController's 10 client pairs + 10 GS-link pairs at boot)
 # runs 30-100x slower without optimizations — keep the bigint math crates

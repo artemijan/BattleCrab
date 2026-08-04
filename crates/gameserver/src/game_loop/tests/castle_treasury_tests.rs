@@ -399,7 +399,7 @@ fn a_multisell_without_apply_taxes_is_untaxed() {
 
 /// A world with Gludio's chamberlain (35100, object 701) and player 100 in
 /// front of it.
-fn chamberlain_vault_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn chamberlain_vault_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _link) = quest_test_world();
     with_castles(&mut world);
     add_test_npc(&mut world, 701, 35100, "Merchant", 75, 0, 0, 0);
@@ -427,7 +427,7 @@ fn chamberlain(world: &mut World, event: &str) {
     );
 }
 
-fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Option<String> {
+fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
 }
 

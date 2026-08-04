@@ -11,7 +11,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use commons::network::{frame_into, read_frame, write_frame};
+use commons::network::{HEADER_SIZE, read_frame, write_frame};
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpListener;
 use tracing::{debug, info, warn};
@@ -75,7 +75,7 @@ async fn handle(
     stream.set_nodelay(true).ok();
     let (mut read, mut write) = stream.into_split();
 
-    let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel::<Vec<u8>>();
+    let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel::<bytes::Bytes>();
     // Tell the game thread this client exists (registry, later broadcast).
     if net_tx
         .send(NetEvent::Connected {
@@ -131,8 +131,20 @@ async fn handle(
                         out_batch.clear();
                         let mut body = first;
                         loop {
-                            client.encrypt(&mut body);
-                            frame_into(&mut out_batch, &body);
+                            // The packet arrives as shared, immutable `Bytes`
+                            // (one broadcast, many recipients), so it is copied
+                            // into the batch and encrypted *there* — the cipher
+                            // needs a mutable buffer, and this is the one copy
+                            // that has to exist. It happens here, on a tokio
+                            // worker, rather than on the game thread.
+                            let header_at = out_batch.len();
+                            out_batch.extend_from_slice(&[0, 0]);
+                            let body_at = out_batch.len();
+                            out_batch.extend_from_slice(&body);
+                            client.encrypt(&mut out_batch[body_at..]);
+                            let total = (body.len() + HEADER_SIZE) as u16;
+                            out_batch[header_at..body_at]
+                                .copy_from_slice(&total.to_le_bytes());
                             // Bound the buffer so a pathological burst can't
                             // grow it without limit — flush and come back.
                             if out_batch.len() >= OUT_BATCH_SOFT_LIMIT {

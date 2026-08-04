@@ -149,7 +149,7 @@ fn a_full_lair_spawns_nothing_but_keeps_ticking() {
 // The entry cinematic (slice 17)
 // ---------------------------------------------------------------------------
 
-fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, opcode: u8) -> usize {
+fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>, opcode: u8) -> usize {
     let mut n = 0;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&opcode) {

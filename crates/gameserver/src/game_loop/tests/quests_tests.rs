@@ -3928,7 +3928,9 @@ const Q402: &str = "Q00402_PathOfTheHumanKnight";
 
 /// Q00402 world: Vasper at NPC_OID, quest accepted, `coins` Coins of Lords
 /// already in the bag.
-fn q402_world_with_coins(coins: usize) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q402_world_with_coins(
+    coins: usize,
+) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![
         (1271, "Squire's Mark", true),
@@ -4201,7 +4203,7 @@ const Q404: &str = "Q00404_PathOfTheHumanWizard";
 const Q405: &str = "Q00405_PathOfTheCleric";
 
 /// A mage at Parina with Q00404 accepted.
-fn q404_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q404_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1292, "Bead of Season", false)];
     for id in 1280..=1291 {
@@ -4469,7 +4471,7 @@ fn quest_q00404_branches_are_gated_on_the_previous_trinket() {
 }
 
 /// A Q00405 world with the quest accepted (ACCEPT issues the first letter).
-fn q405_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q405_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1201, "Mark of Faith", false)];
     for id in 1191..=1200 {
@@ -4696,7 +4698,7 @@ fn wizard_cleric_quest_pages_exist_in_dist() {
 const Q409: &str = "Q00409_PathOfTheElvenOracle";
 
 /// An Elven Mage with Q00409 accepted, plus Allana and Perrin placed.
-fn q409_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q409_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1235, "Leaf of Oracle", false)];
     for id in [1231, 1232, 1233, 1234, 1236, 1275] {
@@ -4901,7 +4903,7 @@ fn elven_oracle_quest_pages_exist_in_dist() {
 const Q408: &str = "Q00408_PathOfTheElvenWizard";
 
 /// An Elven Mage with Q00408 accepted (Rossela at `NPC_OID`).
-fn q408_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q408_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1230, "Eternity Diamond", false)];
     for id in [
@@ -5111,7 +5113,7 @@ fn dark_elf_quest_world(
     accept_page: Option<&str>,
     items: &[i32],
     mobs: &[i32],
-) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = items.iter().map(|id| (*id, "Q item", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -5492,7 +5494,7 @@ fn dark_mage_quest_world(
     accept_page: Option<&str>,
     items: &[i32],
     mobs: &[i32],
-) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = items.iter().map(|id| (*id, "Q item", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -5775,7 +5777,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
 const Q414: &str = "Q00414_PathOfTheOrcRaider";
 
 /// An Orc Fighter with Q00414 accepted (Karukia at NPC_OID).
-fn q414_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q414_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = [1578, 1579, 1580, 1589, 1590, 1591, 1592, 8544]
         .iter()
@@ -5979,7 +5981,7 @@ const Q415: &str = "Q00415_PathOfTheOrcMonk";
 
 /// An Orc Fighter with Q00415 accepted (Gantaki at NPC_OID). `weapon` is put
 /// straight into the RHand paperdoll when given.
-fn q415_world(weapon: Option<i32>) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q415_world(weapon: Option<i32>) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let ids = [
         1593, 1594, 1595, 1596, 1597, 1598, 1599, 1600, 1601, 1602, 1603, 1604, 1605, 1606, 1607,
@@ -6221,7 +6223,7 @@ fn orc_monk_quest_pages_exist_in_dist() {
 const Q416: &str = "Q00416_PathOfTheOrcShaman";
 
 /// An Orc Mage with Q00416 accepted (Tataru at NPC_OID).
-fn q416_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q416_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = (1616..=1631).map(|id| (id, "Q416", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -6488,7 +6490,7 @@ fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
 const Q418: &str = "Q00418_PathOfTheArtisan";
 
 /// A Dwarven Fighter with Q00418 accepted (Silvera at NPC_OID).
-fn q418_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q418_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = (1632..=1641).map(|id| (id, "Q418", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -6700,7 +6702,7 @@ fn artisan_dead_branch_is_dead_at_both_ends() {
 const Q417: &str = "Q00417_PathOfTheScavenger";
 
 /// A Dwarven Fighter with Q00417 accepted (Pipi at NPC_OID).
-fn q417_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn q417_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = (1642..=1657).map(|id| (id, "Q417", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -7590,7 +7592,7 @@ fn quest_q00293_race_gate() {
     drain(&mut dwarf_rx);
     drain(&mut human_rx);
 
-    fn quest_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> String {
+    fn quest_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -8139,7 +8141,7 @@ fn quest_q00266_race_and_level_gates() {
     drain(&mut human_rx);
 
     let q = "Q00266_PleasOfPixies";
-    let quest_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+    let quest_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -8311,7 +8313,7 @@ fn quest_q00271_gates_and_necklace_page() {
     }
 
     let q = "Q00271_ProofOfValor";
-    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -8831,7 +8833,7 @@ fn quest_q00267_race_and_level_gates() {
     drain(&mut human_rx);
 
     let q = "Q00267_WrathOfVerdure";
-    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -15299,20 +15301,21 @@ fn quest_q00230_test_of_the_summoner() {
 
     // Grab the first HTML from a talk, whether it went out as a `.html`
     // (`NpcHtmlMessage`) or a `.htm` (`ExNpcQuestHtmlMessage`).
-    let grab_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> Option<String> {
-        drain(rx).iter().find_map(|p| {
-            if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(p)
-            } else if p[0] == crate::network::server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?; // ex opcode
-                r.read_i32()?; // npc oid
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
+    let grab_html =
+        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+            drain(rx).iter().find_map(|p| {
+                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                    decode_npc_html(p)
+                } else if p[0] == crate::network::server_packets::opcodes::EX {
+                    let mut r = commons::network::PacketReader::new(&p[1..]);
+                    r.read_i16()?; // ex opcode
+                    r.read_i32()?; // npc oid
+                    r.read_string()
+                } else {
+                    None
+                }
+            })
+        };
 
     // --- Class / level gate on the start NPC. ---
     talk(&mut world, galatea);
@@ -15625,20 +15628,21 @@ fn quest_q00234_fates_whisper() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> Option<String> {
-        drain(rx).iter().find_map(|p| {
-            if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(p)
-            } else if p[0] == crate::network::server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
+    let grab_html =
+        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+            drain(rx).iter().find_map(|p| {
+                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                    decode_npc_html(p)
+                } else if p[0] == crate::network::server_packets::opcodes::EX {
+                    let mut r = commons::network::PacketReader::new(&p[1..]);
+                    r.read_i16()?;
+                    r.read_i32()?;
+                    r.read_string()
+                } else {
+                    None
+                }
+            })
+        };
 
     // --- Level gate: below 75 is refused (the 31002-01 page has no start link). ---
     talk(&mut world, reorin);
@@ -15858,20 +15862,21 @@ fn run_help_quest(p: HelpQuest) {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> Option<String> {
-        drain(rx).iter().find_map(|pkt| {
-            if pkt[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(pkt)
-            } else if pkt[0] == crate::network::server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&pkt[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
+    let grab_html =
+        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+            drain(rx).iter().find_map(|pkt| {
+                if pkt[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                    decode_npc_html(pkt)
+                } else if pkt[0] == crate::network::server_packets::opcodes::EX {
+                    let mut r = commons::network::PacketReader::new(&pkt[1..]);
+                    r.read_i16()?;
+                    r.read_i32()?;
+                    r.read_string()
+                } else {
+                    None
+                }
+            })
+        };
 
     // --- Level gate: the refusal page carries no accept button. ---
     talk(&mut world, start);
@@ -16103,20 +16108,21 @@ fn quest_q00037_make_formal_wear() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> Option<String> {
-        drain(rx).iter().find_map(|p| {
-            if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(p)
-            } else if p[0] == crate::network::server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
+    let grab_html =
+        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+            drain(rx).iter().find_map(|p| {
+                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                    decode_npc_html(p)
+                } else if p[0] == crate::network::server_packets::opcodes::EX {
+                    let mut r = commons::network::PacketReader::new(&p[1..]);
+                    r.read_i16()?;
+                    r.read_i32()?;
+                    r.read_string()
+                } else {
+                    None
+                }
+            })
+        };
 
     // Level gate: 59 is refused (no accept button to 30842-03).
     talk(&mut world, alexis);
@@ -16225,7 +16231,7 @@ fn quest_q00036_make_a_sewing_kit() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -16682,7 +16688,7 @@ fn quest_q00641_attack_sailren() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {

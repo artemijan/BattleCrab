@@ -118,7 +118,9 @@ pub fn char_info(
         inventory,
         ..
     } = v;
-    let mut w = PacketWriter::new();
+    // Sized up front: CharInfo is the biggest packet the server broadcasts, and
+    // a crowded region sends one per observer.
+    let mut w = PacketWriter::with_capacity(512);
     w.write_u8(opcodes::CHAR_INFO);
     w.write_u8(0); // Grand Crusade
     w.write_i32(pos.x);

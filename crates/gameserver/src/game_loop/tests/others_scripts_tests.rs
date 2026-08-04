@@ -369,7 +369,7 @@ fn talk_to_npc(world: &mut World, client_id: u32, rx: &mut PktRx) -> String {
         .unwrap_or_default()
 }
 
-type PktRx = tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>;
+type PktRx = tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>;
 
 /// The blacksmith serves the castle's lord and nobody else (Java `hasRights`).
 #[test]
@@ -1497,7 +1497,7 @@ fn choose_body(list_id: i32, entry_id: i32, amount: i64, enchant: i16) -> Vec<u8
 
 /// A world with the real catalogue and the Blacksmith of Mammon in front of
 /// player 8801.
-fn mammon_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn mammon_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     load_real_multisell_data(&mut world);
     add_test_npc(

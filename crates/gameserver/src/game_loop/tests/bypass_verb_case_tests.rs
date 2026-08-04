@@ -35,7 +35,7 @@ fn shop_world(
 ) -> (
     World,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     world.data.item_data = crate::data::ItemData::load_from(DIST);

@@ -22,7 +22,7 @@ fn i32_body(v: i32) -> Vec<u8> {
 
 /// Two two-man parties: A = 3001 (leader) + 3002, B = 3003 (leader) + 3004.
 /// Returns the four receivers in that order.
-fn two_parties(world: &mut World) -> Vec<tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>> {
+fn two_parties(world: &mut World) -> Vec<tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>> {
     // Item object ids for the Strategy Guide `add_inventory_item` (the bare
     // `test_world` pool is empty).
     world.id_pool = 0x2000_0000..0x2000_1000;

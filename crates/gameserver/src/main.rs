@@ -17,6 +17,14 @@ use gameserver::network::connection::{self, NetworkConfig};
 use tokio::net::TcpListener;
 use tracing::{info, warn};
 
+/// The game thread is a single thread that allocates constantly — a `Vec` per
+/// packet built, per broadcast recipient, per per-tick scratch list — and it is
+/// the one thread whose latency the whole server's tick budget rides on. The
+/// system allocator is not tuned for that shape; mimalloc's thread-local free
+/// lists are.
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()

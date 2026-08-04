@@ -302,7 +302,7 @@ const SIEGE_CASTLE: i32 = 1;
 
 /// A world with a siege in progress over castle 1 and both actors standing in
 /// its zone.
-fn battlefield() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn battlefield() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     use crate::model::siege::{Siege, SiegeClanType};
     let (mut world, _db, _l) = cast_test_world();
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);

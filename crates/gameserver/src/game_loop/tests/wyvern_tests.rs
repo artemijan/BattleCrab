@@ -273,7 +273,7 @@ fn validate_position_trusts_flying_client_z() {
 // ---------------------------------------------------------------------------
 
 /// Player 100 + the Gludio castle wyvern manager (35101) as npc oid 701.
-fn wyvern_manager_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn wyvern_manager_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _link) = quest_test_world();
     add_test_npc(&mut world, 701, 35101, "Merchant", 75, 0, 0, 0);
     let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
@@ -315,7 +315,7 @@ fn own_castle(world: &mut World, castle_id: i32) {
     p.clan_id = clan_id;
 }
 
-fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Option<String> {
+fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
 }
 
@@ -682,7 +682,7 @@ fn char_info_reflects_live_player_state() {
     let mut ob_rx = ingame_player_access(&mut world, 2, 8961, 0);
     drain(&mut ob_rx);
 
-    let snapshot = |world: &World, rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| {
+    let snapshot = |world: &World, rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| {
         crate::game_loop::party::broadcast_user_info(world, 8960);
         drain(rx)
             .into_iter()

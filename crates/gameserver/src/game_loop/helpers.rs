@@ -178,6 +178,11 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
     // than every connected client. Indexed players without a session (the
     // unattended shops) simply resolve to no client and are skipped, which is
     // what the old session scan did by never seeing them.
+    //
+    // The packet is copied into `Bytes` once and refcounted from there, instead
+    // of `to_vec()`-ing it per recipient — a crowded region turned one
+    // broadcast into dozens of allocations on the game thread.
+    let shared = bytes::Bytes::copy_from_slice(packet);
     for other_id in world.players_visible_from(from_region) {
         if other_id == from_object_id {
             continue;
@@ -190,7 +195,7 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
             .client_of_player(other_id)
             .and_then(|cid| world.clients.get(&cid))
         {
-            cs.send(packet.to_vec());
+            cs.send(shared.clone());
         }
     }
 }
@@ -206,6 +211,8 @@ pub(crate) fn broadcast_near_region_in(
     instance: i32,
     packet: &[u8],
 ) {
+    // One `Bytes` for the whole block; see `broadcast_to_others`.
+    let shared = bytes::Bytes::copy_from_slice(packet);
     for oid in world.players_visible_from(region) {
         if instance_of(world, oid) != instance {
             continue;
@@ -215,7 +222,7 @@ pub(crate) fn broadcast_near_region_in(
             .client_of_player(oid)
             .and_then(|cid| world.clients.get(&cid))
         {
-            cs.send(packet.to_vec());
+            cs.send(shared.clone());
         }
     }
 }
@@ -297,7 +304,7 @@ pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[
     if let Some(client_id) = client_for_player(world, object_id)
         && let Some(cs) = world.clients.get(&client_id)
     {
-        cs.send(packet.to_vec());
+        cs.send(bytes::Bytes::copy_from_slice(packet));
     }
     broadcast_to_others(world, object_id, packet);
 }
@@ -375,33 +382,28 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
 /// NPCs, so a mob could never be pointed at a *player* it wasn't already
 /// fighting.
 pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec<i32> {
-    use crate::model::components::{RegionCell, Vitals};
+    use crate::model::components::Vitals;
     let Some(origin) = world
         .objects
-        .get_component::<RegionCell>(&origin_object_id)
+        .get_component::<crate::model::components::RegionCell>(&origin_object_id)
         .map(|r| r.0)
     else {
         return Vec::new();
     };
-    let mut out: Vec<i32> = Vec::new();
-    // `for_each_mut` is the store's only sweep; the query itself borrows
-    // everything shared, matching how the aggro scan reads the world.
-    world.objects.for_each_mut::<(
-        &RegionCell,
-        &Vitals,
-        Option<&crate::model::Player>,
-        Option<&crate::model::npc::Npc>,
-    )>(|(region, vitals, player, npc)| {
-        if vitals.dead || !crate::world::regions_adjacent(origin, region.0) {
-            return;
-        }
-        let Some(oid) = player.map(|p| p.object_id).or(npc.map(|n| n.object_id)) else {
-            return;
-        };
-        if oid != origin_object_id {
-            out.push(oid);
-        }
-    });
+    // Both halves come from the region indexes. This used to sweep every
+    // entity in the store — all ~34.9k NPCs — and discard the 99.9% that were
+    // nowhere near the origin.
+    let mut out: Vec<i32> = world
+        .players_visible_from(origin)
+        .chain(world.npcs_visible_from(origin))
+        .filter(|&oid| {
+            oid != origin_object_id
+                && world
+                    .objects
+                    .get_component::<Vitals>(&oid)
+                    .is_some_and(|v| !v.dead)
+        })
+        .collect();
     // Sorted so the caller's `Rnd.get(size)` index maps to a stable candidate.
     // Java's iteration order is arbitrary too, and a uniform index over a
     // sorted list is still uniform — but this makes a forced roll in tests

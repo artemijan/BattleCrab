@@ -50,19 +50,18 @@ pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
     else {
         return;
     };
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(s) = cs {
-            let other_id = s.player_object_id();
-            if other_id == player_id {
-                continue;
-            }
-            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else {
-                continue;
-            };
-            if crate::world::regions_adjacent(from.0, other.0) {
-                send_char_info(world, cs, player_id);
-            }
+    for other_id in world.in_game_players_visible_from(from.0) {
+        if other_id == player_id {
+            continue;
         }
+        let Some(cs) = world
+            .clients
+            .client_of_player(other_id)
+            .and_then(|cid| world.clients.get(&cid))
+        else {
+            continue;
+        };
+        send_char_info(world, cs, player_id);
     }
 }
 
@@ -324,24 +323,33 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
     // Visibility deltas vs every other in-game player (client id included so
     // the send phase needs no per-player session scan).
     let mut deltas: Vec<(i32, u32, bool)> = Vec::new(); // (other_id, client_id, appeared)
-    for (&cid, cs) in &world.clients {
-        if let ClientSession::InGame(s) = cs {
-            let other_id = s.player_object_id();
-            if other_id == object_id {
-                continue;
-            }
-            let Some(other_region) = player_region(world, other_id) else {
-                continue;
-            };
-            // Different instances never see each other, so the only delta a
-            // region change can produce across instances is "still hidden".
-            let same_instance = super::helpers::instance_of(world, object_id)
-                == super::helpers::instance_of(world, other_id);
-            let was = regions_adjacent(old, other_region) && same_instance;
-            let now = regions_adjacent(new, other_region) && same_instance;
-            if was != now {
-                deltas.push((other_id, cid, now));
-            }
+    // Only players in the union of the old and new 3×3 blocks can have a
+    // delta — everyone else was invisible before and stays invisible. Walking
+    // both blocks costs at most 18 cells; the client scan this replaced cost
+    // one adjacency test per player online.
+    let mut seen: std::collections::HashSet<i32> = std::collections::HashSet::new();
+    for other_id in world
+        .in_game_players_visible_from(old)
+        .chain(world.in_game_players_visible_from(new))
+        .collect::<Vec<_>>()
+    {
+        if other_id == object_id || !seen.insert(other_id) {
+            continue;
+        }
+        let Some(cid) = world.clients.client_of_player(other_id) else {
+            continue;
+        };
+        let Some(other_region) = player_region(world, other_id) else {
+            continue;
+        };
+        // Different instances never see each other, so the only delta a
+        // region change can produce across instances is "still hidden".
+        let same_instance = super::helpers::instance_of(world, object_id)
+            == super::helpers::instance_of(world, other_id);
+        let was = regions_adjacent(old, other_region) && same_instance;
+        let now = regions_adjacent(new, other_region) && same_instance;
+        if was != now {
+            deltas.push((other_id, cid, now));
         }
     }
     // Dangling-target drop first: Java `switchRegion` runs `setTarget(null)`
@@ -615,19 +623,31 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
     // send, matching Java `switchRegion` order.
     let npc_instance = super::helpers::instance_of(world, npc_object_id);
     let mut deltas: Vec<(u32, i32, bool)> = Vec::new(); // (client_id, player_id, appeared)
-    for (&cid, cs) in &world.clients {
-        if let ClientSession::InGame(s) = cs {
-            let player_id = s.player_object_id();
-            let Some(player_region) = player_region(world, player_id) else {
-                continue;
-            };
-            // A player only sees the NPC while sharing its instance.
-            let same_instance = super::helpers::instance_of(world, player_id) == npc_instance;
-            let was = regions_adjacent(old, player_region) && same_instance;
-            let now = regions_adjacent(new, player_region) && same_instance;
-            if was != now {
-                deltas.push((cid, player_id, now));
-            }
+    // Same argument as the player-side delta: only the old and new 3×3 blocks
+    // can contain a player whose view of this NPC changed. This runs for every
+    // moving NPC that crosses a cell boundary, so it was the client scan that
+    // hurt most during mass combat.
+    let mut seen: std::collections::HashSet<i32> = std::collections::HashSet::new();
+    for player_id in world
+        .in_game_players_visible_from(old)
+        .chain(world.in_game_players_visible_from(new))
+        .collect::<Vec<_>>()
+    {
+        if !seen.insert(player_id) {
+            continue;
+        }
+        let Some(cid) = world.clients.client_of_player(player_id) else {
+            continue;
+        };
+        let Some(player_region) = player_region(world, player_id) else {
+            continue;
+        };
+        // A player only sees the NPC while sharing its instance.
+        let same_instance = super::helpers::instance_of(world, player_id) == npc_instance;
+        let was = regions_adjacent(old, player_region) && same_instance;
+        let now = regions_adjacent(new, player_region) && same_instance;
+        if was != now {
+            deltas.push((cid, player_id, now));
         }
     }
     for (cid, player_id, appeared) in deltas {

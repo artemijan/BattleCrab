@@ -211,7 +211,10 @@ fn a_bow_switches_the_skill_to_the_ranged_formula() {
 /// The mob helper the ranged test needs — a `combat_test_world` Monster with a
 /// real HP pool. (`shield_world`'s victim must be a player; this one must not
 /// be, because player-on-player skill damage is gated by the PvP rules.)
-fn spawn_mob(world: &mut World, a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> i32 {
+fn spawn_mob(
+    world: &mut World,
+    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+) -> i32 {
     let npc_oid = 0x4000_0111;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world

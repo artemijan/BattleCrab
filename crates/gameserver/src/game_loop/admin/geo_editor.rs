@@ -306,10 +306,10 @@ pub(super) fn admin_geosaveall(world: &mut World, client_id: u32) {
     );
     std::thread::spawn(move || {
         let say = |text: String| {
-            let _ = out.send(server_packets::system_message_with(
+            let _ = out.send(bytes::Bytes::from(server_packets::system_message_with(
                 server_packets::sm_ids::S1_TEXT,
                 &[server_packets::SmParam::Text(text)],
-            ));
+            )));
         };
         let mut count = 0;
         for (tile_x, tile_y) in tiles {

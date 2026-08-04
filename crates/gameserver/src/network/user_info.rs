@@ -88,7 +88,9 @@ pub fn user_info(
         })
         .sum::<i32>();
 
-    let mut w = PacketWriter::new();
+    // UserInfo carries the full masked stat block — sized up front so the
+    // build never reallocates.
+    let mut w = PacketWriter::with_capacity(512);
     w.write_u8(OPCODE_USER_INFO);
     w.write_i32(p.object_id);
     w.write_i32(init_size);

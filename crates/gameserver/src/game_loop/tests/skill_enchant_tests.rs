@@ -63,7 +63,7 @@ fn install_enchant_data(world: &mut World) {
 }
 
 /// A 3rd-class caster who knows the skill, with SP and reagents.
-fn enchanter(world: &mut World) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+fn enchanter(world: &mut World) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     let out = ingame_caster(world, CID, CASTER, 0, 0);
     install_enchant_data(world);
     // The gate reads `FOURTH_CLASS_GROUP` off CategoryData; the fixture

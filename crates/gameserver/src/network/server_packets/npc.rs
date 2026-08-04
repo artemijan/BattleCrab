@@ -267,7 +267,9 @@ pub fn npc_info(
 
     let contains = |ty: T| masks::contains_mask(&mask_bytes, ty.mask());
 
-    let mut w = PacketWriter::new();
+    // One per NPC entering a player's 3×3 block, so a region crossing sends
+    // a burst of them — sized up front.
+    let mut w = PacketWriter::with_capacity(256);
     w.write_u8(opcodes::NPC_INFO);
     w.write_i32(npc.object_id);
     w.write_u8(0); // 0=teleported 1=default 2=summoned

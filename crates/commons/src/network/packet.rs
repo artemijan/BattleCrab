@@ -67,14 +67,38 @@ impl<'a> PacketReader<'a> {
     }
 }
 
-#[derive(Default)]
+/// Capacity a fresh [`PacketWriter`] starts with.
+///
+/// Packets are built field by field, so a zero-capacity `Vec` reallocates and
+/// memcpys its way up the powers of two on every single one — seven times over
+/// for a `CharInfo`. Most packets on this protocol fit inside this, and the few
+/// that do not should ask for their own size with
+/// [`PacketWriter::with_capacity`].
+const DEFAULT_PACKET_CAPACITY: usize = 64;
+
 pub struct PacketWriter {
     data: Vec<u8>,
 }
 
+impl Default for PacketWriter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PacketWriter {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            data: Vec::with_capacity(DEFAULT_PACKET_CAPACITY),
+        }
+    }
+
+    /// A writer sized for a packet known to be large (`CharInfo`, `NpcInfo`,
+    /// `UserInfo`), so it never grows mid-build.
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            data: Vec::with_capacity(capacity),
+        }
     }
 
     pub fn write_u8(&mut self, v: u8) {

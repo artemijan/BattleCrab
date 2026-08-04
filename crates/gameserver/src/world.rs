@@ -717,9 +717,43 @@ impl World {
         Some(old)
     }
 
+    /// [`players_visible_from`](Self::players_visible_from) narrowed to players
+    /// with a live `InGame` session.
+    ///
+    /// The plain form also yields unattended shops (`offline_traders`), which
+    /// are `Player` objects with no connection. Anything that used to enumerate
+    /// `clients` and test adjacency wants **this** one, or it would start
+    /// counting shops as present players — the difference between an empty town
+    /// and one that keeps every nearby monster's region awake.
+    pub fn in_game_players_visible_from(
+        &self,
+        region: (i32, i32),
+    ) -> impl Iterator<Item = i32> + '_ {
+        self.players_visible_from(region)
+            .filter(|&oid| self.clients.client_of_player(oid).is_some())
+    }
+
+    /// The region cells holding at least one **connected** player — the seed
+    /// set the NPC AI expands into Java's "active regions"
+    /// (`WorldRegion.areNeighborsActive`).
+    ///
+    /// Unattended shops do not make a cell occupied: a town full of offline
+    /// stores must not keep every monster around it thinking.
+    pub fn occupied_player_cells(&self) -> impl Iterator<Item = (i32, i32)> + '_ {
+        self.player_regions.iter().filter_map(|(&cell, ids)| {
+            ids.iter()
+                .any(|&oid| self.clients.client_of_player(oid).is_some())
+                .then_some(cell)
+        })
+    }
+
     /// Object ids of every player whose region cell lies in `region`'s 3×3
     /// surrounding block — the player half of Java's
     /// `World.forEachVisibleObject`, and the scope of every broadcast.
+    ///
+    /// Includes unattended shops; see
+    /// [`in_game_players_visible_from`](Self::in_game_players_visible_from)
+    /// when only connected players count.
     ///
     /// Borrows `self`, so a caller needing `&mut World` inside the loop must
     /// collect first. Order is unspecified (hash-map order), matching what the

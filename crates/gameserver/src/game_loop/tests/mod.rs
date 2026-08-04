@@ -179,7 +179,7 @@ fn test_world() -> (
     (world, db_tx, db_rx, link_rx)
 }
 
-fn connect(world: &mut World, id: u32) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+fn connect(world: &mut World, id: u32) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
     world.clients.insert(
         id,
@@ -772,7 +772,7 @@ fn ingame_caster(
     object_id: i32,
     x: i32,
     y: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.level = 5;
     chr.cur_mp = 50.0;
@@ -800,10 +800,13 @@ fn ingame_caster(
     out_rx
 }
 
-fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Vec<Vec<u8>> {
+/// The outbound queue carries `Bytes` (shared broadcast payloads); tests
+/// assert against owned `Vec<u8>`, so materialize here rather than at every
+/// assertion.
+fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Vec<Vec<u8>> {
     let mut out = Vec::new();
     while let Ok(p) = rx.try_recv() {
-        out.push(p);
+        out.push(p.to_vec());
     }
     out
 }
@@ -835,7 +838,7 @@ fn ingame_player(
     x: i32,
     y: i32,
     z: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.x = x;
     chr.y = y;
@@ -999,7 +1002,7 @@ fn entering_player(
     x: i32,
     y: i32,
     z: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.x = x;
     chr.y = y;
@@ -1146,7 +1149,7 @@ fn attack_request_body_shift(object_id: i32, shift: bool) -> Vec<u8> {
 /// caster's `Action` click.
 fn spawn_targeted_monster(
     world: &mut World,
-    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
     npc_oid: i32,
     x: i32,
 ) {
@@ -1847,7 +1850,7 @@ fn refund_body(list_id: i32, indexes: &[i32]) -> Vec<u8> {
 fn shop_world() -> (
     World,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     // A stackable potion the shop sells in bulk.
@@ -2172,7 +2175,7 @@ fn ingame_player_access(
     client_id: u32,
     object_id: i32,
     access_level: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.access_level = access_level;
     let bundle = Player::from_char(&world.data, &chr);
@@ -2264,7 +2267,7 @@ fn user_cmd_body(id: i32) -> Vec<u8> {
 /// A Teleporter NPC (template 30001) with one NORMAL destination charging
 /// 9400 adena, `MaxFreeTeleportLevel = 40` (this dist), and a player holding
 /// `adena` at (0,0) who already clicked the gatekeeper.
-fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.cfg.character.max_free_teleport_level = 40;
     world.id_pool = 0x5000_0000..0x5000_0100; // item oids for the seeded adena

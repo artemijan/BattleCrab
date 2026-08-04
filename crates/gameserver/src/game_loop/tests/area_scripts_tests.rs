@@ -1072,7 +1072,7 @@ fn fs_world() -> (
 fn fs_party(
     world: &mut World,
     oids: [i32; 4],
-) -> Vec<tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>> {
+) -> Vec<tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>> {
     let mut rxs = Vec::new();
     for (i, oid) in oids.into_iter().enumerate() {
         rxs.push(ingame_player(

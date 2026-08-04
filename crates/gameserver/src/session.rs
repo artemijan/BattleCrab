@@ -46,7 +46,12 @@ pub struct Session<S> {
 impl<S> Session<S> {
     /// Queue a serialized packet body for this client (the connection task
     /// encrypts + frames it). Silently dropped if the connection is gone.
-    pub fn send(&self, body: Vec<u8>) {
+    ///
+    /// Takes `impl Into<Bytes>` so a freshly built `Vec<u8>` still works
+    /// unchanged, while a broadcast can build the packet once and hand every
+    /// recipient a cheap `Bytes` clone.
+    pub fn send(&self, body: impl Into<bytes::Bytes>) {
+        let body = body.into();
         tracing::trace!(
             "client {} ← opcode 0x{:02x}{} ({} B)",
             self.client_id,
@@ -306,7 +311,8 @@ impl ClientSession {
     }
 
     /// Queue a packet regardless of state.
-    pub fn send(&self, body: Vec<u8>) {
+    pub fn send(&self, body: impl Into<bytes::Bytes>) {
+        let body = body.into();
         match self {
             ClientSession::Connecting(s) => s.send(body),
             ClientSession::Authenticated(s) => s.send(body),

@@ -246,7 +246,7 @@ fn only_players_inside_the_lair_see_the_cinematic() {
 
     crate::game_loop::valakas::handle_cinematic_step(&mut world, VALAKAS_OID, 0);
 
-    let count = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| {
+    let count = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| {
         let mut n = 0;
         while let Ok(p) = rx.try_recv() {
             if p.first() == Some(&0xD6) {

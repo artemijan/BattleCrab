@@ -15,8 +15,8 @@ const BUFF: i32 = 1204;
 /// A world with the feature on, both players in range, and one sellable buff.
 fn sell_world() -> (
     World,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) {
     let (mut world, ..) = test_world();
     world.id_pool = 0x4A00_0000..0x4A00_0100;

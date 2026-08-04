@@ -36,7 +36,6 @@ use crate::model::components::{
 use crate::model::movement::{self, MoveData};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
 use super::combat::{self, ATTACK_TIMEOUT_TICKS};
@@ -67,16 +66,10 @@ const SOCIAL_THROTTLE_TICKS: u64 = 60;
 pub(crate) fn npc_ai_tick(world: &mut World) {
     // Active-region set: every cell adjacent to a player-occupied cell.
     let mut active: HashSet<(i32, i32)> = HashSet::new();
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(s) = cs
-            && let Some(r) = world
-                .objects
-                .get_component::<RegionCell>(&s.player_object_id())
-        {
-            for dx in -1..=1 {
-                for dy in -1..=1 {
-                    active.insert((r.0.0 + dx, r.0.1 + dy));
-                }
+    for cell in world.occupied_player_cells() {
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                active.insert((cell.0 + dx, cell.1 + dy));
             }
         }
     }
@@ -247,15 +240,11 @@ fn region_active(world: &World, npc_oid: i32) -> bool {
     else {
         return false;
     };
-    world.clients.values().any(|cs| {
-        let ClientSession::InGame(s) = cs else {
-            return false;
-        };
-        world
-            .objects
-            .get_component::<RegionCell>(&s.player_object_id())
-            .is_some_and(|r| regions_adjacent(region, r.0))
-    })
+    // Adjacency is symmetric, so "some player's 3×3 block covers me" is the
+    // same question as "is any player inside my own 3×3 block" — one index
+    // lookup over nine cells instead of a scan of every connected client. This
+    // runs per NPC arrival on the 100 ms movement tick.
+    world.in_game_players_visible_from(region).next().is_some()
 }
 
 fn think(world: &mut World, npc_oid: i32) {

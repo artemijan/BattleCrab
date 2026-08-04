@@ -7,7 +7,7 @@ use crate::model::components::{AutoPlaySettings, Casting, TargetRef, Vitals};
 
 const PLAYER: i32 = 3001;
 
-fn play_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn play_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.id_pool = 0x4D00_0000..0x4D00_0100;
     world.cfg.auto_play.enabled = true;
@@ -272,7 +272,7 @@ const POTION: i32 = 1540;
 const BUFF_SKILL: i32 = 1204;
 const ATTACK_SKILL: i32 = 3;
 
-fn use_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn use_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, rx) = play_world();
     for (item_id, skill_id) in [(SHOT, 9201), (POTION, 9202)] {
         let mut t = crate::data::item_data::ItemTemplate::default();

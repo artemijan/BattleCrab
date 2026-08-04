@@ -29,7 +29,7 @@ fn geo_world(
     heading: i32,
 ) -> (
     World,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
     (i32, i32),
 ) {
     let (mut world, ..) = admin_world();

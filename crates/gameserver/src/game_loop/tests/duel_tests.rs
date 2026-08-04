@@ -16,8 +16,8 @@ const B_CID: u32 = 2;
 fn duelists(
     world: &mut World,
 ) -> (
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) {
     let a = ingame_caster(world, A_CID, A, 0, 0);
     let b = ingame_caster(world, B_CID, B, 100, 0);

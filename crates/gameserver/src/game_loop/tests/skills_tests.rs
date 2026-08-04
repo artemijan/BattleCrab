@@ -2565,7 +2565,7 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
 /// spawn/target chatter, returning its object id.
 fn spawn_debuff_target(
     world: &mut World,
-    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) -> i32 {
     let npc_oid = NPC_OID + 14;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);

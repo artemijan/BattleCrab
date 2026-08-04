@@ -288,7 +288,7 @@ fn keep_registration_open(world: &mut World) {
 }
 
 /// A clan leader with `world`, a `SiegeInfo`-capable clan and an ingame session.
-fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _l) = siege_world();
     keep_registration_open(&mut world);
     world.clans.insert(10, mk_clan(10, 5, 0, 0));
@@ -302,7 +302,7 @@ fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>)
     (world, rx)
 }
 
-fn sent_opcode(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, opcode: u8) -> bool {
+fn sent_opcode(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>, opcode: u8) -> bool {
     let mut found = false;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&opcode) {
@@ -496,13 +496,13 @@ fn list_body(castle_id: i32) -> Vec<u8> {
 
 /// Drain `rx` and return the last packet with the given opcode, if any.
 fn take_packet(
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
     opcode: u8,
 ) -> Option<Vec<u8>> {
     let mut found = None;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&opcode) {
-            found = Some(p);
+            found = Some(p.to_vec());
         }
     }
     found
@@ -567,7 +567,7 @@ fn set_time_body(castle_id: i32, time_secs: i32) -> Vec<u8> {
 }
 
 /// The owner leader of CASTLE with the time-registration window open, ingame.
-fn world_with_castle_owner() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn world_with_castle_owner() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _l) = siege_world();
     world.clans.insert(10, mk_clan(10, 5, CASTLE, 0)); // clan 10 owns CASTLE
     world.clans.get_mut(&10).unwrap().leader_id = LEADER;

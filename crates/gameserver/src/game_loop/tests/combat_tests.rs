@@ -36,7 +36,8 @@ fn action_on_monster_colors_target_and_never_talks() {
     );
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    let after: Vec<Vec<u8>> = std::iter::from_fn(|| rx.try_recv().ok()).collect();
+    let after: Vec<Vec<u8>> =
+        std::iter::from_fn(|| rx.try_recv().ok().map(|p| p.to_vec())).collect();
     assert!(
         after
             .iter()

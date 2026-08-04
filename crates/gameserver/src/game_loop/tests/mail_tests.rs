@@ -363,8 +363,8 @@ fn the_boot_load_installs_messages_attachments_and_the_name_table() {
 /// an id pool, i.e. able to actually mail each other.
 fn mail_world() -> (
     World,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
     db::CmdRx,
 ) {
     let (mut world, _tx, db_rx, _link) = test_world();

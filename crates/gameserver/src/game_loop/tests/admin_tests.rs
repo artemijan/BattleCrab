@@ -5592,7 +5592,7 @@ fn effects_panel_menu_commands_reserve_their_pages() {
     drain(&mut rx);
 
     let click = |world: &mut World,
-                 rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+                 rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
                  cmd: &str|
      -> String {
         on_packet(world, 1, build_admin(cmd));

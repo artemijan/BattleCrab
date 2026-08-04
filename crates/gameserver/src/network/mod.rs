@@ -23,8 +23,16 @@ pub use connection_state::ConnectionState;
 /// bodies (opcode + payload, unencrypted) to a connection. The connection task
 /// encrypts and frames them. Unbounded for now; the drop policy
 /// (`DropPackets`/`DropPacketThreshold`) is deferred (plan §4).
-pub type OutboundTx = tokio::sync::mpsc::UnboundedSender<Vec<u8>>;
-pub type OutboundRx = tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>;
+/// Outbound queue to one connection's task.
+///
+/// Carries [`bytes::Bytes`], not `Vec<u8>`: a broadcast hands the *same* packet
+/// to every player in a 3×3 block, and cloning `Bytes` is a refcount bump
+/// instead of a heap allocation plus a memcpy per recipient. The copy that does
+/// have to happen — the cipher needs a mutable buffer — now happens in the
+/// connection task, on a tokio worker, instead of on the single game thread
+/// that everything else is waiting for.
+pub type OutboundTx = tokio::sync::mpsc::UnboundedSender<bytes::Bytes>;
+pub type OutboundRx = tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>;
 
 /// Sender side of the network→game channel. `std::sync::mpsc` because the game
 /// thread is a plain (non-async) thread draining it with `try_recv` each tick;

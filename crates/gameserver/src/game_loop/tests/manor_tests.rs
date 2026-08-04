@@ -466,7 +466,7 @@ fn sell_crop_rejected_when_item_missing() {
 
 /// Gludio's Chamberlain of Light (35100) at the origin, plus an in-game player
 /// standing on it. Returns the world and the player's packet receiver.
-fn chamberlain_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn chamberlain_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _link) = quest_test_world();
     add_test_npc(&mut world, 701, 35100, "Merchant", 75, 0, 0, 0);
     let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
@@ -508,7 +508,7 @@ fn own_castle(world: &mut World, castle_id: i32) {
     p.clan_id = clan_id;
 }
 
-fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Option<String> {
+fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
 }
 
@@ -991,13 +991,18 @@ fn request_set_seed_refused_when_not_modifiable() {
 
 /// Find the `ExShowManorDefaultInfo` packet (EX 0xFE, sub-op 0x25) among the
 /// drained output.
-fn default_info_packet(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Option<Vec<u8>> {
+fn default_info_packet(
+    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+) -> Option<Vec<u8>> {
     ex_packet(rx, 0x25)
 }
 
 /// Find an EX packet (0xFE) with the given single-byte sub-op among the drained
 /// output.
-fn ex_packet(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, subop: u8) -> Option<Vec<u8>> {
+fn ex_packet(
+    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    subop: u8,
+) -> Option<Vec<u8>> {
     drain(rx)
         .into_iter()
         .find(|p| p.len() >= 8 && p[0] == 0xFE && p[1] == subop && p[2] == 0x00)
@@ -1098,7 +1103,7 @@ fn settlement_world(
     sold: i64,
     left: i64,
     price: i64,
-) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, rx) = chamberlain_world();
     world.cfg.general.allow_manor = true;
     add_gludio(&mut world);

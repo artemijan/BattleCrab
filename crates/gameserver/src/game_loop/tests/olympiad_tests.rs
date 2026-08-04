@@ -19,7 +19,7 @@ fn make_noble(
     world: &mut World,
     client_id: u32,
     object_id: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     // Gladiator (class 2) is in the 3rd-class group; the test data has no
     // categories, so seed the one the eligibility gate reads.
     world
@@ -506,7 +506,7 @@ fn stage_match(
     b: i32,
     pts_a: i32,
     pts_b: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
     use crate::model::olympiad::{NobleStats, OlympiadMatch};
     let rx_a = ingame_player(world, a as u32, a, 500, 500, 0);
     let _rb = ingame_player(world, b as u32, b, 600, 600, 0);
@@ -1071,7 +1071,7 @@ fn monument_world() -> (
     World,
     db::CmdRx,
     tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) {
     let (mut world, db_rx, link) = quest_test_world();
     add_test_npc(&mut world, 701, 31690, "Folk", 70, 0, 0, 0);
