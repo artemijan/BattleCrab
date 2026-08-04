@@ -257,6 +257,33 @@ mod tests {
     }
 
     /// The custom debuff-feedback messages must survive regeneration.
+    /// A literal percent is `%%`: a single `%` starts a format escape and the
+    /// client mis-renders the line, which is what kept the debuff feedback
+    /// looking wrong. 26 of the 27 retail messages that use one double it —
+    /// the odd one out (`...to 100%. ...$s1%%...`) is inconsistent with
+    /// itself, so this holds only the messages we author to the rule.
+    #[test]
+    fn a_literal_percent_is_doubled_in_messages_we_author() {
+        for m in generated::ALL.iter().filter(|m| m.custom) {
+            let bytes = m.text.as_bytes();
+            let mut i = 0;
+            while i < bytes.len() {
+                if bytes[i] == b'%' {
+                    assert_eq!(
+                        bytes.get(i + 1),
+                        Some(&b'%'),
+                        "{}: lone `%` in {:?}",
+                        m.name,
+                        m.text
+                    );
+                    i += 2;
+                } else {
+                    i += 1;
+                }
+            }
+        }
+    }
+
     #[test]
     fn the_custom_messages_are_present_and_flagged() {
         for name in [

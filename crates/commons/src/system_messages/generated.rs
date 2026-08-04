@@ -24318,7 +24318,7 @@ impl
     }
 }
 
-/// `$c1 has resisted $s2. (Chance: $s3%)`
+/// `$c1 has resisted $s2. (Chance: $s3%%)`
 pub struct C1_HAS_RESISTED_S2_CHANCE_WAS_S3;
 impl C1_HAS_RESISTED_S2_CHANCE_WAS_S3 {
     pub const ID: i32 = 9000;
@@ -24339,7 +24339,7 @@ impl C1_HAS_RESISTED_S2_CHANCE_WAS_S3 {
     }
 }
 
-/// `$s1 landed on $c2. (Chance: $s3%)`
+/// `$s1 landed on $c2. (Chance: $s3%%)`
 pub struct S1_LANDED_ON_C2_CHANCE_WAS_S3;
 impl S1_LANDED_ON_C2_CHANCE_WAS_S3 {
     pub const ID: i32 = 9001;
@@ -38700,7 +38700,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 1433,
         name: "THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED",
         text: "The automatic use of $s1 has been activated.",
-        color: "00FFFFFF",
+        color: "B09B79FF",
         params: 1,
         custom: false,
         group: None,
@@ -38710,7 +38710,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 1434,
         name: "THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED",
         text: "The automatic use of $s1 has been deactivated.",
-        color: "00FFFFFF",
+        color: "B09B79FF",
         params: 1,
         custom: false,
         group: None,
@@ -55460,7 +55460,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3259,
         name: "YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4",
         text: "You have acquired $s1 XP (Bonus: $s2) and $s3 SP (Bonus: $s4).",
-        color: "B09B79FF",
+        color: "5599FFFF",
         params: 4,
         custom: false,
         group: None,
@@ -78169,7 +78169,7 @@ pub static ALL: &[MessageInfo] = &[
     MessageInfo {
         id: 9000,
         name: "C1_HAS_RESISTED_S2_CHANCE_WAS_S3",
-        text: "$c1 has resisted $s2. (Chance: $s3%)",
+        text: "$c1 has resisted $s2. (Chance: $s3%%)",
         color: "FF6666FF",
         params: 3,
         custom: true,
@@ -78179,7 +78179,7 @@ pub static ALL: &[MessageInfo] = &[
     MessageInfo {
         id: 9001,
         name: "S1_LANDED_ON_C2_CHANCE_WAS_S3",
-        text: "$s1 landed on $c2. (Chance: $s3%)",
+        text: "$s1 landed on $c2. (Chance: $s3%%)",
         color: "99FF99FF",
         params: 3,
         custom: true,

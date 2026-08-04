@@ -13,13 +13,14 @@
     "(player/npc), S is anything else. Numbering is the parameter order the",
     "packet carries, not the order they appear in the sentence.",
     "",
-    "`group` and `type` pick how the client renders a message. `[none]` draws in the default grey however the colour column is set; the damage class ([damage], group 3) is what message 2261 uses and is verifiably coloured in game, so skill feedback follows it."
+    "`group` and `type` pick how the client renders a message. `[none]` draws in the default grey however the colour column is set; the damage class ([damage], group 3) is what message 2261 uses and is verifiably coloured in game, so skill feedback follows it.",
+    "A literal percent sign is written `%%`; every retail message does (156 'Drain was only 50%% successful.', 1510 '$s2($s3%%) XP'). A single `%` starts a format escape and the client mis-renders the line."
   ],
   "messages": [
     {
       "id": 9000,
       "name": "C1_HAS_RESISTED_S2_CHANCE_WAS_S3",
-      "message": "$c1 has resisted $s2. (Chance: $s3%)",
+      "message": "$c1 has resisted $s2. (Chance: $s3%%)",
       "color": "FF6666FF",
       "note": "Single-target debuff that failed its landing roll. Replaces the hand-formatted string the resist path used to push through S1_TEXT.",
       "group": 3,
@@ -28,7 +29,7 @@
     {
       "id": 9001,
       "name": "S1_LANDED_ON_C2_CHANCE_WAS_S3",
-      "message": "$s1 landed on $c2. (Chance: $s3%)",
+      "message": "$s1 landed on $c2. (Chance: $s3%%)",
       "color": "99FF99FF",
       "note": "The success half of the same roll, so the caster sees the computed chance either way.",
       "group": 3,
