@@ -5,6 +5,7 @@ pub mod config;
 pub mod cron;
 pub mod crypt;
 pub mod db;
+pub mod logging;
 pub mod network;
 pub mod shutdown;
 pub mod system_messages;

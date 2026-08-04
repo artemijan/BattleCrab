@@ -50,7 +50,13 @@ regex = "1"
 rand_distr = "0.4"
 bevy_ecs = "0.19"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+# Rotating file appender + the non-blocking writer. The game thread must never
+# pay a `write(2)` for a log line: `non_blocking` hands the formatted line to a
+# bounded channel drained by a dedicated thread, and in lossy mode drops on a
+# full channel rather than blocking the caller — logging degrades under load
+# instead of stealing tick budget.
+tracing-appender = "0.2"
 thiserror = "2"
 quick-xml = "0.37"
 if-addrs = "0.13"

@@ -3,13 +3,18 @@ use std::sync::Arc;
 
 use dashboard_api::config::DashboardConfig;
 use dashboard_api::state::App;
-use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
-        .init();
+    // Shares the game server's `Logging.ini` and log directory, distinguished by
+    // the `dashboard_api` filename prefix — this binary reads `Dashboard.ini`
+    // out of `dist/game/config` too, so it is launched from the same place.
+    //
+    // Note the `process::exit` paths below bypass this guard, so their last few
+    // lines may not reach the *file*. They are startup-fatal and the console
+    // layer writes synchronously, so the message still reaches the journal.
+    let _log_guard = commons::logging::init("dist/game/", "dashboard_api");
+    commons::logging::install_panic_hook();
 
     let config = DashboardConfig::load();
 

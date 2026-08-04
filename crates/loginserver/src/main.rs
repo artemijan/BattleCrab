@@ -3,18 +3,21 @@
 
 use std::sync::Arc;
 
-use loginserver::config::LoginConfig;
+use loginserver::config::{LOGIN_ROOT, LoginConfig};
 use loginserver::context::LoginContext;
 use loginserver::network;
 use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
-        )
-        .init();
+    // `LOGIN_ROOT`, not the working directory: the login server addresses its
+    // files from the deployment root, so this is what puts `Logging.ini` and
+    // `log/` beside `LoginServer.ini` instead of two levels above it.
+    //
+    // Held for the whole of `main`: dropping the guard stops the writer threads
+    // and truncates the tail of the log.
+    let _log_guard = commons::logging::init(LOGIN_ROOT, "login_server");
+    commons::logging::install_panic_hook();
 
     // Load Config (Java: Config.load(ServerMode.LOGIN)).
     let config = LoginConfig::load();
