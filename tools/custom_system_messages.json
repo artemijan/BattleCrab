@@ -1,29 +1,39 @@
 {
   "_comment": [
-    "Messages this server defines on top of the client's own table.",
+    "System messages this server adds on top of the client's own table.",
+    "Ids continue the retail sequence rather than starting at a round number far above it: the client appears not to accept an id much beyond the highest it loaded (7490 here), so 9000 rendered as nothing. Keep these immediately after the last retail id, and move them if a client update extends the table.",
     "",
-    "An entry whose id already exists is an OVERRIDE: it replaces the retail name, text and arity rather than being appended. That is how a message gains a parameter \u2014 retexting 139 to carry a chance also renames it, because the C<n>/S<n> tokens in the name are what fix the constructor's arity.",
+    "adds messages cannot collide with ours. `l2r-tools client-dat sync-messages`",
+    "appends these to SystemMsg*.dat with defaults for every column it does not",
+    "know about, which is what makes them display at all \u2014 a message id the",
+    "client has no row for renders as nothing.",
     "",
-    "Overrides are used here in preference to inventing ids. New ids did not render at all: 9000 (far past the end of the table) and 7491 (immediately after it) both produced nothing, whatever the row's colour, group or type said. Something outside SystemMsg*.dat evidently decides which ids the client will accept, so reusing rows it already accepts is the reliable route.",
+    "Names follow the retail convention, and the C<n>/S<n> tokens in them are",
+    "what the generator reads to decide the constructor's arity: C is a name",
+    "(player/npc), S is anything else. Numbering is the parameter order the",
+    "packet carries, not the order they appear in the sentence.",
     "",
-    "Numbering is the parameter order the packet carries, not the order the tokens read in the sentence."
+    "`group` and `type` pick how the client renders a message. `[none]` draws in the default grey however the colour column is set; the damage class ([damage], group 3) is what message 2261 uses and is verifiably coloured in game, so skill feedback follows it.",
+    "A literal percent sign is written `%%`; every retail message does (156 'Drain was only 50%% successful.', 1510 '$s2($s3%%) XP'). A single `%` starts a format escape and the client mis-renders the line."
   ],
   "messages": [
     {
-      "id": 139,
-      "name": "C1_HAS_RESISTED_YOUR_S2_CHANCE_S3",
-      "message": "$c1 has resisted your $s2. (Chance: $s3%%)",
+      "id": 7491,
+      "name": "C1_HAS_RESISTED_S2_CHANCE_WAS_S3",
+      "message": "$c1 has resisted $s2. (Chance: $s3%%)",
+      "color": "FF6666FF",
+      "note": "Single-target debuff that failed its landing roll. Replaces the hand-formatted string the resist path used to push through S1_TEXT.",
       "group": 3,
-      "type": "[damage]",
-      "note": "Retail 'C1_HAS_RESISTED_YOUR_S2' ($c1 has resisted your $s2.), retexted to carry the computed landing chance."
+      "type": "[damage]"
     },
     {
-      "id": 1595,
-      "name": "S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3",
-      "message": "$s1 has succeeded on $c2. (Chance: $s3%%)",
+      "id": 7492,
+      "name": "S1_LANDED_ON_C2_CHANCE_WAS_S3",
+      "message": "$s1 landed on $c2. (Chance: $s3%%)",
+      "color": "99FF99FF",
+      "note": "The success half of the same roll, so the caster sees the computed chance either way.",
       "group": 3,
-      "type": "[damage]",
-      "note": "Retail 'S1_HAS_SUCCEEDED' ($s1 has succeeded.), retexted as the success half of the same roll."
+      "type": "[damage]"
     }
   ]
 }

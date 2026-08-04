@@ -316,23 +316,25 @@ mod tests {
     #[test]
     fn the_custom_messages_are_present_and_flagged() {
         for name in [
-            "C1_HAS_RESISTED_YOUR_S2_CHANCE_S3",
-            "S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3",
+            "C1_HAS_RESISTED_S2_CHANCE_WAS_S3",
+            "S1_LANDED_ON_C2_CHANCE_WAS_S3",
         ] {
             let info = by_name(name).unwrap_or_else(|| panic!("{name} missing"));
             assert!(info.custom, "{name} should be marked custom");
-            // These override retail rows rather than inventing ids: the client
-            // rendered nothing for an id of our own, wherever it was placed.
+            // Above every retail id, but only just: the client does not seem
+            // to accept one far beyond the highest it loaded.
+            let highest_retail = generated::ALL
+                .iter()
+                .filter(|m| !m.custom)
+                .map(|m| m.id)
+                .max()
+                .unwrap();
             assert!(
-                info.id < 5000,
-                "{name} should reuse a retail id, got {}",
+                info.id > highest_retail && info.id <= highest_retail + 10,
+                "{name} id {} should continue the retail sequence after {highest_retail}",
                 info.id
             );
             assert_eq!(info.params, 3);
         }
-
-        // Overriding replaces the retail entry rather than sitting beside it.
-        assert!(by_name("C1_HAS_RESISTED_YOUR_S2").is_none());
-        assert!(by_name("S1_HAS_SUCCEEDED").is_none());
     }
 }
