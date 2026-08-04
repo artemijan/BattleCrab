@@ -947,12 +947,23 @@ impl<'w> QuestCtx<'w> {
     }
 
     /// `AbstractScript.addRadar` → `Radar.addMarker` — drop a radar marker on
-    /// the player's map (`RadarControl(0, 1, x, y, z)`). Type 1 is the plain
-    /// red flag the "find an NPC" services use; for a quest objective prefer
-    /// [`add_quest_radar`], which the client draws as the quest pin.
+    /// the player's map. Type 1 is the plain red flag the "find an NPC"
+    /// services use; for a quest objective prefer [`add_quest_radar`], which
+    /// the client draws as the quest pin.
+    ///
+    /// Java sends **two** packets here, not one: `RadarControl(2, 2, x, y, z)`
+    /// clears any marker already standing at that spot, then
+    /// `RadarControl(0, 1, x, y, z)` shows the new one. Dropping the leading
+    /// clear — as this helper did until 2026-08-05 — leaves the client
+    /// stacking duplicate flags when the same location is re-pinged, which is
+    /// exactly what the "find an NPC" services and Q255's tutorial do on every
+    /// repeat ask. `community_board::npc_trace` already sent the pair, so the
+    /// two radar paths in this port disagreed with each other.
     ///
     /// [`add_quest_radar`]: QuestCtx::add_quest_radar
     pub fn add_radar(&mut self, x: i32, y: i32, z: i32) {
+        let clear = server_packets::radar_control(2, 2, x, y, z);
+        self.send(clear);
         let pkt = server_packets::radar_control(0, 1, x, y, z);
         self.send(pkt);
     }

@@ -1603,7 +1603,29 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
         html.contains("direction of the arrow"),
         "MoveToLoc.htm: {html}"
     );
-    assert!(pkts.iter().any(|p| p[0] == 0xF1), "RadarControl sent");
+    // `Radar.addMarker` sends a *pair*: `RadarControl(2, 2, …)` clears whatever
+    // marker already stands at the spot, then `(0, 1, …)` shows the new one.
+    // This assertion used to be a bare "some RadarControl arrived", which is
+    // why it kept passing while `add_radar` sent only the second leg — the
+    // community-board path sent both and the quest path did not. Assert the
+    // shape, not its presence.
+    let radars: Vec<_> = pkts.iter().filter(|p| p[0] == 0xF1).collect();
+    assert_eq!(radars.len(), 2, "addMarker sends two RadarControl packets");
+    let legs: Vec<(i32, i32, i32, i32, i32)> = radars
+        .iter()
+        .map(|p| {
+            let mut r = commons::network::PacketReader::new(&p[1..]);
+            (
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+            )
+        })
+        .collect();
+    assert_eq!(legs[0], (2, 2, 500, 600, 700), "clear leg, at the spawn");
+    assert_eq!(legs[1], (0, 1, 500, 600, 700), "show leg, at the spawn");
 
     // Off-whitelist id: Java returns null, so nothing is sent.
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 99999"));
