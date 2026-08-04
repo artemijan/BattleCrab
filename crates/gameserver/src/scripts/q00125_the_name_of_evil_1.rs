@@ -14,6 +14,9 @@ const KARAKAWEI: i32 = 32117;
 const ULU_KAIMU: i32 = 32119;
 const BALU_KAIMU: i32 = 32120;
 const CHUTA_KAIMU: i32 = 32121;
+/// Java `REPRESENTATION_ENTER_THE_SAILREN_NEST_QUEST_ID` — the visual each
+/// Kaimu pillar casts as it presents its riddle.
+const PUZZLE_FLOURISH: i32 = 5089;
 // Items
 const ORNITHOMIMUS_CLAW: i32 = 8779;
 const DEINONYCHUS_BONE: i32 = 8780;
@@ -350,13 +353,24 @@ fn karakawei_talk(ctx: &mut QuestCtx, cond: i32) -> String {
     }
 }
 
-/// Ulu Kaimu (live at cond 5). TODO(cosmetic): Java also broadcasts a
-/// `MagicSkillUse` (5089) when re-presenting the puzzle.
+/// `npc.broadcastPacket(new MagicSkillUse(npc, player, 5089, 1, 1000, 0))` —
+/// the Kaimu pillar's flourish as it presents its riddle.
+///
+/// All three pillars do this, at their own cond (Ulu 5, Balu 6, Chuta 7), and
+/// each Java site is the same call. The port carried a single `cosmetic`
+/// deferral marker on Ulu, which undercounted the gap threefold — the other two
+/// were missing it with nothing to say so.
+fn present_puzzle(ctx: &QuestCtx) {
+    ctx.cast_visual_at(ctx.npc, ctx.player, PUZZLE_FLOURISH, 1, 1000);
+}
+
+/// Ulu Kaimu (live at cond 5).
 fn ulu_talk(ctx: &mut QuestCtx, cond: i32) -> String {
     match cond {
         1..=4 => "32119-01.html".to_string(),
         5 => {
             if ctx.get_int("Memo") == 0 {
+                present_puzzle(ctx);
                 for v in ["T", "E", "P", "U"] {
                     ctx.unset(v);
                 }
@@ -377,6 +391,7 @@ fn balu_talk(ctx: &mut QuestCtx, cond: i32) -> String {
         1..=5 => "32120-01.html".to_string(),
         6 => {
             if ctx.get_int("Memo") == 0 {
+                present_puzzle(ctx);
                 for v in ["T", "O", "O2", "N"] {
                     ctx.unset(v);
                 }
@@ -395,6 +410,7 @@ fn chuta_talk(ctx: &mut QuestCtx, cond: i32) -> String {
         1..=6 => "32121-01.html".to_string(),
         7 => {
             if ctx.get_int("Memo") == 0 {
+                present_puzzle(ctx);
                 for v in ["W", "A", "G", "U"] {
                     ctx.unset(v);
                 }

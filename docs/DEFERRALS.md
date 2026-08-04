@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **162** such
+of narrow behaviours deferred and marked at the site. There are **160** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -104,8 +104,6 @@ also registering its NPCs would strand the player.
 | `TODO(G7.5)` | 2 | `data/skill_data/build.rs` |
 | `TODO(login-playauth)` | 2 | `tests/e2e_create.rs` |
 | `TODO(manor)` | 2 | `game_loop/manor.rs` |
-| `TODO(cinematic)` | 1 | `scripts/q00235_mimirs_elixir.rs` |
-| `TODO(cosmetic)` | 1 | `scripts/q00125_the_name_of_evil_1.rs` |
 | `TODO(D4)` | 1 | `dashboard_api: routes/status.rs` |
 | `TODO(frintezza-4b)` | 1 | `game_loop/frintezza.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
@@ -133,6 +131,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(cinematic)` ×1, `TODO(cosmetic)` ×1 (`scripts/q00235_mimirs_elixir.rs`, `q00125_the_name_of_evil_1.rs`) | Both wanted one `MagicSkillUse` from a named caster at a named target, which `cast_visual` could not express (it emits *two* self-casts). Added `QuestCtx::cast_visual_at`. The Q125 marker **undercounted its own gap threefold**: Java casts the pillar flourish at all three Kaimu (Ulu cond 5, Balu 6, Chuta 7) and only Ulu carried a marker — the other two were missing it with nothing to say so. |
 | 2026-08-05 | `TODO(newbie-guide)` ×2 (`scripts/q00261_collectors_dream.rs`, `q00276_totem_of_the_hestui.rs`) | Ported `giveNewbieReward` for real. The marker's stated blockers were half-right: `ExShowScreenMessage` existed but only in its TEXT form, so the NpcString variant was added (4155, "Last duty complete"). `GUIDE_MISSION` still has no reader — the mission-list UI is unported — but it is written anyway because it **persists**, so credit earned now survives until that UI lands. Two traps found while wiring: it must be a *player* variable, not a `QuestState` one (both callers `exit_quest`, which would drop it on the very turn-in that earned it), and Java's `getString(key, null)` check means an absent variable and a stored 0 take different branches. |
 | 2026-08-05 | `TODO(dead)` ×6 (`scripts/q00414`, `q00415`, `q00416`) | **Not gaps.** These mark Java branches that were ported verbatim but that no route on this dist can reach — no page offers the entry html, and the NPCs are registered nowhere. Retagged `SKIP(dead)`; see the `TODO` versus `SKIP` note above. Nothing changed in behaviour, and the comments' warnings against half-restoring a two-ended dead route are kept intact. |
 | 2026-08-05 | `TODO(manor)` ×3 (`game_loop/skills/effects/gathering.rs`) | Same shape as the soul-crystal set: the ids (889/890/891) were in `commons::system_messages` all along, absent only from the hand-maintained `sm_ids`. Wiring them surfaced two things the markers did not mention — Java **party-broadcasts** the sow result (`party.broadcastPacket`), and the success leg also plays `ITEMSOUND_QUEST_ITEMGET`, which this port dropped silently. Both ported. |

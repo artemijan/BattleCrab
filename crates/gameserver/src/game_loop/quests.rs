@@ -1463,6 +1463,53 @@ impl<'w> QuestCtx<'w> {
         super::npc_ai::seed_attack(self.world, npc_oid, target_oid);
     }
 
+    /// `<caster>.broadcastPacket(new MagicSkillUse(caster, target, skillId,
+    /// level, hitTime, reuse))` — one visual cast from `caster_oid` aimed at
+    /// `target_oid`, shown to everyone nearby.
+    ///
+    /// Distinct from [`cast_visual`], which emits *two* self-casts (one on the
+    /// player, one on the in-context NPC). Java's quest scripts mostly want
+    /// this shape instead: quest 125's Ulu Kaimu casts at the player
+    /// (`npc → player`), quest 235's mixing flash is the player on themselves
+    /// (`player → player`). Passing the same oid twice gives the self-cast.
+    ///
+    /// `reuse` is not on the wire in this chronicle's packet, so it is not a
+    /// parameter — Java's differing values (0 vs 1) make no observable
+    /// difference here.
+    ///
+    /// [`cast_visual`]: QuestCtx::cast_visual
+    pub fn cast_visual_at(
+        &self,
+        caster_oid: i32,
+        target_oid: i32,
+        skill_id: i32,
+        level: i32,
+        hit_time: i32,
+    ) {
+        if self.simulated {
+            return;
+        }
+        let at = |oid: i32| {
+            self.world
+                .objects
+                .get_component::<crate::model::components::Position>(&oid)
+                .map(|p| (oid, p.x, p.y, p.z))
+        };
+        let (Some(caster), Some(target)) = (at(caster_oid), at(target_oid)) else {
+            return;
+        };
+        let Some(region) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&caster_oid)
+            .map(|r| r.0)
+        else {
+            return;
+        };
+        let pkt = server_packets::magic_skill_use_raw(caster, target, skill_id, level, hit_time);
+        super::helpers::broadcast_near_region(self.world, region, &pkt);
+    }
+
     /// L2J's `Cast(npc, player, skillId, level)` — a purely visual self-cast
     /// `MagicSkillUse` shown on **both** the in-context NPC and the player, to
     /// everyone nearby. The Saga rite uses it for the tablet progression glow

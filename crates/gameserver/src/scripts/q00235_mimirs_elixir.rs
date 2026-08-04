@@ -19,6 +19,8 @@ const BLOOD_FIRE: i32 = 6318;
 const MIMIR_ELIXIR: i32 = 6319;
 const MAGISTER_MIXING_STONE: i32 = 5905;
 const SCROLL_ENCHANT_WEAPON_A: i32 = 729;
+/// The cosmetic mixing flash Java broadcasts as the elixir is brewed.
+const MIXING_FLASH: i32 = 4339;
 
 /// `hasQuestItems(player, ids…)` — true only when **all** are held.
 fn has_all(ctx: &QuestCtx, ids: &[i32]) -> bool {
@@ -76,8 +78,10 @@ impl QuestScript for Q00235MimirsElixir {
             }
             "30721-16.htm" => {
                 if ctx.quest_items_count(MIMIR_ELIXIR) > 0 {
-                    // Java broadcasts MagicSkillUse 4339 here — a cosmetic mixing
-                    // flash; TODO(cinematic): no broadcast-skill helper yet.
+                    // `player.broadcastPacket(new MagicSkillUse(player, player,
+                    // 4339, 1, 1, 1))` — the mixing flash, cast by the player
+                    // on themselves.
+                    ctx.cast_visual_at(ctx.player, ctx.player, MIXING_FLASH, 1, 1);
                     ctx.take_items(MAGISTER_MIXING_STONE, -1);
                     ctx.take_items(MIMIR_ELIXIR, -1);
                     ctx.take_items(STAR_OF_DESTINY, -1);
