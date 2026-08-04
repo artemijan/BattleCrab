@@ -7,14 +7,18 @@
 //! the game thread. Outbound packet bodies queued by the game thread are
 //! encrypted and framed here.
 
-use std::net::SocketAddr;
+use std::collections::HashMap;
+use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::time::{Duration, Instant};
 
 use commons::network::{HEADER_SIZE, read_frame, write_frame};
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpListener;
 use tracing::{debug, info, warn};
+
+use crate::config::SecurityConfig;
 
 use super::client_packets::{ProtocolVersion, opcodes as cop};
 use super::game_client::GameClient;
@@ -41,27 +45,155 @@ pub struct NetworkConfig {
     pub protocol_list: Vec<i32>,
     pub server_id: i32,
     pub is_classic: bool,
+    /// `Security.ini` — the transport-level flood limits.
+    pub security: SecurityConfig,
+}
+
+/// Java `FloodProtectedListener.ForeignConnection`: what one address is doing.
+struct ForeignConnection {
+    /// Live connections from this address.
+    connection_number: i32,
+    last_connection: Instant,
+    /// Java's `isFlooding` latch — log the onset and the recovery, not each
+    /// refused packet.
+    is_flooding: bool,
 }
 
 /// Java: `ConnectionBuilder<>(addr, GameClient::new, GamePacketHandler, ...).build().start()`.
+///
+/// Plus the per-IP accept rules Java keeps in `FloodProtectedListener` (which
+/// upstream wires only to the game-server↔login listener, never to players).
+///
+/// The per-address table is owned **solely by this task** and connections
+/// report their close over a channel, rather than sharing a `Mutex`: the game
+/// server deliberately holds exactly one lock process-wide
+/// (`geo::GeoEngine::nswe_overrides`), which is the standing argument for not
+/// needing Java's deadlock detector, and a second lock would cost that argument
+/// for no benefit here.
 pub async fn accept_loop(listener: TcpListener, net_tx: NetEventTx, cfg: Arc<NetworkConfig>) {
     static NEXT_ID: AtomicU32 = AtomicU32::new(1);
+    let (closed_tx, mut closed_rx) = tokio::sync::mpsc::unbounded_channel::<IpAddr>();
+    let mut per_ip: HashMap<IpAddr, ForeignConnection> = HashMap::new();
+
     loop {
-        match listener.accept().await {
-            Ok((stream, addr)) => {
-                let client_id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-                let net_tx = net_tx.clone();
-                let cfg = cfg.clone();
-                tokio::spawn(async move {
-                    if let Err(e) = handle(stream, addr, client_id, net_tx, cfg).await {
-                        debug!("client {client_id} ({addr}) ended: {e}");
+        tokio::select! {
+            // Java `removeFloodProtection`: drop the address once its last
+            // connection is gone, so the table tracks live clients only.
+            Some(ip) = closed_rx.recv() => {
+                if let Some(entry) = per_ip.get_mut(&ip) {
+                    entry.connection_number -= 1;
+                    if entry.connection_number <= 0 {
+                        per_ip.remove(&ip);
                     }
-                });
+                }
             }
-            Err(e) => {
-                warn!("GameServer: accept error: {e}");
-            }
+            accepted = listener.accept() => match accepted {
+                Ok((stream, addr)) => {
+                    if cfg.security.enable_connection_flood_protection
+                        && refuse_connection(&mut per_ip, addr.ip(), &cfg.security, Instant::now())
+                    {
+                        // Dropping the stream closes it, as Java's
+                        // `connection.close()` does.
+                        continue;
+                    }
+                    let client_id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+                    let net_tx = net_tx.clone();
+                    let cfg = cfg.clone();
+                    let closed_tx = closed_tx.clone();
+                    tokio::spawn(async move {
+                        if let Err(e) = handle(stream, addr, client_id, net_tx, cfg).await {
+                            debug!("client {client_id} ({addr}) ended: {e}");
+                        }
+                        let _ = closed_tx.send(addr.ip());
+                    });
+                }
+                Err(e) => {
+                    warn!("GameServer: accept error: {e}");
+                }
+            },
         }
+    }
+}
+
+/// Java `FloodProtectedListener.run`'s accept test, verbatim in structure:
+/// count the new connection first, then refuse when *any* of the three rules
+/// trips. Returns `true` when the connection must be dropped.
+fn refuse_connection(
+    per_ip: &mut HashMap<IpAddr, ForeignConnection>,
+    ip: IpAddr,
+    cfg: &SecurityConfig,
+    now: Instant,
+) -> bool {
+    let Some(entry) = per_ip.get_mut(&ip) else {
+        per_ip.insert(
+            ip,
+            ForeignConnection {
+                connection_number: 1,
+                last_connection: now,
+                is_flooding: false,
+            },
+        );
+        return false;
+    };
+
+    entry.connection_number += 1;
+    let since_last = now.duration_since(entry.last_connection);
+    let too_many_too_fast = entry.connection_number > cfg.fast_connection_limit
+        && since_last < Duration::from_millis(cfg.normal_connection_time.max(0) as u64);
+    let too_fast = since_last < Duration::from_millis(cfg.fast_connection_time.max(0) as u64);
+    let too_many = entry.connection_number > cfg.max_connections_per_ip;
+
+    if too_many_too_fast || too_fast || too_many {
+        // Java updates `lastConnection` on the *refused* attempt too, so a
+        // client hammering the port keeps pushing its own window out.
+        entry.last_connection = now;
+        entry.connection_number -= 1;
+        if !entry.is_flooding {
+            warn!("GameServer: potential connection flood from {ip}");
+        }
+        entry.is_flooding = true;
+        return true;
+    }
+
+    if entry.is_flooding {
+        entry.is_flooding = false;
+        info!("GameServer: {ip} is not considered as flooding anymore.");
+    }
+    entry.last_connection = now;
+    false
+}
+
+/// A fixed one-second window of inbound packets for one connection.
+///
+/// The game thread's inbound queue is unbounded, so without this a single
+/// socket can put an unbounded amount of work in flight between two 100 ms
+/// ticks. This is a transport backstop — per-*action* limits are
+/// `FloodProtector.ini`'s job — so it only trips far above any real client,
+/// and it closes the connection rather than silently dropping packets, which
+/// would desynchronise the client's view of its own requests.
+struct PacketRateLimiter {
+    window_start: Instant,
+    count: u32,
+    max_per_second: u32,
+}
+
+impl PacketRateLimiter {
+    fn new(max_per_second: u32) -> Self {
+        Self {
+            window_start: Instant::now(),
+            count: 0,
+            max_per_second,
+        }
+    }
+
+    /// `true` when this packet is over the limit and the connection should die.
+    fn is_over_limit(&mut self, now: Instant) -> bool {
+        if now.duration_since(self.window_start) >= Duration::from_secs(1) {
+            self.window_start = now;
+            self.count = 0;
+        }
+        self.count += 1;
+        self.count > self.max_per_second
     }
 }
 
@@ -91,12 +223,29 @@ async fn handle(
     let mut client = GameClient::new(client_id, cfg.packet_encryption);
     // Reused across wakeups so the steady state allocates nothing to send.
     let mut out_batch: Vec<u8> = Vec::with_capacity(OUT_BATCH_KEEP_CAPACITY);
+    let mut rate = cfg
+        .security
+        .enable_packet_rate_limit
+        .then(|| PacketRateLimiter::new(cfg.security.max_packets_per_second));
 
     let result = loop {
         tokio::select! {
             frame = read_frame(&mut read, MAX_PAYLOAD) => {
                 match frame {
                     Ok(Some(payload)) => {
+                        // Charged before decryption: the cost this bounds is
+                        // the work the frame is about to create, and a frame
+                        // that fails to decode has already consumed a read.
+                        if let Some(rate) = rate.as_mut()
+                            && rate.is_over_limit(Instant::now())
+                        {
+                            warn!(
+                                "GameServer: client {client_id} ({addr}) exceeded \
+                                 {} packets/s — closing.",
+                                cfg.security.max_packets_per_second
+                            );
+                            break Ok(());
+                        }
                         let mut body = payload;
                         client.decrypt(&mut body);
                         if body.is_empty() {
@@ -267,4 +416,126 @@ async fn send<W: AsyncWrite + Unpin>(
 
 fn key8(key: &[u8; 16]) -> &[u8; 8] {
     key[..8].try_into().unwrap()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ip(last: u8) -> IpAddr {
+        IpAddr::from([10, 0, 0, last])
+    }
+
+    fn cfg() -> SecurityConfig {
+        SecurityConfig::default()
+    }
+
+    /// A first connection from an unseen address is always allowed, whatever
+    /// the rules say — there is nothing to compare it against.
+    #[test]
+    fn the_first_connection_from_an_address_is_allowed() {
+        let mut per_ip = HashMap::new();
+        let t = Instant::now();
+        assert!(!refuse_connection(&mut per_ip, ip(1), &cfg(), t));
+        assert_eq!(per_ip[&ip(1)].connection_number, 1);
+    }
+
+    /// `FastConnectionTime`: two connections closer together than 350 ms are
+    /// refused outright, and the refusal does not leak a connection slot.
+    #[test]
+    fn a_second_connection_within_the_fast_window_is_refused() {
+        let mut per_ip = HashMap::new();
+        let t = Instant::now();
+        assert!(!refuse_connection(&mut per_ip, ip(1), &cfg(), t));
+        assert!(refuse_connection(
+            &mut per_ip,
+            ip(1),
+            &cfg(),
+            t + Duration::from_millis(100)
+        ));
+        assert_eq!(
+            per_ip[&ip(1)].connection_number,
+            1,
+            "a refused attempt must not count as a live connection"
+        );
+        // Past the window it is allowed again.
+        assert!(!refuse_connection(
+            &mut per_ip,
+            ip(1),
+            &cfg(),
+            t + Duration::from_millis(1_000)
+        ));
+        assert_eq!(per_ip[&ip(1)].connection_number, 2);
+    }
+
+    /// `MaxConnectionsPerIP` is the hard ceiling: even perfectly paced
+    /// connections stop at the cap.
+    #[test]
+    fn the_per_ip_ceiling_holds_however_slowly_they_arrive() {
+        let mut per_ip = HashMap::new();
+        let cfg = cfg();
+        let mut t = Instant::now();
+        for i in 0..cfg.max_connections_per_ip {
+            assert!(
+                !refuse_connection(&mut per_ip, ip(1), &cfg, t),
+                "connection {i} is under the cap"
+            );
+            t += Duration::from_secs(10);
+        }
+        assert!(
+            refuse_connection(&mut per_ip, ip(1), &cfg, t),
+            "the 51st live connection is refused"
+        );
+    }
+
+    /// `FastConnectionLimit` + `NormalConnectionTime`: past 15 live
+    /// connections, an address must also slow down to one per 700 ms.
+    #[test]
+    fn past_the_fast_limit_the_pace_requirement_tightens() {
+        let mut per_ip = HashMap::new();
+        let cfg = cfg();
+        let mut t = Instant::now();
+        // Build up to exactly the fast limit, paced past the *fast* window
+        // (350 ms) but inside the *normal* one (700 ms).
+        for _ in 0..cfg.fast_connection_limit {
+            assert!(!refuse_connection(&mut per_ip, ip(2), &cfg, t));
+            t += Duration::from_millis(400);
+        }
+        assert!(
+            refuse_connection(&mut per_ip, ip(2), &cfg, t),
+            "over the fast limit, 400 ms apart is no longer fast enough"
+        );
+        assert!(
+            !refuse_connection(&mut per_ip, ip(2), &cfg, t + Duration::from_millis(800)),
+            "…but 800 ms apart is"
+        );
+    }
+
+    /// Addresses are independent — one flooder must not lock anyone else out.
+    #[test]
+    fn addresses_do_not_share_a_budget() {
+        let mut per_ip = HashMap::new();
+        let t = Instant::now();
+        assert!(!refuse_connection(&mut per_ip, ip(1), &cfg(), t));
+        assert!(refuse_connection(&mut per_ip, ip(1), &cfg(), t));
+        assert!(
+            !refuse_connection(&mut per_ip, ip(2), &cfg(), t),
+            "a different address is unaffected"
+        );
+    }
+
+    /// The packet limiter counts within a one-second window and resets after.
+    #[test]
+    fn the_packet_rate_limiter_trips_only_over_the_limit() {
+        let mut rl = PacketRateLimiter::new(3);
+        let t = rl.window_start;
+        assert!(!rl.is_over_limit(t));
+        assert!(!rl.is_over_limit(t));
+        assert!(!rl.is_over_limit(t), "the third is still at the limit");
+        assert!(rl.is_over_limit(t), "the fourth is over");
+        assert!(
+            !rl.is_over_limit(t + Duration::from_secs(1)),
+            "a new window starts clean"
+        );
+    }
 }

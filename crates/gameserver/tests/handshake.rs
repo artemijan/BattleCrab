@@ -32,6 +32,9 @@ fn cfg() -> NetworkConfig {
         protocol_list: vec![PROTOCOL],
         server_id: 1,
         is_classic: true,
+        // The shipped `Security.ini` defaults, so the transport limits are
+        // exercised by the end-to-end tests rather than bypassed by them.
+        security: gameserver::config::SecurityConfig::default(),
     }
 }
 

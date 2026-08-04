@@ -311,6 +311,9 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
         protocol_list: vec![110],
         server_id: 1,
         is_classic: true,
+        // The shipped `Security.ini` defaults, so the transport limits are
+        // exercised by the end-to-end tests rather than bypassed by them.
+        security: gameserver::config::SecurityConfig::default(),
     });
     tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg));
     addr

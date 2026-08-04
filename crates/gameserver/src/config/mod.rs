@@ -22,6 +22,7 @@ pub mod npc;
 pub mod offline_trade;
 pub mod premium;
 pub mod rates;
+pub mod security;
 pub mod sell_buffs;
 pub mod server;
 
@@ -48,6 +49,7 @@ pub use sell_buffs::SellBuffsConfig;
 pub mod grand_boss;
 pub use grand_boss::GrandBossConfig;
 pub use rates::RatesConfig;
+pub use security::SecurityConfig;
 pub use server::ServerConfig;
 
 /// The config keys the combat/AI/reward systems read at runtime, bundled so
@@ -140,6 +142,8 @@ pub struct Config {
     pub custom_mail: CustomMailConfig,
     pub auto_play: AutoPlayConfig,
     pub flood_protector: FloodProtectorsConfig,
+    /// `Security.ini` — transport-level flood limits (no Java counterpart).
+    pub security: SecurityConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -212,6 +216,7 @@ impl Config {
         let custom_mail = CustomMailConfig::load_from(root);
         let auto_play = AutoPlayConfig::load_from(root);
         let flood_protector = FloodProtectorsConfig::load_from(root);
+        let security = SecurityConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -241,6 +246,7 @@ impl Config {
             custom_mail,
             auto_play,
             flood_protector,
+            security,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,

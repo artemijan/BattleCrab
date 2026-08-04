@@ -456,12 +456,27 @@ async fn close(
 }
 
 pub async fn accept_loop(ctx: Arc<LoginContext>, listener: tokio::net::TcpListener) {
+    // Java leaves this listener unprotected — `FloodProtectedListener` is wired
+    // only to `GameServerListener`, so the player-facing port's sole defence is
+    // `LoginTryBeforeBan`, which an attacker reaches only after completing a
+    // full RSA handshake. Same rules, same `LoginServer.ini` keys, applied here
+    // too (see `crate::net_flood`).
+    let guard = crate::net_flood::ConnectionFloodGuard::new();
     loop {
         match listener.accept().await {
             Ok((stream, addr)) => {
+                let ip = addr.ip().to_string();
+                if !guard.accept(&ip, &ctx.config).await {
+                    drop(stream);
+                    continue;
+                }
                 let _ = stream.set_nodelay(true); // Java: TCP_NODELAY unless UseNagle
                 let ctx = ctx.clone();
-                tokio::spawn(handle(ctx, stream, addr.ip().to_string()));
+                let guard = guard.clone();
+                tokio::spawn(async move {
+                    handle(ctx, stream, ip.clone()).await;
+                    guard.release(&ip).await;
+                });
             }
             Err(e) => {
                 debug!("accept failed: {e}");

@@ -189,6 +189,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         protocol_list: config.server.protocol_list.clone(),
         server_id: config.server_id,
         is_classic: (config.server.server_list_type & 0x400) == 0x400,
+        security: config.security.clone(),
     });
     let bind = format!(
         "{}:{}",

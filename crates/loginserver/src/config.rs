@@ -42,7 +42,12 @@ pub const BANNED_IP_FILE: &str = "dist/login/banned_ip.cfg";
 
 impl LoginConfig {
     pub fn load() -> Self {
-        let p = PropertiesParser::load(LOGIN_CONFIG_FILE);
+        Self::from_parser(&PropertiesParser::load(LOGIN_CONFIG_FILE))
+    }
+
+    /// Split out from [`load`](Self::load) so a caller (or a test) can supply
+    /// the ini body directly; every key and default is unchanged.
+    pub fn from_parser(p: &PropertiesParser) -> Self {
         Self {
             login_bind_address: p.get_string("LoginserverHostname", "0.0.0.0"),
             port_login: p.get_int("LoginserverPort", 2106) as u16,
