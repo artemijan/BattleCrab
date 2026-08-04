@@ -4476,9 +4476,7 @@ config's real behaviour is pinned separately against the real
 cafe, household) is one address; `FastConnectionTime` is the first setting to
 relax if legitimate players are turned away.
 
-**Not started — eBPF.** An XDP ban-list / connection-rate offload is the
-natural next layer; the assessment (including why decryption offload is *not*
-viable) is in [SECURITY.md](SECURITY.md).
+The layers this leaves in place are tabulated in [SECURITY.md](SECURITY.md).
 
 ---
 
