@@ -115,11 +115,19 @@ grep -rho 'TODO(G[0-9A-Za-z._-]*)' crates/ --include='*.rs' | sort | uniq -c | s
 | G33 | Misc parity & finishing sweep | ✅ All four named slices, plus the `Custom/*.ini` audit below | 15 |
 | G34 | Skills, effects & abnormal-state parity (epic) | ✅ **CLOSED** — the skill parser was fail-open; a wrong-behaviour census of every learnable skill went **275 → 11 of 758**, and each of the 11 is a recorded, named out-of-scope item | 13 |
 
-Two markers are not milestone-scoped: `TODO(G-pvp)` (3) and `TODO(G-later)` (1).
+The per-milestone column above counts only tags of the exact form `TODO(G<N>)`.
+Two more milestone markers are not milestone-*scoped* — `TODO(G-pvp)` (3) and
+`TODO(G-later)` (1) — and a further nine use a `+`, `?` or `/` suffix (`G9+`,
+`G13+`, `G19+`, `G21+` ×2, `G29+` ×2, `G?`, `G24/G26`) that this column does
+not break out. Alongside them sit **37 topic-tagged** markers (`pets`, `manor`,
+`soul-crystal`, `radar`, `dead`, …) which belong to no milestone at all.
 
-**Total recorded gaps: 134.** Enumerated in [DEFERRALS.md](DEFERRALS.md) and
+**Total recorded gaps: 180.** Enumerated in [DEFERRALS.md](DEFERRALS.md) and
 asserted by the test named above — if this number and that file disagree, the
-file is right.
+file is right. It read 134 until 2026-08-05, when the scanner was widened to
+see the suffixed and topic-tagged families it had been dropping in silence; see
+that file's seventh pass. Because every milestone row here is ✅, these 180 are
+what is actually left to do.
 
 ---
 

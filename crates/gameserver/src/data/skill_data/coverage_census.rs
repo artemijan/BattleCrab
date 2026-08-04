@@ -350,6 +350,15 @@ fn datapack_skill_coverage_census() {
 /// adding a gap without recording it fails, and closing one without updating
 /// the number fails too — the same two-way discipline G34's close-out gate
 /// uses.
+///
+/// **This counts every `TODO(<tag>)` marker, not just the milestone ones.** It
+/// did not always: the scan looked for `TODO(G` and accepted only
+/// alphanumerics, `.`, `-` and `_` in the tag, so it silently dropped nine
+/// milestone markers written with a `+`, `?` or `/` suffix, and never saw the
+/// topic-tagged family at all. An inventory blind to 46 of its own subjects
+/// reports a number that only looks trustworthy, which is the exact failure
+/// this test exists to prevent — so the scan is now total and the allowlist,
+/// not the prefix, is what distinguishes a marker from prose about one.
 #[test]
 fn deferral_markers_match_the_recorded_inventory() {
     use std::collections::BTreeMap;
@@ -376,13 +385,23 @@ fn deferral_markers_match_the_recorded_inventory() {
                 let Ok(text) = std::fs::read_to_string(&path) else {
                     continue;
                 };
-                for (i, _) in text.match_indices("TODO(G") {
+                for (i, _) in text.match_indices("TODO(") {
                     let rest = &text[i + "TODO(".len()..];
                     if let Some(end) = rest.find(')') {
                         let tag = &rest[..end];
-                        if tag
-                            .chars()
-                            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
+                        // The allowlist is what separates a marker from prose
+                        // that merely mentions one. `+ ? /` are in it because
+                        // real markers use them ("G9+" = this milestone and
+                        // later, "G24/G26" = split across two); `<` `"` and
+                        // whitespace are out, which is what keeps this file's
+                        // own scanner literal and its `TODO(G<N>)` doc prose
+                        // from counting themselves. Never write a parseable
+                        // tag in prose — it will be counted.
+                        if !tag.is_empty()
+                            && tag.chars().all(|c| {
+                                c.is_ascii_alphanumeric()
+                                    || matches!(c, '.' | '-' | '_' | '+' | '?' | '/')
+                            })
                         {
                             *counts.entry(tag.to_owned()).or_default() += 1;
                         }
@@ -392,11 +411,19 @@ fn deferral_markers_match_the_recorded_inventory() {
         }
     }
 
-    // Sorted by milestone, as `docs/DEFERRALS.md` lists them. Update both
-    // together — the doc is the human-readable half of this assertion.
+    // Byte-sorted, as `BTreeMap` yields them and `docs/DEFERRALS.md` lists
+    // them. Update both together — the doc is the human-readable half of this
+    // assertion.
+    //
+    // Two families live here. Milestone tags (`G<N>`) are deferrals recorded
+    // against a shipped milestone's gate. Topic tags (lowercase) are the ones
+    // that never had a milestone to hang off — they are gaps just the same,
+    // and were invisible to this test until the scan widened past `TODO(G`.
     let expected: &[(&str, usize)] = &[
+        ("D4", 1),
         ("G-later", 1),
         ("G-pvp", 3),
+        ("G13+", 1),
         ("G14", 2),
         ("G15", 2),
         ("G15.5", 1),
@@ -404,23 +431,44 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("G18", 2),
         ("G18.6", 2),
         ("G19", 11),
+        ("G19+", 1),
         ("G20", 5),
         ("G21", 8),
+        ("G21+", 2),
         ("G22", 11),
         ("G23", 5),
         ("G24", 14),
         ("G24.5", 1),
+        ("G24/G26", 1),
         ("G25", 1),
         ("G26.5", 2),
         ("G27", 4),
         ("G28", 9),
         ("G29", 4),
+        ("G29+", 2),
         ("G30", 12),
         ("G32", 1),
         ("G33", 15),
         ("G34", 13),
         ("G7", 1),
         ("G7.5", 2),
+        ("G9+", 1),
+        ("G?", 1),
+        ("cinematic", 1),
+        ("cosmetic", 1),
+        ("dead", 6),
+        ("frintezza-4b", 1),
+        ("login-playauth", 2),
+        ("manor", 5),
+        ("newbie-guide", 2),
+        ("pets", 5),
+        ("q214-gargoyle-name", 1),
+        ("quests", 1),
+        ("radar", 3),
+        ("reco", 1),
+        ("saga", 1),
+        ("sieges", 1),
+        ("soul-crystal", 5),
     ];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected

@@ -658,7 +658,7 @@ fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
                     &server_packets::magic_skill_use_raw(src, src, FIRST_MORPH_SKILL, 1, 1000),
                 );
             }
-            // TODO(frintezza slice 4b): playRandomSong here.
+            // TODO(frintezza-4b): playRandomSong here.
         }
         // SCARLET_SECOND_MORPH: freeze the party, then replace Scarlet1 with its
         // final form at the same spot.

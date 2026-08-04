@@ -1,12 +1,15 @@
-# Recorded deferrals — the `TODO(G<N>)` inventory
+# Recorded deferrals — the `TODO(<tag>)` inventory
 
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **134** such
+of narrow behaviours deferred and marked at the site. There are **180** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
+
+Because every milestone row is now ✅, this residue **is** the remaining work on
+the port. The list below is the backlog, not a footnote to it.
 
 This file is that missing half — generated from the code, not written by hand,
 so it cannot drift into fiction the way prose does.
@@ -38,41 +41,71 @@ and left this specific thing", which is the intended end state, not a
 contradiction.
 
 The count is asserted by `deferral_markers_match_the_recorded_inventory` in
-`crates/gameserver/src/data/skill_data.rs`. It moves only when someone changes
-it deliberately: adding a gap without recording it fails, and closing one
-without updating the number fails too — the same two-way discipline G34's
-close-out gate uses.
+`crates/gameserver/src/data/skill_data/coverage_census.rs`. It moves only when
+someone changes it deliberately: adding a gap without recording it fails, and
+closing one without updating the number fails too — the same two-way discipline
+G34's close-out gate uses.
+
+Markers come in two families. **Milestone tags** (`G<N>`) hang off a shipped
+milestone's gate. **Topic tags** (lowercase — `pets`, `manor`, `radar`, …) are
+gaps that never had a milestone to hang off; they are deferrals just the same.
+A tag must parse as alphanumerics plus `. - _ + ? /` — no spaces, no `<`, no
+quotes — or the scanner cannot see it. That is also why prose in a `.rs` file
+must never spell a *parseable* tag: it would be counted as a marker.
 
 ## Inventory
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G33)` | 15 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, +9 more |
-| `TODO(G24)` | 14 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +4 more |
-| `TODO(G34)` | 13 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
-| `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, +2 more |
-| `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects.rs`, +4 more |
-| `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, +5 more |
+| `TODO(G33)` | 15 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, `game_loop/admin/transforms.rs`, `game_loop/chat.rs`, `game_loop/combat/intent.rs`, `game_loop/death/restart.rs`, `game_loop/dispatch.rs`, `game_loop/offline_trade.rs`, `game_loop/party.rs`, `game_loop/position.rs`, `game_loop/servitor.rs` |
+| `TODO(G24)` | 14 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans/membership.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs`, `model/skill.rs`, `scripts/q00234_fates_whisper.rs` |
+| `TODO(G34)` | 13 | `data/skill_data/build.rs`, `game_loop/death/player_death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/conditions.rs`, `game_loop/skills/effects/control.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/skills/effects/ticks.rs`, `game_loop/skills/instant.rs` |
+| `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data/coverage_census.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, `model/skill.rs`, `network/client_packets.rs` |
+| `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/tests/mana_restore_tests.rs`, `model/mod.rs`, `model/skill.rs`, `network/enter_world.rs` |
+| `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, `scripts/primeval_isle.rs`, `scripts/q00224_test_of_sagittarius.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
 | `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
-| `TODO(G20)` | 5 | `data/skill_data.rs`, `game_loop/combat.rs`, `game_loop/duel.rs`, `game_loop/skills/effects.rs`, +1 more |
+| `TODO(dead)` | 6 | `scripts/q00414_path_of_the_orc_raider.rs`, `scripts/q00415_path_of_the_orc_monk.rs`, `scripts/q00416_path_of_the_orc_shaman.rs` |
+| `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
+| `TODO(manor)` | 5 | `game_loop/manor.rs`, `game_loop/skills/effects/gathering.rs` |
+| `TODO(pets)` | 5 | `scripts/q00421_little_wings_big_adventure.rs` |
+| `TODO(soul-crystal)` | 5 | `game_loop/skills/cast.rs`, `scripts/q00350_enhance_your_weapon.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
-| `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death.rs`, `game_loop/tests/servitor_tests.rs` |
-| `TODO(G-pvp)` | 3 | `data/skill_data.rs`, `game_loop/skills/effects.rs`, `model/skill.rs` |
+| `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
+| `TODO(G-pvp)` | 3 | `data/skill_data/build.rs`, `game_loop/skills/effects/mod.rs`, `model/skill.rs` |
+| `TODO(radar)` | 3 | `scripts/q00348_an_arrogant_search.rs` |
 | `TODO(G14)` | 2 | `config/general.rs`, `model/mod.rs` |
-| `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects.rs` |
+| `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects/gathering.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
-| `TODO(G18)` | 2 | `game_loop/death.rs`, `game_loop/pvp.rs` |
-| `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans.rs` |
+| `TODO(G18)` | 2 | `game_loop/death/rewards.rs`, `game_loop/pvp.rs` |
+| `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans/membership.rs` |
+| `TODO(G21+)` | 2 | `model/skill.rs`, `scripts/q00414_path_of_the_orc_raider.rs` |
 | `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
-| `TODO(G7.5)` | 2 | `data/skill_data.rs` |
+| `TODO(G29+)` | 2 | `model/components.rs`, `network/enter_world.rs` |
+| `TODO(G7.5)` | 2 | `data/skill_data/build.rs` |
+| `TODO(login-playauth)` | 2 | `tests/e2e_create.rs` |
+| `TODO(newbie-guide)` | 2 | `scripts/q00261_collectors_dream.rs`, `scripts/q00276_totem_of_the_hestui.rs` |
+| `TODO(cinematic)` | 1 | `scripts/q00235_mimirs_elixir.rs` |
+| `TODO(cosmetic)` | 1 | `scripts/q00125_the_name_of_evil_1.rs` |
+| `TODO(D4)` | 1 | `dashboard_api: routes/status.rs` |
+| `TODO(frintezza-4b)` | 1 | `game_loop/frintezza.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
+| `TODO(G?)` | 1 | `model/mod.rs` |
+| `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
+| `TODO(G19+)` | 1 | `data/skill_data/build.rs` |
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
+| `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
+| `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
+| `TODO(q214-gargoyle-name)` | 1 | `scripts/q00214_trial_of_the_scholar.rs` |
+| `TODO(quests)` | 1 | `scripts/q00641_attack_sailren.rs` |
+| `TODO(reco)` | 1 | `game_loop/reco.rs` |
+| `TODO(saga)` | 1 | `scripts/saga.rs` |
+| `TODO(sieges)` | 1 | `network/server_packets/residence.rs` |
 
 **First use, 2026-08-03.** Triaging the 15 `TODO(G33)` markers against the code
 found two describing work that is **already done**:
@@ -216,9 +249,42 @@ Module headers are where those live, which makes them the place to look first.
   between a swing's start and its hit tick still lets that hit land
   (`game_loop/skills/effects.rs`, `apply_block_actions_interrupt`).
 
+**Seventh pass, 2026-08-05: the counter could not see 46 of its own subjects.**
+Every pass above triaged markers the inventory *knew about*. This one audited
+the inventory itself, and found the number it asserts — 134 — was never the
+number in the code. It was 180.
+
+The scan looked for the literal `TODO(G` and accepted only alphanumerics, `.`,
+`-` and `_` in a tag. Two families fell through:
+
+- **Nine milestone markers** written with a `+`, `?` or `/` suffix — `G9+`,
+  `G13+`, `G19+`, `G21+` (×2), `G29+` (×2), `G?`, `G24/G26`. Every one is a
+  deliberate, correctly-placed deferral. The tag simply failed the character
+  allowlist, so it was dropped in silence.
+- **Thirty-seven topic-tagged markers** — `pets`, `manor`, `soul-crystal`,
+  `radar`, `dead`, `login-playauth` and the rest — which never matched the
+  `TODO(G` prefix at all, so no version of this file ever listed them.
+
+The `Regenerating` recipe below had the identical blind spot (it required a
+`)` immediately after `[0-9._a-z-]*`), which is why the doc and the test agreed
+with each other and both disagreed with the code. **Two artefacts derived from
+the same wrong assumption do not cross-check each other** — that is the lesson
+worth keeping, and it is a sharper version of the one this file opens with.
+
+The fix widens the scan to every `TODO(<tag>)` and moves the burden onto the
+allowlist: `+ ? /` are now legal tag characters, `<`, quotes and whitespace are
+not. One marker was renamed to comply (`frintezza slice 4b` → `frintezza-4b`;
+a tag cannot contain spaces). The widened scan immediately caught a parseable
+tag written inside a doc comment in its own source file, which is the intended
+behaviour and the reason that constraint is documented above.
+
+No marker was closed by this pass and none was stale — 134 → 180 is a
+correction to the *count*, not a regression in the code. The port did not get
+worse; the ledger got honest.
+
 ## Regenerating
 
 ```sh
-grep -rn -oE 'TODO\(G[0-9._a-z-]*\)' crates/ | \
+grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
   awk -F: '{print $3}' | sort | uniq -c | sort -rn
 ```
