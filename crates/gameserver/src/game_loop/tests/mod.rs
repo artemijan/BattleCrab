@@ -760,6 +760,25 @@ fn cast_test_world() -> (
             qualifier: None,
             two_handed: false,
         })],
+        ..base.clone()
+    });
+    // Venomous Poison — a *monster* skill, seeded here because quest 421's
+    // trees cast it for real. `SkillData::empty()` means an unregistered id
+    // makes `npc_cast` return false and emit nothing, which is
+    // indistinguishable from a working port that simply did not fire. Any
+    // test asserting an NPC cast needs its skill present.
+    data.skill_data.insert_for_test(Skill {
+        id: 4243,
+        name: "Venomous Poison".into(),
+        target_type: TargetType::EnemyOnly,
+        abnormal_time: 30,
+        abnormal_type: "POISON".into(),
+        is_debuff: true,
+        effects: vec![SkillEffect::DamOverTime {
+            power: 10.0,
+            ticks: 5,
+            can_kill: false,
+        }],
         ..base
     });
 

@@ -48,6 +48,17 @@ const TREE_OF_STAR: i32 = 27186;
 const TREE_OF_TWILIGHT: i32 = 27187;
 const TREE_OF_ABYSS: i32 = 27188;
 const SOUL_OF_TREE_GUARDIAN: i32 = 27189;
+
+// Skills the trees and Mimyu cast (Java's `SkillHolder` constants).
+/// Mimyu's rebuke to a player presenting the wrong flute.
+const CURSE_OF_MIMYU: i32 = 4167;
+/// The trees' retaliation poison.
+const VICIOUS_POISON: i32 = 4243;
+/// The Tree of Abyss's root. **Level 33, not 1** — Java's `SkillHolder`
+/// carries the level and it is what sets the root's strength, so a level-1
+/// cast here would be a quietly weaker skill.
+const DRYAD_ROOT: i32 = 1201;
+const DRYAD_ROOT_LEVEL: i32 = 33;
 const TREES: [i32; 4] = [TREE_OF_WIND, TREE_OF_STAR, TREE_OF_TWILIGHT, TREE_OF_ABYSS];
 // Rewards (the grown strider's whistle)
 const DRAGON_BUGLE_OF_WIND: i32 = 4422;
@@ -276,7 +287,8 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
                     } else {
                         // A *different* flute than the one the rite was bound to
                         // — Mimyu curses the impostor.
-                        // TODO(pets): cast Curse of Mimyu (4167) on the talker.
+                        let (npc, player) = (ctx.npc, ctx.player);
+                        ctx.npc_cast(npc, player, CURSE_OF_MIMYU, 1);
                         Some("30747-18.html".to_string())
                     }
                 }
@@ -288,8 +300,13 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
 
     fn on_attack(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || ctx.cond() != 2 {
-            // Below-two-thirds HP, a tree still spits poison at any attacker.
-            // TODO(pets): cast Vicious Poison (4243) when hp < 67% and roll < 30.
+            // Below two-thirds HP a tree spits poison at any attacker, quest or
+            // no quest. Java evaluates the HP test *before* the roll, so a
+            // healthy tree consumes no random value — keep that order.
+            if ctx.npc_hp_ratio() < 0.67 && ctx.roll(100) < 30 {
+                let (npc, player) = (ctx.npc, ctx.player);
+                ctx.npc_cast(npc, player, VICIOUS_POISON, 1);
+            }
             return;
         }
         let Some((memo_mod, memo_value, min_hits, taunt)) = tree_data(ctx.npc_id) else {
@@ -297,8 +314,12 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
         };
         if !ctx.attack_is_summon() {
             // The player struck the tree themselves — no progress; the tree may
-            // retaliate with poison.
-            // TODO(pets): cast Vicious Poison (4243) on the player when roll < 30.
+            // retaliate with poison. Note this arm has no HP gate: on-quest,
+            // a full-health tree still retaliates.
+            if ctx.roll(100) < 30 {
+                let (npc, player) = (ctx.npc, ctx.player);
+                ctx.npc_cast(npc, player, VICIOUS_POISON, 1);
+            }
             return;
         }
         // Has this tree already been drunk from? (its bit already set)
@@ -320,7 +341,13 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
         let hits = ctx.get_int("hits") + 1;
         ctx.set_var("hits", hits.to_string());
         if hits < min_hits {
-            // TODO(pets): Tree of Abyss casts Dryad Root (1201) on a 2% roll here.
+            // Only the Tree of Abyss roots, and only on a 2% roll. Dryad Root
+            // is cast at level 33, not 1 — Java's SkillHolder says so, and the
+            // level sets the root's strength.
+            if ctx.npc_id == TREE_OF_ABYSS && ctx.roll(100) < 2 {
+                let (npc, player) = (ctx.npc, ctx.player);
+                ctx.npc_cast(npc, player, DRYAD_ROOT, DRYAD_ROOT_LEVEL);
+            }
             return;
         }
         // Past the threshold: a 2% chance per drink to actually take an essence,
@@ -373,12 +400,17 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
         if !within {
             return;
         }
-        for _ in 0..20 {
+        for i in 0..20 {
             if let Some(guardian) = ctx.spawn_attacker(SOUL_OF_TREE_GUARDIAN, true) {
                 ctx.schedule_despawn(guardian, GUARDIAN_DESPAWN_MS);
             }
+            // Java casts inside the loop on the *first* pass — as the first
+            // guardian appears, not after all twenty. The dying tree gets one
+            // parting shot at its killer.
+            if i == 0 {
+                let (npc, player) = (ctx.npc, ctx.player);
+                ctx.npc_cast(npc, player, VICIOUS_POISON, 1);
+            }
         }
-        // TODO(pets): the tree itself casts Vicious Poison (4243) on the killer
-        // as the first guardian appears.
     }
 }

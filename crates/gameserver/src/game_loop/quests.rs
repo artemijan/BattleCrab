@@ -1463,6 +1463,54 @@ impl<'w> QuestCtx<'w> {
         super::npc_ai::seed_attack(self.world, npc_oid, target_oid);
     }
 
+    /// `npc.getCurrentHp() / npc.getMaxHp()` for the in-context NPC, as a
+    /// fraction in `0.0..=1.0`. A missing or zero-max target reads as full
+    /// health, so an HP *threshold* test fails closed rather than firing on
+    /// every NPC the script cannot see.
+    pub fn npc_hp_ratio(&self) -> f64 {
+        self.world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&self.npc)
+            .filter(|v| v.max_hp > 0)
+            .map(|v| v.cur_hp / f64::from(v.max_hp))
+            .unwrap_or(1.0)
+    }
+
+    /// `npc.setTarget(target); npc.doCast(skill)` — a **real** cast by an NPC,
+    /// with the skill's effects, not just its animation.
+    ///
+    /// The counterpart to [`cast_visual_at`], and the difference is the whole
+    /// point: `cast_visual_at` broadcasts a `MagicSkillUse` and nothing
+    /// happens, while this routes through the same `npc_cast::start_cast` the
+    /// boss AIs use, so the target really is rooted / poisoned / cursed. Reach
+    /// for the visual one only where Java's call is a bare `broadcastPacket`.
+    ///
+    /// Returns whether the cast started. It will not when the skill id is
+    /// absent from the datapack or `check_use_conditions` refuses — Java's
+    /// `doCast` runs its own checks and quietly does nothing on failure, so a
+    /// caller that ignores the result matches it.
+    ///
+    /// [`cast_visual_at`]: QuestCtx::cast_visual_at
+    pub fn npc_cast(
+        &mut self,
+        caster_oid: i32,
+        target_oid: i32,
+        skill_id: i32,
+        level: i32,
+    ) -> bool {
+        if self.simulated {
+            return false;
+        }
+        let Some(skill) = self.world.data.skill_data.get(skill_id, level).cloned() else {
+            return false;
+        };
+        if !super::npc_cast::check_use_conditions_pub(self.world, caster_oid, &skill) {
+            return false;
+        }
+        super::npc_cast::start_cast(self.world, caster_oid, target_oid, &skill);
+        true
+    }
+
     /// `<caster>.broadcastPacket(new MagicSkillUse(caster, target, skillId,
     /// level, hitTime, reuse))` — one visual cast from `caster_oid` aimed at
     /// `target_oid`, shown to everyone nearby.

@@ -18805,7 +18805,7 @@ fn quest_q00421_guardian_ambush_despawns() {
     }
     let tree = NPC_OID;
     add_test_npc(&mut world, tree, TREE, "Monster", 60, 300, 300, 0);
-    let _rx = ingame_player(&mut world, 1, 3001, 300, 300, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 300, 300, 0);
     let q = "Q00421_LittleWingsBigAdventure";
     {
         let quests = world.objects.get_component_mut::<Quests>(&3001).unwrap();
@@ -18818,11 +18818,33 @@ fn quest_q00421_guardian_ambush_despawns() {
     // standalone `FairyTrees` script swarms the same trees with 20 more (Java
     // registers both scripts on this kill), so 40 appear; theirs last 30 s,
     // this quest's 5 minutes.
+    drain(&mut rx);
     combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0, false);
     assert_eq!(
         npcs_of(&mut world, GUARDIAN).len(),
         40,
         "20 Guardian Ghosts from the quest + 20 from ai/others/FairyTrees"
+    );
+
+    // The dying tree's parting shot: `npc.doCast(VICIOUS_POISON)` as the first
+    // guardian appears. This is a *real* cast, so assert the wire rather than
+    // trusting the call — `npc_cast` returns false and does nothing when the
+    // skill id is absent or the use-conditions refuse, and a silent no-op here
+    // would look exactly like a working port.
+    let cast_skills: Vec<i32> = drain(&mut rx)
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
+        .map(|p| {
+            let mut r = commons::network::PacketReader::new(&p[1..]);
+            for _ in 0..3 {
+                let _ = r.read_i32(); // cast bar, caster, target
+            }
+            r.read_i32().unwrap() // skill id
+        })
+        .collect();
+    assert!(
+        cast_skills.contains(&4243),
+        "the tree casts Venomous Poison on its killer: {cast_skills:?}"
     );
 
     // After 30 s the FairyTrees half is gone and the quest's ambush remains.
