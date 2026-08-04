@@ -24,4 +24,6 @@ crates/launcher/.env
 # client itself is ignored at the top of this file; both are bulk NCsoft data,
 # not ours to redistribute.
 dist/client/system_decrypted
+dist/client/system_encrypted
+dist/client/system_roundtrip
 

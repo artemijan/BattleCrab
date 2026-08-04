@@ -166,8 +166,23 @@ fn read_field(cur: &mut Cursor, field: Field) -> Result<Value, String> {
     })
 }
 
+/// Marks a string the client stored as UTF-16 though it would fit in single
+/// bytes. Emitted as `w[…]`.
+pub(crate) const WIDE: char = '\u{1}';
+/// Marks a `UNICODE` string whose stored byte count does *not* include a
+/// terminator. Emitted as `n[…]`.
+pub(crate) const NO_TERMINATOR: char = '\u{2}';
+/// Marks an `ASCF` stored as length 1 — a terminator and no content, which is
+/// not the same file as length 0. Emitted as `z[…]`.
+pub(crate) const BARE_TERMINATOR: char = '\u{3}';
+
 /// Compact-length string. A negative length means UTF-16LE and `-2 * len`
 /// bytes; the stored length counts the terminator, which is dropped.
+///
+/// Lengths 0 and 1 both read as the empty string — nothing at all, versus a
+/// lone terminator — so length 1 keeps the [`BARE_TERMINATOR`] mark. Without
+/// it `EULA-eu.dat`, which is four of these, loses a byte per string every
+/// time it is packed.
 fn read_ascf(cur: &mut Cursor) -> Result<String, String> {
     let len = cur.compact()?;
     if len == 0 {
@@ -179,17 +194,28 @@ fn read_ascf(cur: &mut Cursor) -> Result<String, String> {
     }
     let bytes = cur.take(size as usize)?;
     Ok(if len > 0 {
-        decode_latin1(&bytes[..bytes.len().saturating_sub(1)])
+        let body = decode_latin1(&bytes[..bytes.len().saturating_sub(1)]);
+        if body.is_empty() {
+            BARE_TERMINATOR.to_string()
+        } else {
+            body
+        }
     } else {
         // Prefix retained by the caller so packing can reproduce the width.
         format!(
-            "\u{1}{}",
+            "{WIDE}{}",
             decode_utf16le(&bytes[..bytes.len().saturating_sub(2)])
         )
     })
 }
 
 /// `int32` byte count, then UTF-16 stored as byte-swapped pairs.
+///
+/// Whether that count includes a terminator is not fixed by the format: most
+/// files store one, `L2GameDataName.dat` stores none, and the two read back as
+/// the same text. So the terminator-less form keeps the [`NO_TERMINATOR`]
+/// mark, exactly as a wide `ASCF` keeps [`WIDE`] — otherwise packing grows
+/// every one of that file's 91,155 names by two bytes.
 fn read_unicode(cur: &mut Cursor) -> Result<String, String> {
     let size = i32::from_le_bytes(cur.take(4)?.try_into().unwrap()) as i64;
     if size <= 0 {
@@ -203,14 +229,18 @@ fn read_unicode(cur: &mut Cursor) -> Result<String, String> {
     for pair in swapped.chunks_exact_mut(2) {
         pair.swap(0, 1);
     }
-    // The pairs were stored big-endian-first, so swapping yields UTF-16BE;
-    // decode accordingly and drop the terminator.
+    // The pairs were stored big-endian-first, so swapping yields UTF-16BE.
     let units: Vec<u16> = swapped
         .chunks_exact(2)
         .map(|p| u16::from_be_bytes([p[0], p[1]]))
         .collect();
     let s = String::from_utf16_lossy(&units);
-    Ok(s.trim_end_matches('\0').to_string())
+    // Exactly one terminator comes off, not every trailing NUL: a name that
+    // really ends in one has to keep it to come back the same size.
+    Ok(match s.strip_suffix('\0') {
+        Some(body) => body.to_string(),
+        None => format!("{NO_TERMINATOR}{s}"),
+    })
 }
 
 fn decode_latin1(b: &[u8]) -> String {
@@ -402,11 +432,16 @@ impl Walker<'_> {
                     return Ok(());
                 }
                 let token = match (&value, field) {
+                    // The leading mark, when there is one, says how the client
+                    // stored this string; the text alone cannot.
                     (Value::Str(s), Field::Ascf | Field::Unicode) => {
-                        match s.strip_prefix('\u{1}') {
-                            Some(wide) => format!("w[{}]", escape_string(wide)),
-                            None => format!("[{}]", escape_string(s)),
-                        }
+                        let (prefix, body) = match s.chars().next() {
+                            Some(WIDE) => ("w", &s[WIDE.len_utf8()..]),
+                            Some(NO_TERMINATOR) => ("n", &s[NO_TERMINATOR.len_utf8()..]),
+                            Some(BARE_TERMINATOR) => ("z", &s[BARE_TERMINATOR.len_utf8()..]),
+                            _ => ("", s.as_str()),
+                        };
+                        format!("{prefix}[{}]", escape_string(body))
                     }
                     (Value::Str(s), _) => s.clone(),
                     (Value::Int(i), _) => enum_name

@@ -12,5 +12,6 @@
 pub mod client_dat;
 pub mod dat_text;
 pub mod msg_color;
+pub mod progress;
 pub mod spawn_pockets;
 pub mod sync_messages;

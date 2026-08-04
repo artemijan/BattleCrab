@@ -90,6 +90,26 @@ impl Report {
     }
 }
 
+/// Watches a run file by file, so a caller can draw a progress bar.
+///
+/// Deliberately push-only and infallible: a display that cannot keep up, or a
+/// terminal that has gone away, must never be able to fail a conversion. The
+/// no-op implementation on `()` is what keeps the library silent by default.
+pub trait Observer {
+    /// Once, before the first file.
+    fn begin(&mut self, total: usize) {
+        let _ = total;
+    }
+    /// About to convert `file`, with `done` files already behind it.
+    fn step(&mut self, done: usize, total: usize, file: &str) {
+        let _ = (done, total, file);
+    }
+    /// Once, after the last file.
+    fn finish(&mut self) {}
+}
+
+impl Observer for () {}
+
 fn in_scope(path: &Path) -> bool {
     path.extension()
         .and_then(|e| e.to_str())
@@ -107,7 +127,11 @@ fn list(dir: &Path) -> Result<Vec<PathBuf>, String> {
 }
 
 /// `system` -> `system_decrypted`, as text wherever text is possible.
-pub fn decrypt(set: &mut SchemaSet, cfg: &Config) -> Result<Report, String> {
+pub fn decrypt(
+    set: &mut SchemaSet,
+    cfg: &Config,
+    obs: &mut dyn Observer,
+) -> Result<Report, String> {
     let files = list(cfg.system_dir)?;
     std::fs::create_dir_all(cfg.decrypted_dir)
         .map_err(|e| format!("cannot create {}: {e}", cfg.decrypted_dir.display()))?;
@@ -117,12 +141,15 @@ pub fn decrypt(set: &mut SchemaSet, cfg: &Config) -> Result<Report, String> {
     let mut entries = Vec::new();
     let mut skipped = Vec::new();
 
-    for path in files {
+    let total = files.len();
+    obs.begin(total);
+    for (done, path) in files.into_iter().enumerate() {
         let name = path
             .file_name()
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
+        obs.step(done, total, &name);
         let raw = match std::fs::read(&path) {
             Ok(d) => d,
             Err(e) => {
@@ -204,6 +231,8 @@ pub fn decrypt(set: &mut SchemaSet, cfg: &Config) -> Result<Report, String> {
         });
     }
 
+    obs.finish();
+
     let text = serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?;
     std::fs::write(cfg.decrypted_dir.join(MANIFEST_NAME), text + "\n")
         .map_err(|e| format!("cannot write manifest: {e}"))?;
@@ -237,7 +266,11 @@ fn unpack(
 }
 
 /// `system_decrypted` -> `system`, re-applying whatever each file needs.
-pub fn encrypt(set: &mut SchemaSet, cfg: &Config) -> Result<Report, String> {
+pub fn encrypt(
+    set: &mut SchemaSet,
+    cfg: &Config,
+    obs: &mut dyn Observer,
+) -> Result<Report, String> {
     let manifest_path = cfg.decrypted_dir.join(MANIFEST_NAME);
     let manifest: BTreeMap<String, Record> =
         serde_json::from_str(&std::fs::read_to_string(&manifest_path).map_err(|e| {
@@ -255,12 +288,16 @@ pub fn encrypt(set: &mut SchemaSet, cfg: &Config) -> Result<Report, String> {
     let mut entries = Vec::new();
     let mut skipped = Vec::new();
 
-    for path in list(cfg.decrypted_dir)? {
+    let files = list(cfg.decrypted_dir)?;
+    let total = files.len();
+    obs.begin(total);
+    for (done, path) in files.into_iter().enumerate() {
         let name = path
             .file_name()
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
+        obs.step(done, total, &name);
         let Some(record) = manifest.get(&name) else {
             // Not something decrypt produced; saying so beats guessing a
             // cipher and writing a file the client cannot read.
@@ -296,6 +333,7 @@ pub fn encrypt(set: &mut SchemaSet, cfg: &Config) -> Result<Report, String> {
             error: result.err(),
         });
     }
+    obs.finish();
 
     Ok(Report { entries, skipped })
 }
@@ -319,12 +357,16 @@ fn pack(
         candidates.sort_by_key(|(label, _)| label != want);
     }
 
-    let mut last = "no layout packed this file".to_string();
+    // Report the *first* candidate's failure, not the last. Candidates lead
+    // with the layout that unpacked this file, so its error is the one worth
+    // reading; a later chronicle's layout failing on some unrelated field only
+    // sends the reader hunting through the wrong schema.
+    let mut first: Option<String> = None;
     for (_label, layout) in candidates {
         let bytes = match dat_pack::pack(&text, &layout) {
             Ok(b) => b,
             Err(e) => {
-                last = e;
+                first.get_or_insert(e);
                 continue;
             }
         };
@@ -334,7 +376,7 @@ fn pack(
         if back.exact() && back.text.trim_end() == text.trim_end() {
             return Ok(bytes);
         }
-        last = "packed bytes did not re-read as the same text".to_string();
+        first.get_or_insert_with(|| "packed bytes did not re-read as the same text".to_string());
     }
-    Err(last)
+    Err(first.unwrap_or_else(|| "no layout packed this file".to_string()))
 }
