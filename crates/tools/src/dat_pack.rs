@@ -14,6 +14,14 @@
 //! the records that actually follow, so a hand edit that adds or deletes rows
 //! cannot desynchronise the file.
 //!
+//! Counting is by label: a cycle's records are the `<name>_begin` blocks that
+//! follow. Two *sibling* cycles can share both a name and a count field, though
+//! — `MTX3_NEW` reads N meshes and then N value pairs, both under
+//! `for_mtx3_size_1_` — and then the labels alone cannot say where one cycle's
+//! records stop and the next one's start. Such a run is counted as a whole and
+//! split evenly between its cycles, which is exactly what sharing one `#size`
+//! means. See [`Packer::walk_shared_run`].
+//!
 //! # The one lossy case
 //!
 //! The reader brackets strings as `[text]` without escaping a `]` inside them,
@@ -42,7 +50,7 @@ struct Packer<'a> {
     vars: HashMap<String, String>,
     /// Field type of each filled hole, so a second cycle sharing that count
     /// can re-encode its own tally and compare.
-    hole_fields: HashMap<String, Field>,
+    hole_fields: HashMap<usize, Field>,
 }
 
 /// Rebuild the `.dat` body for `text` under `layout`.
@@ -113,8 +121,17 @@ impl Packer<'_> {
                     return Err(format!("expected `{want}`, found `{got}`"));
                 }
             }
-            for node in nodes {
-                self.walk_node(node)?;
+            let mut i = 0;
+            while i < nodes.len() {
+                // Sibling cycles that share a label are indistinguishable in
+                // the text, so they are counted together rather than one by one.
+                let run = shared_label_run(nodes, i);
+                if run > 1 {
+                    self.walk_shared_run(&nodes[i..i + run])?;
+                } else {
+                    self.walk_node(&nodes[i])?;
+                }
+                i += run;
             }
             if let Some(name) = cycle_name {
                 let want = format!("{name}_end");
@@ -232,6 +249,71 @@ impl Packer<'_> {
         Ok(())
     }
 
+    /// How many balanced `<name>_begin … <name>_end` blocks sit at the cursor.
+    ///
+    /// Matched by depth rather than by counting `_begin` tokens, so a cycle
+    /// nested inside a record under the same name cannot inflate the tally.
+    fn count_blocks(&self, name: &str) -> i64 {
+        let begin = format!("{name}_begin");
+        let end = format!("{name}_end");
+        let mut pos = self.pos;
+        let mut blocks = 0;
+        while self.tokens.get(pos).is_some_and(|t| *t == begin) {
+            let mut depth = 0usize;
+            loop {
+                match self.tokens.get(pos) {
+                    Some(t) if *t == begin => depth += 1,
+                    Some(t) if *t == end => {
+                        depth -= 1;
+                        if depth == 0 {
+                            pos += 1;
+                            break;
+                        }
+                    }
+                    Some(_) => {}
+                    // Unbalanced text. Stop here and let the walk itself report
+                    // it against the field that actually goes wrong.
+                    None => return blocks,
+                }
+                pos += 1;
+            }
+            blocks += 1;
+        }
+        blocks
+    }
+
+    /// Walk a run of sibling cycles that share one label and one count field.
+    ///
+    /// Sharing `size="#n"` means every cycle in the run has the same length, so
+    /// the run's blocks divide evenly between them — that division is the only
+    /// thing that can tell the cycles apart, since their labels cannot.
+    fn walk_shared_run(&mut self, run: &[Node]) -> Result<(), String> {
+        let (name, var) = match &run[0] {
+            Node::Cycle {
+                name,
+                count: Count::Var(var),
+                ..
+            } => (name, var),
+            _ => unreachable!("shared_label_run only groups Count::Var cycles"),
+        };
+        let total = self.count_blocks(name);
+        let parts = run.len() as i64;
+        if total % parts != 0 {
+            return Err(format!(
+                "{parts} cycles named `{name}` share the count field `{var}`, so they must \
+                 have equal lengths, but the text has {total} records to divide between them"
+            ));
+        }
+        let each = total / parts;
+        for node in run {
+            let Node::Cycle { children, .. } = node else {
+                unreachable!("shared_label_run only groups cycles")
+            };
+            self.walk(children, each, Some(name))?;
+        }
+        self.fill_count(var, each)
+    }
+
     fn fill_count(&mut self, var: &str, count: i64) -> Result<(), String> {
         let index = self
             .holes
@@ -244,8 +326,12 @@ impl Packer<'_> {
         let field = match &self.chunks[index] {
             Chunk::Hole(f) => *f,
             Chunk::Bytes(existing) => {
-                let want = encode_int(count, self.hole_fields[&index.to_string()])?;
-                if *existing != want {
+                let field = self
+                    .hole_fields
+                    .get(&index)
+                    .copied()
+                    .ok_or_else(|| format!("count field `{var}` was filled without a type"))?;
+                if *existing != encode_int(count, field)? {
                     return Err(format!(
                         "count field `{var}` is shared by cycles of different lengths"
                     ));
@@ -253,11 +339,35 @@ impl Packer<'_> {
                 return Ok(());
             }
         };
-        self.hole_fields.insert(index.to_string(), field);
+        self.hole_fields.insert(index, field);
         self.chunks[index] = Chunk::Bytes(encode_int(count, field)?);
         self.vars.insert(var.to_string(), count.to_string());
         Ok(())
     }
+}
+
+/// How many cycles starting at `nodes[start]` are siblings sharing one label
+/// and one count field. Anything else — including a lone cycle — is 1.
+///
+/// Only a shared *name* makes the text ambiguous; the many `skipWriteSize`
+/// cycles in `weapongrp` share `#Enchanted` under distinct names, so each still
+/// counts its own blocks and [`Packer::fill_count`] just checks they agree.
+fn shared_label_run(nodes: &[Node], start: usize) -> usize {
+    let Some(Node::Cycle {
+        name,
+        count: Count::Var(var),
+        ..
+    }) = nodes.get(start)
+    else {
+        return 1;
+    };
+    nodes[start..]
+        .iter()
+        .take_while(|n| {
+            matches!(n, Node::Cycle { name: n2, count: Count::Var(v2), .. }
+                if n2 == name && v2 == var)
+        })
+        .count()
 }
 
 fn encode_int(value: i64, field: Field) -> Result<Vec<u8>, String> {
@@ -441,6 +551,110 @@ pub fn pack_dir(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn value(name: &str, field: Field, iterator: bool) -> Node {
+        Node::Value {
+            name: name.to_string(),
+            field,
+            hidden: false,
+            enum_name: None,
+            iterator,
+        }
+    }
+
+    fn cycle(name: &str, var: &str, children: Vec<Node>) -> Node {
+        Node::Cycle {
+            name: name.to_string(),
+            count: Count::Var(var.to_string()),
+            hidden: false,
+            children,
+        }
+    }
+
+    /// The shape `MTX3_NEW2` has: one count, then two cycles under one label —
+    /// N meshes and then N value pairs.
+    fn mtx3_shaped_layout() -> Layout {
+        Layout {
+            version: "test".to_string(),
+            safe_package: false,
+            nodes: vec![
+                value("size", Field::UChar, true),
+                cycle("grp", "size", vec![value("mesh", Field::MapInt, false)]),
+                cycle(
+                    "grp",
+                    "size",
+                    vec![
+                        value("v1", Field::UChar, false),
+                        value("v2", Field::UChar, false),
+                    ],
+                ),
+            ],
+        }
+    }
+
+    /// Both cycles print `grp_begin`/`grp_end`, so the labels alone cannot say
+    /// where the first cycle's records stop. Counting the run as a whole and
+    /// halving it is what keeps such a file packable at all — greedily giving
+    /// every block to the first cycle derails on the second cycle's extra
+    /// field.
+    #[test]
+    fn sibling_cycles_sharing_a_label_split_their_records() {
+        let layout = mtx3_shaped_layout();
+        // Exactly what the reader emits: one record per line.
+        let text = "grp_begin\t11\tgrp_end\r\ngrp_begin\t12\tgrp_end\r\n\
+                    grp_begin\t1\t2\tgrp_end\r\ngrp_begin\t3\t4\tgrp_end";
+        let bytes = pack(text, &layout).expect("packs");
+
+        let mut want = vec![2u8]; // the recomputed count, shared by both cycles
+        want.extend_from_slice(&11i32.to_le_bytes());
+        want.extend_from_slice(&12i32.to_le_bytes());
+        want.extend_from_slice(&[1, 2, 3, 4]);
+        assert_eq!(bytes, want);
+
+        // And it is a genuine round trip: the reader gives the text back.
+        let back = crate::dat_text::read(&bytes, &layout, &HashMap::new(), false);
+        assert!(back.exact(), "{}", back.summary());
+        assert_eq!(back.text, text);
+    }
+
+    /// An empty run still has to fill the shared count with zero.
+    #[test]
+    fn sibling_cycles_sharing_a_label_handle_no_records() {
+        let bytes = pack("", &mtx3_shaped_layout()).expect("packs");
+        assert_eq!(bytes, vec![0u8]);
+    }
+
+    /// One `#size` cannot describe cycles of different lengths, so an edit that
+    /// leaves an odd number of records is refused rather than silently split.
+    #[test]
+    fn sibling_cycles_reject_records_that_do_not_divide_evenly() {
+        let text = "grp_begin\t11\tgrp_end\tgrp_begin\t1\t2\tgrp_end\tgrp_begin\t3\t4\tgrp_end";
+        let err = pack(text, &mtx3_shaped_layout()).expect_err("3 records, 2 cycles");
+        assert!(err.contains("equal lengths"), "{err}");
+    }
+
+    /// Cycles under *distinct* labels are unambiguous even when they share a
+    /// count — `weapongrp`'s `skipWriteSize` blocks all hang off `#Enchanted` —
+    /// so each still counts its own blocks and they are checked against each
+    /// other.
+    #[test]
+    fn distinctly_labelled_cycles_still_share_one_count() {
+        let layout = Layout {
+            version: "test".to_string(),
+            safe_package: false,
+            nodes: vec![
+                value("size", Field::UChar, true),
+                cycle("a", "size", vec![value("x", Field::UChar, false)]),
+                cycle("b", "size", vec![value("y", Field::UChar, false)]),
+            ],
+        };
+        let text = "a_begin\t7\ta_end\tb_begin\t8\tb_end";
+        assert_eq!(pack(text, &layout).expect("packs"), vec![1u8, 7, 8]);
+
+        let lopsided = "a_begin\t7\ta_end\tb_begin\t8\tb_end\tb_begin\t9\tb_end";
+        let err = pack(lopsided, &layout).expect_err("1 vs 2 records");
+        assert!(err.contains("different lengths"), "{err}");
+    }
 
     /// Round-trip against the reader's own primitives.
     #[test]

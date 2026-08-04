@@ -319,12 +319,16 @@ fn pack(
         candidates.sort_by_key(|(label, _)| label != want);
     }
 
-    let mut last = "no layout packed this file".to_string();
+    // Report the *first* candidate's failure, not the last. Candidates lead
+    // with the layout that unpacked this file, so its error is the one worth
+    // reading; a later chronicle's layout failing on some unrelated field only
+    // sends the reader hunting through the wrong schema.
+    let mut first: Option<String> = None;
     for (_label, layout) in candidates {
         let bytes = match dat_pack::pack(&text, &layout) {
             Ok(b) => b,
             Err(e) => {
-                last = e;
+                first.get_or_insert(e);
                 continue;
             }
         };
@@ -334,7 +338,7 @@ fn pack(
         if back.exact() && back.text.trim_end() == text.trim_end() {
             return Ok(bytes);
         }
-        last = "packed bytes did not re-read as the same text".to_string();
+        first.get_or_insert_with(|| "packed bytes did not re-read as the same text".to_string());
     }
-    Err(last)
+    Err(first.unwrap_or_else(|| "no layout packed this file".to_string()))
 }
