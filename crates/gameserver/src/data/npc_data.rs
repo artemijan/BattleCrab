@@ -957,11 +957,22 @@ fn parse_race(text: &str) -> Option<i32> {
     crate::enums::Race::from_name(normalized).map(|r| r.ordinal())
 }
 
+/// An attribute's value with XML entities resolved.
+///
+/// The raw bytes are not the string: `&amp;` is five characters in the file and
+/// one in the name a player reads. Two attributes on this dist carry one (npc
+/// 1594, "Singer & Dancer Agathion"), and without the unescape they reach both
+/// `NpcInfo` — for a template flagged `usingServerSideName` — and
+/// `l2r-tools sync-npc` still spelled `&amp;`.
 fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
     e.attributes()
         .flatten()
         .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
+        .map(|a| {
+            a.unescape_value()
+                .map(std::borrow::Cow::into_owned)
+                .unwrap_or_else(|_| String::from_utf8_lossy(&a.value).into_owned())
+        })
 }
 
 fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
@@ -992,6 +1003,14 @@ fn set_f64(e: &quick_xml::events::BytesStart, key: &[u8], dst: &mut f64) {
 mod tests {
     use super::*;
 
+    /// The bug this guards: `quick-xml` hands back the attribute's raw bytes,
+    /// so an entity survives into the string a player reads.
+    #[test]
+    fn xml_entities_in_an_attribute_are_resolved() {
+        let e = quick_xml::events::BytesStart::from_content(r#"npc name="a &amp; b""#, 3);
+        assert_eq!(attr_str(&e, b"name").as_deref(), Some("a & b"));
+    }
+
     #[test]
     fn loads_real_dist_files() {
         let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
@@ -1020,6 +1039,13 @@ mod tests {
         // Elemental <attribute><defence fire=…/> must not clobber base_p_def.
         assert_eq!(t.base_p_def, 341.375);
         assert_eq!(t.base_m_def, 249.80341);
+
+        // The only two escaped attributes on this dist (npc 1594). Reading
+        // them raw sent `&amp;` to the client over `NpcInfo`, and wrote it
+        // into the client's own name table via `l2r-tools sync-npc`.
+        let amp = data.get(1594).expect("npc 1594");
+        assert_eq!(amp.name, "Singer & Dancer Agathion");
+        assert_eq!(amp.title, "Singer & Dancer Agathion");
 
         // A real monster: Gremlin (id 20001).
         let g = data.get(20001).expect("npc 20001");

@@ -78,6 +78,35 @@ back; anything it cannot place is reported rather than silently dropped. Only
 Ver413 and the XOR versions can be written — NCsoft published just the public
 exponent for its other RSA keys. See `crates/tools/src/client_dat.rs`.
 
+### Pushing server data into the client
+
+Some strings the player reads never cross the wire: the server sends an id and
+the client looks the wording up in its own table. Two commands close that gap,
+each decrypting its tables in memory, editing them, and re-encrypting in place:
+
+```sh
+./target/release/l2r-tools sync-messages --dry-run   # SystemMsg*.dat
+./target/release/l2r-tools sync-npc --dry-run        # NpcName_Classic-eu.dat
+```
+
+`sync-npc` writes every NPC's `name=` and `title=` from `dist/game/data/stats/
+npcs` into the row the client keys by `displayId`, and appends a row for any
+NPC the client has none for (`--no-append` to only correct what exists).
+`--dry-run` prints the whole diff both ways — `~` corrected, `+` missing from
+the client, `-` client rows no template claims, `=` fields only the client
+knows — capped by `--limit` (`0` for all).
+
+Three things it deliberately does not do. The title's **render colour** is not
+modelled by the datapack, so an existing row keeps its own and an appended one
+takes the file's modal colour. A **missing** `name=`/`title=` attribute is the
+datapack declining to say rather than a claim that the string is empty, so it
+never blanks a client row — those are the `=` lines. And it syncs only the
+**Classic** table by default: `system` also ships `NpcName-eu.dat`, but that is
+another chronicle's mapping (id 20138 is "Gargoyle" there, "Turek Orc
+Commander" in Classic and in this datapack), so it takes an explicit
+`--npc-file`. Nothing is written unless the repacked table re-reads as the text
+it was built from. See `crates/tools/src/npc_sync.rs`.
+
 ## Database
 
 The schema lives in `crates/migration` as SeaORM migrations; entities are in

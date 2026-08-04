@@ -38,6 +38,10 @@ enum Command {
     /// Push this server's system-message table into the client's SystemMsg
     /// files: overwrite text and colour, append messages the client lacks.
     SyncMessages(cli::sync_messages::Args),
+
+    /// Push this datapack's NPC names and titles into the client's NpcName
+    /// files: overwrite the strings it already has, append the NPCs it lacks.
+    SyncNpc(cli::sync_npc::Args),
 }
 
 fn main() {
@@ -48,5 +52,6 @@ fn main() {
         Command::DatText(args) => cli::dat_text::run(&args),
         Command::MsgColor(args) => cli::msg_color::run(&args),
         Command::SyncMessages(args) => cli::sync_messages::run(&args),
+        Command::SyncNpc(args) => cli::sync_npc::run(&cli.game_dir, &args),
     }
 }
