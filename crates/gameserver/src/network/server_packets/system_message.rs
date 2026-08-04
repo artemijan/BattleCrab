@@ -178,6 +178,14 @@ pub mod sm_ids {
     pub const YOU_HAVE_EARNED_S1_ADENA: i16 = 52;
     pub const YOU_HAVE_EARNED_S2_S1_S: i16 = 53;
     pub const YOU_HAVE_EARNED_S1: i16 = 54;
+    // Soul crystals (Q350 "Enhance Your Weapon") — the absorb flavour trio.
+    // `BROKE` is unreachable on this dist: Q350's only `exchangeCrystal` call
+    // passes `broke = false`. It is carried anyway as the pair to `SUCCEEDED`,
+    // so the set reads the way Java's does.
+    pub const THE_SOUL_CRYSTAL_SUCCEEDED_IN_ABSORBING_A_SOUL: i16 = 974;
+    pub const THE_SOUL_CRYSTAL_WAS_NOT_ABLE_TO_ABSORB_THE_SOUL: i16 = 975;
+    pub const THE_SOUL_CRYSTAL_BROKE_BECAUSE_IT_WAS_NOT_ABLE_TO_ENDURE_THE_SOUL_ENERGY: i16 = 976;
+    pub const THE_SOUL_CRYSTAL_IS_REFUSING_TO_ABSORB_THE_SOUL: i16 = 978;
     // Multisell (G30): the enchanted-product ack and the ingredient-shortfall
     // message.
     pub const ACQUIRED_S1_S2: i16 = 371;

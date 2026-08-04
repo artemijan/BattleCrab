@@ -19014,7 +19014,7 @@ fn quest_q00350_enhance_your_weapon() {
     let mob = NPC_OID + 1;
     add_test_npc(&mut world, rolento, ROLENTO, "Folk", 45, 100, 200, 0);
     add_test_npc(&mut world, mob, MOB, "Monster", 45, 300, 300, 0);
-    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     world
         .objects
         .get_component_mut::<Player>(&3001)
@@ -19028,6 +19028,7 @@ fn quest_q00350_enhance_your_weapon() {
             &bypass_body(&format!("npc_{rolento}_Quest {q} {e}")),
         );
     };
+    use crate::network::server_packets::sm_ids as smid;
 
     // --- Accept and take a Red Soul Crystal (stage 0). ---
     handle_request_bypass_to_server(
@@ -19045,6 +19046,7 @@ fn quest_q00350_enhance_your_weapon() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "quest started");
 
     // --- A skill-needed mob killed WITHOUT absorbing does not level. ---
+    drain(&mut rx);
     quests::notify_kill(&mut world, 3001, mob, MOB, false);
     assert_eq!(
         item_count(&world, 3001, RED0),
@@ -19052,6 +19054,20 @@ fn quest_q00350_enhance_your_weapon() {
         "no level without an absorb"
     );
     assert_eq!(item_count(&world, 3001, RED1), 0);
+    // Java bails before `levelCrystal` when the absorb gate is unmet, so none
+    // of the flavour lines fire — the zero case, which is the half a
+    // "message is sent" assertion cannot see on its own.
+    let quiet = sm_ids_of(&drain(&mut rx));
+    for id in [
+        smid::THE_SOUL_CRYSTAL_SUCCEEDED_IN_ABSORBING_A_SOUL,
+        smid::THE_SOUL_CRYSTAL_WAS_NOT_ABLE_TO_ABSORB_THE_SOUL,
+        smid::THE_SOUL_CRYSTAL_IS_REFUSING_TO_ABSORB_THE_SOUL,
+    ] {
+        assert!(
+            !quiet.contains(&id),
+            "no absorb flavour without a cast: {id}"
+        );
+    }
 
     // --- Cast the Soul Crystal skill below half HP, then kill → level up. ---
     // Test NPCs come up with max_hp 100 (add_test_npc), so drop below 50.
@@ -19062,6 +19078,7 @@ fn quest_q00350_enhance_your_weapon() {
         .cur_hp = 40.0; // ≤ half HP, the absorb condition
     quests::notify_skill_see(&mut world, 3001, mob, MOB, SOUL_CRYSTAL_SKILL);
     world.forced_rolls.push_back(0); // roll(100)=0 <= chance 100 → success
+    drain(&mut rx);
     quests::notify_kill(&mut world, 3001, mob, MOB, false);
     assert_eq!(
         item_count(&world, 3001, RED0),
@@ -19072,6 +19089,49 @@ fn quest_q00350_enhance_your_weapon() {
         item_count(&world, 3001, RED1),
         1,
         "the crystal leveled to stage 1 after a valid absorb-kill"
+    );
+    // Java's `exchangeCrystal` sends the success line before the
+    // `YOU_HAVE_EARNED_S1` that `give_items` emits — assert the order, not
+    // just the presence.
+    let ids = sm_ids_of(&drain(&mut rx));
+    let succeeded = ids
+        .iter()
+        .position(|&i| i == smid::THE_SOUL_CRYSTAL_SUCCEEDED_IN_ABSORBING_A_SOUL)
+        .expect("succeeded-in-absorbing sent");
+    let earned = ids
+        .iter()
+        .position(|&i| i == smid::YOU_HAVE_EARNED_S1)
+        .expect("the new crystal is announced");
+    assert!(succeeded < earned, "flavour precedes the grant: {ids:?}");
+
+    // --- A failed roll sends the "not able to absorb" line instead. ---
+    world
+        .objects
+        .get_component_mut::<Vitals>(&mob)
+        .unwrap()
+        .cur_hp = 40.0;
+    quests::notify_skill_see(&mut world, 3001, mob, MOB, SOUL_CRYSTAL_SKILL);
+    world.data.soul_crystal_data.insert_npc_level_for_test(
+        MOB,
+        1,
+        LevelingInfo {
+            absorb_type: AbsorbType::LastHit,
+            skill_needed: true,
+            chance: 50,
+        },
+    );
+    world.forced_rolls.push_back(99); // roll(100)=99 > chance 50 → failure
+    drain(&mut rx);
+    quests::notify_kill(&mut world, 3001, mob, MOB, false);
+    assert_eq!(
+        item_count(&world, 3001, RED1),
+        1,
+        "a failed roll neither consumes nor levels the crystal"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&smid::THE_SOUL_CRYSTAL_WAS_NOT_ABLE_TO_ABSORB_THE_SOUL),
+        "the failure line is sent"
     );
 }
 

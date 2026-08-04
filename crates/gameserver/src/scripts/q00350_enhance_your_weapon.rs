@@ -14,10 +14,12 @@
 //! Party absorb modes (FULL_PARTY / PARTY_ONE_RANDOM / PARTY_RANDOM) collapse to
 //! the killer here, matching the project-wide `onKill` party deviation.
 //!
-//! The success/fail/refuse flavor SystemMessages are TODO(soul-crystal): the
-//! port has no soul-crystal `sm_ids` yet, and they don't affect the outcome.
+//! The success/fail/refuse flavour SystemMessages are sent. Java's fourth,
+//! "the crystal broke", is unreachable here: Q350's only `exchangeCrystal`
+//! call passes `broke = false`.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::network::server_packets::sm_ids;
 
 const STARTING_NPCS: [i32; 3] = [30115, 30856, 30194];
 const RED_SOUL_CRYSTAL0: i32 = 4629;
@@ -85,15 +87,23 @@ impl Q00350EnhanceYourWeapon {
         }
         // `levelCrystal`: only if the mob actually levels *this* crystal's stage.
         let Some(level_info) = level_info else {
-            // TODO(soul-crystal): "the soul crystal is refusing to absorb" SM.
+            ctx.send_sm(sm_ids::THE_SOUL_CRYSTAL_IS_REFUSING_TO_ABSORB_THE_SOUL);
             return;
         };
         if ctx.roll(100) <= level_info.chance {
             ctx.take_items(sc_item, 1);
+            // Java's `exchangeCrystal` sends the flavour line *before* the
+            // `YOU_HAVE_EARNED_S1` + `InventoryUpdate` pair that `give_items`
+            // already emits, so this ordering matches the wire.
+            //
+            // Only the success leg is reachable: Q350's single call site passes
+            // `broke = false`, so `..._BROKE_BECAUSE_IT_WAS_NOT_ABLE_TO_ENDURE_
+            // THE_SOUL_ENERGY` never fires on this dist.
+            ctx.send_sm(sm_ids::THE_SOUL_CRYSTAL_SUCCEEDED_IN_ABSORBING_A_SOUL);
             ctx.give_items(leveled_item_id, 1);
-            // TODO(soul-crystal): "succeeded in absorbing" / "broke" SMs.
+        } else {
+            ctx.send_sm(sm_ids::THE_SOUL_CRYSTAL_WAS_NOT_ABLE_TO_ABSORB_THE_SOUL);
         }
-        // else TODO(soul-crystal): "was not able to absorb the soul" SM.
     }
 }
 

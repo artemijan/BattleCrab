@@ -968,6 +968,17 @@ impl<'w> QuestCtx<'w> {
         self.send(pkt);
     }
 
+    /// `player.sendPacket(SystemMessageId.X)` — a parameterless system message.
+    ///
+    /// Prefer this over reaching into `world.clients` from a script: it routes
+    /// through [`QuestCtx::send`], which suppresses output during a simulated
+    /// probe exactly as Java's `isSimulatingTalking()` guards do. A direct
+    /// client send skips that and leaks packets to a player who is only being
+    /// *asked* whether a dialogue would proceed.
+    pub fn send_sm(&self, message_id: i16) {
+        self.send(server_packets::system_message_with(message_id, &[]));
+    }
+
     /// `RadarControl(0, 2, x, y, z)` — the *quest* marker, as Q211 sends it
     /// raw in Java. Same packet as [`add_radar`] but radar type 2, which the
     /// client renders as the quest pin rather than the red flag.

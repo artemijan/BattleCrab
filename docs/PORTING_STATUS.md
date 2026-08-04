@@ -119,14 +119,14 @@ The per-milestone column above counts only tags of the exact form `TODO(G<N>)`.
 Two more milestone markers are not milestone-*scoped* — `TODO(G-pvp)` (3) and
 `TODO(G-later)` (1) — and a further nine use a `+`, `?` or `/` suffix (`G9+`,
 `G13+`, `G19+`, `G21+` ×2, `G29+` ×2, `G?`, `G24/G26`) that this column does
-not break out. Alongside them sit **34 topic-tagged** markers (`pets`, `manor`,
+not break out. Alongside them sit **30 topic-tagged** markers (`pets`, `manor`,
 `soul-crystal`, `radar`, `dead`, …) which belong to no milestone at all.
 
-**Total recorded gaps: 177.** Enumerated in [DEFERRALS.md](DEFERRALS.md) and
+**Total recorded gaps: 173.** Enumerated in [DEFERRALS.md](DEFERRALS.md) and
 asserted by the test named above — if this number and that file disagree, the
 file is right. It read 134 until 2026-08-05, when the scanner was widened to
 see the suffixed and topic-tagged families it had been dropping in silence; see
-that file's seventh pass. Because every milestone row here is ✅, these 177 are
+that file's seventh pass. Because every milestone row here is ✅, these 173 are
 what is actually left to do.
 
 ---

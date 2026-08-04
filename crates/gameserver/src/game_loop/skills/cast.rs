@@ -1725,8 +1725,10 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // `Npc.onSkillSee` witnesses for after the effects land. Java broadcasts to
     // every NPC in range; here it fires for the skill's NPC targets, which is
     // the case quest 350's Soul Crystal (a single-target cast on the mob) needs.
-    // TODO(soul-crystal): widen to an in-range broadcast if a quest ever needs a
-    // non-targeted witness.
+    // TODO(skill-see-range): widen to an in-range broadcast if a script ever
+    // needs a non-targeted witness. (Tagged `soul-crystal` until 2026-08-05,
+    // which named the one *caller* that happens to be satisfied rather than the
+    // gap itself — the narrowing is in `onSkillSee` breadth, not in Q350.)
     let skill_see_witnesses = affected.clone();
     // Kept for `OnCreatureSkillFinishCast` below, which resolves its trigger
     // against the cast's own target.

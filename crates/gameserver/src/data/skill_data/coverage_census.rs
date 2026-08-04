@@ -467,7 +467,7 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("reco", 1),
         ("saga", 1),
         ("sieges", 1),
-        ("soul-crystal", 5),
+        ("skill-see-range", 1),
     ];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
