@@ -19428,6 +19428,7 @@ fn quest_q00348_an_arrogant_search() {
 
     const HANELLIN: i32 = 30864;
     const TABLE_OF_VISION: i32 = 31646;
+    const CLAUDIA: i32 = 31001;
     const DRAKE: i32 = 20670;
     const PLATINUM: i32 = 20828;
     const EZEKIEL: i32 = 27296;
@@ -19459,11 +19460,13 @@ fn quest_q00348_an_arrogant_search() {
     let table = NPC_OID + 1;
     let drake = NPC_OID + 2;
     let platinum = NPC_OID + 3;
+    let claudia = NPC_OID + 4;
     add_test_npc(&mut world, hanellin, HANELLIN, "Folk", 62, 100, 200, 0);
     add_test_npc(&mut world, table, TABLE_OF_VISION, "Folk", 62, 110, 200, 0);
     add_test_npc(&mut world, drake, DRAKE, "Monster", 62, 300, 300, 0);
     add_test_npc(&mut world, platinum, PLATINUM, "Monster", 62, 320, 300, 0);
-    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    add_test_npc(&mut world, claudia, CLAUDIA, "Folk", 62, 120, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     world
         .objects
         .get_component_mut::<Player>(&3001)
@@ -19500,8 +19503,40 @@ fn quest_q00348_an_arrogant_search() {
     ev(&mut world, hanellin, "30864-05.htm");
     assert_eq!(cond(&world), Some(5), "→ cond 5");
 
-    // The Table of Vision summons Stone Watchman Ezekiel.
+    // Claudia Athebalt points the way: Java's `addRadar` on the Table of
+    // Vision, which `Radar.addMarker` sends as a clear/show pair.
+    let radar = |pkts: &[Vec<u8>]| -> Vec<(i32, i32, i32, i32, i32)> {
+        pkts.iter()
+            .filter(|p| p[0] == 0xF1)
+            .map(|p| {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                (
+                    r.read_i32().unwrap(),
+                    r.read_i32().unwrap(),
+                    r.read_i32().unwrap(),
+                    r.read_i32().unwrap(),
+                    r.read_i32().unwrap(),
+                )
+            })
+            .collect()
+    };
+    drain(&mut rx);
+    ev(&mut world, claudia, "31001-01.htm");
+    assert_eq!(
+        radar(&drain(&mut rx)),
+        vec![(2, 2, 120112, 30912, -3616), (0, 1, 120112, 30912, -3616),],
+        "Claudia pins the Table of Vision"
+    );
+
+    // The Table of Vision summons Stone Watchman Ezekiel, and arriving retires
+    // the ping — Java sends a raw RadarControl(2, 2, 0, 0, 0), clearing the
+    // whole board rather than that one marker.
     ev(&mut world, table, "31646-01.htm");
+    assert_eq!(
+        radar(&drain(&mut rx)),
+        vec![(2, 2, 0, 0, 0)],
+        "arriving clears the board"
+    );
     let ezekiel = *npcs_of(&mut world, EZEKIEL)
         .first()
         .expect("Ezekiel summoned");

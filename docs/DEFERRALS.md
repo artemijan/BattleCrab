@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **180** such
+of narrow behaviours deferred and marked at the site. There are **177** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -74,7 +74,6 @@ must never spell a *parseable* tag: it would be counted as a marker.
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data/build.rs`, `game_loop/skills/effects/mod.rs`, `model/skill.rs` |
-| `TODO(radar)` | 3 | `scripts/q00348_an_arrogant_search.rs` |
 | `TODO(G14)` | 2 | `config/general.rs`, `model/mod.rs` |
 | `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects/gathering.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
@@ -106,6 +105,15 @@ must never spell a *parseable* tag: it would be counted as a marker.
 | `TODO(reco)` | 1 | `game_loop/reco.rs` |
 | `TODO(saga)` | 1 | `scripts/saga.rs` |
 | `TODO(sieges)` | 1 | `network/server_packets/residence.rs` |
+
+## Closed
+
+Markers retired, newest first. A row here is a marker that left the code *and*
+the inventory in the same commit — the two-way discipline in both directions.
+
+| date | marker | what closed it |
+|---|---|---|
+| 2026-08-05 | `TODO(radar)` ×3 (`scripts/q00348_an_arrogant_search.rs`) | **Stale.** They said the radar pings were unported; `QuestCtx::add_radar` / `add_quest_radar` / `clear_radar` all exist and Q211/Q214 use them. Wired Q348's two sites to the helpers. Closing them first exposed a real bug in `add_radar` itself — see the commit before. |
 
 **First use, 2026-08-03.** Triaging the 15 `TODO(G33)` markers against the code
 found two describing work that is **already done**:

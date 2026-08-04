@@ -4,14 +4,19 @@
 //! Cloth from either the Platinum Tribe or the Angels, redeemed for a piece of
 //! **Blooded Fabric**. A long linear cond ladder (2 → 11). Repeatable.
 //!
-//! The radar navigation pings (Java `addRadar` / `RadarControl`) are cosmetic
-//! wayfinding and left as TODO(radar) — they don't gate progress.
+//! The radar navigation pings (Java `addRadar` / `RadarControl`) are ported:
+//! Claudia Athebalt's directions pin the Table of Vision, and reaching it
+//! clears the board.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 // NPCs
 const HANELLIN: i32 = 30864;
 const CLAUDIA_ATHEBALT: i32 = 31001;
+
+/// Where the Table of Vision stands, as Java hard-codes it in `addRadar` —
+/// distinct from `TABLE_OF_VISION` below, which is the NPC's id.
+const TABLE_OF_VISION_LOC: (i32, i32, i32) = (120112, 30912, -3616);
 const TABLE_OF_VISION: i32 = 31646;
 // Monsters
 const CRIMSON_DRAKE: i32 = 20670;
@@ -105,7 +110,12 @@ impl QuestScript for Q00348AnArrogantSearch {
             }
             "31001-01.htm" => {
                 if ctx.cond() == 5 {
-                    // TODO(radar): addRadar(player, 120112, 30912, -3616).
+                    // Claudia points the way to the Table of Vision.
+                    ctx.add_radar(
+                        TABLE_OF_VISION_LOC.0,
+                        TABLE_OF_VISION_LOC.1,
+                        TABLE_OF_VISION_LOC.2,
+                    );
                 }
                 None
             }
@@ -113,7 +123,10 @@ impl QuestScript for Q00348AnArrogantSearch {
                 if ctx.cond() == 5 {
                     // Summon the Watchman beside the Table of Vision, hostile.
                     ctx.spawn_attacker(STONE_WATCHMAN_EZEKIEL, true);
-                    // TODO(radar): RadarControl(2, 2, …) to clear the ping.
+                    // Arrived: Java retires the ping with a raw
+                    // `RadarControl(2, 2, 0, 0, 0)` rather than
+                    // `Radar.removeMarker`, so the whole board clears.
+                    ctx.clear_radar();
                 }
                 None
             }
