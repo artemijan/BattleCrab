@@ -22,10 +22,9 @@ rand_distr.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tracing-appender.workspace = true
+serde_json.workspace = true
+time.workspace = true
 thiserror.workspace = true
-
-[dev-dependencies]
-serde_json = "1"
 
 [lints]
 workspace = true

@@ -12,6 +12,8 @@ tokio.workspace = true
 bytes.workspace = true
 bevy_ecs.workspace = true
 tracing.workspace = true
+# Audit records are NDJSON, built at the call site with `json!`.
+serde_json.workspace = true
 thiserror.workspace = true
 quick-xml.workspace = true
 regex.workspace = true
@@ -23,7 +25,6 @@ mimalloc.workspace = true
 # Tests still assert with SQL and build fixtures; the crate itself no longer
 # speaks it — every statement goes through `models`.
 sqlx.workspace = true
-serde_json = "1"
 commons = { path = "../commons" }
 loginserver = { path = "../loginserver" }
 migration = { path = "../migration" }

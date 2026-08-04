@@ -885,6 +885,34 @@ pub(crate) fn handle_match_tick(world: &mut World, arena: usize) {
 /// Apply the result (Java `validateWinner`), port both fighters back, and clear
 /// the match.
 fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
+    // Java's `olympiad` logger (`AbstractOlympiadGame`/`Olympiad`). Ungated,
+    // like accounting: match outcomes decide hero status, so they are kept
+    // regardless of the diagnostic settings.
+    {
+        let name_of = |oid: i32| {
+            world
+                .objects
+                .get_component::<crate::model::Player>(&oid)
+                .map(|p| p.name.clone())
+        };
+        let (outcome, winner, loser) = match result {
+            MatchResult::Win { winner, loser } => ("win", Some(*winner), Some(*loser)),
+            MatchResult::Draw => ("draw", None, None),
+        };
+        commons::audit::record(
+            commons::audit::Category::Olympiad,
+            serde_json::json!({
+                "outcome": outcome,
+                "player_a": name_of(m.player_a),
+                "player_a_oid": m.player_a,
+                "player_b": name_of(m.player_b),
+                "player_b_oid": m.player_b,
+                "winner": winner.and_then(name_of),
+                "loser": loser.and_then(name_of),
+            }),
+        );
+    }
+
     match result {
         MatchResult::Win { winner, loser } => {
             let diff = point_transfer(world, *winner, *loser);

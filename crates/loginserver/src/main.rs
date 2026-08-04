@@ -19,6 +19,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _log_guard = commons::logging::init(LOGIN_ROOT, "login_server");
     commons::logging::install_panic_hook();
 
+    // Authentication outcomes are accounting records: who got in, who did not,
+    // and from where. Never dropped, kept far longer than diagnostics.
+    let _audit_guard =
+        commons::audit::init(LOGIN_ROOT, &commons::audit::AuditConfig::load(LOGIN_ROOT));
+
     // Load Config (Java: Config.load(ServerMode.LOGIN)).
     let config = LoginConfig::load();
 

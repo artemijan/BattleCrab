@@ -44,6 +44,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     commons::logging::install_panic_hook();
     root_source.report(&datapack_root);
 
+    // Audit records travel their own never-dropped sink; the guard joins the
+    // writer on shutdown so nothing queued is lost. Started after logging so
+    // that any complaint from it is visible.
+    let _audit_guard = commons::audit::init(
+        &datapack_root,
+        &commons::audit::AuditConfig::load(&datapack_root),
+    );
+
+    // "How is the server doing" is a counter question, not a log question —
+    // the snapshot lands in the JSON log as one event per interval.
+    gameserver::game_loop::register_metrics();
+    commons::metrics::spawn_reporter(
+        commons::logging::LoggingConfig::load(&datapack_root).metrics_interval_seconds,
+    );
+
     let server_load_start = Instant::now();
 
     // Java: Config.load(ServerMode.GAME).

@@ -10,7 +10,9 @@
 //! they are still gated correctly by the access table and reach the "not
 //! implemented" path rather than crashing.
 
-use tracing::{info, warn};
+use commons::audit;
+use serde_json::json;
+use tracing::warn;
 
 use crate::enums::AdminTeleportType;
 use crate::model::Player;
@@ -172,10 +174,23 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
         return;
     }
 
-    // GMAudit (Java `GMAudit.auditGMAction`) — a log line here, not the
-    // per-GM audit file.
-    if let Some(p) = world.objects.get_component::<Player>(&object_id) {
-        info!("GMAudit: {} [{object_id}] used '{full}'.", p.name);
+    // GMAudit (Java `AdminCommandHandler` → `GMAudit.auditGMAction`, gated by
+    // `Config.GMAUDIT`). Java resolves the GM's current target here and records
+    // "no-target" when nothing is selected; the record goes to the never-dropped
+    // audit sink, not the diagnostic log.
+    if world.cfg.general.gm_audit {
+        let target = target_display_name(world, object_id);
+        if let Some(p) = world.objects.get_component::<Player>(&object_id) {
+            audit::record(
+                audit::Category::GmAudit,
+                json!({
+                    "gm": p.name,
+                    "gm_oid": object_id,
+                    "command": full,
+                    "target": target,
+                }),
+            );
+        }
     }
 
     // A gated-but-unimplemented command (G13.C) lands on the `false` arm.
@@ -958,6 +973,27 @@ pub(super) fn target_player(world: &World, object_id: i32) -> i32 {
     current_target(world, object_id)
         .filter(|oid| world.objects.has_component::<Player>(oid))
         .unwrap_or(object_id)
+}
+
+/// Java `target.getName()` for the GM-audit record, with Java's `"no-target"`
+/// sentinel when nothing is selected. Players answer with their character name;
+/// NPCs resolve through the template, since the object itself only carries the
+/// template id.
+fn target_display_name(world: &World, gm_object_id: i32) -> String {
+    let Some(target_id) = current_target(world, gm_object_id) else {
+        return "no-target".to_string();
+    };
+    if let Some(p) = world.objects.get_component::<Player>(&target_id) {
+        return p.name.clone();
+    }
+    if let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_id)
+        && let Some(template) = world.data.npc_data.get(npc.npc_id)
+    {
+        return template.name.clone();
+    }
+    format!("object:{target_id}")
 }
 
 /// The GM's current target object id, or `None` if nothing is selected.

@@ -416,6 +416,15 @@ impl Inventory {
     /// none of which a plain data component can do. Snapshot
     /// [`Self::equipped_object_ids`] before calling and hand what this
     /// unequipped to `game_loop::items::finish_equipped_item_destroyed`.
+    // TODO(G35): item-loss audit records. Java logs every ownership change down
+    // in `Item.setOwnerId`/`changeCount`, so consumption through this method is
+    // audited there too. Here the gains go through the
+    // `game_loop::items::add_inventory_item_tracked` choke point and the
+    // explicit destroy path calls `record_item_change`, but the ~43 direct
+    // callers of this method (shots, quest consumption, crafting, trades) do
+    // not. This method is a plain data component with no access to `World`, so
+    // closing the gap means routing those callers through a `World`-aware
+    // helper rather than adding a call here.
     pub fn remove_item(&mut self, item_id: i32, count: i64) -> Vec<ItemChange> {
         let mut remaining = if count < 0 { i64::MAX } else { count };
         let mut changes = Vec::new();

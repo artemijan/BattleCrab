@@ -66,6 +66,7 @@ close-out gate uses.
 | `TODO(G18)` | 2 | `game_loop/death.rs`, `game_loop/pvp.rs` |
 | `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans.rs` |
 | `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
+| `TODO(G35)` | 2 | `commons/src/audit.rs`, `model/inventory.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |

@@ -12,6 +12,29 @@ use crate::world::World;
 
 use super::dispatch::on_packet;
 
+/// The per-packet counter, resolved once. Looking a metric up by name takes the
+/// registry lock, so the hot path holds the handle instead — after the first
+/// call this is a relaxed atomic add and nothing else.
+fn packets_handled() -> &'static commons::metrics::Counter {
+    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
+    C.get_or_init(|| commons::metrics::counter("packets_handled"))
+}
+
+/// Players currently connected, refreshed as connections come and go.
+fn players_online() -> &'static commons::metrics::Gauge {
+    static G: std::sync::OnceLock<commons::metrics::Gauge> = std::sync::OnceLock::new();
+    G.get_or_init(|| commons::metrics::gauge("players_online"))
+}
+
+/// Registers the metrics above at boot so they read `0` from the first snapshot
+/// instead of being *absent* until the first packet arrives. An absent series
+/// and a zero one graph very differently, and "no players yet" is exactly the
+/// state worth being able to see.
+pub fn register_metrics() {
+    packets_handled();
+    players_online().set(0);
+}
+
 /// Bounded, non-blocking drain of the network→game channel (step 1 of the tick).
 pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
     while let Ok(event) = net_rx.try_recv() {
@@ -40,6 +63,24 @@ pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
                 // suspect: disconnect them (persist + clean removal) so they
                 // come back clean while everyone else plays on.
                 let opcode = data.first().copied();
+                packets_handled().incr();
+                // Correlation span: every log line emitted while handling this
+                // packet inherits these fields, which turns "what happened to
+                // this player" into one query over the JSON log instead of a
+                // manual reconstruction from interleaved lines.
+                //
+                // Deliberately allocation-free. This is the game thread and the
+                // span is built per packet, so the fields are `i32`s only — a
+                // `char_name` here would mean a `String` clone per packet. The
+                // name lives on the audit records, which carry it already, and
+                // `oid` is the join key between the two.
+                let span = tracing::info_span!(
+                    "packet",
+                    client_id,
+                    oid = world.player_oid(client_id),
+                    opcode = opcode
+                );
+                let _entered = span.enter();
                 if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                     on_packet(world, client_id, data);
                 }))
@@ -68,6 +109,7 @@ pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
                 on_disconnect(world, client_id);
             }
         }
+        players_online().set(world.clients.len() as u64);
     }
 }
 
@@ -569,6 +611,33 @@ pub(crate) fn handle_logout(world: &mut World, client_id: u32) {
 
 /// Clean up a disconnected client and inform the login server.
 pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
+    // Java `GameClient.onDisconnection` → the `accounting` logger. Recorded
+    // first, while the account and character are still reachable through the
+    // session. Ungated on purpose: unlike chat and items, Java has no config
+    // switch for accounting — who connected, and when, is always kept.
+    {
+        let (account, char_name) = match world.clients.get(&client_id) {
+            Some(ClientSession::InGame(s)) => (
+                Some(s.account().to_string()),
+                world
+                    .objects
+                    .get_component::<crate::model::Player>(&s.player_object_id())
+                    .map(|p| p.name.clone()),
+            ),
+            Some(ClientSession::Entering(s)) => (Some(s.account().to_string()), None),
+            _ => (None, None),
+        };
+        commons::audit::record(
+            commons::audit::Category::Accounting,
+            serde_json::json!({
+                "event": "disconnect",
+                "account": account,
+                "char_name": char_name,
+                "client_id": client_id,
+            }),
+        );
+    }
+
     // Unexpected disconnect while a character is loaded: persist it (Java
     // `GameClient.onDisconnection` → `Disconnection.storeMe().deleteMe()`).
     // In `Entering` the Player is still held by the session, not the world.

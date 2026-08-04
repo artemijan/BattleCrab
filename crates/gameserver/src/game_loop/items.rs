@@ -54,6 +54,25 @@ pub(crate) fn add_inventory_item_tracked(
     item_id: i32,
     count: i64,
 ) -> Option<Vec<(i32, bool)>> {
+    let added = add_inventory_item_inner(world, player_oid, item_id, count);
+    // Java records ownership changes down in `Item.setOwnerId`/`changeCount`,
+    // which every path funnels through. This wrapper is the equivalent choke
+    // point: recording here rather than at each caller is what stops a new item
+    // source from silently escaping the audit.
+    if added.is_some() {
+        record_item_change(world, player_oid, item_id, count, "add");
+    }
+    added
+}
+
+/// The body of [`add_inventory_item_tracked`], split out so the audit record in
+/// its wrapper covers every one of the three return paths below.
+fn add_inventory_item_inner(
+    world: &mut World,
+    player_oid: i32,
+    item_id: i32,
+    count: i64,
+) -> Option<Vec<(i32, bool)>> {
     let stackable = world
         .data
         .item_data
@@ -99,6 +118,50 @@ pub(crate) fn add_inventory_item_tracked(
         created.push((new_oid, true));
     }
     Some(created)
+}
+
+/// One item-audit record, honouring Java's three-way gate: `LogItems` for
+/// everything, plus the small-log and id-list *overrides*, which admit their
+/// own items even when the broad switch is off (see
+/// [`GeneralConfig::should_log_item`](crate::config::general::GeneralConfig::should_log_item)).
+///
+/// `count` is signed by convention: positive for a gain, negative for a loss,
+/// so one query over the file reconstructs a balance.
+pub(crate) fn record_item_change(
+    world: &World,
+    player_oid: i32,
+    item_id: i32,
+    count: i64,
+    process: &str,
+) {
+    let equipable = world
+        .data
+        .item_data
+        .get(item_id)
+        .map(|t| t.is_equipable())
+        .unwrap_or(false);
+    if !world.cfg.general.should_log_item(item_id, equipable) {
+        return;
+    }
+    let (char_name, account) = match world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+    {
+        Some(p) => (Some(p.name.clone()), None::<String>),
+        None => (None, None),
+    };
+    commons::audit::record(
+        commons::audit::Category::Item,
+        serde_json::json!({
+            "process": process,
+            "char_name": char_name,
+            "account": account,
+            "oid": player_oid,
+            "item_id": item_id,
+            "item_name": world.data.item_data.get(item_id).map(|t| t.name.clone()),
+            "count": count,
+        }),
+    );
 }
 
 /// Port of `clientpackets/RequestItemList.runImpl`: the client opened its
@@ -418,6 +481,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     else {
         return;
     };
+    record_item_change(world, object_id, item_id, -count, "destroy");
     let packet = ew::inventory_update_changes(&world.data, &[change]);
     super::helpers::send_inventory_update(world, client_id, object_id, packet);
 }

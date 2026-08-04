@@ -70,6 +70,9 @@ pub(crate) mod minions;
 pub(crate) mod monster_race;
 pub(crate) mod multisell;
 mod net;
+// The boot-time metric registration is the one thing `main` needs out of `net`;
+// re-exported rather than opening the whole module up.
+pub use net::register_metrics;
 pub(crate) mod night_stats;
 pub(crate) mod npc_ai;
 pub(crate) mod npc_cast;
