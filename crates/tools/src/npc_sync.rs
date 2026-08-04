@@ -7,15 +7,28 @@
 //! name on screen, and one the client has no row for is nameless, until this
 //! has run.
 //!
-//! # The datapack wins, but silence is not a value
+//! # Two directions, not one mirrored one
 //!
-//! `dist/` is the specification, so where the XML states a name or a title it
-//! overwrites the client's. An *absent* `name=` / `title=` attribute is not a
-//! statement that the string is empty, though — it is the datapack declining to
-//! say, and for a non-server-side NPC the client's own row is then the only
-//! thing that knows. Blanking those would delete retail data that nothing else
-//! in this tree carries, so a row keeps what it has and the disagreement is
-//! reported instead ([`Report::kept`]).
+//! [`sync_to_client`] treats the datapack as the specification and rewrites the
+//! client's table, appending rows for NPCs the client lacks.
+//! [`sync_to_datapack`] goes the other way — useful when the client's table is
+//! the retail truth and the datapack has drifted — but it is deliberately the
+//! weaker of the two: it only *corrects* NPCs the datapack already declares. A
+//! row the client has and the datapack does not is reported and skipped,
+//! because a name cannot support inventing a template whose level, stats,
+//! drops and AI would all be guesses. Editing there is line-local, for the
+//! reasons in [`crate::npc_xml`].
+//!
+//! # The source wins, but silence is not a value
+//!
+//! Where the source states a name or a title it overwrites the target's. An
+//! *absent* `name=` / `title=` attribute is not a statement that the string is
+//! empty, though — it is the datapack declining to say, and for a
+//! non-server-side NPC the client's own row is then the only thing that knows.
+//! Blanking those would delete retail data that nothing else in this tree
+//! carries, so the target keeps what it has and the disagreement is reported
+//! instead ([`Report::kept`]). The rule holds in both directions: the client's
+//! own `[]` rows do not blank a datapack name either.
 //!
 //! # Colour is not synced
 //!
@@ -55,9 +68,11 @@ const COLOUR: usize = 4;
 /// Shortest row that still has all four fields plus both labels.
 const MIN_FIELDS: usize = 6;
 
-/// Stages [`sync`] announces through its progress callback, so a caller can
-/// size a bar before starting. A dry run stops after the comparison.
-pub const STAGES_DRY: usize = 3;
+/// Stages each direction announces through its progress callback, so a caller
+/// can size a bar before starting. A dry run stops after the comparison.
+pub const STAGES_TO_CLIENT_DRY: usize = 3;
+pub const STAGES_TO_DATAPACK_DRY: usize = 4;
+/// Both directions end in three more stages, and both write last.
 pub const STAGES_WRITE: usize = 6;
 
 pub struct Options {
@@ -121,18 +136,30 @@ pub struct Report {
     /// server sends anyway, making the client row cosmetic.
     pub server_side_name: usize,
     pub server_side_title: usize,
+    /// Datapack XML files edited. Only the client-to-datapack direction fills
+    /// this; the other writes one table, named by [`Report::file`].
+    pub files_written: Vec<String>,
     pub written: bool,
 }
 
-/// Rewrite `name`'s NPC strings from `npcs`, appending templates it lacks.
-pub fn sync(
+/// The client's table, decrypted and rendered as the reader's text.
+struct Table {
+    path: std::path::PathBuf,
+    version: String,
+    layout: Layout,
+    enums: HashMap<String, HashMap<i64, String>>,
+    lines: Vec<String>,
+}
+
+/// Decrypt `name` and render it, trying each candidate layout until one
+/// consumes the file exactly. Shared by both directions — the reverse one
+/// reads the very same text it would otherwise write.
+fn read_table(
     set: &mut SchemaSet,
     system_dir: &Path,
     name: &str,
-    npcs: &NpcData,
-    opts: &Options,
     progress: &mut dyn FnMut(&str),
-) -> Result<Report, String> {
+) -> Result<Table, String> {
     progress("decrypting");
     let path = system_dir.join(name);
     let raw = std::fs::read(&path).map_err(|e| format!("cannot read {}: {e}", path.display()))?;
@@ -151,8 +178,47 @@ pub fn sync(
         })
         .ok_or_else(|| format!("no schema layout fits {name}"))?;
 
+    Ok(Table {
+        path,
+        version,
+        layout,
+        enums,
+        lines: text.lines().map(str::to_owned).collect(),
+    })
+}
+
+/// One row of the client's table, as the two strings this tool cares about.
+fn row_strings(line: &str) -> Option<(i32, String, String)> {
+    let fields: Vec<&str> = line.split('\t').collect();
+    if fields.first() != Some(&"npc_begin") || fields.len() < MIN_FIELDS {
+        return None;
+    }
+    let id = fields[ID].parse().ok()?;
+    Some((
+        id,
+        field_text(fields[NAME]).unwrap_or_default(),
+        field_text(fields[TITLE]).unwrap_or_default(),
+    ))
+}
+
+/// Rewrite `name`'s NPC strings from `npcs`, appending templates it lacks.
+pub fn sync_to_client(
+    set: &mut SchemaSet,
+    system_dir: &Path,
+    name: &str,
+    npcs: &NpcData,
+    opts: &Options,
+    progress: &mut dyn FnMut(&str),
+) -> Result<Report, String> {
+    let Table {
+        path,
+        version,
+        layout,
+        enums,
+        mut lines,
+    } = read_table(set, system_dir, name, progress)?;
+
     progress("comparing");
-    let mut lines: Vec<String> = text.lines().map(str::to_owned).collect();
     let defaults = modal_fields(&lines)?;
     let (wanted, conflicts) = by_display_id(npcs);
 
@@ -168,6 +234,7 @@ pub fn sync(
         conflicts,
         server_side_name: 0,
         server_side_title: 0,
+        files_written: Vec::new(),
         written: false,
     };
     let mut seen: HashSet<i32> = HashSet::new();
@@ -267,6 +334,206 @@ pub fn sync(
     }
 
     Ok(report)
+}
+
+/// Rewrite the datapack's `name=` / `title=` from the client's table.
+///
+/// The mirror of [`sync_to_client`], and deliberately not its equal: this
+/// direction only ever *corrects* NPCs the datapack already declares. A row the
+/// client has and the datapack does not is reported and skipped — inventing a
+/// template from a name is not something a name alone can support, since every
+/// other column of an NPC (its level, stats, drops, AI) would be a guess.
+pub fn sync_to_datapack(
+    set: &mut SchemaSet,
+    system_dir: &Path,
+    name: &str,
+    npcs: &NpcData,
+    game_dir: &Path,
+    opts: &Options,
+    progress: &mut dyn FnMut(&str),
+) -> Result<Report, String> {
+    let table = read_table(set, system_dir, name, progress)?;
+
+    progress("scanning datapack");
+    // Derived, never taken as a flag of its own: the verification pass at the
+    // end reloads `game_dir` through the server's own parser, and a directory
+    // that could point somewhere else would make that pass prove nothing.
+    let npcs_dir = game_dir.join(gameserver::data::npc_data::NPCS_DIR);
+    let mut files = crate::npc_xml::load(&npcs_dir)?;
+    // Which line of which file declares each id. A duplicate id across files
+    // would make "the" line ambiguous; the last one wins here exactly as it
+    // does in the server's own map, which parses the files in this order.
+    let mut sites: HashMap<i32, (usize, usize)> = HashMap::new();
+    for (f, file) in files.iter().enumerate() {
+        for (l, line) in file.lines.iter().enumerate() {
+            if let Some(id) = crate::npc_xml::template_id(line) {
+                sites.insert(id, (f, l));
+            }
+        }
+    }
+
+    progress("comparing");
+    // Keyed the way the client keys it: the row that governs template X is the
+    // one for X's display id, so that is the row X's strings come from.
+    let (wanted, conflicts) = by_display_id(npcs);
+    let mut report = Report {
+        file: name.to_string(),
+        total_rows: 0,
+        templates: sites.len(),
+        changed: Vec::new(),
+        missing: Vec::new(),
+        orphans: Vec::new(),
+        kept: Vec::new(),
+        skipped_blank: 0,
+        conflicts,
+        server_side_name: 0,
+        server_side_title: 0,
+        files_written: Vec::new(),
+        written: false,
+    };
+
+    let mut seen: HashSet<i32> = HashSet::new();
+    for line in &table.lines {
+        let Some((display_id, client_name, client_title)) = row_strings(line) else {
+            continue;
+        };
+        report.total_rows += 1;
+        // From the client's display id back to the template that wears it.
+        let Some(t) = wanted.get(&display_id) else {
+            // The row the user asked to be warned about and skipped: the client
+            // knows this NPC and the datapack does not.
+            report.orphans.push(Entry {
+                id: display_id,
+                name: client_name,
+                title: client_title,
+            });
+            continue;
+        };
+        let Some(&(f, l)) = sites.get(&t.id) else {
+            // In `NpcData` but not in a line we can edit — only reachable if
+            // the loader read a file this scan did not.
+            continue;
+        };
+        seen.insert(t.id);
+
+        let mut change = RowChange {
+            id: t.id,
+            fields: Vec::new(),
+        };
+        let mut edited = files[f].lines[l].clone();
+        for (key, want, anchors) in [
+            ("name", client_name.as_str(), &["type", "level", "id"][..]),
+            ("title", client_title.as_str(), &["name", "type", "level"]),
+        ] {
+            // An absent attribute is an empty value here, not an unreadable
+            // one — `<npc>` simply not saying `title=` is the ordinary case.
+            let have = crate::npc_xml::attribute(&edited, key).unwrap_or_default();
+            match decide(Some(have.as_str()), want) {
+                Verdict::Same | Verdict::Unreadable => {}
+                Verdict::KeepBlank => report.kept.push(Kept {
+                    id: t.id,
+                    field: key,
+                    value: have,
+                }),
+                Verdict::Set(to) => {
+                    let Some(next) = crate::npc_xml::set_attribute(&edited, key, &to, anchors)
+                    else {
+                        continue;
+                    };
+                    change.fields.push(FieldChange {
+                        field: key,
+                        from: have,
+                        to,
+                    });
+                    edited = next;
+                }
+            }
+        }
+        if change.fields.is_empty() {
+            continue;
+        }
+        // The same gate the other direction uses: an edit that does not read
+        // back as what it meant to say is a bug, not something to write.
+        for edit in &change.fields {
+            let back = crate::npc_xml::attribute(&edited, edit.field).unwrap_or_default();
+            if back != edit.to {
+                return Err(format!(
+                    "{}: rewriting npc {} {} produced a line that reads back as {back:?}, \
+                     not {:?} — nothing written",
+                    files[f].name(),
+                    change.id,
+                    edit.field,
+                    edit.to
+                ));
+            }
+        }
+        files[f].lines[l] = edited;
+        files[f].dirty = true;
+        report.changed.push(change);
+    }
+
+    // Templates the client's table has no row for: nothing to copy from, so
+    // they keep whatever the datapack already says.
+    let mut absent: Vec<&NpcTemplate> = wanted
+        .values()
+        .copied()
+        .filter(|t| sites.contains_key(&t.id) && !seen.contains(&t.id))
+        .collect();
+    absent.sort_unstable_by_key(|t| t.id);
+    report.missing.extend(absent.into_iter().map(|t| Entry {
+        id: t.id,
+        name: t.name.clone(),
+        title: t.title.clone(),
+    }));
+
+    if !opts.dry_run && !report.changed.is_empty() {
+        progress("writing");
+        for file in files.iter().filter(|f| f.dirty) {
+            file.save()?;
+            report.files_written.push(file.name());
+        }
+        report.written = true;
+        // The real parser, over the real files, having the last word: a line
+        // that reads back attribute-wise could still have broken the document.
+        progress("verifying");
+        verify_datapack(game_dir, &report.changed)?;
+    }
+
+    Ok(report)
+}
+
+/// Re-parse the datapack the way the server does and confirm every edit took.
+///
+/// The per-line readback already proved each attribute says what it should.
+/// This proves the *document* survived: a broken tag makes its whole file fail
+/// to parse, which drops a hundred NPCs at once and shows up nowhere else until
+/// the server starts.
+fn verify_datapack(game_dir: &Path, changed: &[RowChange]) -> Result<(), String> {
+    let reloaded = NpcData::load_from(&format!("{}/", game_dir.display()));
+    if reloaded.is_empty() {
+        return Err(format!(
+            "the datapack at {} no longer loads — check `git diff` before running again",
+            game_dir.display()
+        ));
+    }
+    for change in changed {
+        let Some(t) = reloaded.get(change.id) else {
+            return Err(format!(
+                "npc {} vanished from the datapack after the edit — check `git diff`",
+                change.id
+            ));
+        };
+        for f in &change.fields {
+            let got = if f.field == "name" { &t.name } else { &t.title };
+            if got != &f.to {
+                return Err(format!(
+                    "npc {} {} reloaded as {got:?}, not {:?} — check `git diff`",
+                    change.id, f.field, f.to
+                ));
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Splice `additions` (sorted by id) into `lines`, each before the first row
