@@ -1,5 +1,5 @@
 //! The instant (one-shot) skill effects — Java's `AbstractEffect.instant()`
-//! implementations, one function per [`SkillEffect`] variant.
+//! implementations, one function per [`crate::model::skill::SkillEffect`] variant.
 //!
 //! These were the fat arms of [`super::effects::apply_skill_effects`]'s match.
 //! They are pure extractions: each body is its original arm verbatim, with the
