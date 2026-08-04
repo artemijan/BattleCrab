@@ -107,11 +107,10 @@ impl QuestScript for Q00276TotemOfTheHestui {
                 1 => return Some("30571-04.html".to_string()),
                 2 => {
                     if ctx.quest_items_count(KASHA_CRYSTAL) > 0 {
-                        // TODO(newbie-guide): Java calls Q00261.giveNewbieReward
-                        // here (active in this dist), but GUIDE_MISSION has no
-                        // reader and the NpcString ExShowScreenMessage variant is
-                        // unported — deferred to the newbie-guide slice. See the
-                        // `l2r-newbie-reward-dead` note.
+                        // Java calls `Q00261_CollectorsDream.giveNewbieReward`
+                        // here — one of only two live callers on this dist
+                        // (it is commented out in every other newbie quest).
+                        crate::scripts::q00261_collectors_dream::give_newbie_reward(ctx);
                         for reward in REWARDS {
                             ctx.reward_items(reward, 1);
                         }

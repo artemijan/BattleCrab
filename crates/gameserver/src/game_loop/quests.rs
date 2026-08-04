@@ -968,6 +968,19 @@ impl<'w> QuestCtx<'w> {
         self.send(pkt);
     }
 
+    /// `player.sendPacket(new ExShowScreenMessage(npcString, position, time))`
+    /// — an on-screen banner whose text is a client-side string id.
+    ///
+    /// Simulated probes are suppressed, as for every other send here.
+    pub fn send_screen_message_npc_string(&self, npc_string_id: i32, position: i32, time: i32) {
+        self.send(server_packets::ex_show_screen_message_npc_string(
+            npc_string_id,
+            position,
+            time,
+            &[],
+        ));
+    }
+
     /// `player.sendPacket(SystemMessageId.X)` — a parameterless system message.
     ///
     /// Prefer this over reaching into `world.clients` from a script: it routes
@@ -1095,6 +1108,22 @@ impl<'w> QuestCtx<'w> {
             .get_component::<crate::model::components::PlayerVariables>(&self.player)
             .map(|v| v.get_int(key, default))
             .unwrap_or(default)
+    }
+
+    /// `player.getVariables().getString(key, null)` — the raw value, so a
+    /// caller can tell **absent** from a stored zero.
+    ///
+    /// [`player_var_int`] cannot: it folds both into its default. Java leans on
+    /// the difference wherever a variable's *first* write is special —
+    /// `giveNewbieReward` seeds `GUIDE_MISSION` to 100000 when unset but adds a
+    /// digit when it exists, and those two branches disagree for a stored 0.
+    ///
+    /// [`player_var_int`]: QuestCtx::player_var_int
+    pub fn player_var(&self, key: &str) -> Option<String> {
+        self.world
+            .objects
+            .get_component::<crate::model::components::PlayerVariables>(&self.player)
+            .and_then(|v| v.0.get(key).cloned())
     }
 
     /// `player.getVariables().set(key, value)` (memory-first — flushed with

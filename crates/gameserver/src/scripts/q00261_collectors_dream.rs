@@ -12,6 +12,60 @@ const SPIDER_LEG: i32 = 1087;
 const MIN_LEVEL: i32 = 15;
 const MAX_LEG_COUNT: i64 = 8;
 
+/// `GUIDE_MISSION` — the bit-packed newbie-guide progress variable. Java packs
+/// several missions into one integer; this quest owns the ten-millions digit.
+const GUIDE_MISSION: &str = "GUIDE_MISSION";
+/// This quest's digit within `GUIDE_MISSION` (`/ 10000000 % 10`).
+const GUIDE_MISSION_STEP: i32 = 10_000_000;
+/// The value Java seeds the variable with on first award.
+const GUIDE_MISSION_INITIAL: i32 = 100_000;
+/// `NpcStringId.LAST_DUTY_COMPLETE_N_GO_FIND_THE_NEWBIE_HELPER` (4155).
+const LAST_DUTY_COMPLETE: i32 = 4155;
+/// `ExShowScreenMessage` position 2 = top centre, for 5000 ms — Java's
+/// `MESSAGE` constant.
+const MESSAGE_POSITION: i32 = 2;
+const MESSAGE_TIME: i32 = 5_000;
+
+/// Java `Q00261_CollectorsDream.giveNewbieReward(Player)` — a **static** helper
+/// that other newbie quests call, which is why it lives here and is `pub`.
+///
+/// Award the newbie-guide mission credit once: seed `GUIDE_MISSION` if unset,
+/// otherwise add this quest's digit if it is not already 1. Either way the
+/// player sees the "last duty complete" banner; if the digit was already set,
+/// nothing happens at all.
+///
+/// The variable half is bookkeeping with no reader in this port yet — the
+/// newbie-guide mission-list UI that consumes it is not ported. It is written
+/// anyway because it *persists*: a player who finishes the errand today should
+/// not have to redo it when that UI lands. The banner half is real,
+/// player-visible behaviour and was the actual gap.
+///
+/// This must be a **player** variable, not a `QuestState` var: both callers are
+/// repeatable quests that `exit_quest`, which drops the quest state. Stored
+/// there the credit would vanish on the same turn-in that earned it, and the
+/// once-only guard would never fire.
+///
+/// Note the dist: `giveNewbieReward` is commented out in nearly every other
+/// newbie quest (Q257, Q260, Q265, Q273, …), so their ports correctly omit it.
+/// Only this quest and Q276 call it live — do not "restore" it elsewhere.
+pub fn give_newbie_reward(ctx: &mut QuestCtx) {
+    // Java tests `getString(key, null) == null`, so an *absent* variable and a
+    // stored 0 take different branches. Read the raw value to keep that.
+    let next = match ctx.player_var(GUIDE_MISSION) {
+        None => GUIDE_MISSION_INITIAL,
+        Some(raw) => {
+            let v: i32 = raw.parse().unwrap_or(0);
+            // Java: `((vars % 100000000) / 10000000) != 1` — this quest's digit.
+            if (v % 100_000_000) / GUIDE_MISSION_STEP == 1 {
+                return; // already credited; Java sends no message either
+            }
+            v + GUIDE_MISSION_STEP
+        }
+    };
+    ctx.set_player_var_int(GUIDE_MISSION, next);
+    ctx.send_screen_message_npc_string(LAST_DUTY_COMPLETE, MESSAGE_POSITION, MESSAGE_TIME);
+}
+
 pub struct Q00261CollectorsDream;
 
 impl QuestScript for Q00261CollectorsDream {
@@ -79,12 +133,7 @@ impl QuestScript for Q00261CollectorsDream {
             match ctx.cond() {
                 1 => return Some("30222-04.html".to_string()),
                 2 if ctx.quest_items_count(SPIDER_LEG) >= MAX_LEG_COUNT => {
-                    // TODO(newbie-guide): Java also calls `giveNewbieReward`
-                    // (sets the `GUIDE_MISSION` player variable + an
-                    // ExShowScreenMessage "last duty complete"). Deferred with
-                    // the newbie-guide mission system — nothing reads
-                    // GUIDE_MISSION in the port yet and ExShowScreenMessage is
-                    // unported, so the tracking would be inert.
+                    give_newbie_reward(ctx);
                     ctx.give_adena(700, true);
                     ctx.exit_quest(true, true);
                     return Some("30222-05.html".to_string());

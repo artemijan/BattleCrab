@@ -46,8 +46,8 @@ pub fn ex_red_sky(duration: i32) -> Vec<u8> {
 /// this is the plain `writeImpl`: the fixed field block then, since
 /// `npcString == -1`, the raw text. `type = 2`, `sysMessageId = -1`, `size`,
 /// `effect`, `fade`, and the three `unk`s are the `(text, time)` constructor's
-/// defaults (all 0/false). The NpcString / parameterised variants are a later
-/// addition when a caller needs them.
+/// defaults (all 0/false). For a client-side string see
+/// [`ex_show_screen_message_npc_string`].
 pub fn ex_show_screen_message(text: &str, position: i32, time: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
@@ -64,6 +64,41 @@ pub fn ex_show_screen_message(text: &str, position: i32, time: i32) -> Vec<u8> {
     w.write_i32(0); // fade (false)
     w.write_i32(-1); // npcString
     w.write_string(text);
+    w.into_bytes()
+}
+
+/// `ExShowScreenMessage(NpcStringId npcString, int position, int time,
+/// String... params)` — the same banner, but the text comes from the client's
+/// own string table instead of the wire.
+///
+/// The field block is identical to [`ex_show_screen_message`]; only the tail
+/// differs, and it is an either/or, not both: Java writes the free text **only
+/// when `npcString == -1`**, and otherwise writes the parameter strings. So a
+/// caller must not expect to send an npcString *and* a literal — passing an
+/// empty `params` is the no-substitution case and writes nothing at all.
+pub fn ex_show_screen_message_npc_string(
+    npc_string_id: i32,
+    position: i32,
+    time: i32,
+    params: &[&str],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_SCREEN_MESSAGE);
+    w.write_i32(2); // type
+    w.write_i32(-1); // sysMessageId
+    w.write_i32(position);
+    w.write_i32(0); // unk1
+    w.write_i32(0); // size
+    w.write_i32(0); // unk2
+    w.write_i32(0); // unk3
+    w.write_i32(0); // effect (false)
+    w.write_i32(time);
+    w.write_i32(0); // fade (false)
+    w.write_i32(npc_string_id);
+    for p in params {
+        w.write_string(p);
+    }
     w.into_bytes()
 }
 

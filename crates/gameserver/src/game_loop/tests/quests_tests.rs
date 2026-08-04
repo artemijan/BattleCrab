@@ -7153,6 +7153,78 @@ fn quest_q00261_collectors_dream_loop() {
         quest_cond(&world, 3001, q).is_none(),
         "repeatable exit clears the record"
     );
+
+    // `giveNewbieReward`: the GUIDE_MISSION digit is seeded and the "last duty
+    // complete" banner shown. The variable has no reader in this port yet, but
+    // it persists, so the credit survives until the newbie-guide UI lands.
+    let guide_var = |w: &World| {
+        w.objects
+            .get_component::<crate::model::components::PlayerVariables>(&3001)
+            .and_then(|v| v.0.get("GUIDE_MISSION").cloned())
+    };
+    assert_eq!(
+        guide_var(&world).as_deref(),
+        Some("100000"),
+        "GUIDE_MISSION seeded on the first award"
+    );
+
+    // The banner is an ExShowScreenMessage carrying NpcStringId 4155 rather
+    // than wire text — the tail after the npcString field must be *empty*,
+    // since Java writes the literal only when npcString == -1.
+    let banner = |pkts: &[Vec<u8>]| -> Vec<i32> {
+        pkts.iter()
+            .filter(|p| {
+                p.len() > 3
+                    && p[0] == crate::network::server_packets::opcodes::EX
+                    && i16::from_le_bytes([p[1], p[2]])
+                        == crate::network::server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE
+            })
+            .map(|p| {
+                let mut r = commons::network::PacketReader::new(&p[3..]);
+                for _ in 0..10 {
+                    let _ = r.read_i32();
+                }
+                r.read_i32().unwrap() // npcString
+            })
+            .collect()
+    };
+
+    // rx still holds the turn-in burst, so this is the first award's banner.
+    assert_eq!(
+        banner(&drain(&mut rx)),
+        vec![4155],
+        "LAST_DUTY_COMPLETE_N_GO_FIND_THE_NEWBIE_HELPER on the first award"
+    );
+
+    // Do the whole loop again: the quest is repeatable, but the newbie credit
+    // is not. Java's `!= 1` guard means the second completion sets nothing and
+    // — this is the part worth pinning — sends no banner either.
+    for i in 8..16 {
+        let species = [20308, 20460, 20466][(i % 3) as usize];
+        add_test_npc(&mut world, mob + i, species, "Monster", 18, 30, 0, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")),
+    );
+    let second = drain(&mut rx);
+    assert_eq!(
+        guide_var(&world).as_deref(),
+        Some("100000"),
+        "the digit is credited once, not once per run"
+    );
+    assert!(
+        banner(&second).is_empty(),
+        "no second banner: Java's != 1 guard skips the whole branch"
+    );
 }
 
 /// Q00261 refuses a starter above level 21 (`addCondMaxLevel(21)`): the quest
