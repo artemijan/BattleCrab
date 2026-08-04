@@ -610,7 +610,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="30915" level="70" type="Folk" name="Takina" title="Seer">
+	<npc id="30915" level="70" type="Folk" name="Takina" title="Priest">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1463,7 +1463,7 @@
 			<height normal="17.5" />
 		</collision>
 	</npc>
-	<npc id="30936" level="70" type="Monster" name="Malcom1" title="Frog Prince">
+	<npc id="30936" level="70" type="Monster" name="Pona" title="Collector">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1504,7 +1504,7 @@
 			<height normal="10" />
 		</collision>
 	</npc>
-	<npc id="30937" level="70" type="Monster" name="Malcom2" title="Wild Boar Prince">
+	<npc id="30937" level="70" type="Monster" name="Morita" title="Wild Boar Prince">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="95" />
@@ -1545,7 +1545,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="30938" level="70" type="Monster" name="Malcom3" title="Orc Prince">
+	<npc id="30938" level="70" type="Monster" name="Vanutu" title="Priest">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -2100,7 +2100,7 @@
 			<height normal="19.7" />
 		</collision>
 	</npc>
-	<npc id="30952" level="70" type="Folk" name="Dimensional Vortex 1">
+	<npc id="30952" level="70" type="Folk" name="Dimensional Vortex">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2468,7 +2468,7 @@
 			<height normal="14" />
 		</collision>
 	</npc>
-	<npc id="30961" level="70" type="Folk" name="Cloth Chest">
+	<npc id="30961" level="70" type="Folk" name="Clothes Chest">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2509,7 +2509,7 @@
 			<height normal="9.5" />
 		</collision>
 	</npc>
-	<npc id="30962" level="70" type="Folk" name="Statue of Water">
+	<npc id="30962" level="70" type="Folk" name="Chest Caught with an Icy Air Bait">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2550,7 +2550,7 @@
 			<height normal="9.5" />
 		</collision>
 	</npc>
-	<npc id="30963" level="70" type="Folk" name="Statue of Fire">
+	<npc id="30963" level="70" type="Folk" name="Chest Caught with a Bait of Flame">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2591,7 +2591,7 @@
 			<height normal="9.5" />
 		</collision>
 	</npc>
-	<npc id="30964" level="70" type="Folk" name="Statue of Wind">
+	<npc id="30964" level="70" type="Folk" name="Chest Caught with a Wind Bait">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2632,7 +2632,7 @@
 			<height normal="9.5" />
 		</collision>
 	</npc>
-	<npc id="30965" level="70" type="Folk" name="Statue of Earth">
+	<npc id="30965" level="70" type="Folk" name="Chest Caught with an Earth Bait">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2835,7 +2835,7 @@
 			<height normal="20.5" />
 		</collision>
 	</npc>
-	<npc id="30970" level="70" type="Folk" name="Dorothy" title="Locksmith">
+	<npc id="30970" level="70" type="Folk" name="Dorothy" title="Blacksmith">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2915,7 +2915,7 @@
 			<height normal="18" />
 		</collision>
 	</npc>
-	<npc id="30972" level="70" type="Monster" name="Orpheus Resurrecter">
+	<npc id="30972" level="70" type="Monster" name="Orpheus Resurrector">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3281,7 +3281,7 @@
 			<height normal="36.5" />
 		</collision>
 	</npc>
-	<npc id="30981" level="70" type="Folk" name="Black Judge">
+	<npc id="30981" level="70" type="Folk" name="Dark Judge">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

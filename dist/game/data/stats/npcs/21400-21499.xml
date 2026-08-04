@@ -2737,7 +2737,7 @@
       <height normal="28.5"/>
     </collision>
   </npc>
-  <npc id="21439" level="66" type="Monster" name="Heathen Executed">
+  <npc id="21439" level="66" type="Monster" name="Heathen Inmate">
     <!-- Confirmed CT2.5 -->
     <parameters>
       <param name="MoveAroundSocial" value="130"/>
@@ -2902,7 +2902,7 @@
       <height normal="27"/>
     </collision>
   </npc>
-  <npc id="21441" level="68" type="Monster" name="Heathen Grunt">
+  <npc id="21441" level="68" type="Monster" name="Heathen Soldier">
     <!-- Confirmed CT2.5 -->
     <parameters>
       <param name="MoveAroundSocial" value="0"/>
@@ -3589,7 +3589,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21450" level="68" type="Monster" name="Alpine Grendel">
+  <npc id="21450" level="68" type="Monster" name="Alpen Grendel">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="115"/>
@@ -3659,7 +3659,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21451" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21451" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -3752,7 +3752,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21452" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21452" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -3821,7 +3821,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21453" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21453" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -3891,7 +3891,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21454" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21454" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -3960,7 +3960,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21455" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21455" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -4030,7 +4030,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21456" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21456" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -4110,7 +4110,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21457" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21457" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -4193,7 +4193,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21458" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21458" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -4275,7 +4275,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21459" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21459" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="78"/>
@@ -4353,7 +4353,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21460" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21460" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4425,7 +4425,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21461" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21461" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4497,7 +4497,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21462" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21462" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4569,7 +4569,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21463" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21463" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4640,7 +4640,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21464" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21464" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4722,7 +4722,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21465" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21465" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4807,7 +4807,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21466" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21466" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4892,7 +4892,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21467" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21467" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -4973,7 +4973,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21468" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21468" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -5040,7 +5040,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21469" level="65" type="FeedableBeast" name="Alpine Kookaburra">
+  <npc id="21469" level="65" type="FeedableBeast" name="Alpen Kookaburra">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="72"/>
@@ -5110,7 +5110,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21470" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21470" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5205,7 +5205,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21471" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21471" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5274,7 +5274,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21472" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21472" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5345,7 +5345,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21473" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21473" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5414,7 +5414,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21474" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21474" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5484,7 +5484,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21475" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21475" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5568,7 +5568,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21476" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21476" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5649,7 +5649,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21477" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21477" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5733,7 +5733,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21478" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21478" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="70"/>
@@ -5814,7 +5814,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21479" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21479" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -5885,7 +5885,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21480" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21480" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -5957,7 +5957,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21481" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21481" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6028,7 +6028,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21482" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21482" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6100,7 +6100,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21483" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21483" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6179,7 +6179,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21484" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21484" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6264,7 +6264,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21485" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21485" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6347,7 +6347,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21486" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21486" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6430,7 +6430,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21487" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21487" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6497,7 +6497,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21488" level="67" type="FeedableBeast" name="Alpine Buffalo">
+  <npc id="21488" level="67" type="FeedableBeast" name="Alpen Buffalo">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6567,7 +6567,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21489" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21489" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6654,7 +6654,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21490" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21490" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6723,7 +6723,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21491" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21491" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6793,7 +6793,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21492" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21492" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6862,7 +6862,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21493" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21493" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -6932,7 +6932,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21494" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21494" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -7009,7 +7009,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21495" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21495" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -7086,7 +7086,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21496" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21496" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -7165,7 +7165,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21497" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21497" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="120"/>
@@ -7245,7 +7245,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21498" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21498" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="90"/>
@@ -7316,7 +7316,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21499" level="69" type="FeedableBeast" name="Alpine Cougar">
+  <npc id="21499" level="69" type="FeedableBeast" name="Alpen Cougar">
     <!-- Interlude - C6 -->
     <parameters>
       <param name="MoveAroundSocial" value="90"/>

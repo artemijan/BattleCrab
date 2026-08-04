@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="27300" level="76" type="Monster" name="Monument Watcher Ezekiel" title="Quest Monster">
+	<npc id="27300" level="76" type="Monster" name="Stone Watchman Ezekiel" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -54,7 +54,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27301" level="76" type="Monster" name="Monument Watcher Ezekiel" title="Quest Monster">
+	<npc id="27301" level="76" type="Monster" name="Stone Watchman Ezekiel" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -108,7 +108,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27302" level="78" type="Monster" name="Monument Defender Azrael" title="Quest Monster">
+	<npc id="27302" level="78" type="Monster" name="Stone Guardian Azrael" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -150,7 +150,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27303" level="78" type="Monster" name="Monument Defender Azrael" title="Quest Monster">
+	<npc id="27303" level="78" type="Monster" name="Stone Guardian Azrael" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -192,7 +192,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27304" level="78" type="Monster" name="Monument Defender Azrael" title="Quest Monster">
+	<npc id="27304" level="78" type="Monster" name="Stone Guardian Azrael" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -234,7 +234,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27305" level="78" type="Monster" name="Monument Defender Azrael" title="Quest Monster">
+	<npc id="27305" level="78" type="Monster" name="Stone Guardian Azrael" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -276,7 +276,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27306" level="78" type="Monster" name="Monument Defender Azrael" title="Quest Monster">
+	<npc id="27306" level="78" type="Monster" name="Stone Guardian Azrael" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -318,7 +318,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27307" level="78" type="Monster" name="Monument Defender Azrael" title="Quest Monster">
+	<npc id="27307" level="78" type="Monster" name="Stone Guardian Azrael" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -714,7 +714,7 @@
 			<height normal="38.5" grown="46.5" />
 		</collision>
 	</npc>
-	<npc id="27316" level="55" type="Monster" name="Fallen Chieftain Vegus" title="Quest Monster">
+	<npc id="27316" level="55" type="Monster" name="Ice Monster" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -756,7 +756,7 @@
 			<height normal="24" grown="28.8" />
 		</collision>
 	</npc>
-	<npc id="27317" level="70" type="Monster" name="Restrainer of Glory" title="Quest Monster">
+	<npc id="27317" level="70" type="Monster" name="Spirit of a Drowned" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -798,7 +798,7 @@
 			<height normal="32" />
 		</collision>
 	</npc>
-	<npc id="27318" level="46" type="Monster" name="Wendy's Guardian" title="Quest Monster">
+	<npc id="27318" level="46" type="Monster" name="Soul of Cold" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -839,7 +839,7 @@
 			<height normal="37.2" />
 		</collision>
 	</npc>
-	<npc id="27319" level="18" type="Monster" name="Black Leopard" title="Quest Monster">
+	<npc id="27319" level="18" type="Monster" name="Ghost of Solitude" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -880,7 +880,7 @@
 			<height normal="14.5" />
 		</collision>
 	</npc>
-	<npc id="27320" level="20" type="Monster" name="Timora Orc" title="Quest Monster">
+	<npc id="27320" level="20" type="Monster" name="Fiend of Cold" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="35" />
@@ -922,7 +922,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="27321" level="20" type="Monster" name="Bruin Lizardman" title="Quest Monster">
+	<npc id="27321" level="20" type="Monster" name="Spirit of Cold" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
@@ -959,7 +959,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="27322" level="27" type="Monster" name="Picot Araneid" title="Quest Monster">
+	<npc id="27322" level="27" type="Monster" name="Possessed Windsus" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<race>BUG</race>
 		<sex>MALE</sex>
@@ -995,7 +995,7 @@
 			<height normal="38" />
 		</collision>
 	</npc>
-	<npc id="27323" level="40" type="Monster" name="Divine Emissary" title="Quest Monster">
+	<npc id="27323" level="40" type="Monster" name="Windsus Whelp" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="50" />
@@ -1037,7 +1037,7 @@
 			<height normal="36.5" grown="42.5" />
 		</collision>
 	</npc>
-	<npc id="27324" level="76" type="Monster" name="Vision Guard Eranus" title="Quest Monster">
+	<npc id="27324" level="76" type="Monster" name="Windsus of Terror" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="130" />
@@ -1091,7 +1091,7 @@
 			<height normal="30" grown="36.5" />
 		</collision>
 	</npc>
-	<npc id="27325" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27325" level="76" type="Monster" name="Weak Windsus" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1269,7 +1269,7 @@
 			<height normal="47" />
 		</collision>
 	</npc>
-	<npc id="27329" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27329" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1406,7 +1406,7 @@
 			<height normal="25.4" />
 		</collision>
 	</npc>
-	<npc id="27334" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27334" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1658,7 +1658,7 @@
 			<height normal="21.5" grown="25.8" />
 		</collision>
 	</npc>
-	<npc id="27340" level="39" type="Monster" name="Pursuer">
+	<npc id="27340" level="39" type="Monster" name="Tracker">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="130" />

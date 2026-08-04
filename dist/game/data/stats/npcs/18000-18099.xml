@@ -67,7 +67,7 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="18002" level="60" type="Monster" name="Bomb">
+	<npc id="18002" level="60" type="Monster" name="Scarecrow">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="60" />
@@ -143,7 +143,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="18003" level="1" type="Monster" name="Nepetir">
+	<npc id="18003" level="1" type="Monster" name="Bomb">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -183,7 +183,7 @@
 			<height normal="10" />
 		</collision>
 	</npc>
-	<npc id="18004" level="49" type="Monster" name="Susceptor Prime">
+	<npc id="18004" level="49" type="Monster" name="Tower">
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
@@ -311,7 +311,7 @@
 			<height normal="45" grown="52" />
 		</collision>
 	</npc>
-	<npc id="18007" level="69" type="Monster" name="Limal Karinness">
+	<npc id="18007" level="69" type="Monster" name="Captain of Blood Knights" title="Chaos Decoy">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="60" />
@@ -706,7 +706,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="18015" level="34" type="FestivalMonster" name="Offering of the Branded, Zealot">
+	<npc id="18015" level="34" type="FestivalMonster" name="Blood Knight" title="Chaos Decoy">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="1" />
@@ -755,7 +755,7 @@
 			<height normal="26.4" />
 		</collision>
 	</npc>
-	<npc id="18016" level="32" type="FestivalMonster" name="Offering of the Branded, Sniper">
+	<npc id="18016" level="32" type="FestivalMonster" name="Treasure Chest" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="1" />
@@ -798,7 +798,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="18017" level="34" type="FestivalMonster" name="Offering of the Branded, Disciple">
+	<npc id="18017" level="34" type="FestivalMonster" name="Teleport" title="Giant's Cave">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="1" />
@@ -942,7 +942,7 @@
 			<height normal="27.6" />
 		</collision>
 	</npc>
-	<npc id="18020" level="43" type="FestivalMonster" name="Apostate's Offering">
+	<npc id="18020" level="43" type="FestivalMonster" name="Queen Ant">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -987,7 +987,7 @@
 			<height normal="22" grown="26.4" />
 		</collision>
 	</npc>
-	<npc id="18021" level="39" type="FestivalMonster" name="Apostate's Offering, Archer">
+	<npc id="18021" level="39" type="FestivalMonster" name="Queen Ant Larva">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1030,7 +1030,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="18022" level="40" type="FestivalMonster" name="Apostate's Offering, Warrior">
+	<npc id="18022" level="40" type="FestivalMonster" name="Nurse Ant">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1078,7 +1078,7 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="18023" level="40" type="FestivalMonster" name="Apostate's Offering, Follower">
+	<npc id="18023" level="40" type="FestivalMonster" name="Escort Ant">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1129,7 +1129,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="18024" level="48" type="FestivalMonster" name="Apostate's Offering, Berserker">
+	<npc id="18024" level="48" type="FestivalMonster" name="Royal Guard Ant">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1177,7 +1177,7 @@
 			<height normal="32" />
 		</collision>
 	</npc>
-	<npc id="18025" level="45" type="FestivalMonster" name="Apostate's Offering, Zealot">
+	<npc id="18025" level="45" type="FestivalMonster" name="Nakondas" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1227,7 +1227,7 @@
 			<height normal="25.3" />
 		</collision>
 	</npc>
-	<npc id="18026" level="43" type="FestivalMonster" name="Apostate's Offering, Sniper">
+	<npc id="18026" level="43" type="FestivalMonster" name="Nakondas' Slave" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1270,7 +1270,7 @@
 			<height normal="25.3" />
 		</collision>
 	</npc>
-	<npc id="18027" level="45" type="FestivalMonster" name="Apostate's Offering, Disciple">
+	<npc id="18027" level="45" type="FestivalMonster" name="Nakondas' Chain" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1315,7 +1315,7 @@
 			<height normal="24" grown="28.8" />
 		</collision>
 	</npc>
-	<npc id="18028" level="50" type="FestivalMonster" name="Apostate's Offering, Saint">
+	<npc id="18028" level="50" type="FestivalMonster" name="Crazy Mechanic Golem" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="2" />
@@ -1363,7 +1363,7 @@
 			<height normal="28.8" grown="34.9" />
 		</collision>
 	</npc>
-	<npc id="18029" level="56" type="FestivalMonster" name="Witch's Offering, Elder">
+	<npc id="18029" level="56" type="FestivalMonster" name="Orfen">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1414,7 +1414,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="18030" level="54" type="FestivalMonster" name="Witch's Offering">
+	<npc id="18030" level="54" type="FestivalMonster" name="Laikel">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1459,7 +1459,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="18031" level="50" type="FestivalMonster" name="Witch's Offering, Archer">
+	<npc id="18031" level="50" type="FestivalMonster" name="Laikel Leos">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1502,7 +1502,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="18032" level="51" type="FestivalMonster" name="Witch's Offering, Warrior">
+	<npc id="18032" level="51" type="FestivalMonster" name="Riba">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1550,7 +1550,7 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="18033" level="51" type="FestivalMonster" name="Witch's Offering, Follower">
+	<npc id="18033" level="51" type="FestivalMonster" name="Riba Iren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1601,7 +1601,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="18034" level="59" type="FestivalMonster" name="Witch's Offering, Berserker">
+	<npc id="18034" level="59" type="FestivalMonster" name="Beleth' Seer Sephia" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1650,7 +1650,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="18035" level="56" type="FestivalMonster" name="Witch's Offering, Zealot">
+	<npc id="18035" level="56" type="FestivalMonster" name="Soul Drinker" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1700,7 +1700,7 @@
 			<height normal="25.3" />
 		</collision>
 	</npc>
-	<npc id="18036" level="54" type="FestivalMonster" name="Witch's Offering, Sniper">
+	<npc id="18036" level="54" type="FestivalMonster" name="Sephia's Salve" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1743,7 +1743,7 @@
 			<height normal="25.3" />
 		</collision>
 	</npc>
-	<npc id="18037" level="56" type="FestivalMonster" name="Witch's Offering, Disciple">
+	<npc id="18037" level="56" type="FestivalMonster" name="Timak Priest Ragoth" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1788,7 +1788,7 @@
 			<height normal="24" grown="28.8" />
 		</collision>
 	</npc>
-	<npc id="18038" level="61" type="FestivalMonster" name="Witch's Offering, Saint">
+	<npc id="18038" level="61" type="FestivalMonster" name="Ragoth' Escort" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="3" />
@@ -1836,7 +1836,7 @@
 			<height normal="28.8" grown="34.9" />
 		</collision>
 	</npc>
-	<npc id="18039" level="67" type="FestivalMonster" name="Dark Omen Offering Elder">
+	<npc id="18039" level="67" type="FestivalMonster" name="Ragoth' Herald" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -1887,7 +1887,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="18040" level="65" type="FestivalMonster" name="Dark Omen Offering">
+	<npc id="18040" level="65" type="FestivalMonster" name="Lord Ishka" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -1932,7 +1932,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="18041" level="61" type="FestivalMonster" name="Dark Omen Offering Archer">
+	<npc id="18041" level="61" type="FestivalMonster" name="Ishka's Elite Officer" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -1975,7 +1975,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="18042" level="62" type="FestivalMonster" name="Dark Omen Offering Warrior">
+	<npc id="18042" level="62" type="FestivalMonster" name="Ishka's Elite Soldier" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -2023,7 +2023,7 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="18043" level="62" type="FestivalMonster" name="Dark Omen Offering Follower">
+	<npc id="18043" level="62" type="FestivalMonster" name="Taik High Prefect Arak" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -2074,7 +2074,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="18044" level="70" type="FestivalMonster" name="Dark Omen Offering Berserker">
+	<npc id="18044" level="70" type="FestivalMonster" name="Arak's Archer" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -2123,7 +2123,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="18045" level="67" type="FestivalMonster" name="Dark Omen Offering Zealot">
+	<npc id="18045" level="67" type="FestivalMonster" name="Arak's Footman" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -2173,7 +2173,7 @@
 			<height normal="25.3" />
 		</collision>
 	</npc>
-	<npc id="18046" level="65" type="FestivalMonster" name="Dark Omen Offering Sniper">
+	<npc id="18046" level="65" type="FestivalMonster" name="Roaring Lord Kastor" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -2216,7 +2216,7 @@
 			<height normal="25.3" />
 		</collision>
 	</npc>
-	<npc id="18047" level="67" type="FestivalMonster" name="Dark Omen Offering Disciple">
+	<npc id="18047" level="67" type="FestivalMonster" name="Kastor's Priest" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -2261,7 +2261,7 @@
 			<height normal="24" grown="28.8" />
 		</collision>
 	</npc>
-	<npc id="18048" level="72" type="FestivalMonster" name="Dark Omen Offering Saint">
+	<npc id="18048" level="72" type="FestivalMonster" name="Kastor's Prefect" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="4" />
@@ -2309,7 +2309,7 @@
 			<height normal="28.8" grown="34.9" />
 		</collision>
 	</npc>
-	<npc id="18049" level="78" type="FestivalMonster" name="Offering of Forbidden Path, Elder">
+	<npc id="18049" level="78" type="FestivalMonster" name="Shilen's Messenger Cabrio" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
@@ -2360,7 +2360,7 @@
 			<height normal="28.8" grown="34.9" />
 		</collision>
 	</npc>
-	<npc id="18050" level="76" type="FestivalMonster" name="Offering of Forbidden Path">
+	<npc id="18050" level="76" type="FestivalMonster" name="Cabrio Captor" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
@@ -2405,7 +2405,7 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="18051" level="78" type="FestivalMonster" name="Offering of Forbidden Path, Archer">
+	<npc id="18051" level="78" type="FestivalMonster" name="Cabrio Blader" title="Raid Fighter">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
@@ -2448,7 +2448,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="18052" level="78" type="FestivalMonster" name="Offering of Forbidden Path, Warrior">
+	<npc id="18052" level="78" type="FestivalMonster" name="Priest of Core Decar" title="Raid Boss">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
@@ -2496,7 +2496,7 @@
 			<height normal="24" grown="28.8" />
 		</collision>
 	</npc>
-	<npc id="18053" level="78" type="FestivalMonster" name="Offering of Forbidden Path, Follower">
+	<npc id="18053" level="78" type="FestivalMonster" name="Baium">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />
@@ -2547,7 +2547,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="18054" level="78" type="FestivalMonster" name="Offering of Forbidden Path, Berserker">
+	<npc id="18054" level="78" type="FestivalMonster" name="Archangel">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RoomIndex" value="5" />

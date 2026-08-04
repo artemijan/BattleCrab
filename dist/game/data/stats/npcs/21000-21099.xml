@@ -3993,7 +3993,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21081" level="75" type="Monster" name="Power Angel Amon">
+	<npc id="21081" level="75" type="Monster" name="Power Angel Amon" title="Tower Guardian">
 		<parameters>
 			<param name="MoveAroundSocial" value="50" />
 			<param name="MoveAroundSocial1" value="50" />

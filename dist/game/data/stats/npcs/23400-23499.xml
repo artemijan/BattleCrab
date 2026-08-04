@@ -698,7 +698,7 @@
 			<height normal="63" />
 		</collision>
 	</npc>
-	<npc id="23428" level="80" type="Monster" name="Captain" title="Dragonblood">
+	<npc id="23428" level="80" type="Monster" name="Dragonblood Captain" title="Dragonblood">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DRAGON</race>
 		<sex>FEMALE</sex>
@@ -725,7 +725,7 @@
 			<height normal="42" />
 		</collision>
 	</npc>
-	<npc id="23429" level="79" type="Monster" name="Minion" title="Dragonblood">
+	<npc id="23429" level="79" type="Monster" name="Dragonblood Minion" title="Dragonblood">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="35300" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35300" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -44,7 +44,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35301" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35301" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -88,7 +88,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35302" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35302" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -132,7 +132,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35303" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35303" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -176,7 +176,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35304" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35304" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -220,7 +220,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35305" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35305" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -264,7 +264,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35306" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35306" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -308,7 +308,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35307" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35307" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -588,7 +588,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35312" level="75" type="Folk" name="Outer Doorman" title="Innadril">
+	<npc id="35312" level="75" type="Folk" name="Outer Castle Gatekeeper" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -638,7 +638,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35313" level="75" type="Folk" name="Inner Doorman" title="Innadril">
+	<npc id="35313" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -769,7 +769,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35316" level="75" type="Merchant" name="Neurath" title="Chamberlain">
+	<npc id="35316" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
@@ -945,7 +945,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35320" level="75" type="Folk" name="Raybell" title="Sir">
+	<npc id="35320" level="75" type="Folk" name="Raybell" title="Herald from Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1193,7 +1193,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35327" level="77" type="Defender" name="Court Sorcerer" title="Goddard">
+	<npc id="35327" level="77" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4114" level="1" /> <!-- Aden Flame -->
@@ -1241,7 +1241,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35328" level="77" type="Defender" name="Court Sorcerer" title="Goddard">
+	<npc id="35328" level="77" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4115" level="1" /> <!-- Aden Heal -->
@@ -1289,7 +1289,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35329" level="77" type="Defender" name="Court Guard" title="Goddard">
+	<npc id="35329" level="77" type="Defender" name="Royal Guard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1333,7 +1333,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35330" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35330" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1377,7 +1377,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35331" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35331" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1421,7 +1421,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35332" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35332" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1465,7 +1465,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35333" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35333" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1509,7 +1509,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35334" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35334" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1553,7 +1553,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35335" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35335" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1597,7 +1597,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35336" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35336" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1641,7 +1641,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35337" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35337" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1685,7 +1685,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35338" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35338" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1773,7 +1773,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35340" level="77" type="Defender" name="Court Sorcerer" title="Goddard">
+	<npc id="35340" level="77" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4114" level="1" /> <!-- Aden Flame -->
@@ -1821,7 +1821,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35341" level="77" type="Defender" name="Court Sorcerer" title="Goddard">
+	<npc id="35341" level="77" type="Defender" name="Royal Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4115" level="1" /> <!-- Aden Heal -->
@@ -1869,7 +1869,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35342" level="77" type="Defender" name="Court Guard" title="Goddard">
+	<npc id="35342" level="77" type="Defender" name="Royal Guard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1913,7 +1913,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35343" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35343" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1957,7 +1957,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35344" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35344" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2001,7 +2001,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35345" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35345" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2045,7 +2045,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35346" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35346" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2089,7 +2089,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35347" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35347" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2133,7 +2133,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35348" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35348" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2177,7 +2177,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35349" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35349" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2221,7 +2221,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35350" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35350" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2265,7 +2265,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35351" level="75" type="Defender" name="Guard" title="Goddard">
+	<npc id="35351" level="75" type="Defender" name="Escort" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2541,7 +2541,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35356" level="75" type="Folk" name="Outer Doorman" title="Goddard">
+	<npc id="35356" level="75" type="Folk" name="Outer Castle Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2590,7 +2590,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35357" level="75" type="Folk" name="Inner Doorman" title="Goddard">
+	<npc id="35357" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2638,7 +2638,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35358" level="75" type="Folk" name="Inner Doorman" title="Goddard">
+	<npc id="35358" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2686,7 +2686,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35359" level="75" type="Folk" name="Doorman" title="Goddard">
+	<npc id="35359" level="75" type="Folk" name="Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2734,7 +2734,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35360" level="75" type="Folk" name="Doorman" title="Goddard">
+	<npc id="35360" level="75" type="Folk" name="Gatekeeper" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2863,7 +2863,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35363" level="75" type="Merchant" name="Alfred" title="Chamberlain">
+	<npc id="35363" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
@@ -2960,7 +2960,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35365" level="75" type="Merchant" name="Rowell" title="Manager of Mercenary">
+	<npc id="35365" level="75" type="Merchant" name="Rowell" title="Mercenary Manager">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3041,7 +3041,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35367" level="75" type="Folk" name="Daven" title="Messenger">
+	<npc id="35367" level="75" type="Folk" name="Daven" title="Herald from Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3169,7 +3169,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="35370" level="70" type="Monster" name="Partisan Court Guard">
+	<npc id="35370" level="70" type="Monster" name="Partisan Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
@@ -3212,7 +3212,7 @@
 			<height normal="27" grown="32" />
 		</collision>
 	</npc>
-	<npc id="35371" level="70" type="Monster" name="Partisan Court Guard">
+	<npc id="35371" level="70" type="Monster" name="Partisan Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
@@ -3298,7 +3298,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35373" level="68" type="Monster" name="Partisan Sorcerer">
+	<npc id="35373" level="68" type="Monster" name="Partisan Wizard">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
@@ -3481,7 +3481,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="35377" level="70" type="Monster" name="Partisan Court Guard">
+	<npc id="35377" level="70" type="Monster" name="Partisan Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
@@ -3524,7 +3524,7 @@
 			<height normal="27" grown="32" />
 		</collision>
 	</npc>
-	<npc id="35378" level="70" type="Monster" name="Partisan Court Guard">
+	<npc id="35378" level="70" type="Monster" name="Partisan Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
@@ -3610,7 +3610,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35380" level="68" type="Monster" name="Partisan Sorcerer">
+	<npc id="35380" level="68" type="Monster" name="Partisan Wizard">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>

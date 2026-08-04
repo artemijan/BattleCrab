@@ -4684,7 +4684,7 @@
       <height normal="36"/>
     </collision>
   </npc>
-  <npc id="25290" level="78" type="RaidBoss" name="Daimon the White-eyed" title="Raid Boss">
+  <npc id="25290" level="78" type="RaidBoss" name="Daimon the White-Eyed" title="Raid Boss">
     <!-- TODO this RB is not visible for some reason, I can see only minions -->
     <parameters>
       <minions name="Privates">

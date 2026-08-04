@@ -138,7 +138,7 @@
 			<height normal="35" grown="42" />
 		</collision>
 	</npc>
-	<npc id="23305" level="55" type="Monster" name="Skeleton">
+	<npc id="23305" level="55" type="Monster" name="Corroded Skeleton">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>

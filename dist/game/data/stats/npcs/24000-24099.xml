@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="24000" level="99" type="Folk" name="Leona Blackbird" title="Dragon's Advocate">
+	<npc id="24000" level="99" type="Folk" name="Leona Blackbird" title="Dragon’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -450,7 +450,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24018" level="78" type="Monster" name="Hekaton Prime">
+	<npc id="24018" level="78" type="Monster" name="Hekaton Prime" title="Giants' Cave Master">
 		<race>GIANT</race>
 		<acquire exp="1444329" sp="43329" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
@@ -537,7 +537,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24020" level="77" type="Monster" name="Batur">
+	<npc id="24020" level="77" type="Monster" name="Batur" title="Lesser Giant Soldier">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>GIANT</race>
 		<acquire exp="1051810" sp="31554" />
@@ -665,7 +665,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24023" level="102" type="Monster" name="Embryo Castle Siege Tank">
+	<npc id="24023" level="102" type="Monster" name="Hunter Destroyer" title="Lesser Giant Marauder">
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<acquire exp="13579514602" sp="27159121" />
@@ -690,7 +690,7 @@
 			<skill id="14804" level="10" /> <!-- Damage Reflection Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24024" level="100" type="Folk" name="Embryo Raider">
+	<npc id="24024" level="100" type="Folk" name="Hunter" title="Ancient Marauder">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
@@ -1397,7 +1397,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24039" level="75" type="Monster" name="Pearl Horror">
+	<npc id="24039" level="75" type="Monster" name="Pearl Horror" title="Cursed Soul">
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1436,7 +1436,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24040" level="75" type="Monster" name="Midnight Nightmare">
+	<npc id="24040" level="75" type="Monster" name="Midnight Nightmare" title="Zaken's Minion">
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1530,7 +1530,7 @@
 			<height normal="39" />
 		</collision>
 	</npc>
-	<npc id="24043" level="101" type="Monster" name="Castle Archer">
+	<npc id="24043" level="101" type="Monster" name="Mysterious Creature">
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="15302" />
@@ -1585,7 +1585,7 @@
 			<height normal="12" />
 		</collision>
 	</npc>
-	<npc id="24045" level="101" type="Monster" name="Orc Mercenary Warrior">
+	<npc id="24045" level="101" type="Monster" name="Zaken's Treasure Chest">
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="38425" />
@@ -1652,7 +1652,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24047" level="71" type="Monster" name="Floating Eye Seer">
+	<npc id="24047" level="71" type="Monster" name="Floating Eye Seer" title="Shadow Curse">
 		<!-- Source: www.l2wiki.com -->
 		<race>ETC</race> <!-- TODO: Magic Creatures -->
 		<acquire exp="15123" sp="453" />
@@ -1733,7 +1733,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24049" level="72" type="Monster" name="Immortal Spirit">
+	<npc id="24049" level="72" type="Monster" name="Immortal Spirit" title="Shadow Curse">
 		<!-- Source: www.l2wiki.com -->
 		<race>HUMAN</race>
 		<acquire exp="15549" sp="466" />
@@ -1819,7 +1819,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24051" level="72" type="Monster" name="Starving Spirit">
+	<npc id="24051" level="72" type="Monster" name="Starving Spirit" title="Shadow Curse">
 		<race>UNDEAD</race>
 		<acquire exp="15549" sp="466" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
@@ -1903,7 +1903,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24053" level="73" type="Monster" name="Starving Soldier">
+	<npc id="24053" level="73" type="Monster" name="Warrior" title="Shadow Curse">
 		<race>UNDEAD</race>
 		<acquire exp="15987" sp="479" />
 		<equipment rhand="47716" />
@@ -1986,7 +1986,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24055" level="74" type="Monster" name="Starving Warrior">
+	<npc id="24055" level="74" type="Monster" name="Starving Warrior" title="Shadow Curse">
 		<!-- Source: www.l2wiki.com -->
 		<race>UNDEAD</race>
 		<acquire exp="16428" sp="492" />
@@ -2023,7 +2023,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="24056" level="100" type="Monster" name="Knights Archer" title="Rune Castle Unit">
+	<npc id="24056" level="100" type="Monster" name="Luxurious Small Jar" title="Rune Castle Unit">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="15302" />
@@ -2049,7 +2049,7 @@
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24057" level="100" type="Monster" name="Knights Priest" title="Rune Castle Unit">
+	<npc id="24057" level="100" type="Monster" name="Fiend's Radiant Chest" title="Rune Castle Unit">
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<acquire exp="233823400" sp="233900" />
@@ -2075,7 +2075,7 @@
 			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24058" level="100" type="Monster" name="Vampire Warrior">
+	<npc id="24058" level="100" type="Monster" name="Radiant Treasure Chest">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
@@ -2100,7 +2100,7 @@
 			<skill id="4435" level="5" /> <!-- High Stun Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24059" level="100" type="Monster" name="Vampire Rogue">
+	<npc id="24059" level="100" type="Monster" name="Radiant Jewel Box">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
@@ -2125,7 +2125,7 @@
 			<skill id="4435" level="5" /> <!-- High Stun Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24060" level="100" type="Monster" name="Vampire Shooter">
+	<npc id="24060" level="100" type="Monster" name="Strong Large Wooden Chest">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="47898" />
@@ -2150,7 +2150,7 @@
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24061" level="100" type="Monster" name="Vampire Wizard">
+	<npc id="24061" level="100" type="Monster" name="Fiend's Strong Chest">
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
@@ -2175,7 +2175,7 @@
 			<skill id="4438" level="5" /> <!-- Greater Sleep Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24062" level="100" type="Monster" name="Vampire Warrior">
+	<npc id="24062" level="100" type="Monster" name="Strong Iron Chest">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<acquire exp="77941100" sp="78000" />
@@ -2200,7 +2200,7 @@
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24063" level="100" type="Monster" name="Vampire Rogue">
+	<npc id="24063" level="100" type="Monster" name="Strong Treasure Chest">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<acquire exp="77941100" sp="78000" />
@@ -2225,7 +2225,7 @@
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24064" level="100" type="Monster" name="Vampire Shooter">
+	<npc id="24064" level="100" type="Monster" name="Simple Large Wooden Chest">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="47898" />
@@ -2251,7 +2251,7 @@
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24065" level="100" type="Monster" name="Vampire Wizard">
+	<npc id="24065" level="100" type="Monster" name="Simple Big Jar">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<acquire exp="77941100" sp="78000" />
@@ -2276,7 +2276,7 @@
 			<skill id="16547" level="10" /> <!-- Danger Zone Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24066" level="100" type="Monster" name="Cannon">
+	<npc id="24066" level="100" type="Monster" name="Simple Iron Chest">
 		<race>ETC</race>
 		<sex>MALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
@@ -2294,7 +2294,7 @@
 			<height normal="42.6" />
 		</collision>
 	</npc>
-	<npc id="24067" level="101" type="Monster" name="Sophie von Hellmann">
+	<npc id="24067" level="101" type="Monster" name="Simple Treasure Chest">
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<acquire exp="7950775691" sp="7950863" />
@@ -2377,7 +2377,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="24068" level="101" type="Monster" name="Eilhalder von Hellmann">
+	<npc id="24068" level="101" type="Monster" name="Ancient Large Wooden Chest">
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<acquire exp="235387962" sp="56493" />
@@ -2402,7 +2402,7 @@
 			<skill id="14804" level="10" /> <!-- Damage Reflection Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="24069" level="101" type="Monster" name="Alfred von Hellmann">
+	<npc id="24069" level="101" type="Monster" name="Old Big Jar">
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<equipment rhand="47897" />
@@ -2438,7 +2438,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="24070" level="102" type="RaidBoss" name="Kain van Halter" title="Traitor">
+	<npc id="24070" level="102" type="RaidBoss" name="Ancient Iron Chest" title="Traitor">
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment rhand="36218" />
@@ -2457,7 +2457,7 @@
 			<height normal="24.6" />
 		</collision>
 	</npc>
-	<npc id="24071" level="102" type="RaidBoss" name="Kain van Halter" title="Traitor">
+	<npc id="24071" level="102" type="RaidBoss" name="Ancient Jewel Box" title="Traitor">
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">

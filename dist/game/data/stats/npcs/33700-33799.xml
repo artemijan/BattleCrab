@@ -2824,7 +2824,7 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="33786" level="99" type="Folk" name="Mother Tree">
+	<npc id="33786" level="99" type="Folk" name="Tree of Life">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>

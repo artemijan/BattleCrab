@@ -1493,7 +1493,7 @@
 			<height normal="22.3" />
 		</collision>
 	</npc>
-	<npc id="31336" level="70" type="VillageMasterOrc" name="Rahorakti" title="Grand Seer">
+	<npc id="31336" level="70" type="VillageMasterOrc" name="Rahorakti" title="Grand Priest">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1535,7 +1535,7 @@
 			<height normal="29" />
 		</collision>
 	</npc>
-	<npc id="31337" level="70" type="Folk" name="Mekara" title="Seer">
+	<npc id="31337" level="70" type="Folk" name="Mekara" title="Priest">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2310,7 +2310,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="31360" level="70" type="Folk" name="Alhena" title="Tetrarch Agent">
+	<npc id="31360" level="70" type="Folk" name="Alhena" title="Hierarch Agent">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2351,7 +2351,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="31361" level="70" type="Folk" name="Kreed" title="Tetrarch Executioner">
+	<npc id="31361" level="70" type="Folk" name="Kreed" title="Hierarch Executioner">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2594,7 +2594,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="31367" level="70" type="Folk" name="Voice of Glory">
+	<npc id="31367" level="70" type="Folk" name="Voice of Splendor">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -2810,7 +2810,7 @@
 			<height normal="29" />
 		</collision>
 	</npc>
-	<npc id="31372" level="70" type="Folk" name="Asefa" title="Soul Guide">
+	<npc id="31372" level="70" type="Folk" name="Asefa" title="Guide of Dead Souls">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -3161,7 +3161,7 @@
 			<height normal="41" />
 		</collision>
 	</npc>
-	<npc id="31379" level="70" type="Folk" name="Udan Mardui" title="Soul Guide">
+	<npc id="31379" level="70" type="Folk" name="Udan Mardui" title="Guide of Dead Souls">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="123" />

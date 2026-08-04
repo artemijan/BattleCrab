@@ -1254,7 +1254,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="33955" level="99" type="Folk" name="Liberatto" title="Bard">
+	<npc id="33955" level="99" type="Folk" name="Liberatto" title="Minstrel">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELF</race>
 		<sex>FEMALE</sex>
@@ -1277,7 +1277,7 @@
 			<height normal="24.5" />
 		</collision>
 	</npc>
-	<npc id="33956" level="99" type="Folk" name="Miso" title="Bard">
+	<npc id="33956" level="99" type="Folk" name="Miso" title="Minstrel">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
@@ -1300,7 +1300,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="33957" level="99" type="Folk" name="Marmie" title="Bard">
+	<npc id="33957" level="99" type="Folk" name="Marmie" title="Minstrel">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
@@ -1323,7 +1323,7 @@
 			<height normal="21.3" />
 		</collision>
 	</npc>
-	<npc id="33958" level="99" type="Folk" name="Tulesir" title="Bard">
+	<npc id="33958" level="99" type="Folk" name="Tulesir" title="Minstrel">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1952,7 +1952,7 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="33986" level="99" type="Folk" name="Tauresia" title="Bard">
+	<npc id="33986" level="99" type="Folk" name="Tauresia" title="Minstrel">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1975,7 +1975,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="33987" level="99" type="Folk" name="Mortania" title="Bard">
+	<npc id="33987" level="99" type="Folk" name="Mortania" title="Minstrel">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1998,7 +1998,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="33988" level="99" type="Folk" name="Severin" title="Bard">
+	<npc id="33988" level="99" type="Folk" name="Severin" title="Minstrel">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>

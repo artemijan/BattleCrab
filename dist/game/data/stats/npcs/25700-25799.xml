@@ -4379,7 +4379,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="25785" level="88" type="RaidBoss" name="Teredor">
+	<npc id="25785" level="88" type="RaidBoss" name="Lesser Giant Warrior" title="Raid Fighter">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -4445,7 +4445,7 @@
 			<height normal="190" />
 		</collision>
 	</npc>
-	<npc id="25786" level="87" type="Monster" name="Lachikios" title="Son-in-law of the King">
+	<npc id="25786" level="87" type="Monster" name="Lesser Giant Soldier" title="Raid Fighter">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<skill name="Skill01_ID" id="14099" level="3" />
@@ -4494,7 +4494,7 @@
 			<height normal="52.5" />
 		</collision>
 	</npc>
-	<npc id="25787" level="87" type="RaidBoss" name="Lachikios" title="Son-in-law of the King">
+	<npc id="25787" level="87" type="RaidBoss" name="Death Knight" title="Raid Soul Drinker">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<skill name="Skill01_ID" id="14100" level="3" />
@@ -4545,7 +4545,7 @@
 			<height normal="52.5" />
 		</collision>
 	</npc>
-	<npc id="25788" level="89" type="Monster" name="Lachikios" title="Queen's Companion">
+	<npc id="25788" level="89" type="Monster" name="Death Knight" title="Raid Soul Drinker">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<skill name="Skill01_ID" id="14099" level="5" />
@@ -4593,7 +4593,7 @@
 			<height normal="55.5" />
 		</collision>
 	</npc>
-	<npc id="25789" level="89" type="Monster" name="Lachikios" title="Queen's Companion">
+	<npc id="25789" level="89" type="Monster" name="Death Knight" title="Raid Soul Drinker">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<skill name="Skill01_ID" id="14100" level="5" />
@@ -4641,7 +4641,7 @@
 			<height normal="55.5" />
 		</collision>
 	</npc>
-	<npc id="25790" level="98" type="RaidBoss" name="Escort" title="Lachikios Subordinate">
+	<npc id="25790" level="98" type="RaidBoss" name="Death Knight" title="Raid Soul Drinker">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -4710,7 +4710,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="25791" level="98" type="Monster" name="Escort" title="Lachikios Subordinate">
+	<npc id="25791" level="98" type="Monster" name="Death Knight" title="Raid Soul Drinker">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -4774,7 +4774,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="25792" level="88" type="Monster" name="Rachicues" title="Successor">
+	<npc id="25792" level="88" type="Monster" name="Death Knight" title="Raid Soul Drinker">
 		<!-- TODO: Must be confirmed -->
 		<parameters>
 			<skill name="Skill01_ID" id="14099" level="4" />

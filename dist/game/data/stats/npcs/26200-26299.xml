@@ -559,7 +559,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="26209" level="102" type="RaidBoss" name="Berk" title="High Executor">
+	<npc id="26209" level="102" type="RaidBoss" name="Berg" title="High Executor">
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<acquire exp="31685534106" sp="63371076" raidPoints="21" />
@@ -827,7 +827,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="26214" level="102" type="RaidBoss" name="Sakum" title="Final Evolution Form">
+	<npc id="26214" level="102" type="RaidBoss" name="Sakum" title="Ultimate Evolution Form">
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
 		<acquire exp="31685534106" sp="63371076" raidPoints="21" />
@@ -889,7 +889,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="26215" level="102" type="RaidBoss" name="Crazy Typhoon" title="Kelbim's Old Underling">
+	<npc id="26215" level="102" type="RaidBoss" name="Crazy Typhoon" title="Kelbims Old Underling">
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<acquire exp="31685534106" sp="63371076" raidPoints="21" />
@@ -951,7 +951,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="26216" level="102" type="RaidBoss" name="Cursed Haren" title="Kelbim's Old Underling">
+	<npc id="26216" level="102" type="RaidBoss" name="Cursed Haren" title="Kelbims Old Underling">
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<acquire exp="31685534106" sp="63371076" raidPoints="21" />
@@ -1852,7 +1852,7 @@
 			<height normal="25.5" />
 		</collision>
 	</npc>
-	<npc id="26235" level="104" type="Folk" name="Kain van Halter" title="Embryo Commander-in-chief">
+	<npc id="26235" level="104" type="Folk" name="Kain Van Halter" title="Embryo Commander-in-chief">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1988,7 +1988,7 @@
 			</drop>
 		</dropLists>
 	</npc>
-	<npc id="26237" level="85" type="Folk" name="Creed Guardian" title="Camille's Immediate">
+	<npc id="26237" level="85" type="Folk" name="Creed Guardian" title="Camilles Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2007,7 +2007,7 @@
 			<height normal="39.6" />
 		</collision>
 	</npc>
-	<npc id="26238" level="85" type="Folk" name="Soul Reaper" title="Camille's Immediate">
+	<npc id="26238" level="85" type="Folk" name="Soul Reaper" title="Camilles Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2026,7 +2026,7 @@
 			<height normal="49.8" />
 		</collision>
 	</npc>
-	<npc id="26239" level="85" type="Folk" name="Soul Reaper" title="Camille's Immediate">
+	<npc id="26239" level="85" type="Folk" name="Soul Reaper" title="Camilles Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2045,7 +2045,7 @@
 			<height normal="40.8" />
 		</collision>
 	</npc>
-	<npc id="26240" level="85" type="Folk" name="Judge" title="Camille's Immediate">
+	<npc id="26240" level="85" type="Folk" name="Judge" title="Camilles Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2064,7 +2064,7 @@
 			<height normal="42" />
 		</collision>
 	</npc>
-	<npc id="26241" level="85" type="Folk" name="Choir" title="Camille's Immediate">
+	<npc id="26241" level="85" type="Folk" name="Choir" title="Camilles Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2083,7 +2083,7 @@
 			<height normal="32.4" />
 		</collision>
 	</npc>
-	<npc id="26242" level="85" type="Folk" name="Berserker" title="Camille's Immediate">
+	<npc id="26242" level="85" type="Folk" name="Berserker" title="Camilles Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2150,7 +2150,7 @@
 			<skill id="14804" level="10" /> <!-- Damage Reflection Attack Resistance -->
 		</skillList>
 	</npc>
-	<npc id="26245" level="85" type="Folk" name="Judge" title="Guardian Captain's Immediate">
+	<npc id="26245" level="85" type="Folk" name="Judge" title="Guardian Captains Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2169,7 +2169,7 @@
 			<height normal="34.5" />
 		</collision>
 	</npc>
-	<npc id="26246" level="85" type="Folk" name="Berserker" title="Guardian Captain's Immediate">
+	<npc id="26246" level="85" type="Folk" name="Berserker" title="Guardian Captains Immediate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2188,7 +2188,7 @@
 			<height normal="28" />
 		</collision>
 	</npc>
-	<npc id="26247" level="85" type="Folk" name="Roa" title="Camille's Special Subordinate">
+	<npc id="26247" level="85" type="Folk" name="Roa" title="Camilles Special Subordinate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

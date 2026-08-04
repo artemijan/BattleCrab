@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="35200" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35200" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -44,7 +44,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35201" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35201" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -88,7 +88,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35202" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35202" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -132,7 +132,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35203" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35203" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -176,7 +176,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35204" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35204" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -264,7 +264,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35206" level="77" type="Defender" name="Court Sorcerer" title="Oren">
+	<npc id="35206" level="77" type="Defender" name="Royal Wizard" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -312,7 +312,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35207" level="77" type="Defender" name="Court Sorcerer" title="Oren">
+	<npc id="35207" level="77" type="Defender" name="Royal Wizard" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -360,7 +360,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35208" level="77" type="Defender" name="Court Guard" title="Oren">
+	<npc id="35208" level="77" type="Defender" name="Royal Guard" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -404,7 +404,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35209" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35209" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -448,7 +448,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35210" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35210" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -492,7 +492,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35211" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35211" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -536,7 +536,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35212" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35212" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -580,7 +580,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35213" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35213" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -624,7 +624,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35214" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35214" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -668,7 +668,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35215" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35215" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -712,7 +712,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35216" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35216" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -756,7 +756,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35217" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35217" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1036,7 +1036,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35222" level="75" type="Folk" name="Outer Doorman" title="Oren">
+	<npc id="35222" level="75" type="Folk" name="Outer Castle Gatekeeper" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1086,7 +1086,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35223" level="75" type="Folk" name="Inner Doorman" title="Oren">
+	<npc id="35223" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1217,7 +1217,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35226" level="75" type="Merchant" name="Brasseur" title="Chamberlain">
+	<npc id="35226" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
@@ -1478,7 +1478,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35232" level="75" type="Folk" name="Sherwood" title="Messenger">
+	<npc id="35232" level="75" type="Folk" name="Sherwood" title="Herald from Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1646,7 +1646,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35236" level="79" type="Defender" name="Court Sorcerer" title="Aden">
+	<npc id="35236" level="79" type="Defender" name="Royal Wizard" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4114" level="1" /> <!-- Aden Flame -->
@@ -1693,7 +1693,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35237" level="79" type="Defender" name="Court Sorcerer" title="Aden">
+	<npc id="35237" level="79" type="Defender" name="Royal Wizard" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4115" level="1" /> <!-- Aden Heal -->
@@ -1740,7 +1740,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35238" level="79" type="Defender" name="Court Guard" title="Aden">
+	<npc id="35238" level="79" type="Defender" name="Royal Guard" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1783,7 +1783,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35239" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35239" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1826,7 +1826,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35240" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35240" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1869,7 +1869,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35241" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35241" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1912,7 +1912,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35242" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35242" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1955,7 +1955,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35243" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35243" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1998,7 +1998,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35244" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35244" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2041,7 +2041,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35245" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35245" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2084,7 +2084,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35246" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35246" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2127,7 +2127,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35247" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35247" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2214,7 +2214,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35249" level="79" type="Defender" name="Court Sorcerer" title="Aden">
+	<npc id="35249" level="79" type="Defender" name="Royal Wizard" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4114" level="1" /> <!-- Aden Flame -->
@@ -2261,7 +2261,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35250" level="79" type="Defender" name="Court Sorcerer" title="Aden">
+	<npc id="35250" level="79" type="Defender" name="Royal Wizard" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4115" level="1" /> <!-- Aden Heal -->
@@ -2308,7 +2308,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35251" level="79" type="Defender" name="Court Guard" title="Aden">
+	<npc id="35251" level="79" type="Defender" name="Royal Guard" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2351,7 +2351,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35252" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35252" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2394,7 +2394,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35253" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35253" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2437,7 +2437,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35254" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35254" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2480,7 +2480,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35255" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35255" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2523,7 +2523,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35256" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35256" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2566,7 +2566,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35257" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35257" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2609,7 +2609,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35258" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35258" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2652,7 +2652,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35259" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35259" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2695,7 +2695,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35260" level="78" type="Defender" name="Guard" title="Aden">
+	<npc id="35260" level="78" type="Defender" name="Escort" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3192,7 +3192,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35267" level="75" type="Folk" name="Outer Doorman" title="Aden">
+	<npc id="35267" level="75" type="Folk" name="Outer Castle Gatekeeper" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3242,7 +3242,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35268" level="75" type="Folk" name="Inner Doorman" title="Aden">
+	<npc id="35268" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3292,7 +3292,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35269" level="75" type="Folk" name="Hall Doorman" title="Aden">
+	<npc id="35269" level="75" type="Folk" name="Hall Gatekeeper" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3342,7 +3342,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35270" level="75" type="Folk" name="Inner Doorman" title="Aden">
+	<npc id="35270" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3521,7 +3521,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35274" level="75" type="Merchant" name="Logan" title="Chamberlain">
+	<npc id="35274" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
@@ -3708,7 +3708,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35278" level="75" type="Folk" name="Messenger Ruford" title="Messenger">
+	<npc id="35278" level="75" type="Folk" name="Ruford" title="Herald from Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3832,7 +3832,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35281" level="81" type="Defender" name="Schaht" title="Sir">
+	<npc id="35281" level="81" type="Defender" name="Schaht" title="Royal Guard Captain">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3920,7 +3920,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35283" level="77" type="Defender" name="Court Sorcerer" title="Innadril">
+	<npc id="35283" level="77" type="Defender" name="Royal Wizard" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -3968,7 +3968,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35284" level="77" type="Defender" name="Court Sorcerer" title="Innadril">
+	<npc id="35284" level="77" type="Defender" name="Royal Wizard" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -4016,7 +4016,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35285" level="77" type="Defender" name="Court Guard" title="Innadril">
+	<npc id="35285" level="77" type="Defender" name="Royal Guard" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4060,7 +4060,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35286" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35286" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4104,7 +4104,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35287" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35287" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4148,7 +4148,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35288" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35288" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4192,7 +4192,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35289" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35289" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -4236,7 +4236,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35290" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35290" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -4280,7 +4280,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35291" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35291" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -4324,7 +4324,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35292" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35292" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4368,7 +4368,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35293" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35293" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4412,7 +4412,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35294" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35294" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4500,7 +4500,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35296" level="77" type="Defender" name="Court Sorcerer" title="Innadril">
+	<npc id="35296" level="77" type="Defender" name="Royal Wizard" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -4548,7 +4548,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35297" level="77" type="Defender" name="Court Sorcerer" title="Innadril">
+	<npc id="35297" level="77" type="Defender" name="Royal Wizard" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -4596,7 +4596,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35298" level="77" type="Defender" name="Court Guard" title="Innadril">
+	<npc id="35298" level="77" type="Defender" name="Royal Guard" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4640,7 +4640,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35299" level="75" type="Defender" name="Guard" title="Innadril">
+	<npc id="35299" level="75" type="Defender" name="Escort" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>

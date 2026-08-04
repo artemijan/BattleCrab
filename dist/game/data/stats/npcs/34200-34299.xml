@@ -1157,7 +1157,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34262" level="99" type="Merchant" name="Sibis" title="Balthus Knights' Supply Officer">
+	<npc id="34262" level="99" type="Merchant" name="Sibi" title="Balthus Knights’ Supply Officer">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1856,7 +1856,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="34294" level="85" type="Folk" name="Priestess of Dusk" title="Arena">
+	<npc id="34294" level="85" type="Folk" name="Priest of Dawn" title="Arena">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1875,7 +1875,7 @@
 			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="34295" level="85" type="Folk" name="Leona Blackbird" title="Lord of the Blackbird Clan">
+	<npc id="34295" level="85" type="Folk" name="Priestess of Dusk" title="Arena">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1895,7 +1895,7 @@
 			<height normal="22.4" />
 		</collision>
 	</npc>
-	<npc id="34296" level="85" type="Folk" name="Sporcha" title="Blackbird Clan">
+	<npc id="34296" level="85" type="Folk" name="Veteran" title="Elder Council">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1914,7 +1914,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="34297" level="85" type="Folk" name="Ellikia" title="Verdure Elder">
+	<npc id="34297" level="85" type="Folk" name="Veteran" title="Elder Council">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1934,7 +1934,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="34298" level="85" type="Folk" name="Devianne" title="Truth Seeker">
+	<npc id="34298" level="85" type="Folk" name="Veteran" title="Elder Council">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -1953,7 +1953,7 @@
 			<height normal="21" />
 		</collision>
 	</npc>
-	<npc id="34299" level="85" type="Folk" name="Violet" title="Messenger from the Blackbird Clan">
+	<npc id="34299" level="85" type="Folk" name="Veteran" title="Elder Council">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

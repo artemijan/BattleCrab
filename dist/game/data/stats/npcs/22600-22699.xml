@@ -5562,7 +5562,7 @@
       <height normal="20.8"/>
     </collision>
   </npc>
-  <npc id="22697" level="82" type="Monster" name="Ragna Orc Seer" title="Spirit Infested">
+  <npc id="22697" level="82" type="Monster" name="Ragna Orc Priest" title="Spirit Infested">
     <!-- Confirmed CT2.5 -->
     <parameters>
       <param name="IsAggressive" value="1"/>

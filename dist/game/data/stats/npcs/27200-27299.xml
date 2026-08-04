@@ -46,7 +46,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="27201" level="10" type="Monster">
+	<npc id="27201" level="10" type="Monster" name="Ol Mahum Thief" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="124" />
@@ -92,7 +92,7 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="27202" level="10" type="Monster">
+	<npc id="27202" level="10" type="Monster" name="Turek Orc Commander" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="124" />
@@ -137,7 +137,7 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="27203" level="10" type="Monster">
+	<npc id="27203" level="10" type="Monster" name="Turek Orc Invader" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="124" />
@@ -182,7 +182,7 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="27204" level="10" type="Monster">
+	<npc id="27204" level="10" type="Monster" name="Woopee" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="124" />
@@ -227,7 +227,7 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="27205" level="10" type="Monster">
+	<npc id="27205" level="10" type="Monster" name="Wild Boar" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="124" />
@@ -272,7 +272,7 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="27206" level="10" type="Monster">
+	<npc id="27206" level="10" type="Monster" name="Black Wild Boar" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="124" />
@@ -317,7 +317,7 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="27207" level="10" type="Monster">
+	<npc id="27207" level="10" type="Monster" name="White Wild Boar" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="124" />
@@ -678,7 +678,7 @@
 			<height normal="30" grown="36.5" />
 		</collision>
 	</npc>
-	<npc id="27215" level="76" type="Monster" name="Guardian of Forbidden Knowledge" title="Quest Monster">
+	<npc id="27215" level="76" type="Monster" name="Keeper of the Holy Edict" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="130" />
@@ -724,7 +724,7 @@
 			<height normal="30" grown="36.5" />
 		</collision>
 	</npc>
-	<npc id="27216" level="76" type="Monster" name="Guardian of Forbidden Knowledge" title="Quest Monster">
+	<npc id="27216" level="76" type="Monster" name="Watcher of the Ancient Pledge" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="130" />
@@ -855,7 +855,7 @@
 			<height normal="36" />
 		</collision>
 	</npc>
-	<npc id="27219" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27219" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -897,7 +897,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27220" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27220" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -939,7 +939,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27221" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27221" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -981,7 +981,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27222" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27222" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1023,7 +1023,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27223" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27223" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1065,7 +1065,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27224" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27224" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1107,7 +1107,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27225" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27225" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1149,7 +1149,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27226" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27226" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1191,7 +1191,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27227" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27227" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1233,7 +1233,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27228" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27228" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1275,7 +1275,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27229" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27229" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1317,7 +1317,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27230" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27230" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1359,7 +1359,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27231" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27231" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1401,7 +1401,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27232" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27232" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1443,7 +1443,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27233" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27233" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1485,7 +1485,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27234" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27234" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1527,7 +1527,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27235" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27235" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1569,7 +1569,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27236" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27236" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1611,7 +1611,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27237" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27237" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1653,7 +1653,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27238" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27238" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1695,7 +1695,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27239" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27239" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1737,7 +1737,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27240" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27240" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1779,7 +1779,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27241" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27241" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1821,7 +1821,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27242" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27242" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1863,7 +1863,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27243" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27243" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1905,7 +1905,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27244" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27244" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1947,7 +1947,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27245" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27245" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1989,7 +1989,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27246" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27246" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -2031,7 +2031,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27247" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27247" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -2073,7 +2073,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27248" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27248" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -2115,7 +2115,7 @@
 			<height normal="57.75" grown="69" />
 		</collision>
 	</npc>
-	<npc id="27249" level="76" type="Monster" name="Archon of Halisha" title="Quest Monster">
+	<npc id="27249" level="76" type="Monster" name="Halisha's Archon" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -2970,7 +2970,7 @@
 			<height normal="42" />
 		</collision>
 	</npc>
-	<npc id="27268" level="76" type="Monster" name="Guard of Haures" title="Quest Monster">
+	<npc id="27268" level="76" type="Monster" name="Haures' Escort" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="126" />
@@ -3417,7 +3417,7 @@
 			<height normal="60" />
 		</collision>
 	</npc>
-	<npc id="27278" level="78" type="Monster" name="Beleth's Shadow" title="Quest Monster">
+	<npc id="27278" level="78" type="Monster" name="Beleth' Shadow" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="114" />
@@ -4260,7 +4260,7 @@
 			<height normal="38.5" grown="46.2" />
 		</collision>
 	</npc>
-	<npc id="27296" level="76" type="Monster" name="Monument Watcher Ezekiel" title="Quest Monster">
+	<npc id="27296" level="76" type="Monster" name="Stone Watchman Ezekiel" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -4317,7 +4317,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27297" level="76" type="Monster" name="Monument Watcher Ezekiel" title="Quest Monster">
+	<npc id="27297" level="76" type="Monster" name="Stone Watchman Ezekiel" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -4374,7 +4374,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27298" level="76" type="Monster" name="Monument Watcher Ezekiel" title="Quest Monster">
+	<npc id="27298" level="76" type="Monster" name="Stone Watchman Ezekiel" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -4431,7 +4431,7 @@
 			<height normal="80" />
 		</collision>
 	</npc>
-	<npc id="27299" level="76" type="Monster" name="Monument Watcher Ezekiel" title="Quest Monster">
+	<npc id="27299" level="76" type="Monster" name="Stone Watchman Ezekiel" title="Quest Monster">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />

@@ -3466,7 +3466,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="20651" level="77" type="Monster" name="Gamlin">
+	<npc id="20651" level="77" type="Monster" name="Gamlin" title="Elven Scout">
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -3535,7 +3535,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="20652" level="77" type="Monster" name="Leogul">
+	<npc id="20652" level="77" type="Monster" name="Leogul" title="Elven Scout">
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -3602,7 +3602,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="20653" level="76" type="Monster" name="Lesser Giant">
+	<npc id="20653" level="76" type="Monster" name="Lesser Giant Bandit">
 		<parameters>
 			<param name="MoveAroundSocial" value="170" />
 			<param name="MoveAroundSocial1" value="170" />
@@ -3806,7 +3806,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="20656" level="77" type="Monster" name="Lesser Giant Scout">
+	<npc id="20656" level="77" type="Monster" name="Lesser Giant Warrior">
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
 			<param name="MoveAroundSocial1" value="120" />

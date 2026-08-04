@@ -703,7 +703,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="18918" level="85" type="Folk">
+	<npc id="18918" level="85" type="Folk" name="Vitality Plant">
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>

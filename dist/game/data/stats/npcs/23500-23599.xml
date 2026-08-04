@@ -1536,7 +1536,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23574" level="103" type="Monster" name="Nymph Rose" title="Fancy">
+	<npc id="23574" level="103" type="Monster" name="Nymph Rose" title="Enraged">
 		<!-- Source: www.l2wiki.com -->
 		<race>PLANT</race>
 		<acquire exp="69350056" sp="166440" />
@@ -1561,7 +1561,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23575" level="101" type="Monster" name="Nymph Lily" title="Fancy">
+	<npc id="23575" level="101" type="Monster" name="Nymph Lily" title="Enraged">
 		<!-- Source: www.l2wiki.com (2015-04-08) -->
 		<race>PLANT</race>
 		<acquire exp="37812025" sp="90748" />
@@ -1582,7 +1582,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23576" level="101" type="Monster" name="Nymph Tulip" title="Fancy">
+	<npc id="23576" level="101" type="Monster" name="Nymph Tulip" title="Enraged">
 		<!-- Source: www.l2wiki.com (2015-04-08) -->
 		<race>PLANT</race>
 		<acquire exp="37812025" sp="90748" />
@@ -1603,7 +1603,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23577" level="101" type="Monster" name="Nymph Cosmos" title="Fancy">
+	<npc id="23577" level="101" type="Monster" name="Nymph Cosmos" title="Enraged">
 		<!-- Source: www.l2wiki.com (2015-04-08) -->
 		<race>PLANT</race>
 		<acquire exp="37812025" sp="90748" />

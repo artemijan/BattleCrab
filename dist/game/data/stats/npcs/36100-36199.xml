@@ -397,7 +397,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="36106" level="80" type="Monster" name="Ballista" title="Cloud Mountain">
+	<npc id="36106" level="80" type="Monster" name="Ballista" title="Cloud Mountain Fortress">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -999,7 +999,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36119" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36119" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1043,7 +1043,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36120" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36120" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1087,7 +1087,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36121" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36121" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1203,7 +1203,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36123" level="76" type="Defender" name="Decorated Rebel Soldier" title="Tanor Fortress">
+	<npc id="36123" level="76" type="Defender" name="Rebel Elite Soldier" title="Tanor Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1322,7 +1322,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36125" level="72" type="Defender" name="Court Guard" title="Tanor Fortress">
+	<npc id="36125" level="72" type="Defender" name="Royal Guard" title="Tanor Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1382,7 +1382,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36126" level="72" type="Defender" name="Guard" title="Tanor Fortress">
+	<npc id="36126" level="72" type="Defender" name="Escort" title="Tanor Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2685,7 +2685,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36150" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36150" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2729,7 +2729,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36151" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36151" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2773,7 +2773,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36152" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36152" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2889,7 +2889,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36154" level="76" type="Defender" name="Decorated Rebel Soldier" title="Dragonspine Fortress">
+	<npc id="36154" level="76" type="Defender" name="Rebel Elite Soldier" title="Dragonspine Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3008,7 +3008,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36156" level="72" type="Defender" name="Court Guard" title="Dragonspine Fortress">
+	<npc id="36156" level="72" type="Defender" name="Royal Guard" title="Dragonspine Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3068,7 +3068,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36157" level="72" type="Defender" name="Guard" title="Dragonspine Fortress">
+	<npc id="36157" level="72" type="Defender" name="Escort" title="Dragonspine Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3979,7 +3979,7 @@
 			<height normal="72.5" />
 		</collision>
 	</npc>
-	<npc id="36172" level="75" type="FortManager" name="Foreman" title="Antharas's Fortress">
+	<npc id="36172" level="75" type="FortManager" name="Foreman" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="fortressbuff" />
@@ -4021,7 +4021,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36173" level="75" type="Folk" name="Suspicious Merchant" title="Antharas's Fortress">
+	<npc id="36173" level="75" type="Folk" name="Suspicious Merchant" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4061,7 +4061,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="36174" level="75" type="Folk" name="Guard Captain" title="Antharas's Fortress">
+	<npc id="36174" level="75" type="Folk" name="Guard Captain" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4108,7 +4108,7 @@
 			<height normal="23.75" />
 		</collision>
 	</npc>
-	<npc id="36175" level="75" type="Folk" name="Archer Captain" title="Antharas's Fortress">
+	<npc id="36175" level="75" type="Folk" name="Archer Captain" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4148,7 +4148,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36176" level="75" type="Folk" name="General" title="Antharas's Fortress">
+	<npc id="36176" level="75" type="Folk" name="General" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4189,7 +4189,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="36177" level="75" type="Folk" name="Support Unit Captain" title="Antharas's Fortress">
+	<npc id="36177" level="75" type="Folk" name="Support Unit Captain" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4229,7 +4229,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36178" level="75" type="Folk" name="Engineering Manager" title="Antharas's Fortress">
+	<npc id="36178" level="75" type="Folk" name="Engineering Manager" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4269,7 +4269,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="36179" level="75" type="FortLogistics" name="Logistics Officer" title="Antharas's Fortress">
+	<npc id="36179" level="75" type="FortLogistics" name="Logistics Officer" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4365,7 +4365,7 @@
 			<height normal="8.5" />
 		</collision>
 	</npc>
-	<npc id="36181" level="75" type="Folk" name="Detention Camp Warden" title="Antharas's Fortress">
+	<npc id="36181" level="75" type="Folk" name="Detention Camp Warden" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4412,7 +4412,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36182" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36182" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4456,7 +4456,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36183" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36183" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4500,7 +4500,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36184" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36184" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4547,7 +4547,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36185" level="80" type="Defender" name="Rebel Commander" title="Antharas's Fortress">
+	<npc id="36185" level="80" type="Defender" name="Rebel Commander" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4616,7 +4616,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36186" level="76" type="Defender" name="Decorated Rebel Soldier" title="Antharas's Fortress">
+	<npc id="36186" level="76" type="Defender" name="Rebel Elite Soldier" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4678,7 +4678,7 @@
 			<height normal="45" />
 		</collision>
 	</npc>
-	<npc id="36187" level="75" type="Defender" name="Rebel Private" title="Antharas's Fortress">
+	<npc id="36187" level="75" type="Defender" name="Rebel Private" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4735,7 +4735,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36188" level="72" type="Defender" name="Court Guard" title="Antharas's Fortress">
+	<npc id="36188" level="72" type="Defender" name="Royal Guard" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4795,7 +4795,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36189" level="72" type="Defender" name="Guard" title="Antharas's Fortress">
+	<npc id="36189" level="72" type="Defender" name="Escort" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

@@ -2621,7 +2621,7 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="32894" level="85" type="Folk" name="Izael" title="Tree Friend of Josephina">
+	<npc id="32894" level="85" type="Folk" name="Izael" title="Josephina's Companion">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="MoveAroundSocial" value="200" />

@@ -2430,7 +2430,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="19480" level="99" type="Folk" name="Dimensional War Decor Transparent 1">
+	<npc id="19480" level="99" type="Folk" name="Dimensional War D?cor Transparent 1">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2452,7 +2452,7 @@
 			<height normal="1" />
 		</collision>
 	</npc>
-	<npc id="19481" level="99" type="Folk" name="Dimensional War Decor Transparent 2">
+	<npc id="19481" level="99" type="Folk" name="Dimensional War D?cor Transparent 2">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2474,7 +2474,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="19482" level="99" type="Folk" name="Dimensional War Decor Camp">
+	<npc id="19482" level="99" type="Folk" name="Dimensional War D?cor Camp">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2496,7 +2496,7 @@
 			<height normal="70" />
 		</collision>
 	</npc>
-	<npc id="19483" level="99" type="Folk" name="Dimensional War Decor Clan Hall">
+	<npc id="19483" level="99" type="Folk" name="Dimensional War D?cor Clan Hall">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2518,7 +2518,7 @@
 			<height normal="72" />
 		</collision>
 	</npc>
-	<npc id="19484" level="99" type="Folk" name="Dimensional War Decor Flag">
+	<npc id="19484" level="99" type="Folk" name="Dimensional War D?cor Flag">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2540,7 +2540,7 @@
 			<height normal="120" />
 		</collision>
 	</npc>
-	<npc id="19485" level="99" type="Folk" name="Dimensional War Decor Stake">
+	<npc id="19485" level="99" type="Folk" name="Dimensional War D?cor Stake">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2562,7 +2562,7 @@
 			<height normal="97.5" />
 		</collision>
 	</npc>
-	<npc id="19486" level="99" type="Folk" name="Dimensional War Decor Relic 1">
+	<npc id="19486" level="99" type="Folk" name="Dimensional War D?cor Relic 1">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2584,7 +2584,7 @@
 			<height normal="72.5" />
 		</collision>
 	</npc>
-	<npc id="19487" level="99" type="Folk" name="Dimensional War Decor Relic 2">
+	<npc id="19487" level="99" type="Folk" name="Dimensional War D?cor Relic 2">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2606,7 +2606,7 @@
 			<height normal="98" />
 		</collision>
 	</npc>
-	<npc id="19488" level="99" type="Folk" name="Dimensional War Decor Ballista 1">
+	<npc id="19488" level="99" type="Folk" name="Dimensional War D?cor Ballista 1">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
@@ -2628,7 +2628,7 @@
 			<height normal="59" />
 		</collision>
 	</npc>
-	<npc id="19489" level="99" type="Folk" name="Dimensional War Decor Ballista 2">
+	<npc id="19489" level="99" type="Folk" name="Dimensional War D?cor Ballista 2">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

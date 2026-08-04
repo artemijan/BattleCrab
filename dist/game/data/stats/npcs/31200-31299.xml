@@ -387,7 +387,7 @@
 			<height normal="11.5" />
 		</collision>
 	</npc>
-	<npc id="31210" level="70" type="Folk" name="Race Track Gatekeeper">
+	<npc id="31210" level="70" type="Folk" name="Race Track Gatekeeper" title="Monster Race Track">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1081,7 +1081,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="31227" level="70" type="Folk" name="Buzz the Cat" title="Event Manager">
+	<npc id="31227" level="70" type="Folk" name="Puss the Cat" title="Event Manager">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2192,7 +2192,7 @@
 			<height normal="28" />
 		</collision>
 	</npc>
-	<npc id="31255" level="70" type="Folk" name="Buzz the Cat" title="Event Manager">
+	<npc id="31255" level="70" type="Folk" name="Puss the Cat" title="Event Manager">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3647,7 +3647,7 @@
 			<height normal="28.5" />
 		</collision>
 	</npc>
-	<npc id="31290" level="70" type="Folk" name="Skahi" title="Seer">
+	<npc id="31290" level="70" type="Folk" name="Skahi" title="Priest">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

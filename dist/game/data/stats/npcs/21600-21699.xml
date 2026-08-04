@@ -147,7 +147,7 @@
       <height normal="40"/>
     </collision>
   </npc>
-  <npc id="21602" level="65" type="Monster" name="Ancient Holy Ground's Wing">
+  <npc id="21602" level="65" type="Monster" name="Zaken's Pikeman">
     <!-- Classic Monster -->
     <parameters>
       <param name="MoveAroundSocial" value="0"/>
@@ -222,7 +222,7 @@
       <height normal="23"/>
     </collision>
   </npc>
-  <npc id="21603" level="66" type="Monster" name="Guardian Spirit of Ancient Holy Ground">
+  <npc id="21603" level="66" type="Monster" name="Zaken's Pikeman">
     <!-- Classic Monster -->
     <parameters>
       <param name="MoveAroundSocial" value="0"/>
@@ -364,7 +364,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21605" level="67" type="Monster" name="Lilim Knight Captain">
+  <npc id="21605" level="67" type="Monster" name="Zaken's Archer">
     <parameters>
       <param name="MoveAroundSocial" value="80"/>
       <param name="MoveAroundSocial1" value="80"/>
@@ -534,7 +534,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21607" level="68" type="Monster" name="Nephilim Cardinal">
+  <npc id="21607" level="68" type="Monster" name="Zaken's Elite Archer">
     <!-- Classic Monster -->
     <parameters>
       <param name="MoveAroundSocial" value="0"/>
@@ -685,7 +685,7 @@
       </spoil>
     </dropLists>
   </npc>
-  <npc id="21609" level="69" type="Monster" name="Netherworld Royal Guard">
+  <npc id="21609" level="69" type="Monster" name="Zaken's Watchman">
     <!-- Classic Monster -->
     <parameters>
       <param name="MoveAroundSocial" value="74"/>
@@ -3332,7 +3332,7 @@
       <height normal="31"/>
     </collision>
   </npc>
-  <npc id="21646" level="46" type="Monster" name="Wandering Ghost of Abyss">
+  <npc id="21646" level="46" type="Monster" name="Grave Scarab">
     <!-- AUTO GENERATED NPC TODO: FIX IT -->
     <parameters>
       <param name="MoveAroundSocial" value="65"/>
@@ -3375,7 +3375,7 @@
       <height normal="36"/>
     </collision>
   </npc>
-  <npc id="21647" level="47" type="Monster" name="Wandering Evil Thoughts of Abyss">
+  <npc id="21647" level="47" type="Monster" name="Scavenger Scarab">
     <!-- AUTO GENERATED NPC TODO: FIX IT -->
     <parameters>
       <param name="MoveAroundSocial" value="65"/>
@@ -3422,7 +3422,7 @@
       <height normal="23"/>
     </collision>
   </npc>
-  <npc id="21648" level="48" type="Monster" name="Abyss Warder" title="Wandering">
+  <npc id="21648" level="48" type="Monster" name="Grave Ant" title="Wandering">
     <!-- AUTO GENERATED NPC TODO: FIX IT -->
     <parameters>
       <param name="MoveAroundSocial" value="100"/>
@@ -3465,7 +3465,7 @@
       <height normal="17" grown="21"/>
     </collision>
   </npc>
-  <npc id="21649" level="49" type="Monster" name="Condemned of Abyss" title="Captured">
+  <npc id="21649" level="49" type="Monster" name="Scavenger Ant" title="Captured">
     <parameters>
       <param name="MoveAroundSocial" value="100"/>
       <param name="MoveAroundSocial1" value="100"/>
@@ -3511,7 +3511,7 @@
       <height normal="17" grown="21"/>
     </collision>
   </npc>
-  <npc id="21650" level="74" type="Monster" name="Swampland Watchman" title="Quest Monster">
+  <npc id="21650" level="74" type="Monster" name="Shrine Knight" title="Quest Monster">
     <parameters>
       <param name="MoveAroundSocial" value="215"/>
       <param name="MoveAroundSocial1" value="215"/>
@@ -3562,7 +3562,7 @@
       <height normal="31"/>
     </collision>
   </npc>
-  <npc id="21651" level="74" type="Monster" name="Flame Drake" title="Quest Monster">
+  <npc id="21651" level="74" type="Monster" name="Shrine Royal Guard" title="Quest Monster">
     <parameters>
       <param name="MoveAroundSocial" value="0"/>
       <param name="MoveAroundSocial1" value="0"/>

@@ -397,7 +397,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="36206" level="80" type="Monster" name="Ballista" title="Antharas's Fortress">
+	<npc id="36206" level="80" type="Monster" name="Ballista" title="Antharas' Fortress">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1040,7 +1040,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36220" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36220" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1084,7 +1084,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36221" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36221" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1128,7 +1128,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36222" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36222" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1244,7 +1244,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36224" level="76" type="Defender" name="Decorated Rebel Soldier" title="Western Fortress">
+	<npc id="36224" level="76" type="Defender" name="Rebel Elite Soldier" title="Western Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1363,7 +1363,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36226" level="72" type="Defender" name="Court Guard" title="Western Fortress">
+	<npc id="36226" level="72" type="Defender" name="Royal Guard" title="Western Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1423,7 +1423,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36227" level="72" type="Defender" name="Guard" title="Western Fortress">
+	<npc id="36227" level="72" type="Defender" name="Escort" title="Western Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3101,7 +3101,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36258" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36258" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3145,7 +3145,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36259" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36259" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3189,7 +3189,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36260" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36260" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3305,7 +3305,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36262" level="76" type="Defender" name="Decorated Rebel Soldier" title="Hunter's Fortress">
+	<npc id="36262" level="76" type="Defender" name="Rebel Elite Soldier" title="Hunter's Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3424,7 +3424,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36264" level="72" type="Defender" name="Court Guard" title="Hunter's Fortress">
+	<npc id="36264" level="72" type="Defender" name="Royal Guard" title="Hunter's Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3484,7 +3484,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36265" level="72" type="Defender" name="Guard" title="Hunter's Fortress">
+	<npc id="36265" level="72" type="Defender" name="Escort" title="Hunter's Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -5121,7 +5121,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36295" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36295" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -5165,7 +5165,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36296" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36296" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -5209,7 +5209,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36297" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36297" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -5325,7 +5325,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36299" level="76" type="Defender" name="Decorated Rebel Soldier" title="Aaru Fortress">
+	<npc id="36299" level="76" type="Defender" name="Rebel Elite Soldier" title="Aaru Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

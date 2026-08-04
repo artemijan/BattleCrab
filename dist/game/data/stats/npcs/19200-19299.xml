@@ -3422,7 +3422,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="19296" level="93" type="Monster" name="Golem Generator">
+	<npc id="19296" level="93" type="Monster" name="Golem Generator" title="Virus-Infected">
 		<race>ETC</race>
 		<sex>MALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">

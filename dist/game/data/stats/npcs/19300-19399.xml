@@ -994,7 +994,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="19323" level="94" type="Folk" name="Raider's Crossroads Decor">
+	<npc id="19323" level="94" type="Folk" name="Raider's Crossroads D?cor">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>FRIEND</race>
 		<sex>MALE</sex>

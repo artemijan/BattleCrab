@@ -892,7 +892,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35030" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35030" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -935,7 +935,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35031" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35031" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -978,7 +978,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35032" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35032" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1021,7 +1021,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35033" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35033" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -1068,7 +1068,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35034" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35034" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -1115,7 +1115,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35035" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35035" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1158,7 +1158,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35036" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35036" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1201,7 +1201,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35037" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35037" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1244,7 +1244,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35038" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35038" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -1291,7 +1291,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35039" level="76" type="Defender" name="Elite Mercenary Guild Member">
+	<npc id="35039" level="76" type="Defender" name="Elite Mercenary">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -1338,7 +1338,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35040" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35040" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1381,7 +1381,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35041" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35041" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1424,7 +1424,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35042" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35042" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1467,7 +1467,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35043" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35043" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -1514,7 +1514,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35044" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35044" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -1561,7 +1561,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35045" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35045" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1604,7 +1604,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35046" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35046" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1647,7 +1647,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35047" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35047" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<race>MERCENARY</race>
 		<sex>MALE</sex>
@@ -1690,7 +1690,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35048" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35048" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -1737,7 +1737,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35049" level="72" type="Defender" name="Greater Recruit">
+	<npc id="35049" level="72" type="Defender" name="Elite Recruit">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -2408,7 +2408,7 @@
 			<height normal="98" />
 		</collision>
 	</npc>
-	<npc id="35064" level="83" type="Defender" name="Baron Lewin Waldner">
+	<npc id="35064" level="83" type="Defender" name="Baron Lewin Waldner" title="Governor">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2452,7 +2452,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35065" level="81" type="Defender" name="Cronenberg" title="Sir">
+	<npc id="35065" level="81" type="Defender" name="Cronenberg" title="Royal Guard Captain">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2540,7 +2540,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35067" level="77" type="Defender" name="Court Sorcerer" title="Gludio">
+	<npc id="35067" level="77" type="Defender" name="Royal Wizard" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -2588,7 +2588,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35068" level="77" type="Defender" name="Court Sorcerer" title="Gludio">
+	<npc id="35068" level="77" type="Defender" name="Royal Wizard" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -2636,7 +2636,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35069" level="77" type="Defender" name="Court Guard" title="Gludio">
+	<npc id="35069" level="77" type="Defender" name="Royal Guard" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2680,7 +2680,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35070" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35070" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2724,7 +2724,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35071" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35071" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2768,7 +2768,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35072" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35072" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2812,7 +2812,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35073" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35073" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2856,7 +2856,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35074" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35074" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2900,7 +2900,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35075" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35075" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2944,7 +2944,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35076" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35076" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2988,7 +2988,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35077" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35077" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3032,7 +3032,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35078" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35078" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3120,7 +3120,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35080" level="77" type="Defender" name="Court Sorcerer" title="Gludio">
+	<npc id="35080" level="77" type="Defender" name="Royal Wizard" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -3168,7 +3168,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35081" level="77" type="Defender" name="Court Sorcerer" title="Gludio">
+	<npc id="35081" level="77" type="Defender" name="Royal Wizard" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -3216,7 +3216,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35082" level="77" type="Defender" name="Court Guard" title="Gludio">
+	<npc id="35082" level="77" type="Defender" name="Royal Guard" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3260,7 +3260,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35083" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35083" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3304,7 +3304,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35084" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35084" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3348,7 +3348,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35085" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35085" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3392,7 +3392,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35086" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35086" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -3436,7 +3436,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35087" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35087" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -3480,7 +3480,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35088" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35088" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -3524,7 +3524,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35089" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35089" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3568,7 +3568,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35090" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35090" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3612,7 +3612,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35091" level="75" type="Defender" name="Guard" title="Gludio">
+	<npc id="35091" level="75" type="Defender" name="Escort" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3888,7 +3888,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35096" level="75" type="Folk" name="Outer Doorman" title="Gludio">
+	<npc id="35096" level="75" type="Folk" name="Outer Castle Gatekeeper" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3937,7 +3937,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35097" level="75" type="Folk" name="Inner Doorman" title="Gludio">
+	<npc id="35097" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

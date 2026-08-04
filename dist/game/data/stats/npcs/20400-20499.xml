@@ -3753,7 +3753,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="20477" level="6" type="Monster" name="Kasha Timber Wolf">
+	<npc id="20477" level="6" type="Monster" name="Kasha Forest Wolf">
 		<parameters>
 			<param name="MoveAroundSocial" value="60" />
 			<param name="MoveAroundSocial1" value="60" />
@@ -4015,7 +4015,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="20483" level="17" type="Monster" name="Deadman's Lamp">
+	<npc id="20483" level="17" type="Monster" name="Deadman’s Lamp">
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />

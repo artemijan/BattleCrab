@@ -200,7 +200,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="15207" level="99" type="Pet" name="Discarded Wizard's Soul">
+	<npc id="15207" level="99" type="Pet" name="Summon Discarded Wizard's Soul">
 		<!-- Updated to GRAND CRUSADE -->
 		<parameters>
 			<skill name="Skill01_ID" id="19406" level="1" /> <!-- Curse from Deadland -->
@@ -234,7 +234,7 @@
 			<height normal="30.6" />
 		</collision>
 	</npc>
-	<npc id="15208" level="101" type="Pet" name="Discarded Wizard's Soul">
+	<npc id="15208" level="101" type="Pet" name="Summon Discarded Wizard's Soul">
 		<!-- Updated to GRAND CRUSADE -->
 		<parameters>
 			<skill name="Skill01_ID" id="19406" level="2" /> <!-- Curse from Deadland -->
@@ -268,7 +268,7 @@
 			<height normal="30.6" />
 		</collision>
 	</npc>
-	<npc id="15209" level="103" type="Pet" name="Discarded Wizard's Soul">
+	<npc id="15209" level="103" type="Pet" name="Summon Discarded Wizard's Soul">
 		<!-- Updated to GRAND CRUSADE -->
 		<parameters>
 			<skill name="Skill01_ID" id="19406" level="3" /> <!-- Curse from Deadland -->
@@ -302,7 +302,7 @@
 			<height normal="30.6" />
 		</collision>
 	</npc>
-	<npc id="15210" level="105" type="Pet" name="Discarded Wizard's Soul">
+	<npc id="15210" level="105" type="Pet" name="Summon Discarded Wizard's Soul">
 		<!-- Updated to GRAND CRUSADE -->
 		<parameters>
 			<skill name="Skill01_ID" id="19406" level="4" /> <!-- Curse from Deadland -->

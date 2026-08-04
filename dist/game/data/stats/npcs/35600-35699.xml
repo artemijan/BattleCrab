@@ -36,7 +36,7 @@
 			<height normal="10.5" />
 		</collision>
 	</npc>
-	<npc id="35601" level="70" type="Folk" name="Doorman">
+	<npc id="35601" level="70" type="Folk" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -78,7 +78,7 @@
 			<height normal="10.5" />
 		</collision>
 	</npc>
-	<npc id="35602" level="70" type="Folk" name="Doorman">
+	<npc id="35602" level="70" type="Folk" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -120,7 +120,7 @@
 			<height normal="10.5" />
 		</collision>
 	</npc>
-	<npc id="35603" level="70" type="Folk" name="Coordinator">
+	<npc id="35603" level="70" type="Folk" name="Entrance Manager">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -161,7 +161,7 @@
 			<height normal="27.5" />
 		</collision>
 	</npc>
-	<npc id="35604" level="56" type="Folk" name="Messenger">
+	<npc id="35604" level="56" type="Folk" name="Herald">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
@@ -1002,7 +1002,7 @@
 			<height normal="15.7" />
 		</collision>
 	</npc>
-	<npc id="35623" level="75" type="Folk" name="Inner Doorman">
+	<npc id="35623" level="75" type="Folk" name="Inner Castle Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -1045,7 +1045,7 @@
 			<height normal="32" grown="39" />
 		</collision>
 	</npc>
-	<npc id="35624" level="75" type="Folk" name="Inner Doorman">
+	<npc id="35624" level="75" type="Folk" name="Inner Castle Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -1088,7 +1088,7 @@
 			<height normal="32" grown="39" />
 		</collision>
 	</npc>
-	<npc id="35625" level="75" type="Folk" name="Outer Doorman">
+	<npc id="35625" level="75" type="Folk" name="Outer Castle Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -1131,7 +1131,7 @@
 			<height normal="32" grown="39" />
 		</collision>
 	</npc>
-	<npc id="35626" level="75" type="Folk" name="Outer Doorman">
+	<npc id="35626" level="75" type="Folk" name="Outer Castle Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -1174,7 +1174,7 @@
 			<height normal="32" grown="39" />
 		</collision>
 	</npc>
-	<npc id="35627" level="75" type="Folk" name="Messenger">
+	<npc id="35627" level="75" type="Folk" name="Herald">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -1793,7 +1793,7 @@
 			<height normal="23.5" grown="29" />
 		</collision>
 	</npc>
-	<npc id="35639" level="75" type="Folk" name="Jacquard" title="Messenger">
+	<npc id="35639" level="75" type="Folk" name="Jacquard" title="Herald">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1875,7 +1875,7 @@
 			<height normal="23.5" grown="29" />
 		</collision>
 	</npc>
-	<npc id="35641" level="75" type="Folk" name="Fortress Guard">
+	<npc id="35641" level="75" type="Folk" name="Fortress Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1918,7 +1918,7 @@
 			<height normal="23.5" grown="29" />
 		</collision>
 	</npc>
-	<npc id="35642" level="75" type="Folk" name="Fortress Guard">
+	<npc id="35642" level="75" type="Folk" name="Fortress Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2187,7 +2187,7 @@
 			<height normal="25.8" />
 		</collision>
 	</npc>
-	<npc id="35648" level="70" type="Folk" name="Court Magician" title="Gludio">
+	<npc id="35648" level="70" type="Folk" name="Court Wizard" title="Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2228,7 +2228,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35649" level="70" type="Folk" name="Court Magician" title="Dion">
+	<npc id="35649" level="70" type="Folk" name="Court Wizard" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2269,7 +2269,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35650" level="70" type="Folk" name="Court Magician" title="Giran">
+	<npc id="35650" level="70" type="Folk" name="Court Wizard" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2310,7 +2310,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35651" level="70" type="Folk" name="Court Magician" title="Oren">
+	<npc id="35651" level="70" type="Folk" name="Court Wizard" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2351,7 +2351,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35652" level="70" type="Folk" name="Court Magician" title="Aden">
+	<npc id="35652" level="70" type="Folk" name="Court Wizard" title="Aden">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2392,7 +2392,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35653" level="70" type="Folk" name="Court Magician" title="Innadril">
+	<npc id="35653" level="70" type="Folk" name="Court Wizard" title="Innadril">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2433,7 +2433,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35654" level="70" type="Folk" name="Court Magician" title="Goddard">
+	<npc id="35654" level="70" type="Folk" name="Court Wizard" title="Goddard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2474,7 +2474,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35655" level="70" type="Folk" name="Court Magician" title="Rune">
+	<npc id="35655" level="70" type="Folk" name="Court Wizard" title="Rune">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2515,7 +2515,7 @@
 			<height normal="21.957" />
 		</collision>
 	</npc>
-	<npc id="35656" level="70" type="Folk" name="Court Magician" title="Schuttgart">
+	<npc id="35656" level="70" type="Folk" name="Court Wizard" title="Schuttgart">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2593,7 +2593,7 @@
 			<height normal="72.5" />
 		</collision>
 	</npc>
-	<npc id="35658" level="75" type="FortManager" name="Foreman" title="Shanty Fortress">
+	<npc id="35658" level="75" type="FortManager" name="Foreman" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="fortressbuff" />
@@ -2636,7 +2636,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35659" level="75" type="Folk" name="Suspicious Merchant" title="Shanty Fortress">
+	<npc id="35659" level="75" type="Folk" name="Suspicious Merchant" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2676,7 +2676,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35660" level="75" type="Folk" name="Guard Captain" title="Shanty Fortress">
+	<npc id="35660" level="75" type="Folk" name="Guard Captain" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2723,7 +2723,7 @@
 			<height normal="23.75" />
 		</collision>
 	</npc>
-	<npc id="35661" level="75" type="Folk" name="Archer Captain" title="Shanty Fortress">
+	<npc id="35661" level="75" type="Folk" name="Archer Captain" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2763,7 +2763,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35662" level="75" type="Folk" name="Support Unit Captain" title="Shanty Fortress">
+	<npc id="35662" level="75" type="Folk" name="Support Unit Captain" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2803,7 +2803,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35663" level="75" type="Folk" name="Engineering Manager" title="Shanty Fortress">
+	<npc id="35663" level="75" type="Folk" name="Engineering Manager" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2843,7 +2843,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35664" level="75" type="FortLogistics" name="Logistics Officer" title="Shanty Fortress">
+	<npc id="35664" level="75" type="FortLogistics" name="Logistics Officer" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2946,7 +2946,7 @@
 			<height normal="8.5" />
 		</collision>
 	</npc>
-	<npc id="35666" level="75" type="Folk" name="Detention Camp Warden" title="Shanty Fortress">
+	<npc id="35666" level="75" type="Folk" name="Detention Camp Warden" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2993,7 +2993,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35667" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35667" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3038,7 +3038,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35668" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35668" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3083,7 +3083,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35669" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35669" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3131,7 +3131,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35670" level="80" type="Defender" name="Rebel Commander" title="Shanty Fortress">
+	<npc id="35670" level="80" type="Defender" name="Rebel Commander" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3200,7 +3200,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="35671" level="76" type="Defender" name="Decorated Rebel Soldier" title="Shanty Fortress">
+	<npc id="35671" level="76" type="Defender" name="Rebel Elite Soldier" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3262,7 +3262,7 @@
 			<height normal="45" />
 		</collision>
 	</npc>
-	<npc id="35672" level="75" type="Defender" name="Rebel Private" title="Shanty Fortress">
+	<npc id="35672" level="75" type="Defender" name="Rebel Private" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3319,7 +3319,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35673" level="72" type="Defender" name="Court Guard" title="Shanty Fortress">
+	<npc id="35673" level="72" type="Defender" name="Royal Guard" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3379,7 +3379,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35674" level="72" type="Defender" name="Guard" title="Shanty Fortress">
+	<npc id="35674" level="72" type="Defender" name="Escort" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4080,7 +4080,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35685" level="80" type="Monster" name="Ballista" title="Shanty Fortress">
+	<npc id="35685" level="80" type="Monster" name="Ballista" title="Camp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4290,7 +4290,7 @@
 			<height normal="72.5" />
 		</collision>
 	</npc>
-	<npc id="35689" level="75" type="FortManager" name="Foreman" title="Southern Fortress">
+	<npc id="35689" level="75" type="FortManager" name="Foreman" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="fortressbuff" />
@@ -4333,7 +4333,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35690" level="75" type="Folk" name="Suspicious Merchant" title="Southern Fortress">
+	<npc id="35690" level="75" type="Folk" name="Suspicious Merchant" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4373,7 +4373,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="35691" level="75" type="Folk" name="Guard Captain" title="Southern Fortress">
+	<npc id="35691" level="75" type="Folk" name="Guard Captain" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4420,7 +4420,7 @@
 			<height normal="23.75" />
 		</collision>
 	</npc>
-	<npc id="35692" level="75" type="Folk" name="Archer Captain" title="Southern Fortress">
+	<npc id="35692" level="75" type="Folk" name="Archer Captain" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4460,7 +4460,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35693" level="75" type="Folk" name="General" title="Southern Fortress">
+	<npc id="35693" level="75" type="Folk" name="General" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4501,7 +4501,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="35694" level="75" type="Folk" name="Support Unit Captain" title="Southern Fortress">
+	<npc id="35694" level="75" type="Folk" name="Support Unit Captain" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4541,7 +4541,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35695" level="75" type="Folk" name="Engineering Manager" title="Southern Fortress">
+	<npc id="35695" level="75" type="Folk" name="Engineering Manager" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4581,7 +4581,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="35696" level="75" type="FortLogistics" name="Logistics Officer" title="Southern Fortress">
+	<npc id="35696" level="75" type="FortLogistics" name="Logistics Officer" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4684,7 +4684,7 @@
 			<height normal="8.5" />
 		</collision>
 	</npc>
-	<npc id="35698" level="75" type="Folk" name="Detention Camp Warden" title="Southern Fortress">
+	<npc id="35698" level="75" type="Folk" name="Detention Camp Warden" title="Gludio Southern Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4731,7 +4731,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35699" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35699" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

@@ -2191,7 +2191,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="33888" level="99" type="Folk" name="Santa Claus" title="Event Manager">
+	<npc id="33888" level="99" type="Folk" name="Santa Claus" title="Merry Christmas 2017">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>

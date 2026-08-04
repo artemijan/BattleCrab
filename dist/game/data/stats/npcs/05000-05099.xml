@@ -238,7 +238,7 @@
 			<height normal="53.5" grown="65.5" />
 		</collision>
 	</npc>
-	<npc id="5009" level="80" type="Folk" name="Instant Zone Roadblock Decor">
+	<npc id="5009" level="80" type="Folk" name="Instant Zone Roadblock D?cor">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>

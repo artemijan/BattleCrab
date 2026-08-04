@@ -71,7 +71,7 @@
 			<height normal="11" />
 		</collision>
 	</npc>
-	<npc id="22002" level="26" type="Monster" name="Grim Grizzly">
+	<npc id="22002" level="26" type="Monster" name="Grim Bear">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
@@ -1146,7 +1146,7 @@
 			<height normal="18.5" />
 		</collision>
 	</npc>
-	<npc id="22025" level="38" type="Monster" name="Frozen Wasteland Werewolf">
+	<npc id="22025" level="38" type="Monster" name="Snow Werewolf">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="72" />
@@ -1620,7 +1620,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="22081" level="53" type="Monster" name="Lost Watcher">
+	<npc id="22081" level="53" type="Monster" name="Lost Watchman">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="40" />
@@ -1711,7 +1711,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="22082" level="54" type="Monster" name="Elder Lost Watcher">
+	<npc id="22082" level="54" type="Monster" name="Lost Elder Watchman">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="40" />
@@ -2456,7 +2456,7 @@
 			<height normal="28" />
 		</collision>
 	</npc>
-	<npc id="22091" level="58" type="Monster" name="Lost Iron Golem">
+	<npc id="22091" level="58" type="Monster" name="Lost Steel Golem">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2544,7 +2544,7 @@
 			<height normal="42.5" />
 		</collision>
 	</npc>
-	<npc id="22092" level="59" type="Monster" name="Frost Iron Golem">
+	<npc id="22092" level="59" type="Monster" name="Frost Steel Golem">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

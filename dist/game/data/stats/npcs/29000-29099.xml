@@ -2370,7 +2370,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="29038" level="84" type="Monster" name="Kinaz's Ifrit">
+	<npc id="29038" level="84" type="Monster" name="Kinaz' Ifrit">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic_a" id="4191" level="9" /> <!-- BOSS Windstrike -->
@@ -2417,7 +2417,7 @@
 			<height normal="42" />
 		</collision>
 	</npc>
-	<npc id="29039" level="84" type="Monster" name="Kinaz's Ifrit">
+	<npc id="29039" level="84" type="Monster" name="Kinaz' Ifrit">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="HealMagic_a" id="4210" level="9" /> <!-- BOSS Chant of Life -->

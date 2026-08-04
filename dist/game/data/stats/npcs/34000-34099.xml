@@ -201,7 +201,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34016" level="99" type="Folk" name="Teleport">
+	<npc id="34016" level="99" type="Folk" name="Teleport" title="Escape Device">
 		<!-- Confirmed Antharas -->
 		<race>ETC</race>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
@@ -217,7 +217,7 @@
 			<height normal="42" />
 		</collision>
 	</npc>
-	<npc id="34017" level="99" type="Folk" name="Eilis Ein" title="Captain">
+	<npc id="34017" level="99" type="Folk" name="Eigis Ein" title="Captain">
 		<!-- Confirmed Antharas -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -319,7 +319,7 @@
 			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="34024" level="99" type="Folk" name="Gibbs" title="Nostra">
+	<npc id="34024" level="99" type="Folk" name="Heap of Bones" title="Nostra">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -336,7 +336,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="34025" level="99" type="Folk" name="Kabaleon" title="Talkative">
+	<npc id="34025" level="99" type="Folk" name="Heap of Bones" title="Talkative">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -353,7 +353,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="34026" level="99" type="Folk" name="Transformer" title="Transformation Expert">
+	<npc id="34026" level="99" type="Folk" name="Heap of Bones" title="Transformation Expert">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -370,7 +370,7 @@
 			<height normal="21.3" />
 		</collision>
 	</npc>
-	<npc id="34027" level="99" type="Folk" name="Kableon">
+	<npc id="34027" level="99" type="Folk" name="Heap of Bones">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -421,7 +421,7 @@
 			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="34030" level="99" type="Folk" name="">
+	<npc id="34030" level="99" type="Folk" name="Rissuos">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -523,7 +523,7 @@
 			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="34036" level="99" type="Folk" name="">
+	<npc id="34036" level="99" type="Folk" name="Hidden Treasure Chest">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -540,7 +540,7 @@
 			<height normal="45" />
 		</collision>
 	</npc>
-	<npc id="34037" level="99" type="Merchant" name="Chortie">
+	<npc id="34037" level="99" type="Merchant" name="Chortie" title="Grocer">
 		<!-- Confirmed Antharas -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -590,7 +590,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="34040" level="78" type="Teleporter" name="Tyron" title="Messenger of Gludio">
+	<npc id="34040" level="78" type="Teleporter" name="Festi" title="Messenger of Gludio">
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
@@ -1159,7 +1159,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="34079" level="99" type="Merchant" name="Goody" title="Equipment Merchant">
+	<npc id="34079" level="99" type="Merchant" name="Macken" title="Rarities Merchant">
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
@@ -1175,7 +1175,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="34080" level="99" type="Merchant" name="Pritty" title="Pretties Merchant">
+	<npc id="34080" level="99" type="Merchant" name="Pritty" title="Beauty Merchant">
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
@@ -1191,7 +1191,7 @@
 			<height normal="20" />
 		</collision>
 	</npc>
-	<npc id="34081" level="99" type="Merchant" name="Soflie" title="Peddler">
+	<npc id="34081" level="99" type="Merchant" name="Supree" title="Grocer">
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
@@ -1207,7 +1207,7 @@
 			<height normal="17.7" />
 		</collision>
 	</npc>
-	<npc id="34082" level="99" type="Folk" name="Tiko" title="Merry Fellow">
+	<npc id="34082" level="99" type="Folk" name="Tyke" title="Jolly">
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10">
@@ -1223,7 +1223,7 @@
 			<height normal="19" />
 		</collision>
 	</npc>
-	<npc id="34083" level="99" type="Folk" name="Ilvan" title="Event Manager">
+	<npc id="34083" level="99" type="Folk" name="Vivianne" title="Market Mistress">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1240,7 +1240,7 @@
 			<height normal="22.25" />
 		</collision>
 	</npc>
-	<npc id="34084" level="99" type="Folk" name="Byo">
+	<npc id="34084" level="99" type="Folk" name="Piero">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
@@ -1257,7 +1257,7 @@
 			<height normal="15" />
 		</collision>
 	</npc>
-	<npc id="34085" level="99" type="Folk" name="Ilevian" title="Party Souvenir Storage">
+	<npc id="34085" level="99" type="Folk" name="Captive Tulio" title="Cubeful of Gifts">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1274,7 +1274,7 @@
 			<height normal="52.8" />
 		</collision>
 	</npc>
-	<npc id="34086" level="99" type="Folk" name="Ilevian">
+	<npc id="34086" level="99" type="Folk" name="Tulio">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>

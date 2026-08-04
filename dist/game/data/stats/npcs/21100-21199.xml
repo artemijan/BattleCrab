@@ -3978,7 +3978,7 @@
 			<height normal="39" />
 		</collision>
 	</npc>
-	<npc id="21163" level="76" type="Monster" name="Ancient Holy Ground's Wing">
+	<npc id="21163" level="76" type="Monster" name="Lesser Ancient Shaman">
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -5809,7 +5809,7 @@
 			<height normal="44" />
 		</collision>
 	</npc>
-	<npc id="21185" level="78" type="Monster" name="Lilim Great Magus">
+	<npc id="21185" level="78" type="Monster" name="Lilim Great Mystic">
 		<parameters>
 			<param name="MoveAroundSocial" value="110" />
 			<param name="MoveAroundSocial1" value="110" />

@@ -2291,7 +2291,7 @@
 			<height normal="10" />
 		</collision>
 	</npc>
-	<npc id="22231" level="3" type="Monster" name="Dominant Grey Keltir">
+	<npc id="22231" level="3" type="Monster" name="Elder Grey Keltir">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2405,7 +2405,7 @@
 			<height normal="9" />
 		</collision>
 	</npc>
-	<npc id="22233" level="5" type="Monster" name="Dominant Black Wolf">
+	<npc id="22233" level="5" type="Monster" name="Elder Black Wolf">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="60" />
@@ -2709,7 +2709,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="22238" level="10" type="Monster" name="Mountain Werewolf Chief">
+	<npc id="22238" level="10" type="Monster" name="Mountain Werewolf Chieftain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="72" />

@@ -223,7 +223,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35905" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35905" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -268,7 +268,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35906" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35906" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -313,7 +313,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35907" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35907" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -430,7 +430,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="35909" level="76" type="Defender" name="Decorated Rebel Soldier" title="White Sands Fortress">
+	<npc id="35909" level="76" type="Defender" name="Rebel Elite Soldier" title="White Sands Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -549,7 +549,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35911" level="72" type="Defender" name="Court Guard" title="White Sands Fortress">
+	<npc id="35911" level="72" type="Defender" name="Royal Guard" title="White Sands Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -609,7 +609,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35912" level="72" type="Defender" name="Guard" title="White Sands Fortress">
+	<npc id="35912" level="72" type="Defender" name="Escort" title="White Sands Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1954,7 +1954,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35937" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35937" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1999,7 +1999,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35938" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35938" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2044,7 +2044,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35939" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35939" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2161,7 +2161,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="35941" level="76" type="Defender" name="Decorated Rebel Soldier" title="Borderland Fortress">
+	<npc id="35941" level="76" type="Defender" name="Rebel Elite Soldier" title="Borderland Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2280,7 +2280,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35943" level="72" type="Defender" name="Court Guard" title="Borderland Fortress">
+	<npc id="35943" level="72" type="Defender" name="Royal Guard" title="Borderland Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2340,7 +2340,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35944" level="72" type="Defender" name="Guard" title="Borderland Fortress">
+	<npc id="35944" level="72" type="Defender" name="Escort" title="Borderland Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4019,7 +4019,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35975" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35975" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4064,7 +4064,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35976" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35976" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4109,7 +4109,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35977" level="75" type="FortDoorman" name="Doorman">
+	<npc id="35977" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4226,7 +4226,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="35979" level="76" type="Defender" name="Decorated Rebel Soldier" title="Swamp Fortress">
+	<npc id="35979" level="76" type="Defender" name="Rebel Elite Soldier" title="Swamp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4345,7 +4345,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35981" level="72" type="Defender" name="Court Guard" title="Swamp Fortress">
+	<npc id="35981" level="72" type="Defender" name="Royal Guard" title="Swamp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4405,7 +4405,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35982" level="72" type="Defender" name="Guard" title="Swamp Fortress">
+	<npc id="35982" level="72" type="Defender" name="Escort" title="Swamp Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

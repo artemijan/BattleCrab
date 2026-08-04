@@ -837,7 +837,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23739" level="101" type="Monster" name="Marka">
+	<npc id="23739" level="101" type="Monster" name="Marka" title="Halisha's Henchman">
 		<race>DEMONIC</race>
 		<acquire exp="238364881" sp="572075" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
@@ -858,7 +858,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23740" level="101" type="Monster" name="Schlien">
+	<npc id="23740" level="101" type="Monster" name="Schlien" title="Halisha's Henchman">
 		<race>DEMONIC</race>
 		<acquire exp="238364881" sp="572075" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
@@ -879,7 +879,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23741" level="101" type="Monster" name="Berimah">
+	<npc id="23741" level="101" type="Monster" name="Berimah" title="Halisha's Henchman">
 		<race>DEMONIC</race>
 		<acquire exp="238364881" sp="572075" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
@@ -900,7 +900,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23742" level="101" type="Monster" name="Naia Bathus">
+	<npc id="23742" level="101" type="Monster" name="Naia Bathus" title="Demons Foreman">
 		<race>GIANT</race>
 		<acquire exp="148978051" sp="357547" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
@@ -921,7 +921,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23743" level="101" type="Monster" name="Naia Karkus">
+	<npc id="23743" level="101" type="Monster" name="Naia Carcass" title="Demons Foreman">
 		<!-- TODO FIX IT -->
 		<race>GIANT</race>
 		<acquire exp="148978051" sp="357547" />
@@ -937,7 +937,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23744" level="101" type="Monster" name="Naia Kshana">
+	<npc id="23744" level="101" type="Monster" name="Naia Kshana" title="Demons Foreman">
 		<race>GIANT</race>
 		<acquire exp="148978051" sp="357547" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
@@ -958,7 +958,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23745" level="101" type="Monster" name="Naia Lucas">
+	<npc id="23745" level="101" type="Monster" name="Naia Lucas" title="Demons Foreman">
 		<race>GIANT</race>
 		<acquire exp="148978051" sp="357547" />
 		<stats str="40" int="21" dex="30" wit="20" con="43" men="10"> <!-- TODO FIX IT -->
@@ -1231,7 +1231,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23760" level="98" type="Monster" name="Dimensional Vagabond">
+	<npc id="23760" level="98" type="Monster" name="Dimensional Vagabond" title="Lost">
 		<race>UNDEAD</race>
 		<acquire exp="119675444" sp="287221" />
 		<stats>
@@ -1250,7 +1250,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23761" level="98" type="Monster" name="Dimension Dissolver">
+	<npc id="23761" level="98" type="Monster" name="Dimension Dissolver" title="Master of the Rift">
 		<race>HUMANOID</race>
 		<acquire exp="1196792856" sp="2872302" />
 		<stats>
@@ -1537,7 +1537,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23786" level="100" type="Monster" name="Nymph Rose">
+	<npc id="23786" level="100" type="Monster" name="Nymph Rose" title="Contaminated">
 		<race>PLANT</race>
 		<acquire exp="24987295" sp="59969" />
 		<stats>
@@ -1556,7 +1556,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23787" level="100" type="Monster" name="Nymph Lily">
+	<npc id="23787" level="100" type="Monster" name="Nymph Lily" title="Contaminated">
 		<race>PLANT</race>
 		<acquire exp="24987295" sp="59969" />
 		<stats>
@@ -1575,7 +1575,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23788" level="100" type="Monster" name="Nymph Tulip">
+	<npc id="23788" level="100" type="Monster" name="Nymph Tulip" title="Contaminated">
 		<race>PLANT</race>
 		<acquire exp="24987295" sp="59969" />
 		<stats>
@@ -1594,7 +1594,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23789" level="100" type="Monster" name="Nymph Cosmos">
+	<npc id="23789" level="100" type="Monster" name="Nymph Cosmos" title="Contaminated">
 		<race>PLANT</race>
 		<acquire exp="24987295" sp="59969" />
 		<stats>
@@ -1632,7 +1632,7 @@
 			<height normal="13.25" /> <!-- Need retail value -->
 		</collision>
 	</npc>
-	<npc id="23790" level="85" type="Folk" name="">
+	<npc id="23790" level="85" type="Folk" name="Kimerians Shadows" title="Fairy Leader">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1649,7 +1649,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="23791" level="85" type="Folk" name="">
+	<npc id="23791" level="85" type="Folk" name="Bathus" title="Marred">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1666,7 +1666,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="23792" level="85" type="Folk" name="">
+	<npc id="23792" level="85" type="Folk" name="Carcass" title="Marred">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1683,7 +1683,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="23793" level="85" type="Folk" name="">
+	<npc id="23793" level="85" type="Folk" name="Kshana" title="Marred">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1700,7 +1700,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="23794" level="85" type="Folk" name="">
+	<npc id="23794" level="85" type="Folk" name="Lucas" title="Marred">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1717,7 +1717,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="23795" level="85" type="Folk" name="">
+	<npc id="23795" level="85" type="Folk" name="Viper Cherkia" title="Oasis Mirage">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1734,7 +1734,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="23796" level="85" type="Folk" name="">
+	<npc id="23796" level="85" type="Folk" name="Viper Cherkia" title="Oasis Mirage">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1751,7 +1751,7 @@
 			<height normal="0.1" />
 		</collision>
 	</npc>
-	<npc id="23797" level="85" type="Folk" name="">
+	<npc id="23797" level="85" type="Folk" name="El Fera">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>

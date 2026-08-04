@@ -57,7 +57,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36301" level="72" type="Defender" name="Court Guard" title="Aaru Fortress">
+	<npc id="36301" level="72" type="Defender" name="Royal Guard" title="Aaru Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -117,7 +117,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36302" level="72" type="Defender" name="Guard" title="Aaru Fortress">
+	<npc id="36302" level="72" type="Defender" name="Escort" title="Aaru Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1461,7 +1461,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36327" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36327" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1505,7 +1505,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36328" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36328" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1549,7 +1549,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36329" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36329" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1665,7 +1665,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36331" level="76" type="Defender" name="Decorated Rebel Soldier" title="Demon Fortress">
+	<npc id="36331" level="76" type="Defender" name="Rebel Elite Soldier" title="Demon Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1784,7 +1784,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36333" level="72" type="Defender" name="Court Guard" title="Demon Fortress">
+	<npc id="36333" level="72" type="Defender" name="Royal Guard" title="Demon Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1844,7 +1844,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36334" level="72" type="Defender" name="Guard" title="Demon Fortress">
+	<npc id="36334" level="72" type="Defender" name="Escort" title="Demon Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3522,7 +3522,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36365" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36365" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3566,7 +3566,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36366" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36366" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3610,7 +3610,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36367" level="75" type="FortDoorman" name="Doorman">
+	<npc id="36367" level="75" type="FortDoorman" name="Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3726,7 +3726,7 @@
 			<height normal="26.985" />
 		</collision>
 	</npc>
-	<npc id="36369" level="76" type="Defender" name="Decorated Rebel Soldier" title="Monastic Fortress">
+	<npc id="36369" level="76" type="Defender" name="Rebel Elite Soldier" title="Monastic Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3845,7 +3845,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="36371" level="72" type="Defender" name="Court Guard" title="Monastic Fortress">
+	<npc id="36371" level="72" type="Defender" name="Royal Guard" title="Monastic Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3905,7 +3905,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="36372" level="72" type="Defender" name="Guard" title="Monastic Fortress">
+	<npc id="36372" level="72" type="Defender" name="Escort" title="Monastic Fortress">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />

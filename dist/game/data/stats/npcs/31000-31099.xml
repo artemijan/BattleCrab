@@ -598,7 +598,7 @@
 			<height normal="4.5" />
 		</collision>
 	</npc>
-	<npc id="31017" level="70" type="Monster" name="Over the top">
+	<npc id="31017" level="70" type="Monster" name="Over the Top">
 		<!-- Confirmed CT2.5 -->
 		<race>BUG</race>
 		<sex>MALE</sex>
@@ -1296,7 +1296,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="31035" level="80" type="Guard" name="Defender">
+	<npc id="31035" level="80" type="Guard" name="Protector">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
@@ -1460,7 +1460,7 @@
 			<height normal="18.5" />
 		</collision>
 	</npc>
-	<npc id="31044" level="70" type="Merchant" name="Galman" title="Valley Trader">
+	<npc id="31044" level="70" type="Merchant" name="Galman" title="Trader of the Valley">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1500,7 +1500,7 @@
 			<height normal="16.5" />
 		</collision>
 	</npc>
-	<npc id="31045" level="70" type="Merchant" name="Kitzka" title="Valley Trader">
+	<npc id="31045" level="70" type="Merchant" name="Kitzka" title="Trader of the Valley">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1966,7 +1966,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="31075" level="70" type="Teleporter" name="Gatekeeper Ziggurat">
+	<npc id="31075" level="70" type="Teleporter" name="Sales Cat of Ivory Tower">
 		<!-- CLASSIC NPC -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>

@@ -1256,7 +1256,7 @@
 			<height normal="34" />
 		</collision>
 	</npc>
-	<npc id="23852" level="99" type="Folk" name="Hell Armor" title="u,Devil's Advocate">
+	<npc id="23852" level="99" type="Folk" name="Hell Armor" title="Devil’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1278,7 +1278,7 @@
 			<height normal="39.4" />
 		</collision>
 	</npc>
-	<npc id="23853" level="99" type="Folk" name="Hell Queen" title="u,Devil's Advocate">
+	<npc id="23853" level="99" type="Folk" name="Hell Queen" title="Devil’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1300,7 +1300,7 @@
 			<height normal="55.1" />
 		</collision>
 	</npc>
-	<npc id="23854" level="99" type="Folk" name="Hell Lord" title="u,Devil's Advocate">
+	<npc id="23854" level="99" type="Folk" name="Hell Lord" title="Devil’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1366,7 +1366,7 @@
 			<height normal="38.5" />
 		</collision>
 	</npc>
-	<npc id="23857" level="99" type="Folk" name="Heavenly Judge" title="u,Angel's Advocate">
+	<npc id="23857" level="99" type="Folk" name="Heavenly Judge" title="Angel’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1410,7 +1410,7 @@
 			<height normal="47" />
 		</collision>
 	</npc>
-	<npc id="23859" level="99" type="Folk" name="Heavenly Guardian" title="u,Angel's Advocate">
+	<npc id="23859" level="99" type="Folk" name="Heavenly Guardian" title="Angel’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1494,7 +1494,7 @@
 			<height normal="53.5" />
 		</collision>
 	</npc>
-	<npc id="23862" level="99" type="Folk" name="Drak" title="u,Dragon's Advocate">
+	<npc id="23862" level="99" type="Folk" name="Drak" title="Dragon’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -1538,7 +1538,7 @@
 			<height normal="35" />
 		</collision>
 	</npc>
-	<npc id="23864" level="99" type="Folk" name="Chaos Drake" title="u,Dragon's Advocate">
+	<npc id="23864" level="99" type="Folk" name="Chaos Drake" title="Dragon’s Advocate">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>

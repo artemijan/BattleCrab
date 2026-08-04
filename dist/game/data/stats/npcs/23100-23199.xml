@@ -950,7 +950,7 @@
 			<height normal="36" />
 		</collision>
 	</npc>
-	<npc id="23126" level="95" type="Monster" name="Elite Escort" title="Embryo">
+	<npc id="23126" level="95" type="Monster" name="Embryo Elite Escort" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -993,7 +993,7 @@
 			<height normal="29" />
 		</collision>
 	</npc>
-	<npc id="23127" level="95" type="Monster" name="Elite Manhunter" title="Embryo">
+	<npc id="23127" level="95" type="Monster" name="Embryo Elite Chaser" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1036,7 +1036,7 @@
 			<height normal="29" />
 		</collision>
 	</npc>
-	<npc id="23128" level="95" type="Monster" name="Elite Warrior" title="Embryo">
+	<npc id="23128" level="95" type="Monster" name="Embryo Elite Warrior" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1078,7 +1078,7 @@
 			<height normal="29" />
 		</collision>
 	</npc>
-	<npc id="23129" level="95" type="Monster" name="Elite Alchemist" title="Embryo">
+	<npc id="23129" level="95" type="Monster" name="Embryo Elite Alchemist" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1120,7 +1120,7 @@
 			<height normal="21" />
 		</collision>
 	</npc>
-	<npc id="23130" level="95" type="Monster" name="Elite High Priest" title="Embryo">
+	<npc id="23130" level="95" type="Monster" name="Embryo Elite High Priest" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1162,7 +1162,7 @@
 			<height normal="21" />
 		</collision>
 	</npc>
-	<npc id="23131" level="95" type="Monster" name="Executor Captain" title="Embryo">
+	<npc id="23131" level="95" type="Monster" name="Embryo Executor Captain" title="Watchman of the Altar">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1202,7 +1202,7 @@
 			<height normal="29.5" />
 		</collision>
 	</npc>
-	<npc id="23132" level="95" type="Monster" name="Shilen's Enchanter" title="Embryo">
+	<npc id="23132" level="95" type="Monster" name="Etina Gospel" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1248,7 +1248,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="23133" level="95" type="Monster" name="Shilen's Priest" title="Embryo">
+	<npc id="23133" level="95" type="Monster" name="Etina Priests" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1294,7 +1294,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="23134" level="95" type="Monster" name="Shilen's Protector" title="Embryo">
+	<npc id="23134" level="95" type="Monster" name="Etina Protectors" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1341,7 +1341,7 @@
 			<height normal="31.5" />
 		</collision>
 	</npc>
-	<npc id="23135" level="95" type="Monster" name="Shilen's Warrior" title="Embryo">
+	<npc id="23135" level="95" type="Monster" name="Etina Punishers" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1384,7 +1384,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="23136" level="95" type="Monster" name="Shilen's Mage" title="Embryo">
+	<npc id="23136" level="95" type="Monster" name="Etina Commination" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1430,7 +1430,7 @@
 			<height normal="32" />
 		</collision>
 	</npc>
-	<npc id="23137" level="95" type="Monster" name="Shilen's Assassin" title="Embryo">
+	<npc id="23137" level="95" type="Monster" name="Etina Darkmongers" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1476,7 +1476,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="23138" level="95" type="Monster" name="Shilen's Bladers" title="Embryo">
+	<npc id="23138" level="95" type="Monster" name="Etina Bladesmen" title="Watchman of the Altar">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1515,7 +1515,7 @@
 			<height normal="34" />
 		</collision>
 	</npc>
-	<npc id="23139" level="95" type="Monster" name="Researcher" title="Embryo">
+	<npc id="23139" level="95" type="Monster" name="Embryo Researcher" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1559,7 +1559,7 @@
 			<height normal="33" />
 		</collision>
 	</npc>
-	<npc id="23140" level="95" type="Monster" name="Archer Recruit" title="Embryo">
+	<npc id="23140" level="95" type="Monster" name="Embryo Watchman" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1603,7 +1603,7 @@
 			<height normal="29" />
 		</collision>
 	</npc>
-	<npc id="23141" level="95" type="Monster" name="Soldier Recruit" title="Embryo">
+	<npc id="23141" level="95" type="Monster" name="Embryo Fighter" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
@@ -1646,7 +1646,7 @@
 			<height normal="36" />
 		</collision>
 	</npc>
-	<npc id="23142" level="95" type="Monster" name="Knight Recruit" title="Embryo">
+	<npc id="23142" level="95" type="Monster" name="Embryo Guard" title="Embryo">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<parameters>
 			<param name="IsAggressive" value="1" />

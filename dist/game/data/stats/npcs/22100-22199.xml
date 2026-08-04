@@ -924,7 +924,7 @@
 			<height normal="28.4" />
 		</collision>
 	</npc>
-	<npc id="22111" level="75" type="Monster" name="Spiked Stakato Sorcerer">
+	<npc id="22111" level="75" type="Monster" name="Spiked Stakato Wizard">
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -1004,7 +1004,7 @@
 			<height normal="43.6" />
 		</collision>
 	</npc>
-	<npc id="22112" level="74" type="Monster" name="Cannibalistic Stakato Follower">
+	<npc id="22112" level="74" type="Monster" name="Cannibalistic Stakato Subordinate">
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="62" />
@@ -1414,7 +1414,7 @@
 			<height normal="47.3" />
 		</collision>
 	</npc>
-	<npc id="22117" level="78" type="Monster" name="Spiked Stakato Captain">
+	<npc id="22117" level="78" type="Monster" name="Spiked Stakato Guard Captain">
 		<parameters>
 			<param name="MoveAroundSocial" value="20" />
 			<param name="MoveAroundSocial1" value="60" />
@@ -2363,7 +2363,7 @@
 			<height normal="15.6" />
 		</collision>
 	</npc>
-	<npc id="22129" level="78" type="Monster" name="Warrior Monk">
+	<npc id="22129" level="78" type="Monster" name="Priest Warrior">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2750,7 +2750,7 @@
 			<height normal="22" />
 		</collision>
 	</npc>
-	<npc id="22134" level="78" type="Monster" name="Guardian of the Holy Land">
+	<npc id="22134" level="78" type="Monster" name="Martyrium Guardian">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -2905,7 +2905,7 @@
 			<height normal="47" />
 		</collision>
 	</npc>
-	<npc id="22136" level="78" type="Monster" name="Doorman Zombie">
+	<npc id="22136" level="78" type="Monster" name="Gatekeeper Zombie">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="pass1" value="8064" /> <!-- Visitor's Mark -->
@@ -2959,7 +2959,7 @@
 			<height normal="30.5" />
 		</collision>
 	</npc>
-	<npc id="22137" level="78" type="Monster" name="Penance Guard">
+	<npc id="22137" level="78" type="Monster" name="Anteroom Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -3033,7 +3033,7 @@
 			<height normal="30.5" />
 		</collision>
 	</npc>
-	<npc id="22138" level="78" type="Monster" name="Chapel Guard">
+	<npc id="22138" level="78" type="Monster" name="Chapel Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -3186,7 +3186,7 @@
 			<height normal="22.3" />
 		</collision>
 	</npc>
-	<npc id="22140" level="78" type="Monster" name="Zombie Worker">
+	<npc id="22140" level="78" type="Monster" name="Resurrected Worker">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6026,7 +6026,7 @@
 			<height normal="28.4" />
 		</collision>
 	</npc>
-	<npc id="22175" level="78" type="Monster" name="Andreas' Captain of the Royal Guard">
+	<npc id="22175" level="78" type="Monster" name="Andreas' Escort Captain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6114,7 +6114,7 @@
 			<height normal="22.3" />
 		</collision>
 	</npc>
-	<npc id="22176" level="78" type="Monster" name="Andreas' Royal Guards">
+	<npc id="22176" level="78" type="Monster" name="Andreas' Escort">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6190,7 +6190,7 @@
 			<height normal="22.3" />
 		</collision>
 	</npc>
-	<npc id="22188" level="78" type="Monster" name="Andreas' Captain of the Royal Guard">
+	<npc id="22188" level="78" type="Monster" name="Andreas' Escort Captain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6273,7 +6273,7 @@
 			<height normal="23.2" />
 		</collision>
 	</npc>
-	<npc id="22189" level="78" type="Monster" name="Andreas' Royal Guards">
+	<npc id="22189" level="78" type="Monster" name="Andreas' Escort">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6427,7 +6427,7 @@
 			<height normal="25.8" />
 		</collision>
 	</npc>
-	<npc id="22191" level="78" type="Monster" name="Andreas' Captain of the Royal Guard">
+	<npc id="22191" level="78" type="Monster" name="Andreas' Escort Captain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6503,7 +6503,7 @@
 			<height normal="23.2" />
 		</collision>
 	</npc>
-	<npc id="22192" level="78" type="Monster" name="Andreas' Royal Guards">
+	<npc id="22192" level="78" type="Monster" name="Andreas' Escort">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6578,7 +6578,7 @@
 			<height normal="34" />
 		</collision>
 	</npc>
-	<npc id="22193" level="78" type="Monster" name="Andreas' Royal Guards">
+	<npc id="22193" level="78" type="Monster" name="Andreas' Escort">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6654,7 +6654,7 @@
 			<height normal="34" />
 		</collision>
 	</npc>
-	<npc id="22194" level="78" type="Monster" name="Penance Guard">
+	<npc id="22194" level="78" type="Monster" name="Anteroom Gatekeeper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="PhysicalSpecial" id="4032" level="9" /> <!-- NPC Strike -->

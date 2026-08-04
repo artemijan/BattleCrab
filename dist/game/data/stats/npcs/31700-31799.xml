@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="31700" level="70" type="Folk" name="Saint's Follower">
+	<npc id="31700" level="70" type="Folk" name="Saintess' Follower">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -40,7 +40,7 @@
 			<height normal="18" />
 		</collision>
 	</npc>
-	<npc id="31701" level="70" type="Folk" name="Saint's Follower">
+	<npc id="31701" level="70" type="Folk" name="Saintess' Follower">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -82,7 +82,7 @@
 			<height normal="21" />
 		</collision>
 	</npc>
-	<npc id="31702" level="70" type="Folk" name="Saint's Follower">
+	<npc id="31702" level="70" type="Folk" name="Saintess' Follower">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -124,7 +124,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="31703" level="70" type="Folk" name="Saint's Follower">
+	<npc id="31703" level="70" type="Folk" name="Saintess' Follower">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -160,7 +160,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="31704" level="70" type="Folk" name="Saint's Follower">
+	<npc id="31704" level="70" type="Folk" name="Saintess' Follower">
 		<!-- Confirmed CT2.5 -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
@@ -196,7 +196,7 @@
 			<height normal="21.5" />
 		</collision>
 	</npc>
-	<npc id="31705" level="70" type="Monster" name="Daimon the White-Eyed">
+	<npc id="31705" level="70" type="Monster" name="Daimon the White-eyed">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
@@ -279,7 +279,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="31707" level="70" type="Folk" name="Ketra Van Grunt">
+	<npc id="31707" level="70" type="Folk" name="Ketra Van Soldier">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
@@ -365,7 +365,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="31709" level="70" type="Folk" name="Ketra Van Captain">
+	<npc id="31709" level="70" type="Folk" name="Ketra Van Officer">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="NoFnHi" value="1" />
@@ -1910,7 +1910,7 @@
 			<height normal="30" />
 		</collision>
 	</npc>
-	<npc id="31748" level="70" type="Folk" name="Cornerstone of Restraining">
+	<npc id="31748" level="70" type="Folk" name="Bound Cornerstone">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2156,7 +2156,7 @@
 			<height normal="16" />
 		</collision>
 	</npc>
-	<npc id="31757" level="70" type="ClassMaster" name="Miss Queen" title="Test Server Helper">
+	<npc id="31757" level="70" type="ClassMaster" name="Queen of Hearts" title="Test Server Helper">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="110" />

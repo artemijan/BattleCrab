@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="35100" level="75" type="Merchant" name="Sayres" title="Chamberlain">
+	<npc id="35100" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
@@ -178,7 +178,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35104" level="75" type="Folk" name="Tyron" title="Sir">
+	<npc id="35104" level="75" type="Folk" name="Tyron" title="Herald from Gludio">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -302,7 +302,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35107" level="81" type="Defender" name="Ivano" title="Sir">
+	<npc id="35107" level="81" type="Defender" name="Ivano" title="Royal Guard Captain">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -390,7 +390,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35109" level="77" type="Defender" name="Court Sorcerer" title="Dion">
+	<npc id="35109" level="77" type="Defender" name="Royal Wizard" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -438,7 +438,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35110" level="77" type="Defender" name="Court Sorcerer" title="Dion">
+	<npc id="35110" level="77" type="Defender" name="Royal Wizard" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -486,7 +486,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35111" level="77" type="Defender" name="Court Guard" title="Dion">
+	<npc id="35111" level="77" type="Defender" name="Royal Guard" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -530,7 +530,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35112" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35112" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -574,7 +574,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35113" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35113" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -618,7 +618,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35114" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35114" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -662,7 +662,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35115" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35115" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -706,7 +706,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35116" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35116" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -750,7 +750,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35117" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35117" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -794,7 +794,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35118" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35118" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -838,7 +838,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35119" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35119" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -882,7 +882,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35120" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35120" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -970,7 +970,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35122" level="77" type="Defender" name="Court Sorcerer" title="Dion">
+	<npc id="35122" level="77" type="Defender" name="Royal Wizard" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -1018,7 +1018,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35123" level="77" type="Defender" name="Court Sorcerer" title="Dion">
+	<npc id="35123" level="77" type="Defender" name="Royal Wizard" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -1066,7 +1066,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35124" level="77" type="Defender" name="Court Guard" title="Dion">
+	<npc id="35124" level="77" type="Defender" name="Royal Guard" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1110,7 +1110,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35125" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35125" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1154,7 +1154,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35126" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35126" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1198,7 +1198,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35127" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35127" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1242,7 +1242,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35128" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35128" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1286,7 +1286,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35129" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35129" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1330,7 +1330,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35130" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35130" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -1374,7 +1374,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35131" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35131" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1418,7 +1418,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35132" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35132" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1462,7 +1462,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35133" level="75" type="Defender" name="Guard" title="Dion">
+	<npc id="35133" level="75" type="Defender" name="Escort" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -1742,7 +1742,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35138" level="75" type="Folk" name="Outer Doorman" title="Dion">
+	<npc id="35138" level="75" type="Folk" name="Outer Castle Gatekeeper" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1792,7 +1792,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35139" level="75" type="Folk" name="Inner Doorman" title="Dion">
+	<npc id="35139" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -1923,7 +1923,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35142" level="75" type="Merchant" name="Crosby" title="Chamberlain">
+	<npc id="35142" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
@@ -2101,7 +2101,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35146" level="75" type="Folk" name="Gibbson" title="Herald">
+	<npc id="35146" level="75" type="Folk" name="Gibbson" title="Herald from Dion">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -2225,7 +2225,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35149" level="81" type="Defender" name="Ulric" title="Sir">
+	<npc id="35149" level="81" type="Defender" name="Ulric" title="Royal Guard Captain">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2313,7 +2313,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35151" level="77" type="Defender" name="Court Sorcerer" title="Giran">
+	<npc id="35151" level="77" type="Defender" name="Royal Wizard" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -2361,7 +2361,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35152" level="77" type="Defender" name="Court Sorcerer" title="Giran">
+	<npc id="35152" level="77" type="Defender" name="Royal Wizard" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -2409,7 +2409,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35153" level="77" type="Defender" name="Court Guard" title="Giran">
+	<npc id="35153" level="77" type="Defender" name="Royal Guard" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2453,7 +2453,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35154" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35154" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2497,7 +2497,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35155" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35155" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2541,7 +2541,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35156" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35156" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2585,7 +2585,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35157" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35157" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2629,7 +2629,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35158" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35158" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2673,7 +2673,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35159" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35159" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -2717,7 +2717,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35160" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35160" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2761,7 +2761,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35161" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35161" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2805,7 +2805,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35162" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35162" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -2893,7 +2893,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35164" level="77" type="Defender" name="Court Sorcerer" title="Giran">
+	<npc id="35164" level="77" type="Defender" name="Royal Wizard" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -2941,7 +2941,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35165" level="77" type="Defender" name="Court Sorcerer" title="Giran">
+	<npc id="35165" level="77" type="Defender" name="Royal Wizard" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -2989,7 +2989,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35166" level="77" type="Defender" name="Court Guard" title="Giran">
+	<npc id="35166" level="77" type="Defender" name="Royal Guard" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3033,7 +3033,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35167" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35167" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3077,7 +3077,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35168" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35168" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3121,7 +3121,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35169" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35169" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3165,7 +3165,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35170" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35170" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -3209,7 +3209,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35171" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35171" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -3253,7 +3253,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35172" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35172" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>
@@ -3297,7 +3297,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="35173" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35173" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3341,7 +3341,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35174" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35174" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3385,7 +3385,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35175" level="75" type="Defender" name="Guard" title="Giran">
+	<npc id="35175" level="75" type="Defender" name="Escort" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -3665,7 +3665,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35180" level="75" type="Folk" name="Outer Doorman" title="Giran">
+	<npc id="35180" level="75" type="Folk" name="Outer Castle Gatekeeper" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3715,7 +3715,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35181" level="75" type="Folk" name="Inner Doorman" title="Giran">
+	<npc id="35181" level="75" type="Folk" name="Inner Castle Gatekeeper" title="Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3846,7 +3846,7 @@
 			<height normal="17" />
 		</collision>
 	</npc>
-	<npc id="35184" level="75" type="Merchant" name="Saul" title="Chamberlain">
+	<npc id="35184" level="75" type="Merchant" name="Chamberlain of Light" title="Chamberlain">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="fnAgitBuff" value="castlebuff" />
@@ -4025,7 +4025,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35188" level="75" type="Folk" name="Holmes" title="Sir">
+	<npc id="35188" level="75" type="Folk" name="Holmes" title="Herald from Giran">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -4149,7 +4149,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35191" level="81" type="Defender" name="Quant" title="Sir">
+	<npc id="35191" level="81" type="Defender" name="Quant" title="Royal Guard Captain">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4237,7 +4237,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35193" level="77" type="Defender" name="Court Sorcerer" title="Oren">
+	<npc id="35193" level="77" type="Defender" name="Royal Wizard" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="DDMagic" id="4026" level="1" /> <!-- Gludio Flame -->
@@ -4285,7 +4285,7 @@
 			<height normal="22.5" />
 		</collision>
 	</npc>
-	<npc id="35194" level="77" type="Defender" name="Court Sorcerer" title="Oren">
+	<npc id="35194" level="77" type="Defender" name="Royal Wizard" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<skill name="MagicHeal" id="4027" level="1" /> <!-- Gludio Heal -->
@@ -4333,7 +4333,7 @@
 			<height normal="23" />
 		</collision>
 	</npc>
-	<npc id="35195" level="77" type="Defender" name="Court Guard" title="Oren">
+	<npc id="35195" level="77" type="Defender" name="Royal Guard" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4377,7 +4377,7 @@
 			<height normal="24" />
 		</collision>
 	</npc>
-	<npc id="35196" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35196" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4421,7 +4421,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35197" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35197" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4465,7 +4465,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35198" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35198" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>MALE</sex>
@@ -4509,7 +4509,7 @@
 			<height normal="23.5" />
 		</collision>
 	</npc>
-	<npc id="35199" level="75" type="Defender" name="Guard" title="Oren">
+	<npc id="35199" level="75" type="Defender" name="Escort" title="Oren">
 		<!-- Confirmed CT2.5 -->
 		<race>CASTLE_GUARD</race>
 		<sex>FEMALE</sex>

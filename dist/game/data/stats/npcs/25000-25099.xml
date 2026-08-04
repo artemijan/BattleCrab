@@ -3305,7 +3305,7 @@
 			<height normal="61" />
 		</collision>
 	</npc>
-	<npc id="25070" level="55" type="RaidBoss" name="Enchanted Forest Lookout Ruell" title="Raid Boss">
+	<npc id="25070" level="55" type="RaidBoss" name="Enchanted Valley Lookout Ruell" title="Raid Boss">
 		<parameters>
 			<minions name="Privates">
 				<npc id="25071" count="3" respawnTime="360" weightPoint="1" /> <!-- Ruell's Wind -->
@@ -4633,7 +4633,7 @@
 			<height normal="27" />
 		</collision>
 	</npc>
-	<npc id="25098" level="35" type="RaidBoss" name="Sejarr's Servant" title="Raid Boss">
+	<npc id="25098" level="35" type="RaidBoss" name="Sejarr’s Servant" title="Raid Boss">
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm03_A" />
 			<skill name="SelfRangeCancel_a" id="4177" level="3" />

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
-	<npc id="21500" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21500" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -70,7 +70,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21501" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21501" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -141,7 +141,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21502" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21502" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -217,7 +217,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21503" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21503" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -295,7 +295,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21504" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21504" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -374,7 +374,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21505" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21505" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -453,7 +453,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21506" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21506" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -519,7 +519,7 @@
 			</spoil>
 		</dropLists>
 	</npc>
-	<npc id="21507" level="69" type="FeedableBeast" name="Alpine Cougar">
+	<npc id="21507" level="69" type="FeedableBeast" name="Alpen Cougar">
 		<!-- Interlude - C6 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -1407,7 +1407,7 @@
 			<height normal="39" />
 		</collision>
 	</npc>
-	<npc id="21518" level="68" type="Monster" name="Frenzy Stakato Soldier">
+	<npc id="21518" level="68" type="Monster" name="Frenzied Stakato Soldier">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -1479,7 +1479,7 @@
 			<height normal="38" />
 		</collision>
 	</npc>
-	<npc id="21519" level="72" type="Monster" name="Frenzy Stakato Drone">
+	<npc id="21519" level="72" type="Monster" name="Frenzied Stakato Drone">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="62" />
@@ -2173,7 +2173,7 @@
 			<height normal="28" grown="34" />
 		</collision>
 	</npc>
-	<npc id="21527" level="63" type="Monster" name="Anger of Splendor">
+	<npc id="21527" level="63" type="Monster" name="Fury of Splendor">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -2264,7 +2264,7 @@
 			<height normal="32" />
 		</collision>
 	</npc>
-	<npc id="21528" level="63" type="Monster" name="Anger of Splendor">
+	<npc id="21528" level="63" type="Monster" name="Fury of Splendor">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
@@ -3494,7 +3494,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="21542" level="62" type="Monster" name="Disciple of Pilgrim">
+	<npc id="21542" level="62" type="Monster" name="Pilgrim's Disciple">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="110" />
@@ -3574,7 +3574,7 @@
 			<height normal="28" grown="34" />
 		</collision>
 	</npc>
-	<npc id="21543" level="62" type="Monster" name="Page of Pilgrim">
+	<npc id="21543" level="62" type="Monster" name="Pilgrim's Servant">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
@@ -4097,7 +4097,7 @@
 			<height normal="25" />
 		</collision>
 	</npc>
-	<npc id="21549" level="64" type="Monster" name="Corrupted Guard">
+	<npc id="21549" level="64" type="Monster" name="Corrupted Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -4184,7 +4184,7 @@
 			<height normal="28.5" />
 		</collision>
 	</npc>
-	<npc id="21550" level="64" type="Monster" name="Corrupted Guard">
+	<npc id="21550" level="64" type="Monster" name="Corrupted Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -4273,7 +4273,7 @@
 			<height normal="28.5" />
 		</collision>
 	</npc>
-	<npc id="21551" level="66" type="Monster" name="Resurrected Guard">
+	<npc id="21551" level="66" type="Monster" name="Resurrected Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -4361,7 +4361,7 @@
 			<height normal="28.5" />
 		</collision>
 	</npc>
-	<npc id="21552" level="66" type="Monster" name="Resurrected Guard">
+	<npc id="21552" level="66" type="Monster" name="Resurrected Royal Guard">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
@@ -6001,7 +6001,7 @@
 			<height normal="21" />
 		</collision>
 	</npc>
-	<npc id="21571" level="69" type="Monster" name="Ghost of Rebellion Soldier">
+	<npc id="21571" level="69" type="Monster" name="Ghost of Rebel Soldier">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="215" />
@@ -6662,7 +6662,7 @@
 			<height normal="40" />
 		</collision>
 	</npc>
-	<npc id="21579" level="71" type="Monster" name="Ghost of Rebellion Leader">
+	<npc id="21579" level="71" type="Monster" name="Ghost of Rebel Leader">
 		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />

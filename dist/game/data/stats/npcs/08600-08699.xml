@@ -549,7 +549,7 @@
 			<skill id="5464" level="1" /> <!-- Wind Attack -->
 		</skillList>
 	</npc>
-	<npc id="8629" level="85" type="Folk" name="Rico">
+	<npc id="8629" level="85" type="Folk" name="Rico" title="Jack's Scarecrow">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ETC</race>
 		<sex>FEMALE</sex>
