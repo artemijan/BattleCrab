@@ -89,6 +89,28 @@ fn bench(c: &mut Criterion) {
     c.bench_function("find_path_giran", |b| {
         b.iter(|| black_box(find_path(&g, &cfg, (AX, AY, az), (BX, BY, bz), true)))
     });
+
+    // Same search with the LOS post-filter off, to price that stage.
+    let mut cfg_nofilter = PathConfig::default();
+    cfg_nofilter.max_postfilter_passes = 0;
+    c.bench_function("find_path_giran_no_postfilter", |b| {
+        b.iter(|| {
+            black_box(find_path(
+                &g,
+                &cfg_nofilter,
+                (AX, AY, az),
+                (BX, BY, bz),
+                true,
+            ))
+        })
+    });
+
+    // What one search pays just to get a zeroed node grid: the 256x256 buffer
+    // this route allocates. Java pools these ("100x6;128x6;..." — the counts
+    // are a pool size); this port allocates one per call.
+    c.bench_function("grid_alloc_256x256", |b| {
+        b.iter(|| black_box(vec![0u32; 256 * 256]))
+    });
 }
 
 criterion_group!(geo, bench);
