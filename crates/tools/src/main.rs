@@ -39,8 +39,8 @@ enum Command {
     /// files: overwrite text and colour, append messages the client lacks.
     SyncMessages(cli::sync_messages::Args),
 
-    /// Push this datapack's NPC names and titles into the client's NpcName
-    /// files: overwrite the strings it already has, append the NPCs it lacks.
+    /// Reconcile NPC names and titles between the datapack and the client's
+    /// NpcName table, in either direction.
     SyncNpc(cli::sync_npc::Args),
 }
 

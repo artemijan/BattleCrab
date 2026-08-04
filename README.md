@@ -78,34 +78,47 @@ back; anything it cannot place is reported rather than silently dropped. Only
 Ver413 and the XOR versions can be written — NCsoft published just the public
 exponent for its other RSA keys. See `crates/tools/src/client_dat.rs`.
 
-### Pushing server data into the client
+### Reconciling server data with the client
 
 Some strings the player reads never cross the wire: the server sends an id and
 the client looks the wording up in its own table. Two commands close that gap,
 each decrypting its tables in memory, editing them, and re-encrypting in place:
 
 ```sh
-./target/release/l2r-tools sync-messages --dry-run   # SystemMsg*.dat
-./target/release/l2r-tools sync-npc --dry-run        # NpcName_Classic-eu.dat
+./target/release/l2r-tools sync-messages --dry-run              # SystemMsg*.dat
+./target/release/l2r-tools sync-npc --dry-run                   # -> NpcName_Classic-eu.dat
+./target/release/l2r-tools sync-npc to-datapack --dry-run       # -> data/stats/npcs/*.xml
 ```
 
-`sync-npc` writes every NPC's `name=` and `title=` from `dist/game/data/stats/
-npcs` into the row the client keys by `displayId`, and appends a row for any
-NPC the client has none for (`--no-append` to only correct what exists).
-`--dry-run` prints the whole diff both ways — `~` corrected, `+` missing from
-the client, `-` client rows no template claims, `=` fields only the client
-knows — capped by `--limit` (`0` for all).
+`sync-npc to-client` (the default) writes every NPC's `name=` and `title=` from
+`dist/game/data/stats/npcs` into the row the client keys by `displayId`, and
+appends a row for any NPC the client has none for (`--no-append` to only
+correct what exists). `--dry-run` prints the whole diff both ways — `~`
+corrected, `+` missing from the client, `-` client rows no template claims, `=`
+fields only the client knows — capped by `--limit` (`0` for all).
 
-Three things it deliberately does not do. The title's **render colour** is not
+`sync-npc to-datapack` runs it backwards, for when the client's table is the
+retail truth and the datapack has drifted. It is deliberately the weaker
+direction: it only **corrects NPCs the datapack already declares**, and a
+client row naming an NPC with no template is reported as a `warning:` line and
+skipped (`!` in the listing) — a name cannot support inventing a template whose
+level, stats, drops and AI would all be guesses. Edits are line-local, so a
+BOM, the tab indentation and the `<!-- Confirmed CT2.5 -->` comments all
+survive; a new `title=` lands in the datapack's own attribute order. Afterwards
+the whole datapack is reloaded through the server's own parser and every edit
+re-checked, because a broken tag takes its entire file's NPCs down with it.
+
+Three things neither direction does. The title's **render colour** is not
 modelled by the datapack, so an existing row keeps its own and an appended one
-takes the file's modal colour. A **missing** `name=`/`title=` attribute is the
-datapack declining to say rather than a claim that the string is empty, so it
-never blanks a client row — those are the `=` lines. And it syncs only the
-**Classic** table by default: `system` also ships `NpcName-eu.dat`, but that is
-another chronicle's mapping (id 20138 is "Gargoyle" there, "Turek Orc
-Commander" in Classic and in this datapack), so it takes an explicit
-`--npc-file`. Nothing is written unless the repacked table re-reads as the text
-it was built from. See `crates/tools/src/npc_sync.rs`.
+takes the file's modal colour. A **missing** `name=`/`title=` — or an empty
+client string — is one side declining to say rather than a claim that the
+string is empty, so neither blanks the other; those are the `=` lines, and
+running both directions in turn is how you resolve them. And only the
+**Classic** table is synced by default: `system` also ships `NpcName-eu.dat`,
+but that is another chronicle's mapping (id 20138 is "Gargoyle" there, "Turek
+Orc Commander" in Classic and in this datapack), so it takes an explicit
+`--npc-file`. Nothing is written unless it re-reads as what it meant to say.
+See `crates/tools/src/npc_sync.rs` and `npc_xml.rs`.
 
 ## Database
 
