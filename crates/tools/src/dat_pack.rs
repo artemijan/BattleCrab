@@ -33,6 +33,51 @@
 use crate::dat_schema::{Count, Field, Layout, Node};
 use std::collections::HashMap;
 
+/// Explain how a re-read rendering differs from the text it was packed from,
+/// or `None` when the two say the same thing.
+///
+/// Compared line by line, not byte for byte, because the line separator is not
+/// data: [`pack`] throws `\r` and `\n` away when it tokenises, and a real one
+/// inside a string arrives escaped as `\r` or `\n`. The reader writes CRLF, but
+/// most editors outside Windows rewrite a file to LF the moment it is saved,
+/// and a hand edit must not become unpackable for having been saved.
+pub fn diff_text(packed: &str, source: &str) -> Option<String> {
+    let mut packed_lines = packed.trim_end().lines();
+    let mut source_lines = source.trim_end().lines();
+    let mut line = 0usize;
+    loop {
+        line += 1;
+        return match (packed_lines.next(), source_lines.next()) {
+            (None, None) => None,
+            (Some(a), Some(b)) if a == b => continue,
+            (Some(a), Some(b)) => {
+                let at = a.chars().zip(b.chars()).take_while(|(x, y)| x == y).count();
+                Some(format!(
+                    "line {line} differs at character {}: packed {}, text {}",
+                    at + 1,
+                    around(a, at),
+                    around(b, at),
+                ))
+            }
+            (Some(_), None) => Some(format!(
+                "the packed file has more than {} lines of records",
+                line - 1
+            )),
+            (None, Some(_)) => Some(format!(
+                "the packed file stops after {} lines of records",
+                line - 1
+            )),
+        };
+    }
+}
+
+/// A short quoted window around `at`, for pointing at a mismatch.
+fn around(line: &str, at: usize) -> String {
+    let start = at.saturating_sub(20);
+    let text: String = line.chars().skip(start).take(60).collect();
+    format!("{text:?}")
+}
+
 /// Emitted bytes, with holes for counts that are not known yet.
 enum Chunk {
     Bytes(Vec<u8>),
@@ -588,7 +633,7 @@ pub fn pack_dir(
             };
             // Prove it before writing: re-reading must give back the same text.
             let back = crate::dat_text::read(&bytes, &layout, &enums, false);
-            if !back.exact() || back.text.trim_end() != text.trim_end() {
+            if !back.exact() || diff_text(&back.text, &text).is_some() {
                 continue;
             }
             outcome = match std::fs::write(out_dir.join(&name), &bytes) {
@@ -708,6 +753,42 @@ mod tests {
         let lopsided = "a_begin\t7\ta_end\tb_begin\t8\tb_end\tb_begin\t9\tb_end";
         let err = pack(lopsided, &layout).expect_err("1 vs 2 records");
         assert!(err.contains("different lengths"), "{err}");
+    }
+
+    /// The reader writes CRLF; most editors save LF. That rewrite touches no
+    /// data — the tokeniser drops both — so a file edited on a Mac or Linux
+    /// box has to stay packable.
+    #[test]
+    fn line_endings_are_not_a_difference() {
+        let crlf = "item_begin\t1\titem_end\r\nitem_begin\t2\titem_end";
+        let lf = "item_begin\t1\titem_end\nitem_begin\t2\titem_end";
+        assert_eq!(diff_text(crlf, lf), None);
+        assert_eq!(diff_text(lf, crlf), None);
+        // A trailing newline is not one either.
+        assert_eq!(diff_text(crlf, &format!("{lf}\n")), None);
+    }
+
+    /// A real change still has to be caught, and said out loud: the whole
+    /// reason this returns a message is that "did not re-read as the same
+    /// text" leaves the reader with nowhere to look.
+    #[test]
+    fn a_changed_value_is_reported_with_its_line_and_column() {
+        let a = "item_begin\t1\titem_end\r\nitem_begin\t2\titem_end";
+        let b = "item_begin\t1\titem_end\r\nitem_begin\t3\titem_end";
+        let why = diff_text(a, b).expect("differs");
+        assert!(why.contains("line 2"), "{why}");
+        assert!(why.contains("character 12"), "{why}");
+
+        assert!(
+            diff_text("a\r\nb", "a")
+                .expect("longer")
+                .contains("more than 1")
+        );
+        assert!(
+            diff_text("a", "a\r\nb")
+                .expect("shorter")
+                .contains("after 1")
+        );
     }
 
     /// Round-trip against the reader's own primitives.
