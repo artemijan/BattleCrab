@@ -47,8 +47,8 @@ close-out gate uses.
 |---|---:|---|
 | `TODO(G33)` | 15 | `config/offline_trade.rs`, `data/item_data.rs`, `game_loop/admin/editchar.rs`, `game_loop/admin/skills.rs`, +9 more |
 | `TODO(G24)` | 14 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans.rs`, `game_loop/combat.rs`, +4 more |
+| `TODO(G34)` | 13 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, +2 more |
-| `TODO(G34)` | 12 | `data/skill_data.rs`, `game_loop/death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, +2 more |
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects.rs`, +4 more |
 | `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, +5 more |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
@@ -204,11 +204,15 @@ Module headers are where those live, which makes them the place to look first.
   (`0xFE:0xE8` / `0xFE:0x108`), Ertheia-era opcodes with no counterpart in the
   Interlude protocol — the hop is ported with a `FlyToLocation(DUMMY)`
   substitute.
-- **`TODO(G34)` (12)** — the skill epic's recorded residue, each argued in
+- **`TODO(G34)` (13)** — the skill epic's recorded residue, each argued in
   `PLAN_G34_SKILL_PARITY.md`: A3's `isSelfContinuous` icon rule (no effector on
   `ActiveBuff` to test), `nextAction=CAST` (needs an intention queue),
   `calcCrit`'s level-78 branch, the fort gate on `OpenDoor`, raid-minion
-  detection for `Bluff`.
+  detection for `Bluff`. Plus one added since: `BlockActions.onStart` ports
+  Java's `startParalyze` *cast* abort but not its `abortAttack()` leg — a
+  scheduled `AttackHit` has no cancel handle in this port, so a stun landing
+  between a swing's start and its hit tick still lets that hit land
+  (`game_loop/skills/effects.rs`, `apply_block_actions_interrupt`).
 
 ## Regenerating
 

@@ -3569,12 +3569,10 @@ fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
     if is_raid {
         return;
     }
-    if world
-        .objects
-        .has_component::<crate::model::components::Casting>(&target_oid)
-    {
-        crate::game_loop::skills::cast::stop_casting(world, target_oid);
-    }
+    // Java's is `abortCast()` → `stopCasting(true)`, so the same
+    // `MagicSkillCanceled` applies here: a silenced caster's animation has to
+    // stop with the cast.
+    crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
 }
 
 /// Java `AttackableStatus.reduceHp` + `Attackable.setOverhitValues`: bank the
@@ -3615,24 +3613,32 @@ fn record_overhit(
     );
 }
 
-/// `Creature.stopMove` + `abortCast` on the freshly-stunned victim: a skill
-/// that lands `BLOCK_ACTIONS` interrupts whatever the target was doing, rather
-/// than only preventing the *next* action. Without this a stun landing
-/// mid-cast would let the cast finish.
+/// `BlockActions.onStart` — `startParalyze()` (`abortCast` + `stopMove`) plus
+/// `abortAllSkillCasters()` on the freshly-stunned victim: a skill that lands
+/// `BLOCK_ACTIONS` interrupts whatever the target was doing, rather than only
+/// preventing the *next* action. Without this a stun landing mid-cast would let
+/// the cast finish.
+///
+/// The abort goes through [`cast::abort_all_skill_casters`], i.e. Java's
+/// `stopCasting(true)` — an *aborted* stop, which broadcasts
+/// `MagicSkillCanceled`. Dropping the cast quietly is not enough: that packet is
+/// what stops the cast animation client-side, so a silent stop leaves a slept
+/// mob (or player) visibly finishing its channel — and its skill FX playing —
+/// for the rest of the client-side cast time after the sleep already landed.
 ///
 /// A root deliberately does not do this — it stops movement (the movement
 /// primitives refuse it from the next tick) but leaves a cast running.
+///
+/// TODO(G34): Java's `startParalyze` also calls `abortAttack()`, which drops the
+/// swing already in flight (`CreatureAttackTaskManager.abortAttack`). This port
+/// has no cancel handle on a scheduled `AttackHit`, so a stun landing between a
+/// swing's start and its hit tick still lets that hit land.
 fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
     // Order matters: abort the cast *first*. `stop_casting` resumes the move
     // the cast interrupted (`start_casting` stashes it), so clearing movement
     // before the cast would see it immediately restored — the victim would keep
     // walking while stunned.
-    if world
-        .objects
-        .has_component::<crate::model::components::Casting>(&target_oid)
-    {
-        crate::game_loop::skills::cast::stop_casting(world, target_oid);
-    }
+    crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
     // Then freeze them where they stand and tell everyone who can see them.
     if world
         .objects

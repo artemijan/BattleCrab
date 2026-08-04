@@ -2120,6 +2120,38 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
     stop_casting(world, object_id);
 }
 
+/// Port of `Creature.abortAllSkillCasters` → `stopCasting(true)` on *every*
+/// running caster. Unlike [`abort_cast`] this takes **no** gate at all: Java
+/// iterates `getSkillCasters()` raw, without the `canAbortCast` filter and
+/// without any phase check, so a cast that already launched is killed too.
+///
+/// That distinction is the whole point of the call site — `BlockActions.onStart`
+/// (stun / sleep / paralyze) uses this, not `abortCast`, so a stun landing in
+/// the launched window still stops the skill instead of letting it resolve.
+///
+/// `MagicSkillCanceled` is broadcast *including self*: it is the only packet
+/// that stops the cast animation client-side, so without it the victim keeps
+/// visibly channelling for the rest of the client-side cast time even though
+/// the server already dropped the cast.
+pub(crate) fn abort_all_skill_casters(world: &mut World, object_id: i32) {
+    if !world.objects.has_component::<Casting>(&object_id) {
+        return;
+    }
+    broadcast_including_self(
+        world,
+        object_id,
+        &server_packets::magic_skill_canceld(object_id),
+    );
+    // `caster.sendPacket(ActionFailed)` — a no-op for an NPC caster, which is
+    // why this is not gated on the victim being a player.
+    if let Some(client_id) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::action_failed());
+    }
+    stop_casting(world, object_id);
+}
+
 /// `Creature.abortCast()` with Java's *real* gate: `abortCast` resolves its
 /// caster through `SkillCaster.canAbortCast` — and that is *not* the phase
 /// check its comment claims. It is literally
