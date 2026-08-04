@@ -1,6 +1,6 @@
 //! Web dashboard REST API — account registration and management.
 //!
-//! Design: `docs/PLAN_DASHBOARD.md`. The load-bearing constraints:
+//! Design: `docs/DASHBOARD.md`. The load-bearing constraints:
 //!
 //! - Passwords are stored as `Base64(SHA1(pw))` because the game client
 //!   requires it; web login verifies the same hash (§3.1, §5.2).

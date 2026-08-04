@@ -2,7 +2,7 @@
 //! sells casts of their own buffs for a configured currency.
 //!
 //! **Enabled on this dist** (`SellBuffEnable = True`), which is what pulls it
-//! inside the ROADMAP scope gate. See `docs/PLAN_G33_CUSTOM_INI_AUDIT.md`.
+//! inside the ROADMAP scope gate. See `PLAN_G33_CUSTOM_INI_AUDIT.md`.
 
 use commons::config::PropertiesParser;
 

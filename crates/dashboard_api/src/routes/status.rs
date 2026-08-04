@@ -26,7 +26,7 @@ async fn status(State(app): State<AppState>) -> ApiResult<Json<ServerStatus>> {
     Ok(Json(ServerStatus {
         // TODO(D4): this reports "the DB is reachable", not "the game server is
         // up" — a crash can leave `online` flags set. An internal endpoint on
-        // the game server would be accurate (PLAN_DASHBOARD.md §12 q3).
+        // the game server would be accurate (DASHBOARD.md §12 q3).
         online: true,
         players_online,
     }))

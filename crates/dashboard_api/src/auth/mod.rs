@@ -1,5 +1,5 @@
 //! Stateless auth. There is no session table and no token table — v1 writes
-//! nothing but `accounts.password` / `accounts.email` (PLAN_DASHBOARD.md §5).
+//! nothing but `accounts.password` / `accounts.email` (DASHBOARD.md §5).
 //!
 //! Sessions are signed cookies; reset/verify links are signed tokens. Both are
 //! HMAC-SHA256 over the `DASHBOARD_SESSION_SECRET` signing key.

@@ -2,7 +2,7 @@
 //!
 //! **This dist has no Classic auto-hunt packet family** (`ExClientPackets`
 //! registers no `ExAutoPlay*` opcode); the whole feature hangs off a voiced
-//! command and an html panel. See `docs/PLAN_G33_AUTO_PLAY.md`.
+//! command and an html panel. See `PLAN_G33_AUTO_PLAY.md`.
 
 use std::collections::HashSet;
 

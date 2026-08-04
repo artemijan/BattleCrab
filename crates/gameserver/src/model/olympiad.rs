@@ -5,7 +5,7 @@
 //! Olympiad Manager NPC dialog (`scripts/oly_manager.rs`). The daily
 //! competition-window / weekly / monthly period scheduling, DB persistence,
 //! match execution and hero calculation are later slices (see
-//! `docs/PLAN_G25_OLYMPIAD.md`).
+//! `PLAN_G25_OLYMPIAD.md`).
 
 use std::collections::{HashMap, HashSet};
 

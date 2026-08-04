@@ -1,4 +1,4 @@
-//! `characters` is **strictly read-only** to this crate (PLAN_DASHBOARD.md §3.2).
+//! `characters` is **strictly read-only** to this crate (DASHBOARD.md §3.2).
 //!
 //! Live character state is memory-first in the game server and flushed only by
 //! autosave/logout/shutdown — any write here would be silently clobbered, or
@@ -100,7 +100,7 @@ pub async fn list_for_master(
 ///
 /// Caveat worth remembering: this reads persisted `online` flags, so a hard
 /// crash can leave them set — it says nothing about whether the process is up
-/// (PLAN_DASHBOARD.md §12 open question 3).
+/// (DASHBOARD.md §12 open question 3).
 pub async fn online_count(db: &DatabaseConnection) -> ApiResult<i64> {
     let count = Entity::find()
         .filter(Column::Online.ne(0))

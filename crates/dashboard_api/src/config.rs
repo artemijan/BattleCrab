@@ -137,7 +137,7 @@ pub struct DashboardConfig {
     pub max_game_accounts: usize,
 
     /// Login attempts per account/IP before the limiter starts rejecting.
-    /// Load-bearing: the password hash is unsalted SHA-1 (see PLAN_DASHBOARD.md
+    /// Load-bearing: the password hash is unsalted SHA-1 (see DASHBOARD.md
     /// §5.2), so throttling is the primary defence against online guessing.
     pub login_rate_limit: u32,
     pub login_rate_window_secs: u64,
@@ -235,7 +235,7 @@ impl DashboardConfig {
             registration_enabled: p.get_bool("RegistrationEnabled", true),
             min_password_length: p.get_int("MinPasswordLength", 8) as usize,
             // The client's login box caps out well before the column does; see
-            // PLAN_DASHBOARD.md §12 open question 5 — confirm against the real
+            // DASHBOARD.md §12 open question 5 — confirm against the real
             // client before launch.
             max_password_length: p.get_int("MaxPasswordLength", 45) as usize,
             max_login_length: p.get_int("MaxLoginLength", 45) as usize,

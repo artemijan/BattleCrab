@@ -1,6 +1,6 @@
 //! Auto use — port of `taskmanager/AutoUseTaskManager` and the `.playskills` /
 //! `.playitems` / `.playpotion` pages, the second half of auto play
-//! (`docs/PLAN_G33_AUTO_PLAY.md`).
+//! (`PLAN_G33_AUTO_PLAY.md`).
 //!
 //! Four loops share one 300 ms pass, in Java's order: **supply items**, the
 //! **healing potion**, **buffs**, then **attack skills**. Each is

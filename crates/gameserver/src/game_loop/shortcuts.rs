@@ -1,5 +1,5 @@
 //! Shortcut-panel and macro handlers (G9.6, plan:
-//! `docs/PLAN_MACROS_SHORTCUTS.md`) — ports of `RequestShortCutReg`/`Del`,
+//! `PLAN_MACROS_SHORTCUTS.md`) — ports of `RequestShortCutReg`/`Del`,
 //! `RequestMakeMacro`/`DeleteMacro`, and the `ShortCuts.updateShortCuts`
 //! skill-upgrade hook. Macro execution is client-side; the only server-side
 //! control point is registration, which is where the no-recurring-macros

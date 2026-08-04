@@ -2,7 +2,7 @@
 //!
 //! The signature covers the account's *current* password hash, so changing the
 //! password invalidates every outstanding session — the one revocation case
-//! that actually matters after a compromise (PLAN_DASHBOARD.md §5.3).
+//! that actually matters after a compromise (DASHBOARD.md §5.3).
 
 use axum::http::HeaderMap;
 use axum::http::header::{COOKIE, SET_COOKIE};

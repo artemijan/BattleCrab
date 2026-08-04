@@ -3,8 +3,10 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **140** such
-markers. A reader looking only at the status table cannot see them.
+of narrow behaviours deferred and marked at the site. There are **134** such
+markers — the sum of the inventory below, and of the expected list the
+`deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
+looking only at the status table cannot see them.
 
 This file is that missing half — generated from the code, not written by hand,
 so it cannot drift into fiction the way prose does.

@@ -9,7 +9,7 @@
 //! **Scope of this slice:** summoning, ownership, unsummon and the owner's
 //! `PetInfo` view. The servitor stands where it was summoned; follow/attack AI
 //! and the `SummonInfo` packet that shows it to *other* players are separate
-//! slices (see `docs/PLAN_G29_SERVITOR_SUMMON.md`).
+//! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;

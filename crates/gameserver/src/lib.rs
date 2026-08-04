@@ -2,7 +2,8 @@
 //!
 //! Architecture: one game thread owns [`world::World`]; network, DB, and other
 //! services run on their own threads and talk to it through channels. See
-//! `docs/CONCURRENCY_MODEL.md` and `docs/PLAN_GAME_SERVER.md`.
+//! `docs/THREADING_MODEL.md` for the model and its trade-offs, and
+//! `docs/PROJECT_LAYOUT.md` for where things live.
 
 pub mod character;
 pub mod config;

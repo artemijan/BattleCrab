@@ -111,7 +111,7 @@ async fn register(
     let email = validate_email(&body.email)?;
     validate_password(&body.password, &app.config)?;
 
-    // The game's scheme — see PLAN_DASHBOARD.md §3.1. The master account never
+    // The game's scheme — see DASHBOARD.md §3.1. The master account never
     // logs into the game, but the game accounts created under it reuse this
     // hashing, so there is one implementation for both.
     let hash = commons::crypt::hash_password(&body.password);
@@ -181,7 +181,7 @@ async fn login(
 
 async fn logout(State(app): State<AppState>) -> ApiResult<impl IntoResponse> {
     // Clears this browser's cookie. There is no server-side session to delete,
-    // so "log out everywhere" is a password change (PLAN_DASHBOARD.md §5.3).
+    // so "log out everywhere" is a password change (DASHBOARD.md §5.3).
     let mut headers = HeaderMap::new();
     headers.insert(
         axum::http::header::SET_COOKIE,
@@ -263,7 +263,7 @@ async fn reset_password(
 
     // The token carries the address in cleartext, but is only trusted after the
     // HMAC verifies against that account's *current* hash — which is what makes
-    // it single-use (PLAN_DASHBOARD.md §5.4).
+    // it single-use (DASHBOARD.md §5.4).
     let claimed = decode_subject_hint(&body.token).ok_or(ApiError::InvalidToken)?;
     let account = accounts::find_master_by_email(&app.db, &claimed)
         .await?

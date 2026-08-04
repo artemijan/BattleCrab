@@ -3,7 +3,7 @@
 //! threshold.
 //!
 //! **Enabled on this dist** (`AutoPotionsEnabled = True`), which is what pulls
-//! it inside the ROADMAP scope gate. See `docs/PLAN_G33_CUSTOM_INI_AUDIT.md`.
+//! it inside the ROADMAP scope gate. See `PLAN_G33_CUSTOM_INI_AUDIT.md`.
 
 use commons::config::PropertiesParser;
 

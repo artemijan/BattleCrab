@@ -1,7 +1,7 @@
 //! `Custom/PvpRewardItem.ini`, `Custom/PvpTitleColor.ini`,
 //! `Custom/RandomSpawns.ini`, `Custom/ChatModeration.ini` and
 //! `Custom/NoblessMaster.ini` — the moderate tier of the G33 `Custom/*.ini`
-//! audit (`docs/PLAN_G33_CUSTOM_INI_AUDIT.md`). All five are enabled on this
+//! audit (`PLAN_G33_CUSTOM_INI_AUDIT.md`). All five are enabled on this
 //! dist and live in Java.
 
 use std::collections::HashSet;

@@ -4,7 +4,7 @@
 //! **No packets are involved.** This build registers no Classic auto-hunt
 //! opcode; the feature is a voiced command that opens an html panel, and the
 //! loop below drives the ordinary target/attack/pickup paths on the player's
-//! behalf. See `docs/PLAN_G33_AUTO_PLAY.md`.
+//! behalf. See `PLAN_G33_AUTO_PLAY.md`.
 
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, GroundItem, Position, RegionCell, Vitals};

@@ -3,7 +3,7 @@
 //!
 //! The Rust port of `docs/migrations/2026-07-21-master-accounts.sql`, which was
 //! applied to the live database by hand and existed nowhere in code until now.
-//! See PLAN_DASHBOARD.md §15 for what a master account is: a dashboard identity
+//! See DASHBOARD.md §15 for what a master account is: a dashboard identity
 //! keyed by email, marked by a NULL `login`, which is why `login` can no longer
 //! be the primary key.
 //!

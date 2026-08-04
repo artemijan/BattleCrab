@@ -5,7 +5,7 @@
 //! scoreboard, the fight-window door/timer chain through a minimal teardown).
 //! Slices 3–4 then landed per-kill **scoring** (`on_player_death`, called from
 //! `death::player_do_die` for every death), the arena **respawn**, and the
-//! winner **rewards** (`reward_team`) — see `docs/PLAN_G28_EVENTS_ENGINE.md`.
+//! winner **rewards** (`reward_team`) — see `PLAN_G28_EVENTS_ENGINE.md`.
 //!
 //! What is still flagged `TODO(G28)` at its seam is narrower: party/command-
 //! channel grouping and the logout forfeit listener, and the immobilise +

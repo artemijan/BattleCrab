@@ -24,7 +24,7 @@ pub fn api_router() -> Router<AppState> {
 ///
 /// Re-reads the account on every request so the cookie's signature can be
 /// checked against the *current* password hash — that check is what makes a
-/// password change invalidate outstanding sessions (PLAN_DASHBOARD.md §5.3).
+/// password change invalidate outstanding sessions (DASHBOARD.md §5.3).
 ///
 /// The lookup goes through `find_master_by_email`, so a game account can never
 /// become the subject of a session even if one is forged into the cookie.
@@ -70,7 +70,7 @@ pub async fn require_admin(app: &AppState, headers: &HeaderMap) -> ApiResult<Acc
 
 /// Account names must survive the round trip into the game client's login box.
 /// Restricting to ASCII alphanumerics keeps us inside what the client accepts;
-/// see PLAN_DASHBOARD.md §12 open question 5 — this needs confirming against a
+/// see DASHBOARD.md §12 open question 5 — this needs confirming against a
 /// real client before launch, and is deliberately conservative until then.
 pub fn validate_login(login: &str, config: &DashboardConfig) -> ApiResult<String> {
     let normalized = accounts::normalize_login(login);
@@ -95,7 +95,7 @@ pub fn validate_login(login: &str, config: &DashboardConfig) -> ApiResult<String
 }
 
 /// Length is the meaningful lever here: the stored hash is unsalted SHA-1
-/// (PLAN_DASHBOARD.md §5.2), so a short password is cheap to crack offline if
+/// (DASHBOARD.md §5.2), so a short password is cheap to crack offline if
 /// the table ever leaks.
 pub fn validate_password(password: &str, config: &DashboardConfig) -> ApiResult<()> {
     if password.len() < config.min_password_length {

@@ -1,28 +1,76 @@
-# l2r_interlude
+<p align="center">
+  <img src="docs/assets/battlecrab.png" alt="L2R Battlecrab — Lineage 2 Rust server" width="360">
+</p>
 
-A Rust rewrite of the L2J Mobius **Interlude Classic** Lineage 2 server —
-L2J, but in Rust.
+<h1 align="center">l2r_interlude</h1>
 
-Ported 1:1 from the Java source, keeping the same wire protocol, config files,
-and SQLite schema so it drops into the existing setup unchanged.
+<p align="center">
+  A Rust rewrite of the <b>L2J Mobius Interlude Classic</b> Lineage 2 server —
+  L2J, but in Rust.
+</p>
+
+---
+
+## A port, not a fork
+
+This is a 1:1 port of [L2J Mobius](https://l2jmobius.org) Interlude Classic. The
+Java server in the sibling `interlude_classic` tree is the reference
+implementation, and it is the ground truth for every behavioural question.
+
+**It is backward compatible with your existing Mobius setup:**
+
+- **The same config files.** Every `.ini` under `dist/game/config` and
+  `dist/login/config` is read with Java's `PropertiesParser` semantics, keys and
+  defaults included — point this server at a Mobius config directory and it
+  behaves as that config says.
+- **The same datapack.** The XML, HTML and SQL under `dist/` are consumed
+  unchanged. They are treated as the specification: when the port disagrees with
+  the data, the port is wrong.
+- **The same database schema.** Same tables, same column names (`charId`,
+  `accessLevel` — verbatim, not modernised), so an existing database is adopted
+  rather than migrated.
+- **The same wire protocol.** Unmodified clients connect, and the Rust login
+  server has been verified interoperating with the *unmodified Java game
+  server*.
+
+Environment variables override any config value using the Java convention:
+`CONFIG_LOGINSERVER_URL=jdbc:sqlite:./data/l2.db`.
 
 ## Status
 
 | Component | Status |
 |---|---|
-| Login server | ✅ Feature-complete — verified interoperating with the unmodified Java game server |
-| Game server | 🚧 Playable vertical slice through G9 — login → character create → enter world, items/skills, movement + geodata, 34.9k NPC spawns, melee/magic combat, monster AI, XP/loot, death & revive. Social systems, quests, and scripting still ahead (see [PROGRESS.md](docs/PROGRESS.md)) |
+| Login server | ✅ Feature-complete, interop-verified against the unmodified Java game server |
+| Game server | ✅ All milestones G0–G34 complete — world, combat, skills & effects, quests, clans, sieges, olympiad, grand bosses, instances, pets & summons, fishing, events, mail & community board, and the GM command system |
+
+"Complete" means each milestone's gate was met and verified against the Java
+server on the same database and client. Narrow behaviours deliberately skipped
+inside shipped features are marked in the code and counted — **134 of them**,
+enumerated in [docs/DEFERRALS.md](docs/DEFERRALS.md) and held to the code by a
+test. Start at **[docs/PORTING_STATUS.md](docs/PORTING_STATUS.md)** for the full
+picture of what is ported, partial, and deliberately out of scope.
+
+## Documentation
+
+| | |
+|---|---|
+| **[Porting status](docs/PORTING_STATUS.md)** | What is ported, what is partial, what never will be — one table for the whole port |
+| **[Threading model](docs/THREADING_MODEL.md)** | How the server is threaded, why, and what it costs — with diagrams |
+| **[Project layout](docs/PROJECT_LAYOUT.md)** | Where code lives, where new code goes, and the conventions |
+| **[Progress journal](docs/PROGRESS.md)** | The dated record of what landed and what broke on the way |
+| [All documentation](docs/README.md) | Index, including the database, parity checklists and the dashboard design |
 
 ## Architecture in one paragraph
 
 One dedicated **game thread** owns all mutable world state; tokio handles the
-sockets, a dedicated thread owns SQLite, and everything talks to the game
-thread over channels — no locks in game logic. Game objects are stored in an
-**ECS** (Entity–Component–System, via the standalone `bevy_ecs` crate): an
-object is an entity whose data lives in components packed into contiguous
-archetype tables, and the per-tick systems (regen, movement, AI) sweep them
-as dense, cache-friendly linear scans instead of pointer-chasing a map. See
-[CONCURRENCY_MODEL.md](docs/CONCURRENCY_MODEL.md) (ECS: §2.8).
+sockets, a dedicated thread owns SQLite, a path worker owns pathfinding, and
+everything talks to the game thread over channels — no locks in game logic. Game
+objects live in an **ECS** (via the standalone `bevy_ecs` crate): an object is an
+entity whose data sits in components packed into contiguous archetype tables, so
+the per-tick systems (regen, movement, AI) sweep them as dense linear scans
+instead of pointer-chasing a map. The loop runs at a 100 ms tick and warns when
+one overruns. Full reasoning, diagrams and trade-offs in
+[THREADING_MODEL.md](docs/THREADING_MODEL.md).
 
 ## Workspace
 
@@ -31,96 +79,23 @@ as dense, cache-friendly linear scans instead of pointer-chasing a map. See
 - `crates/gameserver` — the game server binary
 - `crates/models` — SeaORM entities for every table, plus the shared repositories
 - `crates/migration` — the schema as migrations, and the `l2r-migrate` binary
-- `crates/tools` — offline datapack/geodata tools, and the `l2r-tools` binary
+- `crates/tools` — offline datapack/client tools, and the `l2r-tools` binary
+- `crates/dashboard_api` + `web/dashboard` — the web dashboard and its API
+- `crates/launcher` — the player-facing updater
 
-## Datapack tools
-
-`l2r-tools` answers questions about the datapack by running the *server's* geo
-code over it, so a verdict from it is a verdict in game. The sections below
-cover the commands that come up most; **[`crates/tools/README.md`](crates/tools/README.md)
-documents all six**, including `dat-text` and the `msg-color` editor.
+## Build & run
 
 ```sh
-cargo build --release -p tools
-./target/release/l2r-tools spawn-pockets --region 20_21    # one geo region
-./target/release/l2r-tools spawn-pockets --all-regions     # the whole world
+cargo build --release
+# Neither binary changes its working directory. The SQLite `URL` in both inis
+# is relative to the EXECUTABLE, so put interlude_classic.db beside the binary
+# and both servers open the same file whatever directory you start them from.
+./target/release/loginserver   # reads dist/login/config/LoginServer.ini
+./target/release/gameserver    # finds the datapack at dist/game automatically
+
+# Datapack elsewhere? Point the game server at it (it still does not chdir):
+DATAPACK_ROOT=/srv/l2/dist/game ./target/release/gameserver
 ```
-
-`spawn-pockets` finds spawn rows that `getNearestZ` snapped onto a geodata
-layer *under* the floor players walk on, where the mob is invisible and
-unhittable until its AI walks it out. It flood fills the walkable surface from
-the coordinates teleporters drop players on, then asks whether a walker can
-reach the mob's layer and whether the floor can see it. `--csv` prints the raw
-metrics behind every verdict, which is how its thresholds were calibrated.
-Read the module docs in `crates/tools/src/spawn_pockets.rs` before changing
-them — two simpler detectors look right and are not.
-
-## Client files
-
-`client-dat` unpacks the game client's `system` directory — the `Lineage2Ver`
-enciphered `*.dat`, `*.ini` and `*.int` files — into plaintext and packs it
-back, so the client's own item and skill tables can be diffed against
-`dist/game/data`:
-
-```sh
-./target/release/l2r-tools client-dat decrypt     # system -> system_decrypted
-# ...edit files in dist/client/system_decrypted...
-./target/release/l2r-tools client-dat encrypt     # system_decrypted -> system
-./target/release/l2r-tools client-dat roundtrip   # verify without writing either
-```
-
-Each directory is overridable (`--system-dir`, `--decrypted-dir`); the defaults
-above are relative to `--client-dir` (`dist/client`). Everything else in the
-client — executables, libraries, `.u` packages — is left exactly where it is.
-
-Which cipher a file used cannot be guessed from its name (`.ini` files appear
-under Ver111, Ver413 *and* unencrypted), so `decrypt` records each file's
-version in a `.l2client-manifest.json` beside the output and `encrypt` reads it
-back; anything it cannot place is reported rather than silently dropped. Only
-Ver413 and the XOR versions can be written — NCsoft published just the public
-exponent for its other RSA keys. See `crates/tools/src/client_dat.rs`.
-
-### Reconciling server data with the client
-
-Some strings the player reads never cross the wire: the server sends an id and
-the client looks the wording up in its own table. Two commands close that gap,
-each decrypting its tables in memory, editing them, and re-encrypting in place:
-
-```sh
-./target/release/l2r-tools sync-messages --dry-run              # SystemMsg*.dat
-./target/release/l2r-tools sync-npc --dry-run                   # -> NpcName_Classic-eu.dat
-./target/release/l2r-tools sync-npc to-datapack --dry-run       # -> data/stats/npcs/*.xml
-```
-
-`sync-npc to-client` (the default) writes every NPC's `name=` and `title=` from
-`dist/game/data/stats/npcs` into the row the client keys by `displayId`, and
-appends a row for any NPC the client has none for (`--no-append` to only
-correct what exists). `--dry-run` prints the whole diff both ways — `~`
-corrected, `+` missing from the client, `-` client rows no template claims, `=`
-fields only the client knows — capped by `--limit` (`0` for all).
-
-`sync-npc to-datapack` runs it backwards, for when the client's table is the
-retail truth and the datapack has drifted. It is deliberately the weaker
-direction: it only **corrects NPCs the datapack already declares**, and a
-client row naming an NPC with no template is reported as a `warning:` line and
-skipped (`!` in the listing) — a name cannot support inventing a template whose
-level, stats, drops and AI would all be guesses. Edits are line-local, so a
-BOM, the tab indentation and the `<!-- Confirmed CT2.5 -->` comments all
-survive; a new `title=` lands in the datapack's own attribute order. Afterwards
-the whole datapack is reloaded through the server's own parser and every edit
-re-checked, because a broken tag takes its entire file's NPCs down with it.
-
-Three things neither direction does. The title's **render colour** is not
-modelled by the datapack, so an existing row keeps its own and an appended one
-takes the file's modal colour. A **missing** `name=`/`title=` — or an empty
-client string — is one side declining to say rather than a claim that the
-string is empty, so neither blanks the other; those are the `=` lines, and
-running both directions in turn is how you resolve them. And only the
-**Classic** table is synced by default: `system` also ships `NpcName-eu.dat`,
-but that is another chronicle's mapping (id 20138 is "Gargoyle" there, "Turek
-Orc Commander" in Classic and in this datapack), so it takes an explicit
-`--npc-file`. Nothing is written unless it re-reads as what it meant to say.
-See `crates/tools/src/npc_sync.rs` and `npc_xml.rs`.
 
 ## Database
 
@@ -137,31 +112,30 @@ Running it against an existing database is safe — every statement is
 See [docs/DATABASE.md](docs/DATABASE.md) for fresh installs, adopting a live
 database, adding a migration and regenerating entities.
 
-## Build & run
+## Datapack & client tools
+
+`l2r-tools` answers questions about the datapack by running the *server's* own
+geo code over it, so a verdict from it is a verdict in game. It also unpacks and
+repacks the client's `system` directory, and reconciles the strings the client
+owns (NPC names, system messages) with the server's data.
 
 ```sh
-cargo build --release
-# Neither binary changes its working directory. The SQLite `URL` in both inis
-# is relative to the EXECUTABLE, so put interlude_classic.db beside the binary
-# and both servers open the same file whatever directory you start them from.
-./target/release/loginserver   # reads dist/login/config/LoginServer.ini
-./target/release/gameserver    # finds the datapack at dist/game automatically
-
-# Datapack elsewhere? Point the game server at it (it still does not chdir):
-DATAPACK_ROOT=/srv/l2/dist/game ./target/release/gameserver
+cargo build --release -p tools
+./target/release/l2r-tools spawn-pockets --region 20_21   # mobs buried under the floor
+./target/release/l2r-tools client-dat decrypt             # system -> editable text
+./target/release/l2r-tools sync-npc --dry-run             # datapack names -> client
 ```
 
-Config values can be overridden by environment variables using the Java
-`PropertiesParser` convention: `CONFIG_LOGINSERVER_<KEY>`
-(e.g. `CONFIG_LOGINSERVER_URL=jdbc:sqlite:./data/l2.db`).
+All six commands are documented in
+**[`crates/tools/README.md`](crates/tools/README.md)**.
 
 ## Testing
 
-The suite runs under [cargo-nextest](https://nexte.st):
+The suite runs under [cargo-nextest](https://nexte.st) — ~2,970 tests:
 
 ```sh
 cargo install cargo-nextest --locked   # once
-cargo nextest run                        # whole workspace (~1600 tests)
+cargo nextest run                        # whole workspace
 cargo nextest run -p gameserver          # just the game server
 cargo nextest run -p gameserver stealth  # substring filter
 cargo nextest run --profile ci           # retries + JUnit (see .config/nextest.toml)
@@ -203,12 +177,3 @@ issue; remove the `#[ignore]` once it is fixed. Run it explicitly with
   ```
 
   Bypass in an emergency with `git commit --no-verify`.
-
-## Docs
-
-- [`docs/PROGRESS.md`](docs/PROGRESS.md) — **milestone progress & current state** (start here)
-- [`docs/JAVA_TO_RUST_CHALLENGES.md`](docs/JAVA_TO_RUST_CHALLENGES.md) — concept differences and the architectural decisions
-- [`docs/CONCURRENCY_MODEL.md`](docs/CONCURRENCY_MODEL.md) — threading/ownership model
-- [`docs/PLAN_LOGIN_SERVER.md`](docs/PLAN_LOGIN_SERVER.md) — login server implementation plan
-- [`docs/PLAN_GAME_SERVER.md`](docs/PLAN_GAME_SERVER.md) — game server implementation plan (milestones G0–G12)
-- [`docs/LOGIN_SERVER_PARITY.md`](docs/LOGIN_SERVER_PARITY.md) — file-by-file Java→Rust parity checklist

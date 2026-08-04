@@ -2,7 +2,7 @@
 //!
 //! `accounts` is writable in exactly two columns for players — plus, for the
 //! admin surface only, `accessLevel` restricted to values ≤ 0 (see `admin`).
-//! `characters` is read-only. See PLAN_DASHBOARD.md §5.5 and §16.
+//! `characters` is read-only. See DASHBOARD.md §5.5 and §16.
 
 pub mod accounts;
 pub mod admin;

@@ -1,5 +1,5 @@
 //! Player-facing writes. Confined to `accounts.login`, `accounts.password`,
-//! `accounts.email` and `accounts.is_verified` (PLAN_DASHBOARD.md §5.5).
+//! `accounts.email` and `accounts.is_verified` (DASHBOARD.md §5.5).
 //!
 //! Never touch `accessLevel` from a player-facing path (privilege escalation) —
 //! the single, ban-only exception is `admin::set_access_level`, which refuses
@@ -271,7 +271,7 @@ pub async fn set_game_account_password(
 
 /// Written *only* by the verification-link handler. Registration now stores the
 /// address up front, so `is_verified` — not the mere presence of `email` — is
-/// what records that the address was proven (superseding PLAN_DASHBOARD.md §5.4).
+/// what records that the address was proven (superseding DASHBOARD.md §5.4).
 pub async fn mark_verified(db: &DatabaseConnection, email: &str) -> ApiResult<()> {
     Entity::update_many()
         .col_expr(Column::IsVerified, 1.into())

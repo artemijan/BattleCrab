@@ -1,7 +1,7 @@
 //! In-memory fixed-window limiter, keyed by an arbitrary string.
 //!
 //! This is load-bearing, not decorative: web login verifies against the game's
-//! unsalted SHA-1 hash (PLAN_DASHBOARD.md §5.2), so throttling is the primary
+//! unsalted SHA-1 hash (DASHBOARD.md §5.2), so throttling is the primary
 //! defence against online password guessing. Login is limited per-IP *and*
 //! per-account, so one attacker cannot spread a spray across many IPs against
 //! one account, nor walk many accounts from one IP.

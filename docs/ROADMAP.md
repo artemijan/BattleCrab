@@ -1,9 +1,18 @@
 # Remaining-work Roadmap (G14 → G33)
 
+> **Historical.** Every milestone below has since landed, and the ✅/🚧 marks in
+> this file were not all updated as that happened — several rows still say 🚧
+> about work that is complete. **Do not read status from this file.**
+> [PORTING_STATUS.md](PORTING_STATUS.md) is the status table;
+> [DEFERRALS.md](DEFERRALS.md) is the enforced list of what is genuinely
+> missing. What keeps its value here is the *decomposition* — how the work was
+> broken up, what each milestone depended on, and above all the **scope gate**
+> that defined what is out of scope.
+
 Master plan for the rest of the Java→Rust port: every Java game-server subsystem
 not yet built, broken into dependency-ordered milestones. Supersedes the old
 single "G14 Long tail & parity sweep" catch-all in
-[PLAN_GAME_SERVER.md](PLAN_GAME_SERVER.md) §6. Live status lives in
+`PLAN_GAME_SERVER.md` §6. Live status lives in
 [PROGRESS.md](PROGRESS.md).
 
 **Where we are:** G0–G13 done (login complete; game through enter-world, items,
@@ -68,7 +77,7 @@ first; nobless status can be admin-set before the nobless quest exists.
 **Out of scope (present in the datapack, not Interlude Classic):**
 `AdminGraciaSeeds`, ADMIN HELLBOUND, `AdminElement` (Gracia/Hellbound/elemental
 attributes are Kamael-era content). Also out: `tools/` ports, MariaDB/Postgres,
-Swing UI (per [PLAN_GAME_SERVER.md](PLAN_GAME_SERVER.md) §11).
+Swing UI (per `PLAN_GAME_SERVER.md` §11).
 
 **Scope gate — Classic-client & custom systems (2026-07 audit).** This build is
 an Interlude/Classic hybrid: the client protocol and datapack carry Classic-era
@@ -92,7 +101,7 @@ systems the original scope never ruled in or out. Decisions:
   champion monsters, banking, class master, wedding, delevel manager, the
   seasonal `scripts/events/*`) except any the operator explicitly enables.
   **The promised audit has now run** — see
-  [PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md). It found **17
+  `PLAN_G33_CUSTOM_INI_AUDIT.md`. It found **17
   features enabled on this dist, live in Java, and missing from the port**, so
   they are ruled back **in** scope by the operator-enabled clause. Champion
   monsters are ported; the other 16 are listed there with a cost ordering.
@@ -286,7 +295,7 @@ try-on (`RequestPreviewItem`, `AllowWear = True`); `RequestBuySellUIClose`;
 inventory-order persistence (`RequestSaveInventoryOrder`); and the item-
 maintenance task managers — `ItemLifeTimeTaskManager` (time-limited items),
 ~~`ItemManaTaskManager` (shadow items)~~ (landed 2026-08-01 with the Shadow
-Weapon Exchange Coupons — [PLAN_SHADOW_WEAPONS.md](PLAN_SHADOW_WEAPONS.md)),
+Weapon Exchange Coupons — `PLAN_SHADOW_WEAPONS.md`),
 `ItemsAutoDestroyTaskManager` (ground-item cleanup breadth).
 
 ### G15.5 — Teleporters & user commands ✅ COMPLETE (gate verified 2026-07-31 — teleport bookmarks are **not portable**: null handler in this build)
@@ -327,7 +336,7 @@ private-store plumbing, `ManufactureItem` price list). **Gate:** learn a
 recipe, craft an item from materials, and buy a craft from another player's
 manufacture store. **Deps:** G15.
 
-✅ **Landed (2026-07-19)** — plan [PLAN_G15_7_CRAFTING.md](PLAN_G15_7_CRAFTING.md).
+✅ **Landed (2026-07-19)** — plan `PLAN_G15_7_CRAFTING.md`.
 `data/recipe_data.rs` (`RecipeData` — all 631 `Recipes.xml` recipes, ingredients
 + MP/HP `statUse` + `productionRare`) and a `RecipeBook` component
 (dwarven/common recipe-list ids) loaded from `character_recipebook` and persisted
@@ -356,7 +365,7 @@ premium flag and vitality level survive relog; henna changes stats.
 **Unblocks:** `//premium*`, `//pccafepoints`, `//primepoints`,
 `//set_vitality_level`.
 
-✅ **Henna slice landed (2026-07-19)** — plan [PLAN_G16_HENNA.md](PLAN_G16_HENNA.md).
+✅ **Henna slice landed (2026-07-19)** — plan `PLAN_G16_HENNA.md`.
 `data/henna_data.rs` (`HennaData` — 372 dyes) + a `HennaSlots` component whose
 dye stat bonuses are folded into `BaseStats` (`= template + Σ worn dyes`,
 recomputed on draw/remove, so the finalizers + UserInfo panel pick henna up with
@@ -369,7 +378,7 @@ Interlude dyes are permanent (`duration=-1`), so the timed-henna scheduler +
 `HennaDuration` variables + LUC/CHA + dye skills are out of scope.
 
 ✅ **Vitality + variables + premium effects — G16 complete (2026-07-19)** —
-plan [PLAN_G16_VITALITY.md](PLAN_G16_VITALITY.md). The `character_variables`
+plan `PLAN_G16_VITALITY.md`. The `character_variables`
 key/value store (`PlayerVariables` component, loaded at char load, flushed in
 the store transaction); the vitality pool in `game_loop/vitality.rs` (clamped
 `0..=140_000`, `setVitalityPoints`'s four notices + `ExVitalityPointInfo` +
@@ -405,7 +414,7 @@ fuller `//setclass`, `//setsubclass`.
 `config/MentorCoins.xml` — graduation triggers off class change), per the
 scope gate.
 
-### G18 — Clans (full) ✅ COMPLETE (incl. G18.6 clan academy, 2026-07-31) — see [PROGRESS.md](PROGRESS.md) and [PLAN_G18_CLANS.md](PLAN_G18_CLANS.md) for the full 8-slice breakdown
+### G18 — Clans (full) ✅ COMPLETE (incl. G18.6 clan academy, 2026-07-31) — see [PROGRESS.md](PROGRESS.md) and `PLAN_G18_CLANS.md` for the full 8-slice breakdown
 Everything past G11's creation slice: invite/join/leave/oust/dissolve; clan
 level-up + reputation; sub-pledges (royal guard / order of knights) + academy;
 clan skills + `PledgeSkillList`; crests (pledge/ally/large); notices; clan
@@ -444,7 +453,7 @@ skill switches on. **Unblocks:** the AdminEffects AVE subset (`//ave_abnormal`,
 `RequestExEnchantSkill`/`Info`/`InfoDetail` — the level-76+ skill-enchant flow).
 
 🚧 **Affect scopes + toggles landed (2026-07-19)** — plan
-[PLAN_G19_EFFECTS.md](PLAN_G19_EFFECTS.md). The two structural gaps that stopped
+`PLAN_G19_EFFECTS.md`. The two structural gaps that stopped
 whole categories of skill from working: **affect scopes**
 (`game_loop/skills/affect.rs` — `SINGLE`/`RANGE`/`POINT_BLANK`/`PARTY`/`PLEDGE`
 sweeps with the `NOT_FRIEND`/`FRIEND`/`CLAN`/`ALL` object filters, the
@@ -458,7 +467,7 @@ this landed only `SINGLE` resolved, so all ~1900 area skills in the datapack hit
 exactly one creature and all 104 toggles were unreachable.
 
 🚧 **Abnormal-state flags + crowd control (2026-07-19)** — plan
-[PLAN_G19_ABNORMAL_STATES.md](PLAN_G19_ABNORMAL_STATES.md). A datapack survey
+`PLAN_G19_ABNORMAL_STATES.md`. A datapack survey
 put 41 % of effect instances (11 698 / 28 259) on unported effects; this slice
 takes the pair that were *inert rather than merely absent* — `BlockActions`
 (540 uses: stun/sleep/paralyze) and `Root` (79). Java's `EffectFlag` mask is
@@ -471,7 +480,7 @@ then freeze movement — that order matters). Before this a stun landed, showed
 its icon, and the victim carried on fighting.
 
 🚧 **Abnormal resistance, blocking & probabilistic dispel (2026-07-19)** — plan
-[PLAN_G19_ABNORMAL_RESIST.md](PLAN_G19_ABNORMAL_RESIST.md). The other half of the
+`PLAN_G19_ABNORMAL_RESIST.md`. The other half of the
 CC system: `ResistAbnormalByCategory` (Guts, Touch of Life/Death) pumping a
 multiplier on incoming debuff chance that `calc_effect_land_rate` now applies as
 Java's `buffDebuffMod` (multiplied before the clamp); `ResistDispelByCategory`
@@ -487,7 +496,7 @@ only 9 learnable skills — its footprint is almost all talisman/Freya/agathion
 content outside Interlude's reach.
 
 🚧 **Periodic HP/MP effects, healing modifiers & CP (2026-07-19)** — plan
-[PLAN_G19_PERIODIC_EFFECTS.md](PLAN_G19_PERIODIC_EFFECTS.md). The top of the
+`PLAN_G19_PERIODIC_EFFECTS.md`. The top of the
 learnable-usage ranking, and one coherent family: `HealOverTime` (11) and
 `ManaDamOverTime` (10) join the existing DoT tick chain rather than adding
 schedulers; `HealEffect` (9) scales healing on the *recipient*; `Cp` (7) is an
@@ -506,7 +515,7 @@ categories — *periodic*, *icon-only*, *state flag* — and any new modifier-le
 effect must join one.
 
 🚧 **CC breadth — mute, debuff-block, control-block, target-cancel
-(2026-07-19)** — plan [PLAN_G19_CC_BREADTH.md](PLAN_G19_CC_BREADTH.md).
+(2026-07-19)** — plan `PLAN_G19_CC_BREADTH.md`.
 Completes the crowd-control family: each is a flag on the existing
 `effect_flag` mask plus the one gate Java puts it behind — `MUTED` /
 `PHYSICAL_MUTED` refusing magic vs non-magic skills in `checkDoCastConditions`
@@ -523,7 +532,7 @@ breadth. `AbnormalShield` has no ported source, and Java's wider
 `BLOCK_CONTROL` (summon/mob control) waits on G29.
 
 🚧 **Abnormal visual effects (2026-07-19)** — plan
-[PLAN_G19_ABNORMAL_VISUALS.md](PLAN_G19_ABNORMAL_VISUALS.md). The cosmetic
+`PLAN_G19_ABNORMAL_VISUALS.md`. The cosmetic
 counterpart to the CC/periodic slices: stun, root, silence, poison and bleed all
 worked mechanically but the client drew **nothing** on the victim, because
 `CharInfo` hard-coded an abnormal-visual count of 0. The enum→client-id map,
@@ -540,7 +549,7 @@ the rest of the AdminEffects AVE subset (`//setteam`, `//settargetable`,
 each needs its own per-creature state and packet field.
 
 🚧 **Transformation (2026-07-20)** — plan
-[PLAN_G19_TRANSFORMATION.md](PLAN_G19_TRANSFORMATION.md). The next rung on the
+`PLAN_G19_TRANSFORMATION.md`. The next rung on the
 learnable-skill ranking after ruling out `DefenceAttribute` (33 learnable
 skills, but Kamael-era elemental attributes are out of scope): `Transformation`
 (32 learnable skills) backs the "Transform &lt;Monster&gt;" scroll family
@@ -560,7 +569,7 @@ transforms on this port); the sitting and registered-on-event legs have no
 modeled state yet.
 
 🚧 **MpConsumePerLevel (2026-07-20)** — plan
-[PLAN_G19_MP_CONSUME_PER_LEVEL.md](PLAN_G19_MP_CONSUME_PER_LEVEL.md). Next
+`PLAN_G19_MP_CONSUME_PER_LEVEL.md`. Next
 after `Transformation`, skipping `Summon`/`SummonCubic`/`SummonNpc` (G29) and
 the already-written-off `StatUp`/`Fear`: the MP-upkeep half of the core
 fighter-class toggles (Accuracy 256, Guard Stance 288, Vicious Stance 312,
@@ -581,7 +590,7 @@ is correctly now subject to the same drain, and the test's zero-MP setup
 `GameData::load_from` fix `Transformation`'s own test needed.
 
 🚧 **ShieldDefence / ShieldDefenceRate (2026-07-20)** — plan
-[PLAN_G19_SHIELD_DEFENCE.md](PLAN_G19_SHIELD_DEFENCE.md). Next after
+`PLAN_G19_SHIELD_DEFENCE.md`. Next after
 `MpConsumePerLevel`, setting `EnergyAttack` (9 learnable) aside — it needs the
 Dwarf Force/Charges resource, unmodeled on this port, a bigger lift than one
 effect. `ShieldDefence` (8 learnable) is cheap: a single-stat
@@ -601,7 +610,7 @@ Residence Shield Defense (603, +225 DIFF) still contributes nothing without an
 actual shield, matching `Formulas.calcShldUse`'s short-circuit order.
 
 🚧 **HealPercent (2026-07-20)** — plan
-[PLAN_G19_HEAL_PERCENT.md](PLAN_G19_HEAL_PERCENT.md). Next after
+`PLAN_G19_HEAL_PERCENT.md`. Next after
 `ShieldDefence`, setting `AttackTrait` (7 learnable) aside — it needs a whole
 `TraitType` attacker-bonus/weakness system unmodeled on this port, a bigger
 lift than one effect. `HealPercent` (5 learnable, 138 instances) is cheap —
@@ -619,7 +628,7 @@ modeled at all (34 instances, 4 learnable, including Restore Life itself) —
 falls through to `Other`, which `use_magic_on` silently no-ops on.
 
 🚧 **TargetType::EnemyNot (2026-07-20)** — plan
-[PLAN_G19_ENEMY_NOT_TARGET.md](PLAN_G19_ENEMY_NOT_TARGET.md). Closed the gap
+`PLAN_G19_ENEMY_NOT_TARGET.md`. Closed the gap
 `HealPercent` surfaced: `targethandlers/EnemyNot.java` is "any friendly
 selected target" — the precise inverse of `Enemy`/`EnemyOnly`'s
 `is_auto_attackable` gate, self always allowed, no force-use (ctrl)
@@ -633,7 +642,7 @@ variant + parse arm + `resolve_cast_target` case, reusing the same
 `is_auto_attackable` helper `Enemy`/`EnemyOnly` already call, just inverted.
 
 🚧 **Force/charges — FocusMomentum + EnergyAttack (2026-07-20)** — plan
-[PLAN_G19_FORCE_CHARGES.md](PLAN_G19_FORCE_CHARGES.md). Unblocks the
+`PLAN_G19_FORCE_CHARGES.md`. Unblocks the
 `EnergyAttack` slice set aside twice before: builds the warrior "Force"
 resource (`Player.charges`, transient, never persisted — matches Java) and
 both effects that touch it. Not niche — **Sonic Focus → Sonic Blaster/
@@ -655,7 +664,7 @@ charge-decay task; `GetMomentum` (dead code in this datapack — nothing sets
 the charge bonus into `PhysicalSoulAttack`/`MagicalSoulAttack`/`SoulBlow`'s
 existing `×1` stand-ins (their own TODOs, follow-on work).
 
-🚧 **Lethal (2026-07-20)** — plan [PLAN_G19_LETHAL.md](PLAN_G19_LETHAL.md).
+🚧 **Lethal (2026-07-20)** — plan `PLAN_G19_LETHAL.md`.
 `AttackTrait` set aside a third time — needs the `TraitType` system, a
 cross-cutting project (attacker trait map + wiring trait/weakness bonuses
 into every physical damage formula), not a slice. `Lethal` (9 learnable) was
@@ -674,7 +683,7 @@ it always loses. Deferred: `DamageBlock`'s `BLOCK_HP` gate,
 `calcCounterAttack`'s reflect, `GrandBoss`/`Door` lethal-immunity.
 
 🚧 **AttackTrait (2026-07-20)** — plan
-[PLAN_G19_ATTACK_TRAIT.md](PLAN_G19_ATTACK_TRAIT.md). The last item on the
+`PLAN_G19_ATTACK_TRAIT.md`. The last item on the
 learnable-skill ranking that started this run of G19 slices, investigated
 properly this time instead of deferred a fourth time. Turned out smaller
 than feared — all 7 learnable instances (Detect Insect/Beast/Animal/Dragon/
@@ -698,7 +707,7 @@ guide NPCs, always a real playable race, and player/monster race ordinals
 (0-6 vs 7-25) never overlap.
 
 🚧 **DamageBlock (2026-07-20)** — plan
-[PLAN_G19_DAMAGE_BLOCK.md](PLAN_G19_DAMAGE_BLOCK.md). Next on a fresh ranking
+`PLAN_G19_DAMAGE_BLOCK.md`. Next on a fresh ranking
 sweep (5 learnable, 84 skills, 162 instances — highest raw count left, since
 a skill carries two `<effect>` elements, one per block kind). Already flagged
 by two existing TODOs (`HealPercent`/`Lethal` both noted "Java also skips
@@ -718,7 +727,7 @@ pattern this run of slices keeps finding (`AttackTrait`'s `MAX_MOMENTUM`,
 in the Java tree, so it's folded for completeness but wired to nothing.
 Closed both existing TODOs along the way.
 
-**EnlargeSlot** (plan: [PLAN_G19_ENLARGE_SLOT.md](PLAN_G19_ENLARGE_SLOT.md)).
+**EnlargeSlot** (plan: `PLAN_G19_ENLARGE_SLOT.md`).
 Re-ran the ranking sweep with `EFFECT_REGISTRY`'s generic stat-modifier table
 (`PAtk`, `MaxHp`, `ShieldDefence`, …) correctly excluded — it had been
 quietly absorbing dozens of effect names and inflating earlier raw counts.
@@ -742,7 +751,7 @@ only the *number reported* to the client is accurate now, not an enforcement
 gate (`TODO(G29+)`).
 
 **Hate-manipulation effects** (plan:
-[PLAN_G19_HATE_EFFECTS.md](PLAN_G19_HATE_EFFECTS.md)). A fresh ranking sweep
+`PLAN_G19_HATE_EFFECTS.md`). A fresh ranking sweep
 surfaced a tied cluster of six related effect names sharing one primitive —
 an NPC's `AggroList`, already ported. Rather than take the top name alone and
 defer the rest a fifth time (the `AttackTrait` pattern), bundled the four
@@ -767,7 +776,7 @@ is actually landing hits, at most one think-tick later than Java's immediate
 pre-seed.
 
 **DispelByCategory** (plan:
-[PLAN_G19_DISPEL_CATEGORY.md](PLAN_G19_DISPEL_CATEGORY.md)) — the "Cancel"
+`PLAN_G19_DISPEL_CATEGORY.md`) — the "Cancel"
 family (Cancellation, Cleanse, Purification Field, Touch of Death). Another
 tied cluster at 4 learnable skills each; picked over the cheaper
 `PhysicalAttackRange` (a same-shape repeat of the already-solved
@@ -793,7 +802,7 @@ of which exist on the ported `Skill` struct and none of which any learnable
 skill on this dist needs.
 
 **PhysicalAttackRange** (plan:
-[PLAN_G19_PHYSICAL_ATTACK_RANGE.md](PLAN_G19_PHYSICAL_ATTACK_RANGE.md)) —
+`PLAN_G19_PHYSICAL_ATTACK_RANGE.md`) —
 Archery, Long Shot, Rapid Fire, Snipe. The cheapest of the tied-at-4 cluster
 `DispelByCategory` was picked from: a same-shape repeat of the already-solved
 `ShieldDefenceRate`/`AttackCancel` pattern (a single-`Stat`
@@ -808,7 +817,7 @@ skills needed nothing extra to gate correctly — proven by a test showing
 Archery's `+50` is inert while unarmed.
 
 **FatalBlowRate** (plan:
-[PLAN_G19_FATAL_BLOW_RATE.md](PLAN_G19_FATAL_BLOW_RATE.md)) — Assassination,
+`PLAN_G19_FATAL_BLOW_RATE.md`) — Assassination,
 Critical Blow, Focus Death, Mortal Strike, another tied-at-4 pick, this one
 directly tied to the already-ported `Blow`/`Lethal`/`FatalBlow` mechanics:
 `formulas::calc_blow_success`'s own doc comment flagged `Stat.BLOW_RATE`/
@@ -847,7 +856,7 @@ duels, `RequestDuelStart`/`AnswerStart`/`Surrender`, end conditions + the arena
 teleport variant). G25's olympiad matches reuse this shape, so duels land here.
 
 🚧 **Ranged attacks landed (2026-07-19)** — plan
-[PLAN_G20_RANGED.md](PLAN_G20_RANGED.md). The gate's first clause: bows and
+`PLAN_G20_RANGED.md`. The gate's first clause: bows and
 crossbows now require **ammunition** matched to the weapon's crystal grade and
 auto-equipped into the left hand, spend **MP** per shot, consume an arrow, and
 arm a **reload delay** (`900000 / pAtkSpd`) shown as a red `SetupGauge`; running
@@ -860,7 +869,7 @@ a two-handed weapon — it would unequip the bow. Java sidesteps the same proble
 the same way (`setPaperdollItem` directly).
 
 🚧 **Multi-hit melee landed (2026-07-19)** — plan
-[PLAN_G20_MELEE_VARIANTS.md](PLAN_G20_MELEE_VARIANTS.md). Completes the
+`PLAN_G20_MELEE_VARIANTS.md`. Completes the
 `doAttack` variant family: **dual** weapons strike the main target twice at half
 damage, and the **polearm sweep** adds a hit per extra target inside the
 weapon's radius (66 for a polearm vs 40 for a sword, from `damage_range`) and
@@ -876,7 +885,7 @@ weapon, and 216 is perfectly ordinary. Verify a "this is dead" conclusion as
 carefully as a "this is live" one.
 
 ✅ **G20's gate is met (2026-07-19)** — plan
-[PLAN_G20_PVP_KILLS.md](PLAN_G20_PVP_KILLS.md). The last clause needed the
+`PLAN_G20_PVP_KILLS.md`. The last clause needed the
 *consumers*, not the targeting: `is_player_auto_attackable` already handled
 peace/arena/siege zones, PK and flag, but killing a player moved nothing —
 `player_do_die` carried a literal `let _ = killer_oid;`. Ported Java's three
@@ -887,7 +896,7 @@ unconditionally, where Java skips it inside PVP **or siege** zones — arena and
 siege deaths are now free.
 
 🚧 **Over-hit landed (2026-07-19)** — plan
-[PLAN_G20_OVERHIT.md](PLAN_G20_OVERHIT.md). A killing blow from an `<overHit>`
+`PLAN_G20_OVERHIT.md`. A killing blow from an `<overHit>`
 skill banks the damage by which it overshot, paid as bonus XP capped at 25 % of
 the share. 59 learnable skills carry it.
 
@@ -899,7 +908,7 @@ against the real datapack caught it. Assert against real data, not just
 fixtures.
 
 🚧 **Duels (1v1) landed (2026-07-19)** — plan
-[PLAN_G20_DUELS.md](PLAN_G20_DUELS.md). The last feature G20 names, and the one
+`PLAN_G20_DUELS.md`. The last feature G20 names, and the one
 **G25's olympiad reuses the shape of**: challenge → ask → accept → 5 s countdown
 → fight → end on death / surrender / 120 s timeout / drifting >1600 apart, with
 the `canDuel` gates and the five `ExDuel*` packets. **A duel never kills** — the
@@ -913,7 +922,7 @@ snapshot (`TODO(G20)`); `canDuel` already requires ≥50 % HP/MP, so the gap is
 small.
 
 ✅ **Death item drops — G20 complete (2026-07-19)** — plan
-[PLAN_G20_DEATH_DROPS.md](PLAN_G20_DEATH_DROPS.md). A PK past
+`PLAN_G20_DEATH_DROPS.md`. A PK past
 `MinimumPKRequiredToDrop` killed by a player scatters part of their inventory —
 the **karma penalty**, not general looting: killing a *clean* player takes
 nothing. A **monster** kill uses the separate, gentler `Player*` rates, so an
@@ -1023,7 +1032,7 @@ consumed silently — dead in the Java build too).
 
 **Script sweep (2026-07-30):** the `ai/areas` half is ✅ complete
 (remaining-ports audit row 4). The `ai/others` half runs through
-[PLAN_G22_AI_OTHERS.md](PLAN_G22_AI_OTHERS.md) — slice 1 landed 2026-07-30: the
+`PLAN_G22_AI_OTHERS.md` — slice 1 landed 2026-07-30: the
 `multisell` / `exc_multisell` **NPC bypass** (which closes the "remaining bypass
 families" note above and revives the exchange button in 97 dist htmls) and the
 three wandering Mammon merchants. Slice 2 (2026-07-30) landed the **castle
@@ -1105,7 +1114,7 @@ weekly draw, prize-claim dialogs) and `MonsterRace` (the Race Track: race
 ticks, betting, `MonRaceInfo`). Niche end-game content — schedule last within
 the track. **Deps:** G15 (economy).
 
-**Slices 1–2 (2026-07):** the **Lottery is complete** ([PLAN_G26_5_LOTTERY_RACE.md](PLAN_G26_5_LOTTERY_RACE.md))
+**Slices 1–2 (2026-07):** the **Lottery is complete** (`PLAN_G26_5_LOTTERY_RACE.md`)
 — the weekly round engine + `lottery`-table persistence (slice 1), then the full
 economics (slice 2): the `Loto` NPC dialog, ticket purchase (verbatim bitmask
 encoding), the faithful two-phase draw (offline DB + online inventory scan,
@@ -1140,7 +1149,7 @@ breadth list — subject to the scope gate (customs default out).
 
 **Progress (2026-07-23):** the **cursed-weapon half of the gate is met** — the
 autonomous drop → pickup → expiry loop landed (`game_loop/cursed_weapon.rs`,
-[PLAN_G28_CURSED_WEAPONS.md](PLAN_G28_CURSED_WEAPONS.md)); a cursed weapon can be
+`PLAN_G28_CURSED_WEAPONS.md`); a cursed weapon can be
 dropped by a monster kill and equipped by whoever picks it up. Deferred to a
 follow-up: kill-count level-up, hungry decay, drop-on-PK-death, login restore.
 
@@ -1184,7 +1193,7 @@ exists in this port yet (no `Config.MAX_HP` cap, no karma-on-XP-gain), so the
 exemption would be dead code. Still open: ground-item persistence across a
 restart, the region-name SysString, and `controlPlayers()`'s boot sweep.
 **Progress (2026-07-26):** the **events engine — slice 1** landed
-([PLAN_G28_EVENTS_ENGINE.md](PLAN_G28_EVENTS_ENGINE.md)): the event lifecycle
+(`PLAN_G28_EVENTS_ENGINE.md`): the event lifecycle
 (`EventManager` on `World`, `//event_start`/`//event_stop` GM trigger — the dist
 TvT `config.xml` schedule ships commented out) + the TvT registration phase
 (manager NPC, register/cancel window, `canRegister`, the registration-close
@@ -1270,7 +1279,7 @@ cross-hooks. Six Java defects are deliberately not reproduced (leaked solo
 rooms, the inverted level filter, the self-compared party check in the oust
 handler, the unconditional leader-change message, and two NPE/stranded-request
 paths) — each listed with its test in
-[PLAN_G30_MAIL_PARTY_MATCHING.md](PLAN_G30_MAIL_PARTY_MATCHING.md). 60 tests.
+`PLAN_G30_MAIL_PARTY_MATCHING.md`. 60 tests.
 
 **Still open on G30:** the retail forum boards + `communitybbs` core, `_bbssell`
 / `_bbsdelevel`, and AdminBBS. **Command channels (MPCC)** were never scheduled
@@ -1304,7 +1313,7 @@ auction periods, winner delivery. **Deps:** G15 (economy). (G30 mail *not*
 needed — Java delivers the won item to the winner's **warehouse**.)
 
 **Slice 1 (2026-07-27):** the **data + model + DB foundation** landed
-([PLAN_G30_5_ITEM_AUCTION.md](PLAN_G30_5_ITEM_AUCTION.md)) — the `ItemAuctions.xml`
+(`PLAN_G30_5_ITEM_AUCTION.md`) — the `ItemAuctions.xml`
 parser (empty on this dist), the auction/bid model + `ItemAuctionManager` on
 `World`, the `AuctionDateGenerator` schedule math, and `item_auction`/
 `item_auction_bid` load+persist (config-gated on `AltItemAuctionEnabled`).
@@ -1357,7 +1366,7 @@ the `//geosave` binary-region
 serializer; `NpcNameLocalisationData`/multilang; remaining packets and the last
 data loaders; the niche admin tools (AdminFightCalculator, AdminRepairChar,
 AdminPForge, AdminMissingHtmls, AdminPcCondOverride); Dockerfile parity. Close
-with the file-by-file parity checklist ([PLAN_GAME_SERVER.md](PLAN_GAME_SERVER.md)
+with the file-by-file parity checklist (`PLAN_GAME_SERVER.md`
 §8), plus a mechanical diff of the Java `network/clientpackets` handler list
 (298 files) against the Rust opcode table so any packet family that slipped
 every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
@@ -1365,7 +1374,7 @@ audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
 ### G34 — Skills, effects & abnormal-state parity (epic) ✅ **CLOSED — 275 → 11 wrong learnable skills, all 11 recorded out-of-scope with a reason**
-Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
+Plan: `PLAN_G34_SKILL_PARITY.md`. G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
 empty-effects guard, and `<conditions>` is ignored entirely except `OpExistNpc`

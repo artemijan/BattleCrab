@@ -12,7 +12,7 @@ pub enum ApiError {
     BadRequest(String),
 
     /// Deliberately vague at the edge: never distinguish "no such account" from
-    /// "wrong password" (PLAN_DASHBOARD.md §5.2).
+    /// "wrong password" (DASHBOARD.md §5.2).
     #[error("invalid credentials")]
     InvalidCredentials,
 

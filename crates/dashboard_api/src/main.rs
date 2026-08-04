@@ -25,7 +25,7 @@ async fn main() {
     // `create_if_missing(true)`, so a wrong path does not fail — it silently
     // produces an empty database, and every request 500s at runtime instead.
     // Naming the path here, and refusing to boot below, is what makes a
-    // misconfigured URL obvious (PLAN_DASHBOARD.md §10).
+    // misconfigured URL obvious (DASHBOARD.md §10).
     let db_path = dashboard_api::db::sqlite_path(&config.database_url);
     let absolute = db_path.as_ref().map(|p| {
         std::env::current_dir()

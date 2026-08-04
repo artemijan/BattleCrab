@@ -915,7 +915,7 @@ async fn changing_the_password_invalidates_the_old_session() {
     assert_eq!(changed.status(), StatusCode::NO_CONTENT);
 
     // The old cookie signed over the old hash — it must be dead now. This is
-    // the design's only session-revocation mechanism (PLAN_DASHBOARD.md §5.3).
+    // the design's only session-revocation mechanism (DASHBOARD.md §5.3).
     let after = app
         .oneshot(get_with_cookie("/api/v1/auth/me", &old_cookie))
         .await
@@ -1318,7 +1318,7 @@ async fn the_link_preview_image_is_served_at_a_stable_url() {
 }
 
 // ---------------------------------------------------------------------------
-// Admin (PLAN_DASHBOARD.md §16)
+// Admin (DASHBOARD.md §16)
 //
 // The two properties everything below defends: the /admin surface is closed to
 // ordinary sessions, and no admin action can ever move an access level upward.

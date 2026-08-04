@@ -14,7 +14,7 @@
 //! * `accounts.is_verified` and `accounts.password` reuse the existing helpers
 //!   in [`super::accounts`].
 //!
-//! `characters` remains strictly read-only (PLAN_DASHBOARD.md §3.2) — live
+//! `characters` remains strictly read-only (DASHBOARD.md §3.2) — live
 //! character state is memory-first in the game server, so there is no such
 //! thing as a safe character write from here, admin or not.
 

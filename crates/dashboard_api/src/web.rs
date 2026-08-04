@@ -2,7 +2,7 @@
 //!
 //! In release the built assets are baked into the binary; in debug `rust-embed`
 //! reads them off disk, so `cargo run` works without a built frontend and
-//! `bun --hot` can own the reload loop (PLAN_DASHBOARD.md §9).
+//! `bun --hot` can own the reload loop (DASHBOARD.md §9).
 
 use axum::http::{StatusCode, Uri, header};
 use axum::response::{IntoResponse, Response};

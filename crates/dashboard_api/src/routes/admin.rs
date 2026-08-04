@@ -1,4 +1,4 @@
-//! The `/admin` surface (PLAN_DASHBOARD.md §16). Every handler starts with
+//! The `/admin` surface (DASHBOARD.md §16). Every handler starts with
 //! `require_admin`; there is no partially-open route in this module.
 //!
 //! Two rules bound what an admin can do from here:
@@ -14,7 +14,7 @@
 //! Every mutation logs who did what to whom, because with shared `accessLevel
 //! = 100` accounts the audit trail in the journal is all the attribution there
 //! is. (A real audit table is deferred with the rest of the storage decision,
-//! PLAN_DASHBOARD.md §7.)
+//! DASHBOARD.md §7.)
 
 use axum::extract::{Path, Query, State};
 use axum::http::{HeaderMap, StatusCode};
@@ -81,7 +81,7 @@ pub struct ListQuery {
 
 /// Caps a caller-supplied page size. 200 rows is far past what the UI shows;
 /// anything larger is a mistake or a scrape, and this DB is shared with the
-/// live game (PLAN_DASHBOARD.md §3.3).
+/// live game (DASHBOARD.md §3.3).
 fn page_limit(requested: Option<i64>) -> i64 {
     requested.unwrap_or(50).clamp(1, 200)
 }

@@ -11,7 +11,7 @@
 //! `ScarletVanHalisha`), and the crawl polish — the room aggro-nudge, the 5%
 //! Dewdrop drop, and the song debuff (5008). The only gap left is cosmetic: the
 //! exhaustive dummy-anchored `SpecialCamera` choreography is abbreviated
-//! throughout (`docs/PLAN_FRINTEZZA.md`).
+//! throughout (`PLAN_FRINTEZZA.md`).
 
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;

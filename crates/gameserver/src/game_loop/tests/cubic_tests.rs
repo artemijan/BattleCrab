@@ -2,7 +2,7 @@
 //!
 //! Cubics were chosen over agathions by the learnable-skill ranking:
 //! `SummonCubic` has 12 learnable skills on this dist, `SummonAgathion` has
-//! **zero** (all 166 are off every skill tree). See `docs/PLAN_G29_CUBICS.md`.
+//! **zero** (all 166 are off every skill tree). See `PLAN_G29_CUBICS.md`.
 
 use super::*;
 

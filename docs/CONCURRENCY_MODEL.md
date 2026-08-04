@@ -343,7 +343,7 @@ problem Java solves with its `WorldObject → Creature → Playable → Player`
 hierarchy and challenge #1 solves with composition.
 
 **How it maps here** (`gameserver/src/store.rs`, final stage-2 shape —
-G9.5, [PLAN_ECS_STAGE2.md](PLAN_ECS_STAGE2.md)):
+G9.5, `PLAN_ECS_STAGE2.md`):
 
 - `World.objects` is one non-generic `EntityStore`: a single
   `bevy_ecs::World` holding **all** world objects — players and NPCs — as

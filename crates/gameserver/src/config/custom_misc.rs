@@ -4,7 +4,7 @@
 //! Each is enabled on this dist and live in Java, which is what pulls it back
 //! inside the ROADMAP scope gate ("the Mobius `config/Custom/*` features are
 //! out of scope **except any the operator explicitly enables**"). See
-//! `docs/PLAN_G33_CUSTOM_INI_AUDIT.md` for the audit that found them.
+//! `PLAN_G33_CUSTOM_INI_AUDIT.md` for the audit that found them.
 
 use commons::config::PropertiesParser;
 

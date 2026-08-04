@@ -1,6 +1,6 @@
 # Login Server Parity Checklist
 
-M5 acceptance from [PLAN_LOGIN_SERVER.md](PLAN_LOGIN_SERVER.md): every Java
+M5 acceptance from `PLAN_LOGIN_SERVER.md`: every Java
 login-server file, marked **ported** / **dropped by decision** / **n/a**.
 Rust locations are relative to `crates/loginserver/src` unless noted.
 

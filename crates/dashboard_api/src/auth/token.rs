@@ -1,4 +1,4 @@
-//! Stateless one-time links (PLAN_DASHBOARD.md §5.4).
+//! Stateless one-time links (DASHBOARD.md §5.4).
 //!
 //! Password reset signs over the account's *current* password hash, which buys
 //! single-use semantics with no storage: the moment the password changes, the
