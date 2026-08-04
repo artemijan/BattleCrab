@@ -278,6 +278,23 @@ mod tests {
         assert_eq!(Subject::Npc(20001).into_param(), SmParam::NpcName(20001));
     }
 
+    /// The half-damage magic-resist line, sent target-first exactly as
+    /// `Formulas.calcMagicDam` does. Both slots are plain names.
+    #[test]
+    fn the_damage_decreased_message_takes_target_then_attacker() {
+        let sm = generated::DAMAGE_IS_DECREASED_BECAUSE_C1_RESISTED_C2_S_MAGIC::new(
+            "Target", "Attacker",
+        );
+        assert_eq!(sm.id, 2280);
+        assert_eq!(
+            sm.params,
+            vec![
+                SmParam::Text("Target".to_string()),
+                SmParam::Text("Attacker".to_string()),
+            ]
+        );
+    }
+
     #[test]
     fn a_zero_param_constant_becomes_a_sendable_message() {
         let sm: SystemMessage = generated::YOU_CANNOT_MOVE_WHILE_CASTING.into();

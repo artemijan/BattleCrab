@@ -4369,15 +4369,25 @@ fn roll_magic_failure(
         // not a reuse of the first one's result.
         let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
         if formulas::calc_magic_success(&input, world.roll(100)) {
-            send_sm(
-                world,
-                caster_oid,
-                if is_drain {
-                    sm_ids::DRAIN_WAS_ONLY_50_SUCCESSFUL
-                } else {
-                    sm_ids::YOUR_ATTACK_HAS_FAILED
-                },
-            );
+            if is_drain {
+                // A drain keeps its own retail line, which says the same thing
+                // in the terms of the skill that caused it.
+                send_sm(world, caster_oid, sm_ids::DRAIN_WAS_ONLY_50_SUCCESSFUL);
+            } else {
+                // Java `Formulas.calcMagicDam`: the caster is told whose
+                // resistance halved it, target first then attacker, both as
+                // plain names.
+                use commons::system_messages::generated::DAMAGE_IS_DECREASED_BECAUSE_C1_RESISTED_C2_S_MAGIC;
+                let message = DAMAGE_IS_DECREASED_BECAUSE_C1_RESISTED_C2_S_MAGIC::new(
+                    creature_name(world, target_oid),
+                    creature_name(world, caster_oid),
+                );
+                if let Some(client_id) = client_for_player(world, caster_oid)
+                    && let Some(cs) = world.clients.get(&client_id)
+                {
+                    cs.send(server_packets::system_message(&message));
+                }
+            }
             formulas::MagicFailure::Half
         } else {
             let target_name = creature_name(world, target_oid);
