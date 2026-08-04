@@ -70,6 +70,33 @@ mimalloc = "0.1"
 [profile.release]
 codegen-units = 1
 
+# Test-suite speed. The dist datapack is real XML — 19 MB of skill definitions
+# alone — and ~230 tests parse some of it. nextest runs each test in its own
+# process, so nothing is shared: every one of those tests pays the parse again.
+#
+# Unoptimized, that parse is ~12 s; at opt-level 2 it is ~1.4 s, and the whole
+# suite goes from 126 s to 14 s. Measured 2026-08-04, and the split matters:
+# optimizing only the dependencies (quick-xml) buys 12.2 s → 10.7 s, because
+# the cost is in *our* parsing code, not the XML reader. Optimizing only the
+# workspace crates gives 2.9 s. Both together give 1.4 s.
+#
+# opt-level 1 was measured too and is strictly worse than 2 here: the same
+# clean-build cost (51.8 s vs 53.6 s) for a slower suite.
+#
+# The bill is a clean rebuild of `gameserver`: 24 s → 54 s. Incremental
+# rebuilds are unchanged (~7-8 s), so touch-a-file-and-test round trips get
+# *faster* overall (20.4 s → 8.8 s). `debug-assertions` stays on — the dev
+# profile's default is independent of opt-level — so the debug-only invariant
+# checks (`World::debug_check_player_regions`) still run.
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.dev.package.gameserver]
+opt-level = 2
+
+[profile.dev.package.commons]
+opt-level = 2
+
 # RSA keygen (LoginController's 10 client pairs + 10 GS-link pairs at boot)
 # runs 30-100x slower without optimizations — keep the bigint math crates
 # optimized even in dev builds so the login server boots fast.
