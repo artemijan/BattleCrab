@@ -4890,3 +4890,54 @@ The whole page is now ported.
   a_slide_survives_the_clients_stale_position_report}`. The blink-guard test was
   verified by sabotage (drop the guard → the slide is reverted to 1000 and the
   assertion fires).
+
+---
+
+## Maintenance refactor — shared helpers + splitting the two giant functions
+
+Pure refactor, no behaviour change: `2973/2973` tests pass identically before
+and after, `cargo clippy --workspace --all-targets -- -D warnings` clean.
+Everything below was rejected or kept on the grounds of "does this change
+observable behaviour or cost?", not style.
+
+**Use these instead of hand-rolling them.**
+
+- `World::player_oid(client_id) -> Option<i32>` — the "no player, no packet"
+  bail every handler opens with (Java `GameClient.getPlayer()`). 122 handlers
+  had spelled out the 4-line `let Some(ClientSession::InGame(session)) =
+  world.clients.get(&cid) else { return; }; let oid =
+  session.player_object_id();` by hand.
+- `World::in_game_player_oids() -> impl Iterator<Item = i32>` — Java
+  `World.getPlayers()`. Returns an **iterator**, so callers that only iterate
+  allocate nothing; `.collect()` at the call site when you need `&mut World`
+  inside the loop. Iteration order is unspecified (hash map) — sort at the call
+  site if the order is observable.
+- `game_loop::helpers::{send_to_client, send_to_player, send_sm_to_client,
+  send_sm_to_player}` — 39 private copies across 21 modules collapsed onto
+  these. **The client-id and object-id pairs are deliberately separate
+  functions:** `clients.get` is a hash lookup while `client_for_player` is a
+  linear scan, so "unifying" them would silently turn ~20 O(1) sends into O(n).
+  Reach for the `_to_client` form whenever you already hold the client id.
+
+**Split functions.**
+
+- `skills::effects::apply_skill_effects` 2067 → 1127 lines. The 17 fattest
+  match arms moved to `skills/instant.rs`, one function per `SkillEffect`
+  variant, sharing a `CastCtx` (caster/target oid, magic-crit roll, shot
+  flags) computed once per cast. The arms' `continue` became `return`, which
+  is equivalent *only* because the match is the last statement in the effect
+  loop — check that invariant still holds before extracting more arms.
+  `DispelByCategory`, `SummonNpc` and `Bluff` stay inline: each owns a nested
+  loop *and* a `continue`, so the rewrite is not automatically safe there.
+- `db::run` 2313 → 2177 lines; the 137-line unprompted boot sequence is now
+  `send_boot_events`. Its ordering is load-bearing — `ClansLoaded` must be
+  sent last, because the game loop releases the login link on it.
+
+**Deliberately not done.** `admin::dispatch` (700 lines) is already a flat
+one-line-per-arm routing table — that is the idiomatic shape, and splitting it
+would add indirection for nothing. The `crates/migration/*` baselines are the
+most duplicated files in the tree but are write-once historical artifacts.
+The mirror quest scripts (Q00260/263/265/267/273, Q00042/43, Q00606/612) are
+~90% identical, but each is a 1:1 port of a separate Java datapack directory,
+and that correspondence is worth more than the duplication it costs — the same
+reason `manual_range_patterns`/`collapsible_match` are permanently allowed.
