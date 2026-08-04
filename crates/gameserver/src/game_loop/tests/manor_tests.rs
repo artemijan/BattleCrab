@@ -71,7 +71,7 @@ fn sow_then_harvest_yields_the_crop() {
     use crate::model::components::Vitals;
     use crate::model::npc::Npc;
 
-    let (mut world, _rx) = chamberlain_world();
+    let (mut world, mut rx) = chamberlain_world();
     world.cfg.general.allow_manor = true;
     world.data.manor.insert_for_test(seed(1, 5016, 5073, 10)); // seed 5016 → crop 5073, lvl 10
     add_stackable_item(&mut world, 5073, 50);
@@ -85,7 +85,23 @@ fn sow_then_harvest_yields_the_crop() {
     }
     // Sow: a forced roll of 0 is under any positive chance → success.
     world.forced_rolls.push_back(0);
+    drain(&mut rx);
     apply_sow(&mut world, 100, NPC_OID);
+    {
+        // Java's success leg: the item-get sound, then the result message —
+        // sent solo here because this sower has no party.
+        let pkts = drain(&mut rx);
+        assert!(
+            sm_ids_of(&pkts)
+                .contains(&crate::network::server_packets::sm_ids::THE_SEED_WAS_SUCCESSFULLY_SOWN),
+            "the sower is told the seed took"
+        );
+        assert!(
+            pkts.iter()
+                .any(|p| p[0] == crate::network::server_packets::opcodes::PLAY_SOUND),
+            "ITEMSOUND_QUEST_ITEMGET accompanies a successful sow"
+        );
+    }
     {
         let npc = world.objects.get_component::<Npc>(&NPC_OID).unwrap();
         assert!(npc.seeded, "the mob is now seeded");
@@ -148,10 +164,16 @@ fn harvest_refused_when_not_the_seeder() {
         .dead = true;
 
     // A different, real player (999, not the seeder) tries to harvest.
-    let _rx2 = ingame_player(&mut world, 2, 999, 0, 0, 0);
+    let mut rx2 = ingame_player(&mut world, 2, 999, 0, 0, 0);
     world.forced_rolls.push_back(0);
+    drain(&mut rx2);
     apply_harvesting(&mut world, 999, NPC_OID);
     assert_eq!(inv_count(&world, 5073), 0, "a non-seeder harvests nothing");
+    assert!(
+        sm_ids_of(&drain(&mut rx2))
+            .contains(&crate::network::server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_HARVEST),
+        "Java tells the interloper why nothing happened"
+    );
     assert!(
         world
             .objects

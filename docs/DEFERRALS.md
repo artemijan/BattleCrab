@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **173** such
+of narrow behaviours deferred and marked at the site. There are **170** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -68,7 +68,6 @@ must never spell a *parseable* tag: it would be counted as a marker.
 | `TODO(dead)` | 6 | `scripts/q00414_path_of_the_orc_raider.rs`, `scripts/q00415_path_of_the_orc_monk.rs`, `scripts/q00416_path_of_the_orc_shaman.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
-| `TODO(manor)` | 5 | `game_loop/manor.rs`, `game_loop/skills/effects/gathering.rs` |
 | `TODO(pets)` | 5 | `scripts/q00421_little_wings_big_adventure.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
@@ -83,6 +82,7 @@ must never spell a *parseable* tag: it would be counted as a marker.
 | `TODO(G29+)` | 2 | `model/components.rs`, `network/enter_world.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data/build.rs` |
 | `TODO(login-playauth)` | 2 | `tests/e2e_create.rs` |
+| `TODO(manor)` | 2 | `game_loop/manor.rs` |
 | `TODO(newbie-guide)` | 2 | `scripts/q00261_collectors_dream.rs`, `scripts/q00276_totem_of_the_hestui.rs` |
 | `TODO(cinematic)` | 1 | `scripts/q00235_mimirs_elixir.rs` |
 | `TODO(cosmetic)` | 1 | `scripts/q00125_the_name_of_evil_1.rs` |
@@ -113,6 +113,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(manor)` ×3 (`game_loop/skills/effects/gathering.rs`) | Same shape as the soul-crystal set: the ids (889/890/891) were in `commons::system_messages` all along, absent only from the hand-maintained `sm_ids`. Wiring them surfaced two things the markers did not mention — Java **party-broadcasts** the sow result (`party.broadcastPacket`), and the success leg also plays `ITEMSOUND_QUEST_ITEMGET`, which this port dropped silently. Both ported. |
 | 2026-08-05 | `TODO(soul-crystal)` ×4 (`scripts/q00350_enhance_your_weapon.rs`) | **Half stale.** The `sm_ids` claim was true — that hand-maintained list had no soul-crystal entries — but `commons::system_messages` has carried all four ids (974/975/976/978) the whole time. Added them to `sm_ids` and wired Q350's three sites. The fifth marker with this tag was *not* closed: it sits in `skills/cast.rs`, describes `onSkillSee` breadth rather than anything about crystals, and was retagged `skill-see-range`. |
 | 2026-08-05 | `TODO(radar)` ×3 (`scripts/q00348_an_arrogant_search.rs`) | **Stale.** They said the radar pings were unported; `QuestCtx::add_radar` / `add_quest_radar` / `clear_radar` all exist and Q211/Q214 use them. Wired Q348's two sites to the helpers. Closing them first exposed a real bug in `add_radar` itself — see the commit before. |
 

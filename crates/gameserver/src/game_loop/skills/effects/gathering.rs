@@ -121,6 +121,7 @@ pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32)
 pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
     use crate::model::Player;
     use crate::model::npc::{Npc, NpcAi, NpcIntention};
+    use server_packets::sm_ids;
 
     let Some(player_level) = world
         .objects
@@ -169,13 +170,22 @@ pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
         return;
     };
 
-    if calc_sow_success(
+    let sown = calc_sow_success(
         seed_level,
         alternative,
         player_level,
         target_level,
         world.roll(99),
-    ) {
+    );
+    if sown {
+        // `player.sendPacket(QuestSound.ITEMSOUND_QUEST_ITEMGET.getPacket())`,
+        // which Java fires before flagging the mob. Private to the sower even
+        // when partied — only the result message below is broadcast.
+        crate::game_loop::helpers::send_to_player(
+            world,
+            caster_oid,
+            server_packets::play_sound(server_packets::quest_sounds::ITEMGET),
+        );
         // The crop count: a "strong type" mob (skills 4303..=4310) multiplies it
         // ×2..×9, plus a hi-level-mob bonus, all scaled by `RateDropManor`.
         let mut count: i64 = 1;
@@ -193,10 +203,29 @@ pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
             npc.seeded = true;
             npc.harvest_item = Some((crop_id, harvest_count));
         }
-        // TODO(manor): THE_SEED_WAS_SUCCESSFULLY_SOWN — SystemMessageId not in
-        // this repo's data (the sow itself is applied).
     }
-    // TODO(manor): the failure branch sends THE_SEED_WAS_NOT_SOWN (same reason).
+
+    // Java builds one `SystemMessage` for either outcome and then routes it:
+    // `party.broadcastPacket(sm)` when the sower is grouped, else a plain
+    // `player.sendPacket(sm)`. The whole party learns the result, not just the
+    // caster — a sown mob is shared loot, so this is information the group
+    // needs, not flavour.
+    let sm_id = if sown {
+        sm_ids::THE_SEED_WAS_SUCCESSFULLY_SOWN
+    } else {
+        sm_ids::THE_SEED_WAS_NOT_SOWN
+    };
+    match world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&caster_oid)
+        .map(|p| p.0)
+    {
+        Some(party_id) => {
+            let sm = server_packets::system_message_with(sm_id, &[]);
+            crate::game_loop::party::broadcast_to_party(world, party_id, &sm, None);
+        }
+        None => send_sm(world, caster_oid, sm_id),
+    }
 
     // Java sets the mob's AI to IDLE after a sow attempt.
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&target_oid) {
@@ -237,6 +266,7 @@ pub(crate) fn calc_sow_success(
 pub(crate) fn apply_harvesting(world: &mut World, caster_oid: i32, target_oid: i32) {
     use crate::model::Player;
     use crate::model::npc::Npc;
+    use server_packets::sm_ids;
 
     let Some(player_level) = world
         .objects
@@ -267,7 +297,7 @@ pub(crate) fn apply_harvesting(world: &mut World, caster_oid: i32, target_oid: i
         return;
     };
     if caster_oid != seeder {
-        // TODO(manor): YOU_ARE_NOT_AUTHORIZED_TO_HARVEST — sm id not in repo data.
+        send_sm(world, caster_oid, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_HARVEST);
         return;
     }
     if !seeded {

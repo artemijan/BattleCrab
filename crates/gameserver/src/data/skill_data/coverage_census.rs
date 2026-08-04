@@ -459,7 +459,7 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("dead", 6),
         ("frintezza-4b", 1),
         ("login-playauth", 2),
-        ("manor", 5),
+        ("manor", 2),
         ("newbie-guide", 2),
         ("pets", 5),
         ("q214-gargoyle-name", 1),

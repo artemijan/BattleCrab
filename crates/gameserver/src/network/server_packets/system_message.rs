@@ -186,6 +186,11 @@ pub mod sm_ids {
     pub const THE_SOUL_CRYSTAL_WAS_NOT_ABLE_TO_ABSORB_THE_SOUL: i16 = 975;
     pub const THE_SOUL_CRYSTAL_BROKE_BECAUSE_IT_WAS_NOT_ABLE_TO_ENDURE_THE_SOUL_ENERGY: i16 = 976;
     pub const THE_SOUL_CRYSTAL_IS_REFUSING_TO_ABSORB_THE_SOUL: i16 = 978;
+    // Manor (G26): `Sow` reports its result to the whole party, `Harvesting`
+    // refuses a non-seeder privately.
+    pub const THE_SEED_WAS_SUCCESSFULLY_SOWN: i16 = 889;
+    pub const THE_SEED_WAS_NOT_SOWN: i16 = 890;
+    pub const YOU_ARE_NOT_AUTHORIZED_TO_HARVEST: i16 = 891;
     // Multisell (G30): the enchanted-product ack and the ingredient-shortfall
     // message.
     pub const ACQUIRED_S1_S2: i16 = 371;
