@@ -321,7 +321,19 @@ mod tests {
         ] {
             let info = by_name(name).unwrap_or_else(|| panic!("{name} missing"));
             assert!(info.custom, "{name} should be marked custom");
-            assert!(info.id >= 9000, "custom ids must not collide with retail");
+            // Above every retail id, but only just: the client does not seem
+            // to accept one far beyond the highest it loaded.
+            let highest_retail = generated::ALL
+                .iter()
+                .filter(|m| !m.custom)
+                .map(|m| m.id)
+                .max()
+                .unwrap();
+            assert!(
+                info.id > highest_retail && info.id <= highest_retail + 10,
+                "{name} id {} should continue the retail sequence after {highest_retail}",
+                info.id
+            );
             assert_eq!(info.params, 3);
         }
     }

@@ -24321,7 +24321,7 @@ impl
 /// `$c1 has resisted $s2. (Chance: $s3%%)`
 pub struct C1_HAS_RESISTED_S2_CHANCE_WAS_S3;
 impl C1_HAS_RESISTED_S2_CHANCE_WAS_S3 {
-    pub const ID: i32 = 9000;
+    pub const ID: i32 = 7491;
 
     pub fn new(
         c1: impl Into<Subject>,
@@ -24329,7 +24329,7 @@ impl C1_HAS_RESISTED_S2_CHANCE_WAS_S3 {
         s3: impl Into<SmValue>,
     ) -> SystemMessage {
         SystemMessage::new(
-            9000,
+            7491,
             vec![
                 c1.into().into_param(),
                 s2.into().into_param(),
@@ -24342,7 +24342,7 @@ impl C1_HAS_RESISTED_S2_CHANCE_WAS_S3 {
 /// `$s1 landed on $c2. (Chance: $s3%%)`
 pub struct S1_LANDED_ON_C2_CHANCE_WAS_S3;
 impl S1_LANDED_ON_C2_CHANCE_WAS_S3 {
-    pub const ID: i32 = 9001;
+    pub const ID: i32 = 7492;
 
     pub fn new(
         s1: impl Into<SmValue>,
@@ -24350,7 +24350,7 @@ impl S1_LANDED_ON_C2_CHANCE_WAS_S3 {
         s3: impl Into<SmValue>,
     ) -> SystemMessage {
         SystemMessage::new(
-            9001,
+            7492,
             vec![
                 s1.into().into_param(),
                 c2.into().into_param(),
@@ -78167,7 +78167,7 @@ pub static ALL: &[MessageInfo] = &[
         msg_type: None,
     },
     MessageInfo {
-        id: 9000,
+        id: 7491,
         name: "C1_HAS_RESISTED_S2_CHANCE_WAS_S3",
         text: "$c1 has resisted $s2. (Chance: $s3%%)",
         color: "FF6666FF",
@@ -78177,7 +78177,7 @@ pub static ALL: &[MessageInfo] = &[
         msg_type: Some("[damage]"),
     },
     MessageInfo {
-        id: 9001,
+        id: 7492,
         name: "S1_LANDED_ON_C2_CHANCE_WAS_S3",
         text: "$s1 landed on $c2. (Chance: $s3%%)",
         color: "99FF99FF",
