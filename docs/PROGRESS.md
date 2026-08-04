@@ -4945,8 +4945,8 @@ reason `manual_range_patterns`/`collapsible_match` are permanently allowed.
 ### Phase 3 — splitting the large files
 
 Same rules: pure code motion, `2973/2973` unchanged, clippy `-D warnings`
-clean. Five files became directory modules; the four that were over 5000 lines
-are gone.
+clean. Six files became directory modules; nothing outside `migration/` is over
+2800 lines any more.
 
 | was | now | largest piece |
 |---|---|---|
@@ -4954,7 +4954,8 @@ are gone.
 | `clans.rs` 5998 | `clans/` — skills, membership, ranks, wars, alliance, sub_pledge, crests, recruit | 811 |
 | `skills/effects.rs` 5690 | `effects/` — continuous, triggers, control, support, gathering, damage, ticks, traits | 1485 |
 | `data/skill_data.rs` 5171 | `skill_data/` — parse, build, tests, coverage_census | 1704 |
-| `death.rs` 3354 | `death/` — rewards, progression, player_death, restart, resurrect | 976 |
+| `death.rs` 3354 | `death/` — rewards, progression, player_death, restart, resurrect | 985 |
+| `combat.rs` 2888 | `combat/` — intent, attack, damage | 1053 |
 
 **The public path never changes.** Each `mod.rs` re-exports its submodules, so
 `clans::handle_request_join_pledge`, `db::DbCommand` and `death::give_item`
