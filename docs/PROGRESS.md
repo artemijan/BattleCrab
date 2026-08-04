@@ -4408,6 +4408,80 @@ dialog itself rendered — the bypass never reached a handler.
 
 ---
 
+### Post-G33 — Flood protection: `FloodProtector.ini` + transport limits ✅ (2026-08-04)
+
+Two layers, because the port had **neither**.
+
+**1. `FloodProtector.ini` (Java parity).** `FloodProtectorAction` /
+`FloodProtectors` had no counterpart: all **41** of Java's
+`getClient().getFloodProtectors().canX()` call sites were unguarded and the ini
+was never read. Now `config/flood_protector.rs` (15 slots, Java's *code*
+defaults on a missing key — they differ from the shipped ini for `ServerBypass`
+and `PlayerAction`) plus `game_loop/flood.rs`.
+
+The check is **table-driven at dispatch**, not copied into 41 handlers: this
+port has one `on_packet` where Java has 41 packet classes, so
+`action_for_opcode` / `action_for_ex_opcode` map an opcode onto its slot and
+`dispatch::on_packet` consults it once. Same shared counters as Java (all 24
+`Transaction` call sites share one window). A missed call site is now a missing
+table row, not a silently unprotected packet. Four Java sites have no row
+because the packet is unported (`RequestCrystallizeEstimate`,
+`RequestCrystallizeItemCancel`, `RequestPreviewItem`,
+`RequestOneDayRewardReceive`) — each needs one when it lands.
+`FloodProtectorSubclass` is wired by hand at the village-master bypass, its
+only Java call site that is not a packet (Java guards cases 4/5/7; 7 is
+unported).
+
+Fidelity notes:
+- the gate reads **`World::tick`** — this port's `GameTimeTaskManager` — not
+  the wall clock, so windows track the game loop as Java's do;
+- hoisting the check ahead of each handler's own early-return validation is
+  strictly *stricter*, and only for packets that were being dropped anyway;
+- `_punishmentInProgress` is not modelled: the loop is single-threaded and the
+  punishment applies synchronously, so the flag is never observable;
+- **four slots are parsed but unconsumed — because Java never calls them
+  either**: `RollDice`, `ItemPetSummon`, `HeroVoice`, `GlobalChat`. So **this
+  build rate-limits no chat channel at all**, despite shipping
+  `FloodProtectorGlobalChatInterval = 5`. Wiring `Say2` to the `GlobalChat`
+  slot would be an *extension*, not a port, and is left as an explicit choice.
+
+**2. `Security.ini` (no Java counterpart).** Java survives an unprotected
+transport because its reader thread processes each client's packets inline; this
+port forwards decrypted bodies to the game thread over an **unbounded**
+channel, so a socket that never logs in — or one spamming faster than the
+100 ms tick drains — had no backpressure at all. Added: per-IP accept rules on
+the game port (Java's `FloodProtectedListener` rules, its `LoginServer.ini`
+values) and a per-connection inbound packet rate that closes the connection
+rather than dropping packets (dropping would desync the client's view of its
+own requests). The game server's per-address table is owned by the accept task
+and released over a channel rather than shared under a `Mutex` — the process
+deliberately holds exactly one lock (`geo::GeoEngine::nswe_overrides`), which
+is the standing argument for not porting Java's deadlock detector.
+
+**3. Login server.** Java wires `FloodProtectedListener` to
+`GameServerListener` **only**, so the player-facing port's sole defence is
+`LoginTryBeforeBan` — reached only after a full RSA handshake. The GS-link
+rules are extracted to `net_flood::ConnectionFloodGuard` and now cover the
+client listener too, under the same `LoginServer.ini` keys.
+
+**Tests: 31** (22 flood, 6 transport, 3 login guard). The dispatch gate, the
+subclass wiring and the punishment arms were each sabotage-verified. The
+game-loop fixtures run with the protector **off**
+(`FloodProtectorsConfig::disabled`) because they drive whole interactions from a
+single tick, which the shipped 1 s `Transaction` window refuses; the shipped
+config's real behaviour is pinned separately against the real
+`dist/game/config/FloodProtector.ini`.
+
+**Operator note:** `MaxConnectionsPerIP` is generous because a NAT (internet
+cafe, household) is one address; `FastConnectionTime` is the first setting to
+relax if legitimate players are turned away.
+
+**Not started — eBPF.** An XDP ban-list / connection-rate offload is the
+natural next layer; the assessment (including why decryption offload is *not*
+viable) is in [SECURITY.md](SECURITY.md).
+
+---
+
 ## Deferred TODOs (by system)
 
 Empty/placeholder now, to be filled in the owning milestone:

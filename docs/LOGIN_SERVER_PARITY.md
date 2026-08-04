@@ -16,7 +16,7 @@ the game server phase.
 | `LoginController.java` | ✅ | `controller.rs` (actor) + `context.rs` (key caches) + `dao.rs` |
 | `GameServerTable.java` | ✅ | `gs_table.rs` + controller GS state |
 | `GameServerThread.java` | ✅ | `gs_link/connection.rs` |
-| `GameServerListener.java` + `FloodProtectedListener.java` | ✅ | `gs_link/listener.rs` |
+| `GameServerListener.java` + `FloodProtectedListener.java` | ✅ | `net_flood.rs`, used by `gs_link/listener.rs` + the client listener |
 | `SessionKey.java` | ✅ | `session.rs` |
 | `model/data/AccountInfo.java` | ✅ | `session.rs` |
 | `HackingException.java` | 🔵 | folded into disconnect handling (no exception type needed) |

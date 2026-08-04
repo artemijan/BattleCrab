@@ -12,7 +12,7 @@ Rust locations are relative to `crates/loginserver/src` unless noted.
 | `LoginController.java` | ✅ ported | `controller.rs` actor + `context.rs` (key caches) + `dao.rs` (SQL); purge task → per-session 5-min deadline in `network/client_connection.rs` |
 | `GameServerTable.java` | ✅ ported | `gs_table.rs` (servername.xml, gameservers table, hexid BigInteger semantics, subnet addresses); GS RSA keys in `context.rs` |
 | `GameServerThread.java` | ✅ ported | `gs_link/connection.rs` (task per GS, state machine, payload crypt) |
-| `GameServerListener.java` + `FloodProtectedListener.java` | ✅ ported | `gs_link/listener.rs` (per-IP flood rules, removeFloodProtection on close) |
+| `GameServerListener.java` + `FloodProtectedListener.java` | ✅ ported | `net_flood.rs` (`ConnectionFloodGuard`), used by `gs_link/listener.rs` **and** — beyond Java — by the client listener, which upstream leaves unprotected |
 | `LoginController` bans + `banned_ip.cfg` loader | ✅ ported | `controller.rs` + `ban_file.rs` (subnet ban forms incl.) |
 | `SessionKey.java` | ✅ ported | `session.rs` (incl. show-licence-dependent equality in PlayerAuthRequest) |
 | `model/data/AccountInfo.java` | ✅ ported | `session.rs` |
