@@ -64,15 +64,28 @@ pub enum SmParam {
 }
 
 /// A `$c<n>` slot: something with a name.
+///
+/// A bare name goes as [`SmParam::Text`], not [`SmParam::PlayerName`]. That
+/// looks wrong and is not: Java fills `$c1` with `addString(target.getName())`
+/// wherever the subject is whatever happened to be targeted — see
+/// `Formulas.calcMagicSuccess` for `C1_HAS_RESISTED_YOUR_S2`, the retail twin
+/// of our resist line. `PlayerName` is a different parameter type the client
+/// treats specially, and sending it where a plain string is expected stops the
+/// message rendering.
 #[derive(Clone, Debug)]
 pub enum Subject {
+    /// A name already resolved to text — what `$c1` normally carries.
+    Name(String),
+    /// `TYPE_PLAYER_NAME`, for the messages that genuinely want it.
     Player(String),
+    /// `TYPE_NPC_NAME`, resolved by the client from a template id.
     Npc(i32),
 }
 
 impl Subject {
     pub fn into_param(self) -> SmParam {
         match self {
+            Subject::Name(name) => SmParam::Text(name),
             Subject::Player(name) => SmParam::PlayerName(name),
             Subject::Npc(id) => SmParam::NpcName(id),
         }
@@ -81,13 +94,13 @@ impl Subject {
 
 impl From<&str> for Subject {
     fn from(name: &str) -> Self {
-        Subject::Player(name.to_string())
+        Subject::Name(name.to_string())
     }
 }
 
 impl From<String> for Subject {
     fn from(name: String) -> Self {
-        Subject::Player(name)
+        Subject::Name(name)
     }
 }
 
@@ -247,6 +260,22 @@ mod tests {
             }
             assert_eq!(m.params, expect, "{}", m.name);
         }
+    }
+
+    /// The bug this guards: `$c1` sent as `PlayerName` rather than `Text`
+    /// stopped the line rendering, which looked like a colour problem.
+    #[test]
+    fn a_bare_name_goes_as_text_the_way_java_sends_it() {
+        assert_eq!(
+            Subject::from("Test Gremlin").into_param(),
+            SmParam::Text("Test Gremlin".to_string())
+        );
+        // The specific types stay available for messages that want them.
+        assert_eq!(
+            Subject::Player("Bob".into()).into_param(),
+            SmParam::PlayerName("Bob".to_string())
+        );
+        assert_eq!(Subject::Npc(20001).into_param(), SmParam::NpcName(20001));
     }
 
     #[test]
