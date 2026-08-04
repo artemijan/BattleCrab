@@ -8,7 +8,6 @@ use crate::model::Player;
 use crate::model::components::{Friends, PendingRequest, RequestKind};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, FriendEntry, SmParam, friend_status_mode, sm_ids};
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::client_for_player;
@@ -17,19 +16,11 @@ use super::party::{
 };
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send_to_player(
-        world,
-        object_id,
-        server_packets::system_message_with(message_id, params),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 fn is_online(world: &World, object_id: i32) -> bool {
@@ -125,10 +116,9 @@ pub(crate) fn on_leave_world(world: &World, object_id: i32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = cp::read_name(body) else {
         return;
     };
@@ -197,10 +187,9 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
 }
 
 pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let response = cp::read_friend_answer(body).unwrap_or(0);
 
     let Some(req) = world
@@ -299,10 +288,9 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = cp::read_name(body) else {
         return;
     };
@@ -366,10 +354,9 @@ pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body:
 }
 
 pub(crate) fn handle_request_friend_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(friends) = world.objects.get_component::<Friends>(&player).cloned() else {
         return;
     };
@@ -386,10 +373,9 @@ pub(crate) fn handle_request_friend_list(world: &mut World, client_id: u32) {
 }
 
 pub(crate) fn handle_request_send_friend_msg(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(pkt) = cp::RequestSendFriendMsg::read(body) else {
         return;
     };

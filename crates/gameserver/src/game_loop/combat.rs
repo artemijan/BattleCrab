@@ -24,7 +24,6 @@ use crate::model::stats::BaseStat;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::{
@@ -435,10 +434,9 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     let Some(pkt) = cp::AttackRequest::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     let Some(player) = world
         .objects
         .get_component::<crate::model::Player>(&object_id)

@@ -18,7 +18,6 @@ use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
 use super::helpers::{
@@ -2350,10 +2349,9 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
     let Some(pkt) = cp::RequestRestartPoint::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     let (px, py, pz, dead) = {
         let Some(pos) = world.objects.get_component::<Position>(&object_id) else {
             return;
@@ -2682,10 +2680,9 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
 /// teleport — `onTeleported` (spawnMe → mutual CharInfo/NpcInfo, pending
 /// revive resolves, fresh `UserInfo`).
 pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     if !world
         .objects
         .get_component::<crate::model::Player>(&object_id)

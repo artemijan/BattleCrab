@@ -21,7 +21,6 @@ use tracing::warn;
 use crate::model::components::LastFolkNpc;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::target::can_interact;
@@ -30,10 +29,9 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
     let Some(command) = cp::read_bypass_command(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
 
     if command.is_empty() {
         warn!("Bypass: client {client_id} sent empty bypass, dropped.");

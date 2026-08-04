@@ -474,10 +474,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
 /// `RequestGetOnVehicle` / `RequestGetOffVehicle`: read `boatId + (x, y, z)` and
 /// board / disembark for the in-game player (G24.5).
 fn handle_get_on_off_vehicle(world: &mut World, client_id: u32, body: &[u8], boarding: bool) {
-    let Some(crate::session::ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = s.player_object_id();
     let mut r = commons::network::PacketReader::new(body);
     let (Some(boat_oid), Some(x), Some(y), Some(z)) =
         (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i32())
@@ -494,10 +493,9 @@ fn handle_get_on_off_vehicle(world: &mut World, client_id: u32, body: &[u8], boa
 /// `RequestMoveToLocationInVehicle`: the player walks around on a ferry's deck.
 /// Reads boatId + target (x,y,z) + origin (x,y,z), all relative to the boat.
 fn handle_move_in_vehicle(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = s.player_object_id();
     let mut r = commons::network::PacketReader::new(body);
     let (Some(boat_oid), Some(tx), Some(ty), Some(tz), Some(ox), Some(oy), Some(oz)) = (
         r.read_i32(),

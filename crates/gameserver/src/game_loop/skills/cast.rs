@@ -16,7 +16,6 @@ use crate::model::skill::{OperateType, Skill, SkillEffect, TargetType};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::effects::apply_skill_effects;
@@ -519,10 +518,9 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
     let Some(pkt) = cp::RequestMagicSkillUse::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     use_magic(
         world,
         client_id,
@@ -589,10 +587,9 @@ pub(crate) fn handle_request_magic_skill_use_ground(
     let Some(pkt) = cp::RequestExMagicSkillUseGround::read(ex_body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     world.objects.add_components(
         &object_id,
         crate::model::components::GroundSkillTarget {

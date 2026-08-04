@@ -280,14 +280,7 @@ pub(crate) fn is_overloaded(world: &World, object_id: i32) -> bool {
 /// on this sweep, within one regen tick. Equip, enter-world and offline-shop
 /// restore additionally refresh immediately, so the common cases are instant.
 pub(crate) fn sweep(world: &mut World) {
-    let players: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let players: Vec<i32> = world.in_game_player_oids().collect();
     for oid in players {
         refresh_weight_penalty(world, oid);
     }

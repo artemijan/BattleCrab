@@ -18,10 +18,7 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets::{
     self, ROOMS_PER_PAGE, RoomListView, RoomMemberView, SmParam, WaitingPlayerView, sm_ids,
 };
-use crate::session::ClientSession;
 use crate::world::World;
-
-use super::helpers::client_for_player;
 
 // ---------------------------------------------------------------------------
 // Small lookups
@@ -48,19 +45,11 @@ pub(crate) fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
 }
 
 fn send(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send(
-        world,
-        object_id,
-        server_packets::system_message_with(message_id, params),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 fn name_of(world: &World, object_id: i32) -> String {
@@ -171,10 +160,9 @@ pub(crate) fn set_in_room_flag(world: &mut World, object_id: i32, in_room: bool)
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(pkt) = cp::RequestPartyMatchConfig::read(body) else {
         return;
     };
@@ -279,10 +267,9 @@ fn send_room_list(world: &World, player: i32, filter: RoomLevelFilter, location:
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_party_match_list(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(pkt) = cp::RequestPartyMatchList::read(body) else {
         return;
     };
@@ -348,10 +335,9 @@ fn sanitize_title(raw: &str) -> String {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_exit_waiting_room(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     world.matching_rooms.remove_from_waiting_list(player);
 }
 
@@ -360,10 +346,9 @@ pub(crate) fn handle_exit_waiting_room(world: &mut World, client_id: u32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_list_waiting_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(pkt) = cp::RequestListPartyMatchingWaitingRoom::read(body) else {
         return;
     };
@@ -584,10 +569,9 @@ fn disband(world: &mut World, room_id: i32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_party_match_detail(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(pkt) = cp::RequestPartyMatchDetail::read(body) else {
         return;
     };
@@ -617,10 +601,9 @@ pub(crate) fn handle_request_party_match_detail(world: &mut World, client_id: u3
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_oust_from_party_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(target) = commons::network::PacketReader::new(body).read_i32() else {
         return;
     };
@@ -665,10 +648,9 @@ pub(crate) fn handle_oust_from_party_room(world: &mut World, client_id: u32, bod
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_dismiss_party_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     // Body is `(roomId, unused)` — Java reads and discards the second int.
     let Some(room_id) = commons::network::PacketReader::new(body).read_i32() else {
         return;
@@ -687,10 +669,9 @@ pub(crate) fn handle_dismiss_party_room(world: &mut World, client_id: u32, body:
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_withdraw_party_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(packet_room) = commons::network::PacketReader::new(body).read_i32() else {
         return;
     };
@@ -713,10 +694,9 @@ pub(crate) fn handle_withdraw_party_room(world: &mut World, client_id: u32, body
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = commons::network::PacketReader::new(body).read_string() else {
         return;
     };
@@ -763,10 +743,9 @@ pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body
 }
 
 pub(crate) fn handle_answer_join_party_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(answer) = commons::network::PacketReader::new(body).read_i32() else {
         return;
     };

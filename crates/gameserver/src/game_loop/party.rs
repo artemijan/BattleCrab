@@ -16,7 +16,7 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::helpers::{broadcast_to_others, client_for_player};
+use super::helpers::broadcast_to_others;
 
 /// `Player.REQUEST_TIMEOUT` (15 s) in ticks — the `_pendingInvitation`
 /// expiry and the friend-invite request timeout.
@@ -108,19 +108,11 @@ fn summon_views(
 }
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm_to_player(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send_to_player(
-        world,
-        object_id,
-        server_packets::system_message_with(message_id, params),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 /// `Party.broadcastPacket` — every member, or all but `exclude`.
@@ -405,10 +397,9 @@ fn drop_party_if_unborn(world: &mut World, party_id: u32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(requestor) = world.player_oid(client_id) else {
         return;
     };
-    let requestor = session.player_object_id();
     let Some(pkt) = cp::RequestJoinParty::read(body) else {
         return;
     };
@@ -558,10 +549,9 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_answer_join_party(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let response = cp::read_answer(body).unwrap_or(0);
 
     let Some(req) = world
@@ -740,10 +730,9 @@ pub(crate) enum LeaveType {
 }
 
 pub(crate) fn handle_request_withdrawal_party(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() {
         remove_party_member(world, party_id, player, LeaveType::Left);
     }
@@ -753,10 +742,9 @@ pub(crate) fn handle_request_withdrawal_party(world: &mut World, client_id: u32)
 }
 
 pub(crate) fn handle_request_oust_party_member(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = cp::read_name(body) else {
         return;
     };
@@ -781,10 +769,9 @@ pub(crate) fn handle_request_oust_party_member(world: &mut World, client_id: u32
 }
 
 pub(crate) fn handle_request_change_party_leader(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = cp::read_name(body) else {
         return;
     };
@@ -999,10 +986,9 @@ pub(crate) fn handle_request_party_loot_modification(
     client_id: u32,
     body: &[u8],
 ) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(rule) = cp::read_answer(body).and_then(LootRule::from_id) else {
         return;
     };
@@ -1044,10 +1030,9 @@ pub(crate) fn handle_answer_party_loot_modification(
     client_id: u32,
     body: &[u8],
 ) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let answer = cp::read_answer(body).unwrap_or(0);
     let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else {
         return;

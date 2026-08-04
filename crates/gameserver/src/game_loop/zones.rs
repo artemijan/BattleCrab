@@ -260,14 +260,7 @@ pub(crate) fn dismount_for_siege(world: &mut World, object_id: i32) {
 /// standing in the castle's zone gain/lose the in-siege crown + attackable icon
 /// the moment the siege flips (they never crossed a zone boundary themselves).
 pub(crate) fn refresh_siege_zone_for_all(world: &mut World) {
-    let players: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let players: Vec<i32> = world.in_game_player_oids().collect();
     for oid in players {
         refresh_siege_zone_flag(world, oid);
     }

@@ -2423,10 +2423,9 @@ pub(crate) fn notify_item_pickup(world: &mut World, client_id: u32, player: i32,
 /// fires the quest event with **no NPC** (this is Java's `OnPlayerBypass`
 /// path — the tutorial window has no folk NPC behind it).
 pub(crate) fn handle_tutorial_bypass(world: &mut World, client_id: u32, bypass: &str) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let bypass = bypass.trim();
     if bypass == "tutorial_close" {
         if let Some(cs) = world.clients.get(&client_id) {
@@ -2490,10 +2489,9 @@ pub(crate) fn handle_quest_timer(
 /// `RequestQuestList` (0x62, G33): the client opened its quest journal — resend
 /// the `QuestList` (Java `player.sendPacket(new QuestList(player))`). Empty body.
 pub(crate) fn handle_request_quest_list(world: &World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(quests) = world.objects.get_component::<Quests>(&player) else {
         return;
     };
@@ -2507,10 +2505,9 @@ pub(crate) fn handle_request_quest_abort(world: &mut World, client_id: u32, body
     let Some(pkt) = crate::network::client_packets::RequestQuestAbort::read(body) else {
         return;
     };
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let registry = world.quests.clone();
     let Some(script) = registry.by_id(pkt.quest_id) else {
         return;

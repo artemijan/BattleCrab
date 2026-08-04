@@ -12,10 +12,7 @@ use crate::model::Player;
 use crate::model::components::TargetRef;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
-
-use super::helpers::client_for_player;
 
 /// Java `RecoGiveTask` initial delay: 2 h (`scheduleAtFixedRate(…, 7_200_000,
 /// …)`), in 100 ms ticks.
@@ -29,19 +26,11 @@ fn clamp_reco(value: i32) -> i32 {
 }
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send_to_player(
-        world,
-        object_id,
-        server_packets::system_message_with(message_id, params),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 /// Java `Player.updateUserInfo()` — a fresh `UserInfo` to the player themselves
@@ -72,10 +61,9 @@ fn send_ex_vote(world: &World, object_id: i32) {
 
 /// Port of `clientpackets/RequestVoteNew` — recommend the targeted player.
 pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(target_id) = PacketReader::new(body).read_i32() else {
         return;
     };
@@ -302,14 +290,7 @@ pub(crate) fn reset_recommends(world: &mut World) {
 
     // Online players: `setRecomLeft(0)`, `setRecomHave(rec_have - 20)`, then
     // ExVoteSystemInfo + broadcastUserInfo.
-    let online: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let online: Vec<i32> = world.in_game_player_oids().collect();
     for oid in online {
         if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
             p.rec_left = 0;

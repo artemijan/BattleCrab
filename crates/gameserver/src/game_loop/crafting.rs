@@ -89,9 +89,7 @@ fn send_to_client(world: &World, client_id: u32, packet: Vec<u8>) {
 }
 
 fn send_to_player(world: &World, oid: i32, packet: Vec<u8>) {
-    if let Some(cid) = super::helpers::client_for_player(world, oid) {
-        send_to_client(world, cid, packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, oid, packet);
 }
 
 fn vitals(world: &World, oid: i32) -> Option<(f64, i32, f64)> {

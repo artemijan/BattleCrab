@@ -878,11 +878,9 @@ fn npc_id_of(world: &World, npc_oid: i32) -> i32 {
 }
 
 fn send_sm(world: &World, client_id: u32, sm_id: i16) {
-    send_pkt(world, client_id, sp::system_message_with(sm_id, &[]));
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, sm_id, &[]);
 }
 
 fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    crate::game_loop::helpers::send_to_client(world, client_id, pkt);
 }

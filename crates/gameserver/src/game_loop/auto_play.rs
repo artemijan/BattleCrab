@@ -165,12 +165,7 @@ pub(crate) fn tick(world: &mut World) {
         return;
     }
     let active: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|oid| settings(world, *oid).is_some_and(|s| s.active))
         .collect();
     for player_oid in active {

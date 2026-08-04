@@ -1039,9 +1039,7 @@ pub(super) fn creatures_in_range(
 
 /// Send a bare `SystemMessage(id)` to one client.
 pub(super) fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(message_id, &[]));
-    }
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }
 
 /// Java `Player.sendMessage(String)` — a bare `$s1` system message.

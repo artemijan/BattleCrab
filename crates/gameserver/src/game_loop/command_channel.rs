@@ -23,7 +23,6 @@ use crate::network::server_packets::{self, PartyMemberInfoView, SmParam, sm_ids}
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::helpers::client_for_player;
 use super::party::{REQUEST_TIMEOUT_TICKS, broadcast_to_party, install_request};
 
 /// `RequestExAskJoinMPCC.askJoinMPCC`'s right-to-form constants: clan level
@@ -35,17 +34,11 @@ const FORMING_CLAN_LEVEL: i32 = 5;
 const FORMING_PLEDGE_CLASS: u8 = 5;
 
 fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send_to(
-        world,
-        object_id,
-        server_packets::system_message_with(message_id, params),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 /// Java `Player.sendMessage` — the plain-text `$s1` system message.
@@ -164,10 +157,9 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
     let Some(pkt) = cp::RequestExAskJoinMpcc::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(requestor) = world.player_oid(client_id) else {
         return;
     };
-    let requestor = session.player_object_id();
     let Some((_, target)) = super::party::find_player_by_name(world, &pkt.name) else {
         return;
     };
@@ -345,10 +337,9 @@ pub(crate) fn handle_request_ex_accept_join_mpcc(world: &mut World, client_id: u
     let Some(pkt) = cp::RequestExAcceptJoinMpcc::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(answerer) = world.player_oid(client_id) else {
         return;
     };
-    let answerer = session.player_object_id();
     let Some(req) = world
         .objects
         .get_component::<PendingRequest>(&answerer)
@@ -482,10 +473,9 @@ pub(crate) fn handle_request_ex_oust_from_mpcc(world: &mut World, client_id: u32
     let Some(pkt) = cp::RequestExOustFromMpcc::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
 
     // Java's single compound guard; any miss → SM 50.
     let target = super::party::find_player_by_name(world, &pkt.name).map(|(_, oid)| oid);
@@ -975,10 +965,9 @@ pub(crate) fn handle_request_ex_manage_mpcc_room(world: &mut World, client_id: u
     let Some(pkt) = cp::RequestExManageMpccRoom::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let leads = cc_room_of(world, player)
         .filter(|&id| id == pkt.room_id)
         .and_then(|id| world.matching_rooms.get(id))
@@ -1015,10 +1004,9 @@ pub(crate) fn handle_request_ex_join_mpcc_room(world: &mut World, client_id: u32
     let Some(pkt) = cp::RequestExJoinMpccRoom::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if world.matching_rooms.room_id_of(player).is_some() {
         return;
     }
@@ -1039,10 +1027,9 @@ pub(crate) fn handle_request_ex_oust_from_mpcc_room(
     let Some(pkt) = cp::RequestExOustFromMpccRoom::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(room_id) = cc_room_of(world, player).filter(|&id| {
         world
             .matching_rooms
@@ -1063,10 +1050,9 @@ pub(crate) fn handle_request_ex_oust_from_mpcc_room(
 }
 
 pub(crate) fn handle_request_ex_dismiss_mpcc_room(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if let Some(room_id) = cc_room_of(world, player).filter(|&id| {
         world
             .matching_rooms
@@ -1078,20 +1064,18 @@ pub(crate) fn handle_request_ex_dismiss_mpcc_room(world: &mut World, client_id: 
 }
 
 pub(crate) fn handle_request_ex_withdraw_mpcc_room(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if let Some(room_id) = cc_room_of(world, player) {
         cc_room_remove_member(world, room_id, player, false);
     }
 }
 
 pub(crate) fn handle_request_ex_mpcc_partymaster_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(room_id) = cc_room_of(world, player) else {
         return;
     };

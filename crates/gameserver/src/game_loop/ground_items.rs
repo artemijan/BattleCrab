@@ -10,7 +10,6 @@ use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, GroundItemView};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::{World, region_of};
 
 /// `ItemTemplate.TYPE2_QUEST` — the `type2` value quest-typed templates carry.
@@ -303,10 +302,9 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     let Some(pkt) = cp::RequestDropItem::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player_oid) = world.player_oid(client_id) else {
         return;
     };
-    let player_oid = session.player_object_id();
     // `(player == null) || player.isDead()`.
     if world
         .objects

@@ -30,10 +30,9 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     let Some(pkt) = cp::MoveBackwardToLocation::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     if world
         .objects
         .get_component::<crate::model::Player>(&object_id)
@@ -325,10 +324,9 @@ fn slide_to(
 /// player's own current position, so nothing moves and no zone boundary is
 /// crossed.
 pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
         return;
     };
@@ -353,10 +351,9 @@ pub(crate) fn handle_ex_send_selected_quest_zone_id(
     let Some(quest_zone_id) = cp::read_selected_quest_zone_id(ex_body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     if let Some(player) = world.objects.get_component_mut::<Player>(&object_id) {
         player.quest_zone_id = quest_zone_id;
     }
@@ -793,10 +790,9 @@ pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body
     else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
 
     world.objects.remove_component::<Movement>(&object_id);
     world.objects.remove_component::<PathWait>(&object_id);

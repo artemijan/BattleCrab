@@ -260,14 +260,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
         return;
     };
     let requested = args.get(1).and_then(|s| s.parse::<i64>().ok()).unwrap_or(1);
-    let players: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let players: Vec<i32> = world.in_game_player_oids().collect();
     let owned = players.into_iter().find_map(|oid| {
         let inv = world.objects.get_component::<Inventory>(&oid)?;
         let stack = inv.items().iter().find(|it| it.object_id == item_oid)?;

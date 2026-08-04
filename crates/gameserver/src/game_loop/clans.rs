@@ -25,9 +25,7 @@ use crate::world::World;
 use super::helpers::client_for_player;
 
 fn send_sm(world: &World, client_id: u32, id: i16) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::system_message(id));
-    }
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, id, &[]);
 }
 
 /// Wall-clock millis (Java `System.currentTimeMillis()`).
@@ -954,10 +952,9 @@ pub(crate) fn handle_request_pledge_recruit_info(world: &World, client_id: u32, 
 /// CLAN_REGISTRATION=2, UNKNOWN=3, WAITING=4 (a clanless player with a
 /// pending application to any clan).
 pub(crate) fn handle_request_pledge_recruit_apply_info(world: &World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
@@ -1117,9 +1114,7 @@ const CLAN_DISSOLVE_DELAY_MS: i64 = 7 * 86_400_000;
 const MS_PER_TICK: i64 = 100;
 
 pub(crate) fn send_sm_with(world: &World, oid: i32, id: i16, params: &[SmParam]) {
-    if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::system_message_with(id, params));
-    }
+    crate::game_loop::helpers::send_sm_to_player(world, oid, id, params);
 }
 
 pub(crate) fn send_to_member(world: &World, oid: i32, pkt: Vec<u8>) {
@@ -1277,10 +1272,9 @@ fn check_clan_join_condition(
 /// then parks the invite in the `PendingRequest` slot and puts `AskJoinPledge`
 /// on the target's screen.
 pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(body);
     let Some(target_oid) = r.read_i32() else {
         return;
@@ -1371,10 +1365,9 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
 /// `AskJoinPledge` dialog. Decline notifies both sides; accept re-checks the
 /// join condition and runs `Clan.addClanMember` (roster + packets + skills).
 pub(crate) fn handle_request_answer_join_pledge(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let answer = PacketReader::new(body).read_i32().unwrap_or(0);
 
     let Some(req) = world
@@ -1651,10 +1644,9 @@ fn remove_clan_member(world: &mut World, clan_id: i32, member_oid: i32, clan_joi
 /// `RequestWithdrawalPledge` (0x28): a member (never the leader) leaves their
 /// clan, taking the 1-day rejoin penalty.
 pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
@@ -1721,10 +1713,9 @@ pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32
 /// member by name. Both sides take a 1-day penalty: the oustee cannot join a
 /// clan, the clan cannot invite (`setCharPenaltyExpiryTime`).
 pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(target_name) = PacketReader::new(body).read_string() else {
         return;
     };
@@ -2168,10 +2159,9 @@ pub(crate) fn handle_request_pledge_skill_info(
     skill_id: i32,
     skill_level: i32,
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
@@ -2207,10 +2197,9 @@ pub(crate) fn handle_learn_pledge_skill(
     skill_id: i32,
     skill_level: i32,
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
@@ -2295,10 +2284,9 @@ fn broadcast_clan_status(world: &World, clan_id: i32) {
 /// edited mask (`Clan.setRankPrivs`) — rank 9 (academy) clamped to the
 /// bestowable subset — and refreshes online members holding that rank.
 pub(crate) fn handle_request_pledge_power(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(body);
     let Some(rank) = r.read_i32() else { return };
     let Some(action) = r.read_i32() else { return };
@@ -2370,10 +2358,9 @@ fn set_rank_privs(world: &mut World, clan_id: i32, rank: i32, privs: i32) {
 /// `RequestPledgePowerGradeList` (ex 0x13): the rank list — Java sends all 9
 /// initialized ranks regardless of stored rows.
 pub(crate) fn handle_request_pledge_power_grade_list(world: &World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
@@ -2412,10 +2399,9 @@ pub(crate) fn handle_request_pledge_member_power_info(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(_unk) = r.read_i32() else { return };
     let Some(name) = r.read_string() else { return };
@@ -2444,10 +2430,9 @@ pub(crate) fn handle_request_pledge_member_power_info(
 
 /// `RequestPledgeMemberInfo` (ex 0x16): the member-detail pane.
 pub(crate) fn handle_request_pledge_member_info(world: &World, client_id: u32, ex_body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(_unk) = r.read_i32() else { return };
     let Some(name) = r.read_string() else { return };
@@ -2494,10 +2479,9 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(name) = r.read_string() else { return };
     let Some(grade) = r.read_i32() else { return };
@@ -2574,10 +2558,9 @@ pub(crate) fn handle_request_pledge_reorganize_member(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(is_selected) = r.read_i32() else {
         return;
@@ -2916,10 +2899,9 @@ fn send_war_list(world: &World, client_id: u32, clan_id: i32, tab: i32) {
 
 /// `RequestPledgeWarList` (ex 0x17).
 pub(crate) fn handle_request_pledge_war_list(world: &World, client_id: u32, ex_body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let _unk = r.read_i32();
     let tab = r.read_i32().unwrap_or(0);
@@ -2936,10 +2918,9 @@ pub(crate) fn handle_request_pledge_war_list(world: &World, client_id: u32, ex_b
 /// guard chain, the redeclare-makes-mutual branch, then a fresh
 /// BLOOD_DECLARATION war with the 7-day answer window.
 pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
@@ -3136,10 +3117,9 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
 /// `RequestStopPledgeWar` (0x05): a mutual cease-fire — costs 500 reputation,
 /// blocked while any clan member is in combat.
 pub(crate) fn handle_request_stop_pledge_war(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
@@ -3225,10 +3205,9 @@ pub(crate) fn handle_request_stop_pledge_war(world: &mut World, client_id: u32, 
 /// mutual war — 500 reputation, the other side wins, the war ends and is torn
 /// down moments later.
 pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
@@ -3961,10 +3940,9 @@ fn check_ally_join_condition(world: &World, requestor_oid: i32, target_oid: i32)
 
 /// `RequestJoinAlly` (0x8C): the alliance leader invites another clan's leader.
 pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(target_oid) = PacketReader::new(body).read_i32() else {
         return;
     };
@@ -4039,10 +4017,9 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
 
 /// `RequestAnswerJoinAlly` (0x8D): the invited clan leader answered.
 pub(crate) fn handle_request_answer_join_ally(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let answer = PacketReader::new(body).read_i32().unwrap_or(0);
     let Some(req) = world
         .objects
@@ -4123,10 +4100,9 @@ pub(crate) fn handle_request_answer_join_ally(world: &mut World, client_id: u32,
 
 /// `AllyLeave` (0x8E): a member clan's leader withdraws their clan.
 pub(crate) fn handle_ally_leave(world: &mut World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
@@ -4184,10 +4160,9 @@ pub(crate) fn handle_ally_leave(world: &mut World, client_id: u32) {
 
 /// `AllyDismiss` (0x8F): the alliance leader expels a member clan by name.
 pub(crate) fn handle_ally_dismiss(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
@@ -4270,10 +4245,9 @@ pub(crate) fn handle_ally_dismiss(world: &mut World, client_id: u32, body: &[u8]
 
 /// `RequestDismissAlly` (0x90): the alliance leader dissolves the whole ally.
 pub(crate) fn handle_request_dismiss_ally(world: &mut World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let is_leader = world
         .objects
         .get_component::<Player>(&player)
@@ -4292,10 +4266,9 @@ pub(crate) fn handle_request_dismiss_ally(world: &mut World, client_id: u32) {
 
 /// `RequestAllyInfo` (0x2E): the ally window (`AllianceInfo`) + the SM cascade.
 pub(crate) fn handle_request_ally_info(world: &World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
@@ -4874,10 +4847,9 @@ fn refresh_clan_crest_on_members(world: &mut World, clan_id: i32) {
 
 /// `RequestSetPledgeCrest` (0x09): the small (≤256-byte) clan crest.
 pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(body);
     let Some(length) = r.read_i32() else { return };
     if length > 256 {
@@ -4977,10 +4949,9 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(length) = r.read_i32() else { return };
     if length > 2176 {
@@ -5113,10 +5084,9 @@ pub(crate) fn handle_request_ex_pledge_crest_large(world: &World, client_id: u32
 /// `RequestSetAllyCrest` (0x91): the alliance crest (≤192 bytes) — only the
 /// alliance leader (the leader-clan's own clan leader) may set it.
 pub(crate) fn handle_request_set_ally_crest(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(body);
     let Some(length) = r.read_i32() else { return };
     if length > 192 {
@@ -5377,10 +5347,9 @@ pub(crate) fn handle_request_pledge_recruit_board_access(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(apply_type) = r.read_i32() else {
         return;
@@ -5630,10 +5599,9 @@ pub(crate) fn handle_request_pledge_waiting_apply(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(karma) = r.read_i32() else { return };
     let Some(clan_id) = r.read_i32() else { return };
@@ -5677,10 +5645,9 @@ pub(crate) fn handle_request_pledge_waiting_apply(
 /// `RequestPledgeWaitingApplied` (ex 0xD8): a clanless player checks their
 /// own pending application.
 pub(crate) fn handle_request_pledge_waiting_applied(world: &World, client_id: u32) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if world
         .objects
         .get_component::<Player>(&player)
@@ -5721,10 +5688,9 @@ pub(crate) fn handle_request_pledge_waiting_applied(world: &World, client_id: u3
 
 /// `RequestPledgeWaitingList` (ex 0xD9): the clan's applicant queue.
 pub(crate) fn handle_request_pledge_waiting_list(world: &World, client_id: u32, ex_body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(clan_id) = PacketReader::new(ex_body).read_i32() else {
         return;
     };
@@ -5758,10 +5724,9 @@ fn send_waiting_list(world: &World, client_id: u32, clan_id: i32) {
 /// `RequestPledgeWaitingUser` (ex 0xDA): one applicant's detail, or the whole
 /// queue when that player has no application (Java's own fallback).
 pub(crate) fn handle_request_pledge_waiting_user(world: &World, client_id: u32, ex_body: &[u8]) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(clan_id) = r.read_i32() else { return };
     let Some(player_id) = r.read_i32() else {
@@ -5800,10 +5765,9 @@ pub(crate) fn handle_request_pledge_waiting_user_accept(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(accept) = r.read_i32() else { return };
     let Some(player_id) = r.read_i32() else {
@@ -5916,10 +5880,9 @@ pub(crate) fn handle_request_pledge_draft_list_apply(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = PacketReader::new(ex_body);
     let Some(apply_type) = r.read_i32() else {
         return;
@@ -5984,10 +5947,9 @@ pub(crate) fn handle_request_pledge_sign_in_for_open_joining_method(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let Some(clan_id) = PacketReader::new(ex_body).read_i32() else {
         return;
     };

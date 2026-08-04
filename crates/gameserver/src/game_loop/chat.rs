@@ -33,10 +33,9 @@ const ITEM_LINK_MARKER: char = '\u{8}';
 const GENERAL_CHAT_RANGE: f64 = 1250.0;
 
 pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(sender_oid) = world.player_oid(client_id) else {
         return;
     };
-    let sender_oid = session.player_object_id();
     let Some(pkt) = cp::Say2::read(body) else {
         return;
     };
@@ -439,9 +438,7 @@ fn broadcast_snoop(
 }
 
 fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(message_id, &[]));
-    }
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }
 
 // ---------------------------------------------------------------------------
@@ -567,12 +564,7 @@ pub(crate) fn handle_request_item_link(world: &World, client_id: u32, body: &[u8
 /// Java too, and its `_published` flag died with the `Item` instance.
 fn find_published_item(world: &World, object_id: i32) -> Option<(ItemInstance, bool)> {
     let owners = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .chain(world.offline_traders.keys().copied());
     for owner in owners {
         let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {

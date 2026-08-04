@@ -14,6 +14,59 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
     })
 }
 
+/// Send one packet to a connected client — Java `GameClient.sendPacket`.
+///
+/// A direct `clients` lookup. Prefer this over [`send_to_player`] whenever the
+/// handler already holds the client id, which packet handlers always do.
+pub(crate) fn send_to_client(world: &World, client_id: u32, packet: Vec<u8>) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(packet);
+    }
+}
+
+/// Send one packet to the client driving `player_object_id` — Java
+/// `Player.sendPacket`. No-op when that player is offline.
+///
+/// Keyed by **object id**, so it pays a linear `clients` scan through
+/// [`client_for_player`]. Use [`send_to_client`] instead when the client id is
+/// already in hand; only reach for this when all you have is the object id
+/// (scheduled tasks, effects resolved against a target).
+pub(crate) fn send_to_player(world: &World, player_object_id: i32, packet: Vec<u8>) {
+    if let Some(cid) = client_for_player(world, player_object_id) {
+        send_to_client(world, cid, packet);
+    }
+}
+
+/// `SystemMessage` to a connected client. Pass `&[]` for a message with no
+/// substitution parameters.
+pub(crate) fn send_sm_to_client(
+    world: &World,
+    client_id: u32,
+    message_id: i16,
+    params: &[server_packets::SmParam],
+) {
+    send_to_client(
+        world,
+        client_id,
+        server_packets::system_message_with(message_id, params),
+    );
+}
+
+/// `SystemMessage` to a player by object id — the scanning counterpart of
+/// [`send_sm_to_client`]. Pass `&[]` when the message takes no parameters.
+pub(crate) fn send_sm_to_player(
+    world: &World,
+    player_object_id: i32,
+    message_id: i16,
+    params: &[server_packets::SmParam],
+) {
+    send_to_player(
+        world,
+        player_object_id,
+        server_packets::system_message_with(message_id, params),
+    );
+}
+
 /// Java `Player.sendInventoryUpdate`: an `InventoryUpdate` never travels alone —
 /// it's always followed by the adena counter (`ExAdenaInvenCount`) and the
 /// weight bar (`ExUserInfoInvenWeight`), so any inventory change refreshes both.

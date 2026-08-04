@@ -4216,11 +4216,7 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
 
 /// Send a bare (no-argument) system message to `player_oid`, if online.
 fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
-    if let Some(client_id) = client_for_player(world, player_oid)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(sm_id, &[]));
-    }
+    crate::game_loop::helpers::send_sm_to_player(world, player_oid, sm_id, &[]);
 }
 
 /// `Creature.broadcastSocialAction` — a playable's emote goes to everyone in
@@ -4236,11 +4232,7 @@ fn broadcast_social_action(world: &mut World, oid: i32, action_id: i32) {
 
 /// Send a system message with parameters to `player_oid`, if online.
 fn send_sm_with(world: &World, player_oid: i32, sm_id: i16, params: &[server_packets::SmParam]) {
-    if let Some(client_id) = client_for_player(world, player_oid)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(sm_id, params));
-    }
+    crate::game_loop::helpers::send_sm_to_player(world, player_oid, sm_id, params);
 }
 
 /// Resolve `Formulas.calcMagicSuccess`' inputs for a cast. `penalty` is the

@@ -24,7 +24,6 @@
 use crate::model::Player;
 use crate::model::components::{SkillBook, SkillEnchants};
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 use commons::network::PacketReader;
 
@@ -68,13 +67,6 @@ fn may_enchant(world: &World, object_id: i32) -> bool {
             .has_component::<crate::model::components::PrivateBuyStore>(&object_id)
 }
 
-fn player_oid(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id)? {
-        ClientSession::InGame(s) => Some(s.player_object_id()),
-        _ => None,
-    }
-}
-
 /// `RequestExEnchantSkillInfo` (ex 0x0E: `d skillId, h level, h sub`) — the
 /// window asking which routes a known skill can take → `ExEnchantSkillInfo`.
 pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u32, ex_body: &[u8]) {
@@ -84,7 +76,7 @@ pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u3
         return;
     };
     let (level, sub) = (level as i32, sub as i32);
-    let Some(object_id) = player_oid(world, client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
     if skill_id <= 0 || level <= 0 || sub < 0 || !may_enchant(world, object_id) {
@@ -182,7 +174,7 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
         return;
     };
     let (level, target_sub) = (level as i32, target_sub as i32);
-    let Some(object_id) = player_oid(world, client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
     if skill_id <= 0 || level <= 0 || target_sub < 0 || type_name(ty).is_none() {

@@ -12,7 +12,6 @@ use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids};
 use crate::network::trade;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::castle::{handle_tax_payment, npc_tax_rate as merchant_tax_rate};
@@ -107,10 +106,9 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     let Some(pkt) = cp::RequestBuyItem::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
 
     // The target must be a merchant within interaction distance.
     let target = world
@@ -269,10 +267,9 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     let Some(pkt) = cp::RequestSellItem::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
 
     let target = world
         .objects
@@ -421,10 +418,9 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
     let Some(pkt) = cp::RequestRefundItem::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
 
     let target = world
         .objects

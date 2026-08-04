@@ -8,7 +8,6 @@ pub(crate) mod effects;
 
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 
 /// Java `Player.removeSkill(id)` — take the skill out of the book **and** stop
@@ -46,10 +45,9 @@ pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: 
     if pkt.skill_id <= 0 || pkt.skill_level <= 0 {
         return;
     }
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     // Java looks up `(skillId, skillLevel, skillSubLevel)`; the Rust skill store
     // is keyed by `(id, level)` only (sub-level is always 0 in Interlude), so the
     // sub-level is validated in the reader but not used for the lookup.
@@ -101,10 +99,9 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     if pkt.acquire_type != cp::RequestAcquireSkill::CLASS {
         return;
     }
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
 
     let Some(player) = world
         .objects

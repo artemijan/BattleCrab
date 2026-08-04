@@ -26,10 +26,8 @@
 
 use crate::model::components::PartyRef;
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
-use crate::network::server_packets::{self, sm_ids};
+use crate::network::server_packets::sm_ids;
 use crate::world::World;
-
-use super::helpers::client_for_player;
 
 /// `CommonSkill.LUCKY` — the newbie "Lucky" skill that, under level 10,
 /// exempts a character from vitality consumption entirely.
@@ -243,19 +241,11 @@ pub(crate) fn kill_vitality_delta(
 // ---------------------------------------------------------------------------
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16) {
-    send_to_player(
-        world,
-        object_id,
-        server_packets::system_message_with(message_id, &[]),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, &[]);
 }
 
 /// The `PartySmallWindowUpdate` vitality piggyback (Java adds the
@@ -285,14 +275,7 @@ pub(crate) fn reset_vitality(world: &mut World, weekly: bool) {
         return;
     }
 
-    let online: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let online: Vec<i32> = world.in_game_player_oids().collect();
     for oid in online {
         let target = if weekly {
             MAX_VITALITY_POINTS

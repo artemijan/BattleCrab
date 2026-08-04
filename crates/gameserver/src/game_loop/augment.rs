@@ -33,9 +33,7 @@ fn player_of(world: &World, client_id: u32) -> Option<i32> {
 }
 
 fn send(world: &World, client_id: u32, packet: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_client(world, client_id, packet);
 }
 
 /// The item id of an inventory instance by object id.
@@ -390,5 +388,5 @@ pub(crate) fn handle_confirm_cancel_item(world: &mut World, client_id: u32, body
 }
 
 fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    send(world, client_id, sp::system_message_with(message_id, &[]));
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }

@@ -672,7 +672,5 @@ fn destination_slots(world: &World, recipient: i32, moving: &[(i32, i32, i64, i3
 }
 
 fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::system_message_with(message_id, &[]));
-    }
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }

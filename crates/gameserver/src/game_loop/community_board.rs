@@ -47,10 +47,9 @@ const MAX_SCHEMES: usize = 5;
 /// Entry point for `RequestShowBoard` and every `_bbs*` bypass — port of
 /// `CommunityBoardHandler.handleParseCommand` + `HomeBoard.parseCommunityBoardCommand`.
 pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &str) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
 
     if !world.cfg.community_board.enabled {
         if let Some(cs) = world.clients.get(&client_id) {

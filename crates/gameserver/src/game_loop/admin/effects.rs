@@ -345,12 +345,7 @@ pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32
 
 fn players_in_radius(world: &World, origin: &Position, radius: f64) -> Vec<i32> {
     world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|oid| {
             world
                 .objects

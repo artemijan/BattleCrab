@@ -8,7 +8,6 @@ use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
 use crate::network::server_packets::{self, SmParam, sm_ids};
-use crate::session::ClientSession;
 use crate::world::World;
 
 /// The stack-or-create core of `Player.addItem`: merge into an existing
@@ -111,10 +110,9 @@ pub(crate) fn add_inventory_item_tracked(
 /// in this port blocks the inventory yet (set only by trades/some skills, both
 /// unported).
 pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     let max_load = crate::game_loop::weight::max_load(world, object_id);
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
@@ -140,10 +138,9 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::UseItem::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     // `UseItem.runImpl`: `hasBlockActions() || isControlBlocked() ||
     // isAlikeDead()` refuses the use outright. (Death is gated further in.)
     if crate::game_loop::abnormal::is_blocked_from_actions(world, object_id)
@@ -293,10 +290,9 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     let Some(body_part) = cp::read_char_slot(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     // "Prevent of unequipping a cursed weapon." Java tests the *requested slot*
     // (`_slot == SLOT_LR_HAND`), not the item, so the two-hand slot is frozen
     // outright while cursed. (`isCombatFlagEquipped` shares the branch; the
@@ -329,10 +325,9 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     let Some(pkt) = cp::RequestDestroyItem::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     if pkt.count <= 0 {
         return;
     }
@@ -440,10 +435,9 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     let Some(pkt) = cp::RequestDestroyItem::read(body) else {
         return;
     }; // same layout (objectId, count)
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player_oid) = world.player_oid(client_id) else {
         return;
     };
-    let player_oid = session.player_object_id();
     if pkt.count <= 0 {
         return;
     }
@@ -562,10 +556,9 @@ pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: 
     let Some(pkt) = cp::RequestSaveInventoryOrder::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
@@ -1043,10 +1036,9 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
     let enable = i32::from_le_bytes(ex_body[4..8].try_into().unwrap()) == 1;
     let shot_type = i32::from_le_bytes(ex_body[8..12].try_into().unwrap());
 
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     // `!player.isDead()` — a dead player can't toggle shots.
     if world
         .objects

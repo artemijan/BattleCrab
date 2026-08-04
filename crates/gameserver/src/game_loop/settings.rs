@@ -20,10 +20,9 @@ pub(crate) fn handle_save_key_mapping(world: &mut World, client_id: u32, body: &
     let Some(bytes) = r.read_bytes(size as usize) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     // Java joins the bytes with a tab (`SPLIT_VAR`) into one variable string.
     let encoded = bytes
         .iter()

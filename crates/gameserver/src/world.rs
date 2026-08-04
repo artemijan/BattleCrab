@@ -593,6 +593,35 @@ impl World {
         self.pc_cafe_seq
     }
 
+    /// The player object id behind `client_id`, or `None` when that client has
+    /// no session or has not reached `InGame` — Java's `GameClient.getPlayer()`
+    /// null check, which nearly every packet handler opens with.
+    ///
+    /// Handlers spell this `let Some(oid) = world.player_oid(client_id) else {
+    /// return; };`, matching Java's "no player, no packet" bail.
+    pub fn player_oid(&self, client_id: u32) -> Option<i32> {
+        match self.clients.get(&client_id)? {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        }
+    }
+
+    /// Object ids of every in-game player — Java `World.getPlayers()`.
+    ///
+    /// Lazy on purpose: callers that only iterate pay no allocation. Anything
+    /// needing `&mut World` inside the loop must `.collect::<Vec<_>>()` first,
+    /// since the iterator borrows `self`.
+    ///
+    /// Iteration order follows the `clients` hash map and is therefore
+    /// **unspecified** — sort at the call site when order is observable (as
+    /// the admin character list does).
+    pub fn in_game_player_oids(&self) -> impl Iterator<Item = i32> + '_ {
+        self.clients.values().filter_map(|cs| match cs {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+    }
+
     /// Object ids of every NPC whose region cell lies in `region`'s 3×3
     /// surrounding block (the NPC half of Java's
     /// `World.forEachVisibleObject`), via the `npc_regions` index.
