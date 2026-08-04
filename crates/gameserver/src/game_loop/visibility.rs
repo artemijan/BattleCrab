@@ -20,19 +20,13 @@ use super::helpers::client_for_player;
 /// observer's screen until the next `MoveToLocation` broadcast).
 fn describe_state(
     observer: &ClientSession,
-    p: &Player,
+    object_id: i32,
     pos: &Position,
     movement: Option<&Movement>,
 ) {
     if let Some(Movement(m)) = movement {
         observer.send(server_packets::move_to_location(
-            p.object_id,
-            m.dest_x,
-            m.dest_y,
-            m.dest_z,
-            pos.x,
-            pos.y,
-            pos.z,
+            object_id, m.dest_x, m.dest_y, m.dest_z, pos.x, pos.y, pos.z,
         ));
     }
 }
@@ -50,6 +44,11 @@ pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
     else {
         return;
     };
+    // One player, many observers — build the packet once (see
+    // `char_info_bytes`) and refcount it out.
+    let Some(packet) = char_info_bytes(world, player_id) else {
+        return;
+    };
     for other_id in world.in_game_players_visible_from(from.0) {
         if other_id == player_id {
             continue;
@@ -61,7 +60,7 @@ pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
         else {
             continue;
         };
-        send_char_info(world, cs, player_id);
+        send_char_info_with(world, cs, player_id, &packet);
     }
 }
 
@@ -69,6 +68,43 @@ pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
 /// A GM with `//hide` on (`AdminFlags.hidden`) is not described to others —
 /// Java's `isInvisible()` filter in `Creature.broadcastInfo`/knownlist.
 fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
+    let Some(packet) = char_info_bytes(world, player_id) else {
+        return;
+    };
+    send_char_info_with(world, observer, player_id, &packet);
+}
+
+/// The `CharInfo` bytes describing one player.
+///
+/// These are the same for every observer, so a loop introducing one player to
+/// several of them builds this **once** — the packet is the biggest the server
+/// sends, and rebuilding it per observer meant re-reading the whole component
+/// set, the abnormal visuals and the party state each time. The observer-
+/// dependent parts (the hidden-GM filter, `RelationChanged`, the in-flight move)
+/// live in [`send_char_info_with`].
+fn char_info_bytes(world: &World, player_id: i32) -> Option<bytes::Bytes> {
+    let v = crate::model::PlayerView::of(&world.objects, player_id)?;
+    let cubics = world
+        .objects
+        .get_component::<super::cubic::Cubics>(&player_id)
+        .map(|c| c.ids())
+        .unwrap_or_default();
+    Some(bytes::Bytes::from(server_packets::char_info(
+        &v,
+        &super::abnormal::visual_effects(world, player_id),
+        &cubics,
+        &super::party::char_info_state(world, player_id),
+    )))
+}
+
+/// Deliver a prebuilt [`char_info_bytes`] to one observer, with the parts that
+/// genuinely differ per observer.
+fn send_char_info_with(
+    world: &World,
+    observer: &ClientSession,
+    player_id: i32,
+    packet: &bytes::Bytes,
+) {
     if world
         .objects
         .get_component::<crate::model::components::AdminFlags>(&player_id)
@@ -89,20 +125,7 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
             return;
         }
     }
-    let Some(v) = crate::model::PlayerView::of(&world.objects, player_id) else {
-        return;
-    };
-    let cubics = world
-        .objects
-        .get_component::<super::cubic::Cubics>(&player_id)
-        .map(|c| c.ids())
-        .unwrap_or_default();
-    observer.send(server_packets::char_info(
-        &v,
-        &super::abnormal::visual_effects(world, player_id),
-        &cubics,
-        &super::party::char_info_state(world, player_id),
-    ));
+    observer.send(packet.clone());
     // Java `Player.sendInfo` pairs each CharInfo with a RelationChanged, so the
     // viewer learns the relation bits CharInfo can't carry — notably the
     // clan-leader crown (`RELATION_LEADER`). Without it a leader shows no crown
@@ -114,10 +137,13 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
             s.player_object_id(),
         ));
     }
+    let Some(pos) = world.objects.get_component::<Position>(&player_id) else {
+        return;
+    };
     describe_state(
         observer,
-        v.p,
-        v.pos,
+        player_id,
+        pos,
         world.objects.get_component::<Movement>(&player_id),
     );
 }
@@ -500,10 +526,24 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             }
         }
     }
+    // The mover is described to every observer that just gained sight of them,
+    // so their CharInfo is built once for the whole delta set. The reverse
+    // direction is one packet per newly-visible *other* player and cannot be
+    // shared. Built lazily: most region crossings produce no `appeared` delta.
+    let mut mover_info: Option<bytes::Bytes> = None;
     for (other_id, other_client, appeared) in deltas {
         if appeared {
             if let Some(cs) = world.clients.get(&other_client) {
-                send_char_info(world, cs, object_id);
+                let packet = match &mover_info {
+                    Some(p) => Some(p),
+                    None => {
+                        mover_info = char_info_bytes(world, object_id);
+                        mover_info.as_ref()
+                    }
+                };
+                if let Some(packet) = packet {
+                    send_char_info_with(world, cs, object_id, packet);
+                }
             }
             if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
                 send_char_info(world, cs, other_id);

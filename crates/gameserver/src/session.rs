@@ -458,3 +458,85 @@ impl<'a> IntoIterator for &'a ClientTable {
         self.iter()
     }
 }
+
+#[cfg(test)]
+mod client_table_tests {
+    use super::*;
+
+    fn in_game(client_id: u32, player_object_id: i32) -> ClientSession {
+        let (out, _rx) = tokio::sync::mpsc::unbounded_channel();
+        ClientSession::InGame(Session {
+            client_id,
+            out,
+            addr: "127.0.0.1:0".parse().unwrap(),
+            state: InGame {
+                account: String::new(),
+                session_key: SessionKey::new(0, 0, 0, 0),
+                player_object_id,
+                account_chars: Vec::new(),
+                pending_admin_confirm: None,
+            },
+        })
+    }
+
+    fn connecting(client_id: u32) -> ClientSession {
+        let (out, _rx) = tokio::sync::mpsc::unbounded_channel();
+        ClientSession::Connecting(Session::new(client_id, out, "127.0.0.1:0".parse().unwrap()))
+    }
+
+    /// The reverse index tracks in-game sessions and only in-game sessions —
+    /// a connection that has not reached `InGame` drives no player yet.
+    #[test]
+    fn indexes_in_game_sessions_and_clears_on_remove() {
+        let mut t = ClientTable::new();
+        t.insert(1, in_game(1, 100));
+        t.insert(2, connecting(2));
+        assert_eq!(t.client_of_player(100), Some(1));
+        assert_eq!(t.client_of_player(999), None);
+        assert_eq!(t.len(), 2);
+
+        t.remove(&1);
+        assert_eq!(
+            t.client_of_player(100),
+            None,
+            "index drops with the session"
+        );
+        assert!(t.get(&1).is_none());
+    }
+
+    /// A state transition on the same connection replaces the entry rather
+    /// than stranding the old player id.
+    #[test]
+    fn a_transition_on_one_connection_moves_the_index() {
+        let mut t = ClientTable::new();
+        t.insert(7, connecting(7));
+        assert_eq!(t.client_of_player(100), None);
+        t.insert(7, in_game(7, 100));
+        assert_eq!(t.client_of_player(100), Some(7));
+        // Back out of the world: the player id must not survive.
+        t.insert(7, connecting(7));
+        assert_eq!(t.client_of_player(100), None);
+    }
+
+    /// The relog race: the new connection registers before the dead one is
+    /// torn down. Cleaning up the *old* client must not delete the *live*
+    /// client's mapping, or the player becomes unreachable for the rest of
+    /// their session.
+    #[test]
+    fn tearing_down_a_replaced_connection_keeps_the_live_mapping() {
+        let mut t = ClientTable::new();
+        t.insert(1, in_game(1, 100)); // original connection
+        t.insert(2, in_game(2, 100)); // relog, same character
+        assert_eq!(t.client_of_player(100), Some(2));
+
+        t.remove(&1); // the old connection finally drops
+        assert_eq!(
+            t.client_of_player(100),
+            Some(2),
+            "the live connection keeps the mapping"
+        );
+
+        t.remove(&2);
+        assert_eq!(t.client_of_player(100), None);
+    }
+}
