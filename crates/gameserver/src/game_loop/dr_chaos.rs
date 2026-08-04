@@ -395,12 +395,7 @@ fn living_players_near(world: &World, oid: i32, range: f64) -> usize {
         return 0;
     };
     world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|p| {
             let alive = world
                 .objects

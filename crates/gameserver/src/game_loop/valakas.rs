@@ -690,12 +690,7 @@ fn players_in_lair_oids(world: &World) -> Vec<i32> {
         return Vec::new();
     };
     world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|oid| {
             world
                 .objects

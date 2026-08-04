@@ -171,14 +171,7 @@ pub(crate) fn finish_complete(world: &mut World, round: i32, db_rows: Vec<(i32, 
     // online (an online ticket may already have been flushed to the DB).
     let mut seen: std::collections::HashSet<i32> = std::collections::HashSet::new();
     let mut tickets: Vec<(i32, i32)> = Vec::new();
-    let online: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let online: Vec<i32> = world.in_game_player_oids().collect();
     for player in online {
         if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
             for it in inv.items() {
@@ -689,15 +682,9 @@ fn send_html(world: &World, client_id: u32, npc_oid: i32, content: String) {
 }
 
 fn send_sm(world: &World, client_id: u32, sm_id: i16) {
-    send_pkt(
-        world,
-        client_id,
-        server_packets::system_message_with(sm_id, &[]),
-    );
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, sm_id, &[]);
 }
 
 fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    crate::game_loop::helpers::send_to_client(world, client_id, pkt);
 }

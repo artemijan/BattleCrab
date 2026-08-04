@@ -289,8 +289,8 @@ fn sweep_group(
             if clan_id <= 0 {
                 vec![target_oid]
             } else {
-                in_game_players(world)
-                    .into_iter()
+                world
+                    .in_game_player_oids()
                     .filter(|&oid| {
                         world
                             .objects
@@ -403,7 +403,7 @@ fn sweep_dead_group(
 
     let mut out = Vec::new();
     let mut affected = 0;
-    for oid in in_game_players(world) {
+    for oid in world.in_game_player_oids() {
         if limit > 0 && affected >= limit {
             break;
         }
@@ -759,24 +759,13 @@ fn candidates(world: &World, centre_oid: i32) -> Vec<i32> {
         return Vec::new();
     };
     let mut out = world.npcs_visible_from(region);
-    out.extend(in_game_players(world).into_iter().filter(|oid| {
+    out.extend(world.in_game_player_oids().filter(|oid| {
         world
             .objects
             .get_component::<RegionCell>(oid)
             .is_some_and(|r| regions_adjacent(region, r.0))
     }));
     out
-}
-
-fn in_game_players(world: &World) -> Vec<i32> {
-    world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect()
 }
 
 fn is_dead(world: &World, oid: i32) -> bool {

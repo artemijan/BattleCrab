@@ -118,14 +118,7 @@ pub(crate) fn banish_others(world: &mut World, hall_id: i32) {
     else {
         return;
     };
-    let player_oids: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let player_oids: Vec<i32> = world.in_game_player_oids().collect();
     let mut targets = Vec::new();
     for oid in player_oids {
         let Some(pos) = world

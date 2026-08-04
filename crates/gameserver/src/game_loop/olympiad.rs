@@ -1265,11 +1265,7 @@ pub(crate) fn unregister(world: &mut World, object_id: i32) -> bool {
 }
 
 fn send_sm(world: &World, object_id: i32, sm_id: i16) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(sp::system_message_with(sm_id, &[]));
-    }
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, sm_id, &[]);
 }
 
 /// Send a system message with a single integer argument (the countdown seconds).

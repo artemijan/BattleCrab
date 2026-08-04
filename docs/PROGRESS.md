@@ -4890,3 +4890,102 @@ The whole page is now ported.
   a_slide_survives_the_clients_stale_position_report}`. The blink-guard test was
   verified by sabotage (drop the guard → the slide is reverted to 1000 and the
   assertion fires).
+
+---
+
+## Maintenance refactor — shared helpers + splitting the two giant functions
+
+Pure refactor, no behaviour change: `2973/2973` tests pass identically before
+and after, `cargo clippy --workspace --all-targets -- -D warnings` clean.
+Everything below was rejected or kept on the grounds of "does this change
+observable behaviour or cost?", not style.
+
+**Use these instead of hand-rolling them.**
+
+- `World::player_oid(client_id) -> Option<i32>` — the "no player, no packet"
+  bail every handler opens with (Java `GameClient.getPlayer()`). 122 handlers
+  had spelled out the 4-line `let Some(ClientSession::InGame(session)) =
+  world.clients.get(&cid) else { return; }; let oid =
+  session.player_object_id();` by hand.
+- `World::in_game_player_oids() -> impl Iterator<Item = i32>` — Java
+  `World.getPlayers()`. Returns an **iterator**, so callers that only iterate
+  allocate nothing; `.collect()` at the call site when you need `&mut World`
+  inside the loop. Iteration order is unspecified (hash map) — sort at the call
+  site if the order is observable.
+- `game_loop::helpers::{send_to_client, send_to_player, send_sm_to_client,
+  send_sm_to_player}` — 39 private copies across 21 modules collapsed onto
+  these. **The client-id and object-id pairs are deliberately separate
+  functions:** `clients.get` is a hash lookup while `client_for_player` is a
+  linear scan, so "unifying" them would silently turn ~20 O(1) sends into O(n).
+  Reach for the `_to_client` form whenever you already hold the client id.
+
+**Split functions.**
+
+- `skills::effects::apply_skill_effects` 2067 → 1127 lines. The 17 fattest
+  match arms moved to `skills/instant.rs`, one function per `SkillEffect`
+  variant, sharing a `CastCtx` (caster/target oid, magic-crit roll, shot
+  flags) computed once per cast. The arms' `continue` became `return`, which
+  is equivalent *only* because the match is the last statement in the effect
+  loop — check that invariant still holds before extracting more arms.
+  `DispelByCategory`, `SummonNpc` and `Bluff` stay inline: each owns a nested
+  loop *and* a `continue`, so the rewrite is not automatically safe there.
+- `db::run` 2313 → 2177 lines; the 137-line unprompted boot sequence is now
+  `send_boot_events`. Its ordering is load-bearing — `ClansLoaded` must be
+  sent last, because the game loop releases the login link on it.
+
+**Deliberately not done.** `admin::dispatch` (700 lines) is already a flat
+one-line-per-arm routing table — that is the idiomatic shape, and splitting it
+would add indirection for nothing. The `crates/migration/*` baselines are the
+most duplicated files in the tree but are write-once historical artifacts.
+The mirror quest scripts (Q00260/263/265/267/273, Q00042/43, Q00606/612) are
+~90% identical, but each is a 1:1 port of a separate Java datapack directory,
+and that correspondence is worth more than the duplication it costs — the same
+reason `manual_range_patterns`/`collapsible_match` are permanently allowed.
+
+### Phase 3 — splitting the large files
+
+Same rules: pure code motion, `2973/2973` unchanged, clippy `-D warnings`
+clean. Six files became directory modules; nothing outside `migration/` is over
+2800 lines any more.
+
+| was | now | largest piece |
+|---|---|---|
+| `db.rs` 6122 | `db/` — types, commands, queries, boot | 2323 |
+| `clans.rs` 5998 | `clans/` — skills, membership, ranks, wars, alliance, sub_pledge, crests, recruit | 811 |
+| `skills/effects.rs` 5690 | `effects/` — continuous, triggers, control, support, gathering, damage, ticks, traits | 1485 |
+| `data/skill_data.rs` 5171 | `skill_data/` — parse, build, tests, coverage_census | 1704 |
+| `death.rs` 3354 | `death/` — rewards, progression, player_death, restart, resurrect | 985 |
+| `combat.rs` 2888 | `combat/` — intent, attack, damage | 1053 |
+
+**The public path never changes.** Each `mod.rs` re-exports its submodules, so
+`clans::handle_request_join_pledge`, `db::DbCommand` and `death::give_item`
+still resolve — the 276 external references to `clans::` alone were not
+touched. Add a new submodule the same way: `mod foo;` + `pub(crate) use foo::*;`.
+
+Things that bite when splitting a file here, all of which cost a compile cycle:
+
+- **`super::` changes meaning.** In `game_loop/clans.rs` it meant `game_loop`;
+  from `game_loop/clans/wars.rs` it means `clans`. Moved code spells the
+  sibling out (`crate::game_loop::party`). Each `mod.rs` keeps `super::`.
+- **Mid-file `use` statements belong to the section BELOW them.** Splitting on
+  the first `fn`/`const` strands them in the previous chunk (107 errors on the
+  first clans attempt). Boundaries must absorb the doc comments, attributes and
+  `use` blocks sitting above the item — including multi-line `use x::{ … };`.
+- **`pub(super)` silently narrows.** It meant "visible to my parent"; one level
+  deeper that is a different module. Twelve items in effects are read by
+  `skills/instant.rs` and had to widen to pub(crate).
+- **Visibility passes over top-level items miss struct fields and impl
+  methods.** `skill_data`'s `Parsed*` types stayed in the parent for exactly
+  this reason — child modules can read a parent's private fields, so nothing
+  had to be widened.
+- **`pub use` vs `pub(crate) use` is not cosmetic.** `db` is a public module;
+  re-exporting it `pub(crate)` made the crate's own public API private and
+  broke the integration tests. Conversely clippy rejects `pub use` on a
+  submodule holding nothing public.
+- Re-exported glob names must be unique across submodules, or the import is
+  ambiguous. Worth checking before splitting, not after.
+
+Still large, and fine as they are: `db/queries.rs` (2334, 54 sibling `load_*`
+readers), `db/commands.rs` (2179, the command dispatch table),
+`skill_data/build.rs` (1704, one function). `migration/*` stays untouched —
+applied migrations are write-once.

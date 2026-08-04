@@ -6,7 +6,6 @@ use crate::data::htm_cache::read_htm;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::broadcast_to_others;
@@ -141,10 +140,9 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::Action::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     let shift = pkt.action_id == 1;
 
     // `Npc.canTarget`: `if (player.isLockedTarget() && getLockedTarget() != this)`
@@ -355,10 +353,9 @@ pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, b
     let Some(pkt) = cp::RequestTargetCanceld::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
     if matches!(
         world.objects.get_component::<QueuedAction>(&object_id),
         Some(QueuedAction::Skill { .. })

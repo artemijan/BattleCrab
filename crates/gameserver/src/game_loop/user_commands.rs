@@ -50,10 +50,9 @@ pub(crate) fn handle_bypass_user_cmd(world: &mut World, client_id: u32, body: &[
     let Some(command_id) = cp::read_user_command(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = session.player_object_id();
 
     match command_id {
         USER_CMD_LOC => loc(world, client_id, object_id),
@@ -470,9 +469,7 @@ fn leading_channel(world: &World, object_id: i32) -> Option<u32> {
 }
 
 fn send_sm(world: &World, client_id: u32, message_id: i16, params: &[SmParam]) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(message_id, params));
-    }
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, params);
 }
 
 /// Port of `usercommandhandlers/SiegeStatus.java`: a noble clan leader whose

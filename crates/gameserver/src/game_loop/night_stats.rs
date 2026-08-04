@@ -131,14 +131,7 @@ pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> boo
 /// optimisation: a character carrying the effect from some other source gets
 /// the stat and no message at all.
 pub(crate) fn on_day_night_change(world: &mut World, night: bool) {
-    let players: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let players: Vec<i32> = world.in_game_player_oids().collect();
     let sm = if night {
         sm_ids::IT_IS_NOW_MIDNIGHT_AND_THE_EFFECT_OF_S1_CAN_BE_FELT
     } else {

@@ -30,7 +30,6 @@ use crate::model::inventory::{Inventory, ItemChange};
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
-use crate::session::ClientSession;
 use crate::world::World;
 
 /// The client's own cap (`_amount > 999999`), enforced before any per-product
@@ -166,10 +165,9 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
     let Some(pkt) = cp::MultiSellChoose::read(body) else {
         return;
     };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
 
     // `(_amount < 1) || (_amount > 999999)`.
     if pkt.amount < 1 || pkt.amount > CLIENT_MAX_AMOUNT {
@@ -495,7 +493,5 @@ fn mul(a: i64, b: i64) -> Option<i64> {
 }
 
 fn send_sm(world: &World, client_id: u32, message_id: i16, params: &[SmParam]) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::system_message_with(message_id, params));
-    }
+    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, params);
 }

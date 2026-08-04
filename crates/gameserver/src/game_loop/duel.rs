@@ -20,10 +20,7 @@ use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
-
-use super::helpers::client_for_player;
 
 /// `Duel.PLAYER_DUEL_DURATION` — 120 s, in 100 ms ticks.
 const DUEL_DURATION_TICKS: u64 = 1200;
@@ -121,10 +118,9 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     let Some((name, party_duel)) = crate::network::client_packets::read_duel_start(body) else {
         return;
     };
-    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(challenger) = world.player_oid(client_id) else {
         return;
     };
-    let challenger = s.player_object_id();
 
     if party_duel != 0 {
         // TODO(G27): party duels teleport both parties into an arena instance.
@@ -205,10 +201,9 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
     let Some(response) = crate::network::client_packets::read_duel_answer(body) else {
         return;
     };
-    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(responder) = world.player_oid(client_id) else {
         return;
     };
-    let responder = s.player_object_id();
     let Some(pending) = world
         .objects
         .get_component::<crate::model::components::PendingDuel>(&responder)
@@ -245,10 +240,9 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
 
 /// `RequestDuelSurrender` — give up; the opponent wins.
 pub(crate) fn handle_request_duel_surrender(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(oid) = world.player_oid(client_id) else {
         return;
     };
-    let oid = s.player_object_id();
     let Some(duel_id) = world.objects.get_component::<DuelRef>(&oid).map(|r| r.0) else {
         return;
     };
@@ -515,13 +509,9 @@ fn player_name(world: &World, oid: i32) -> String {
 }
 
 fn send_to(world: &World, oid: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, oid, packet);
 }
 
 fn send_sm(world: &World, oid: i32, id: i16, params: &[SmParam]) {
-    send_to(world, oid, server_packets::system_message_with(id, params));
+    crate::game_loop::helpers::send_sm_to_player(world, oid, id, params);
 }

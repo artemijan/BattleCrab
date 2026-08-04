@@ -505,12 +505,7 @@ fn teleport_side_out(world: &mut World, castle_id: i32, side: SiegeClanType) {
         return;
     }
     let targets: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|&oid| {
             world
                 .objects
@@ -937,12 +932,7 @@ fn teleport_non_owners(world: &mut World, castle_id: i32) {
         .unwrap_or(0);
     // Collect first — teleporting mutates the world and re-runs visibility.
     let targets: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|&oid| {
             let Some(p) = world.objects.get_component::<Player>(&oid) else {
                 return false;
@@ -997,12 +987,7 @@ pub(crate) fn oust_all_players(world: &mut World, castle_id: i32) {
     let (min_z, max_z) = (zone.territory.min_z, zone.territory.max_z);
     // Collect first — teleporting mutates the world and re-runs visibility.
     let inside: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|oid| {
             world
                 .objects
@@ -1610,10 +1595,9 @@ fn outcome_sm(outcome: RegisterOutcome) -> Option<i16> {
 /// attacker/defender (`isJoining==1`) or cancels (`isJoining==0`) for a castle
 /// siege, then gets the refreshed `SiegeInfo` window (Java `listRegisterClan`).
 pub(crate) fn handle_request_join_siege(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
 
     let mut r = commons::network::PacketReader::new(body);
     let (Some(castle_id), Some(is_attacker), Some(is_joining)) =
@@ -1767,10 +1751,9 @@ pub(crate) fn handle_request_confirm_siege_waiting_list(
     client_id: u32,
     body: &[u8],
 ) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
 
     let mut r = commons::network::PacketReader::new(body);
     let (Some(castle_id), Some(clan_id), Some(approved)) =
@@ -1827,10 +1810,9 @@ pub(crate) fn handle_request_confirm_siege_waiting_list(
 /// picks the siege hour from `SIEGE_HOUR_LIST`, closing the time-registration
 /// window. Announces it to everyone and refreshes the viewer's `SiegeInfo`.
 pub(crate) fn handle_request_set_castle_siege_time(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     let mut r = commons::network::PacketReader::new(body);
     let (Some(castle_id), Some(time_secs)) = (r.read_i32(), r.read_i32()) else {
         return;

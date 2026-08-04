@@ -21,17 +21,11 @@ const MAX_CONTENT_LEN: usize = 255;
 // --- small send helpers -----------------------------------------------------
 
 fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send_to(
-        world,
-        object_id,
-        sp::system_message_with(message_id, params),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 fn player_name(world: &World, object_id: i32) -> String {
@@ -78,10 +72,9 @@ fn broadcast_to_gms(world: &World, author: &str, text: &str) {
 
 /// `RequestPetition` (0x89): a player files a petition (content + type 1-9).
 pub(crate) fn on_request_petition(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(sender) = world.player_oid(client_id) else {
         return;
     };
-    let sender = s.player_object_id();
     let mut r = PacketReader::new(body);
     let Some(content) = r.read_string() else {
         return;
@@ -176,10 +169,9 @@ pub(crate) fn on_request_petition(world: &mut World, client_id: u32, body: &[u8]
 /// `RequestPetitionCancel` (0x8A): a petitioner cancels a pending petition, or a
 /// GM ends an active consultation.
 pub(crate) fn on_request_petition_cancel(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(sender) = world.player_oid(client_id) else {
         return;
     };
-    let sender = s.player_object_id();
 
     if world.petitions.is_player_in_consultation(sender) {
         if is_gm(world, sender) {
@@ -222,10 +214,9 @@ pub(crate) fn on_request_petition_cancel(world: &mut World, client_id: u32) {
 /// `RequestPetitionFeedback` (0xC9): the petitioner's post-consultation rating —
 /// the only petition state that persists (`petition_feedback`).
 pub(crate) fn on_request_petition_feedback(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(sender) = world.player_oid(client_id) else {
         return;
     };
-    let sender = s.player_object_id();
     let mut r = PacketReader::new(body);
     let _unknown = r.read_i32();
     let Some(rate) = r.read_i32() else { return };

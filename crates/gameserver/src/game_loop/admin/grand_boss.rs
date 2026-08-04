@@ -146,12 +146,7 @@ fn players_in_zone(world: &World, zone_id: i32) -> usize {
         return 0;
     };
     world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
+        .in_game_player_oids()
         .filter(|oid| {
             world
                 .objects

@@ -7,7 +7,6 @@
 
 use crate::model::Player;
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::{menu::show_admin_html_replace, send_message, target_player};
@@ -148,14 +147,7 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
 /// every in-range player's) PC-cafe points by `value`; returns how many.
 fn reward_online_pccafe(world: &mut World, gm_oid: i32, value: i32, range: i32) -> i32 {
     let targets: Vec<i32> = if range <= 0 {
-        world
-            .clients
-            .values()
-            .filter_map(|cs| match cs {
-                ClientSession::InGame(s) => Some(s.player_object_id()),
-                _ => None,
-            })
-            .collect()
+        world.in_game_player_oids().collect()
     } else {
         super::creatures_in_range(world, gm_oid, range, true, false)
     };
@@ -294,14 +286,7 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
 /// player's prime points by `value`; returns how many were affected.
 fn reward_online_prime(world: &mut World, gm_oid: i32, value: i32, range: i32) -> i32 {
     let targets: Vec<i32> = if range <= 0 {
-        world
-            .clients
-            .values()
-            .filter_map(|cs| match cs {
-                ClientSession::InGame(s) => Some(s.player_object_id()),
-                _ => None,
-            })
-            .collect()
+        world.in_game_player_oids().collect()
     } else {
         super::creatures_in_range(world, gm_oid, range, true, false)
     };

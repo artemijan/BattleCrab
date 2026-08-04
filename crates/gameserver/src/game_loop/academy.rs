@@ -204,10 +204,9 @@ fn clear_mentorship(world: &mut World, player_oid: i32, apprentice: i32, sponsor
 pub(crate) fn handle_set_academy_master(world: &mut World, client_id: u32, body: &[u8]) {
     use commons::network::PacketReader;
 
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player_oid) = world.player_oid(client_id) else {
         return;
     };
-    let player_oid = session.player_object_id();
     let mut r = PacketReader::new(body);
     let (Some(set), Some(current_name), Some(target_name)) =
         (r.read_i32(), r.read_string(), r.read_string())

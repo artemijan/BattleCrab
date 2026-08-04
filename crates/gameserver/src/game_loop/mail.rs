@@ -11,10 +11,7 @@ use crate::model::components::{Trade, ZoneFlags};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::model::mail::{MailListRow, MailManager, Message};
 use crate::network::server_packets::{self, MailListView, SmParam, sm_ids};
-use crate::session::ClientSession;
 use crate::world::World;
-
-use super::helpers::client_for_player;
 
 // ---------------------------------------------------------------------------
 // Boot
@@ -152,19 +149,11 @@ pub(crate) fn delete_message(world: &mut World, message_id: i32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn send(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 pub(crate) fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send(
-        world,
-        object_id,
-        server_packets::system_message_with(message_id, params),
-    );
+    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 /// `Player.isInsideZone(PEACE)` — several mail actions are peace-zone only.
@@ -254,10 +243,9 @@ fn list_views(world: &World, rows: Vec<MailListRow>) -> Vec<MailListView> {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_received_post_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail {
         return;
     }
@@ -271,10 +259,9 @@ pub(crate) fn handle_received_post_list(world: &mut World, client_id: u32) {
 }
 
 pub(crate) fn handle_sent_post_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail {
         return;
     }
@@ -292,10 +279,9 @@ pub(crate) fn handle_sent_post_list(world: &mut World, client_id: u32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
         return;
     }
@@ -339,10 +325,9 @@ const MAX_SUBJECT_LENGTH: usize = 128;
 const MAX_TEXT_LENGTH: usize = 512;
 
 pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail {
         return;
     }
@@ -667,10 +652,9 @@ fn move_to_attachments(
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail {
         return;
     }
@@ -736,10 +720,9 @@ pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8
 }
 
 pub(crate) fn handle_sent_post(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail {
         return;
     }
@@ -799,10 +782,9 @@ pub(crate) fn handle_delete_sent_post(world: &mut World, client_id: u32, body: &
 }
 
 fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: bool) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail {
         return;
     }
@@ -989,10 +971,9 @@ fn refresh_inventory(world: &World, player: i32) {
 
 /// ex 0x67 `RequestPostAttachment` — take the items, paying any COD price.
 pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
         return;
     }
@@ -1117,10 +1098,9 @@ fn pay_sender(world: &mut World, sender_id: i32, adena: i64) {
 
 /// ex 0x6C `RequestCancelPostAttachment` — the sender takes it all back.
 pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
         return;
     }
@@ -1206,10 +1186,9 @@ pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, b
 
 /// ex 0x68 `RequestRejectPostAttachment` — the receiver sends it back.
 pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+    let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let player = session.player_object_id();
     if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
         return;
     }

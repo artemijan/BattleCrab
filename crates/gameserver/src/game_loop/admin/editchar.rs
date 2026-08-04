@@ -15,7 +15,6 @@ use crate::model::Player;
 use crate::model::components::{
     CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals,
 };
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::{current_target, find_online_player, send_message, send_sm};
@@ -24,14 +23,7 @@ use crate::network::server_packets::sm_ids;
 /// Object ids of every in-game player (Java `World.getPlayers()`), name-sorted
 /// for stable listing.
 fn online_players(world: &World) -> Vec<i32> {
-    let mut ids: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
-            _ => None,
-        })
-        .collect();
+    let mut ids: Vec<i32> = world.in_game_player_oids().collect();
     ids.sort_by_key(|oid| {
         world
             .objects

@@ -424,10 +424,9 @@ pub(crate) fn is_banned(
 /// enter-world (`RequestHardWareInfo` timing is client-driven). Kicks a
 /// HWID-banned session and jails a HWID-jailed one.
 pub(crate) fn on_hwid_received(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+    let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let object_id = s.player_object_id();
     let hwid = world.hwids.get(&client_id).map(|h| h.mac_address.clone());
     let Some(hwid) = hwid else { return };
     if world
