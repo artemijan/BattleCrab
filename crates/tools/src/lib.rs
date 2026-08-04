@@ -11,6 +11,7 @@
 pub mod client_dat;
 pub mod client_files;
 pub mod dat_pack;
+pub mod dat_roundtrip;
 pub mod dat_schema;
 pub mod dat_text;
 pub mod datapack;
