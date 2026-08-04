@@ -3,7 +3,7 @@
  *
  * Proxies `/api/*` to the Rust backend so the browser sees one origin — which
  * is what lets the session cookie work locally exactly as it does in production
- * (docs/PLAN_DASHBOARD.md §9).
+ * (docs/DASHBOARD.md §9).
  *
  *   Terminal 1:  cargo run -p dashboard_api
  *   Terminal 2:  bun run dev

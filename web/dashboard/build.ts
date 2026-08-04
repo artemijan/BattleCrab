@@ -1,7 +1,7 @@
 /**
  * Production build. Output lands in `dist/`, which `rust-embed` bakes into the
  * dashboard_api binary at compile time — so this must run *before* `cargo build`
- * (see docs/PLAN_DASHBOARD.md §9).
+ * (see docs/DASHBOARD.md §9).
  */
 import { rm } from "node:fs/promises";
 import tailwind from "bun-plugin-tailwind";
