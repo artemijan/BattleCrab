@@ -528,6 +528,24 @@ pub enum SkillEffect {
     BlockActions {
         conditional: bool,
     },
+    /// `handlers/effecthandlers/BlockChat.java` — the bot-report chat
+    /// punishment (skill 6038). Starts a CHAT_BAN punishment on the bearer for
+    /// the buff's life and carries [`effect_flag::CHAT_BLOCK`], which is what
+    /// makes `Say2` use the "reported as an illegal program user" wording.
+    BlockChat,
+    /// `handlers/effecthandlers/BlockParty.java` — the party twin (skill
+    /// 6039): a PARTY_BAN punishment for the buff's life.
+    BlockParty,
+    /// `handlers/effecthandlers/BlockAction.java` — blocks the listed action
+    /// ids (`BotReportTable`'s negative constants; skills 6055/6056 block
+    /// `-2`, trade). Two of the ids additionally start a punishment while the
+    /// buff is up, and `checkCondition` is consulted by `TradeRequest`.
+    BlockAction {
+        blocked_actions: Vec<i32>,
+    },
+    /// `handlers/effecthandlers/Flag.java` — force the PvP flag on for the
+    /// buff's life (bot-report skill 6040: "you can be attacked").
+    PvpFlag,
     /// `handlers/effecthandlers/BlockAbnormalSlot.java` — while this buff is
     /// up, the listed abnormal types cannot land on the target at all. Backs
     /// the Prophecy family's mutual exclusion (Prophecy of Water 1355 blocks
@@ -1676,6 +1694,13 @@ pub mod effect_flag {
     /// this effect and keeps every other buff through death, the same deal
     /// `NOBLESS_BLESSING` gets. Losing it is what fires the revive proposal.
     pub const RESURRECTION_SPECIAL: u32 = 1 << 24;
+    /// `CHAT_BLOCK` — Java `EffectFlag.CHAT_BLOCK`, set by the `BlockChat`
+    /// effect (bot-report punishment skill 6038). Read in exactly one place,
+    /// `Say2`: a chat-banned player under *this* flag is told they were
+    /// reported as an illegal-program user, instead of getting the ordinary
+    /// prohibition notice. The block itself comes from the CHAT_BAN punishment
+    /// the effect starts, not from the flag.
+    pub const CHAT_BLOCK: u32 = 1 << 25;
     /// `BETRAYED` — Java `Summon.isBetrayed()`, with two consumers: the
     /// servitor **refuses its owner's commands** ("your servitor is
     /// unresponsive and will not obey any orders") and `PetSummonInfo` sets
@@ -2594,6 +2619,7 @@ impl Skill {
                 SkillEffect::Confuse { .. } => effect_flag::CONFUSED,
                 SkillEffect::BlockMove | SkillEffect::ImmobilePetBuff => effect_flag::IMMOBILIZED,
                 SkillEffect::Betray => effect_flag::BETRAYED,
+                SkillEffect::BlockChat => effect_flag::CHAT_BLOCK,
                 SkillEffect::ResurrectionSpecial { .. } => effect_flag::RESURRECTION_SPECIAL,
                 SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
                 // `ChameleonRest.getEffectFlags()` returns SILENT_MOVE **and**

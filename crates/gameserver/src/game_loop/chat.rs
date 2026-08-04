@@ -10,6 +10,7 @@ use crate::enums::ChatType;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
 use crate::model::inventory::{Inventory, ItemInstance};
+use crate::model::skill::effect_flag;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
@@ -36,7 +37,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(sender_oid) = world.player_oid(client_id) else {
         return;
     };
-    let Some(pkt) = cp::Say2::read(body) else {
+    let Some(mut pkt) = cp::Say2::read(body) else {
         return;
     };
 
@@ -107,10 +108,22 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     }
 
     // Java `Say2`: a chat-banned player can still use `.`-prefixed commands but
-    // no ordinary chat gets through (G31). The prohibition message is sent, then
-    // the message is dropped.
+    // no ordinary chat gets through (G31). The ban covers **every** channel —
+    // Java's `return` is unconditional — and only the *message* varies:
+    //   * under a `BlockChat` debuff (the bot-report punishment) the player is
+    //     told they were reported as an illegal-program user;
+    //   * otherwise the prohibition notice, but only on a `BanChatChannels`
+    //     channel. On any other channel the line vanishes silently.
     if !pkt.text.starts_with('.') && super::punishment::is_chat_banned(world, sender_oid) {
-        send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
+        if super::abnormal::flags_of(world, sender_oid) & effect_flag::CHAT_BLOCK != 0 {
+            send_sm(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_CHATTING_IS_NOT_ALLOWED,
+            );
+        } else if world.cfg.chat_filter.ban_chat_channels.contains(&chat_type) {
+            send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
+        }
         return;
     }
 
@@ -188,6 +201,13 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     // the speaker does not own is dropped whole.
     if has_item_link && !parse_and_publish_item(world, sender_oid, &pkt.text) {
         return;
+    }
+
+    // Java `Say2`: `if (Config.USE_SAY_FILTER) checkText();` — the last thing
+    // before the channel handler runs, so the *published* item links above are
+    // matched against the raw line but everyone hears the filtered one.
+    if let Some(filtered) = world.cfg.chat_filter.filter(&pkt.text) {
+        pkt.text = filtered;
     }
 
     match chat_type {

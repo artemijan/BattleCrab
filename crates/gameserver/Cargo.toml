@@ -15,6 +15,7 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 thiserror.workspace = true
 quick-xml.workspace = true
+regex.workspace = true
 if-addrs.workspace = true
 memmap2.workspace = true
 mimalloc.workspace = true

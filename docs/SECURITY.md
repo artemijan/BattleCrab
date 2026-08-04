@@ -13,15 +13,17 @@ What exists, and an assessment of what eBPF could add. Written 2026-08-04.
 | Per-action rate limits | game `dispatch.rs` | a logged-in client spamming actions | `FloodProtector.ini` |
 | Punishments | game `punishment.rs` | repeat offenders (kick/ban/jail/chat-ban) | `FloodProtector.ini`, `//punishment` |
 | Dualbox caps | game | multi-client abuse of events | `Custom/DualboxCheck.ini` |
+| Say filter | game `chat.rs` | listed words in any chat line | `General.ini` + `chatfilter.txt` |
+| Bot reporting | game `bot_report.rs` | players reporting suspected bots | `General.ini`, `BotReportPunishments.xml` |
 
-Two known holes, both inherited from Java and both deliberate for now:
+One known hole remains, inherited from Java and deliberate:
 
 - **No chat rate limiting.** `FloodProtectorGlobalChatInterval = 5` ships in
   `FloodProtector.ini`, but Java never calls `canUseGlobalChat()` — the slot is
   dead in the reference implementation, so it is unconsumed here too. Wiring
-  `Say2` to it is an extension, not a port. This is the gap that matters for
-  gold-seller spam.
-- **No bot reporting.** The DB entity exists; the logic does not.
+  `Say2` to it is an extension, not a port. This is the gap that matters most
+  for gold-seller spam: the say filter rewrites *words*, and bot reporting is
+  player-driven and slow, so neither of them throttles a spammer.
 
 ---
 

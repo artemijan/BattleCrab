@@ -465,6 +465,8 @@ pub mod action {
     pub const SERVITOR_STOP: i32 = 23;
     /// `Ride` — `/mount`, `/dismount`, `/mountdismount` → `mountPlayer`.
     pub const RIDE: i32 = 38;
+    /// `BotReport` — `/AutoHuntingReport`, the report-a-bot button.
+    pub const BOT_REPORT: i32 = crate::game_loop::bot_report::BOT_REPORT_ACTION_ID;
     /// `PrivateStore` option 8 — `/packagesale`, the package-sell manage window.
     /// (Its siblings 10 `/vendor` and 28 `/buy` reach the port through the
     /// dedicated `RequestPrivateStore*` packets the client also sends.)
@@ -491,6 +493,7 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
                 | action::SERVITOR_STOP
                 | action::RIDE
                 | action::PACKAGE_SALE
+                | action::BOT_REPORT
         )
     {
         return;
@@ -513,6 +516,12 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
     // Action 0 (`SitStand` playeraction — `/sit`, `/stand`): the seated toggle.
     if pkt.action_id == action::SIT_STAND {
         crate::game_loop::sit_stand::handle_sit_stand(world, owner_oid);
+        return;
+    }
+    // Action 65 (`BotReport` playeraction — `/AutoHuntingReport`): report the
+    // current target as a bot.
+    if pkt.action_id == action::BOT_REPORT {
+        crate::game_loop::bot_report::handle_bot_report_action(world, client_id, owner_oid);
         return;
     }
     // Action 61 (`PrivateStore` playeraction, option 8 — `/packagesale`): the

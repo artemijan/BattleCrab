@@ -249,6 +249,18 @@ pub(crate) async fn load_item_auctions(
 /// have already expired (Java skips them, counting them as "expired"). Returns
 /// `(next_id, rows)` — `next_id` seeds the game-thread id allocator. Fail-open
 /// (empty) if the table is absent, like a minimal test schema.
+/// Java `BotReportTable.loadReportedCharData` — every stored report row.
+/// Fail-open (empty) if the table is absent, like the other boot loaders.
+pub(crate) async fn load_bot_reports(db: &DatabaseConnection) -> Vec<(i32, i32, i64)> {
+    bot_reported_char_data::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|r| (r.bot_id, r.reporter_id, r.report_date))
+        .collect()
+}
+
 pub(crate) async fn load_punishments(
     db: &DatabaseConnection,
 ) -> (i32, Vec<crate::model::punishment::Punishment>) {

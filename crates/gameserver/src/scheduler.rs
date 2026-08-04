@@ -607,6 +607,10 @@ pub enum ScheduledTask {
     /// reset + the vitality daily/weekly refill (G33). Reschedules itself 24 h
     /// out.
     DailyReset,
+    /// Java `BotReportTable.ResetPointTask` — every reporter's daily budget
+    /// back to 7, at `BotReportPointsResetHour`. Separate from `DailyReset`:
+    /// Java schedules it on its own clock (00:00 here, not 06:30).
+    BotReportPointsReset,
     /// `Siege.ScheduleEndSiegeTask`: a castle siege's timed window elapsed —
     /// auto-end the siege.
     SiegeEnd {

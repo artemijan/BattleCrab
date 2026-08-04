@@ -426,7 +426,7 @@ impl NpcInfoType {
 /// `CreatureSay` echoes back. Only the channels the chat slice handles are
 /// listed; unknown ids are dropped by the handler (Java disconnects — see the
 /// G10 plan's deviations).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(i32)]
 pub enum ChatType {
     General = 0,

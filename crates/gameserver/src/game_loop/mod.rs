@@ -20,6 +20,7 @@ mod basic_property;
 pub(crate) mod boats;
 mod boss_respawn;
 mod boss_threat;
+pub(crate) mod bot_report;
 mod bypass;
 pub(crate) mod castle;
 mod chat;
@@ -258,6 +259,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // Java `DailyTaskManager`: the daily 06:30 reset (recommends + vitality
     // refill). Scheduled once here; the task reschedules itself every 24 h.
     daily_tasks::schedule_initial_daily_reset(&mut world);
+    bot_report::schedule_initial_points_reset(&mut world);
     restart::schedule_server_restart(&mut world);
     // Grand bosses spawn/respawn once their data lands — the `grandboss_data`
     // table arrives asynchronously as `DbEvent::GrandBossesLoaded`, so
@@ -367,6 +369,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // realtime storing off; with it on (this dist) the rows are already current
     // and Java skips the sweep entirely.
     offline_trade::store_offliners(&world);
+    // `Shutdown` → `BotReportTable.saveReportedCharData()`.
+    bot_report::save_reports(&world);
     // `DBSpawnManager.updateDb` — every living raid boss's current HP/MP, so a
     // restart mid-fight resumes at the HP the boss was left on.
     boss_respawn::save_all_bosses(&mut world);
@@ -815,6 +819,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::DailyReset => {
                 daily_tasks::handle_daily_reset(world);
+            }
+            ScheduledTask::BotReportPointsReset => {
+                bot_report::handle_points_reset(world);
             }
             ScheduledTask::SiegeEnd { castle_id } => {
                 siege::end_siege(world, castle_id);

@@ -6,8 +6,10 @@
 
 pub mod auto_play;
 pub mod auto_potions;
+pub mod bot_report;
 pub mod champion;
 pub mod character;
+pub mod chat_filter;
 pub mod community_board;
 pub mod custom_misc;
 pub mod custom_pvp;
@@ -28,8 +30,10 @@ pub mod server;
 
 pub use auto_play::AutoPlayConfig;
 pub use auto_potions::AutoPotionsConfig;
+pub use bot_report::BotReportConfig;
 pub use champion::ChampionConfig;
 pub use character::CharacterConfig;
+pub use chat_filter::ChatFilterConfig;
 pub use community_board::CommunityBoardConfig;
 pub use custom_misc::{
     AllowedRacesConfig, BankingConfig, BossAnnouncementsConfig, CustomMailConfig, CustomMiscConfig,
@@ -110,6 +114,10 @@ pub struct CombatConfig {
     /// `FloodProtector.ini` — the per-client packet rate limits, read by the
     /// dispatch gate.
     pub flood_protector: FloodProtectorsConfig,
+    /// The `Say2` filters — `chatfilter.txt` + `BanChatChannels`.
+    pub chat_filter: ChatFilterConfig,
+    /// `General.ini`'s bot-report block + `BotReportPunishments.xml`.
+    pub bot_report: BotReportConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -144,6 +152,8 @@ pub struct Config {
     pub flood_protector: FloodProtectorsConfig,
     /// `Security.ini` — transport-level flood limits (no Java counterpart).
     pub security: SecurityConfig,
+    pub chat_filter: ChatFilterConfig,
+    pub bot_report: BotReportConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -217,6 +227,8 @@ impl Config {
         let auto_play = AutoPlayConfig::load_from(root);
         let flood_protector = FloodProtectorsConfig::load_from(root);
         let security = SecurityConfig::load_from(root);
+        let chat_filter = ChatFilterConfig::load_from(root);
+        let bot_report = BotReportConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -247,6 +259,8 @@ impl Config {
             auto_play,
             flood_protector,
             security,
+            chat_filter,
+            bot_report,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -283,6 +297,8 @@ impl Config {
             custom_mail: self.custom_mail.clone(),
             auto_play: self.auto_play.clone(),
             flood_protector: self.flood_protector.clone(),
+            chat_filter: self.chat_filter.clone(),
+            bot_report: self.bot_report.clone(),
         }
     }
 }

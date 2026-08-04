@@ -227,7 +227,7 @@ fn datapack_skill_coverage_census() {
         // player half is Summon Friend and is still a TODO(G30) no-op, so
         // the census counts `CallPc` as handled while one of its two
         // branches does nothing.
-        ("effect", &gaps.effects, EFFECTS, 142, 10, 1154),
+        ("effect", &gaps.effects, EFFECTS, 138, 10, 1154),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
         ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
         ("targetType", &gaps.target_types, TARGET_TYPES, 9, 0, 476),

@@ -44,6 +44,9 @@ num-bigint-dig = { version = "0.8", features = ["rand"] }
 rsa = "0.9"
 num-traits = "0.2"
 rand = "0.8"
+# Java `Say2.checkText` applies each `chatfilter.txt` line as a case-insensitive
+# regex, so the filter needs a real regex engine to stay faithful.
+regex = "1"
 rand_distr = "0.4"
 bevy_ecs = "0.19"
 tracing = "0.1"

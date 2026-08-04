@@ -2721,6 +2721,7 @@ dependencies = [
  "num-bigint-dig",
  "quick-xml 0.37.5",
  "rand 0.8.6",
+ "regex",
  "serde_json",
  "sqlx",
  "thiserror 2.0.18",

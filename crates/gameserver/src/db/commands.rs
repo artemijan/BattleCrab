@@ -1906,6 +1906,27 @@ pub(crate) async fn run(
                         .await,
                 );
             }
+            DbCommand::StoreBotReports { rows } => {
+                // Java clears first and re-inserts the whole table.
+                warn_err(
+                    bot_reported_char_data::Entity::delete_many()
+                        .exec(&db)
+                        .await,
+                );
+                for (bot_id, reporter_id, report_date) in rows {
+                    warn_err(
+                        bot_reported_char_data::Entity::insert(
+                            bot_reported_char_data::ActiveModel {
+                                bot_id: Set(bot_id),
+                                reporter_id: Set(reporter_id),
+                                report_date: Set(report_date),
+                            },
+                        )
+                        .exec(&db)
+                        .await,
+                    );
+                }
+            }
             DbCommand::StorePunishment {
                 id,
                 key,

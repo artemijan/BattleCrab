@@ -972,6 +972,11 @@ pub enum DbCommand {
     /// Insert a punishment row (Java `PunishmentTask.onStart`'s INSERT, G31).
     /// The `id` is allocated on the game thread so the row can be deleted by id
     /// without waiting for a generated-key round-trip.
+    /// Java `BotReportTable.saveReportedCharData` — clear the table and
+    /// rewrite every (bot, reporter, time) row. Shutdown only, like Java.
+    StoreBotReports {
+        rows: Vec<(i32, i32, i64)>,
+    },
     StorePunishment {
         id: i32,
         key: String,
@@ -1152,6 +1157,10 @@ pub enum DbEvent {
         next_id: i32,
         punishments: Vec<crate::model::punishment::Punishment>,
     },
+    /// The whole `bot_reported_char_data` table (Java
+    /// `BotReportTable.loadReportedCharData`), pushed unprompted at boot as
+    /// `(bot_id, reporter_id, report_date)`.
+    BotReportsLoaded { rows: Vec<(i32, i32, i64)> },
     /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
     /// the available-buff table are filtered on the game thread.

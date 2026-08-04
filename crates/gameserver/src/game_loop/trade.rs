@@ -54,6 +54,25 @@ pub(crate) fn handle_request(world: &mut World, client_id: u32, body: &[u8]) {
         }
         return;
     }
+    // Java `TradeRequest`: a `BOT_PENALTY` buff whose `BlockAction` list holds
+    // `TRADE_ACTION_BLOCK_ID` refuses the trade outright — the bot-report
+    // punishment at 100/125 reports.
+    if crate::game_loop::bot_report::is_action_blocked(
+        world,
+        from,
+        crate::game_loop::bot_report::TRADE_ACTION_BLOCK_ID,
+    ) {
+        crate::game_loop::helpers::send_sm_to_player(
+            world,
+            from,
+            sp::sm_ids::REPORTED_SO_YOUR_ACTIONS_ARE_RESTRICTED,
+            &[],
+        );
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(sp::action_failed());
+        }
+        return;
+    }
     // `//tradeoff`: the partner refuses all trades (Java `getTradeRefusal`).
     if world
         .objects

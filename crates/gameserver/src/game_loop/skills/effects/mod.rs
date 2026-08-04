@@ -17,11 +17,13 @@
 //! - `traits` — attack/defence trait and skill-rate bookkeeping, the PvP/PvE
 //!   bonus, MP cost and reuse time.
 
+use crate::game_loop::bot_report;
 use crate::game_loop::helpers::client_for_player;
 use crate::model::components::{
     BaseStats, Buffs, CombatStats, RegionCell, Speeds, StatModifiers, Vitals,
 };
 use crate::model::formulas;
+use crate::model::punishment::{PunishmentAffect, PunishmentType};
 use crate::model::skill::{
     ActiveBuff, BuffSlot, DispelSlot, RestorationGroup, Skill, SkillEffect, abnormal_type_client_id,
 };
@@ -995,6 +997,33 @@ pub(crate) fn apply_skill_effects(
                     handle_buff_expire(world, target_oid, skill_id);
                 }
             }
+            // The bot-report punishments (`BotReportTable.handleReport` casts
+            // these on the reported character). Each is a Java `onStart` that
+            // starts a punishment for the buff's life; the matching `onExit`
+            // lives in `handle_buff_expire_inner`. Java passes expiration `0`
+            // — "forever" — because the *buff* is the timer.
+            SkillEffect::BlockChat => {
+                start_bot_report_punishment(world, target_oid, PunishmentType::ChatBan);
+            }
+            SkillEffect::BlockParty => {
+                start_bot_report_punishment(world, target_oid, PunishmentType::PartyBan);
+            }
+            SkillEffect::BlockAction { blocked_actions } => {
+                // Java only turns *two* of the blocked ids into punishments;
+                // the rest are enforced by `checkCondition` at the action's own
+                // call site (trade, `-2`).
+                if blocked_actions.contains(&bot_report::PARTY_ACTION_BLOCK_ID) {
+                    start_bot_report_punishment(world, target_oid, PunishmentType::PartyBan);
+                }
+                if blocked_actions.contains(&bot_report::CHAT_BLOCK_ID) {
+                    start_bot_report_punishment(world, target_oid, PunishmentType::ChatBan);
+                }
+            }
+            // `Flag.onStart` → `updatePvPFlag(1)`: the reported character can
+            // be attacked freely while the debuff is up.
+            SkillEffect::PvpFlag => {
+                crate::game_loop::pvp::update_pvp_flag(world, target_oid, 1);
+            }
             SkillEffect::StatModifier(_) => {} // collected below
             // Blessing of Protection: no instant action — it lands purely as
             // the timed `PK_PROTECT` abnormal handled by the buff path below
@@ -1453,6 +1482,39 @@ fn dam_over_time_crit_burst(
             );
         }
     }
+}
+
+/// Java's `BlockChat`/`BlockParty`/`BlockAction` `onStart`: a punishment with
+/// expiration `0` — "forever" — because the *buff* is the timer. The matching
+/// `onExit` in `handle_buff_expire_inner` stops it.
+pub(crate) fn start_bot_report_punishment(
+    world: &mut World,
+    player_oid: i32,
+    ptype: PunishmentType,
+) {
+    crate::game_loop::punishment::start_punishment(
+        world,
+        player_oid.to_string(),
+        PunishmentAffect::Character,
+        ptype,
+        0,
+        "block action debuff".to_string(),
+        "system".to_string(),
+    );
+}
+
+/// The `onExit` twin.
+pub(crate) fn stop_bot_report_punishment(
+    world: &mut World,
+    player_oid: i32,
+    ptype: PunishmentType,
+) {
+    crate::game_loop::punishment::stop_punishment(
+        world,
+        &player_oid.to_string(),
+        PunishmentAffect::Character,
+        ptype,
+    );
 }
 
 #[cfg(test)]

@@ -323,6 +323,25 @@ pub(crate) fn build_skill(
                         // Stun / sleep / paralyze (540 uses) and Root (79): no stat
                         // modifier at all — the whole mechanic is the abnormal-state
                         // flag they contribute (`Skill::effect_flags`).
+                        // The four bot-report punishment effects (skills
+                        // 6038/6039/6040/6055/6056). Each is a pure state
+                        // effect: the work happens on the buff's start and
+                        // exit, not at parse time.
+                        "BlockChat" => vec![SkillEffect::BlockChat],
+                        "BlockParty" => vec![SkillEffect::BlockParty],
+                        "Flag" => vec![SkillEffect::PvpFlag],
+                        "BlockAction" => {
+                            // `<blockedActions>-2</blockedActions>` — Java
+                            // splits on ',' and parses each as an int.
+                            let blocked_actions = value_at(params, "blockedActions", level)
+                                .map(|v| {
+                                    v.split(',')
+                                        .filter_map(|a| a.trim().parse::<i32>().ok())
+                                        .collect::<Vec<_>>()
+                                })
+                                .unwrap_or_default();
+                            vec![SkillEffect::BlockAction { blocked_actions }]
+                        }
                         "BlockActions" => {
                             // Java: a non-empty `allowedSkills` whitelist makes this
                             // CONDITIONAL_BLOCK_ACTIONS instead. Both gate the same

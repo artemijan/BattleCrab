@@ -365,6 +365,10 @@ pub struct World {
     /// The active-punishment registry — jail/ban/chat-ban (G31).
     pub punishments: crate::model::punishment::PunishmentManager,
 
+    /// Java `BotReportTable`'s three registries — who reported whom, each
+    /// reporter's daily point budget, and the per-address cooldown.
+    pub bot_reports: crate::game_loop::bot_report::BotReportTable,
+
     /// The in-memory GM petition queue (G31).
     pub petitions: crate::model::petition::PetitionManager,
 
@@ -550,6 +554,7 @@ impl World {
             auction_end_tick: 0,
             siege_guards: HashMap::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),
+            bot_reports: crate::game_loop::bot_report::BotReportTable::default(),
             instances: crate::model::instance::InstanceManager::default(),
             events: crate::model::event::EventManager::default(),
             lottery: crate::model::lottery::LotteryState::default(),

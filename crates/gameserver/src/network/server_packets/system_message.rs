@@ -707,6 +707,30 @@ pub mod sm_ids {
     pub const C1_HAS_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_AND_CANNOT_JOIN_A_PARTY: i16 = 2482;
     pub const YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_PARTICIPATING_IN_A_PARTY_IS_NOT_ALLOWED:
         i16 = 2484;
+    pub const YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_CHATTING_IS_NOT_ALLOWED: i16 =
+        2483;
+    // Bot reporting (`BotReportTable.reportBot`). Names shortened from the
+    // client's; the full ones are in `commons::system_messages`.
+    pub const CANNOT_REPORT_IN_PEACE_ZONE_OR_BATTLEGROUND: i16 = 2377;
+    pub const CANNOT_REPORT_DURING_A_CLAN_WAR: i16 = 2378;
+    pub const CANNOT_REPORT_A_CHARACTER_WITH_NO_XP_GAINED: i16 = 2379;
+    pub const CANNOT_REPORT_THIS_PERSON_AGAIN: i16 = 2380;
+    /// `$c1 was reported as a BOT.`
+    pub const C1_WAS_REPORTED_AS_A_BOT: i16 = 2371;
+    /// `You have used a report point on $c1. You have $s2 points remaining…`
+    pub const YOU_REPORTED_C1_S2_POINTS_LEFT: i16 = 2468;
+    /// `You have used all available points. Points are reset everyday at noon.`
+    pub const ALL_REPORT_POINTS_USED: i16 = 2469;
+    /// The olympiad / peace-zone / clan-war catch-all refusal.
+    pub const THIS_CHARACTER_CANNOT_MAKE_A_REPORT: i16 = 2470;
+    /// `…already been reported by either your clan or from your current IP.`
+    pub const ALREADY_REPORTED_BY_CLAN_OR_IP: i16 = 2471;
+    /// `You can make another report in $s1 minute(s). You have $s2 point(s)…`
+    pub const YOU_CAN_MAKE_ANOTHER_REPORT_IN_S1_MINUTES_S2_POINTS_LEFT: i16 = 2774;
+    /// `You have been reported as an illegal program user and cannot report…`
+    pub const REPORTED_USERS_CANNOT_REPORT_OTHERS: i16 = 2748;
+    /// `…so your actions have been restricted.` — the `BlockAction` refusal.
+    pub const REPORTED_SO_YOUR_ACTIONS_ARE_RESTRICTED: i16 = 2485;
     pub const YOU_ARE_NOT_IN_A_PARTY: i16 = 4201;
     pub const YOU_ARE_NOT_IN_A_CLAN: i16 = 4202;
     // Boats (G24.5)

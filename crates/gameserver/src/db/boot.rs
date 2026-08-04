@@ -93,6 +93,11 @@ pub(crate) async fn send_boot_events(db: &DatabaseConnection, event_tx: &EventTx
         punishments,
     });
 
+    // Java `BotReportTable`'s constructor load — likewise unprompted.
+    let _ = event_tx.send(DbEvent::BotReportsLoaded {
+        rows: load_bot_reports(db).await,
+    });
+
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::FavoritesLoaded {
         entries: load_favorites(db).await,

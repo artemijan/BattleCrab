@@ -4482,6 +4482,85 @@ viable) is in [SECURITY.md](SECURITY.md).
 
 ---
 
+### Post-G33 — Chat filters + bot reporting ✅ (2026-08-04)
+
+The two remaining anti-abuse systems Java has and the port did not.
+
+**1. The `Say2` chat filters.** `config/chat_filter.rs`:
+- **the say filter** — `UseChatFilter` + `ChatFilterChars` + `chatfilter.txt`,
+  applied in `Say2` at Java's exact position (after `parseAndPublishItem`, so
+  the *published* item links are matched against the raw line while everyone
+  hears the filtered one). Java applies each list line as a **case-insensitive
+  regex** via `replaceAll("(?i)" + pattern, chars)`, so this needed the `regex`
+  crate; patterns are compiled once at load instead of per message, which also
+  turns a malformed pattern from "every chat line throws" into one boot
+  warning. Ships **off** (`UseChatFilter = False`) and is ported anyway.
+  Note the Java field/key mismatch: the key is `UseChatFilter`, the field is
+  `USE_SAY_FILTER`.
+- **`BanChatChannels`**, previously unparsed. It does *not* decide what a
+  chat-banned player can send — Java's `return` in `Say2` is unconditional and
+  covers every channel. It decides only what they are **told**: the prohibition
+  notice on a listed channel, silence on an unlisted one, and a different
+  message entirely (`…reported as an illegal program user`) while a `BlockChat`
+  debuff is up. All three arms are now live.
+
+**2. Bot reporting** (`game_loop/bot_report.rs`). **The entry point is in the
+datapack, not `java/`** — `BotReportTable.reportBot` has no caller anywhere
+under `java/`; the only one is `dist/game/data/scripts/handlers/playeractions/
+BotReport.java`, reached through `RequestActionUse` action id **65**
+(`/AutoHuntingReport`, `ActionData.xml`). Grepping only the Java source tree
+makes the whole feature look dead — the `datapack grep scope` trap, again.
+
+Ported whole: the three registries (reports per bot, each reporter's 7-point
+daily budget, the per-address cooldown), every refusal in Java's order,
+`BotReportPunishments.xml`, the punishment ladder (exact-count rows **and**
+negative "range" rows, which apply at `|n|` reports and above), the daily point
+reset on its own `BotReportPointsResetHour` clock (00:00 — *not* the 06:30
+`DailyReset`), boot load and shutdown save through the existing
+`bot_reported_char_data` table, with Java's subtle load rule: a report made
+after the last reset has already cost its reporter a point, so the budget is
+rebuilt from the rows rather than starting at 7.
+
+**Four effect handlers landed with it**, since without them every punishment
+would have been inert: `BlockChat`, `BlockParty`, `BlockAction` and `Flag`.
+Three map straight onto the existing G31 punishment manager (CHAT_BAN /
+PARTY_BAN started on the buff's `onStart` and stopped on its `onExit` — Java
+passes expiration `0`, "forever", because the *buff* is the timer); `Flag` is
+`updatePvPFlag(1)`/`(0)`. New `effect_flag::CHAT_BLOCK`. `TradeRequest` now
+honours `BlockAction`'s `TRADE_ACTION_BLOCK_ID` (skills 6055/6056).
+
+**Java quirks kept deliberately:**
+- the "has not acquired any XP after connecting" guard is
+  `getExp() == getStartingExp()`, and **`setStartingExp` has no caller
+  anywhere**, so `_startingXp` is always 0 and the test really means "the
+  target has zero exp". Ported as the behaviour it has, not the behaviour its
+  name claims — porting the intent would refuse reports Java allows;
+- the cooldown message prints minutes **elapsed**, not remaining (Java passes
+  `reuse / 60000`). Left wrong, because a player comparing servers would notice
+  a "fix" as a difference;
+- the reported-character check reads the *reporter's* id out of the **reported**
+  map, so a reported player cannot report anyone.
+
+**Not ported:** fake players as report targets (Java accepts a
+`fakePlayerTalkable` NPC and counts the report without punishing, the punish
+path needing a `Player`).
+
+**Tests: 24** (16 bot-report/chat-filter + 8 config). The say filter, the
+report button wiring and the `BanChatChannels` gating were each
+sabotage-verified. One sabotage run **caught a vacuous test**: the "filtered
+word must not reach anyone" assertion was decoding the packet as `u16` pairs
+from offset 0, which the leading opcode byte misaligns — so it found nothing
+and passed for the wrong reason. It now searches the raw bytes for the
+UTF-16LE encoding of the word, and asserts the *replacement* is present too.
+
+The effect census ratchet moved 142 → 138 unhandled `<effect>` names.
+
+**Still open (unchanged):** the `GlobalChat`/`HeroVoice` flood-protector slots
+remain unconsumed, because Java never calls them — a chat *rate* limit would be
+an extension, not a port.
+
+---
+
 ## Deferred TODOs (by system)
 
 Empty/placeholder now, to be filled in the owning milestone:

@@ -45,7 +45,7 @@ mod ranks;
 mod recruit;
 mod skills;
 mod sub_pledge;
-mod wars;
+pub(crate) mod wars;
 
 pub(crate) use alliance::*;
 pub(crate) use crests::*;

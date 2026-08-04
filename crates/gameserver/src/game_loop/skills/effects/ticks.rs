@@ -425,6 +425,53 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
             *entry = (*entry - amount).max(0.0);
         }
     }
+    // The bot-report punishments' `onExit`: each undoes what its `onStart`
+    // began. Java's handlers stop the punishment / clear the PvP flag; the buff
+    // itself is the timer, so this is the only thing that ends them.
+    if let Some(effects) = world
+        .data
+        .skill_data
+        .get(skill_id, 1)
+        .map(|s| s.effects.clone())
+    {
+        for effect in &effects {
+            match effect {
+                SkillEffect::BlockChat => stop_bot_report_punishment(
+                    world,
+                    player_object_id,
+                    crate::model::punishment::PunishmentType::ChatBan,
+                ),
+                SkillEffect::BlockParty => stop_bot_report_punishment(
+                    world,
+                    player_object_id,
+                    crate::model::punishment::PunishmentType::PartyBan,
+                ),
+                SkillEffect::BlockAction { blocked_actions } => {
+                    if blocked_actions
+                        .contains(&crate::game_loop::bot_report::PARTY_ACTION_BLOCK_ID)
+                    {
+                        stop_bot_report_punishment(
+                            world,
+                            player_object_id,
+                            crate::model::punishment::PunishmentType::PartyBan,
+                        );
+                    }
+                    if blocked_actions.contains(&crate::game_loop::bot_report::CHAT_BLOCK_ID) {
+                        stop_bot_report_punishment(
+                            world,
+                            player_object_id,
+                            crate::model::punishment::PunishmentType::ChatBan,
+                        );
+                    }
+                }
+                // `Flag.onExit` → `updatePvPFlag(0)`.
+                SkillEffect::PvpFlag => {
+                    crate::game_loop::pvp::update_pvp_flag(world, player_object_id, 0);
+                }
+                _ => {}
+            }
+        }
+    }
     // `TargetMe.onExit` — `setLockedTarget(null)`. The lock is what stops the
     // victim clicking a different NPC ("Failed to change enmity"), so it must
     // go the moment the taunt does (G34 S4).
