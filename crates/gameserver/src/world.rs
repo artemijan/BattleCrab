@@ -481,6 +481,15 @@ pub struct World {
     /// RNG. Cheaper and more explicit than seed archaeology in tests.
     #[cfg(test)]
     pub forced_rolls: std::collections::VecDeque<i32>,
+    /// Test hook: a fixed wall clock for handlers that read [`World::now_millis`].
+    ///
+    /// Some Java behaviour is calendar-gated — the teleport fee halves from
+    /// 20:00 on Mondays and Tuesdays, for one. A test that asserts a price
+    /// while reading the real clock passes for most of the week and fails
+    /// inside the window, which is a flake that reproduces on a schedule
+    /// rather than at random and so reads as a broken build.
+    #[cfg(test)]
+    pub forced_now_millis: Option<i64>,
 }
 
 impl World {
@@ -592,7 +601,24 @@ impl World {
             quest_attack_skill: None,
             #[cfg(test)]
             forced_rolls: std::collections::VecDeque::new(),
+            #[cfg(test)]
+            forced_now_millis: None,
         }
+    }
+
+    /// The wall clock as handlers should read it — `commons::util::now_millis`,
+    /// except that tests can pin it via `forced_now_millis`.
+    ///
+    /// Use this instead of calling `now_millis()` directly wherever the value
+    /// feeds a *decision the client can observe* (a price, a gate, an
+    /// availability window). Timestamps merely being *recorded* — a respawn
+    /// deadline, a siege date — can keep using the free function.
+    pub(crate) fn now_millis(&self) -> i64 {
+        #[cfg(test)]
+        if let Some(t) = self.forced_now_millis {
+            return t;
+        }
+        commons::util::now_millis()
     }
 
     /// Next path-request sequence number (see `path_seq`).

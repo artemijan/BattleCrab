@@ -2270,12 +2270,25 @@ fn user_cmd_body(id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Wednesday 2026-01-07, 12:00 UTC — deliberately outside the Mon/Tue
+/// 20:00–24:00 half-price window, so a fee assertion means the same thing
+/// whenever the suite runs. `the_monday_tuesday_evening_window_halves_the_fee`
+/// covers the discounted side by calling `is_half_price_window` directly.
+pub(crate) const FULL_PRICE_CLOCK: i64 = 1_767_787_200_000;
+
 /// A Teleporter NPC (template 30001) with one NORMAL destination charging
 /// 9400 adena, `MaxFreeTeleportLevel = 40` (this dist), and a player holding
 /// `adena` at (0,0) who already clicked the gatekeeper.
 fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.cfg.character.max_free_teleport_level = 40;
+    // Pin the clock. `TeleportHolder.calculateFee` halves the price from 20:00
+    // on Mondays and Tuesdays, so a test asserting a fee against the *real*
+    // clock passes for ~160 hours a week and fails for the other 8. That is a
+    // flake on a schedule, which is worse than a random one: it reproduces for
+    // everyone at once and so reads as a genuinely broken build. These three
+    // were failing on `main` for exactly that reason when this was written.
+    world.forced_now_millis = Some(FULL_PRICE_CLOCK);
     world.id_pool = 0x5000_0000..0x5000_0100; // item oids for the seeded adena
     // Adena template so `add_inventory_item`/`take_items` can stack it.
     world

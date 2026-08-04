@@ -143,14 +143,8 @@ fn calculate_fee(
     holder: &TeleportHolder,
     loc: &TeleportLocation,
 ) -> i64 {
-    calculate_fee_at(
-        world,
-        level,
-        object_id,
-        holder,
-        loc,
-        commons::util::now_millis(),
-    )
+    let now = world.now_millis();
+    calculate_fee_at(world, level, object_id, holder, loc, now)
 }
 
 /// [`calculate_fee`] with the clock injected, so the Mon/Tue window is testable.

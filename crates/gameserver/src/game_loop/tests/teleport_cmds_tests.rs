@@ -476,6 +476,14 @@ fn the_monday_tuesday_evening_window_halves_the_fee() {
     assert!(!is_half_price_window(6 * DAY + 20 * HOUR));
     assert!(!is_half_price_window(3 * DAY + 20 * HOUR));
 
+    // The clock every other teleport test is pinned to must sit *outside* the
+    // window, or those tests would assert half prices while claiming full
+    // ones. This guard keeps `FULL_PRICE_CLOCK` honest if anyone retunes it.
+    assert!(
+        !is_half_price_window(FULL_PRICE_CLOCK),
+        "FULL_PRICE_CLOCK drifted into the discount window"
+    );
+
     // …and the fee actually halves inside the window.
     let (mut world, _rx) = teleporter_world(0);
     world
