@@ -4,5 +4,5 @@
 mod framing;
 mod packet;
 
-pub use framing::{HEADER_SIZE, read_frame, write_frame};
+pub use framing::{HEADER_SIZE, frame_into, read_frame, write_frame};
 pub use packet::{PacketReader, PacketWriter};

@@ -13,7 +13,7 @@ use crate::db;
 use crate::geo::GeoEngine;
 use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
-use crate::session::{ClientSession, SessionKey};
+use crate::session::{ClientSession, ClientTable, SessionKey};
 use crate::store::EntityStore;
 use rand::{Rng, SeedableRng};
 
@@ -98,7 +98,8 @@ pub struct World {
     pub tick: u64,
     pub scheduler: Scheduler,
     /// Connected clients keyed by network id, as type-state sessions (§3.1).
-    pub clients: HashMap<u32, ClientSession>,
+    /// Carries its own object-id → client-id reverse index; see [`ClientTable`].
+    pub clients: ClientTable,
     /// Per-connection hardware fingerprint (Java `GameClient._hardwareInfo`,
     /// G31), keyed by client id — reported by `RequestHardWareInfo`, read by the
     /// HWID punishment matching and `//hwid`. Cleared on disconnect.
@@ -115,10 +116,29 @@ pub struct World {
     /// session links here by id.
     pub objects: EntityStore,
     /// Region cell → NPC object ids in it — the materialized side of Java's
-    /// per-region object lists. NPCs are static (no AI movement yet), so this
-    /// is built once at spawn; players keep using the cheap per-player
-    /// adjacency compare instead (see `regions_adjacent`).
+    /// per-region object lists, built at spawn and kept current by
+    /// `visibility::update_npc_region`.
     pub npc_regions: HashMap<(i32, i32), Vec<i32>>,
+    /// Region cell → **player** object ids in it — the player half of the same
+    /// index, and the reason a broadcast no longer costs one adjacency compare
+    /// per connected client.
+    ///
+    /// Every broadcast is scoped to a 3×3 block of cells
+    /// ([`regions_adjacent`]), so the recipients of one are the occupants of at
+    /// most nine cells. Enumerating sessions instead made every send O(players
+    /// online) — fine at 20 players, quadratic at a siege.
+    ///
+    /// Indexes **every** object carrying a `Player` component, including
+    /// unattended shops (`offline_traders`), which have no session; consumers
+    /// resolve a session per id and skip the misses. Maintained only through
+    /// [`set_player_region`](Self::set_player_region) /
+    /// [`index_player`](Self::index_player) /
+    /// [`unindex_player`](Self::unindex_player) — never written directly, so it
+    /// cannot drift from the `RegionCell` components it mirrors.
+    /// [`debug_check_player_regions`](Self::debug_check_player_regions)
+    /// re-derives it from the ECS and is asserted on every tick in debug and
+    /// test builds.
+    player_regions: HashMap<(i32, i32), Vec<i32>>,
     /// `dbSave` spawn definitions the static spawn pass deliberately left
     /// unplaced, awaiting their `npc_respawns` rows — see
     /// [`crate::game_loop::boss_respawn`]. Drained once at boot.
@@ -474,11 +494,12 @@ impl World {
         Self {
             tick: 0,
             scheduler: Scheduler::new(),
-            clients: HashMap::new(),
+            clients: ClientTable::new(),
             hwids: HashMap::new(),
             offline_traders: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
+            player_regions: HashMap::new(),
             effect_zone_next_tick: HashMap::new(),
             item_mana_consuming: std::collections::HashMap::new(),
             published_items: HashMap::new(),
@@ -620,6 +641,130 @@ impl World {
             ClientSession::InGame(s) => Some(s.player_object_id()),
             _ => None,
         })
+    }
+
+    /// Add a freshly spawned player object to the region index. Called once,
+    /// where the entity enters the store (enter-world).
+    pub fn index_player(&mut self, object_id: i32, region: (i32, i32)) {
+        let ids = self.player_regions.entry(region).or_default();
+        if !ids.contains(&object_id) {
+            ids.push(object_id);
+        }
+    }
+
+    /// Drop a player object from the region index — the despawn half. Call it
+    /// **before** despawning, while the `RegionCell` is still readable.
+    ///
+    /// Finds the cell itself rather than trusting a caller-supplied one, and
+    /// falls back to a full sweep if the id is not where its component says it
+    /// is: a dangling entry would send a dead object id's packets forever.
+    pub fn unindex_player(&mut self, object_id: i32) {
+        use crate::model::components::RegionCell;
+        if let Some(region) = self
+            .objects
+            .get_component::<RegionCell>(&object_id)
+            .map(|r| r.0)
+            && let Some(ids) = self.player_regions.get_mut(&region)
+        {
+            let before = ids.len();
+            ids.retain(|&id| id != object_id);
+            if ids.len() != before {
+                if ids.is_empty() {
+                    self.player_regions.remove(&region);
+                }
+                return;
+            }
+        }
+        self.player_regions.retain(|_, ids| {
+            ids.retain(|&id| id != object_id);
+            !ids.is_empty()
+        });
+    }
+
+    /// **The** writer of a player's `RegionCell`: moves the component and the
+    /// index together, so the two cannot disagree. Returns the previous cell
+    /// when it actually changed (the callers' "did I switch region?" test),
+    /// `None` when the object stayed put or has no region cell.
+    ///
+    /// Every site that relocates a player — the movement tick, respawn, the
+    /// teleport skill effects — must go through here.
+    ///
+    /// Objects that are **not** players (an NPC caught by a teleport effect)
+    /// get their cell written and nothing else, exactly as the direct
+    /// component writes this replaced did. Their own index, `npc_regions`, is
+    /// `update_npc_region`'s business.
+    pub fn set_player_region(&mut self, object_id: i32, new: (i32, i32)) -> Option<(i32, i32)> {
+        use crate::model::components::RegionCell;
+        let is_player = self
+            .objects
+            .has_component::<crate::model::Player>(&object_id);
+        let cell = self.objects.get_component_mut::<RegionCell>(&object_id)?;
+        let old = cell.0;
+        if old == new {
+            return None;
+        }
+        cell.0 = new;
+        if !is_player {
+            return Some(old);
+        }
+        if let Some(ids) = self.player_regions.get_mut(&old) {
+            ids.retain(|&id| id != object_id);
+            if ids.is_empty() {
+                self.player_regions.remove(&old);
+            }
+        }
+        self.player_regions.entry(new).or_default().push(object_id);
+        Some(old)
+    }
+
+    /// Object ids of every player whose region cell lies in `region`'s 3×3
+    /// surrounding block — the player half of Java's
+    /// `World.forEachVisibleObject`, and the scope of every broadcast.
+    ///
+    /// Borrows `self`, so a caller needing `&mut World` inside the loop must
+    /// collect first. Order is unspecified (hash-map order), matching what the
+    /// session scan it replaced gave.
+    pub fn players_visible_from(&self, region: (i32, i32)) -> impl Iterator<Item = i32> + '_ {
+        (-1..=1).flat_map(move |dx| {
+            (-1..=1).flat_map(move |dy| {
+                self.player_regions
+                    .get(&(region.0 + dx, region.1 + dy))
+                    .into_iter()
+                    .flatten()
+                    .copied()
+            })
+        })
+    }
+
+    /// Re-derive the player region index straight from the ECS and panic if it
+    /// disagrees with the maintained one.
+    ///
+    /// The index is only correct while every `RegionCell` write on a player
+    /// goes through [`set_player_region`](Self::set_player_region) — and a site
+    /// that forgets does not fail to compile, it silently stops delivering
+    /// broadcasts to whoever is nearby. So the game loop asserts this on every
+    /// tick in debug and test builds, which puts the whole test suite behind
+    /// the invariant; release builds pay nothing.
+    #[cfg(debug_assertions)]
+    pub fn debug_check_player_regions(&mut self) {
+        use crate::model::components::RegionCell;
+        let mut expected: HashMap<(i32, i32), Vec<i32>> = HashMap::new();
+        self.objects
+            .for_each_mut::<(&crate::model::Player, &RegionCell)>(|(p, cell)| {
+                expected.entry(cell.0).or_default().push(p.object_id);
+            });
+        let mut actual: HashMap<(i32, i32), Vec<i32>> = self.player_regions.clone();
+        for ids in expected.values_mut() {
+            ids.sort_unstable();
+        }
+        for ids in actual.values_mut() {
+            ids.sort_unstable();
+        }
+        assert_eq!(
+            actual, expected,
+            "player region index drifted from the RegionCell components — a \
+             player was moved without World::set_player_region"
+        );
     }
 
     /// Object ids of every NPC whose region cell lies in `region`'s 3×3

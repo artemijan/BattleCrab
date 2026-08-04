@@ -12,7 +12,7 @@ use super::*;
 
 use crate::geo::worker::PathRequest;
 use crate::geo::{NSWE_ALL, NSWE_EAST};
-use crate::model::components::{AttackState, Movement, PathWait, Position, RegionCell, Vitals};
+use crate::model::components::{AttackState, Movement, PathWait, Position, Vitals};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 
 const MOB_ID: i32 = 46000;
@@ -354,9 +354,7 @@ fn hate_zeroes_for_a_target_that_left_the_neighbourhood() {
     if let Some(p) = world.objects.get_component_mut::<Position>(&PLAYER) {
         p.x = 40_000;
     }
-    if let Some(r) = world.objects.get_component_mut::<RegionCell>(&PLAYER) {
-        r.0 = crate::world::region_of(40_000, 0);
-    }
+    world.set_player_region(PLAYER, crate::world::region_of(40_000, 0));
 
     advance_world(&mut world, 10);
     assert_eq!(

@@ -3330,7 +3330,7 @@ fn transform_skills_never_persist() {
     // skills survive.
     let mut chr = dummy_char(8946, "Poisoned");
     chr.skills = vec![(839, 1, 0), (5437, 2, 0), (1177, 1, 0)];
-    Player::from_char(&world.data, &chr).spawn_into(&mut world.objects);
+    Player::from_char(&world.data, &chr).spawn_into(&mut world);
     let book = world.objects.get_component::<SkillBook>(&8946).unwrap();
     assert!(
         !book.0.contains_key(&839),

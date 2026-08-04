@@ -1,17 +1,16 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 
 /// The client id of the in-game session linked to a `Player`, or `None` if
 /// they've disconnected since the task was scheduled (dead-id ⇒ no-op, per
 /// the scheduler's contract).
+///
+/// O(1): [`crate::session::ClientTable`] keeps the object-id → client-id
+/// reverse index. This used to scan every connected session.
 pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<u32> {
-    world.clients.iter().find_map(|(&cid, cs)| match cs {
-        ClientSession::InGame(s) if s.player_object_id() == player_object_id => Some(cid),
-        _ => None,
-    })
+    world.clients.client_of_player(player_object_id)
 }
 
 /// Send one packet to a connected client — Java `GameClient.sendPacket`.
@@ -27,10 +26,10 @@ pub(crate) fn send_to_client(world: &World, client_id: u32, packet: Vec<u8>) {
 /// Send one packet to the client driving `player_object_id` — Java
 /// `Player.sendPacket`. No-op when that player is offline.
 ///
-/// Keyed by **object id**, so it pays a linear `clients` scan through
-/// [`client_for_player`]. Use [`send_to_client`] instead when the client id is
-/// already in hand; only reach for this when all you have is the object id
-/// (scheduled tasks, effects resolved against a target).
+/// Keyed by **object id**, resolved through [`client_for_player`]'s reverse
+/// index. Both this and [`send_to_client`] are O(1) now; prefer the latter
+/// when the client id is already in hand, and reach for this when all you have
+/// is the object id (scheduled tasks, effects resolved against a target).
 pub(crate) fn send_to_player(world: &World, player_object_id: i32, packet: Vec<u8>) {
     if let Some(cid) = client_for_player(world, player_object_id) {
         send_to_client(world, cid, packet);
@@ -175,20 +174,23 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
     };
     let from_region = from.0;
     let from_instance = instance_of(world, from_object_id);
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(s) = cs {
-            let other_id = s.player_object_id();
-            if other_id == from_object_id {
-                continue;
-            }
-            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else {
-                continue;
-            };
-            if crate::world::regions_adjacent(from_region, other.0)
-                && instance_of(world, other_id) == from_instance
-            {
-                cs.send(packet.to_vec());
-            }
+    // The 3×3 block *is* the recipient set, so walk the region index rather
+    // than every connected client. Indexed players without a session (the
+    // unattended shops) simply resolve to no client and are skipped, which is
+    // what the old session scan did by never seeing them.
+    for other_id in world.players_visible_from(from_region) {
+        if other_id == from_object_id {
+            continue;
+        }
+        if instance_of(world, other_id) != from_instance {
+            continue;
+        }
+        if let Some(cs) = world
+            .clients
+            .client_of_player(other_id)
+            .and_then(|cid| world.clients.get(&cid))
+        {
+            cs.send(packet.to_vec());
         }
     }
 }
@@ -204,16 +206,16 @@ pub(crate) fn broadcast_near_region_in(
     instance: i32,
     packet: &[u8],
 ) {
-    use crate::model::components::RegionCell;
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(s) = cs {
-            let oid = s.player_object_id();
-            let Some(p) = world.objects.get_component::<RegionCell>(&oid) else {
-                continue;
-            };
-            if crate::world::regions_adjacent(region, p.0) && instance_of(world, oid) == instance {
-                cs.send(packet.to_vec());
-            }
+    for oid in world.players_visible_from(region) {
+        if instance_of(world, oid) != instance {
+            continue;
+        }
+        if let Some(cs) = world
+            .clients
+            .client_of_player(oid)
+            .and_then(|cid| world.clients.get(&cid))
+        {
+            cs.send(packet.to_vec());
         }
     }
 }

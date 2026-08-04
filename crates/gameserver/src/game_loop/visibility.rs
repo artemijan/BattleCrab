@@ -311,24 +311,15 @@ fn send_static_object_info(world: &World, session: &ClientSession, object_id: i3
 /// position mutation (movement tick, `ValidatePosition` snap, future
 /// teleports).
 pub(crate) fn update_region(world: &mut World, object_id: i32) {
-    let Some((pos, region)) = world
-        .objects
-        .get_many_mut::<(&Position, &mut RegionCell)>(&object_id)
-        .map(|(pos, mut region)| {
-            let new = region_of(pos.x, pos.y);
-            let old = region.0;
-            if new != old {
-                region.0 = new;
-            }
-            (new, old)
-        })
-    else {
+    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
         return;
     };
-    let (new, old) = (pos, region);
-    if new == old {
+    let new = region_of(pos.x, pos.y);
+    // Moves the `RegionCell` and `World.player_regions` together; `None` means
+    // the cell did not change, which is this function's early-out.
+    let Some(old) = world.set_player_region(object_id, new) else {
         return;
-    }
+    };
 
     // Visibility deltas vs every other in-game player (client id included so
     // the send phase needs no per-player session scan).
@@ -665,6 +656,15 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
 /// for anyone whose cell changed. `update_region` early-outs on an unchanged
 /// cell, so the sweep is a cheap comparison per player on quiet ticks.
 pub(crate) fn movement_tick(world: &mut World) {
+    // `World.player_regions` backs every broadcast, and a site that relocates a
+    // player without `World::set_player_region` would break it silently rather
+    // than loudly. Re-derive it from the ECS and compare, once per tick, in
+    // debug and test builds — this is the tick entry point the test harness
+    // drives too (`tests::advance_world`), so the whole suite stands behind the
+    // invariant. Compiled out of release entirely.
+    #[cfg(debug_assertions)]
+    world.debug_check_player_regions();
+
     let outcome = crate::model::movement::tick(world);
     let mut ids: Vec<i32> = Vec::new();
     world

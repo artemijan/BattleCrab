@@ -502,7 +502,7 @@ fn restore_one(world: &mut World, row: crate::db::OfflineTraderRow, store_type: 
         bundle.player.name_color = world.cfg.offline_trade.name_color;
     }
     let pending_buffs = std::mem::take(&mut bundle.pending_buffs);
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(world);
 
     // The same post-spawn wiring enter-world does, minus everything that talks
     // to a client: the stat pumps must run or the shop stands with raw base

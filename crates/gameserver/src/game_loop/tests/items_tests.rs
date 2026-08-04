@@ -4501,7 +4501,7 @@ fn freight_send_delivers_to_an_offline_character() {
         .into_lobby(vec![dummy_char(9901, "Sender"), dummy_char(9902, "Alt")])
         .into_entering(bundle);
     let (session, bundle) = session.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(&mut world);
     world
         .clients
         .insert(1, crate::session::ClientSession::InGame(session));
@@ -4610,7 +4610,7 @@ fn freight_send_refuses_bad_items_and_strangers() {
         .into_lobby(vec![dummy_char(9903, "Sender"), dummy_char(9904, "Alt")])
         .into_entering(bundle);
     let (session, bundle) = session.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(&mut world);
     world
         .clients
         .insert(1, crate::session::ClientSession::InGame(session));

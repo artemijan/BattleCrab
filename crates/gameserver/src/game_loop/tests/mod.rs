@@ -788,7 +788,7 @@ fn ingame_caster(
         .into_lobby(vec![])
         .into_entering(player);
     let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(world);
     world
         .clients
         .insert(client_id, ClientSession::InGame(session));
@@ -847,7 +847,7 @@ fn ingame_player(
         .into_lobby(vec![])
         .into_entering(bundle);
     let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(world);
     world
         .clients
         .insert(client_id, ClientSession::InGame(session));
@@ -2182,7 +2182,7 @@ fn ingame_player_access(
         .into_lobby(vec![])
         .into_entering(bundle);
     let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(world);
     world
         .clients
         .insert(client_id, ClientSession::InGame(session));

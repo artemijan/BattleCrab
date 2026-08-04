@@ -663,7 +663,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Take the persisted buffs off the bundle before it's consumed; they're
     // re-applied below, once the entity exists.
     let pending_buffs = std::mem::take(&mut bundle.pending_buffs);
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(world);
     info!(
         "GameLoop: '{name}' entered the world ({} online).",
         world.objects.count::<crate::model::Player>()

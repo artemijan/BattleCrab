@@ -29,13 +29,33 @@ pub async fn read_frame<R: AsyncRead + Unpin>(
     Ok(Some(payload))
 }
 
+/// Appends one framed packet — header (payload length + 2, LE) then the
+/// payload — to `buf`, without touching the socket.
+///
+/// The building block for coalescing: sockets here run with `TCP_NODELAY`, so
+/// a header written separately from its body leaves the wire as its own 2-byte
+/// segment. Callers with several packets to send should frame them all into
+/// one buffer and issue a single `write_all` (see the game server's
+/// per-connection task), which collapses both the syscall count and the
+/// segment count to one per wakeup instead of two per packet.
+pub fn frame_into(buf: &mut Vec<u8>, payload: &[u8]) {
+    let total = (payload.len() + HEADER_SIZE) as u16;
+    buf.extend_from_slice(&total.to_le_bytes());
+    buf.extend_from_slice(payload);
+}
+
 /// Writes one frame: header (payload length + 2, LE) followed by the payload.
+///
+/// Header and payload go out in a **single** `write_all`; splitting them was
+/// worth a wasted syscall and a 2-byte TCP segment per packet under
+/// `TCP_NODELAY`. Use [`frame_into`] directly when more than one packet is
+/// ready, so they share a write too.
 pub async fn write_frame<W: AsyncWrite + Unpin>(
     write: &mut W,
     payload: &[u8],
 ) -> std::io::Result<()> {
-    let total = (payload.len() + HEADER_SIZE) as u16;
-    write.write_all(&total.to_le_bytes()).await?;
-    write.write_all(payload).await?;
+    let mut buf = Vec::with_capacity(payload.len() + HEADER_SIZE);
+    frame_into(&mut buf, payload);
+    write.write_all(&buf).await?;
     write.flush().await
 }

@@ -170,7 +170,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         .into_lobby(vec![])
         .into_entering(bundle);
     let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(&mut world);
     world.clients.insert(1, ClientSession::InGame(session));
 
     // --- Learn: RequestAcquireSkill(id=91, level=1, type=CLASS). ---
@@ -383,7 +383,7 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
-    b.spawn_into(&mut world.objects);
+    b.spawn_into(&mut world);
     super::expertise::refresh_expertise_penalty(&mut world, 4212);
     super::passive_skills::refresh_conditioned_passives(&mut world, 4212);
     assert_eq!(
@@ -450,7 +450,7 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
         bundle.combat.p_atk_spd, 384,
         "Magician's Movement stays inert in a robe"
     );
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(&mut world);
 
     // Take the robe legs off: the MAGIC condition now fails (bare legs read as
     // NONE), so `refresh_conditioned_passives` drops Spellcraft's bonus.
@@ -586,7 +586,7 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
         b.combat.m_atk_spd, 499,
         "cast speed after from_char (Spellcraft ×1.5 in a robe)"
     );
-    b.spawn_into(&mut world.objects);
+    b.spawn_into(&mut world);
 
     // 3. Enter-world refresh tail, in `handle_enter_world` order.
     super::expertise::refresh_expertise_penalty(&mut world, 4213);
@@ -724,7 +724,7 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
     chr.skills = vec![(163, 1, 0), (249, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     let m_atk_with_mastery = bundle.combat.m_atk;
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(&mut world);
 
     // Level-down check strips Weapon Mastery (5 < 7) and re-folds the stats.
     super::death::check_player_skills(&mut world, 4214);
@@ -820,7 +820,7 @@ fn auto_learn_grants_all_reachable_class_skills() {
             .into_lobby(vec![])
             .into_entering(bundle);
         let (_session, bundle) = s.into_ingame();
-        bundle.spawn_into(&mut world.objects);
+        bundle.spawn_into(world);
     };
 
     // Flag ON: the class skill (id 91 @ level 1, the max reachable at char
@@ -932,7 +932,7 @@ fn delevel_downgrades_then_removes_skills() {
             .into_lobby(vec![])
             .into_entering(bundle);
         let (_session, bundle) = s.into_ingame();
-        bundle.spawn_into(&mut world.objects);
+        bundle.spawn_into(&mut world);
 
         world
             .objects
@@ -5024,7 +5024,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     let mut bare = dummy_char(5201, "Bare");
     bare.items = vec![paperdoll(1, 628, 7)];
     let bare_bundle = Player::from_char(&world.data, &bare);
-    bare_bundle.spawn_into(&mut world.objects);
+    bare_bundle.spawn_into(&mut world);
     let bare_shield = crate::game_loop::combat::combatant(&world, 5201).expect("bare combatant");
     assert_eq!(
         bare_shield.shield_def, 128.0,
@@ -5035,7 +5035,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     masted.items = vec![paperdoll(2, 628, 7)];
     masted.skills = vec![(153, 4, 0)];
     let masted_bundle = Player::from_char(&world.data, &masted);
-    masted_bundle.spawn_into(&mut world.objects);
+    masted_bundle.spawn_into(&mut world);
     let masted_shield =
         crate::game_loop::combat::combatant(&world, 5202).expect("masted combatant");
     assert_eq!(
@@ -5375,7 +5375,7 @@ fn enemy_not_targets_a_friendly_player() {
         .into_lobby(vec![])
         .into_entering(bundle);
     let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(&mut world);
     world.clients.insert(1, ClientSession::InGame(session));
     // `chr.cur_mp` gets clamped to the class's computed max MP at spawn (59
     // for a level-1 Mystic) — below level-1 Restore Life's 80 MP cost, so
@@ -5823,7 +5823,7 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
         .into_lobby(vec![])
         .into_entering(bundle);
     let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world.objects);
+    bundle.spawn_into(&mut world);
     world.clients.insert(1, ClientSession::InGame(session));
     world
         .objects

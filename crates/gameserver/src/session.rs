@@ -330,3 +330,125 @@ impl ClientSession {
         }
     }
 }
+
+/// The connected-client table: `client id → session`, plus the reverse
+/// `player object id → client id` index for in-game sessions.
+///
+/// Java reaches a player's `GameClient` through the `Player` object itself, so
+/// "which connection drives this object id?" is a field read there. The port
+/// keys sessions by network id, and answering the same question used to mean a
+/// linear scan of every connected client — on a path that ~340 call sites take
+/// (`helpers::send_to_player`, `send_sm_to_player`, `broadcast_including_self`,
+/// every scheduled task that resolves a target by object id).
+///
+/// The index is maintained **here** rather than at the two dozen
+/// `clients.insert`/`clients.remove` sites, because an index kept by hand at
+/// call sites fails open: a missed site does not fail to compile, it silently
+/// sends packets to nobody. Mutation only happens through [`insert`](Self::insert)
+/// and [`remove`](Self::remove), so the two maps cannot drift.
+#[derive(Default)]
+pub struct ClientTable {
+    by_client: std::collections::HashMap<u32, ClientSession>,
+    by_player: std::collections::HashMap<i32, u32>,
+}
+
+impl ClientTable {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// The player object id an in-game session drives; `None` for every other
+    /// state (no player is attached yet).
+    fn player_of(session: &ClientSession) -> Option<i32> {
+        match session {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        }
+    }
+
+    /// The client id driving `player_object_id` in O(1) — Java
+    /// `Player.getClient()`. `None` once that player has disconnected.
+    pub fn client_of_player(&self, player_object_id: i32) -> Option<u32> {
+        self.by_player.get(&player_object_id).copied()
+    }
+
+    pub fn insert(&mut self, client_id: u32, session: ClientSession) -> Option<ClientSession> {
+        let new_player = Self::player_of(&session);
+        let previous = self.by_client.insert(client_id, session);
+        // Drop the outgoing session's reverse entry before adding the new one,
+        // so a state transition on the same connection (Entering → InGame) or
+        // a session swap can't strand a stale mapping.
+        if let Some(old_player) = previous.as_ref().and_then(Self::player_of)
+            && Some(old_player) != new_player
+        {
+            self.unindex(old_player, client_id);
+        }
+        if let Some(player) = new_player {
+            self.by_player.insert(player, client_id);
+        }
+        previous
+    }
+
+    pub fn remove(&mut self, client_id: &u32) -> Option<ClientSession> {
+        let removed = self.by_client.remove(client_id);
+        if let Some(player) = removed.as_ref().and_then(Self::player_of) {
+            self.unindex(player, *client_id);
+        }
+        removed
+    }
+
+    /// Drop `player`'s reverse entry, but only while it still points at
+    /// `client_id`. A relog can register the new connection before the old one
+    /// is torn down; without this guard, cleaning up the dead session would
+    /// delete the live client's mapping and leave the player unreachable.
+    fn unindex(&mut self, player: i32, client_id: u32) {
+        if self.by_player.get(&player) == Some(&client_id) {
+            self.by_player.remove(&player);
+        }
+    }
+
+    pub fn get(&self, client_id: &u32) -> Option<&ClientSession> {
+        self.by_client.get(client_id)
+    }
+
+    /// Mutable access to a session's own state (the pending admin confirm).
+    /// Callers must not change which player the session drives — that is a
+    /// state transition, which goes through `remove` + `insert`.
+    pub fn get_mut(&mut self, client_id: &u32) -> Option<&mut ClientSession> {
+        self.by_client.get_mut(client_id)
+    }
+
+    pub fn contains_key(&self, client_id: &u32) -> bool {
+        self.by_client.contains_key(client_id)
+    }
+
+    pub fn values(&self) -> std::collections::hash_map::Values<'_, u32, ClientSession> {
+        self.by_client.values()
+    }
+
+    pub fn iter(&self) -> std::collections::hash_map::Iter<'_, u32, ClientSession> {
+        self.by_client.iter()
+    }
+
+    pub fn len(&self) -> usize {
+        self.by_client.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.by_client.is_empty()
+    }
+
+    pub fn clear(&mut self) {
+        self.by_client.clear();
+        self.by_player.clear();
+    }
+}
+
+impl<'a> IntoIterator for &'a ClientTable {
+    type Item = (&'a u32, &'a ClientSession);
+    type IntoIter = std::collections::hash_map::Iter<'a, u32, ClientSession>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}

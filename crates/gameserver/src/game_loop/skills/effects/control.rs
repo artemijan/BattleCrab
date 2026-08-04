@@ -870,12 +870,9 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
         pos.y = dest.y;
         pos.z = dest.z;
     }
-    if let Some(region) = world
-        .objects
-        .get_component_mut::<crate::model::components::RegionCell>(&target_oid)
-    {
-        region.0 = crate::world::region_of(dest.x, dest.y);
-    }
+    // Same reason as the respawn teleport: the region index has to move with
+    // the cell. No-op on the index for a non-player target.
+    world.set_player_region(target_oid, crate::world::region_of(dest.x, dest.y));
     // Java sends nothing else here — in particular no `MagicSkillCanceled` for
     // the caster. A cancel would end the summoning FX the client keeps drawing
     // for the skill's own (skillgrp) duration, past the 2 s cast; Java has that

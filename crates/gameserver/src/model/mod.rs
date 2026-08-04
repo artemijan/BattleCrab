@@ -706,8 +706,14 @@ impl PlayerData {
     }
 
     /// Spawn into the world registry (Java `World.addObject` at EnterWorld).
-    pub fn spawn_into(self, objects: &mut crate::store::EntityStore) {
-        objects.spawn(
+    ///
+    /// Takes the whole `World`, not just the store, so the new player lands in
+    /// `World.player_regions` in the same step it lands in the ECS — an entity
+    /// spawned without its index entry is invisible to every broadcast.
+    pub fn spawn_into(self, world: &mut crate::world::World) {
+        let object_id = self.player.object_id;
+        let region = self.region.0;
+        world.objects.spawn(
             self.player.object_id,
             (
                 self.player,
@@ -752,6 +758,7 @@ impl PlayerData {
                 ),
             ),
         );
+        world.index_player(object_id, region);
     }
 }
 

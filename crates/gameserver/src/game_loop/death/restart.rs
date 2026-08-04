@@ -316,9 +316,10 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
         pos.y = y;
         pos.z = z;
     }
-    if let Some(region) = world.objects.get_component_mut::<RegionCell>(&player_oid) {
-        region.0 = crate::world::region_of(x, y);
-    }
+    // Through `World`, not the component directly, so `player_regions` moves
+    // with the cell (an untracked teleport would leave the player receiving
+    // broadcasts for the region they left).
+    world.set_player_region(player_oid, crate::world::region_of(x, y));
     // "Send teleport finished packet to player" (Java, right after `setXYZ`):
     // the client sits on the black loading screen until this arrives, then
     // loads the destination and answers with `Appearing`.

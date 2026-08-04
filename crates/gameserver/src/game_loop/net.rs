@@ -126,6 +126,10 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // Gather everything persistence needs before despawn — components drop
     // with the entity (PLAN_ECS_STAGE2 §7 risk 3).
     if let Some(save) = build_save_data(world, player_object_id) {
+        // Index entry goes just before the despawn, while the `RegionCell` is
+        // still there to locate it — and only on the branch that actually
+        // despawns, so a player left in the world keeps receiving broadcasts.
+        world.unindex_player(player_object_id);
         world.objects.despawn(&player_object_id);
         let _ = world.db.send(db::DbCommand::StorePlayer { save });
     }

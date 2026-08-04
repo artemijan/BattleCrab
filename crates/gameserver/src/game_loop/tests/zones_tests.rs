@@ -331,11 +331,7 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
         .get_component_mut::<Position>(&3002)
         .unwrap()
         .x = 5500;
-    world
-        .objects
-        .get_component_mut::<crate::model::components::RegionCell>(&3002)
-        .unwrap()
-        .0 = crate::world::region_of(5500, 0);
+    world.set_player_region(3002, crate::world::region_of(5500, 0));
     super::zones::revalidate_zone(&mut world, 3002, false);
 
     // (auto-attackable, relation bits) for the RelationChanged about `about`.
@@ -412,11 +408,7 @@ fn siege_relation_carries_clan_leader_crown_bit() {
         .get_component_mut::<Position>(&3002)
         .unwrap()
         .x = 5500;
-    world
-        .objects
-        .get_component_mut::<crate::model::components::RegionCell>(&3002)
-        .unwrap()
-        .0 = crate::world::region_of(5500, 0);
+    world.set_player_region(3002, crate::world::region_of(5500, 0));
     super::zones::revalidate_zone(&mut world, 3002, false);
 
     let leader_crown_rc = drain(&mut b_rx).iter().any(|p| {

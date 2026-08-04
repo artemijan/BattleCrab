@@ -11,8 +11,8 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use commons::network::{read_frame, write_frame};
-use tokio::io::AsyncWrite;
+use commons::network::{frame_into, read_frame, write_frame};
+use tokio::io::{AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpListener;
 use tracing::{debug, info, warn};
 
@@ -23,6 +23,17 @@ use super::{ConnectionState, NetEvent, NetEventTx};
 
 /// Frame payloads never exceed the 16-bit length header.
 const MAX_PAYLOAD: usize = u16::MAX as usize;
+
+/// Stop coalescing outbound packets once the batch reaches this size and get
+/// it on the wire; whatever is still queued rides the next wakeup. Bounds the
+/// per-connection buffer against a pathological burst without capping the
+/// common case (a tick's worth of packets is far below this).
+const OUT_BATCH_SOFT_LIMIT: usize = 32 * 1024;
+
+/// Capacity the outbound batch buffer is allowed to retain between wakeups.
+/// Anything larger was a one-off burst and is released rather than held per
+/// connection for the rest of the session.
+const OUT_BATCH_KEEP_CAPACITY: usize = 8 * 1024;
 
 /// The handshake-relevant config, resolved once from `ServerConfig`.
 pub struct NetworkConfig {
@@ -78,6 +89,8 @@ async fn handle(
     }
 
     let mut client = GameClient::new(client_id, cfg.packet_encryption);
+    // Reused across wakeups so the steady state allocates nothing to send.
+    let mut out_batch: Vec<u8> = Vec::with_capacity(OUT_BATCH_KEEP_CAPACITY);
 
     let result = loop {
         tokio::select! {
@@ -103,10 +116,44 @@ async fn handle(
             }
             out = out_rx.recv() => {
                 match out {
-                    Some(mut body) => {
-                        client.encrypt(&mut body);
-                        if let Err(e) = write_frame(&mut write, &body).await {
+                    Some(first) => {
+                        // Coalesce every packet already queued into one write.
+                        // A game tick hands this task a burst (CharInfo +
+                        // StatusUpdate + MoveToLocation + …), and with
+                        // TCP_NODELAY each `write_frame` would be its own
+                        // syscall and its own TCP segment. Draining with
+                        // `try_recv` costs nothing when only one is waiting.
+                        //
+                        // Encryption stays strictly in queue order: the cipher
+                        // rolls its key forward by the bytes processed, so the
+                        // client's decrypt only lines up if we encrypt each
+                        // body in the order it was sent.
+                        out_batch.clear();
+                        let mut body = first;
+                        loop {
+                            client.encrypt(&mut body);
+                            frame_into(&mut out_batch, &body);
+                            // Bound the buffer so a pathological burst can't
+                            // grow it without limit — flush and come back.
+                            if out_batch.len() >= OUT_BATCH_SOFT_LIMIT {
+                                break;
+                            }
+                            match out_rx.try_recv() {
+                                Ok(next) => body = next,
+                                Err(_) => break,
+                            }
+                        }
+                        if let Err(e) = write.write_all(&out_batch).await {
                             break Err(e);
+                        }
+                        if let Err(e) = write.flush().await {
+                            break Err(e);
+                        }
+                        // Keep the steady-state buffer small: only a burst
+                        // should hold a large allocation, and only until the
+                        // next one.
+                        if out_batch.capacity() > OUT_BATCH_KEEP_CAPACITY {
+                            out_batch = Vec::with_capacity(OUT_BATCH_KEEP_CAPACITY);
                         }
                     }
                     None => break Ok(()),              // all senders dropped
