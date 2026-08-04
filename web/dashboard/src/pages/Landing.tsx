@@ -193,6 +193,16 @@ export function Landing() {
                 ? "Grab the launcher — it installs and updates the game client for you — then log in with one of your game accounts."
                 : "Grab the launcher — it installs and updates the game client for you — then create your account. Either order works."}
             </p>
+            {/* Said here rather than in a requirements list: this is the moment
+                someone on a Mac decides the download is pointless and leaves.
+                Naming Parallels specifically is the point — "use a VM" reads as
+                a guess, whereas a named product that is known to work reads as
+                an answer. */}
+            <p className="mt-2 text-xs/relaxed text-(--text-faint)">
+              The client is Windows software. On a Mac it runs under{" "}
+              <span className="text-(--text-muted)">Parallels Desktop</span> — install the launcher
+              inside Windows exactly as you would on a PC.
+            </p>
           </div>
           <div className={cx("flex gap-3", ctaVisibility)}>
             {signedIn ? (
