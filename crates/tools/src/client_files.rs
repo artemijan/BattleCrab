@@ -373,10 +373,21 @@ fn pack(
         // Re-read what we are about to write: it must reproduce the text it
         // came from, or the `.dat` would go to the client subtly wrong.
         let back = dat_text::read(&bytes, &layout, enums, false);
-        if back.exact() && back.text.trim_end() == text.trim_end() {
-            return Ok(bytes);
+        if !back.exact() {
+            first.get_or_insert_with(|| {
+                format!(
+                    "the packed bytes do not re-read cleanly: {}",
+                    back.summary()
+                )
+            });
+            continue;
         }
-        first.get_or_insert_with(|| "packed bytes did not re-read as the same text".to_string());
+        match dat_pack::diff_text(&back.text, &text) {
+            None => return Ok(bytes),
+            Some(why) => {
+                first.get_or_insert(format!("the packed bytes re-read differently: {why}"));
+            }
+        }
     }
     Err(first.unwrap_or_else(|| "no layout packed this file".to_string()))
 }
