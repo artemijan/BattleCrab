@@ -36,7 +36,9 @@ as dense, cache-friendly linear scans instead of pointer-chasing a map. See
 ## Datapack tools
 
 `l2r-tools` answers questions about the datapack by running the *server's* geo
-code over it, so a verdict from it is a verdict in game.
+code over it, so a verdict from it is a verdict in game. The sections below
+cover the commands that come up most; **[`crates/tools/README.md`](crates/tools/README.md)
+documents all six**, including `dat-text` and the `msg-color` editor.
 
 ```sh
 cargo build --release -p tools
@@ -56,24 +58,24 @@ them — two simpler detectors look right and are not.
 ## Client files
 
 `client-dat` unpacks the game client's `system` directory — the `Lineage2Ver`
-enciphered `*.dat`, `*.ini`, `*.u` and `*.int` files — into plaintext and packs
-it back, so the client's own item and skill tables can be diffed against
+enciphered `*.dat`, `*.ini` and `*.int` files — into plaintext and packs it
+back, so the client's own item and skill tables can be diffed against
 `dist/game/data`:
 
 ```sh
-./target/release/l2r-tools client-dat decrypt   # system -> system_decrypted
+./target/release/l2r-tools client-dat decrypt     # system -> system_decrypted
 # ...edit files in dist/client/system_decrypted...
-./target/release/l2r-tools client-dat encrypt   # system_decrypted -> system
+./target/release/l2r-tools client-dat encrypt     # system_decrypted -> system
+./target/release/l2r-tools client-dat roundtrip   # verify without writing either
 ```
 
-Both directions take optional `IN` and `OUT` paths; the defaults above are
-relative to `--client-dir` (`dist/client`). Files carrying no `Lineage2Ver`
-header — the client's executables and libraries — are left alone unless
-`--include-plain` is passed.
+Each directory is overridable (`--system-dir`, `--decrypted-dir`); the defaults
+above are relative to `--client-dir` (`dist/client`). Everything else in the
+client — executables, libraries, `.u` packages — is left exactly where it is.
 
 Which cipher a file used cannot be guessed from its name (`.ini` files appear
 under Ver111, Ver413 *and* unencrypted), so `decrypt` records each file's
-version in a `.l2dat-manifest.json` beside the output and `encrypt` reads it
+version in a `.l2client-manifest.json` beside the output and `encrypt` reads it
 back; anything it cannot place is reported rather than silently dropped. Only
 Ver413 and the XOR versions can be written — NCsoft published just the public
 exponent for its other RSA keys. See `crates/tools/src/client_dat.rs`.
