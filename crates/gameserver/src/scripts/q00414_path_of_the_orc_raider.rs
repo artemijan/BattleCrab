@@ -157,7 +157,7 @@ impl QuestScript for Q00414PathOfTheOrcRaider {
                 }
                 None
             }
-            // TODO(dead): `07b` and the two `31978` events below are
+            // SKIP(dead): `07b` and the two `31978` events below are
             // unreachable in the shipped datapack — no button posts `07b` and
             // 31978 is registered nowhere. Kept verbatim; do not wire the
             // button back up without also registering 31978 as a talk NPC,

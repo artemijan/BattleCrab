@@ -456,7 +456,6 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("G?", 1),
         ("cinematic", 1),
         ("cosmetic", 1),
-        ("dead", 6),
         ("frintezza-4b", 1),
         ("login-playauth", 2),
         ("manor", 2),

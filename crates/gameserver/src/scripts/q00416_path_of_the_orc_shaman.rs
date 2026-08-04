@@ -55,7 +55,7 @@
 //!   only entry is `30585-14.html`, which no page offers, and none of those
 //!   three NPCs is registered anywhere. Both of Java's `NpcSay` lines with a
 //!   player-name parameter live inside it, which is why this port needs no
-//!   string-parameter support in `NpcSay`. Ported as `TODO(dead)` stubs are
+//!   string-parameter support in `NpcSay`. Ported as `SKIP(dead)` stubs are
 //!   *not* included: unlike 414/415 the dead branch here is large and touches
 //!   a packet feature we don't have, so it is deliberately **omitted** and
 //!   documented rather than half-ported.

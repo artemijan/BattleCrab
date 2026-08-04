@@ -51,7 +51,7 @@
 //! Same two-sided orphaning as quest 414, and again checked in both
 //! directions: had only the serving end been missing, `09c` would be a trap
 //! (it consumes Rosheek's letter and hands out no recommendation). Ported
-//! verbatim with `TODO(dead)` markers; the `KASHA_SPIDERS_TOOTH` and
+//! verbatim with `SKIP(dead)` markers; the `KASHA_SPIDERS_TOOTH` and
 //! `BAAR_DRE_VANUL` kill handlers below are part of the same dead route.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
@@ -281,7 +281,7 @@ impl QuestScript for Q00415PathOfTheOrcMonk {
                 }
                 None
             }
-            // TODO(dead): `09c` and every `31979`/`32056` event below belong to
+            // SKIP(dead): `09c` and every `31979`/`32056` event below belong to
             // the alternate ending, which nothing can reach — no page offers
             // `09c` and neither NPC is registered. Do not restore one end
             // without the other: this route takes Rosheek's letter and hands
@@ -394,7 +394,7 @@ impl QuestScript for Q00415PathOfTheOrcMonk {
             return;
         }
 
-        // TODO(dead): the alternate ending's two kill handlers.
+        // SKIP(dead): the alternate ending's two kill handlers.
         match npc_id {
             KASHA_FANG_SPIDER | KASHA_BLADE_SPIDER
                 if ctx.memo_state() == 3
@@ -455,7 +455,7 @@ impl Q00415PathOfTheOrcMonk {
         ];
         let pouch_count: i64 = pouches.iter().map(|id| ctx.quest_items_count(*id)).sum();
         let memo = ctx.memo_state();
-        // TODO(dead): only reachable via the unreachable `09c`.
+        // SKIP(dead): only reachable via the unreachable `09c`.
         if memo == 2 {
             return Some("30587-09c.html".to_string());
         }
