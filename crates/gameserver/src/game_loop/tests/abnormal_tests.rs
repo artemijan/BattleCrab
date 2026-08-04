@@ -275,6 +275,72 @@ fn stun_interrupts_an_in_flight_cast_and_movement() {
     );
 }
 
+/// The object ids named by every `MagicSkillCanceled` in `packets`.
+fn canceled_ids(packets: &[Vec<u8>]) -> Vec<i32> {
+    packets
+        .iter()
+        .filter(|p| {
+            p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_CANCELED)
+        })
+        .map(|p| i32::from_le_bytes([p[1], p[2], p[3], p[4]]))
+        .collect()
+}
+
+/// A stun/sleep landing mid-cast has to stop the cast *animation*, not just the
+/// server-side cast: Java's `BlockActions.onStart` → `abortAllSkillCasters()` →
+/// `stopCasting(true)`, and that `true` is the leg that broadcasts
+/// `MagicSkillCanceled`. Dropping the cast quietly leaves every client drawing
+/// the channel — and its FX — for the rest of the client-side cast time, so a
+/// slept mob keeps visibly casting after the sleep landed.
+#[test]
+fn a_stun_broadcasts_magic_skill_canceled_to_stop_the_animation() {
+    let (mut world, _db, _l) = cc_world();
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut vout = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+
+    // A player victim, mid-cast.
+    crate::game_loop::skills::cast::use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
+    assert!(world.objects.has_component::<Casting>(&VICTIM));
+    drain(&mut out);
+    drain(&mut vout);
+
+    land(&mut world, STUN_ID, VICTIM);
+    assert!(
+        canceled_ids(&drain(&mut vout)).contains(&VICTIM),
+        "the victim's own client must be told to drop the cast animation"
+    );
+    assert!(
+        canceled_ids(&drain(&mut out)).contains(&VICTIM),
+        "and so must everyone watching (the broadcast includes self)"
+    );
+
+    // The same for a *monster* mid-cast — the case that shows up as a slept mob
+    // that keeps playing its spell animation.
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+    let mob_skill = world
+        .data
+        .skill_data
+        .get(91, 1)
+        .cloned()
+        .expect("registered");
+    crate::game_loop::npc_cast::start_cast(&mut world, NPC_OID, CASTER, &mob_skill);
+    assert!(
+        world.objects.has_component::<Casting>(&NPC_OID),
+        "the mob is mid-cast"
+    );
+    drain(&mut out);
+
+    land(&mut world, STUN_ID, NPC_OID);
+    assert!(
+        !world.objects.has_component::<Casting>(&NPC_OID),
+        "the mob's cast is dropped"
+    );
+    assert!(
+        canceled_ids(&drain(&mut out)).contains(&NPC_OID),
+        "and the observer is told to stop drawing it"
+    );
+}
+
 /// A stunned *monster* stops attacking: its AI think is short-circuited while
 /// the flag is up, and resumes once it clears.
 #[test]
