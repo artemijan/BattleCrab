@@ -13,6 +13,8 @@ use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
+use super::instant;
+
 /// The `callSkill` → `activateSkill` → effect-handler chain for the effect
 /// kinds ported so far. Continuous stat modifiers land as an `ActiveBuff` on
 /// the target; `MagicalAttack`/`Heal` are instant.
@@ -22,7 +24,7 @@ use crate::world::World;
 /// *effect handler* rather than by the shared formula, and the magical one
 /// inside `calcMagicDam`; both land at the same point in the arithmetic, so
 /// they share this reader (G34 S4).
-fn skill_power_mul(world: &World, caster_oid: i32, magic: bool) -> f64 {
+pub(super) fn skill_power_mul(world: &World, caster_oid: i32, magic: bool) -> f64 {
     use crate::model::stats::Stat;
     let stat = if magic {
         Stat::MagicalSkillPower
@@ -176,7 +178,7 @@ pub(crate) fn max_recoverable(
 /// The owner link lives on the servitor as `ServitorOf`, which is also what
 /// makes Java's `canStart` (`effected.isSummon()`) expressible: no component,
 /// not a servitor, no unsummon.
-fn servitor_owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
+pub(super) fn servitor_owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
     world
         .objects
         .get_component::<crate::model::components::ServitorOf>(&servitor_oid)
@@ -252,6 +254,17 @@ pub(crate) fn apply_skill_effects(
             .objects
             .get_component::<crate::model::Player>(&caster_oid)
             .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::Soulshots));
+
+    let ctx = instant::CastCtx {
+        caster_oid,
+        target_oid,
+        mcrit,
+        ss,
+        sps,
+        bss,
+        magic_shots_bonus,
+        caster_is_player,
+    };
 
     for effect in &skill.effects {
         // `Formulas.calcSkillEvasion`, which Java calls from the `calcSuccess`
@@ -347,33 +360,7 @@ pub(crate) fn apply_skill_effects(
                     );
                 }
             }
-            SkillEffect::MagicalAttack { power } => {
-                let power = *power;
-                let (m_atk, caster_name) = {
-                    let m_atk =
-                        world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                    (m_atk, caster_display_name(world, caster_oid))
-                };
-                let m_def = target_m_def(world, target_oid);
-                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
-                // `calcMagicDam`'s `attributeMod` term (Volcano's FIRE 20 vs
-                // the target's fire resistance).
-                let damage = formulas::calc_magic_dam(
-                    m_atk,
-                    m_def,
-                    power,
-                    mcrit,
-                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
-                    magic_shots_bonus,
-                    failure,
-                ) * attribute_mod(world, caster_oid, target_oid, skill)
-                    * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-                    // `calcMagicDam`'s own tail:
-                    // `damage *= getValue(Stat.MAGICAL_SKILL_POWER, 1)`.
-                    * skill_power_mul(world, caster_oid, true)
-                    * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
-            }
+            SkillEffect::MagicalAttack { power } => instant::magical_attack(world, &ctx, skill, *power),
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
             // `ManaHealPercent`, `Mp`). Four Java handlers, four amount
             // formulas, one shared apply path — see `restore_mp`.
@@ -485,103 +472,7 @@ pub(crate) fn apply_skill_effects(
             // `calcManaDam` formula (target max MP is a multiplier), a
             // per-skill `criticalLimit` cap on a crit, and its own
             // `calcSuccess` gate (`calcMagicAffected`).
-            SkillEffect::MagicalAttackMp { power, critical, critical_limit } => {
-                // `calcSuccess`: `isMpBlocked()` refuses outright.
-                if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
-                    continue;
-                }
-                let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                let m_def = target_m_def(world, target_oid);
-                // `calcMagicAffected`: `defence` is the target's mDef only for
-                // an *active bad* skill — all four of these are.
-                let defence = if skill.is_bad() { m_def } else { 0.0 };
-                let gaussian = world.roll_gaussian();
-                if !formulas::calc_magic_affected(m_atk, defence, gaussian) {
-                    // Java messages both sides and bails.
-                    if let Some(cid) = client_for_player(world, caster_oid)
-                        && let Some(cs) = world.clients.get(&cid) {
-                            cs.send(server_packets::system_message_with(sm_ids::YOUR_ATTACK_HAS_FAILED, &[]));
-                        }
-                    if let Some(cid) = client_for_player(world, target_oid)
-                        && let Some(cs) = world.clients.get(&cid) {
-                            cs.send(server_packets::system_message_with(
-                                sm_ids::C1_RESISTED_C2_S_DRAIN,
-                                &[
-                                    SmParam::Text(caster_display_name(world, target_oid)),
-                                    SmParam::Text(caster_display_name(world, caster_oid)),
-                                ],
-                            ));
-                        }
-                    continue;
-                }
-
-                // `calcShldUse` — a perfect block cuts the drain to 1.
-                let (shield_def, shield_rate, con_bonus) = crate::game_loop::combat::shield_stats(world, target_oid);
-                let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
-                let shield = formulas::calc_shield_use(shield_rate, con_bonus, false, false, rate_roll, perfect_roll);
-
-                // Java: `mcrit = _critical && Formulas.calcCrit(skill.getMagicCriticalRate(), …)`.
-                // All four skills are `<isMagic>1</isMagic>`, and `calcCrit`'s
-                // magic branch **discards the rate it was passed** and reads
-                // the caster's `MAGIC_CRITICAL_RATE` stat instead — so
-                // `<magicCriticalRate>` is dead input here, and the roll is
-                // exactly the per-cast `mcrit` already computed above (same
-                // stat, same `min(rate, isBad ? 200 : 320) > Rnd.get(1000)`).
-                // Only the effect's own `critical` flag gates it.
-                let drain_crit = *critical && mcrit;
-                let target_max_mp =
-                    world.objects.get_component::<Vitals>(&target_oid).map(|v| v.max_mp as f64).unwrap_or(0.0);
-                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
-                let damage = if shield == formulas::SHIELD_PERFECT {
-                    1.0
-                } else {
-                    formulas::calc_mana_dam(
-                        m_atk,
-                        m_def + if shield == formulas::SHIELD_SUCCEED { shield_def } else { 0.0 },
-                        target_max_mp,
-                        *power,
-                        magic_shots_bonus,
-                        failure,
-                        drain_crit,
-                        *critical_limit,
-                    ) * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
-                };
-
-                // `mp = Math.min(effected.getCurrentMp(), damage)` — you cannot
-                // drain more than is there, and the *reported* figure is the
-                // clamped one.
-                let drained = {
-                    let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
-                    let drained = v.cur_mp.min(damage.max(0.0));
-                    if damage > 0.0 {
-                        v.cur_mp -= drained;
-                    }
-                    drained
-                };
-                if drain_crit
-                    && let Some(cid) = client_for_player(world, caster_oid)
-                        && let Some(cs) = world.clients.get(&cid) {
-                            cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
-                        }
-                if let Some(cid) = client_for_player(world, target_oid)
-                    && let Some(cs) = world.clients.get(&cid) {
-                        cs.send(server_packets::system_message_with(
-                            sm_ids::S2_S_MP_HAS_BEEN_DRAINED_BY_C1,
-                            &[
-                                SmParam::Text(caster_display_name(world, caster_oid)),
-                                SmParam::Int(drained as i32),
-                            ],
-                        ));
-                    }
-                if let Some(cid) = client_for_player(world, caster_oid)
-                    && let Some(cs) = world.clients.get(&cid) {
-                        cs.send(server_packets::system_message_with(
-                            sm_ids::YOUR_OPPONENT_S_MP_WAS_REDUCED_BY_S1,
-                            &[SmParam::Int(drained as i32)],
-                        ));
-                    }
-                broadcast_vitals(world, target_oid);
-            }
+            SkillEffect::MagicalAttackMp { power, critical, critical_limit } => instant::magical_attack_mp(world, &ctx, skill, *power, *critical, *critical_limit),
             SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence }
             // `PhysicalAttackHpLink` is the same formula with one extra
             // multiplier at the end, so it shares this arm rather than
@@ -730,358 +621,21 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::CallParty => {
                 call_party(world, caster_oid);
             }
-            SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
-                use crate::model::components::Position as PosComp;
-                // Attacker position relative to the target's facing (for the
-                // land roll's positional bonus, the blow's back/side damage
-                // bonus, and Backstab's flank requirement).
-                let (Some(a), Some(t)) = (
-                    world.objects.get_component::<PosComp>(&caster_oid).copied(),
-                    world.objects.get_component::<PosComp>(&target_oid).copied(),
-                ) else {
-                    continue;
-                };
-                let position = crate::model::movement::get_position(a.x, a.y, t.x, t.y, t.heading);
-
-                // Backstab must land from outside the target's front arc
-                // (`!isInFrontOf`). A front Backstab silently fails, like Java's
-                // `calcSuccess == false` — no `doAttack`, no message.
-                if *backstab && position == crate::model::movement::Position::Front {
-                    continue;
-                }
-
-                let (p_atk, crit_rate, str_bonus, random_dmg, blow_rate_mod, caster_name) = {
-                    let cs = world.objects.get_component::<CombatStats>(&caster_oid);
-                    let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
-                    let crit_rate = cs.map(|c| c.crit_hit).unwrap_or(0.0);
-                    let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
-                    let str_bonus = world
-                        .objects
-                        .get_component::<BaseStats>(&caster_oid)
-                        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
-                        .unwrap_or(1.0);
-                    // `Stat.BLOW_RATE` (`FatalBlowRate` — Focus Death, Critical
-                    // Blow, Mortal Strike, Assassination), default 1.0.
-                    let blow_rate_mod = world
-                        .objects
-                        .get_component::<StatModifiers>(&caster_oid)
-                        .and_then(|m| m.mul.get(&crate::model::stats::Stat::BlowRate).copied())
-                        .unwrap_or(1.0);
-                    let name =
-                        caster_display_name(world, caster_oid);
-                    (p_atk, crit_rate, str_bonus, random_dmg, blow_rate_mod, name)
-                };
-
-                // `calcBlowSuccess`: does the blow land? A miss is silent
-                // (Java's `calcSuccess == false` skips the whole effect).
-                let landed = formulas::calc_blow_success(
-                    crit_rate / 10.0,
-                    position,
-                    crate::game_loop::combat::crit_rate_position_mul(world, caster_oid, position),
-                    a.z,
-                    t.z,
-                    *chance_boost,
-                    blow_rate_mod,
-                    world.cfg.character.blow_rate_chance_limit,
-                    world.roll(100),
-                );
-                if !landed {
-                    continue;
-                }
-
-                // `calcBlowDamage` opens on the shield switch: a normal block
-                // adds the shield's sDef, a perfect one `return 1` outright.
-                // Blows carry no `ignoreShieldDefence` — the parameter does not
-                // exist on this formula, so the roll always happens.
-                let defence = defence_after_shield(
-                    world,
-                    target_oid,
-                    target_p_def(world, target_oid),
-                    false,
-                );
-                let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
-                let mut damage = match defence {
-                    None => 1.0,
-                    Some(defence) => {
-                        let mut d = formulas::calc_blow_damage(
-                            p_atk,
-                            *power,
-                            defence,
-                            position,
-                            formulas::random_damage_multiplier(rand_roll),
-                            ss,
-                        );
-                        // `calcBlowDamage`'s `attributeMod` + trait terms.
-                        d *= attribute_mod(world, caster_oid, target_oid, skill);
-                        d *= skill_trait_mod(world, caster_oid, target_oid, skill, true);
-                        d *= pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
-                        d
-                    }
-                };
-                // FatalBlow/Backstab double on a `calcCrit` roll; SoulBlow
-                // (`critical_chance == None`) doesn't. Java rolls this *after*
-                // the perfect-block shortcut, but on that path the 1 is
-                // returned before the crit is ever consulted — so the roll is
-                // kept here (it stays in the RNG stream either way) and simply
-                // has nothing to double.
-                if let Some(cc) = critical_chance
-                    && formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100))
-                    && defence.is_some() {
-                        damage *= 2.0;
-                    }
-                // Java passes `critical = true` to `doAttack` for every blow, so
-                // it always shows as a critical hit.
-                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit, false, skill.id);
-            }
-            SkillEffect::Lethal { full_lethal, half_lethal } => {
-                // `skill.getMagicLevel() < effected.getLevel() - 6`: silently
-                // refused against a target too far above the skill's level.
-                let target_level = creature_level(world, target_oid);
-                if skill.magic_level < target_level - 6 {
-                    continue;
-                }
-                // `isLethalable()`: raid bosses are immune — the same check
-                // `apply_mute_interrupt` already uses — as is anything a script
-                // exempted (`setLethalable(false)`: the siege Headquarters).
-                // Grand-boss/door immunity isn't modeled, so it's not checked.
-                let is_raid = world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&target_oid)
-                    .and_then(|n| n.template(world))
-                    .is_some_and(|t| t.is_raid());
-                if is_raid
-                    || world
-                        .objects
-                        .has_component::<crate::model::components::NotLethalable>(&target_oid)
-                {
-                    continue;
-                }
-                // `isHpBlocked()` (Celestial Shield, …): a landed `DamageBlock`
-                // refuses this too, now that it's modeled.
-                if crate::game_loop::abnormal::is_hp_blocked(world, target_oid) {
-                    continue;
-                }
-                // `INSTANT_KILL_RESIST` is never set by anything in this
-                // datapack (like `MAX_MOMENTUM`), so Java's resist roll would
-                // always lose against a 0 stat — not rolled here at all.
-                // None of the four outcome SystemMessages below take
-                // parameters (`"Lethal Strike!"`, `"Half-Kill!"`, …).
-                let caster_client = client_for_player(world, caster_oid);
-                let is_player_target = world.objects.get_component::<crate::model::Player>(&target_oid).is_some();
-                // `Lethal.instant`'s `chanceMultiplier` — **both** halves:
-                // `calcAttributeBonus * calcGeneralTraitBonus(…, false)`. It
-                // scales the full- and half-kill chances alike, so a victim
-                // resisting the skill's element or trait is correspondingly
-                // harder to execute.
-                let lethal_amod = attribute_mod(world, caster_oid, target_oid, skill)
-                    * calc_general_trait_bonus(
-                        world,
-                        caster_oid,
-                        target_oid,
-                        skill.trait_type,
-                        false,
-                    );
-                if world.roll(100) < ((*full_lethal) * lethal_amod) as i32 {
-                    if is_player_target {
-                        if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
-                            v.cur_cp = 1.0;
-                        }
-                        if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                            v.cur_hp = 1.0;
-                        }
-                        if let Some(client_id) = client_for_player(world, target_oid)
-                            && let Some(cs) = world.clients.get(&client_id) {
-                                cs.send(server_packets::system_message_with(sm_ids::LETHAL_STRIKE, &[]));
-                            }
-                    } else if crate::game_loop::combat::is_npc_oid(target_oid)
-                        && let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                            v.cur_hp = 1.0;
-                        }
-                    broadcast_vitals(world, target_oid);
-                    if let Some(client_id) = caster_client
-                        && let Some(cs) = world.clients.get(&client_id) {
-                            cs.send(server_packets::system_message_with(sm_ids::HIT_WITH_LETHAL_STRIKE, &[]));
-                        }
-                } else if world.roll(100) < ((*half_lethal) * lethal_amod) as i32 {
-                    if is_player_target {
-                        if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
-                            v.cur_cp = 1.0;
-                        }
-                        if let Some(client_id) = client_for_player(world, target_oid)
-                            && let Some(cs) = world.clients.get(&client_id) {
-                                cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
-                                cs.send(server_packets::system_message_with(
-                                    sm_ids::YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL,
-                                    &[],
-                                ));
-                            }
-                    } else if crate::game_loop::combat::is_npc_oid(target_oid)
-                        && let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                            v.cur_hp *= 0.5;
-                        }
-                    broadcast_vitals(world, target_oid);
-                    if let Some(client_id) = caster_client
-                        && let Some(cs) = world.clients.get(&client_id) {
-                            cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
-                        }
-                }
-            }
-            SkillEffect::HpDrain { power, percentage } => {
-                let power = *power;
-                let (m_atk, caster_name) = {
-                    let m_atk =
-                        world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                    (m_atk, caster_display_name(world, caster_oid))
-                };
-                let m_def = target_m_def(world, target_oid);
-                // `is_drain` swaps the caster-side failure lines for the drain
-                // wording (Java checks `skill.hasEffectType(HP_DRAIN)`).
-                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, true);
-                let damage = formulas::calc_magic_dam(
-                    m_atk,
-                    m_def,
-                    power,
-                    mcrit,
-                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
-                    magic_shots_bonus,
-                    failure,
-                ) * attribute_mod(world, caster_oid, target_oid, skill)
-                    * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-                    // `MAGICAL_SKILL_POWER` lives *inside* Java's `calcMagicDam`,
-                    // so every caller gets it — HpDrain included, even though
-                    // its own handler never mentions the stat.
-                    * skill_power_mul(world, caster_oid, true)
-                    * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
-
-                // `HpDrain.instant()`: the drained HP is what's actually removed
-                // — CP absorbs first (player targets only; NPCs have no CP),
-                // then it's clamped to the target's remaining HP. Java reads both
-                // as truncated ints, pre-damage.
-                let cur_hp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp.floor()).unwrap_or(0.0);
-                let cur_cp = world
-                    .objects
-                    .get_component::<crate::model::components::PlayerVitals>(&target_oid)
-                    .map(|v| v.cur_cp.floor())
-                    .unwrap_or(0.0);
-                let drain = if cur_cp > 0.0 {
-                    if damage < cur_cp { 0.0 } else { damage - cur_cp }
-                } else if damage > cur_hp {
-                    cur_hp
-                } else {
-                    damage
-                };
-                // Heal the caster by `percentage`% of the drain, overheal-clamped.
-                let heal = (*percentage / 100.0) * drain;
-                if heal > 0.0 {
-                    if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
-                        v.cur_hp = (v.cur_hp + heal).min(v.max_hp as f64);
-                    }
-                    if let Some(client_id) = client_for_player(world, caster_oid) {
-                        let cur = world.objects.get_component::<Vitals>(&caster_oid).map(|v| v.cur_hp as i32).unwrap_or(0);
-                        if let Some(cs) = world.clients.get(&client_id) {
-                            cs.send(server_packets::status_update(
-                                caster_oid,
-                                &[(server_packets::status_update_type::CUR_HP, cur)],
-                            ));
-                        }
-                        crate::game_loop::party::notify_party_vitals(world, caster_oid);
-                    }
-                }
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
-            }
+            SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => instant::blow(world, &ctx, skill, *power, *chance_boost, *critical_chance, *backstab),
+            SkillEffect::Lethal { full_lethal, half_lethal } => instant::lethal(world, &ctx, skill, *full_lethal, *half_lethal),
+            SkillEffect::HpDrain { power, percentage } => instant::hp_drain(world, &ctx, skill, *power, *percentage),
             // `CpHealPercent.instant` — a share of the target's **max CP**,
             // clamped by `getMaxRecoverableCp()`. Java bails on a dead target,
             // a door and an HP-blocked one (the last is not a typo: the CP heal
             // reads `isHpBlocked`).
             // `OpenDoor.instant` — the lock-picking half of Unlock (27).
-            SkillEffect::OpenDoor { chance, is_item } => {
-                let Some(door_id) = world
-                    .objects
-                    .get_component::<crate::model::door::Door>(&target_oid)
-                    .map(|d| d.door_id)
-                else {
-                    continue;
-                };
-                if crate::game_loop::helpers::instance_of(world, caster_oid)
-                    != crate::game_loop::helpers::instance_of(world, target_oid)
-                {
-                    continue;
-                }
-                let openable_by_skill = world.data.door_data.get(door_id).is_some_and(|t| {
-                    t.open_method == crate::data::door_data::DoorOpenMethod::BySkill
-                });
-                // Java also refuses when `door.getFort() != null`. This port
-                // has no fort system, so that half cannot be evaluated — and
-                // for the *skill* path it is vacuous on this dist anyway: none
-                // of the 34 `BY_SKILL` doors is a fort door (they are Cruma,
-                // Devil's Isle, the Water Garden, Rune ToH and the Four
-                // Sepulchers). It is **not** vacuous for an item-cast unlock,
-                // which skips the `BY_SKILL` gate entirely.
-                // TODO(G34): add the fort gate once forts exist.
-                if !openable_by_skill && !*is_item {
-                    send_sm(world, caster_oid, sm_ids::THIS_DOOR_CANNOT_BE_UNLOCKED);
-                    continue;
-                }
-                let already_open = world.geo.doors.is_open(door_id);
-                if world.roll(100) < *chance && !already_open {
-                    crate::game_loop::doors::open_door(world, target_oid);
-                } else {
-                    send_sm(world, caster_oid, sm_ids::YOU_HAVE_FAILED_TO_UNLOCK_THE_DOOR);
-                }
-            }
+            SkillEffect::OpenDoor { chance, is_item } => instant::open_door(world, &ctx, skill, *chance, *is_item),
             // `OpenChest.instant` — the treasure-box half of Unlock (27), and a
             // *level* check rather than a chance roll: within 6 levels (5 above
             // 77) the box opens, otherwise it turns on you. Opening it kills the
             // chest with `setSpecialDrop()` + `setMustRewardExpSp(false)`, so it
             // rolls its own drop list and pays no exp.
-            SkillEffect::OpenChest => {
-                let is_chest = world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&target_oid)
-                    .and_then(|n| world.data.npc_data.get(n.npc_id))
-                    .is_some_and(|t| t.type_name == "Chest");
-                let dead = world
-                    .objects
-                    .get_component::<Vitals>(&target_oid)
-                    .is_some_and(|v| v.dead);
-                if !is_chest
-                    || dead
-                    || crate::game_loop::helpers::instance_of(world, caster_oid)
-                        != crate::game_loop::helpers::instance_of(world, target_oid)
-                {
-                    continue;
-                }
-                let player_level = creature_level(world, caster_oid);
-                let chest_level = creature_level(world, target_oid);
-                let band = if player_level <= 77 { 6 } else { 5 };
-                if (chest_level - player_level).abs() <= band {
-                    broadcast_social_action(world, caster_oid, 3);
-                    if let Some(n) = world
-                        .objects
-                        .get_component_mut::<crate::model::npc::Npc>(&target_oid)
-                    {
-                        n.special_drop = true;
-                        n.must_reward_exp_sp = false;
-                    }
-                    let max_hp = world
-                        .objects
-                        .get_component::<Vitals>(&target_oid)
-                        .map(|v| v.max_hp as f64)
-                        .unwrap_or(0.0);
-                    crate::game_loop::combat::npc_receive_damage(
-                        world,
-                        target_oid,
-                        caster_oid,
-                        max_hp,
-                        false,
-                    );
-                } else {
-                    // Out of band the box is a mimic: Java gives it a single
-                    // point of hate and points its AI at the caster.
-                    broadcast_social_action(world, caster_oid, 13);
-                    crate::game_loop::minions::add_hate(world, target_oid, caster_oid, 1.0);
-                }
-            }
+            SkillEffect::OpenChest => instant::open_chest(world, &ctx),
             // `Bluff.instant` — spin the target to face the caster's heading.
             // Raid bosses and their minions are immune (Java also names NPC
             // 35062, a siege headquarters, explicitly); the pair of rotation
@@ -1136,118 +690,13 @@ pub(crate) fn apply_skill_effects(
             // *effected* to be a summon, so the skill is aimed at the pet
             // rather than its owner, and the chance defaults to **-1**
             // ("always") rather than 100.
-            SkillEffect::Unsummon { chance } => {
-                // `canStart`: the *effected* must be a summon. The port keys
-                // ownership the other way (owner → `SummonRef`), so find the
-                // owner by asking the target's own back-reference.
-                let Some(owner) = servitor_owner_of(world, target_oid) else {
-                    // Not a servitor — Java's `canStart` refuses outright.
-                    continue;
-                };
-                // `calcSuccess`: a negative chance always lands; otherwise the
-                // magic-level gate `(effected.getLevel() - 9) <= magicLevel`
-                // has to pass first.
-                if *chance >= 0 {
-                    let target_level = creature_level(world, target_oid);
-                    if skill.magic_level > 0 && (target_level - 9) > skill.magic_level {
-                        continue;
-                    }
-                    let rate = *chance as f64
-                        * attribute_mod(world, caster_oid, target_oid, skill)
-                        * calc_general_trait_bonus(
-                            world,
-                            caster_oid,
-                            target_oid,
-                            skill.trait_type,
-                            false,
-                        );
-                    if rate < 100.0 && rate <= world.roll(100) as f64 {
-                        continue;
-                    }
-                }
-                crate::game_loop::servitor::unsummon_servitor(world, owner);
-            }
+            SkillEffect::Unsummon { chance } => instant::unsummon(world, &ctx, skill, *chance),
             // `DeathLink.instant` — Curse Death Link (1159). The power scales
             // with how close the **caster** is to death:
             // `power × (2 − 2·curHp/maxHp)` — ×2 at 0 HP, ×0 at full, so
             // casting it healthy does literally nothing.
-            SkillEffect::DeathLink { power } => {
-                let Some(v) = world.objects.get_component::<Vitals>(&caster_oid).copied() else {
-                    continue;
-                };
-                if v.dead {
-                    continue;
-                }
-                let scaled = *power * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0);
-                let m_atk = world
-                    .objects
-                    .get_component::<CombatStats>(&caster_oid)
-                    .map(|c| c.m_atk)
-                    .unwrap_or(0.0);
-                let m_def = target_m_def(world, target_oid);
-                let caster_name = caster_display_name(world, caster_oid);
-                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
-                let damage = formulas::calc_magic_dam(
-                    m_atk,
-                    m_def,
-                    scaled,
-                    mcrit,
-                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
-                    magic_shots_bonus,
-                    failure,
-                ) * attribute_mod(world, caster_oid, target_oid, skill)
-                    * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-                    * skill_power_mul(world, caster_oid, true)
-                    * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
-                apply_skill_damage(
-                    world, caster_oid, target_oid, damage, mcrit, true, &caster_name,
-                    skill.over_hit, false, skill.id,
-                );
-            }
-            SkillEffect::CpHealPercent { power } => {
-                use crate::model::components::PlayerVitals;
-                if world
-                    .objects
-                    .get_component::<Vitals>(&target_oid)
-                    .is_none_or(|v| v.dead)
-                    || world
-                        .objects
-                        .has_component::<crate::model::door::Door>(&target_oid)
-                    || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
-                {
-                    continue;
-                }
-                let Some(cp) = world
-                    .objects
-                    .get_component::<PlayerVitals>(&target_oid)
-                    .copied()
-                else {
-                    // NPCs have no CP pool at all.
-                    continue;
-                };
-                let max_cp = cp.max_cp as f64;
-                let amount = if *power == 100.0 {
-                    max_cp
-                } else {
-                    max_cp * *power / 100.0
-                };
-                let ceiling = max_recoverable(
-                    world,
-                    target_oid,
-                    crate::model::stats::Stat::MaxRecoverableCp,
-                    max_cp,
-                );
-                let amount = amount.min((ceiling - cp.cur_cp).max(0.0));
-                if amount > 0.0 {
-                    if let Some(v) = world
-                        .objects
-                        .get_component_mut::<PlayerVitals>(&target_oid)
-                    {
-                        v.cur_cp += amount;
-                    }
-                    broadcast_vitals(world, target_oid);
-                }
-            }
+            SkillEffect::DeathLink { power } => instant::death_link(world, &ctx, skill, *power),
+            SkillEffect::CpHealPercent { power } => instant::cp_heal_percent(world, &ctx, *power),
             // `HpByLevel.instant` — heals the **effector**. Life Scavenge (46)
             // and Corpse Life Drain (1151) drain a corpse to top the *caster*
             // up, so the target is only the corpse being consumed.
@@ -1275,174 +724,8 @@ pub(crate) fn apply_skill_effects(
                 }
                 broadcast_vitals(world, caster_oid);
             }
-            SkillEffect::Heal { power } => {
-                let power = *power;
-                let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
-                let mut amount = formulas::calc_heal(power, m_atk, mcrit, sps, bss, skill.mp_consume, caster_is_player);
-                // Java `Heal`: `amount *= effected.HEAL_EFFECT; amount +=
-                // effected.HEAL_EFFECT_ADD` — the *recipient's* stats decide
-                // how much of the heal they actually get.
-                if let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&target_oid) {
-                    amount *= mods.mul.get(&crate::model::stats::Stat::HealEffect).copied().unwrap_or(1.0);
-                    amount += mods.add.get(&crate::model::stats::Stat::HealEffectAdd).copied().unwrap_or(0.0);
-                }
-                if crate::game_loop::combat::is_npc_oid(target_oid) {
-                    // Healing an NPC: clamp and update, no system messages
-                    // (nobody to send them to).
-                    let hp = {
-                        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid)
-                        else {
-                            continue;
-                        };
-                        if vitals.dead {
-                            continue;
-                        }
-                        vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
-                        (vitals.cur_hp as i32, vitals.max_hp)
-                    };
-                    // `broadcastStatusUpdate` — refresh the HP bar for everyone
-                    // watching the mob; without this the server-side heal is
-                    // invisible to clients (the bar never moves).
-                    if let Some(region) = world
-                        .objects
-                        .get_component::<RegionCell>(&target_oid)
-                        .map(|r| r.0)
-                    {
-                        crate::game_loop::helpers::broadcast_near_region(
-                            world,
-                            region,
-                            &server_packets::status_update(
-                                target_oid,
-                                &[
-                                    (server_packets::status_update_type::MAX_HP, hp.1),
-                                    (server_packets::status_update_type::CUR_HP, hp.0),
-                                ],
-                            ),
-                        );
-                    }
-                    continue;
-                }
-                // `Heal.java`: `min(amount, max(0, getMaxRecoverableHp() -
-                // getCurrentHp()))` — the ceiling is the *recoverable* cap, not
-                // the pool, which is what Noblesse Harmony/Symphony lower.
-                let ceiling = {
-                    let base = world
-                        .objects
-                        .get_component::<Vitals>(&target_oid)
-                        .map(|v| v.max_hp as f64)
-                        .unwrap_or(0.0);
-                    max_recoverable(
-                        world,
-                        target_oid,
-                        crate::model::stats::Stat::MaxRecoverableHp,
-                        base,
-                    )
-                };
-                let healed = {
-                    let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
-                    let amount = amount.min((ceiling - vitals.cur_hp).max(0.0));
-                    vitals.cur_hp += amount;
-                    amount
-                };
-                let caster_name = caster_display_name(world, caster_oid);
-                if let Some(client_id) = client_for_player(world, target_oid) {
-                    if let Some(cs) = world.clients.get(&client_id) {
-                        if target_oid != caster_oid {
-                            cs.send(server_packets::system_message_with(
-                                sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
-                                &[SmParam::PlayerName(caster_name), SmParam::Int(healed as i32)],
-                            ));
-                        } else {
-                            cs.send(server_packets::system_message_with(
-                                sm_ids::S1_HP_HAS_BEEN_RESTORED,
-                                &[SmParam::Int(healed as i32)],
-                            ));
-                        }
-                        let cur_hp = world
-                            .objects
-                            .get_component::<Vitals>(&target_oid)
-                            .map(|v| v.cur_hp as i32)
-                            .unwrap_or(0);
-                        cs.send(server_packets::status_update(
-                            target_oid,
-                            &[(server_packets::status_update_type::CUR_HP, cur_hp)],
-                        ));
-                    }
-                    crate::game_loop::party::notify_party_vitals(world, target_oid);
-                }
-            }
-            SkillEffect::HealPercent { power } => {
-                let power = *power;
-                let Some(max_hp) = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.max_hp as f64) else {
-                    continue;
-                };
-                // Java `full = power == 100.0`, else `maxHp * power / 100`. No
-                // `HealEffect`/`HealEffectAdd` recipient scaling (unlike `Heal`).
-                let amount = if power == 100.0 { max_hp } else { max_hp * power / 100.0 };
-                if amount < 0.0 {
-                    // A negative-power instance (none learnable today) is
-                    // damage, not healing — Java's `reduceCurrentHp` +
-                    // `sendDamageMessage`, reusing the shared damage path.
-                    let caster_name = caster_display_name(world, caster_oid);
-                    apply_skill_damage(world, caster_oid, target_oid, -amount, false, skill.magic_type == 1, &caster_name, false, false, skill.id);
-                    continue;
-                }
-                // `isHpBlocked()`: a landed `DamageBlock` refuses a positive
-                // heal too (the damage branch above already gets this for
-                // free through `apply_skill_damage`).
-                if crate::game_loop::abnormal::is_hp_blocked(world, target_oid) {
-                    continue;
-                }
-                if crate::game_loop::combat::is_npc_oid(target_oid) {
-                    let hp = {
-                        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
-                        if vitals.dead {
-                            continue;
-                        }
-                        vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
-                        (vitals.cur_hp as i32, vitals.max_hp)
-                    };
-                    if let Some(region) = world.objects.get_component::<RegionCell>(&target_oid).map(|r| r.0) {
-                        crate::game_loop::helpers::broadcast_near_region(
-                            world,
-                            region,
-                            &server_packets::status_update(
-                                target_oid,
-                                &[
-                                    (server_packets::status_update_type::MAX_HP, hp.1),
-                                    (server_packets::status_update_type::CUR_HP, hp.0),
-                                ],
-                            ),
-                        );
-                    }
-                    continue;
-                }
-                let healed = {
-                    let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
-                    let amount = amount.min((vitals.max_hp as f64 - vitals.cur_hp).max(0.0));
-                    vitals.cur_hp += amount;
-                    amount
-                };
-                let caster_name = caster_display_name(world, caster_oid);
-                if let Some(client_id) = client_for_player(world, target_oid) {
-                    if let Some(cs) = world.clients.get(&client_id) {
-                        if target_oid != caster_oid {
-                            cs.send(server_packets::system_message_with(
-                                sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
-                                &[SmParam::PlayerName(caster_name), SmParam::Int(healed as i32)],
-                            ));
-                        } else {
-                            cs.send(server_packets::system_message_with(
-                                sm_ids::S1_HP_HAS_BEEN_RESTORED,
-                                &[SmParam::Int(healed as i32)],
-                            ));
-                        }
-                        let cur_hp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp as i32).unwrap_or(0);
-                        cs.send(server_packets::status_update(target_oid, &[(server_packets::status_update_type::CUR_HP, cur_hp)]));
-                    }
-                    crate::game_loop::party::notify_party_vitals(world, target_oid);
-                }
-            }
+            SkillEffect::Heal { power } => instant::heal(world, &ctx, skill, *power),
+            SkillEffect::HealPercent { power } => instant::heal_percent(world, &ctx, skill, *power),
             SkillEffect::FocusMomentum { amount, max_charges } => {
                 // Java's own hardcoded fallback for the never-set-in-this-
                 // datapack `MAX_MOMENTUM` stat — see the type's doc comment.
@@ -1471,61 +754,7 @@ pub(crate) fn apply_skill_effects(
                 }
                 crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
             }
-            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume, ignore_shield_defence } => {
-                // `charge = min(chargeConsume, player.charges)` — pre-clamped,
-                // so Java's `decreaseCharges` (which only fails when asked to
-                // remove more than the player has) never actually refuses here.
-                let charge = {
-                    let cur = world.objects.get_component::<crate::model::Player>(&caster_oid).map(|p| p.charges).unwrap_or(0);
-                    (*charge_consume).min(cur)
-                };
-                if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&caster_oid) {
-                    p.charges -= charge;
-                }
-                if let Some(client_id) = client_for_player(world, caster_oid) {
-                    crate::game_loop::helpers::send_etc_status_update(world, client_id, caster_oid);
-                }
-                let (p_atk, level, str_bonus, caster_name) = {
-                    let p_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.p_atk).unwrap_or(0.0);
-                    let str_bonus = world
-                        .objects
-                        .get_component::<BaseStats>(&caster_oid)
-                        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
-                        .unwrap_or(1.0);
-                    (p_atk, caster_level(world, caster_oid), str_bonus, caster_display_name(world, caster_oid))
-                };
-                let base_defence = target_p_def(world, target_oid) * *p_def_mod;
-                let defence = defence_after_shield(world, target_oid, base_defence, *ignore_shield_defence);
-                let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
-                // `energyChargesBoost = 1 + (charge * 0.1)` — 10% bonus damage
-                // per charge spent, the whole point of building Force first.
-                let energy_charges_boost = 1.0 + charge as f64 * 0.1;
-                let damage = match defence {
-                    None => 1.0,
-                    Some(defence) => {
-                        formulas::calc_physical_skill_damage(
-                            p_atk,
-                            1.0, // no separate pAtkMod term in Java's EnergyAttack formula
-                            defence,
-                            1.0, // already folded into `defence` above
-                            *power,
-                            formulas::level_mod(level),
-                            1.0, // no random-damage term in Java's EnergyAttack formula
-                            crit,
-                            crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
-                            ss,
-                            // Java's EnergyAttack has no ranged branch at all —
-                            // its `weaponMod` is a flat 77.
-                            false,
-                        ) * energy_charges_boost
-                            // `EnergyAttack.instant`'s `attributeMod` + trait terms.
-                            * attribute_mod(world, caster_oid, target_oid, skill)
-                            * skill_trait_mod(world, caster_oid, target_oid, skill, true)
-                            * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
-                    }
-                };
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
-            }
+            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume, ignore_shield_defence } => instant::energy_attack(world, &ctx, skill, *power, *critical_chance, *p_def_mod, *charge_consume, *ignore_shield_defence),
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
                 give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
             }
@@ -1578,43 +807,7 @@ pub(crate) fn apply_skill_effects(
             // Java also folds in `ADDITIONAL_POTION_HP` when the effect came
             // from a potion or elixir item; no skill on this dist grants that
             // stat, so the term is 1:1 with 0 and is not modelled.
-            SkillEffect::Hp { amount, percent } => {
-                let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
-                    continue;
-                };
-                let is_raid = world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&target_oid)
-                    .and_then(|n| world.data.npc_data.get(n.npc_id))
-                    .is_some_and(|t| t.is_raid());
-                if v.dead
-                    || is_raid
-                    || world
-                        .objects
-                        .has_component::<crate::model::door::Door>(&target_oid)
-                    || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
-                {
-                    continue;
-                }
-                let basic = if *percent {
-                    v.max_hp as f64 * *amount / 100.0
-                } else {
-                    *amount
-                };
-                let ceiling = max_recoverable(
-                    world,
-                    target_oid,
-                    crate::model::stats::Stat::MaxRecoverableHp,
-                    v.max_hp as f64,
-                );
-                let gain = basic.min((ceiling - v.cur_hp).max(0.0));
-                if gain > 0.0 {
-                    if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                        vit.cur_hp = (vit.cur_hp + gain).min(vit.max_hp as f64);
-                    }
-                    broadcast_vitals(world, target_oid);
-                }
-            }
+            SkillEffect::Hp { amount, percent } => instant::hp(world, &ctx, *amount, *percent),
             SkillEffect::CallPc => {
                 call_pc(world, caster_oid, target_oid, skill);
             }
@@ -1693,100 +886,8 @@ pub(crate) fn apply_skill_effects(
                     handle_buff_expire(world, target_oid, skill_id);
                 }
             }
-            SkillEffect::DispelBySlot { dispel } => {
-                // Java `DispelBySlot.instant`: stop each active effect whose
-                // originating skill's `<abnormalType>` is in the dispel set and
-                // whose `abnormalLevel` is at or below the listed level (a
-                // negative level dispels every level). We look each active buff's
-                // source skill back up in `skill_data` for its type/level, then
-                // route removals through `handle_buff_expire` — which drops the
-                // buff, reverts its stats, and rebroadcasts the abnormal icons
-                // for both player and NPC targets; the DoT tick chain (e.g.
-                // Poison) self-terminates once its buff is gone. Buff snapshot is
-                // collected first to avoid overlapping borrows of `world`.
-                let candidates: Vec<(i32, i32)> = world
-                    .objects
-                    .get_component::<Buffs>(&target_oid)
-                    .map(|buffs| buffs.0.iter().map(|b| (b.skill_id, b.skill_level)).collect())
-                    .unwrap_or_default();
-                let to_dispel: Vec<i32> = candidates
-                    .into_iter()
-                    .filter(|&(sid, slvl)| {
-                        world.data.skill_data.get(sid, slvl).is_some_and(|bs| {
-                            dispel
-                                .iter()
-                                .any(|(ty, lvl)| bs.abnormal_type == *ty && (*lvl < 0 || *lvl >= bs.abnormal_level))
-                        })
-                    })
-                    .map(|(sid, _)| sid)
-                    .collect();
-                for skill_id in to_dispel {
-                    handle_buff_expire(world, target_oid, skill_id);
-                }
-                // Java `DispelBySlot.instant` also dispels a *non-buff*
-                // transformation ("Dispel transformations (buff and by GM)"):
-                // a TRANSFORM entry matching the current transform id (or the
-                // catch-all negative level, e.g. Dismount 839's `TRANSFORM,-1`)
-                // calls `stopTransformation(true)`. That's the only revert path
-                // for `//transform`/`//ride_bike`, which set the transform
-                // directly with no backing buff. Buff-backed transforms are
-                // already reverted by the `handle_buff_expire` sweep above, so
-                // only act if still transformed. (Java guards the whole method
-                // with `hasAbnormalType(...)`, which would make this branch
-                // unreachable for GM transforms — an upstream quirk we don't
-                // reproduce; the dist skill data's intent is that Dismount
-                // always ends the ride.)
-                let transform_id = world
-                    .objects
-                    .get_component::<crate::model::Player>(&target_oid)
-                    .map_or(0, |p| p.transform_id);
-                if transform_id != 0
-                    && dispel
-                        .iter()
-                        .any(|(ty, lvl)| ty == "TRANSFORM" && (*lvl < 0 || *lvl == transform_id))
-                {
-                    crate::game_loop::admin::transforms::remove_transform(world, target_oid);
-                }
-            }
-            SkillEffect::DispelBySlotProbability { dispel, rate } => {
-                // Java `DispelBySlotProbability.instant`: the same cleanse as
-                // `DispelBySlot`, except the `rate`% roll is evaluated **per
-                // buff** inside the predicate — so a 40% Mass Warrior Bane
-                // strips roughly two of five matching buffs rather than all or
-                // nothing. The spec carries no per-type level, so every level
-                // of a listed abnormal type is a candidate.
-                //
-                // Java also skips `isIrreplacableBuff()` effects. Not modelled
-                // and not a gap: the tag appears only in the 22800+/23200+/
-                // 27800+ skill files, all off-chronicle for Interlude.
-                //
-                // Note this path deliberately does *not* consult the target's
-                // `ResistDispelBuff`: Java reads that stat only in
-                // `Formulas.calcCancelSuccess` (the `Cancel` skill family,
-                // unported), never in the Bane handler.
-                let candidates: Vec<(i32, i32)> = world
-                    .objects
-                    .get_component::<Buffs>(&target_oid)
-                    .map(|buffs| buffs.0.iter().map(|b| (b.skill_id, b.skill_level)).collect())
-                    .unwrap_or_default();
-                let mut to_dispel: Vec<i32> = Vec::new();
-                for (sid, slvl) in candidates {
-                    let matches = world
-                        .data
-                        .skill_data
-                        .get(sid, slvl)
-                        .is_some_and(|bs| dispel.contains(&bs.abnormal_type));
-                    // Roll per candidate, and only for candidates that match —
-                    // keeping the roll count (and so the RNG stream) tied to the
-                    // buffs actually at risk, as in Java's predicate.
-                    if matches && world.roll(100) < *rate {
-                        to_dispel.push(sid);
-                    }
-                }
-                for skill_id in to_dispel {
-                    handle_buff_expire(world, target_oid, skill_id);
-                }
-            }
+            SkillEffect::DispelBySlot { dispel } => instant::dispel_by_slot(world, &ctx, skill, dispel),
+            SkillEffect::DispelBySlotProbability { dispel, rate } => instant::dispel_by_slot_probability(world, &ctx, skill, dispel, *rate),
             // `DispelByCategory.instant` — the "Cancel" family (Cancellation,
             // Cleanse, Purification Field, Touch of Death): unlike
             // `DispelBySlot`/`DispelBySlotProbability` (a fixed abnormal-type
@@ -1952,46 +1053,7 @@ pub(crate) fn apply_skill_effects(
             // target and abort whatever they were doing (Java also sets the AI
             // to IDLE; the ported AI reaches the same state once the intent is
             // cleared).
-            SkillEffect::TargetCancel { chance } => {
-                // `calcSuccess`: an invincible target is never shaken off its
-                // mark. Java names the three abnormal types directly rather
-                // than going through an effect flag, so this reads the live
-                // buffs' `abnormalType` the same way.
-                const INVINCIBLE: [&str; 3] = [
-                    "ABNORMAL_INVINCIBILITY",
-                    "INVINCIBILITY_SPECIAL",
-                    "INVINCIBILITY",
-                ];
-                if world
-                    .objects
-                    .get_component::<Buffs>(&target_oid)
-                    .is_some_and(|b| {
-                        b.0.iter()
-                            .any(|x| INVINCIBLE.contains(&x.abnormal_type.as_str()))
-                    })
-                {
-                    continue;
-                }
-                // Java gates this on `Formulas.calcProbability`, not on the raw
-                // percentage — so the victim's **level** counts, and Shield
-                // Bash slides off a target well above the skill's magic level.
-                if !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
-                    continue;
-                }
-                // `setTarget(null)` — the Player override broadcasts
-                // `TargetUnselected` with includeSelf, which is what clears the
-                // client's selection ring.
-                if let Some(client_id) = client_for_player(world, target_oid) {
-                    crate::game_loop::target::set_target(world, client_id, target_oid, None);
-                } else if let Some(t) = world.objects.get_component_mut::<crate::model::components::TargetRef>(&target_oid) {
-                    t.0 = None; // NPC: no client to notify
-                }
-                // `abortAttack()` / `abortCast()`.
-                world.objects.remove_component::<crate::model::components::Intent>(&target_oid);
-                if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
-                    crate::game_loop::skills::cast::stop_casting(world, target_oid);
-                }
-            }
+            SkillEffect::TargetCancel { chance } => instant::target_cancel(world, &ctx, skill, *chance),
             // `SkillEvasion.onStart` — `addSkillEvasionTypeValue(magicType,
             // amount)`. A per-bucket dodge chance, merged onto the *effected*
             // and unmerged by `handle_buff_expire`.
@@ -3193,7 +2255,7 @@ fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool 
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
-fn confuse_chance_passes(
+pub(super) fn confuse_chance_passes(
     world: &mut World,
     caster_oid: i32,
     target_oid: i32,
@@ -3670,7 +2732,7 @@ fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
 /// A target creature's level (Java `Creature.getLevel()`) for the debuff
 /// landing-rate math — an NPC reads its template, a player its record. Defaults
 /// to 1, matching the Spoil landing-level fallback.
-fn creature_level(world: &World, oid: i32) -> i32 {
+pub(super) fn creature_level(world: &World, oid: i32) -> i32 {
     // Java `Cubic.getLevel()` → `_owner.getLevel()`. Checked before the NPC/
     // player split because a cubic's caster entity is neither.
     if let Some(c) = world
@@ -4215,14 +3277,14 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
 }
 
 /// Send a bare (no-argument) system message to `player_oid`, if online.
-fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
+pub(super) fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
     crate::game_loop::helpers::send_sm_to_player(world, player_oid, sm_id, &[]);
 }
 
 /// `Creature.broadcastSocialAction` — a playable's emote goes to everyone in
 /// range *including* itself (`broadcastPacket`), unlike the quest engine's
 /// self-only `sendPacket` variant.
-fn broadcast_social_action(world: &mut World, oid: i32, action_id: i32) {
+pub(super) fn broadcast_social_action(world: &mut World, oid: i32, action_id: i32) {
     let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) else {
         return;
     };
@@ -4330,7 +3392,7 @@ fn magic_success_input<'a>(
 ///    **full** damage; only the player target's "You resisted" line is sent.
 /// 2. Both the attacker-side and target-side messages fire on the same failure,
 ///    so a resisted PvP nuke messages caster and victim.
-fn roll_magic_failure(
+pub(super) fn roll_magic_failure(
     world: &mut World,
     caster_oid: i32,
     target_oid: i32,
@@ -4784,7 +3846,7 @@ pub(crate) fn defence_after_shield(
 /// The target-side `mDef` for the magic damage formula — players through
 /// their stat pipeline, NPCs through the `MDefenseFinalizer` shape
 /// (base × MEN bonus × level mod).
-fn target_p_def(world: &World, target_oid: i32) -> f64 {
+pub(super) fn target_p_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
         return cs.p_def;
     }
@@ -4912,7 +3974,7 @@ fn element_stat(
     base * mul + add
 }
 
-fn target_m_def(world: &World, target_oid: i32) -> f64 {
+pub(super) fn target_m_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
         // Players + NPCs: memoized at spawn through the MDefenseFinalizer shape.
         return cs.m_def;
@@ -5395,7 +4457,7 @@ pub(crate) fn broadcast_vitals_for(world: &World, target_oid: i32) {
     broadcast_vitals(world, target_oid);
 }
 
-fn broadcast_vitals(world: &World, target_oid: i32) {
+pub(super) fn broadcast_vitals(world: &World, target_oid: i32) {
     if let Some(client_id) = client_for_player(world, target_oid)
         && let Some((v, cs)) = world
             .objects
@@ -6016,7 +5078,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
 /// name. These strings only ever reach the *caster's own* client, which an NPC
 /// doesn't have, so the value is cosmetic for the NPC path; the helper exists
 /// so the shared effect code stops panicking on a non-player caster.
-fn caster_display_name(world: &World, oid: i32) -> String {
+pub(super) fn caster_display_name(world: &World, oid: i32) -> String {
     if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
         return p.name.clone();
     }
@@ -6030,7 +5092,7 @@ fn caster_display_name(world: &World, oid: i32) -> String {
 
 /// The caster's level for `levelMod` in the physical-skill damage formula
 /// (Java reads `Creature.getLevel()`, which both players and NPCs implement).
-fn caster_level(world: &World, oid: i32) -> i32 {
+pub(super) fn caster_level(world: &World, oid: i32) -> i32 {
     if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
         return p.level;
     }

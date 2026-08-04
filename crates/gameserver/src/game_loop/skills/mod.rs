@@ -5,6 +5,7 @@ pub(crate) mod affect;
 pub(crate) mod cast;
 pub(crate) mod conditions;
 pub(crate) mod effects;
+pub(crate) mod instant;
 
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
