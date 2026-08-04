@@ -2514,13 +2514,14 @@ pub(crate) fn apply_continuous_effects(
         // message so the outcome line reflects it and the roll order stays stable.
         let resisted = rate <= world.roll(100) as f64;
         if skill.affect_scope == crate::model::skill::AffectScope::Single {
-            // Two of this server's own messages (ids 9000/9001), so the client
-            // renders and colours them like any other rather than receiving a
-            // sentence we formatted. They only display once the client table
-            // has been rebuilt — `l2r-tools client-dat sync-messages`.
+            // Two retail messages retexted to carry the chance (139 and 1595)
+            // rather than ids of our own: the client rendered nothing for a new
+            // id wherever it was placed, so reusing rows it already accepts is
+            // the route that works. The wording comes from the client table, so
+            // `l2r-tools sync-messages` has to have run.
             use commons::system_messages::SmValue;
             use commons::system_messages::generated::{
-                C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
+                C1_HAS_RESISTED_YOUR_S2_CHANCE_S3, S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3,
             };
             let target_name = creature_name(world, target_oid);
             let spell = SmValue::Skill {
@@ -2529,9 +2530,9 @@ pub(crate) fn apply_continuous_effects(
             };
             let chance = rate as i32;
             let message = if resisted {
-                C1_HAS_RESISTED_S2_CHANCE_WAS_S3::new(target_name, spell, chance)
+                C1_HAS_RESISTED_YOUR_S2_CHANCE_S3::new(target_name, spell, chance)
             } else {
-                S1_LANDED_ON_C2_CHANCE_WAS_S3::new(spell, target_name, chance)
+                S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3::new(spell, target_name, chance)
             };
             if let Some(client_id) = client_for_player(world, caster_oid)
                 && let Some(cs) = world.clients.get(&client_id)
@@ -4339,7 +4340,7 @@ fn roll_magic_failure(
     skill: &Skill,
     is_drain: bool,
 ) -> formulas::MagicFailure {
-    use server_packets::{SmParam, sm_ids};
+    use server_packets::sm_ids;
 
     if !world.cfg.character.magic_failures {
         return formulas::MagicFailure::None;
@@ -4380,19 +4381,25 @@ fn roll_magic_failure(
             );
             formulas::MagicFailure::Half
         } else {
+            // 139 now carries the chance, so this sender — the magic-failure
+            // resist, a different roll from the debuff one — has to supply it
+            // too or the client is left with an unfilled $s3. Its own rate is
+            // what the roll above was judged against.
+            use commons::system_messages::generated::C1_HAS_RESISTED_YOUR_S2_CHANCE_S3;
             let target_name = creature_name(world, target_oid);
-            send_sm_with(
-                world,
-                caster_oid,
-                sm_ids::C1_HAS_RESISTED_YOUR_S2,
-                &[
-                    SmParam::Text(target_name),
-                    SmParam::SkillName {
-                        id: skill.id,
-                        level: skill.level,
-                    },
-                ],
+            let message = C1_HAS_RESISTED_YOUR_S2_CHANCE_S3::new(
+                target_name,
+                commons::system_messages::SmValue::Skill {
+                    id: skill.id,
+                    level: skill.level,
+                },
+                formulas::calc_magic_success_rate(&input),
             );
+            if let Some(client_id) = client_for_player(world, caster_oid)
+                && let Some(cs) = world.clients.get(&client_id)
+            {
+                cs.send(server_packets::system_message(&message));
+            }
             formulas::MagicFailure::Resisted
         }
     } else {

@@ -9843,7 +9843,7 @@ pub const EMPTY_500: SystemMessageId = SystemMessageId::new(7489);
 /// ``
 pub const EMPTY_501: SystemMessageId = SystemMessageId::new(7490);
 
-// --- 1262 messages that take parameters ---
+// --- 1260 messages that take parameters ---
 
 /// `The server will be coming down in $s1 second(s). Please find a safe place to log out.`
 pub struct THE_SERVER_WILL_BE_COMING_DOWN_IN_S1_SECOND_S_PLEASE_FIND_A_SAFE_PLACE_TO_LOG_OUT;
@@ -10491,13 +10491,24 @@ impl YOU_HAVE_NOT_REPLIED_TO_C1_S_INVITATION_THE_OFFER_HAS_BEEN_CANCELLED {
     }
 }
 
-/// `$c1 has resisted your $s2.`
-pub struct C1_HAS_RESISTED_YOUR_S2;
-impl C1_HAS_RESISTED_YOUR_S2 {
+/// `$c1 has resisted your $s2. (Chance: $s3%%)`
+pub struct C1_HAS_RESISTED_YOUR_S2_CHANCE_S3;
+impl C1_HAS_RESISTED_YOUR_S2_CHANCE_S3 {
     pub const ID: i32 = 139;
 
-    pub fn new(c1: impl Into<Subject>, s2: impl Into<SmValue>) -> SystemMessage {
-        SystemMessage::new(139, vec![c1.into().into_param(), s2.into().into_param()])
+    pub fn new(
+        c1: impl Into<Subject>,
+        s2: impl Into<SmValue>,
+        s3: impl Into<SmValue>,
+    ) -> SystemMessage {
+        SystemMessage::new(
+            139,
+            vec![
+                c1.into().into_param(),
+                s2.into().into_param(),
+                s3.into().into_param(),
+            ],
+        )
     }
 }
 
@@ -15142,13 +15153,24 @@ impl C1_S_PARTY_IS_ALREADY_A_MEMBER_OF_THE_COMMAND_CHANNEL {
     }
 }
 
-/// `$s1 has succeeded.`
-pub struct S1_HAS_SUCCEEDED;
-impl S1_HAS_SUCCEEDED {
+/// `$s1 has succeeded on $c2. (Chance: $s3%%)`
+pub struct S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3;
+impl S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3 {
     pub const ID: i32 = 1595;
 
-    pub fn new(s1: impl Into<SmValue>) -> SystemMessage {
-        SystemMessage::new(1595, vec![s1.into().into_param()])
+    pub fn new(
+        s1: impl Into<SmValue>,
+        c2: impl Into<Subject>,
+        s3: impl Into<SmValue>,
+    ) -> SystemMessage {
+        SystemMessage::new(
+            1595,
+            vec![
+                s1.into().into_param(),
+                c2.into().into_param(),
+                s3.into().into_param(),
+            ],
+        )
     }
 }
 
@@ -24318,48 +24340,6 @@ impl
     }
 }
 
-/// `$c1 has resisted $s2. (Chance: $s3%%)`
-pub struct C1_HAS_RESISTED_S2_CHANCE_WAS_S3;
-impl C1_HAS_RESISTED_S2_CHANCE_WAS_S3 {
-    pub const ID: i32 = 7491;
-
-    pub fn new(
-        c1: impl Into<Subject>,
-        s2: impl Into<SmValue>,
-        s3: impl Into<SmValue>,
-    ) -> SystemMessage {
-        SystemMessage::new(
-            7491,
-            vec![
-                c1.into().into_param(),
-                s2.into().into_param(),
-                s3.into().into_param(),
-            ],
-        )
-    }
-}
-
-/// `$s1 landed on $c2. (Chance: $s3%%)`
-pub struct S1_LANDED_ON_C2_CHANCE_WAS_S3;
-impl S1_LANDED_ON_C2_CHANCE_WAS_S3 {
-    pub const ID: i32 = 7492;
-
-    pub fn new(
-        s1: impl Into<SmValue>,
-        c2: impl Into<Subject>,
-        s3: impl Into<SmValue>,
-    ) -> SystemMessage {
-        SystemMessage::new(
-            7492,
-            vec![
-                s1.into().into_param(),
-                c2.into().into_param(),
-                s3.into().into_param(),
-            ],
-        )
-    }
-}
-
 /// Every message, for rebuilding the client table.
 ///
 /// `custom` marks the ones this server adds: `sync-messages` appends
@@ -24600,7 +24580,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 23,
         name: "NOT_ENOUGH_HP",
         text: "Not enough HP.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -24610,7 +24590,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 24,
         name: "NOT_ENOUGH_MP",
         text: "Not enough MP.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -24640,7 +24620,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 27,
         name: "YOUR_CASTING_HAS_BEEN_INTERRUPTED",
         text: "Your casting has been interrupted.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -24720,7 +24700,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 35,
         name: "YOU_HIT_FOR_S1_DAMAGE",
         text: "You hit for $s1 damage.",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 1,
         custom: false,
         group: None,
@@ -24730,7 +24710,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 36,
         name: "C1_HIT_YOU_FOR_S2_DAMAGE",
         text: "$c1 hit you for $s2 damage.",
-        color: "B09B79FF",
+        color: "FF00FFFF",
         params: 2,
         custom: false,
         group: None,
@@ -24740,7 +24720,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 37,
         name: "C1_HIT_YOU_FOR_S2_DAMAGE_2",
         text: "$c1 hit you for $s2 damage.",
-        color: "B09B79FF",
+        color: "FF00FFFF",
         params: 2,
         custom: false,
         group: None,
@@ -24790,7 +24770,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 42,
         name: "YOU_HAVE_AVOIDED_C1_S_ATTACK",
         text: "You have avoided $c1's attack.",
-        color: "B09B79FF",
+        color: "FFA500FF",
         params: 1,
         custom: false,
         group: None,
@@ -24800,7 +24780,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 43,
         name: "YOU_HAVE_MISSED",
         text: "You have missed.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -24810,7 +24790,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 44,
         name: "CRITICAL_HIT",
         text: "Critical hit!",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 0,
         custom: false,
         group: None,
@@ -24820,7 +24800,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 45,
         name: "YOU_HAVE_EARNED_S1_XP",
         text: "You have earned $s1 XP.",
-        color: "B09B79FF",
+        color: "00FFFFFF",
         params: 1,
         custom: false,
         group: None,
@@ -25440,7 +25420,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 107,
         name: "C1_HAS_JOINED_THE_PARTY",
         text: "$c1 has joined the party.",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 1,
         custom: false,
         group: None,
@@ -25450,7 +25430,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 108,
         name: "C1_HAS_LEFT_THE_PARTY",
         text: "$c1 has left the party.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 1,
         custom: false,
         group: None,
@@ -25600,7 +25580,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 123,
         name: "YOUR_TRADE_WAS_SUCCESSFUL",
         text: "Your trade was successful.",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 0,
         custom: false,
         group: None,
@@ -25758,19 +25738,19 @@ pub static ALL: &[MessageInfo] = &[
     },
     MessageInfo {
         id: 139,
-        name: "C1_HAS_RESISTED_YOUR_S2",
-        text: "$c1 has resisted your $s2.",
+        name: "C1_HAS_RESISTED_YOUR_S2_CHANCE_S3",
+        text: "$c1 has resisted your $s2. (Chance: $s3%%)",
         color: "B09B79FF",
-        params: 2,
-        custom: false,
-        group: None,
-        msg_type: None,
+        params: 3,
+        custom: true,
+        group: Some(3),
+        msg_type: Some("[damage]"),
     },
     MessageInfo {
         id: 140,
         name: "YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP",
         text: "Your skill was deactivated due to lack of MP.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -25930,7 +25910,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 156,
         name: "DRAIN_WAS_ONLY_50_SUCCESSFUL",
         text: "Drain was only 50%% successful.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -25950,7 +25930,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 158,
         name: "YOUR_ATTACK_HAS_FAILED",
         text: "Your attack has failed.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -26120,7 +26100,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 175,
         name: "THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED",
         text: "That skill has been de-activated as HP was fully recovered.",
-        color: "B09B79FF",
+        color: "FFA500FF",
         params: 0,
         custom: false,
         group: None,
@@ -29990,7 +29970,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 562,
         name: "YOU_MAY_NOT_CRYSTALLIZE_THIS_ITEM_YOUR_CRYSTALLIZATION_SKILL_LEVEL_IS_TOO_LOW",
         text: "You may not crystallize this item. Your crystallization skill level is too low.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -30470,7 +30450,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 610,
         name: "YOUR_SKILL_HAS_BEEN_CANCELED_DUE_TO_LACK_OF_HP",
         text: "Your skill has been canceled due to lack of HP.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 0,
         custom: false,
         group: None,
@@ -33960,7 +33940,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 959,
         name: "S1_S2_MANUFACTURED_SUCCESSFULLY",
         text: "$s1 (*$s2) manufactured successfully.",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 2,
         custom: false,
         group: None,
@@ -37360,7 +37340,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 1299,
         name: "C1_S_CASTING_HAS_BEEN_INTERRUPTED",
         text: "$c1's casting has been interrupted.",
-        color: "B09B79FF",
+        color: "FF0000FF",
         params: 1,
         custom: false,
         group: None,
@@ -40318,13 +40298,13 @@ pub static ALL: &[MessageInfo] = &[
     },
     MessageInfo {
         id: 1595,
-        name: "S1_HAS_SUCCEEDED",
-        text: "$s1 has succeeded.",
+        name: "S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3",
+        text: "$s1 has succeeded on $c2. (Chance: $s3%%)",
         color: "B09B79FF",
-        params: 1,
-        custom: false,
-        group: None,
-        msg_type: None,
+        params: 3,
+        custom: true,
+        group: Some(3),
+        msg_type: Some("[damage]"),
     },
     MessageInfo {
         id: 1596,
@@ -46990,7 +46970,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 2262,
         name: "C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2",
         text: "$c1 has received $s3 damage from $c2.",
-        color: "B09B79FF",
+        color: "FF00FFFF",
         params: 3,
         custom: false,
         group: None,
@@ -47000,7 +46980,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 2263,
         name: "C1_HAS_RECEIVED_S3_DAMAGE_THROUGH_C2",
         text: "$c1 has received $s3 damage through $c2.",
-        color: "B09B79FF",
+        color: "FF00FFFF",
         params: 3,
         custom: false,
         group: None,
@@ -47010,7 +46990,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 2264,
         name: "C1_HAS_EVADED_C2_S_ATTACK",
         text: "$c1 has evaded $c2's attack.",
-        color: "B09B79FF",
+        color: "FFA500FF",
         params: 2,
         custom: false,
         group: None,
@@ -47070,7 +47050,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 2270,
         name: "C1_HAS_RECEIVED_S2_DAMAGE_FROM_THE_MAGIC_FIRE",
         text: "$c1 has received $s2 damage from the magic fire.",
-        color: "B09B79FF",
+        color: "FF00FFFF",
         params: 2,
         custom: false,
         group: None,
@@ -52960,7 +52940,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3009,
         name: "MAIL_SUCCESSFULLY_SENT",
         text: "Mail successfully sent.",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 0,
         custom: false,
         group: None,
@@ -52970,7 +52950,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3010,
         name: "MAIL_SUCCESSFULLY_RETURNED",
         text: "Mail successfully returned.",
-        color: "B09B79FF",
+        color: "FFA500FF",
         params: 0,
         custom: false,
         group: None,
@@ -52980,7 +52960,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3011,
         name: "MAIL_SUCCESSFULLY_CANCELLED",
         text: "Mail successfully cancelled.",
-        color: "B09B79FF",
+        color: "FFA500FF",
         params: 0,
         custom: false,
         group: None,
@@ -52990,7 +52970,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3012,
         name: "MAIL_SUCCESSFULLY_RECEIVED",
         text: "Mail successfully received.",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 0,
         custom: false,
         group: None,
@@ -53000,7 +52980,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3013,
         name: "C1_HAS_SUCCESSFULLY_ENCHANTED_A_S2_S3",
         text: "$c1 has successfully enchanted a +$s2 $s3.",
-        color: "B09B79FF",
+        color: "5599FFFF",
         params: 3,
         custom: false,
         group: None,
@@ -55010,7 +54990,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3214,
         name: "S1_WAS_SUCCESSFULLY_ADDED_TO_YOUR_CONTACT_LIST",
         text: "$s1 was successfully added to your Contact List.",
-        color: "B09B79FF",
+        color: "00FF00FF",
         params: 1,
         custom: false,
         group: None,
@@ -55060,7 +55040,7 @@ pub static ALL: &[MessageInfo] = &[
         id: 3219,
         name: "S1_WAS_SUCCESSFULLY_DELETED_FROM_YOUR_CONTACT_LIST",
         text: "$s1 was successfully deleted from your Contact List.",
-        color: "B09B79FF",
+        color: "FFA500FF",
         params: 1,
         custom: false,
         group: None,
@@ -78165,25 +78145,5 @@ pub static ALL: &[MessageInfo] = &[
         custom: false,
         group: None,
         msg_type: None,
-    },
-    MessageInfo {
-        id: 7491,
-        name: "C1_HAS_RESISTED_S2_CHANCE_WAS_S3",
-        text: "$c1 has resisted $s2. (Chance: $s3%%)",
-        color: "FF6666FF",
-        params: 3,
-        custom: true,
-        group: Some(3),
-        msg_type: Some("[damage]"),
-    },
-    MessageInfo {
-        id: 7492,
-        name: "S1_LANDED_ON_C2_CHANCE_WAS_S3",
-        text: "$s1 landed on $c2. (Chance: $s3%%)",
-        color: "99FF99FF",
-        params: 3,
-        custom: true,
-        group: Some(3),
-        msg_type: Some("[damage]"),
     },
 ];

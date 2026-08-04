@@ -174,16 +174,21 @@ def main(argv):
         entry["color"] = colors.get(entry["id"], "FFFFFFFF")
 
     custom = json.loads(CUSTOM.read_text())["messages"]
-    known = {e["id"] for e in entries}
+    by_id = {e["id"]: e for e in entries}
     for c in custom:
-        if c["id"] in known:
-            sys.exit(f"custom message id {c['id']} collides with a retail one")
+        # An id the client already has is an override: replace the retail
+        # entry outright, since the whole point is to change its text and the
+        # arity its name encodes.
+        if c["id"] in by_id:
+            entries.remove(by_id[c["id"]])
         entries.append(
             {
                 "id": c["id"],
                 "name": c["name"],
                 "message": c["message"],
-                "color": c["color"].upper(),
+                # Colour is the operator's, via msg-color; an override keeps
+                # whatever the client shipped.
+                "color": c.get("color", by_id[c["id"]]["color"] if c["id"] in by_id else "FFFFFFFF").upper(),
                 "custom": True,
                 "group": c.get("group"),
                 "msg_type": c.get("type"),

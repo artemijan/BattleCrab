@@ -1,6 +1,6 @@
 use super::*;
 use commons::system_messages::generated::{
-    C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
+    C1_HAS_RESISTED_YOUR_S2_CHANCE_S3, S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3,
 };
 
 /// Arm a test player with `item_id` in the right hand.
@@ -2624,7 +2624,7 @@ fn single_target_debuff_lands_and_reports_chance() {
     let msgs = drain(&mut a_rx);
     assert!(
         msgs.iter()
-            .any(|p| sysmsg_id(p) == Some(S1_LANDED_ON_C2_CHANCE_WAS_S3::ID as i16)),
+            .any(|p| sysmsg_id(p) == Some(S1_HAS_SUCCEEDED_ON_C2_CHANCE_S3::ID as i16)),
         "caster received the debuff-landed message",
     );
 }
@@ -2665,7 +2665,7 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
     // as typed parameters (message 9000).
     assert!(
         msgs.iter()
-            .any(|p| sysmsg_id(p) == Some(C1_HAS_RESISTED_S2_CHANCE_WAS_S3::ID as i16)),
+            .any(|p| sysmsg_id(p) == Some(C1_HAS_RESISTED_YOUR_S2_CHANCE_S3::ID as i16)),
         "caster received the debuff-resisted message",
     );
 }
@@ -2701,7 +2701,7 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     let msgs = drain(&mut a_rx);
     assert!(
         msgs.iter().any(|p| {
-            sysmsg_id(p) == Some(C1_HAS_RESISTED_S2_CHANCE_WAS_S3::ID as i16)
+            sysmsg_id(p) == Some(C1_HAS_RESISTED_YOUR_S2_CHANCE_S3::ID as i16)
                 && sysmsg_int(p) == Some(90)
         }),
         "unprotected, the stun is offered at the 90 cap",
@@ -2714,7 +2714,7 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     let msgs = drain(&mut a_rx);
     assert!(
         msgs.iter().any(|p| {
-            sysmsg_id(p) == Some(C1_HAS_RESISTED_S2_CHANCE_WAS_S3::ID as i16)
+            sysmsg_id(p) == Some(C1_HAS_RESISTED_YOUR_S2_CHANCE_S3::ID as i16)
                 && sysmsg_int(p) == Some(0)
         }),
         "SHOCK invulnerability refuses the debuff outright",
