@@ -47,7 +47,23 @@ pub struct NetworkConfig {
     pub is_classic: bool,
     /// `Security.ini` — the transport-level flood limits.
     pub security: SecurityConfig,
+    /// `Network.ini` `DropPackets` — the outbound drop policy switch.
+    pub drop_packets: bool,
+    /// `Network.ini` `DropPacketThreshold` — outbound queue depth above which
+    /// disposable packets are dropped.
+    pub drop_packet_threshold: usize,
 }
+
+/// Inbound packets one connection may have *queued at the game thread* before
+/// its socket stops being read (the read task blocks on a permit, so TCP flow
+/// control pushes back to the client). Bounds what one connection can put in
+/// flight during a game-thread stall to a constant, where the per-second rate
+/// limit above alone would let the backlog grow for as long as the stall
+/// lasts. Not config: like the frame-size limit, it is a structural bound far
+/// above anything a real client queues (a tick drains the whole backlog), not
+/// an operator tunable. Java has no equivalent — its unbounded instant pool
+/// queue is one of the defects THREADING_MODEL §3 lists.
+const MAX_PACKETS_IN_FLIGHT: usize = 256;
 
 /// Java `FloodProtectedListener.ForeignConnection`: what one address is doing.
 struct ForeignConnection {
@@ -208,11 +224,18 @@ async fn handle(
     let (mut read, mut write) = stream.into_split();
 
     let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel::<bytes::Bytes>();
+    let out = super::OutboundTx::new(out_tx, cfg.drop_packets, cfg.drop_packet_threshold);
+    // The decrement side of the queue-depth estimate; the game thread's sends
+    // increment it inside `OutboundTx::send`.
+    let out_depth = out.depth_handle();
+    // The inbound in-flight bound (`MAX_PACKETS_IN_FLIGHT`): each forwarded
+    // packet carries a permit the game thread releases by dropping the event.
+    let in_flight = Arc::new(tokio::sync::Semaphore::new(MAX_PACKETS_IN_FLIGHT));
     // Tell the game thread this client exists (registry, later broadcast).
     if net_tx
         .send(NetEvent::Connected {
             client_id,
-            out: out_tx,
+            out,
             addr,
         })
         .is_err()
@@ -253,7 +276,7 @@ async fn handle(
                         }
                         // Errors break the loop (not `?`) so the Disconnected
                         // cleanup below always runs.
-                        match on_packet(&mut client, &mut write, &net_tx, &cfg, body).await {
+                        match on_packet(&mut client, &mut write, &net_tx, &cfg, &in_flight, body).await {
                             Ok(true) => {}
                             Ok(false) => break Ok(()), // clean close requested by a handler
                             Err(e) => break Err(e),
@@ -266,6 +289,7 @@ async fn handle(
             out = out_rx.recv() => {
                 match out {
                     Some(first) => {
+                        out_depth.fetch_sub(1, Ordering::Relaxed);
                         // Coalesce every packet already queued into one write.
                         // A game tick hands this task a burst (CharInfo +
                         // StatusUpdate + MoveToLocation + …), and with
@@ -300,7 +324,10 @@ async fn handle(
                                 break;
                             }
                             match out_rx.try_recv() {
-                                Ok(next) => body = next,
+                                Ok(next) => {
+                                    out_depth.fetch_sub(1, Ordering::Relaxed);
+                                    body = next;
+                                }
                                 Err(_) => break,
                             }
                         }
@@ -335,6 +362,7 @@ async fn on_packet<W: AsyncWrite + Unpin>(
     write: &mut W,
     net_tx: &NetEventTx,
     cfg: &NetworkConfig,
+    in_flight: &Arc<tokio::sync::Semaphore>,
     body: Vec<u8>,
 ) -> std::io::Result<bool> {
     let opcode = body[0];
@@ -390,10 +418,21 @@ async fn on_packet<W: AsyncWrite + Unpin>(
         }
         // Past the handshake: hand the decrypted body to the game thread.
         _ => {
+            // Waits when `MAX_PACKETS_IN_FLIGHT` packets are already queued —
+            // which stops this task reading the socket, so the client is
+            // backpressured by TCP instead of growing the game thread's
+            // queue. The permit rides the event; the game thread releases it
+            // by dropping the handled event.
+            let permit = in_flight
+                .clone()
+                .acquire_owned()
+                .await
+                .expect("the in-flight semaphore is never closed");
             if net_tx
                 .send(NetEvent::Received {
                     client_id: client.client_id,
                     data: body,
+                    permit,
                 })
                 .is_err()
             {

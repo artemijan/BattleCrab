@@ -9,20 +9,21 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use commons::network::{PacketReader, PacketWriter, read_frame, write_frame};
-use gameserver::network::NetEvent;
+use gameserver::events::GameEvent;
 use gameserver::network::cipher::Encryption;
 use gameserver::network::connection::{NetworkConfig, accept_loop};
+use gameserver::network::{NetEvent, NetEventTx};
 use tokio::net::TcpStream;
 
 const PROTOCOL: i32 = 110;
 
 async fn start_server(
     cfg: NetworkConfig,
-) -> (std::net::SocketAddr, std::sync::mpsc::Receiver<NetEvent>) {
+) -> (std::net::SocketAddr, std::sync::mpsc::Receiver<GameEvent>) {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
-    let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
-    tokio::spawn(accept_loop(listener, net_tx, Arc::new(cfg)));
+    let (net_tx, net_rx) = std::sync::mpsc::channel::<GameEvent>();
+    tokio::spawn(accept_loop(listener, NetEventTx(net_tx), Arc::new(cfg)));
     (addr, net_rx)
 }
 
@@ -35,6 +36,8 @@ fn cfg() -> NetworkConfig {
         // The shipped `Security.ini` defaults, so the transport limits are
         // exercised by the end-to-end tests rather than bypassed by them.
         security: gameserver::config::SecurityConfig::default(),
+        drop_packets: false,
+        drop_packet_threshold: 0,
     }
 }
 
@@ -74,7 +77,7 @@ async fn accepts_protocol_and_sends_keypacket() {
 
     // The game thread must have been told the client connected.
     let ev = net_rx.recv_timeout(Duration::from_secs(1)).unwrap();
-    assert!(matches!(ev, NetEvent::Connected { .. }));
+    assert!(matches!(ev, GameEvent::Net(NetEvent::Connected { .. })));
 
     // Now drive an encrypted packet the way the real client would. The client
     // encrypts its first real packet (AuthLogin) — the KeyPacket-first
@@ -97,7 +100,7 @@ async fn accepts_protocol_and_sends_keypacket() {
     // The server must decrypt it back to the original bytes and forward it.
     let ev = net_rx.recv_timeout(Duration::from_secs(1)).unwrap();
     match ev {
-        NetEvent::Received { data, .. } => {
+        GameEvent::Net(NetEvent::Received { data, .. }) => {
             assert_eq!(data, plain, "server decrypt must match client plaintext")
         }
         _ => panic!("expected Received"),

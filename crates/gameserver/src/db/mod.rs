@@ -63,8 +63,22 @@ pub(crate) const FIRST_OID: i64 = 0x10000000;
 pub const ID_BLOCK_SIZE: i64 = 5000;
 
 pub type CmdRx = tokio::sync::mpsc::UnboundedReceiver<DbCommand>;
-pub type EventTx = std::sync::mpsc::Sender<DbEvent>;
-pub type DbEventRx = std::sync::mpsc::Receiver<DbEvent>;
+
+/// Sender facade for the DB thread's share of the unified service→game
+/// channel ([`crate::events::GameEvent`]); a send wakes the sleeping game
+/// loop, which is what lets a mid-handler read's continuation run the moment
+/// the row arrives instead of at the next tick boundary.
+#[derive(Clone)]
+pub struct EventTx(pub crate::events::GameEventTx);
+
+impl EventTx {
+    /// An `Err` means the game thread is gone — callers treat it as shutdown.
+    pub fn send(&self, event: DbEvent) -> Result<(), std::sync::mpsc::SendError<()>> {
+        self.0
+            .send(crate::events::GameEvent::Db(event))
+            .map_err(|_| std::sync::mpsc::SendError(()))
+    }
+}
 
 /// Spawn the DB thread. It creates and owns the pool on its own runtime.
 pub fn spawn(
