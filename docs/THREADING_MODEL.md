@@ -36,24 +36,30 @@ flowchart TB
     end
 
     clients(("game<br/>clients")) <-->|"TCP"| conn
-    conn -->|"mpsc&lt;NetEvent&gt;"| tickloop
-    tickloop -->|"per-client outbound queue"| conn
-    link -->|"mpsc&lt;LoginLinkEvent&gt;"| tickloop
+    conn -->|"GameEvent::Net"| tickloop
+    tickloop -->|"per-client outbound queue<br/>(drop policy past threshold)"| conn
+    link -->|"GameEvent::Login"| tickloop
     tickloop -->|"unbounded mpsc"| link
     tickloop -->|"mpsc&lt;DbCommand&gt;"| db
-    db -->|"mpsc&lt;DbEvent&gt;"| tickloop
+    db -->|"GameEvent::Db"| tickloop
     tickloop -->|"mpsc&lt;PathRequest&gt;"| path
-    path -->|"mpsc&lt;PathEvent&gt;"| tickloop
+    path -->|"GameEvent::Path"| tickloop
     tickloop --- world
 ```
 
 On an 8-core machine that is 1 game thread + tokio workers + 1 DB thread +
 1 path worker. Every core is usable; exactly one may touch `World`.
 
-**Nothing in that picture shares mutable state.** The only object crossing a
-thread boundary by reference is the geodata (`Arc<GeoEngine>`), which is
-read-only after boot — the path worker and the game thread both query it, and
-neither can write it.
+The four service→game arrows are one physical channel: every service sends a
+`GameEvent` variant into a single `std::sync::mpsc` (`crate::events`), through
+a typed per-service sender facade so a service cannot send another's events.
+One channel because the game thread *sleeps on it* — see §2.
+
+**Nothing in that picture shares game state.** The only objects crossing a
+thread boundary by reference are the geodata (`Arc<GeoEngine>`), read-only
+after boot, and two per-connection atomics that carry flow-control counts, not
+game state: the outbound queue-depth estimate and the inbound in-flight
+permits (§4 rule 3).
 
 Boot order and the channel wiring are in `crates/gameserver/src/main.rs`; the
 loop itself is `game_loop/mod.rs`.
@@ -69,17 +75,27 @@ that runs every 10th tick — same rate, but now at a *defined* phase instead of
 whenever its pool thread happened to fire.
 
 ```
-   ┌─ tick start ────────────────────────────────────────────────────────┐
+   ┌─ tick ──────────────────────────────────────────────────────────────┐
    │                                                                     │
-   │  1. drain network      connects, disconnects, inbound packets       │
-   │  2. drain services     login-link → DB → path worker                │
-   │  3. fire due timers    one-shot scheduler (Java ThreadPool.schedule) │
-   │  4. tick systems       in fixed order, see table below              │
-   │  5. flush              outbound packets, DB commands                │
+   │  1. events        packets, login-link, DB results, path replies —   │
+   │                   handled the moment they arrive. This IS the tick  │
+   │                   sleep: the thread blocks in recv_timeout on the   │
+   │                   unified channel until the tick deadline           │
+   │  2. fire due timers   one-shot scheduler (Java ThreadPool.schedule) │
+   │  3. tick systems      in fixed order, see table below               │
+   │  4. flush             outbound packets, DB commands                 │
    │                                                                     │
-   │  overrun > 50 ms → warn with the tick number                        │
-   └─ sleep the remainder of the 100 ms ─────────────────────────────────┘
+   │  busy time > 50 ms → warn names the 3 slowest steps;                │
+   │  tick_busy_micros gauges every tick's busy time                     │
+   └─ next deadline = max(deadline + 100 ms, now) ───────────────────────┘
 ```
+
+Because the sleep is a blocking receive rather than a clock wait, a packet is
+handled within microseconds of arrival — input latency is bounded by handler
+cost, not by the tick. Timers and systems still run strictly at the 100 ms
+boundary, so system ordering and rates are exactly as before. An overrun tick
+slides the phase (`max(deadline + TICK, now)`) rather than running
+back-to-back catch-up ticks — the same policy as the old skip-the-sleep loop.
 
 | System | Every | Wall clock |
 |---|---:|---|
@@ -130,8 +146,8 @@ concurrently for the same client*. Correctness rests entirely on 275
 
 - **No per-client packet ordering under load.** Two packets from one client can
   execute out of order.
-- **No inbound backpressure.** The instant pool's queue is unbounded. *(Not yet
-  improved on — see rule 3.)*
+- **No inbound backpressure.** The instant pool's queue is unbounded. *(This
+  port bounds it — see rule 3.)*
 - **Races by design.** Creature sets are iterated while being mutated; stats are
   read without locks. Tolerated because the JVM keeps them memory-safe.
 
@@ -171,12 +187,22 @@ These are enforced by structure and checked in review.
    handlers receive `&mut World` and channel senders, so blocking APIs are
    simply not in scope.
 2. **Timers and queued tasks capture ids, not objects.** A dead id is a no-op.
-3. **Channels are unbounded, and that is a known debt, not a decision.** Both
-   directions use unbounded queues today (`NetEventTx` inbound,
-   `OutboundTx` per connection), so a packet flooder can grow a queue exactly as
-   it can against Java. The design called for bounded inbound plus Java's
-   `DropPackets`/`DropPacketThreshold` policy on the outbound side; neither is
-   built. If you are adding backpressure, this is the rule to change first.
+3. **Backpressure exists in both directions; keep it that way.** The channels
+   are still *unbounded types* (the game thread must never block on a send),
+   but both directions are pressure-managed:
+   - **Outbound** — `OutboundTx` tracks a per-connection queue-depth estimate;
+     past `Network.ini`'s `DropPacketThreshold` (with `DropPackets` on, as the
+     dist sets) the `canBeDropped` packet types — `StatusUpdate`,
+     `AutoAttackStart/Stop`, `SocialAction`, `MoveToPawn`, `MoveToLocation` —
+     are discarded and counted (`packets_dropped` metric). This is Java's
+     `Client.packetCanBeDropped`, ported. State-bearing packets always queue.
+   - **Inbound** — each connection holds `MAX_PACKETS_IN_FLIGHT` (256)
+     semaphore permits; a forwarded packet carries its permit inside the
+     event and the game thread releases it by dropping the handled event. At
+     the cap the connection task simply stops reading the socket, so TCP flow
+     control pushes back to the client. Java has no equivalent; combined with
+     `Security.ini`'s per-second rate limit, a flooder costs bounded memory
+     even across a game-thread stall.
 4. **Tick budget is a metric, not a hope.** A tick over 50 ms warns with its
    number. Tick overrun is *the* failure mode of this architecture, so it has to
    be visible from day one.
@@ -197,8 +223,9 @@ These are enforced by structure and checked in review.
 
 ## 5. Trade-offs
 
-Honest ledger. The wins are structural; the costs are real and two of them are
-felt daily.
+Honest ledger. The wins are structural; the remaining costs are real, and the
+ones that could be engineered away have been — see the retired list at the end
+of this section.
 
 ### What this buys
 
@@ -214,12 +241,19 @@ felt daily.
 
 | | |
 |---|---|
-| **One core for logic** | The ceiling is a single thread's throughput. Mitigated by the tick-overrun metric, and by the fact that the heavy work is already elsewhere — but it is a real ceiling, and the scaling path in §6 is not built. |
-| **Up to one tick of added latency** | A packet arriving just after the drain waits ≤100 ms. Java handled it immediately, pool permitting. Acceptable because 100 ms is already the game's action granularity and the client interpolates — and fixable without redesign by waking the drain on the channel instead of sleeping. |
-| **Mid-handler DB reads had to be restructured** | Java calls JDBC inline in a handler; here that would block the world. Those sites split into request → continue-next-tick. This is **the one place** the port had to restructure logic rather than translate it, and it is a genuine porting hazard: the Java code reads as if the value is available now. |
-| **A slow system stalls everything** | There is no preemption. One pathological loop delays every player, not just the one who triggered it. |
-| **No backpressure yet** | Queues in both directions are unbounded (rule 3). A flooding client can grow memory, and the outbound drop policy Java has is not ported. |
-| **`bevy_ecs` parallelism deliberately unused** | The ECS could schedule systems in parallel; doing so would break the single-owner rule, so it is off. We pay for a feature we do not use. |
+| **One core for logic** | The ceiling is a single thread's throughput. It is now *measured* rather than guessed — `tick_busy_micros` gauges every tick's busy time against the 100 ms budget, and an overrun warning names the slowest steps — and the heavy work is already elsewhere; but it is a real ceiling, and the scaling path in §6 is not built. |
+| **Mid-handler DB reads had to be restructured** | Java calls JDBC inline in a handler; here that would block the world. Those sites split into request → continue-on-reply. This is **the one place** the port had to restructure logic rather than translate it, and it is a genuine porting hazard: the Java code reads as if the value is available now. (The *latency* of the split is no longer tick-quantized — the DB reply wakes the sleeping loop, so the continuation runs the moment the row arrives.) |
+| **A slow system stalls everything** | There is no preemption. One pathological loop delays every player, not just the one who triggered it. The per-step timings say *which* system it was, but cannot make it cheaper. |
+
+### Costs retired
+
+Rows this table used to carry, and what removed them:
+
+| | |
+|---|---|
+| ~~Up to one tick of added latency~~ | The tick sleep became a blocking receive on the unified event channel (§2): a packet, DB row or path reply is handled the moment it arrives instead of waiting out the remainder of the 100 ms. |
+| ~~No backpressure yet~~ | Both directions are pressure-managed (rule 3): Java's outbound `DropPackets` policy is ported, and the inbound in-flight permit cap — which Java itself lacks — bounds a flooder's memory. |
+| ~~`bevy_ecs` parallelism paid for but unused~~ | Compiled out: `default-features = false, features = ["std"]` drops the `async_executor` task pool, `bevy_reflect` and backtrace machinery from the build entirely. |
 
 ---
 
@@ -230,8 +264,8 @@ instance into N tick loops that exchange messages, since towns, hunting zones
 and instances partition naturally. The single-owner invariant is unchanged
 inside each shard, so this is an evolution rather than a rewrite.
 
-**Do not build it until a profiler asks.** The tick-overrun warning is the
-trigger to watch.
+**Do not build it until a profiler asks.** The tick-overrun warning and the
+`tick_busy_micros` headroom gauge are the triggers to watch.
 
 ---
 
@@ -239,7 +273,8 @@ trigger to watch.
 
 `World`'s object registries are an **ECS** (Entity–Component–System) built on the
 standalone [`bevy_ecs`](https://crates.io/crates/bevy_ecs) crate — no other part
-of Bevy is used.
+of Bevy is used, and the crate itself is compiled `std`-only (no parallel
+executor, no reflection; §5 "costs retired").
 
 Instead of each game object being one large struct in a map, an object is an
 *entity* (an id) whose data lives in *components*. Components of the same shape

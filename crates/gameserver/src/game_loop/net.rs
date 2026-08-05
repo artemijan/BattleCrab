@@ -1,16 +1,29 @@
-//! Channel drains and session lifecycle: network connect/disconnect events,
-//! the login-link and DB result channels, and restart/logout/kick handling.
+//! Service-event handling and session lifecycle: network connect/disconnect
+//! events, the login-link and DB results, and restart/logout/kick handling.
+//! [`handle_game_event`] routes each unified-channel event to its handler.
 
 use tracing::{debug, error, info, warn};
 
-use crate::db::{self, DbEvent, DbEventRx};
-use crate::geo::worker::PathEventRx;
-use crate::loginlink::{LoginLinkCommand, LoginLinkEvent, LoginLinkEventRx};
-use crate::network::{NetEvent, NetEventRx, server_packets};
+use crate::db::{self, DbEvent};
+use crate::events::GameEvent;
+use crate::loginlink::{LoginLinkCommand, LoginLinkEvent};
+use crate::network::{NetEvent, server_packets};
 use crate::session::{ClientSession, Session};
 use crate::world::World;
 
 use super::dispatch::on_packet;
+
+/// Route one unified-channel event to its service's handler. Called by the
+/// game loop both from the boundary drain and from the between-ticks sleep
+/// (`recv_timeout`), so an event runs the moment it arrives.
+pub(crate) fn handle_game_event(world: &mut World, event: GameEvent) {
+    match event {
+        GameEvent::Net(e) => handle_net_event(world, e),
+        GameEvent::Login(e) => handle_login_link_event(world, e),
+        GameEvent::Db(e) => handle_db_event(world, e),
+        GameEvent::Path(e) => super::position::handle_path_result(world, e),
+    }
+}
 
 /// The per-packet counter, resolved once. Looking a metric up by name takes the
 /// registry lock, so the hot path holds the handle instead — after the first
@@ -33,84 +46,91 @@ fn players_online() -> &'static commons::metrics::Gauge {
 pub fn register_metrics() {
     packets_handled();
     players_online().set(0);
+    super::tick_busy_micros().set(0);
+    crate::network::register_metrics();
 }
 
-/// Bounded, non-blocking drain of the network→game channel (step 1 of the tick).
-pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
-    while let Ok(event) = net_rx.try_recv() {
-        match event {
-            NetEvent::Connected {
+/// One network event: connect, inbound packet (dispatched under the
+/// per-packet panic guard), or disconnect.
+pub(crate) fn handle_net_event(world: &mut World, event: NetEvent) {
+    match event {
+        NetEvent::Connected {
+            client_id,
+            out,
+            addr,
+        } => {
+            world.clients.insert(
                 client_id,
-                out,
-                addr,
-            } => {
-                world.clients.insert(
-                    client_id,
-                    ClientSession::Connecting(Session::new(client_id, out, addr)),
+                ClientSession::Connecting(Session::new(client_id, out, addr)),
+            );
+            debug!(
+                "GameLoop: client {client_id} connected from {addr} ({} online).",
+                world.clients.len()
+            );
+        }
+        // `_permit` is the connection's in-flight slot: holding it to the end
+        // of this arm keeps the packet "in flight" until it is fully handled.
+        NetEvent::Received {
+            client_id,
+            data,
+            permit: _permit,
+        } => {
+            // Java `ExecuteThread`/`PacketHandler` catches Throwable around
+            // each packet's run(), so one bad packet (an admin command with
+            // missing args, a malformed bypass…) must not take the whole
+            // game thread down. `World` is a single-thread structure with
+            // no lock poisoning to worry about, but the handler may have
+            // died mid-mutation, so the offending client's session state is
+            // suspect: disconnect them (persist + clean removal) so they
+            // come back clean while everyone else plays on.
+            let opcode = data.first().copied();
+            packets_handled().incr();
+            // Correlation span: every log line emitted while handling this
+            // packet inherits these fields, which turns "what happened to
+            // this player" into one query over the JSON log instead of a
+            // manual reconstruction from interleaved lines.
+            //
+            // Deliberately allocation-free. This is the game thread and the
+            // span is built per packet, so the fields are `i32`s only — a
+            // `char_name` here would mean a `String` clone per packet. The
+            // name lives on the audit records, which carry it already, and
+            // `oid` is the join key between the two.
+            let span = tracing::info_span!(
+                "packet",
+                client_id,
+                oid = world.player_oid(client_id),
+                opcode = opcode
+            );
+            let _entered = span.enter();
+            if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                on_packet(world, client_id, data);
+            }))
+            .is_err()
+            {
+                error!(
+                    "GameLoop: panic while handling packet {:#04x?} from client {client_id}; disconnecting that client.",
+                    opcode.unwrap_or(0)
                 );
-                debug!(
-                    "GameLoop: client {client_id} connected from {addr} ({} online).",
-                    world.clients.len()
-                );
-            }
-            NetEvent::Received { client_id, data } => {
-                // Java `ExecuteThread`/`PacketHandler` catches Throwable around
-                // each packet's run(), so one bad packet (an admin command with
-                // missing args, a malformed bypass…) must not take the whole
-                // game thread down. `World` is a single-thread structure with
-                // no lock poisoning to worry about, but the handler may have
-                // died mid-mutation, so the offending client's session state is
-                // suspect: disconnect them (persist + clean removal) so they
-                // come back clean while everyone else plays on.
-                let opcode = data.first().copied();
-                packets_handled().incr();
-                // Correlation span: every log line emitted while handling this
-                // packet inherits these fields, which turns "what happened to
-                // this player" into one query over the JSON log instead of a
-                // manual reconstruction from interleaved lines.
-                //
-                // Deliberately allocation-free. This is the game thread and the
-                // span is built per packet, so the fields are `i32`s only — a
-                // `char_name` here would mean a `String` clone per packet. The
-                // name lives on the audit records, which carry it already, and
-                // `oid` is the join key between the two.
-                let span = tracing::info_span!(
-                    "packet",
-                    client_id,
-                    oid = world.player_oid(client_id),
-                    opcode = opcode
-                );
-                let _entered = span.enter();
+                // If the save path trips over the same corrupted state,
+                // fall back to dropping the raw session (closes the
+                // socket, skips the store).
                 if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    on_packet(world, client_id, data);
+                    on_disconnect(world, client_id);
                 }))
                 .is_err()
                 {
                     error!(
-                        "GameLoop: panic while handling packet {:#04x?} from client {client_id}; disconnecting that client.",
-                        opcode.unwrap_or(0)
+                        "GameLoop: panic in the disconnect path for client {client_id}; dropping the session unsaved."
                     );
-                    // If the save path trips over the same corrupted state,
-                    // fall back to dropping the raw session (closes the
-                    // socket, skips the store).
-                    if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                        on_disconnect(world, client_id);
-                    }))
-                    .is_err()
-                    {
-                        error!(
-                            "GameLoop: panic in the disconnect path for client {client_id}; dropping the session unsaved."
-                        );
-                        world.clients.remove(&client_id);
-                    }
+                    world.clients.remove(&client_id);
                 }
             }
-            NetEvent::Disconnected { client_id } => {
-                on_disconnect(world, client_id);
-            }
         }
-        players_online().set(world.clients.len() as u64);
+        NetEvent::Disconnected { client_id } => {
+            on_disconnect(world, client_id);
+        }
     }
+    players_online().set(world.clients.len() as u64);
 }
 
 /// Take the player out of the world and persist them — Java
@@ -751,29 +771,27 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
     );
 }
 
-/// Bounded, non-blocking drain of the login-link→game channel (step 2).
-pub(crate) fn drain_login_link(world: &mut World, login_rx: &LoginLinkEventRx) {
-    while let Ok(event) = login_rx.try_recv() {
-        match event {
-            LoginLinkEvent::Registered {
-                server_id,
-                server_name,
-            } => {
-                info!("GameLoop: registered as Server {server_id}: {server_name}.");
-                world.login.server_id = Some(server_id);
-                world.login.server_name = Some(server_name);
-            }
-            LoginLinkEvent::PlayerAuthResponse { account, authed } => {
-                handle_player_auth_response(world, account, authed);
-            }
-            LoginLinkEvent::KickPlayer { account } => handle_kick(world, account),
-            LoginLinkEvent::RequestCharacters { account } => {
-                // Ask the DB thread; reply on the CharCount event.
-                let _ = world.db.send(db::DbCommand::CountCharacters { account });
-            }
-            LoginLinkEvent::Failed { reason } => {
-                warn!("GameLoop: login-server registration failed (reason {reason}).");
-            }
+/// One login-link event: registration, auth response, kick, char-count ask.
+pub(crate) fn handle_login_link_event(world: &mut World, event: LoginLinkEvent) {
+    match event {
+        LoginLinkEvent::Registered {
+            server_id,
+            server_name,
+        } => {
+            info!("GameLoop: registered as Server {server_id}: {server_name}.");
+            world.login.server_id = Some(server_id);
+            world.login.server_name = Some(server_name);
+        }
+        LoginLinkEvent::PlayerAuthResponse { account, authed } => {
+            handle_player_auth_response(world, account, authed);
+        }
+        LoginLinkEvent::KickPlayer { account } => handle_kick(world, account),
+        LoginLinkEvent::RequestCharacters { account } => {
+            // Ask the DB thread; reply on the CharCount event.
+            let _ = world.db.send(db::DbCommand::CountCharacters { account });
+        }
+        LoginLinkEvent::Failed { reason } => {
+            warn!("GameLoop: login-server registration failed (reason {reason}).");
         }
     }
 }
@@ -818,368 +836,371 @@ pub(crate) fn handle_player_auth_response(world: &mut World, account: String, au
     }
 }
 
-/// Bounded, non-blocking drain of the DB→game channel (step 2).
-/// Apply every path-worker reply that landed since the last tick.
-pub(crate) fn drain_path(world: &mut World, path_rx: &PathEventRx) {
-    while let Ok(event) = path_rx.try_recv() {
-        super::position::handle_path_result(world, event);
-    }
-}
-
-pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
-    while let Ok(event) = db_rx.try_recv() {
-        match event {
-            DbEvent::CharactersLoaded {
-                client_id,
-                account,
-                chars,
-                send_list,
-            } => {
-                on_characters_loaded(world, client_id, account, chars, send_list);
+/// One DB result: a boot-load table landing, or a mid-session read's
+/// continuation (character list, name check, id block…).
+pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
+    match event {
+        DbEvent::CharactersLoaded {
+            client_id,
+            account,
+            chars,
+            send_list,
+        } => {
+            on_characters_loaded(world, client_id, account, chars, send_list);
+        }
+        DbEvent::CharacterCreated { client_id, result } => {
+            use crate::db::CreateResult::*;
+            let body = match result {
+                Ok => server_packets::char_create_ok(),
+                // NAME_ALREADY_EXISTS=2, TOO_MANY=1, CREATION_FAILED=0.
+                NameExists => server_packets::char_create_fail(2),
+                TooMany => server_packets::char_create_fail(1),
+                Fail => server_packets::char_create_fail(0),
+            };
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(body);
             }
-            DbEvent::CharacterCreated { client_id, result } => {
-                use crate::db::CreateResult::*;
-                let body = match result {
-                    Ok => server_packets::char_create_ok(),
-                    // NAME_ALREADY_EXISTS=2, TOO_MANY=1, CREATION_FAILED=0.
-                    NameExists => server_packets::char_create_fail(2),
-                    TooMany => server_packets::char_create_fail(1),
-                    Fail => server_packets::char_create_fail(0),
-                };
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(body);
-                }
-            }
-            DbEvent::CharCount {
+        }
+        DbEvent::CharCount {
+            account,
+            count,
+            del_times,
+        } => {
+            let _ = world.login.link.send(LoginLinkCommand::ReplyCharacters {
                 account,
-                count,
+                chars: count,
                 del_times,
-            } => {
-                let _ = world.login.link.send(LoginLinkCommand::ReplyCharacters {
-                    account,
-                    chars: count,
-                    del_times,
-                });
+            });
+        }
+        DbEvent::NameCreatable { client_id, result } => {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_is_char_name_creatable(result));
             }
-            DbEvent::NameCreatable { client_id, result } => {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::ex_is_char_name_creatable(result));
-                }
-            }
-            DbEvent::IdBlock { start, end } => {
-                world.id_pool = start..end;
-            }
-            DbEvent::GlobalVariablesLoaded { entries } => {
-                tracing::info!("GameLoop: loaded {} global variables.", entries.len());
-                world.global_vars = entries.into_iter().collect();
-                super::four_sepulchers::restore_entry_times(world);
-            }
-            DbEvent::PremiumLoaded { entries } => {
-                tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
-                world.premium = entries.into_iter().collect();
-            }
-            DbEvent::LotteryLoaded { row, draws } => {
-                super::lottery::on_loaded(world, row, draws);
-            }
-            DbEvent::LotteryTicketsLoaded { round, rows } => {
-                super::lottery::finish_complete(world, round, rows);
-            }
-            DbEvent::MdtLoaded { history, bets } => {
-                super::monster_race::on_mdt_loaded(world, history, bets);
-            }
-            DbEvent::MailLoaded {
-                messages,
-                attachments,
-                char_ids_by_name,
-            } => {
-                super::mail::on_loaded(world, messages, attachments, char_ids_by_name);
-            }
-            DbEvent::ItemAuctionsLoaded {
-                next_auction_id,
-                auctions,
-            } => {
-                super::item_auction::on_loaded(world, next_auction_id, auctions);
-            }
-            DbEvent::PunishmentsLoaded {
-                next_id,
-                punishments,
-            } => {
-                super::punishment::on_loaded(world, next_id, punishments);
-            }
-            DbEvent::BotReportsLoaded { rows } => {
-                let last_reset = super::bot_report::last_reset_millis(
-                    &world.cfg.bot_report,
-                    commons::util::now_millis(),
-                );
-                super::bot_report::on_loaded(world, rows, last_reset);
-            }
-            DbEvent::BufferSchemesLoaded { entries } => {
-                // Java `SchemeBufferTable.load` drops any saved skill id no longer
-                // in `_availableBuffs`; the buffer table lives here on the game
-                // thread, so the filter runs at insert time (like grand bosses).
-                for (object_id, scheme_name, skills) in entries {
-                    let skills: Vec<i32> = skills
-                        .into_iter()
-                        .filter(|id| world.data.scheme_buffer.contains(*id))
-                        .collect();
-                    world
-                        .buffer_schemes
-                        .entry(object_id)
-                        .or_default()
-                        .push((scheme_name, skills));
-                }
-                tracing::info!(
-                    "GameLoop: loaded buffer schemes for {} characters.",
-                    world.buffer_schemes.len()
-                );
-            }
-            DbEvent::FavoritesLoaded { entries } => {
-                // `favId` is a table-wide AUTOINCREMENT PK; seed the game-thread
-                // allocator past the highest loaded id so new favorites stay unique.
-                let mut max_id = 0;
-                for (player_id, fav_id, title, bypass, add_date) in entries {
-                    max_id = max_id.max(fav_id);
-                    world.bbs_favorites.entry(player_id).or_default().push(
-                        crate::world::Favorite {
-                            fav_id,
-                            title,
-                            bypass,
-                            add_date,
-                        },
-                    );
-                }
-                world.next_fav_id = max_id + 1;
-                tracing::info!(
-                    "GameLoop: loaded favorites for {} characters.",
-                    world.bbs_favorites.len()
-                );
-            }
-            DbEvent::NpcRespawnsLoaded { rows } => {
-                // Settle the `dbSave` spawns the static pass deferred (Java's
-                // `DBSpawnManager.load` + the `spawnNpc` hand-off).
-                super::boss_respawn::resolve_boot(world, rows);
-            }
-            DbEvent::OfflineTradersLoaded { traders } => {
-                // `GameServer.main`'s `OfflineTraderTable.restoreOfflineTraders()`.
-                super::offline_trade::restore_offline_traders(world, traders);
-            }
-            DbEvent::GrandBossesLoaded { bosses } => {
-                // Java skips rows whose NPC template is missing (`NpcData
-                // .getTemplate(bossId) != null`); the datapack lives here on the
-                // game thread, so the filter runs at insert time.
-                world.grand_bosses = bosses
+        }
+        DbEvent::IdBlock { start, end } => {
+            world.id_pool = start..end;
+        }
+        DbEvent::GlobalVariablesLoaded { entries } => {
+            tracing::info!("GameLoop: loaded {} global variables.", entries.len());
+            world.global_vars = entries.into_iter().collect();
+            super::four_sepulchers::restore_entry_times(world);
+        }
+        DbEvent::PremiumLoaded { entries } => {
+            tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
+            world.premium = entries.into_iter().collect();
+        }
+        DbEvent::LotteryLoaded { row, draws } => {
+            super::lottery::on_loaded(world, row, draws);
+        }
+        DbEvent::LotteryTicketsLoaded { round, rows } => {
+            super::lottery::finish_complete(world, round, rows);
+        }
+        DbEvent::MdtLoaded { history, bets } => {
+            super::monster_race::on_mdt_loaded(world, history, bets);
+        }
+        DbEvent::MailLoaded {
+            messages,
+            attachments,
+            char_ids_by_name,
+        } => {
+            super::mail::on_loaded(world, messages, attachments, char_ids_by_name);
+        }
+        DbEvent::ItemAuctionsLoaded {
+            next_auction_id,
+            auctions,
+        } => {
+            super::item_auction::on_loaded(world, next_auction_id, auctions);
+        }
+        DbEvent::PunishmentsLoaded {
+            next_id,
+            punishments,
+        } => {
+            super::punishment::on_loaded(world, next_id, punishments);
+        }
+        DbEvent::BotReportsLoaded { rows } => {
+            let last_reset = super::bot_report::last_reset_millis(
+                &world.cfg.bot_report,
+                commons::util::now_millis(),
+            );
+            super::bot_report::on_loaded(world, rows, last_reset);
+        }
+        DbEvent::BufferSchemesLoaded { entries } => {
+            // Java `SchemeBufferTable.load` drops any saved skill id no longer
+            // in `_availableBuffs`; the buffer table lives here on the game
+            // thread, so the filter runs at insert time (like grand bosses).
+            for (object_id, scheme_name, skills) in entries {
+                let skills: Vec<i32> = skills
                     .into_iter()
-                    .filter(|b| world.data.npc_data.get(b.boss_id).is_some())
-                    .map(|b| (b.boss_id, b))
+                    .filter(|id| world.data.scheme_buffer.contains(*id))
                     .collect();
-                tracing::info!(
-                    "GameLoop: loaded {} grand bosses.",
-                    world.grand_bosses.len()
+                world
+                    .buffer_schemes
+                    .entry(object_id)
+                    .or_default()
+                    .push((scheme_name, skills));
+            }
+            tracing::info!(
+                "GameLoop: loaded buffer schemes for {} characters.",
+                world.buffer_schemes.len()
+            );
+        }
+        DbEvent::FavoritesLoaded { entries } => {
+            // `favId` is a table-wide AUTOINCREMENT PK; seed the game-thread
+            // allocator past the highest loaded id so new favorites stay unique.
+            let mut max_id = 0;
+            for (player_id, fav_id, title, bypass, add_date) in entries {
+                max_id = max_id.max(fav_id);
+                world
+                    .bbs_favorites
+                    .entry(player_id)
+                    .or_default()
+                    .push(crate::world::Favorite {
+                        fav_id,
+                        title,
+                        bypass,
+                        add_date,
+                    });
+            }
+            world.next_fav_id = max_id + 1;
+            tracing::info!(
+                "GameLoop: loaded favorites for {} characters.",
+                world.bbs_favorites.len()
+            );
+        }
+        DbEvent::NpcRespawnsLoaded { rows } => {
+            // Settle the `dbSave` spawns the static pass deferred (Java's
+            // `DBSpawnManager.load` + the `spawnNpc` hand-off).
+            super::boss_respawn::resolve_boot(world, rows);
+        }
+        DbEvent::OfflineTradersLoaded { traders } => {
+            // `GameServer.main`'s `OfflineTraderTable.restoreOfflineTraders()`.
+            super::offline_trade::restore_offline_traders(world, traders);
+        }
+        DbEvent::GrandBossesLoaded { bosses } => {
+            // Java skips rows whose NPC template is missing (`NpcData
+            // .getTemplate(bossId) != null`); the datapack lives here on the
+            // game thread, so the filter runs at insert time.
+            world.grand_bosses = bosses
+                .into_iter()
+                .filter(|b| world.data.npc_data.get(b.boss_id).is_some())
+                .map(|b| (b.boss_id, b))
+                .collect();
+            tracing::info!(
+                "GameLoop: loaded {} grand bosses.",
+                world.grand_bosses.len()
+            );
+            // Spawn the ones that are up, arm timers for the rest, and
+            // immediately respawn any whose window elapsed while the server
+            // was down. Must run *here*, once the data has landed — the
+            // static world (`spawn_all`, geo) is already up before the loop.
+            super::grand_boss::resolve_at_boot(world);
+            super::dr_chaos::resolve_at_boot(world);
+        }
+        DbEvent::CursedWeaponsLoaded { rows } => {
+            // Build from the XML config, compute each skill's max level, then
+            // overlay the persisted wielder state (Java `restore` →
+            // `reActivate`). The default table is empty, so both usually
+            // start inactive.
+            let mut weapons = world.data.cursed_weapons.weapons.clone();
+            for cw in &mut weapons {
+                cw.skill_max_level = (1..=100)
+                    .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
+                    .last()
+                    .unwrap_or(1);
+                if let Some(row) = rows.iter().find(|r| r.item_id == cw.item_id) {
+                    cw.player_id = row.char_id;
+                    cw.player_reputation = row.player_reputation;
+                    cw.player_pk_kills = row.player_pk_kills;
+                    cw.nb_kills = row.nb_kills;
+                    cw.end_time = row.end_time;
+                    cw.is_activated = true;
+                }
+            }
+            tracing::info!("GameLoop: loaded {} cursed weapons.", weapons.len());
+            world.cursed_weapons = weapons;
+            // Java `restore()` → `reActivate()`: a weapon that survived a
+            // restart gets its `RemoveTask` armed again. Without this the
+            // restored curse is immortal — the wielder keeps it forever,
+            // since only this timer ever calls `endOfLife`. One whose
+            // deadline passed while the server was down fires immediately
+            // (`arm_expiry` clamps the delay at 0, `handle_expiry`
+            // re-checks `end_time`).
+            for idx in 0..world.cursed_weapons.len() {
+                if world.cursed_weapons[idx].is_activated {
+                    super::cursed_weapon::arm_expiry(world, idx);
+                }
+            }
+        }
+        DbEvent::CastlesLoaded { castles } => {
+            tracing::info!("GameLoop: loaded {} castles.", castles.len());
+            world.castles = castles;
+        }
+        DbEvent::SiegesLoaded { rows } => {
+            // One Siege per castle (Java creates a Siege for every castle),
+            // then attach the registered clans from `siege_clans`.
+            use crate::model::siege::{Siege, SiegeClanType};
+            let mut sieges: std::collections::HashMap<i32, Siege> = world
+                .castles
+                .iter()
+                .map(|c| (c.id, Siege::new(c.id)))
+                .collect();
+            for row in &rows {
+                if let (Some(siege), Some(kind)) = (
+                    sieges.get_mut(&row.castle_id),
+                    SiegeClanType::from_db(row.kind),
+                ) {
+                    siege.add_clan(row.clan_id, kind);
+                }
+            }
+            tracing::info!(
+                "GameLoop: loaded sieges for {} castles ({} registered clans).",
+                sieges.len(),
+                rows.len()
+            );
+            world.sieges = sieges;
+            // The per-castle Siege records now exist — arm the weekly
+            // auto-start schedule (`SiegeSchedule.xml`).
+            crate::game_loop::siege::schedule_all_at_boot(world);
+        }
+        DbEvent::ManorLoaded {
+            production,
+            procure,
+        } => {
+            // Group the rows by castle + period, dropping ids not in the
+            // seed catalogue (Java's "Don't load unknown seeds/crops").
+            use crate::model::manor::{CropProcure, ManorState, SeedProduction};
+            let mut manor = ManorState::default();
+            let mut prod: std::collections::HashMap<(i32, bool), Vec<SeedProduction>> =
+                std::collections::HashMap::new();
+            let mut proc: std::collections::HashMap<(i32, bool), Vec<CropProcure>> =
+                std::collections::HashMap::new();
+            let mut skipped = 0;
+            for r in &production {
+                if world.data.manor.seed_by_id(r.seed_id).is_none() {
+                    skipped += 1;
+                    continue;
+                }
+                prod.entry((r.castle_id, r.next_period))
+                    .or_default()
+                    .push(SeedProduction {
+                        seed_id: r.seed_id,
+                        amount: r.amount,
+                        price: r.price,
+                        start_amount: r.start_amount,
+                    });
+            }
+            for r in &procure {
+                if world.data.manor.seed_by_crop(r.crop_id).is_none() {
+                    skipped += 1;
+                    continue;
+                }
+                proc.entry((r.castle_id, r.next_period))
+                    .or_default()
+                    .push(CropProcure {
+                        crop_id: r.crop_id,
+                        amount: r.amount,
+                        price: r.price,
+                        start_amount: r.start_amount,
+                        reward_type: r.reward_type,
+                    });
+            }
+            for ((castle_id, next), list) in prod {
+                manor.set_seed_production(castle_id, next, list);
+            }
+            for ((castle_id, next), list) in proc {
+                manor.set_crop_procure(castle_id, next, list);
+            }
+            tracing::info!(
+                "GameLoop: loaded manor state ({} production, {} procure rows, {skipped} unknown skipped).",
+                production.len(),
+                procure.len()
+            );
+            world.manor = manor;
+            // Set the initial period mode from the wall clock and arm the
+            // first daily mode change (Java `CastleManorManager` init).
+            crate::game_loop::manor::schedule_manor_at_boot(world);
+        }
+        DbEvent::ClanHallsLoaded { rows } => {
+            // Start from the static defs, then overlay persisted ownership.
+            let mut halls = world.data.clan_halls.clone();
+            for row in &rows {
+                if let Some(hall) = halls.get_mut(&row.id) {
+                    hall.owner_id = row.owner_id;
+                    hall.paid_until = row.paid_until;
+                }
+            }
+            let owned: Vec<i32> = halls
+                .values()
+                .filter(|h| h.owner_id != 0)
+                .map(|h| h.id)
+                .collect();
+            tracing::info!(
+                "GameLoop: loaded {} clan halls ({} owned).",
+                halls.len(),
+                owned.len()
+            );
+            world.clan_halls = halls;
+            // Java `ClanHall.setOwner` on load arms each owned hall's lease
+            // check; restore those timers here.
+            for hall_id in owned {
+                crate::game_loop::clan_hall_auction::arm_lease_check(world, hall_id);
+            }
+        }
+        DbEvent::ClanHallBiddersLoaded { rows } => {
+            use crate::model::clan_hall::ClanHallBid;
+            for row in &rows {
+                world.clan_hall_bids.entry(row.hall_id).or_default().insert(
+                    row.clan_id,
+                    ClanHallBid {
+                        amount: row.bid,
+                        bid_time: row.bid_time,
+                    },
                 );
-                // Spawn the ones that are up, arm timers for the rest, and
-                // immediately respawn any whose window elapsed while the server
-                // was down. Must run *here*, once the data has landed — the
-                // static world (`spawn_all`, geo) is already up before the loop.
-                super::grand_boss::resolve_at_boot(world);
-                super::dr_chaos::resolve_at_boot(world);
             }
-            DbEvent::CursedWeaponsLoaded { rows } => {
-                // Build from the XML config, compute each skill's max level, then
-                // overlay the persisted wielder state (Java `restore` →
-                // `reActivate`). The default table is empty, so both usually
-                // start inactive.
-                let mut weapons = world.data.cursed_weapons.weapons.clone();
-                for cw in &mut weapons {
-                    cw.skill_max_level = (1..=100)
-                        .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
-                        .last()
-                        .unwrap_or(1);
-                    if let Some(row) = rows.iter().find(|r| r.item_id == cw.item_id) {
-                        cw.player_id = row.char_id;
-                        cw.player_reputation = row.player_reputation;
-                        cw.player_pk_kills = row.player_pk_kills;
-                        cw.nb_kills = row.nb_kills;
-                        cw.end_time = row.end_time;
-                        cw.is_activated = true;
-                    }
-                }
-                tracing::info!("GameLoop: loaded {} cursed weapons.", weapons.len());
-                world.cursed_weapons = weapons;
-                // Java `restore()` → `reActivate()`: a weapon that survived a
-                // restart gets its `RemoveTask` armed again. Without this the
-                // restored curse is immortal — the wielder keeps it forever,
-                // since only this timer ever calls `endOfLife`. One whose
-                // deadline passed while the server was down fires immediately
-                // (`arm_expiry` clamps the delay at 0, `handle_expiry`
-                // re-checks `end_time`).
-                for idx in 0..world.cursed_weapons.len() {
-                    if world.cursed_weapons[idx].is_activated {
-                        super::cursed_weapon::arm_expiry(world, idx);
-                    }
-                }
-            }
-            DbEvent::CastlesLoaded { castles } => {
-                tracing::info!("GameLoop: loaded {} castles.", castles.len());
-                world.castles = castles;
-            }
-            DbEvent::SiegesLoaded { rows } => {
-                // One Siege per castle (Java creates a Siege for every castle),
-                // then attach the registered clans from `siege_clans`.
-                use crate::model::siege::{Siege, SiegeClanType};
-                let mut sieges: std::collections::HashMap<i32, Siege> = world
-                    .castles
-                    .iter()
-                    .map(|c| (c.id, Siege::new(c.id)))
-                    .collect();
-                for row in &rows {
-                    if let (Some(siege), Some(kind)) = (
-                        sieges.get_mut(&row.castle_id),
-                        SiegeClanType::from_db(row.kind),
-                    ) {
-                        siege.add_clan(row.clan_id, kind);
-                    }
-                }
-                tracing::info!(
-                    "GameLoop: loaded sieges for {} castles ({} registered clans).",
-                    sieges.len(),
-                    rows.len()
-                );
-                world.sieges = sieges;
-                // The per-castle Siege records now exist — arm the weekly
-                // auto-start schedule (`SiegeSchedule.xml`).
-                crate::game_loop::siege::schedule_all_at_boot(world);
-            }
-            DbEvent::ManorLoaded {
-                production,
-                procure,
-            } => {
-                // Group the rows by castle + period, dropping ids not in the
-                // seed catalogue (Java's "Don't load unknown seeds/crops").
-                use crate::model::manor::{CropProcure, ManorState, SeedProduction};
-                let mut manor = ManorState::default();
-                let mut prod: std::collections::HashMap<(i32, bool), Vec<SeedProduction>> =
-                    std::collections::HashMap::new();
-                let mut proc: std::collections::HashMap<(i32, bool), Vec<CropProcure>> =
-                    std::collections::HashMap::new();
-                let mut skipped = 0;
-                for r in &production {
-                    if world.data.manor.seed_by_id(r.seed_id).is_none() {
-                        skipped += 1;
-                        continue;
-                    }
-                    prod.entry((r.castle_id, r.next_period))
-                        .or_default()
-                        .push(SeedProduction {
-                            seed_id: r.seed_id,
-                            amount: r.amount,
-                            price: r.price,
-                            start_amount: r.start_amount,
-                        });
-                }
-                for r in &procure {
-                    if world.data.manor.seed_by_crop(r.crop_id).is_none() {
-                        skipped += 1;
-                        continue;
-                    }
-                    proc.entry((r.castle_id, r.next_period))
-                        .or_default()
-                        .push(CropProcure {
-                            crop_id: r.crop_id,
-                            amount: r.amount,
-                            price: r.price,
-                            start_amount: r.start_amount,
-                            reward_type: r.reward_type,
-                        });
-                }
-                for ((castle_id, next), list) in prod {
-                    manor.set_seed_production(castle_id, next, list);
-                }
-                for ((castle_id, next), list) in proc {
-                    manor.set_crop_procure(castle_id, next, list);
-                }
-                tracing::info!(
-                    "GameLoop: loaded manor state ({} production, {} procure rows, {skipped} unknown skipped).",
-                    production.len(),
-                    procure.len()
-                );
-                world.manor = manor;
-                // Set the initial period mode from the wall clock and arm the
-                // first daily mode change (Java `CastleManorManager` init).
-                crate::game_loop::manor::schedule_manor_at_boot(world);
-            }
-            DbEvent::ClanHallsLoaded { rows } => {
-                // Start from the static defs, then overlay persisted ownership.
-                let mut halls = world.data.clan_halls.clone();
-                for row in &rows {
-                    if let Some(hall) = halls.get_mut(&row.id) {
-                        hall.owner_id = row.owner_id;
-                        hall.paid_until = row.paid_until;
-                    }
-                }
-                let owned: Vec<i32> = halls
-                    .values()
-                    .filter(|h| h.owner_id != 0)
-                    .map(|h| h.id)
-                    .collect();
-                tracing::info!(
-                    "GameLoop: loaded {} clan halls ({} owned).",
-                    halls.len(),
-                    owned.len()
-                );
-                world.clan_halls = halls;
-                // Java `ClanHall.setOwner` on load arms each owned hall's lease
-                // check; restore those timers here.
-                for hall_id in owned {
-                    crate::game_loop::clan_hall_auction::arm_lease_check(world, hall_id);
-                }
-            }
-            DbEvent::ClanHallBiddersLoaded { rows } => {
-                use crate::model::clan_hall::ClanHallBid;
-                for row in &rows {
-                    world.clan_hall_bids.entry(row.hall_id).or_default().insert(
-                        row.clan_id,
-                        ClanHallBid {
-                            amount: row.bid,
-                            bid_time: row.bid_time,
+            tracing::info!("GameLoop: loaded {} clan-hall auction bids.", rows.len());
+            // Arm the weekly auction close now that the bids exist.
+            crate::game_loop::clan_hall_auction::schedule_weekly_close(world);
+        }
+        DbEvent::ResidenceFunctionsLoaded { rows } => {
+            use crate::model::clan_hall::ActiveFunction;
+            for row in &rows {
+                world
+                    .clan_hall_functions
+                    .entry(row.residence_id)
+                    .or_default()
+                    .insert(
+                        row.func_id,
+                        ActiveFunction {
+                            level: row.level,
+                            expiration: row.expiration,
                         },
                     );
-                }
-                tracing::info!("GameLoop: loaded {} clan-hall auction bids.", rows.len());
-                // Arm the weekly auction close now that the bids exist.
-                crate::game_loop::clan_hall_auction::schedule_weekly_close(world);
             }
-            DbEvent::ResidenceFunctionsLoaded { rows } => {
-                use crate::model::clan_hall::ActiveFunction;
-                for row in &rows {
-                    world
-                        .clan_hall_functions
-                        .entry(row.residence_id)
-                        .or_default()
-                        .insert(
-                            row.func_id,
-                            ActiveFunction {
-                                level: row.level,
-                                expiration: row.expiration,
-                            },
-                        );
-                }
-                tracing::info!("GameLoop: loaded {} clan-hall functions.", rows.len());
-                // Re-arm each function's expiry (Java `ResidenceFunction.init`).
-                let funcs: Vec<(i32, i32)> = world
-                    .clan_hall_functions
-                    .iter()
-                    .flat_map(|(&hall, fs)| fs.keys().map(move |&f| (hall, f)))
-                    .collect();
-                for (hall_id, func_id) in funcs {
-                    crate::game_loop::clan_hall_function::arm_function_expiry(
-                        world, hall_id, func_id,
-                    );
-                }
+            tracing::info!("GameLoop: loaded {} clan-hall functions.", rows.len());
+            // Re-arm each function's expiry (Java `ResidenceFunction.init`).
+            let funcs: Vec<(i32, i32)> = world
+                .clan_hall_functions
+                .iter()
+                .flat_map(|(&hall, fs)| fs.keys().map(move |&f| (hall, f)))
+                .collect();
+            for (hall_id, func_id) in funcs {
+                crate::game_loop::clan_hall_function::arm_function_expiry(world, hall_id, func_id);
             }
-            DbEvent::CustomMailLoaded { rows } => {
-                super::custom_mail::apply_loaded(world, rows);
-            }
-            DbEvent::OlympiadLoaded {
+        }
+        DbEvent::CustomMailLoaded { rows } => {
+            super::custom_mail::apply_loaded(world, rows);
+        }
+        DbEvent::OlympiadLoaded {
+            current_cycle,
+            period,
+            olympiad_end,
+            validation_end,
+            next_weekly_change,
+            nobles,
+            eom,
+        } => {
+            crate::game_loop::olympiad::apply_loaded(
+                world,
                 current_cycle,
                 period,
                 olympiad_end,
@@ -1187,97 +1208,86 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 next_weekly_change,
                 nobles,
                 eom,
-            } => {
-                crate::game_loop::olympiad::apply_loaded(
-                    world,
-                    current_cycle,
-                    period,
-                    olympiad_end,
-                    validation_end,
-                    next_weekly_change,
-                    nobles,
-                    eom,
-                );
-                // `Olympiad.init` + `scheduleWeeklyChange`: arm the window and
-                // weekly-refresh schedules now the persisted state is in place.
-                crate::game_loop::olympiad::schedule_at_boot(world);
+            );
+            // `Olympiad.init` + `scheduleWeeklyChange`: arm the window and
+            // weekly-refresh schedules now the persisted state is in place.
+            crate::game_loop::olympiad::schedule_at_boot(world);
+        }
+        DbEvent::HeroesLoaded { heroes, diary } => {
+            crate::game_loop::olympiad::apply_heroes_loaded(world, heroes, diary);
+        }
+        DbEvent::SiegeGuardsLoaded { guards } => {
+            let mut by_castle: std::collections::HashMap<
+                i32,
+                Vec<crate::model::siege::SiegeSpawn>,
+            > = std::collections::HashMap::new();
+            for (castle_id, spawn) in guards {
+                by_castle.entry(castle_id).or_default().push(spawn);
             }
-            DbEvent::HeroesLoaded { heroes, diary } => {
-                crate::game_loop::olympiad::apply_heroes_loaded(world, heroes, diary);
+            let total: usize = by_castle.values().map(|v| v.len()).sum();
+            tracing::info!(
+                "GameLoop: loaded {total} siege guards for {} castles.",
+                by_castle.len()
+            );
+            world.siege_guards = by_castle;
+        }
+        DbEvent::ClansLoaded {
+            clans,
+            wars,
+            crests,
+            recruit_clans,
+            recruit_waiting,
+            recruit_applicants,
+        } => {
+            tracing::info!(
+                "GameLoop: loaded {} clans, {} clan wars, {} crests, {} recruiting clans, \
+                 {} waiting players, {} applications.",
+                clans.len(),
+                wars.len(),
+                crests.len(),
+                recruit_clans.len(),
+                recruit_waiting.len(),
+                recruit_applicants.iter().len()
+            );
+            world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
+            world.clan_wars = wars;
+            world.next_crest_id = crests.iter().map(|c| c.id + 1).max().unwrap_or(1);
+            world.crests = crests.into_iter().map(|c| (c.id, c)).collect();
+            // `ClanEntryManager.load`: drop recruiting entries for clans
+            // that no longer exist.
+            world.recruit_clans = recruit_clans
+                .into_iter()
+                .filter(|r| world.clans.contains_key(&r.clan_id))
+                .map(|r| (r.clan_id, r))
+                .collect();
+            world.recruit_waiting = recruit_waiting
+                .into_iter()
+                .map(|w| (w.player_id, w))
+                .collect();
+            for a in recruit_applicants {
+                world
+                    .recruit_applicants
+                    .entry(a.clan_id)
+                    .or_default()
+                    .insert(a.player_id, a);
             }
-            DbEvent::SiegeGuardsLoaded { guards } => {
-                let mut by_castle: std::collections::HashMap<
-                    i32,
-                    Vec<crate::model::siege::SiegeSpawn>,
-                > = std::collections::HashMap::new();
-                for (castle_id, spawn) in guards {
-                    by_castle.entry(castle_id).or_default().push(spawn);
-                }
-                let total: usize = by_castle.values().map(|v| v.len()).sum();
-                tracing::info!(
-                    "GameLoop: loaded {total} siege guards for {} castles.",
-                    by_castle.len()
-                );
-                world.siege_guards = by_castle;
+            super::clans::rearm_clan_wars_at_boot(world);
+            // Re-arm pending dissolutions (Java `ClanTable`'s constructor:
+            // past-due stamps fire immediately).
+            let pending: Vec<(i32, i64)> = world
+                .clans
+                .values()
+                .filter(|c| c.dissolving_expiry_time > 0)
+                .map(|c| (c.id, c.dissolving_expiry_time))
+                .collect();
+            for (clan_id, due) in pending {
+                super::clans::schedule_clan_dissolve(world, clan_id, due);
             }
-            DbEvent::ClansLoaded {
-                clans,
-                wars,
-                crests,
-                recruit_clans,
-                recruit_waiting,
-                recruit_applicants,
-            } => {
-                tracing::info!(
-                    "GameLoop: loaded {} clans, {} clan wars, {} crests, {} recruiting clans, \
-                     {} waiting players, {} applications.",
-                    clans.len(),
-                    wars.len(),
-                    crests.len(),
-                    recruit_clans.len(),
-                    recruit_waiting.len(),
-                    recruit_applicants.iter().len()
-                );
-                world.clans = clans.into_iter().map(|c| (c.id, c)).collect();
-                world.clan_wars = wars;
-                world.next_crest_id = crests.iter().map(|c| c.id + 1).max().unwrap_or(1);
-                world.crests = crests.into_iter().map(|c| (c.id, c)).collect();
-                // `ClanEntryManager.load`: drop recruiting entries for clans
-                // that no longer exist.
-                world.recruit_clans = recruit_clans
-                    .into_iter()
-                    .filter(|r| world.clans.contains_key(&r.clan_id))
-                    .map(|r| (r.clan_id, r))
-                    .collect();
-                world.recruit_waiting = recruit_waiting
-                    .into_iter()
-                    .map(|w| (w.player_id, w))
-                    .collect();
-                for a in recruit_applicants {
-                    world
-                        .recruit_applicants
-                        .entry(a.clan_id)
-                        .or_default()
-                        .insert(a.player_id, a);
-                }
-                super::clans::rearm_clan_wars_at_boot(world);
-                // Re-arm pending dissolutions (Java `ClanTable`'s constructor:
-                // past-due stamps fire immediately).
-                let pending: Vec<(i32, i64)> = world
-                    .clans
-                    .values()
-                    .filter(|c| c.dissolving_expiry_time > 0)
-                    .map(|c| (c.id, c.dissolving_expiry_time))
-                    .collect();
-                for (clan_id, due) in pending {
-                    super::clans::schedule_clan_dissolve(world, clan_id, due);
-                }
-                // Clans are the last boot-load data (static datapack already
-                // loaded synchronously at startup); release the login-link task
-                // to connect now that the world is fully populated.
-                if let Some(ready) = world.login.ready.take() {
-                    let _ = ready.send(());
-                }
+            // Clans are the last boot-load data (static datapack already
+            // loaded synchronously at startup); release the login-link task
+            // to connect now that the world is fully populated.
+            if let Some(ready) = world.login.ready.take() {
+                let _ = ready.send(());
             }
         }
     }

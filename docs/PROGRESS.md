@@ -109,6 +109,50 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 > been done for milestones, and five `TODO` markers PROGRESS said existed were
 > absent from the code entirely — all five turned out to be finished work.
 
+## The threading ledger shrinks: event-driven tick, backpressure, attribution (2026-08-05)
+
+**THREADING_MODEL.md §5 carried six costs; three are retired and the survivors
+are now measured.** Four changes, each its own commit:
+
+1. **The tick sleeps on the channel, not the clock.** All four service→game
+   channels (network, login-link, DB, path) merged into one
+   `std::sync::mpsc<GameEvent>` (`crate::events`) behind typed per-service
+   sender facades — call sites unchanged, a service cannot send another's
+   events. The loop's sleep phase is now `recv_timeout` on that channel
+   (`pump_events_until`), so a packet/DB row/path reply is handled the moment
+   it arrives instead of waiting out the 100 ms remainder. Timers + systems
+   still run strictly at the boundary; an overrun slides the phase exactly as
+   the old skip-the-sleep policy did. Kills the "≤1 tick added latency" cost
+   outright, and mid-handler DB continuations (request → continue-on-reply)
+   stop being tick-quantized for free.
+2. **Backpressure both ways — rule 3's debt paid.** Outbound: `OutboundTx` is
+   now a depth-tracked handle porting Java `Client.packetCanBeDropped` — past
+   `Network.ini`'s `DropPacketThreshold` (new `config/network.rs`; code
+   defaults mirror Java's off/250, the dist arms True/2500) the six
+   `canBeDropped` types (StatusUpdate, AutoAttackStart/Stop, SocialAction,
+   MoveToPawn, MoveToLocation) are discarded, counted by `packets_dropped`.
+   Inbound: 256 semaphore permits per connection; the permit rides inside
+   `NetEvent::Received` and is released when the game thread drops the handled
+   event — at the cap the socket stops being read and TCP pushes back. Java
+   has no inbound equivalent (its unbounded queue is a listed defect).
+3. **`bevy_ecs` compiled `std`-only.** `default-features = false` drops the
+   `async_executor` task pool, `bevy_reflect` and backtrace machinery the
+   single-owner rule made dead weight.
+4. **Overrun warnings name the culprit.** Every tick step is timed (reused
+   vec, two clock reads per step); an overrun warn appends the three slowest
+   steps, and a `tick_busy_micros` gauge graphs headroom against the 100 000 µs
+   budget every tick.
+
+Traps hit: the 5 unit tests that fed a hand-built channel into
+`net::drain_db` were rewritten onto `handle_db_event`, and one
+(`bids_are_restored_at_boot`) captured `scheduler.len()` *before* the drain —
+the mechanical rewrite moved the capture after and the test failed until
+reordered. Clippy's `result_large_err` rejected `SendError<GameEvent>` (144 B)
+from the facades; they return `SendError<()>`. 2767 tests green, clippy
+`-D warnings` clean. Docs: THREADING_MODEL §§1–5, 7 updated (the §5 table now
+has a "costs retired" companion), CONCURRENCY_MODEL §3's latency bullet marked
+as-built.
+
 ## A destroyed *worn* item stayed in the character's hand (2026-08-03)
 
 **Reported from the live server against Q229 `Test of Witchcraft`: after the

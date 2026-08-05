@@ -9,10 +9,11 @@ use std::time::Instant;
 
 use gameserver::config::Config;
 use gameserver::data::GameData;
-use gameserver::db::{self, DbCommand, DbEvent};
+use gameserver::db::{self, DbCommand};
+use gameserver::events::GameEvent;
 use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
-use gameserver::loginlink::{self, LoginLinkConfig, LoginLinkEvent};
-use gameserver::network::NetEvent;
+use gameserver::loginlink::{self, LoginLinkConfig};
+use gameserver::network::NetEventTx;
 use gameserver::network::connection::{self, NetworkConfig};
 use tokio::net::TcpListener;
 use tracing::{info, warn};
@@ -119,14 +120,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let geo = Arc::new(geo_engine);
 
-    // Channels between the network / login-link / DB tasks and the game thread.
-    let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
-    let (login_tx, login_rx) = std::sync::mpsc::channel::<LoginLinkEvent>();
+    // The unified service→game channel (network, login-link, DB, path — each
+    // service gets its own typed facade over the same sender), plus the
+    // per-service command channels the game thread sends *to* them on.
+    let (events_tx, events_rx) = std::sync::mpsc::channel::<GameEvent>();
+    let net_tx = NetEventTx(events_tx.clone());
+    let login_tx = loginlink::EventTx(events_tx.clone());
+    let db_event_tx = db::EventTx(events_tx.clone());
+    let path_event_tx = gameserver::geo::worker::PathEventTx(events_tx);
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel::<DbCommand>();
-    let (db_event_tx, db_rx) = std::sync::mpsc::channel::<DbEvent>();
     let (path_tx, path_req_rx) = std::sync::mpsc::channel();
-    let (path_event_tx, path_rx) = std::sync::mpsc::channel();
     // Released by the game thread once all boot data (incl. clans) is loaded,
     // gating the login-link connect so the login server can't route players to
     // a half-populated world (Java: `LoginServerThread.start()` after all data).
@@ -162,16 +166,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let game_thread = game_loop::spawn(
         shutdown.clone(),
         GameThreadChannels {
-            net_rx,
-            login_rx,
+            events_rx,
             link_tx: link_tx.clone(),
             login_ready_tx,
-            db_rx,
             db_tx: db_tx.clone(),
             data,
             geo,
             path_tx,
-            path_rx,
             path_finding: config.geoengine.path_finding,
             path_cfg: config.geoengine.path.clone(),
             geoedit_path: config.geoengine.geoedit_path.clone(),
@@ -209,6 +210,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         server_id: config.server_id,
         is_classic: (config.server.server_list_type & 0x400) == 0x400,
         security: config.security.clone(),
+        drop_packets: config.network.drop_packets,
+        drop_packet_threshold: config.network.drop_packet_threshold,
     });
     let bind = format!(
         "{}:{}",

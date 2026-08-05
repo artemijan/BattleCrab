@@ -101,8 +101,21 @@ pub enum LoginLinkEvent {
 
 pub type CommandTx = tokio::sync::mpsc::UnboundedSender<LoginLinkCommand>;
 pub type CommandRx = tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>;
-pub type EventTx = std::sync::mpsc::Sender<LoginLinkEvent>;
-pub type LoginLinkEventRx = std::sync::mpsc::Receiver<LoginLinkEvent>;
+
+/// Sender facade for the login-link's share of the unified service→game
+/// channel ([`crate::events::GameEvent`]); a send wakes the sleeping game
+/// loop.
+#[derive(Clone)]
+pub struct EventTx(pub crate::events::GameEventTx);
+
+impl EventTx {
+    /// An `Err` means the game thread is gone — callers treat it as shutdown.
+    pub fn send(&self, event: LoginLinkEvent) -> Result<(), std::sync::mpsc::SendError<()>> {
+        self.0
+            .send(crate::events::GameEvent::Login(event))
+            .map_err(|_| std::sync::mpsc::SendError(()))
+    }
+}
 
 /// The link task: connect / handshake / relay, reconnecting forever.
 ///

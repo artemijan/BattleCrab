@@ -734,54 +734,53 @@ fn manor_state_loads_at_boot() {
     let (mut world, _db, _l) = quest_test_world();
     world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
 
-    let (tx, rx) = std::sync::mpsc::channel();
-    tx.send(crate::db::DbEvent::ManorLoaded {
-        production: vec![
-            // Known seed, current period.
-            crate::db::ManorProductionRow {
-                castle_id: 1,
-                seed_id: 5016,
-                amount: 500,
-                start_amount: 500,
-                price: 3,
-                next_period: false,
-            },
-            // Unknown seed → dropped.
-            crate::db::ManorProductionRow {
-                castle_id: 1,
-                seed_id: 999_999,
-                amount: 1,
-                start_amount: 1,
-                price: 1,
-                next_period: false,
-            },
-        ],
-        procure: vec![
-            // Known crop, next period.
-            crate::db::ManorProcureRow {
-                castle_id: 1,
-                crop_id: 5073,
-                amount: 20,
-                start_amount: 20,
-                price: 9,
-                reward_type: 1,
-                next_period: true,
-            },
-            // Unknown crop → dropped.
-            crate::db::ManorProcureRow {
-                castle_id: 1,
-                crop_id: 999_998,
-                amount: 1,
-                start_amount: 1,
-                price: 1,
-                reward_type: 0,
-                next_period: true,
-            },
-        ],
-    })
-    .unwrap();
-    drop(tx);
-    crate::game_loop::net::drain_db(&mut world, &rx);
+    crate::game_loop::net::handle_db_event(
+        &mut world,
+        crate::db::DbEvent::ManorLoaded {
+            production: vec![
+                // Known seed, current period.
+                crate::db::ManorProductionRow {
+                    castle_id: 1,
+                    seed_id: 5016,
+                    amount: 500,
+                    start_amount: 500,
+                    price: 3,
+                    next_period: false,
+                },
+                // Unknown seed → dropped.
+                crate::db::ManorProductionRow {
+                    castle_id: 1,
+                    seed_id: 999_999,
+                    amount: 1,
+                    start_amount: 1,
+                    price: 1,
+                    next_period: false,
+                },
+            ],
+            procure: vec![
+                // Known crop, next period.
+                crate::db::ManorProcureRow {
+                    castle_id: 1,
+                    crop_id: 5073,
+                    amount: 20,
+                    start_amount: 20,
+                    price: 9,
+                    reward_type: 1,
+                    next_period: true,
+                },
+                // Unknown crop → dropped.
+                crate::db::ManorProcureRow {
+                    castle_id: 1,
+                    crop_id: 999_998,
+                    amount: 1,
+                    start_amount: 1,
+                    price: 1,
+                    reward_type: 0,
+                    next_period: true,
+                },
+            ],
+        },
+    );
 
     // The known seed is in the current period; the unknown one was dropped.
     let prod = world.manor.seed_production(1, false);

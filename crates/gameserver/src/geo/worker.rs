@@ -43,8 +43,21 @@ pub struct PathEvent {
 
 pub type PathReqTx = Sender<PathRequest>;
 pub type PathReqRx = Receiver<PathRequest>;
-pub type PathEventTx = Sender<PathEvent>;
-pub type PathEventRx = Receiver<PathEvent>;
+
+/// Sender facade for the path worker's share of the unified service→game
+/// channel ([`crate::events::GameEvent`]); a send wakes the sleeping game
+/// loop, so a route reply reaches its mover the moment the search finishes.
+#[derive(Clone)]
+pub struct PathEventTx(pub crate::events::GameEventTx);
+
+impl PathEventTx {
+    /// An `Err` means the game thread is gone — the worker exits on it.
+    pub fn send(&self, event: PathEvent) -> Result<(), std::sync::mpsc::SendError<()>> {
+        self.0
+            .send(crate::events::GameEvent::Path(event))
+            .map_err(|_| std::sync::mpsc::SendError(()))
+    }
+}
 
 /// Spawn the path-worker thread. It exits when every request sender is gone
 /// (the game thread dropping `World` on shutdown closes the channel); replies

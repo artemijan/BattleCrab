@@ -327,7 +327,12 @@ fn path_worker_round_trip_walks_around_wall() {
         );
     let (req_tx, req_rx) = std::sync::mpsc::channel();
     let (ev_tx, ev_rx) = std::sync::mpsc::channel();
-    let worker = crate::geo::worker::spawn(world.geo.clone(), PathConfig::default(), req_rx, ev_tx);
+    let worker = crate::geo::worker::spawn(
+        world.geo.clone(),
+        PathConfig::default(),
+        req_rx,
+        crate::geo::worker::PathEventTx(ev_tx),
+    );
     world.path = req_tx;
 
     // Player at cell (0, 1000) = (8, 16008); click to cell (20, 1000).
@@ -340,10 +345,14 @@ fn path_worker_round_trip_walks_around_wall() {
     handle_move_backward_to_location(&mut world, 1, &move_body((328, 16008, 0), (8, 16008, 0), 1));
     assert!(world.objects.has_component::<PathWait>(&4001));
 
-    // The reply normally lands via `drain_path` on a later tick.
-    let ev = ev_rx
+    // The reply normally lands via the unified event channel.
+    let ev = match ev_rx
         .recv_timeout(std::time::Duration::from_secs(10))
-        .expect("worker reply");
+        .expect("worker reply")
+    {
+        crate::events::GameEvent::Path(ev) => ev,
+        _ => unreachable!("the path worker only sends path events"),
+    };
     handle_path_result(&mut world, ev);
     assert!(!world.objects.has_component::<PathWait>(&4001));
 

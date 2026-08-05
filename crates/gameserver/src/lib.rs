@@ -10,6 +10,7 @@ pub mod config;
 pub mod data;
 pub mod db;
 pub mod enums;
+pub mod events;
 pub mod game_loop;
 pub mod geo;
 pub mod loginlink;

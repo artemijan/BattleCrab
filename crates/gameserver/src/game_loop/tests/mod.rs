@@ -353,7 +353,7 @@ async fn character_create_inserts_into_real_schema() {
 
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_event_tx, db_event_rx) = std::sync::mpsc::channel();
-    let db_handle = db::spawn(url, 1, 7, db_cmd_rx, db_event_tx);
+    let db_handle = db::spawn(url, 1, 7, db_cmd_rx, db::EventTx(db_event_tx));
 
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let data = GameData {
@@ -431,7 +431,9 @@ async fn character_create_inserts_into_real_schema() {
             .recv_timeout(std::time::Duration::from_secs(5))
             .unwrap()
         {
-            e @ (DbEvent::CharacterCreated { .. } | DbEvent::CharactersLoaded { .. }) => return e,
+            crate::events::GameEvent::Db(
+                e @ (DbEvent::CharacterCreated { .. } | DbEvent::CharactersLoaded { .. }),
+            ) => return e,
             _ => continue,
         }
     };

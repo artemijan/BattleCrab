@@ -231,8 +231,10 @@ Looking a metric up by name takes the registry lock, so hot paths hold the
 handle in a `OnceLock` rather than re-fetching per event — after the first call
 it is a relaxed atomic add and nothing else.
 
-Currently registered: `packets_handled`, `players_online`, plus `audit_written`
-and `audit_blocked` on every snapshot.
+Currently registered: `packets_handled`, `players_online`, `packets_dropped`
+(outbound drop policy, THREADING_MODEL §4 rule 3), `tick_busy_micros` (the
+game tick's busy time — headroom against the 100 000 µs budget), plus
+`audit_written` and `audit_blocked` on every snapshot.
 
 ## Deployment
 
