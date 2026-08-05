@@ -7,10 +7,9 @@
 //! Everything about that lifecycle — who may become one, whether they take
 //! damage, how long the shops survive a restart — is tuned here.
 //!
-//! `OfflineAbnormalEffect` is parsed but ignored: it is an
-//! `AbnormalVisualEffect` list and the port has no way to hold a *config-driven*
-//! visual on a player with no buff behind it (`TODO(G33)`); this dist leaves it
-//! empty anyway.
+//! `OfflineAbnormalEffect` marks the shop with a visual effect. Java picks
+//! **one at random** from the list per trader, not all of them, so a populated
+//! list gives a street of shops a mix of markers. This dist leaves it empty.
 
 use commons::config::PropertiesParser;
 
@@ -31,6 +30,12 @@ pub struct OfflineTradeConfig {
     /// shop reads as unattended. Java decodes the value as hex (`0x` prefixed).
     pub set_name_color: bool,
     pub name_color: i32,
+    /// `OfflineAbnormalEffect` — abnormal visual effect names to mark an
+    /// unattended shop with, resolved to client ids at load. Java picks one at
+    /// random per trader (`Rnd.get(size())`), so this is a palette, not a set
+    /// to apply together. Unknown names are dropped at parse rather than
+    /// failing the load — a typo in a cosmetic list must not stop the server.
+    pub abnormal_effects: Vec<i16>,
     /// `OfflineFame` — whether a detached character still earns fame.
     ///
     /// Read nowhere yet (`TODO(G33)`), because the thing it gates is unported:
@@ -71,6 +76,7 @@ impl Default for OfflineTradeConfig {
             mode_no_damage: false,
             set_name_color: false,
             name_color: 0x0080_8080,
+            abnormal_effects: Vec::new(),
             fame: true,
             restore_offliners: false,
             max_days: 10,
@@ -103,6 +109,13 @@ impl OfflineTradeConfig {
             name_color: i32::from_str_radix(p.get_string("OfflineNameColor", "808080").trim(), 16)
                 .unwrap_or(d.name_color),
             fame: p.get_bool("OfflineFame", d.fame),
+            abnormal_effects: p
+                .get_string("OfflineAbnormalEffect", "")
+                .split(&[',', ';'][..])
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .filter_map(crate::model::skill::abnormal_visual_client_id)
+                .collect(),
             restore_offliners: p.get_bool("RestoreOffliners", d.restore_offliners),
             max_days: p.get_int("OfflineMaxDays", d.max_days),
             disconnect_finished: p.get_bool("OfflineDisconnectFinished", d.disconnect_finished),
