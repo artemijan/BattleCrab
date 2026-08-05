@@ -48,7 +48,10 @@ rand = "0.8"
 # regex, so the filter needs a real regex engine to stay faithful.
 regex = "1"
 rand_distr = "0.4"
-bevy_ecs = "0.19"
+# `std` only: the game thread is the single owner of the ECS world, so the
+# parallel executor (`async_executor`), reflection and backtrace machinery in
+# the default set are dead weight here (THREADING_MODEL §7).
+bevy_ecs = { version = "0.19", default-features = false, features = ["std"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 # Rotating file appender + the non-blocking writer. The game thread must never
