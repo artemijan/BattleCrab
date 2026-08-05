@@ -13,6 +13,10 @@ const GENERAL_CONFIG_FILE: &str = "config/General.ini";
 
 #[derive(Debug, Clone)]
 pub struct CharacterConfig {
+    /// `RemoveCastleCirclets` (True on this dist) — strip the castle's circlet
+    /// from a clan's members when it loses the castle, and from a member who
+    /// leaves the clan. Java gates both call sites on this one flag.
+    pub remove_castle_circlets: bool,
     /// `DeleteCharAfterDays`: 0 = delete immediately, else mark with a timer.
     pub delete_days: i32,
     /// `StartingAdena`: adena a freshly created character receives.
@@ -294,6 +298,7 @@ impl Default for CharacterConfig {
     /// Java `Config` defaults (used by tests via `CombatConfig::default`).
     fn default() -> Self {
         Self {
+            remove_castle_circlets: true,
             delete_days: 1,
             starting_adena: 0,
             max_adena: 99_900_000_000,
@@ -444,6 +449,7 @@ impl CharacterConfig {
             freight_slots: p.get_int("MaximumFreightSlots", d.freight_slots),
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
+            remove_castle_circlets: p.get_bool("RemoveCastleCirclets", d.remove_castle_circlets),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),
             auto_loot_raids: p.get_bool("AutoLootRaids", d.auto_loot_raids),
             disable_tutorial: p.get_bool("DisableTutorial", d.disable_tutorial),

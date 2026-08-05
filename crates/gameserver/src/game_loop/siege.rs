@@ -326,9 +326,9 @@ fn record_castle_taken_for_nobles(world: &mut World, clan_id: i32, castle_id: i3
 /// 35063) is a permanent castle spawn, so an attacker touching it during an
 /// active siege calls [`try_capture_artifact`] → here.
 ///
-/// TODO(G24): castle crests, and `Castle.removeUpgrade()` — castle upgrades
-/// (door/trap tiers bought from the chamberlain) are not modelled at all, so
-/// there is nothing to strip.
+/// TODO(G24): castle crests. (`Castle.removeUpgrade()` needs nothing: castle
+/// upgrades — the door/trap tiers bought from the chamberlain — are not
+/// modelled at all, so there is nothing to strip.)
 pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;
@@ -356,6 +356,11 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     // former owner's online members, and grant them to the captor's.
     if let Some(old) = old_owner {
         super::clans::strip_residential_skills_from_clan(world, old, castle_id);
+        // …and take back this castle's circlet (`RemoveCastleCirclets`, True
+        // on this dist). Java runs it once, guarded by `_formerOwner == null`,
+        // so a second mid-siege flip does not strip the *new* former owner
+        // twice — here `capture` is the only caller, so once per flip.
+        super::castle::remove_circlets_from_clan(world, old, castle_id);
     }
     super::clans::grant_residential_skills_to_clan(world, new_clan_id, castle_id);
 

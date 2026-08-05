@@ -195,6 +195,84 @@ pub(crate) fn format_adena(value: i64) -> String {
     out
 }
 
+/// Java `CastleManager._castleCirclets` — castle id → its circlet item id.
+/// Index 0 is unused (castle ids are 1..=9), exactly as Java's array is.
+const CASTLE_CIRCLETS: [i32; 10] = [0, 6838, 6835, 6839, 6837, 6840, 6834, 6836, 8182, 8183];
+
+/// Java `CastleManager.getCircletByCastleId` — `0` for anything outside 1..=9.
+pub(crate) fn circlet_of(castle_id: i32) -> i32 {
+    if (1..10).contains(&castle_id) {
+        CASTLE_CIRCLETS[castle_id as usize]
+    } else {
+        0
+    }
+}
+
+/// Java `CastleManager.removeCirclet(ClanMember, castleId)` — take this
+/// castle's circlet off one character, unequipping it first if worn.
+///
+/// Java has an online and an offline branch (the latter edits the `items` rows
+/// directly). This port is memory-first and keeps every logged-in character's
+/// inventory in the ECS, so the online branch covers everyone it can reach;
+/// a member who is offline keeps the circlet until they log in, where Java
+/// would have deleted the row. Recorded rather than silently equivalent.
+pub(crate) fn remove_circlet(world: &mut World, member_oid: i32, castle_id: i32) {
+    let circlet_id = circlet_of(castle_id);
+    if circlet_id == 0 {
+        return;
+    }
+    // `if (circlet.isEquipped()) unEquipItemInSlot(...)` — a worn circlet is
+    // taken off before it is destroyed, so the paperdoll does not keep
+    // referencing a deleted object.
+    let equipped_oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&member_oid)
+        .and_then(|inv| {
+            inv.equipped_items()
+                .into_iter()
+                .find(|i| i.item_id == circlet_id)
+                .map(|i| i.object_id)
+        });
+    if let Some(oid) = equipped_oid
+        && let Some(inv) = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&member_oid)
+    {
+        inv.unequip_item(oid);
+    }
+    let changes = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&member_oid)
+        .map(|inv| inv.remove_item(circlet_id, 1))
+        .unwrap_or_default();
+    if changes.is_empty() {
+        return;
+    }
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, member_oid) {
+        let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+        crate::game_loop::helpers::send_inventory_update(world, cid, member_oid, iu);
+        // Java's `broadcastUserInfo()` after removal — the circlet is a
+        // head-slot item, so onlookers must stop drawing it.
+        crate::game_loop::party::broadcast_user_info(world, member_oid);
+    }
+}
+
+/// Java `CastleManager.removeCirclet(Clan, castleId)` — every member of the
+/// clan, gated by the caller on `RemoveCastleCirclets`.
+pub(crate) fn remove_circlets_from_clan(world: &mut World, clan_id: i32, castle_id: i32) {
+    if !world.cfg.character.remove_castle_circlets {
+        return;
+    }
+    let members: Vec<i32> = world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.members.iter().map(|m| m.char_id).collect())
+        .unwrap_or_default();
+    for oid in members {
+        remove_circlet(world, oid, castle_id);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::format_adena;

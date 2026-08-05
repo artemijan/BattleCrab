@@ -226,6 +226,8 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
             });
             // `Castle.removeOwner`'s skill half. TODO(G24): the crest.
             super::super::clans::strip_residential_skills_from_clan(world, clan_id, castle_id);
+            // `removeOwner` also calls `removeCirclet(clan, residenceId)`.
+            super::super::castle::remove_circlets_from_clan(world, clan_id, castle_id);
         }
         None => send_message(world, client_id, "Error during removing castle!"),
     }

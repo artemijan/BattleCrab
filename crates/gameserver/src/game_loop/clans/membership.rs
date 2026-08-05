@@ -400,8 +400,11 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
 /// no separate teardown**: they ride the same transient `ClanSkills` component
 /// as the pledge skills, which `remove_clan_skills_from_member` below clears
 /// wholesale — Java has to name them separately only because it keeps them in a
-/// different collection. Sub-pledge-leader cleanup is still TODO(G18.6); the
-/// castle circlet is TODO(G24).
+/// different collection. Sub-pledge-leader cleanup is still TODO(G18.6).
+///
+/// The castle circlet goes with the member (Java `Clan.removeClanMember` →
+/// `CastleManager.removeCirclet(exMember, getCastleId())`, gated on
+/// `RemoveCastleCirclets`): leaving a castle-owning clan costs you the crown.
 pub(crate) fn remove_clan_member(
     world: &mut World,
     clan_id: i32,
@@ -412,6 +415,13 @@ pub(crate) fn remove_clan_member(
     // pair; run it first, while the member is still on the roster (the
     // mentorship lookup reads it).
     crate::game_loop::academy::on_leave_clan(world, member_oid);
+    // `CastleManager.removeCirclet(exMember, getCastleId())` — before the
+    // roster edit below, while the clan still reports its castle. A clan with
+    // no castle has id 0, which `circlet_of` maps to "no circlet".
+    if world.cfg.character.remove_castle_circlets {
+        let castle_id = world.clans.get(&clan_id).map_or(0, |c| c.castle_id);
+        crate::game_loop::castle::remove_circlet(world, member_oid, castle_id);
+    }
     let Some(clan) = world.clans.get_mut(&clan_id) else {
         return;
     };

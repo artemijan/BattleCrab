@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **136** such
+of narrow behaviours deferred and marked at the site. There are **135** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,7 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G24)` | 14 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/clans/membership.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs`, `model/skill.rs`, `scripts/q00234_fates_whisper.rs` |
+| `TODO(G24)` | 13 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs`, `model/skill.rs`, `scripts/q00234_fates_whisper.rs` |
 | `TODO(G34)` | 13 | `data/skill_data/build.rs`, `game_loop/death/player_death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/conditions.rs`, `game_loop/skills/effects/control.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/skills/effects/ticks.rs`, `game_loop/skills/instant.rs` |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data/coverage_census.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, `model/skill.rs`, `network/client_packets.rs` |
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/tests/mana_restore_tests.rs`, `model/mod.rs`, `model/skill.rs`, `network/enter_world.rs` |
@@ -122,6 +122,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(G24)` ×1 — castle circlets (`game_loop/clans/membership.rs`, `castle.rs`, `siege.rs`, `admin/castle.rs`) | `CastleManager.removeCirclet` ported with its id table, wired to all three Java call sites — siege capture, `//castle` remove-owner, and a member leaving a castle-owning clan — each gated on `RemoveCastleCirclets` (True here) as Java gates them. A worn circlet is unequipped before destruction, so the paperdoll cannot reference a deleted object. Recorded limitation: Java also edits the `items` rows of **offline** members, which this memory-first port cannot; an offline member keeps the circlet until next login. Castle **crests** are a separate thing and remain deferred. |
 | 2026-08-05 | `TODO(G33)` ×1 — `//getbuffs` pagination (`game_loop/admin/skills.rs`) | Ported via the existing `spawn::default_pager`, including Java's `>`-not-`>=` page clamp (already replicated in `flags::show_ave_menu`). Two details recorded rather than glossed: `%effectSize%` counts the **whole** list, not the page; and Java's page size of 3 pages *buffs* while rendering one row per `AbstractEffect` inside each, so its pages are longer than this port's one-row-per-buff table — a pre-existing row-shape difference, not something pagination introduced. |
 | 2026-08-05 | `TODO(G33)` ×1 — non-combat cast walk (`game_loop/combat/intent.rs`) | Java's "while flying there is no move to cast": a player who must walk into range to finish a cast is refused (SM 748 + `ActionFailed`) while in a **non-combat** transform. Needed a new `Transform::combat` flag — the parser read `type=` only to spot `RIDING_MODE`, so the `COMBAT` / `NON_COMBAT` / `PURE_STAT` / `MODE_CHANGE` / `FLYING` / `CURSED` split was thrown away. The test discriminates all three cases (non-combat refused, COMBAT walks, untransformed walks), since asserting only the refusal would pass equally if the gate ignored the flag. |
 | 2026-08-05 | `TODO(G33)` ×1 — detached teleport (`game_loop/death/restart.rs`) | Java completes a teleport inline for a character with no client to answer `Appearing` (`if (!isPlayer() \|\| client.isDetached()) onTeleported()`). Offline shops are the case that reaches it, and without it they stayed `teleporting` **for ever** — a flag that gates position validation, which the watchdog also could not clear. `on_teleported` now takes `Option<u32>` and skips only the client-facing halves; the visibility half needs nothing, because `set_player_region` has already re-indexed the shop and other players' scans read that index. Sabotage-verified. |

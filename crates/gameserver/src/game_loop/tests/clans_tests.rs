@@ -4672,3 +4672,131 @@ fn dissolving_a_clan_spares_a_nobles_title() {
         "a non-noble still loses theirs"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Castle circlets (G24) — `CastleManager.removeCirclet`
+// ---------------------------------------------------------------------------
+
+/// Gludio's circlet, from Java's `_castleCirclets` table (index 1).
+const GLUDIO_CIRCLET: i32 = 6838;
+
+/// **Leaving a castle-owning clan costs you the circlet** (Java
+/// `Clan.removeClanMember` → `removeCirclet(exMember, getCastleId())`, gated on
+/// `RemoveCastleCirclets`).
+#[test]
+fn leaving_a_castle_owning_clan_takes_the_circlet() {
+    use crate::game_loop::castle::circlet_of;
+
+    let (mut world, ..) = quest_test_world();
+    world.cfg.character.remove_castle_circlets = true;
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    add_quest_items(&mut world, &[(GLUDIO_CIRCLET, "Circlet of Gludio", false)]);
+    crate::game_loop::items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
+
+    // A clan that owns Gludio, with 3001 on the roster.
+    let mut clan = castle_owning_clan(700);
+    clan.castle_id = 1;
+    clan.members.push(crate::model::clan::ClanMember {
+        char_id: 3001,
+        name: "P3001".into(),
+        level: 20,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+        power_grade: 5,
+        title: String::new(),
+        pledge_type: 0,
+    });
+    world.clans.insert(700, clan);
+
+    assert_eq!(circlet_of(1), GLUDIO_CIRCLET, "Gludio's circlet id");
+    assert_eq!(
+        item_count(&world, 3001, GLUDIO_CIRCLET),
+        1,
+        "worn before leaving"
+    );
+
+    crate::game_loop::clans::remove_clan_member(&mut world, 700, 3001, 0);
+    assert_eq!(
+        item_count(&world, 3001, GLUDIO_CIRCLET),
+        0,
+        "the circlet leaves with the clan"
+    );
+}
+
+/// **With `RemoveCastleCirclets` off, the circlet stays** — Java gates both
+/// call sites on that flag, so an operator can let members keep them.
+#[test]
+fn the_circlet_survives_when_the_config_says_so() {
+    let (mut world, ..) = quest_test_world();
+    world.cfg.character.remove_castle_circlets = false;
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    add_quest_items(&mut world, &[(GLUDIO_CIRCLET, "Circlet of Gludio", false)]);
+    crate::game_loop::items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
+
+    let mut clan = castle_owning_clan(701);
+    clan.castle_id = 1;
+    clan.members.push(crate::model::clan::ClanMember {
+        char_id: 3001,
+        name: "P3001".into(),
+        level: 20,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+        power_grade: 5,
+        title: String::new(),
+        pledge_type: 0,
+    });
+    world.clans.insert(701, clan);
+
+    crate::game_loop::clans::remove_clan_member(&mut world, 701, 3001, 0);
+    assert_eq!(
+        item_count(&world, 3001, GLUDIO_CIRCLET),
+        1,
+        "config off: the circlet is kept"
+    );
+}
+
+/// A clan with **no** castle has id 0, which maps to "no circlet" — so an
+/// ordinary clan leaver keeps whatever headgear they own.
+#[test]
+fn a_castleless_clan_takes_nothing() {
+    use crate::game_loop::castle::circlet_of;
+    assert_eq!(circlet_of(0), 0, "no castle, no circlet");
+    assert_eq!(circlet_of(10), 0, "out of range, as Java's bounds check is");
+    // The nine real castles all map to a distinct item.
+    let ids: Vec<i32> = (1..=9).map(circlet_of).collect();
+    assert!(ids.iter().all(|&i| i != 0), "every castle has one: {ids:?}");
+    let mut sorted = ids.clone();
+    sorted.sort_unstable();
+    sorted.dedup();
+    assert_eq!(sorted.len(), 9, "and they are distinct: {ids:?}");
+}
+
+/// A minimal clan for the circlet tests.
+fn castle_owning_clan(id: i32) -> crate::model::clan::Clan {
+    crate::model::clan::Clan {
+        id,
+        name: format!("Clan{id}"),
+        leader_id: 3001,
+        level: 5,
+        reputation_score: 0,
+        castle_id: 0,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    }
+}
