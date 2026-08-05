@@ -204,6 +204,17 @@ pub mod sm_ids {
     // Item use (G14): `ExtractableItems` (pack/box unpacking).
     pub const THERE_WAS_NOTHING_FOUND_INSIDE: i16 = 1669;
     pub const YOUR_INVENTORY_IS_FULL: i16 = 129;
+    // Castle-siege registration refusals (G24). Java sends one of these from
+    // `Siege.checkIfCanRegister`, plus the dissolution guard in
+    // `RequestJoinSiege` itself.
+    /// `The deadline to register for the siege of $s1 has passed.` — takes a
+    /// `CastleName` parameter.
+    pub const THE_DEADLINE_TO_REGISTER_FOR_THE_SIEGE_OF_S1_HAS_PASSED: i16 = 845;
+    pub const THIS_IS_NOT_THE_TIME_FOR_SIEGE_REGISTRATION: i16 = 660;
+    pub const YOU_CANNOT_REGISTER_AS_AN_ATTACKER_BECAUSE_YOU_ARE_IN_AN_ALLIANCE_WITH_THE_CASTLE_OWNING_CLAN: i16 = 690;
+    pub const YOUR_APPLICATION_HAS_BEEN_DENIED_BECAUSE_YOU_HAVE_ALREADY_SUBMITTED_A_REQUEST_FOR_ANOTHER_CASTLE_SIEGE: i16 = 639;
+    pub const YOUR_CLAN_MAY_NOT_REGISTER_TO_PARTICIPATE_IN_A_SIEGE_WHILE_UNDER_A_GRACE_PERIOD_OF_THE_CLAN_S_DISSOLUTION: i16 = 1114;
+
     /// `The distance is too far and so the casting has been cancelled.`
     pub const THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED: i16 = 748;
     /// `You have exceeded the weight limit.` — the bulk-purchase weight refusal.

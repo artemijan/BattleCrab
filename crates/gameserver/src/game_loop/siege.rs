@@ -1586,9 +1586,13 @@ fn send_sm_to(world: &World, client_id: u32, id: i16) {
     }
 }
 
-/// The SystemMessage for a refusal, or `None` when nothing is said (success, or
-/// a refusal whose Interlude message id isn't ported yet — the unchanged window
-/// is the feedback).
+/// The SystemMessage for a refusal, or `None` when nothing is said.
+///
+/// Two outcomes are absent on purpose. `Approved` says nothing (Java's success
+/// path sends the updated window, not a message), and `DefendingNpcCastle` is
+/// not a SystemMessage at all: Java uses `player.sendMessage(...)` with a
+/// hand-built string naming the castle, which [`register_refusal_text`]
+/// reproduces.
 fn outcome_sm(outcome: RegisterOutcome) -> Option<i16> {
     use RegisterOutcome::*;
     match outcome {
@@ -1606,10 +1610,58 @@ fn outcome_sm(outcome: RegisterOutcome) -> Option<i16> {
         DefenderSideFull => {
             Some(sm_ids::NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_DEFENDER_SIDE)
         }
-        // Ported message id pending (window-only feedback): RegistrationOver,
-        // SiegeInProgress, AllianceWithOwner, AlreadyRegisteredSameDay,
-        // DefendingNpcCastle. TODO(G24).
-        _ => None,
+        SiegeInProgress => Some(sm_ids::THIS_IS_NOT_THE_TIME_FOR_SIEGE_REGISTRATION),
+        AllianceWithOwner => Some(
+            sm_ids::YOU_CANNOT_REGISTER_AS_AN_ATTACKER_BECAUSE_YOU_ARE_IN_AN_ALLIANCE_WITH_THE_CASTLE_OWNING_CLAN,
+        ),
+        AlreadyRegisteredSameDay => Some(
+            sm_ids::YOUR_APPLICATION_HAS_BEEN_DENIED_BECAUSE_YOU_HAVE_ALREADY_SUBMITTED_A_REQUEST_FOR_ANOTHER_CASTLE_SIEGE,
+        ),
+        // `RegistrationOver` carries a castle-name parameter, so it goes out
+        // through `send_register_outcome` rather than this id-only path.
+        RegistrationOver | DefendingNpcCastle | Approved => None,
+    }
+}
+
+/// Deliver a registration outcome, including the two Java does not express as
+/// a bare SystemMessage id.
+fn send_register_outcome(world: &World, client_id: u32, castle_id: i32, outcome: RegisterOutcome) {
+    use RegisterOutcome::*;
+    match outcome {
+        // `sm.addCastleId(residenceId)` — the client resolves the castle's name
+        // from the id, so this needs the parameterised writer.
+        RegistrationOver => {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(crate::network::server_packets::system_message_with(
+                    sm_ids::THE_DEADLINE_TO_REGISTER_FOR_THE_SIEGE_OF_S1_HAS_PASSED,
+                    &[commons::system_messages::SmParam::CastleName(castle_id)],
+                ));
+            }
+        }
+        // Java: `player.sendMessage("You cannot register as a defender because
+        // " + castle.getName() + " is owned by NPC.")` — a plain line, not a
+        // SystemMessage, so there is no id to look up.
+        DefendingNpcCastle => {
+            let name = world
+                .castles
+                .iter()
+                .find(|c| c.id == castle_id)
+                .map(|c| c.name.clone())
+                .unwrap_or_default();
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(crate::network::server_packets::system_message_with(
+                    sm_ids::S1_TEXT,
+                    &[commons::system_messages::SmParam::Text(format!(
+                        "You cannot register as a defender because {name} is owned by NPC."
+                    ))],
+                ));
+            }
+        }
+        other => {
+            if let Some(sm) = outcome_sm(other) {
+                send_sm_to(world, client_id, sm);
+            }
+        }
     }
 }
 
@@ -1660,12 +1712,16 @@ pub(crate) fn handle_request_join_siege(world: &mut World, client_id: u32, body:
             .map(|c| c.dissolving_expiry_time)
             .unwrap_or(0);
         if now < grace {
-            return; // Java sends SM then returns; that id isn't ported. TODO(G24).
+            // Java refuses before even reaching `checkIfCanRegister`.
+            send_sm_to(
+                world,
+                client_id,
+                sm_ids::YOUR_CLAN_MAY_NOT_REGISTER_TO_PARTICIPATE_IN_A_SIEGE_WHILE_UNDER_A_GRACE_PERIOD_OF_THE_CLAN_S_DISSOLUTION,
+            );
+            return;
         }
         let outcome = register(world, castle_id, clan_id, is_attacker == 1, now);
-        if let Some(sm) = outcome_sm(outcome) {
-            send_sm_to(world, client_id, sm);
-        }
+        send_register_outcome(world, client_id, castle_id, outcome);
     } else {
         remove_registration(world, castle_id, clan_id);
     }

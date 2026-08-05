@@ -938,3 +938,60 @@ fn a_headquarters_needs_an_hq_zone() {
     ));
     assert_eq!(world.sieges[&CASTLE].flag_count(CLAN), 1, "camp planted");
 }
+
+// ---------------------------------------------------------------------------
+// Refusal feedback — the player must be told *why* (G24)
+// ---------------------------------------------------------------------------
+
+/// **Every refusal now says something.** Five of Java's registration refusals
+/// went out as silence: the window simply did not change, so a player could not
+/// tell "the deadline passed" from "you are allied with the owner".
+///
+/// Two of the five are not plain SystemMessage ids, which is why they lagged —
+/// the deadline message carries a **castle-name parameter**, and the NPC-castle
+/// refusal is a `sendMessage` free-text line in Java with no id at all.
+#[test]
+fn each_registration_refusal_sends_its_own_message() {
+    use crate::network::server_packets::sm_ids;
+
+    // Defending an NPC-held castle → Java's free-text line, delivered as
+    // S1_TEXT because there is no message id for it.
+    let (mut world, mut rx) = world_with_leader();
+    drain(&mut rx);
+    crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 0, 1));
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::S1_TEXT),
+        "the NPC-castle refusal is a text line, not a message id"
+    );
+
+    // An ally of the castle owner, attacking → SM 690.
+    let (mut world, mut rx) = world_with_leader();
+    world.clans.insert(99, mk_clan(99, 5, CASTLE, 7)); // owner, ally 7
+    world.clans.get_mut(&10).unwrap().ally_id = 7; // same alliance
+    drain(&mut rx);
+    crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 1));
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(
+            &sm_ids::YOU_CANNOT_REGISTER_AS_AN_ATTACKER_BECAUSE_YOU_ARE_IN_AN_ALLIANCE_WITH_THE_CASTLE_OWNING_CLAN
+        ),
+        "the ally is told why"
+    );
+
+    // A clan inside its dissolution grace period is refused before the ladder
+    // is even consulted.
+    let (mut world, mut rx) = world_with_leader();
+    world.clans.get_mut(&10).unwrap().dissolving_expiry_time =
+        commons::util::now_millis() + 86_400_000;
+    drain(&mut rx);
+    crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 1));
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(
+            &sm_ids::YOUR_CLAN_MAY_NOT_REGISTER_TO_PARTICIPATE_IN_A_SIEGE_WHILE_UNDER_A_GRACE_PERIOD_OF_THE_CLAN_S_DISSOLUTION
+        ),
+        "a dissolving clan is told why"
+    );
+    assert!(
+        attackers(&world, CASTLE).is_empty(),
+        "and is not registered"
+    );
+}

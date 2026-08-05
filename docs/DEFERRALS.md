@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **134** such
+of narrow behaviours deferred and marked at the site. There are **132** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -80,10 +80,10 @@ also registering its NPCs would strand the player.
 | marker | count | files |
 |---|---:|---|
 | `TODO(G34)` | 13 | `data/skill_data/build.rs`, `game_loop/death/player_death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/conditions.rs`, `game_loop/skills/effects/control.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/skills/effects/ticks.rs`, `game_loop/skills/instant.rs` |
-| `TODO(G24)` | 12 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs`, `model/skill.rs` |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data/coverage_census.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, `model/skill.rs`, `network/client_packets.rs` |
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/tests/mana_restore_tests.rs`, `model/mod.rs`, `model/skill.rs`, `network/enter_world.rs` |
 | `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, `scripts/primeval_isle.rs`, `scripts/q00224_test_of_sagittarius.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
+| `TODO(G24)` | 10 | `game_loop/admin/castle.rs`, `game_loop/clan_hall_auction.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs`, `model/skill.rs` |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
 | `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
@@ -122,6 +122,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(G24)` ×2 — siege registration refusals (`game_loop/siege.rs`) | Five refusals were silent: the window simply did not change, so a player could not tell "the deadline passed" from "you are allied with the owner". Ported all of them plus the dissolution-grace guard. Two were not plain ids, which is why they lagged behind the other six — the deadline message takes a **castle-name parameter** (`sm.addCastleId`), and the NPC-castle refusal is a `sendMessage` free-text line in Java with no id at all, so it goes out as `S1_TEXT`. |
 | 2026-08-05 | `TODO(G24)` ×1 — Q234 chest despawn (`scripts/q00234_fates_whisper.rs`) | **Stale.** It said "a general timed-despawn for world NPCs is not modelled" — `QuestCtx::schedule_despawn` exists and quest 421 already uses it, and `spawn_near_npc` was already returning the oid needed to address the spawn. Two lines. Java's `addSpawn(…, true, 120000)` puts the chest on a two-minute fuse, so an uncollected drop now clears itself instead of standing until restart. |
 | 2026-08-05 | `TODO(G24)` ×1 — castle circlets (`game_loop/clans/membership.rs`, `castle.rs`, `siege.rs`, `admin/castle.rs`) | `CastleManager.removeCirclet` ported with its id table, wired to all three Java call sites — siege capture, `//castle` remove-owner, and a member leaving a castle-owning clan — each gated on `RemoveCastleCirclets` (True here) as Java gates them. A worn circlet is unequipped before destruction, so the paperdoll cannot reference a deleted object. Recorded limitation: Java also edits the `items` rows of **offline** members, which this memory-first port cannot; an offline member keeps the circlet until next login. Castle **crests** are a separate thing and remain deferred. |
 | 2026-08-05 | `TODO(G33)` ×1 — `//getbuffs` pagination (`game_loop/admin/skills.rs`) | Ported via the existing `spawn::default_pager`, including Java's `>`-not-`>=` page clamp (already replicated in `flags::show_ave_menu`). Two details recorded rather than glossed: `%effectSize%` counts the **whole** list, not the page; and Java's page size of 3 pages *buffs* while rendering one row per `AbstractEffect` inside each, so its pages are longer than this port's one-row-per-buff table — a pre-existing row-shape difference, not something pagination introduced. |
