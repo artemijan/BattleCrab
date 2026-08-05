@@ -1333,8 +1333,28 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/HeadquarterCreate.java` — the "Build
     /// Headquarters" siege skill (247): the caster (an attacker clan leader)
     /// plants an HQ flag (NPC 35062) in the siege zone as a respawn point.
-    /// (`isAdvanced` — the advanced HQ's extra abilities — is collapsed for now,
-    /// TODO(G24).)
+    /// **`isAdvanced` is collapsed, and what that costs is now known.**
+    /// TODO(G24). Only skill **326 "Build Advanced Headquarters"** sets
+    /// `<isAdvanced>true</isAdvanced>`, and it is `autoGet="true"` in
+    /// `nobleSkillTree.xml`, so every noble has it — this is live content, not
+    /// off-chronicle.
+    ///
+    /// The flag changes exactly one thing. Both skills plant the same NPC
+    /// (35062); the difference is `SiegeFlagStatus.reduceHp`:
+    ///
+    /// ```text
+    /// if (isAdvancedHeadquarter()) super.reduceHp(value / 2, …);
+    /// super.reduceHp(value, …);
+    /// ```
+    ///
+    /// There is no `else` and no `return`, so an *advanced* HQ takes
+    /// `value/2 + value` — **1.5× damage**, not half. That is plainly a Java
+    /// bug (the intent is obviously the halving), but it is what runs, and
+    /// this repo ports behaviour rather than intent. Porting it means
+    /// threading `is_advanced` from the effect through the planted flag into
+    /// the damage path — a bug-for-bug change that makes the noble-only skill
+    /// strictly *worse* than the basic one, which is worth an explicit
+    /// decision rather than a quiet implementation.
     CreateHeadquarter,
     /// `handlers/effecthandlers/OpenCommonRecipeBook.java` /
     /// `OpenDwarfRecipeBook.java` — the "Common Craft" (1322) / "Dwarven Craft"
