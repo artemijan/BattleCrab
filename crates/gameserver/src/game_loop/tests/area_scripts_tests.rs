@@ -62,6 +62,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
         crate::model::components::AttackState {
             attack_end_tick: 0,
             stance_until_tick: world.tick + 150,
+            swing_seq: 0,
         },
     );
     handle_request_bypass_to_server(
@@ -443,6 +444,7 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
         .remove_component::<crate::model::components::Casting>(&NPC_OID);
     let mut buffs = crate::model::components::Buffs::default();
     buffs.0.push(crate::model::skill::ActiveBuff {
+        displayed: true,
         skill_id: MALARIA,
         skill_level: 3,
         abnormal_type_client_id: 0,

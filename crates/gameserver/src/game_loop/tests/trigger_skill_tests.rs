@@ -42,6 +42,7 @@ fn install(world: &mut World, effect: SkillEffect) {
     };
     use crate::model::stats::{Stat, StatModifierType};
     let base = |id: i32, effects: Vec<SkillEffect>, abnormal_time: i32, op: OperateType| Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -133,7 +134,7 @@ fn triggered(world: &World, oid: i32) -> bool {
 
 /// Land one normal hit of `damage`, critical or not.
 fn hit(world: &mut World, damage: i32, crit: bool) {
-    crate::game_loop::combat::handle_attack_hit(world, PLAYER, MOB_OID, damage, false, crit);
+    crate::game_loop::combat::handle_attack_hit(world, PLAYER, MOB_OID, damage, false, crit, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -292,7 +293,7 @@ fn a_self_hit_never_triggers() {
     install(&mut world, a_trigger(100, false));
     know(&mut world, PLAYER);
 
-    crate::game_loop::combat::handle_attack_hit(&mut world, PLAYER, PLAYER, 50, false, false);
+    crate::game_loop::combat::handle_attack_hit(&mut world, PLAYER, PLAYER, 50, false, false, 0);
     assert!(!triggered(&world, PLAYER), "self-hits are excluded");
 }
 

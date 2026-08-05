@@ -962,6 +962,7 @@ fn mount_food_refills_the_riders_gauge() {
 
     // The food item's skill: `<effect name="Feed" normal=… ride=… wyvern=…/>`.
     let food = crate::model::skill::Skill {
+        self_continuous: false,
         id: 9100,
         level: 1,
         effects: vec![crate::model::skill::SkillEffect::Feed {

@@ -32,6 +32,7 @@ fn register_mob(world: &mut World, npc_id: i32, fire_res: i32) {
 
 fn fire_nuke(id: i32) -> Skill {
     Skill {
+        self_continuous: false,
         id,
         name: format!("Test Fire Nuke {id}"),
         operate_type: OperateType::Active,
@@ -173,6 +174,7 @@ fn fire_resistance_reduces_and_surrender_restores() {
     world.objects.add_components(
         &resistant,
         Buffs(vec![ActiveBuff {
+            displayed: true,
             skill_id: 9401,
             skill_level: 1,
             abnormal_type_client_id: 0,

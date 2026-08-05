@@ -288,6 +288,7 @@ fn use_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
             .data
             .skill_data
             .insert_for_test(crate::model::skill::Skill {
+                self_continuous: false,
                 id: skill_id,
                 level: 1,
                 name: format!("Effect {skill_id}"),
@@ -410,6 +411,7 @@ fn a_peace_zone_stops_items_but_not_buffs() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: BUFF_SKILL,
             level: 1,
             name: "Wind Walk".into(),
@@ -489,6 +491,7 @@ fn the_skill_page_sorts_buffs_from_attack_skills() {
             .data
             .skill_data
             .insert_for_test(crate::model::skill::Skill {
+                self_continuous: false,
                 id,
                 level: 1,
                 name: format!("Skill {id}"),

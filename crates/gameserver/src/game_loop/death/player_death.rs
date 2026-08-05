@@ -197,10 +197,10 @@ fn stop_effects_on_death(world: &mut World, player_oid: i32) {
 ///
 /// The `Lucky` effect itself is empty in Java (its handler carries only a
 /// `canStart` guard), so the buff's **presence** is the whole mechanic: it
-/// exempts a newbie from the death exp penalty. Java reads it in one more
-/// place, `PlayerStat.addExpAndSp`'s vitality branch, which this port's
-/// vitality path does not have yet.
-/// TODO(G34): the vitality-consumption exemption, once that branch exists.
+/// exempts a newbie from the death exp penalty. Java's other reader is
+/// `PlayerStat.updateVitalityPoints`, where being lucky skips vitality
+/// consumption outright; `vitality::update_vitality_points` calls this for
+/// exactly that.
 pub(crate) fn is_lucky(world: &World, player_oid: i32) -> bool {
     /// `CommonSkill.LUCKY`.
     const LUCKY_SKILL_ID: i32 = 194;

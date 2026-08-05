@@ -644,6 +644,7 @@ fn a_hit_makes_antharas_cast() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: ANTH_TAIL,
             level: 1,
             ..Default::default()
@@ -683,6 +684,7 @@ fn a_second_hit_mid_cast_starts_nothing() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: ANTH_TAIL,
             level: 1,
             hit_time: 5_000,
@@ -1237,6 +1239,7 @@ fn antharas_heals_for_his_current_hp_band() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: 4240,
             level: 1,
             ..Default::default()
@@ -1359,6 +1362,7 @@ fn a_strider_rider_is_hindered_by_antharas() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: 4258,
             level: 1,
             ..Default::default()

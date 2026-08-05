@@ -610,3 +610,47 @@ fn teleporting_an_offline_shop_completes_without_a_client() {
         "the watchdog is cancelled, not left to expire on a shop that cannot answer"
     );
 }
+
+/// `OfflineAbnormalEffect` marks an unattended shop with a visual effect —
+/// **one** of the configured names, drawn at random per trader, which is what
+/// gives a row of shops a mix rather than a uniform glow.
+///
+/// It lands on `AdminVisuals` because the effect has no buff behind it: the
+/// shop shows the marker without gaining anything. The `visual_effects` fold
+/// is what every outgoing packet reads, so asserting there covers the wire.
+#[test]
+fn an_offline_shop_wears_one_of_the_configured_abnormal_effects() {
+    const FLAME: i16 = 1;
+    const STIGMA: i16 = 2;
+
+    let open_shop = |effects: Vec<i16>| {
+        let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
+        enable_offline(&mut world);
+        world.cfg.offline_trade.abnormal_effects = effects;
+        let _rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+        world.login.accounts_in_gameserver.insert("bob".into(), 1);
+        open_sell_store(&mut world, 5001, 4242, 3, 100);
+        drain_db(&mut db_rx);
+        super::net::handle_logout(&mut world, 1);
+        crate::game_loop::abnormal::visual_effects(&world, 5001)
+    };
+
+    // The zero case first: with the list empty — as this dist ships it — the
+    // shop wears nothing, so the assertion below is about the config and not
+    // about some effect the shop picks up on its own.
+    assert!(
+        open_shop(Vec::new()).is_empty(),
+        "an empty list marks nothing"
+    );
+
+    // Exactly one is applied, even though two are configured.
+    let worn = open_shop(vec![FLAME, STIGMA]);
+    assert_eq!(worn.len(), 1, "Java picks one at random, not all of them");
+    assert!(
+        worn[0] == FLAME || worn[0] == STIGMA,
+        "and it is one of the configured ones: {worn:?}"
+    );
+
+    // A single-entry list is deterministic, so this pins the id end to end.
+    assert_eq!(open_shop(vec![STIGMA]), vec![STIGMA]);
+}

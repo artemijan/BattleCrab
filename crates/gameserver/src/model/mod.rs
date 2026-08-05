@@ -2105,6 +2105,7 @@ pub(crate) fn conditioned_passive_buffs(
             continue;
         }
         out.push(ActiveBuff {
+            displayed: true,
             skill_id,
             skill_level: level,
             abnormal_type_client_id: -1,

@@ -382,6 +382,13 @@ pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &S
     // `MagicSkillCanceled` applies here: a silenced caster's animation has to
     // stop with the cast.
     crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
+    // `startPhysicalAttackMuted()` is `abortAttack()` and nothing else, so the
+    // swing in flight dies with a **physical** mute only. A plain silence
+    // stops the cast and leaves the swing alone — Java's `Mute.onStart` never
+    // calls `abortAttack`.
+    if skill.effect_flags() & crate::model::skill::effect_flag::PHYSICAL_MUTED != 0 {
+        crate::game_loop::combat::abort_attack(world, target_oid);
+    }
 }
 
 /// Java `AttackableStatus.reduceHp` + `Attackable.setOverhitValues`: bank the
@@ -438,16 +445,18 @@ pub(crate) fn record_overhit(
 /// A root deliberately does not do this — it stops movement (the movement
 /// primitives refuse it from the next tick) but leaves a cast running.
 ///
-/// TODO(G34): Java's `startParalyze` also calls `abortAttack()`, which drops the
-/// swing already in flight (`CreatureAttackTaskManager.abortAttack`). This port
-/// has no cancel handle on a scheduled `AttackHit`, so a stun landing between a
-/// swing's start and its hit tick still lets that hit land.
+/// Java's `startParalyze`/`startStunning` also call `abortAttack()`, so the
+/// swing already in flight never lands either — a stun arriving between a
+/// swing's start and its hit tick eats that hit.
 pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
     // Order matters: abort the cast *first*. `stop_casting` resumes the move
     // the cast interrupted (`start_casting` stashes it), so clearing movement
     // before the cast would see it immediately restored — the victim would keep
     // walking while stunned.
     crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
+    // `abortAttack()` — the swing already in flight is dropped too, so a stun
+    // arriving between a swing's start and its hit tick eats that hit.
+    crate::game_loop::combat::abort_attack(world, target_oid);
     // Then freeze them where they stand and tell everyone who can see them.
     if world
         .objects
@@ -683,15 +692,9 @@ pub(crate) fn creature_name(world: &World, oid: i32) -> String {
 /// `ConfirmDlg` here: unlike Summon Friend, Java calls `teleToLocation`
 /// outright, so a party member gets no say in it.
 ///
-/// Each member is gated by `CallPc.checkSummonTargetStatus`, whose refusals are
-/// **messaged to the caster**, not the member — the ported subset is dead, in a
-/// private store, and in combat (Java also checks rooted, olympiad, observer,
-/// flying mount, combat flag, the `NO_SUMMON_FRIEND`/`JAIL` zones and instance
-/// permissions; none of those states are modelled for this path yet).
-/// TODO(G34): extend the gate list as those states land.
+/// Each member is gated by [`check_summon_target_status`], whose refusals are
+/// **messaged to the caster**, not the member.
 pub(crate) fn call_party(world: &mut World, caster_oid: i32) {
-    use server_packets::{SmParam, sm_ids};
-
     let Some(members) = world
         .objects
         .get_component::<crate::model::components::PartyRef>(&caster_oid)
@@ -714,37 +717,135 @@ pub(crate) fn call_party(world: &mut World, caster_oid: i32) {
         if member == caster_oid {
             continue;
         }
-        let name = world
-            .objects
-            .get_component::<crate::model::Player>(&member)
-            .map(|p| p.name.clone())
-            .unwrap_or_default();
-        let refusal = if world
-            .objects
-            .get_component::<Vitals>(&member)
-            .is_none_or(|v| v.dead)
-        {
-            Some(sm_ids::C1_IS_DEAD_AT_THE_MOMENT_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED)
-        } else if world
-            .objects
-            .get_component::<crate::model::Player>(&member)
-            .is_some_and(|p| p.store_type != 0)
-        {
-            Some(
-                sm_ids::C1_IS_CURRENTLY_TRADING_OR_OPERATING_A_PRIVATE_STORE_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED,
-            )
-        } else if crate::game_loop::combat::has_attack_stance(world, member) {
-            // `isInCombat()` — the attack stance is exactly Java's flag.
-            Some(sm_ids::C1_IS_ENGAGED_IN_COMBAT_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED)
-        } else {
-            None
-        };
-        if let Some(sm) = refusal {
-            send_sm_with(world, caster_oid, sm, &[SmParam::PlayerName(name)]);
+        if let Some((sm, params)) = check_summon_target_status(world, member) {
+            send_sm_with(world, caster_oid, sm, &params);
             continue;
         }
         crate::game_loop::death::teleport_player(world, member, dest.x, dest.y, dest.z);
     }
+}
+
+/// `CallPc.checkSummonTargetStatus` — the shared gate every recall effect runs
+/// over each candidate. `Some((message, params))` is a refusal; the message is
+/// sent to the **caster**, never to the person who failed the check.
+///
+/// Java's order is load-bearing, because several of these states co-occur: a
+/// player rooted *in* the olympiad reads the combat line, not the olympiad one.
+/// The branches are kept in that order and not folded together for exactly
+/// that reason.
+///
+/// The two "in an area which blocks" strings (1895 and 1908) carry identical
+/// text but different ids, and Java feeds them `addString` rather than
+/// `addPcName` — a plain string parameter, not the pc-name one the first three
+/// branches use. That is a real wire difference, so it is reproduced.
+///
+/// Not ported: `isInTraingCamp` (Training Camp is off-chronicle here) and the
+/// instance `isPlayerSummonAllowed` permission (instances exist, but the flag
+/// is not on the template). Both are noted at the branch they belong to.
+pub(crate) fn check_summon_target_status(
+    world: &World,
+    member: i32,
+) -> Option<(i16, Vec<server_packets::SmParam>)> {
+    use server_packets::{SmParam, sm_ids};
+
+    let name = world
+        .objects
+        .get_component::<crate::model::Player>(&member)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    let pc = || vec![SmParam::PlayerName(name.clone())];
+    // `addString`, not `addPcName` — see the doc comment.
+    let text = || vec![SmParam::Text(name.clone())];
+
+    // `isAlikeDead()` — dead, or faking it.
+    if world
+        .objects
+        .get_component::<Vitals>(&member)
+        .is_none_or(|v| v.dead)
+        || crate::game_loop::abnormal::flags_of(world, member)
+            & crate::model::skill::effect_flag::FAKE_DEATH
+            != 0
+    {
+        return Some((
+            sm_ids::C1_IS_DEAD_AT_THE_MOMENT_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED,
+            pc(),
+        ));
+    }
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&member)
+        .is_some_and(|p| p.store_type != 0)
+    {
+        return Some((
+            sm_ids::C1_IS_CURRENTLY_TRADING_OR_OPERATING_A_PRIVATE_STORE_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED,
+            pc(),
+        ));
+    }
+    // `isRooted() || isInCombat()`. Both read the *combat* line — a rooted
+    // player who has not swung at anyone still gets told they are in combat.
+    let rooted = crate::game_loop::abnormal::flags_of(world, member)
+        & crate::model::skill::effect_flag::ROOTED
+        != 0;
+    if rooted || crate::game_loop::combat::has_attack_stance(world, member) {
+        return Some((
+            sm_ids::C1_IS_ENGAGED_IN_COMBAT_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED,
+            pc(),
+        ));
+    }
+    // `isInOlympiadMode()` — in a running match, which is narrower than being
+    // registered for one; the registered case falls to the observer branch
+    // below, with a different message.
+    if crate::game_loop::olympiad::in_match(world, member) {
+        return Some((
+            sm_ids::A_USER_PARTICIPATING_IN_THE_OLYMPIAD_CANNOT_USE_SUMMONING_OR_TELEPORTING,
+            Vec::new(),
+        ));
+    }
+    // `isOnEvent() || isFlyingMounted() || isCombatFlagEquipped() ||
+    // isInTraingCamp()`. The Training Camp is off-chronicle for this build, so
+    // three of the four are testable and the fourth can never be true.
+    let flying = world
+        .objects
+        .get_component::<crate::model::Player>(&member)
+        .is_some_and(crate::model::Player::is_flying);
+    if crate::game_loop::events::tvt::is_on_event(world, member)
+        || flying
+        || crate::game_loop::teleporter::has_combat_flag(world, member)
+    {
+        return Some((
+            sm_ids::YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA,
+            Vec::new(),
+        ));
+    }
+    if world
+        .objects
+        .has_component::<crate::model::components::OlympiadObserver>(&member)
+        || world.olympiad.is_registered(member)
+    {
+        return Some((
+            sm_ids::C1_IS_IN_AN_AREA_WHICH_BLOCKS_SUMMONING_OR_TELEPORTING_2,
+            text(),
+        ));
+    }
+    // `ZoneId.NO_SUMMON_FRIEND` and `ZoneId.JAIL`. Neither zone kind exists in
+    // the port's zone data, so the jail *state* stands in for the jail zone —
+    // the same substitution `conditions::call_pc` already makes for the
+    // caster-side gate. `NO_SUMMON_FRIEND` has no stand-in and is unreachable.
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&member)
+        .is_some_and(|p| p.jailed)
+    {
+        return Some((
+            sm_ids::C1_IS_IN_AN_AREA_WHICH_BLOCKS_SUMMONING_OR_TELEPORTING,
+            text(),
+        ));
+    }
+    // Java's last branch is the instance's `isPlayerSummonAllowed`, read off
+    // the *caster's* instance world. The port's instance templates carry no
+    // such flag, so there is nothing to test — noted rather than silently
+    // dropped.
+    None
 }
 
 /// `handlers/effecthandlers/CallPc.java`, the `player == null` branch — a

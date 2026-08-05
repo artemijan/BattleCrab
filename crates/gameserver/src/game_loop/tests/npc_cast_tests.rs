@@ -17,6 +17,7 @@ const MOB_HEAL: i32 = 8402;
 
 fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
     Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -447,6 +448,7 @@ fn mob_does_not_recast_a_buff_it_already_has() {
     world.objects.add_components(
         &NPC_OID,
         Buffs(vec![crate::model::skill::ActiveBuff {
+            displayed: true,
             skill_id: SELF_BUFF,
             skill_level: 1,
             abnormal_type_client_id: 0,
@@ -779,6 +781,7 @@ fn a_mob_mid_swing_still_casts() {
         crate::model::components::AttackState {
             attack_end_tick: world.tick + 100,
             stance_until_tick: world.tick + 200,
+            swing_seq: 0,
         },
     );
 
@@ -807,6 +810,7 @@ fn a_mob_mid_swing_does_not_start_a_second_swing() {
         crate::model::components::AttackState {
             attack_end_tick: end,
             stance_until_tick: world.tick + 200,
+            swing_seq: 0,
         },
     );
 

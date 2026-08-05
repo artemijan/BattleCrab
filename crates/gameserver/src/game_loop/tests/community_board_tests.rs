@@ -198,6 +198,7 @@ fn push_buff(world: &mut World, oid: i32, skill_id: i32) {
         .get_component_mut::<Buffs>(&oid)
         .expect("player has a Buffs component");
     buffs.0.push(ActiveBuff {
+        displayed: true,
         skill_id,
         skill_level: 1,
         abnormal_type_client_id: 0,

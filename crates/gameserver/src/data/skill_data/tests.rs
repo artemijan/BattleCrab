@@ -1421,6 +1421,7 @@ fn skill_duration_list_overrides_abnormal_time() {
 
     // Enchanted levels (100..=140) add rather than replace.
     let enchanted = Skill {
+        self_continuous: false,
         level: 101,
         ..sd.get(1078, 1).unwrap().clone()
     };

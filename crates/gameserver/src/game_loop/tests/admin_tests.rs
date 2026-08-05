@@ -5240,6 +5240,7 @@ fn getbuffs_follows_an_npc_target_and_a_name_argument() {
     world.objects.add_components(
         &NPC_OID,
         crate::model::components::Buffs(vec![crate::model::skill::ActiveBuff {
+            displayed: true,
             skill_id: 1204, // Wind Walk
             skill_level: 1,
             abnormal_type_client_id: 0,

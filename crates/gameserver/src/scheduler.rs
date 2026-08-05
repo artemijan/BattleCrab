@@ -389,6 +389,10 @@ pub enum ScheduledTask {
         damage: i32,
         miss: bool,
         crit: bool,
+        /// The attacker's `AttackState::swing_seq` when this hit was queued.
+        /// A mismatch at fire time means the swing was aborted (Java cancels
+        /// the task outright; see the field's own doc comment).
+        swing_seq: u64,
     },
     /// The Rust `EVT_READY_TO_ACT`: a player's swing period ended
     /// (`attack_end_tick`), releasing whatever action the swing held back

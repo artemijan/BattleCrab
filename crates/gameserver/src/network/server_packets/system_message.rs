@@ -884,6 +884,13 @@ pub mod sm_ids {
     pub const FAILED_TO_CHANGE_ENMITY: i16 = 564;
     /// "You cannot use summoning or teleporting in this area."
     pub const YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA: i16 = 1899;
+    /// "$c1 is in an area which blocks summoning or teleporting."
+    pub const C1_IS_IN_AN_AREA_WHICH_BLOCKS_SUMMONING_OR_TELEPORTING: i16 = 1895;
+    /// "$c1 is in an area which blocks summoning or teleporting." — the second
+    /// client string with the same text. Java uses this one for the observer /
+    /// olympiad-registered case and 1895 for the zone case; identical to read,
+    /// distinct on the wire, so both are kept rather than collapsed.
+    pub const C1_IS_IN_AN_AREA_WHICH_BLOCKS_SUMMONING_OR_TELEPORTING_2: i16 = 1908;
     /// "A user participating in the Olympiad cannot use summoning or teleporting."
     pub const A_USER_PARTICIPATING_IN_THE_OLYMPIAD_CANNOT_USE_SUMMONING_OR_TELEPORTING: i16 = 1911;
     // Lethal (G19): `Lethal.instant`'s outcome messages.

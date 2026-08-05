@@ -173,6 +173,23 @@ pub(crate) fn enter_offline_mode(world: &mut World, client_id: u32) -> bool {
     {
         p.name_color = world.cfg.offline_trade.name_color;
     }
+    // `startAbnormalVisualEffect(OFFLINE_ABNORMAL_EFFECTS.get(Rnd.get(size)))`
+    // — **one** of the configured effects, chosen at random, not all of them.
+    // It rides on `AdminVisuals` because that is the port's home for a visual
+    // with no buff behind it, which is exactly what this is: the shop shows
+    // the marker without gaining an effect.
+    if !world.cfg.offline_trade.abnormal_effects.is_empty() {
+        let n = world.cfg.offline_trade.abnormal_effects.len();
+        let idx = world.roll(n as i32) as usize;
+        let pick = world.cfg.offline_trade.abnormal_effects[idx];
+        let mut visuals = world
+            .objects
+            .get_component::<crate::model::components::AdminVisuals>(&object_id)
+            .cloned()
+            .unwrap_or_default();
+        visuals.0.push(pick);
+        world.objects.add_components(&object_id, visuals);
+    }
     // Everyone nearby re-renders the shop with its new name colour.
     super::visibility::refresh_char_info(world, object_id);
 

@@ -254,16 +254,30 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     }
 
     let now = world.tick;
+    // Anything that swings needs the component: it carries both the swing
+    // period and the counter an abort invalidates the pending hit with, and a
+    // creature that acquired one only lazily could not be aborted mid-swing.
+    if !world.objects.has_component::<AttackState>(&attacker_oid) {
+        world
+            .objects
+            .add_components(&attacker_oid, AttackState::default());
+    }
     if let Some(st) = world
         .objects
         .get_component_mut::<AttackState>(&attacker_oid)
     {
         st.attack_end_tick = now + ms_to_ticks(time_atk);
     }
+    // Stamped onto every hit of this swing so an abort can invalidate them.
+    let swing_seq = world
+        .objects
+        .get_component::<AttackState>(&attacker_oid)
+        .map_or(0, |st| st.swing_seq);
     for hit in &hits {
         world.scheduler.schedule(
             now + ms_to_ticks(time_to_hit),
             ScheduledTask::AttackHit {
+                swing_seq,
                 attacker: attacker_oid,
                 target: hit.target_object_id,
                 damage: hit.damage,
@@ -448,6 +462,21 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
 
 /// `ScheduledTask::AttackHit` — `onHitTimeNotDual` + `onHitTarget`: the swing
 /// lands (or misses).
+/// Java `Creature.abortAttack()` — the swing already in flight never lands.
+///
+/// Java cancels the scheduled hit through its task handle. The port's
+/// scheduler cannot cancel, so this bumps the attacker's swing counter and the
+/// stale hit is dropped when it fires (see `AttackState::swing_seq`). The
+/// observable behaviour is the same: no damage, no hit packet, no aggro.
+///
+/// A creature with no `AttackState` has never swung, so there is nothing to
+/// abort — the miss is not silent, it is vacuous.
+pub(crate) fn abort_attack(world: &mut World, object_id: i32) {
+    if let Some(st) = world.objects.get_component_mut::<AttackState>(&object_id) {
+        st.swing_seq = st.swing_seq.wrapping_add(1);
+    }
+}
+
 pub(crate) fn handle_attack_hit(
     world: &mut World,
     attacker: i32,
@@ -455,7 +484,19 @@ pub(crate) fn handle_attack_hit(
     damage: i32,
     miss: bool,
     crit: bool,
+    swing_seq: u64,
 ) {
+    // Java `abortAttack()` cancels the scheduled hit; the port drops it here
+    // instead, because a heap-backed scheduler has no cancel handle. A stale
+    // seq means the swing was aborted after this hit was queued — by a stun,
+    // a paralyze, or anything else that calls `abort_attack`.
+    if world
+        .objects
+        .get_component::<AttackState>(&attacker)
+        .is_some_and(|st| st.swing_seq != swing_seq)
+    {
+        return;
+    }
     // Attacker died mid-swing → EVT_CANCEL (nothing lands).
     let attacker_alive = vitals_of(world, attacker).map(|v| !v.dead);
     if attacker_alive != Some(true) {

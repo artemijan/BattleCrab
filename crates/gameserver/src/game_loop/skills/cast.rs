@@ -1399,6 +1399,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         return;
     };
     let scoped = Skill {
+        self_continuous: false,
         effects: skill.channeling_effects.clone(),
         ..skill.clone()
     };
@@ -1781,6 +1782,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             && !extra.is_empty()
         {
             let scoped = Skill {
+                self_continuous: false,
                 effects: extra,
                 ..skill.clone()
             };
@@ -1854,6 +1856,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // parser used to read only `<effects>`, so none of these landed.
     if !skill.self_effects.is_empty() {
         let self_skill = Skill {
+            self_continuous: false,
             effects: skill.self_effects.clone(),
             ..skill.clone()
         };
@@ -2061,9 +2064,8 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
     // Java gates it on the AI having no queued intention, a real target that
     // is neither the caster nor un-attackable, and — for `ATTACK` only —
     // shift not being held (the port has no shift-cast, so that clause is
-    // vacuous). The `CAST` branch re-queues the same skill; this port has no
-    // intention queue to push onto, so it is left as a `TODO(G34)` rather than
-    // faked with an immediate re-cast, which would loop.
+    // vacuous). The `CAST` branch is inert here; see `resume_action_after_cast`
+    // for why that costs nothing on this dist.
     resume_action_after_cast(world, player_object_id, target, skill_id, skill_level);
     // `EVT_FINISH_CASTING` → script `onSpellFinished`, for NPC casters a
     // script registered (the Primeval Isle Tyrannosaurus's berserk chains).
@@ -2138,9 +2140,16 @@ fn resume_action_after_cast(
         NextAction::Attack => {
             crate::game_loop::combat::resume_attack_intent(world, caster_oid, target_oid);
         }
-        // TODO(G34): Java re-queues the same skill through the AI intention
-        // queue, which this port does not have. Re-casting inline here would
-        // loop, so the branch is deliberately inert.
+        // SKIP(off-chronicle): Java re-queues the same skill through the AI
+        // intention queue (`AI_INTENTION_CAST`), which this port does not
+        // have — and re-casting inline would loop rather than repeat.
+        //
+        // It stays inert because nothing on this dist can reach it: exactly 11
+        // skills declare `<nextAction>CAST` (11011-11016, 15482-15484,
+        // 16355-16356, 19314 — Elemental Spike and friends), every one of them
+        // off-chronicle, and none appears in a skill tree or an NPC skill
+        // list. Building an intention queue for a branch no skill can enter
+        // would be scaffolding, not parity.
         NextAction::Cast | NextAction::None => {}
     }
 }

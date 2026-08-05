@@ -366,6 +366,7 @@ fn penalty_effects(world: &World, level: i32) -> Option<(i32, Vec<StatModifierEf
 /// `AbnormalStatusUpdate` and never scheduled to expire.
 fn passive_weight_buff(level: i32, effects: Vec<StatModifierEffect>) -> ActiveBuff {
     ActiveBuff {
+        displayed: true,
         skill_id: WEIGHT_PENALTY_SKILL,
         skill_level: level,
         abnormal_type_client_id: -1,

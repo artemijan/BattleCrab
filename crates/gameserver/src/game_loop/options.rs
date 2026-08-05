@@ -74,6 +74,7 @@ fn apply_option(world: &mut World, player_oid: i32, option_id: i32) {
         return;
     }
     let buff = ActiveBuff {
+        displayed: true,
         skill_id: option_buff_id(option_id),
         skill_level: 1,
         abnormal_type_client_id: 0,

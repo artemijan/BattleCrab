@@ -190,7 +190,7 @@ fn is_subclass_active(world: &World, object_id: i32) -> bool {
 
 /// Java `Player.isCombatFlagEquipped()` — carrying a siege ward (item 9819)
 /// blocks gatekeeper teleports.
-fn has_combat_flag(world: &World, object_id: i32) -> bool {
+pub(crate) fn has_combat_flag(world: &World, object_id: i32) -> bool {
     const COMBAT_FLAG: i32 = 9819;
     world
         .objects

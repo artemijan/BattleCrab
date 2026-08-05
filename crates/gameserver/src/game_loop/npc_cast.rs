@@ -544,9 +544,13 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     // above already sent them away), but a servitor or pet does — `Summon` is
     // `Playable`, not `Attackable`, so only this half applies to it.
     //
-    // TODO(G34): Java skips the stop for an instant cast (`SIMULTANEOUS`
-    // casting type, `abnormalInstant`, or `withoutAction`). No NPC path issues
-    // one of those yet, so the unconditional stop is exact for today's callers.
+    // SKIP(unreachable): Java skips the stop for an instant cast
+    // (`SIMULTANEOUS` casting type, `abnormalInstant`, or `withoutAction`).
+    // Censused against the whole datapack: 57 skills carry one of those
+    // markers and **none** of them appears in any NPC's `<skillList>` (2159
+    // distinct ids) or in any datapack script's `getSkill(...)`. So the
+    // unconditional stop is not merely exact for today's callers — there is no
+    // data on this dist that can reach the other branch.
     super::npc_ai::stop_npc(world, npc_oid);
 
     // Java `Summon.doCast` → `rechargeShots(false, true, false)`: a summon

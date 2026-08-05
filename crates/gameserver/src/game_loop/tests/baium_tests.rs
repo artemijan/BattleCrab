@@ -33,6 +33,7 @@ fn baium_world() -> (
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: ANTI_STRIDER,
             level: 1,
             abnormal_time: 60,
@@ -473,6 +474,7 @@ fn a_hit_makes_baium_cast() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: 4127,
             level: 1,
             ..Default::default()
@@ -1001,6 +1003,7 @@ fn a_wounded_idle_baium_heals_itself() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: 4135,
             level: 1,
             ..Default::default()

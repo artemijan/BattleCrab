@@ -849,8 +849,9 @@ fn apply_due_tasks(world: &mut World) {
                 damage,
                 miss,
                 crit,
+                swing_seq,
             } => {
-                combat::handle_attack_hit(world, attacker, target, damage, miss, crit);
+                combat::handle_attack_hit(world, attacker, target, damage, miss, crit, swing_seq);
             }
             ScheduledTask::AttackFinish { object_id } => {
                 helpers::run_queued_action(world, object_id);

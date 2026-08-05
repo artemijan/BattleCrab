@@ -623,7 +623,11 @@ pub(super) fn open_door(
     // Devil's Isle, the Water Garden, Rune ToH and the Four
     // Sepulchers). It is **not** vacuous for an item-cast unlock,
     // which skips the `BY_SKILL` gate entirely.
-    // TODO(G34): add the fort gate once forts exist.
+    // SKIP(off-chronicle): the fort half of Java's gate. Fort sieges are an
+    // explicit scope-out for this build (PORTING_STATUS.md), so "once forts
+    // exist" is not a milestone that can arrive — and the argument above
+    // already shows the skill path is vacuous here regardless: none of the 34
+    // `BY_SKILL` doors belongs to a fort.
     if !openable_by_skill && !is_item {
         send_sm(world, caster_oid, sm_ids::THIS_DOOR_CANNOT_BE_UNLOCKED);
         return;

@@ -35,6 +35,7 @@ fn orfen_world() -> (
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: PARALYSIS,
             level: 1,
             abnormal_time: 60,
@@ -45,6 +46,7 @@ fn orfen_world() -> (
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: ORFEN_HEAL,
             level: 1,
             magic_type: 1,

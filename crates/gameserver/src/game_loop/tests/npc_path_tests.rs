@@ -302,6 +302,7 @@ fn a_rooted_mob_still_refuses_to_move() {
     world.objects.add_components(
         &oid,
         crate::model::components::Buffs(vec![crate::model::skill::ActiveBuff {
+            displayed: true,
             skill_id: 1,
             skill_level: 1,
             abnormal_type_client_id: 0,

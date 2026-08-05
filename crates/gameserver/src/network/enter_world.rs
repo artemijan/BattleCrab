@@ -437,7 +437,9 @@ pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick:
     w.write_u8(0x85);
     // Passive stand-ins (grade penalties) drive stats but never show as an
     // abnormal icon — Java adds them via `addSkill`, not the effect list.
-    let shown = buffs.0.iter().filter(|b| !b.passive);
+    // `displayed` is Java's `isDisplayedForEffected()` gate on the same loop:
+    // a self-continuous skill's debuff is felt but never shown.
+    let shown = buffs.0.iter().filter(|b| !b.passive && b.displayed);
     w.write_i16(shown.clone().count() as i16);
     for buff in shown {
         // Permanent (toggle / 0-`abnormalTime`) buffs carry a `u64::MAX`
@@ -469,7 +471,11 @@ pub fn ex_abnormal_status_update_from_target(
 ) -> Vec<u8> {
     let mut w = ex(0xE6);
     w.write_i32(object_id);
-    let shown: Vec<_> = buffs.0.iter().filter(|b| !b.passive).collect();
+    let shown: Vec<_> = buffs
+        .0
+        .iter()
+        .filter(|b| !b.passive && b.displayed)
+        .collect();
     w.write_i16(shown.len() as i16);
     for buff in shown {
         let remaining_secs = (buff.expires_at_tick.saturating_sub(now_tick) / 10) as i32;

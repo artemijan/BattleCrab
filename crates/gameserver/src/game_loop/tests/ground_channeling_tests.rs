@@ -20,6 +20,7 @@ fn dist_skills() -> crate::data::skill_data::SkillData {
 /// channel — real geometry, test-sized clock.
 fn volcano_like(id: i32) -> Skill {
     Skill {
+        self_continuous: false,
         id,
         name: format!("Test Volcano {id}"),
         operate_type: OperateType::Channeling,
@@ -395,6 +396,7 @@ fn channeling_cast_time_is_static() {
 
     let channel = volcano_like(9206);
     let active = Skill {
+        self_continuous: false,
         operate_type: OperateType::Active,
         ..volcano_like(9207)
     };
@@ -506,6 +508,7 @@ const ALLY2: i32 = 2003;
 
 fn channeled_skill(level: i32) -> Skill {
     Skill {
+        self_continuous: false,
         id: CHANNELED,
         level,
         name: format!("Battle Force {level}"),
@@ -533,6 +536,7 @@ fn channeled_skill(level: i32) -> Skill {
 
 fn stance_skill() -> Skill {
     Skill {
+        self_continuous: false,
         id: STANCE,
         level: 1,
         name: "Battle Stance".into(),

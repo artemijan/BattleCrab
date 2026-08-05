@@ -34,7 +34,7 @@ use crate::world::World;
 use super::instant;
 
 mod continuous;
-mod control;
+pub(crate) mod control;
 mod damage;
 mod gathering;
 mod support;
@@ -648,7 +648,11 @@ pub(crate) fn apply_skill_effects(
             // satisfied by construction here: Servitor Empowerment (1299) is
             // `targetType SUMMON`, which resolves to the caster's *own*
             // servitor, so there is no way to aim it at somebody else's pet.
-            // TODO(G34): re-check if any carrier ever uses a wider target type.
+            //
+            // SKIP(census): the whole dist carries this effect on exactly one
+            // skill — 1299, `SUMMON`/`SINGLE`. There is no wider carrier to
+            // re-check, so porting the gate would guard a case no data can
+            // produce.
             SkillEffect::ImmobilePetBuff => {}
             // `CallParty.instant` — Chant of Gate (1429). Every *other* party
             // member is pulled to the caster, each gated by CallPc's shared
@@ -1100,6 +1104,9 @@ pub(crate) fn apply_skill_effects(
                 if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
                     crate::game_loop::skills::cast::stop_casting(world, target_oid);
                 }
+                // `startFakeDeath` calls `abortAttack()` too: you cannot play
+                // dead and still land the swing you were mid-way through.
+                crate::game_loop::combat::abort_attack(world, target_oid);
                 world.objects.remove_component::<crate::model::components::Movement>(&target_oid);
                 broadcast_change_wait_type(world, target_oid, server_packets::wait_type::START_FAKEDEATH);
             }

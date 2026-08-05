@@ -654,10 +654,40 @@ fn resurrection(world: &World, caster: i32, target: i32) -> Result<(), Refusal> 
         return Err(Refusal(None));
     }
     let Some(p) = player(world, target) else {
-        // Java falls through to the pet legs, which the port answers with the
-        // generic refusal until servitor resurrection lands.
-        // TODO(G34): pet/servitor resurrection legs (Java checks isDead + owner).
-        return Err(Refusal(None));
+        // `else if (effected.isSummon())` — the pet/servitor leg. Same three
+        // checks as the player one, minus the siege branch (Java does not run
+        // it for summons), and the "already proposed" flag lives on the
+        // **owner** (`player.isRevivingPet()`), not on the summon.
+        //
+        // A pet and a servitor are the same thing here: both carry
+        // `ServitorOf`, which is what makes this one branch rather than two.
+        let Some(owner) = world
+            .objects
+            .get_component::<crate::model::components::ServitorOf>(&target)
+            .map(|s| s.owner_object_id)
+        else {
+            return Err(Refusal(None));
+        };
+        if !is_dead(world, target) {
+            // Java sends `S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS` with the
+            // skill name here. `RefusalLine` carries no skill-name form, and
+            // the *player* leg above already refuses this case silently — so
+            // this matches its sibling rather than introducing a third
+            // behaviour for the same condition.
+            return Err(Refusal(None));
+        }
+        if super::super::abnormal::flags_of(world, target)
+            & crate::model::skill::effect_flag::BLOCK_RESURRECTION
+            != 0
+        {
+            return Err(Refusal(Some(RefusalLine::Sm(sm_ids::REJECT_RESURRECTION))));
+        }
+        if player(world, owner).is_some_and(|o| o.revive_request.is_some()) {
+            return Err(Refusal(Some(RefusalLine::Sm(
+                sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
+            ))));
+        }
+        return Ok(());
     };
     if !is_dead(world, target) {
         return Err(Refusal(None));

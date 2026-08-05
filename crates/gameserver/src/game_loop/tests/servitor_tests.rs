@@ -1269,6 +1269,7 @@ fn register_food(world: &mut World, restores: i32) {
     world.data.item_data.insert_for_test(item);
 
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: WOLF_FOOD_SKILL,
         level: 1,
         effects: vec![crate::model::skill::SkillEffect::Feed {
@@ -2809,6 +2810,7 @@ fn a_summon_target_skill_reaches_the_servitor() {
         .cur_hp = 10.0;
 
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1127,
         level: 1,
         target_type: crate::model::skill::TargetType::Summon,
@@ -2907,6 +2909,7 @@ fn a_stat_buff_on_a_servitor_changes_its_stats() {
 
     // Servitor Wind Walk's shape: a flat speed increase.
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1144,
         level: 1,
         target_type: crate::model::skill::TargetType::Summon,
@@ -2948,6 +2951,7 @@ fn buffing_a_servitor_refreshes_its_client_info() {
     while rx.try_recv().is_ok() {} // drain the summon packets
 
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1144,
         level: 1,
         target_type: crate::model::skill::TargetType::Summon,
@@ -3354,6 +3358,7 @@ fn an_npc_records_its_skill_reuse() {
     add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
 
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: 4049,
         level: 1,
         reuse_delay: 10_000,
@@ -3384,6 +3389,7 @@ fn an_npc_skill_on_cooldown_cannot_be_recast() {
         v.cur_mp = 1000.0;
     }
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: 4049,
         level: 1,
         reuse_delay: 10_000,
@@ -3688,6 +3694,7 @@ fn a_servitor_that_was_out_at_logout_comes_back() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: summon_skill,
             level: 1,
             effects: vec![SkillEffect::Summon {
@@ -3798,6 +3805,7 @@ fn a_servitors_buffs_survive_a_relog() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: summon_skill,
             level: 1,
             effects: vec![SkillEffect::Summon {
@@ -3817,6 +3825,7 @@ fn a_servitors_buffs_survive_a_relog() {
 
     // Servitor Wind Walk's shape, cast on the servitor.
     let buff = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1144,
         level: 1,
         abnormal_time: 1200,
@@ -3876,6 +3885,7 @@ fn an_expired_servitor_buff_is_not_saved() {
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1111, 1200, 0, 0).unwrap();
     let buff = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1144,
         level: 1,
         abnormal_time: 10,
@@ -3936,6 +3946,7 @@ fn a_servitor_casts_the_skill_its_action_button_names() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: SKILL,
             level: 1,
             target_type: crate::model::skill::TargetType::Self_,
@@ -3980,6 +3991,7 @@ fn a_servitor_refuses_a_skill_it_does_not_have() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: SKILL,
             level: 1,
             target_type: crate::model::skill::TargetType::Self_,
@@ -4100,6 +4112,7 @@ fn a_spiritshot_doubles_a_summons_magic_damage() {
             v.cur_hp = 100_000.0;
         }
         let skill = crate::model::skill::Skill {
+            self_continuous: false,
             id: 4079,
             level: 1,
             magic_type: 1,
@@ -4159,6 +4172,7 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
     add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
 
     let physical = crate::model::skill::Skill {
+        self_continuous: false,
         id: 4080,
         level: 1,
         magic_type: 0,
@@ -4667,6 +4681,7 @@ const SHARED_DEBUFF: i32 = 9503;
 
 fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> crate::model::skill::Skill {
     crate::model::skill::Skill {
+        self_continuous: false,
         id,
         level: 1,
         name: format!("Share {id}"),
@@ -5046,6 +5061,7 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
     let caster = OWNER + 1;
     let _c = ingame_player(&mut world, CID + 1, caster, 30, 0, 0);
     let betray = crate::model::skill::Skill {
+        self_continuous: false,
         id: 9420,
         level: 1,
         target_type: crate::model::skill::TargetType::EnemyOnly,
@@ -5118,6 +5134,7 @@ fn servitor_empowerment_roots_the_servitor_until_it_expires() {
     assert!(!immobile(&world), "free to move before the buff");
 
     let empower = crate::model::skill::Skill {
+        self_continuous: false,
         id: 9422,
         level: 1,
         target_type: crate::model::skill::TargetType::Summon,
@@ -5134,5 +5151,69 @@ fn servitor_empowerment_roots_the_servitor_until_it_expires() {
     assert!(
         !immobile(&world),
         "and expiry frees it — otherwise the servitor is stuck for good"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Resurrecting a servitor
+// ---------------------------------------------------------------------------
+
+/// `ConditionPlayerCanResurrect`'s summon leg, which the port used to answer
+/// with a blanket refusal.
+///
+/// The three gates, in Java's order: the summon must be **dead**, must not be
+/// resurrection-blocked, and its **owner** must not already have a revive
+/// prompt open (`player.isRevivingPet()` — the flag lives on the owner, not on
+/// the summon, which is the part that is easy to get wrong).
+#[test]
+fn a_dead_servitor_can_be_resurrected_but_a_live_one_cannot() {
+    use crate::game_loop::skills::conditions::check_cast;
+
+    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let res = skills.get(1016, 2).expect("Resurrection loads");
+
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
+    let pet = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
+
+    // Alive: refused. This is the case the blanket refusal used to get right
+    // by accident, so on its own it proves nothing — it is the *pair* that
+    // discriminates.
+    assert!(
+        check_cast(&world, OWNER, res, pet).is_err(),
+        "a living servitor is not a resurrection target"
+    );
+
+    world
+        .objects
+        .get_component_mut::<Vitals>(&pet)
+        .unwrap()
+        .dead = true;
+    assert!(
+        check_cast(&world, OWNER, res, pet).is_ok(),
+        "a dead servitor is one — the leg the port was missing"
+    );
+
+    // Resurrection-blocked (Java `isResurrectionBlocked`): refused again.
+    let mut buffs = crate::model::components::Buffs::default();
+    buffs.0.push(crate::model::skill::ActiveBuff {
+        displayed: true,
+        skill_id: 1,
+        skill_level: 1,
+        abnormal_type_client_id: 0,
+        abnormal_type: "NONE".to_string(),
+        abnormal_level: 0,
+        slot: crate::model::skill::BuffSlot::Uncapped,
+        expires_at_tick: u64::MAX,
+        passive: false,
+        effect_flags: crate::model::skill::effect_flag::BLOCK_RESURRECTION,
+        blocked_abnormals: Vec::new(),
+        abnormal_visuals: Vec::new(),
+        effects: Vec::new(),
+    });
+    world.objects.add_components(&pet, buffs);
+    assert!(
+        check_cast(&world, OWNER, res, pet).is_err(),
+        "a resurrection-blocked servitor stays down"
     );
 }

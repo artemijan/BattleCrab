@@ -604,6 +604,7 @@ fn the_arena_manager_buffs_and_heals() {
         AttackState {
             attack_end_tick: 0,
             stance_until_tick: world.tick + 100,
+            swing_seq: 0,
         },
     );
     tvt::on_manager_event(&mut world, 1, player, "BuffHeal");
@@ -623,6 +624,7 @@ fn the_arena_manager_buffs_and_heals() {
         AttackState {
             attack_end_tick: 0,
             stance_until_tick: 0,
+            swing_seq: 0,
         },
     );
     tvt::on_manager_event(&mut world, 1, player, "BuffHeal");
