@@ -3,13 +3,30 @@ use std::sync::Arc;
 
 use dashboard_api::config::DashboardConfig;
 use dashboard_api::state::App;
-use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
-        .init();
+    // Shares the game server's `Logging.ini` and log directory, distinguished by
+    // the `dashboard_api` filename prefix — this binary reads `Dashboard.ini`
+    // out of `dist/game/config` too, so it is launched from the same place.
+    //
+    // Note the `process::exit` paths below bypass this guard, so their last few
+    // lines may not reach the *file*. They are startup-fatal and the console
+    // layer writes synchronously, so the message still reaches the journal.
+    let _log_guard = commons::logging::init("dist/game/", "dashboard_api");
+    commons::logging::install_panic_hook();
+
+    // Account creation, password resets and admin actions on other people's
+    // accounts are records, so this service gets the never-dropped sink too.
+    //
+    // Its own directory, NOT the game server's. Both resolve against
+    // `dist/game`, so sharing `log/audit` would put two processes on the same
+    // NDJSON files — interleaved appends, and worse, two independent retention
+    // sweeps deleting each other's rotated files. Overridden here rather than in
+    // `Logging.ini` because both services read that same file.
+    let mut audit_config = commons::audit::AuditConfig::load("dist/game/");
+    audit_config.directory = "log/audit-dashboard".to_string();
+    let _audit_guard = commons::audit::init("dist/game/", &audit_config);
 
     let config = DashboardConfig::load();
 

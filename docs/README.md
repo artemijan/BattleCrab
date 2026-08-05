@@ -15,6 +15,7 @@
 |---|---|
 | [DEFERRALS.md](DEFERRALS.md) | Every deliberate gap, generated from the `TODO(G<N>)` markers and held to the code by a test. The authority on what is missing. |
 | [DATABASE.md](DATABASE.md) | Fresh installs, adopting a live database, adding a migration, regenerating entities. |
+| [LOGGING.md](LOGGING.md) | Diagnostics (droppable), audit records (never dropped) and metrics: why they are separate, where each file lands, how to query them, and every config key. |
 | [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) | The long-form analysis behind the threading model: Java's thread inventory and task managers, construct-by-construct mapping, the ECS component split. |
 | [JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md) | Every place Java relies on something Rust does not have, and the decision taken for each. The numbered decisions other docs cite. |
 | [DASHBOARD.md](DASHBOARD.md) | Design of the web dashboard and its API. |

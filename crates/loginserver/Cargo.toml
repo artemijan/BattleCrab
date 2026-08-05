@@ -10,7 +10,8 @@ models = { path = "../models" }
 tokio.workspace = true
 bytes.workspace = true
 tracing.workspace = true
-tracing-subscriber.workspace = true
+# Audit records are NDJSON, built at the call site with `json!`.
+serde_json.workspace = true
 thiserror.workspace = true
 num-bigint-dig.workspace = true
 quick-xml.workspace = true

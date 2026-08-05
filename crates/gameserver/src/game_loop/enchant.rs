@@ -431,6 +431,31 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     let final_chance = (chance_no_bonus + scroll.bonus_rate + support_bonus).min(100.0);
     let success = world.roll_f64() * 100.0 < final_chance;
 
+    // Java `RequestEnchantItem` `Config.LOG_ITEM_ENCHANTS` — but recorded once
+    // here, at the decision, rather than duplicated across Java's six
+    // success/fail/safe/blessed branches. The outcome is a field, so the record
+    // carries the same information without six sites that can drift apart.
+    if world.cfg.general.log_item_enchants {
+        let char_name = world
+            .objects
+            .get_component::<crate::model::Player>(&player)
+            .map(|p| p.name.clone());
+        commons::audit::record(
+            commons::audit::Category::Enchant,
+            serde_json::json!({
+                "kind": "item",
+                "result": if success { "success" } else { "fail" },
+                "char_name": char_name,
+                "oid": player,
+                "item_oid": item_oid,
+                "enchant_from": current,
+                "chance": final_chance,
+                "scroll_id": scroll.id,
+                "support_id": support.as_ref().map(|s| s.id),
+            }),
+        );
+    }
+
     if success {
         // Success step: a support widens it (its `randomEnchant` range, capped
         // at the support's max), else the scroll's default +1.

@@ -450,6 +450,7 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("G32", 1),
         ("G33", 15),
         ("G34", 13),
+        ("G35", 1),
         ("G7", 1),
         ("G7.5", 2),
         ("G9+", 1),

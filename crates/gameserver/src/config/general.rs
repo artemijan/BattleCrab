@@ -146,6 +146,33 @@ pub struct GeneralConfig {
     /// bid-driven ending extension past the built-in 5-/3-minute phases. `0`
     /// disables the config phases.
     pub alt_item_auction_time_extends_on_bid: i64,
+
+    // --- Audit-record gates ------------------------------------------------
+    // Which categories the never-dropped audit sink (`commons::audit`) records.
+    // All ship `False`: these are operator decisions about retention and disk,
+    // not features. The sink itself is always running — the gate only decides
+    // whether a given category produces records.
+    /// `LogChat`: record public and private chat (Java: `Say2`,
+    /// `RequestSendFriendMsg`).
+    pub log_chat: bool,
+    /// `LogItems`: record item ownership and count changes.
+    pub log_items: bool,
+    /// `LogItemsSmallLog`: when [`Self::log_items`] is on, narrow it to adena
+    /// and equippable items. Java treats this as an *override* rather than a
+    /// filter — with it set, those items are recorded even though the broad
+    /// branch is skipped.
+    pub log_items_small_log: bool,
+    /// `LogItemsIdsOnly`: narrow item records to [`Self::log_items_ids_list`],
+    /// with the same override semantics as the small log.
+    pub log_items_ids_only: bool,
+    /// `LogItemsIdsList`: the ids [`Self::log_items_ids_only`] admits.
+    pub log_items_ids_list: Vec<i32>,
+    /// `LogItemEnchants`: record item enchant attempts and their outcome.
+    pub log_item_enchants: bool,
+    /// `LogSkillEnchants`: record skill enchant attempts and their outcome.
+    pub log_skill_enchants: bool,
+    /// `GMAudit`: record every GM command, its target and its arguments.
+    pub gm_audit: bool,
 }
 
 impl GeneralConfig {
@@ -215,7 +242,30 @@ impl GeneralConfig {
             alt_item_auction_time_extends_on_bid: p.get_int("AltItemAuctionTimeExtendsOnBid", 0)
                 as i64
                 * 1000,
+            log_chat: p.get_bool("LogChat", d.log_chat),
+            log_items: p.get_bool("LogItems", d.log_items),
+            log_items_small_log: p.get_bool("LogItemsSmallLog", d.log_items_small_log),
+            log_items_ids_only: p.get_bool("LogItemsIdsOnly", d.log_items_ids_only),
+            log_items_ids_list: p
+                .get_string("LogItemsIdsList", "")
+                .split(',')
+                .filter_map(|s| s.trim().parse::<i32>().ok())
+                .collect(),
+            log_item_enchants: p.get_bool("LogItemEnchants", d.log_item_enchants),
+            log_skill_enchants: p.get_bool("LogSkillEnchants", d.log_skill_enchants),
+            gm_audit: p.get_bool("GMAudit", d.gm_audit),
         }
+    }
+
+    /// Java's `Item` gate, which is not a plain "is logging on" test: the small
+    /// log and the id list are *overrides* that admit their own items even when
+    /// the broad branch is off. Ported as one predicate so the four call sites
+    /// cannot drift apart.
+    pub fn should_log_item(&self, item_id: i32, equipable: bool) -> bool {
+        const ADENA_ID: i32 = 57;
+        (self.log_items && !self.log_items_small_log && !self.log_items_ids_only)
+            || (self.log_items_small_log && (equipable || item_id == ADENA_ID))
+            || (self.log_items_ids_only && self.log_items_ids_list.contains(&item_id))
     }
 }
 

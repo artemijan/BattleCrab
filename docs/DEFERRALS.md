@@ -112,6 +112,7 @@ also registering its NPCs would strand the player.
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
+| `TODO(G35)` | 1 | `commons/src/audit.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
 | `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
 | `TODO(skill-see-range)` | 1 | `game_loop/skills/cast.rs` |

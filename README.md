@@ -61,6 +61,7 @@ picture of what is ported, partial, and deliberately out of scope.
 | **[Porting status](docs/PORTING_STATUS.md)** | What is ported, what is partial, what never will be — one table for the whole port |
 | **[Threading model](docs/THREADING_MODEL.md)** | How the server is threaded, why, and what it costs — with diagrams |
 | **[Project layout](docs/PROJECT_LAYOUT.md)** | Where code lives, where new code goes, and the conventions |
+| **[Logging & audit](docs/LOGGING.md)** | Diagnostics that may drop, audit records that may not, metrics — where each lands and how to read it |
 | **[Progress journal](docs/PROGRESS.md)** | The dated record of what landed and what broke on the way |
 | [All documentation](docs/README.md) | Index, including the database, parity checklists and the dashboard design |
 

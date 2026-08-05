@@ -4,6 +4,8 @@
 //! systems (chat bans, jail, olympiad, block list, say filter, voiced
 //! commands) are skipped — see PLAN_G10_SOCIAL.md §2/§4.
 
+use commons::audit;
+use serde_json::json;
 use tracing::warn;
 
 use crate::enums::ChatType;
@@ -138,6 +140,23 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     };
     let (sender_name, sender_level) = (p.name.clone(), p.level);
+
+    // Java `Say2` `Config.LOG_CHAT`, in the same position: after every filter
+    // (chat ban, curse, spam cap, L2Walker) and before the line is delivered,
+    // so the audit file holds what was actually said rather than what was
+    // attempted. Whisper records the addressee too, as Java's " to <target>".
+    if world.cfg.general.log_chat {
+        audit::record(
+            audit::Category::Chat,
+            json!({
+                "chat_type": format!("{chat_type:?}"),
+                "char_name": sender_name,
+                "oid": sender_oid,
+                "target": pkt.target,
+                "text": pkt.text,
+            }),
+        );
+    }
 
     // Java `Player.broadcastSnoop`: mirror the line to any GM snooping this
     // speaker (G31). Fires for every chat channel the player originates.

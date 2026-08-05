@@ -27,20 +27,39 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
-        )
-        .init();
-
-    let server_load_start = Instant::now();
-
     // Where the datapack lives, as a path *prefix*. The process deliberately
     // does NOT chdir into it: everything datapack-relative is addressed through
     // this root, so anything that is not part of the datapack — above all the
     // SQLite `URL`, which must name the same file as the login server's —
     // resolves against the directory the server was actually started in.
-    let datapack_root = resolve_datapack_root();
+    //
+    // Resolved before logging is set up, because `Logging.ini` lives in the
+    // datapack too — hence the deferred `root_source` rather than logging from
+    // inside the resolver.
+    let (datapack_root, root_source) = resolve_datapack_root();
+
+    // Held for the whole of `main`: dropping it stops the writer threads and
+    // truncates the tail of the log.
+    let _log_guard = commons::logging::init(&datapack_root, "game_server");
+    commons::logging::install_panic_hook();
+    root_source.report(&datapack_root);
+
+    // Audit records travel their own never-dropped sink; the guard joins the
+    // writer on shutdown so nothing queued is lost. Started after logging so
+    // that any complaint from it is visible.
+    let _audit_guard = commons::audit::init(
+        &datapack_root,
+        &commons::audit::AuditConfig::load(&datapack_root),
+    );
+
+    // "How is the server doing" is a counter question, not a log question —
+    // the snapshot lands in the JSON log as one event per interval.
+    gameserver::game_loop::register_metrics();
+    commons::metrics::spawn_reporter(
+        commons::logging::LoggingConfig::load(&datapack_root).metrics_interval_seconds,
+    );
+
+    let server_load_start = Instant::now();
 
     // Java: Config.load(ServerMode.GAME).
     let config = Config::load_from(&datapack_root);
@@ -257,7 +276,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///
 /// `DATAPACK_ROOT` overrides the search for deployments that keep the datapack
 /// somewhere other than beside the binary.
-fn resolve_datapack_root() -> String {
+/// How the datapack root was found. The resolver runs before the logging
+/// subscriber exists — `Logging.ini` is itself datapack-relative — so it
+/// returns where the root came from instead of logging it, and `main` reports
+/// it through [`RootSource::report`] once there is somewhere for it to go.
+enum RootSource {
+    /// Taken from the `DATAPACK_ROOT` override.
+    Env,
+    /// Launched from inside the datapack (the deployed layout).
+    Deployed,
+    /// Launched from the repo root (the development layout).
+    Dev,
+    /// Nothing found; falling back to the working directory.
+    NotFound,
+}
+
+impl RootSource {
+    fn report(&self, root: &str) {
+        match self {
+            Self::Env => info!("GameServer: datapack root from DATAPACK_ROOT: {root}"),
+            Self::Deployed => {}
+            Self::Dev => info!("GameServer: datapack root: dist/game"),
+            Self::NotFound => warn!(
+                "GameServer: could not locate {}; using the working directory.",
+                gameserver::config::server::SERVER_CONFIG_FILE
+            ),
+        }
+    }
+}
+
+fn resolve_datapack_root() -> (String, RootSource) {
     const CONFIG: &str = gameserver::config::server::SERVER_CONFIG_FILE;
 
     if let Ok(root) = std::env::var("DATAPACK_ROOT") {
@@ -266,22 +314,19 @@ fn resolve_datapack_root() -> String {
         } else {
             format!("{root}/")
         };
-        info!("GameServer: datapack root from DATAPACK_ROOT: {root}");
-        return root;
+        return (root, RootSource::Env);
     }
     // Launched from inside the datapack (the deployed layout).
     if std::path::Path::new(CONFIG).exists() {
-        return String::new();
+        return (String::new(), RootSource::Deployed);
     }
     // Launched from the repo root (the development layout).
     if std::path::Path::new("dist/game").join(CONFIG).exists() {
-        info!("GameServer: datapack root: dist/game");
-        return "dist/game/".to_string();
+        return ("dist/game/".to_string(), RootSource::Dev);
     }
     // Fall through with an empty root so the config loader reports the missing
     // file against the working directory, which is where the user expects it.
-    warn!("GameServer: could not locate {CONFIG}; using the working directory.");
-    String::new()
+    (String::new(), RootSource::NotFound)
 }
 
 fn print_section(section: &str) {

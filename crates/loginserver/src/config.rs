@@ -40,6 +40,14 @@ pub struct LoginConfig {
 pub const LOGIN_CONFIG_FILE: &str = "dist/login/config/LoginServer.ini";
 pub const BANNED_IP_FILE: &str = "dist/login/banned_ip.cfg";
 
+/// The prefix the two paths above share: the login server addresses its files
+/// from the *repository root*, not from inside `dist/login`, which is why the
+/// systemd unit sets `WorkingDirectory` to the deployment root. Anything else
+/// that has to sit beside `LoginServer.ini` — `Logging.ini`, the `log/`
+/// directory — must be resolved against this, or it silently lands one or two
+/// levels up from the rest of the datapack.
+pub const LOGIN_ROOT: &str = "dist/login/";
+
 impl LoginConfig {
     pub fn load() -> Self {
         Self::from_parser(&PropertiesParser::load(LOGIN_CONFIG_FILE))

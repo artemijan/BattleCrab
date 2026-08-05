@@ -849,8 +849,51 @@ impl Controller {
         entries
     }
 
-    /// `RequestAuthLogin.run` DB half: `retriveAccountInfo` + `tryCheckinAccount`.
+    /// Records the outcome of every authentication attempt, then delegates.
+    ///
+    /// This is the login server's whole `accounting` story: who got in, who did
+    /// not, and from where. Wrapping rather than recording at each `return` is
+    /// deliberate — the inner function has eight exit points, and a ninth added
+    /// later would silently escape the audit.
+    ///
+    /// Ungated and never dropped, like the game server's accounting records:
+    /// Java has no config switch for these either, and a failed-login pattern is
+    /// exactly what someone opens this file to reconstruct.
     async fn try_auth_login(
+        &mut self,
+        login: String,
+        password: String,
+        ip: String,
+        kick: mpsc::Sender<LoginFailReason>,
+    ) -> AuthOutcome {
+        // Lowercased to match how the account is stored and looked up, so a
+        // record joins against the game server's accounting records.
+        let account = login.to_lowercase();
+        let outcome = self
+            .try_auth_login_inner(login, password, ip.clone(), kick)
+            .await;
+        let result = match &outcome {
+            AuthOutcome::Success { .. } => "success",
+            AuthOutcome::AccessFailed => "access_failed",
+            AuthOutcome::InvalidPassword => "invalid_password",
+            AuthOutcome::AccountBanned => "account_banned",
+            AuthOutcome::AlreadyOnLs => "already_on_ls",
+            AuthOutcome::AlreadyOnGs => "already_on_gs",
+        };
+        commons::audit::record(
+            commons::audit::Category::Accounting,
+            serde_json::json!({
+                "event": "login_attempt",
+                "account": account,
+                "ip": ip,
+                "result": result,
+            }),
+        );
+        outcome
+    }
+
+    /// `RequestAuthLogin.run` DB half: `retriveAccountInfo` + `tryCheckinAccount`.
+    async fn try_auth_login_inner(
         &mut self,
         login: String,
         password: String,
