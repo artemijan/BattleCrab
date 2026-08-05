@@ -3134,6 +3134,56 @@ fn admin_mounted_blocks_horse_and_transform() {
     assert_eq!(p.mount_type, 1, "mount untouched");
 }
 
+/// `//transform` refuses **in water** (Java `player.isInWater()` → SM 2060).
+///
+/// The gate had no reader until `position::is_in_water` landed with the
+/// water/swim work; the marker outlived its own blocker.
+#[test]
+fn admin_transform_refused_in_water() {
+    let (mut world, ..) = admin_world();
+    world.data.transforms = crate::data::TransformData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let mut rx = ingame_player_access(&mut world, 1, 8925, 100);
+    drain(&mut rx);
+
+    // A water zone over the GM, then the revalidation Java runs on movement —
+    // `checkWaterState` is what starts the drowning task, and that task (not
+    // the zone) is what `Player.isInWater()` reports.
+    insert_zone(
+        &mut world,
+        crate::data::zone_data::ZoneKind::Water,
+        -1000,
+        1000,
+        -1000,
+        1000,
+    );
+    crate::game_loop::water::check_water_state(&mut world, 8925);
+    assert!(
+        crate::game_loop::water::is_drowning_task_active(&world, 8925),
+        "fixture must actually be drowning for this to mean anything"
+    );
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("transform 106"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&8925)
+            .unwrap()
+            .transform_id,
+        0,
+        "//transform refused in water"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(
+            &crate::network::server_packets::sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER
+        ),
+        "and says why"
+    );
+}
+
 /// `//ride_bike` transforms the GM (transform 20001): durable transform id +
 /// display id, the run speed overridden to the template's, and the transform's
 /// skills granted; `//unride` reverts all of it.

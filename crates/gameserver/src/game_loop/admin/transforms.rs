@@ -34,6 +34,20 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
         return;
     }
     let target = ride_target(world, object_id);
+    // Java's gate order, and the subjects are not all the same object:
+    // `activeChar.isSitting()` is the **GM issuing the command**, while the
+    // transformed / in-water / mounted checks are the **target**. The port
+    // tested the target's posture, which is a different rule whenever a GM
+    // transforms someone else — and the message order matters too, since a
+    // player who is both seated and mounted gets whichever check runs first.
+    if crate::game_loop::sit_stand::is_sitting(world, object_id) {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING,
+        );
+        return;
+    }
     if world
         .objects
         .get_component::<Player>(&target)
@@ -46,9 +60,20 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
         );
         return;
     }
-    // Java `AdminTransform`: a mounted target can't polymorph — SM 2063 — and
-    // neither can a seated one. TODO(G33): the in-water leg
-    // (`…_TRANSFORM_IN_WATER`) still has no reader here.
+    // `player.isInWater()`, and the predicate matters: Java's `Player`
+    // method is `_taskWater != null` — the **drowning task is running** —
+    // not "standing in a WATER zone". `position::is_in_water` is the zone
+    // test (used for swim speed and geodata) and says so in its own doc;
+    // using it here would refuse the transform for anyone in a castle moat
+    // or wading where no breath timer ever started.
+    if crate::game_loop::water::is_drowning_task_active(world, target) {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER,
+        );
+        return;
+    }
     if world
         .objects
         .get_component::<Player>(&target)
@@ -58,14 +83,6 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
             world,
             client_id,
             crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET,
-        );
-        return;
-    }
-    if crate::game_loop::sit_stand::is_sitting(world, target) {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING,
         );
         return;
     }
