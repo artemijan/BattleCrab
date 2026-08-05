@@ -853,6 +853,9 @@ fn apply_due_tasks(world: &mut World) {
             } => {
                 combat::handle_attack_hit(world, attacker, target, damage, miss, crit, swing_seq);
             }
+            ScheduledTask::SiegeFame { player_oid } => {
+                siege::handle_siege_fame(world, player_oid);
+            }
             ScheduledTask::AttackFinish { object_id } => {
                 helpers::run_queued_action(world, object_id);
             }

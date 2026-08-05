@@ -882,6 +882,8 @@ pub mod sm_ids {
     pub const YOU_HAVE_DODGED_C1_S_ATTACK: i16 = 2000;
     /// "Failed to change enmity." — a locked target refusing a new selection.
     pub const FAILED_TO_CHANGE_ENMITY: i16 = 564;
+    /// "You have acquired $s1 fame."
+    pub const YOU_HAVE_ACQUIRED_S1_FAME: i16 = 2319;
     /// "You cannot use summoning or teleporting in this area."
     pub const YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA: i16 = 1899;
     /// "$c1 is in an area which blocks summoning or teleporting."

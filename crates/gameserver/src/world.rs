@@ -118,6 +118,11 @@ pub struct World {
     /// client emits spurious `RequestItemList`s while such a window is coming
     /// up, and answering them clobbers the window it just drew.
     pub inventory_blocked: std::collections::HashSet<i32>,
+    /// Players whose siege-zone fame task is already running. Java holds a
+    /// per-player `ScheduledFuture` and null-checks it; this set is that check
+    /// — without it, every zone revalidation inside the zone would arm another
+    /// earner on top of the last.
+    pub siege_fame_armed: std::collections::HashSet<i32>,
     /// The unattended private shops (Java: players whose `GameClient` is
     /// *detached*), keyed by player object id. They are the only players in
     /// `objects` with no entry in `clients`, so the visibility scans — which
@@ -525,6 +530,7 @@ impl World {
             hwids: HashMap::new(),
             protocol_versions: HashMap::new(),
             inventory_blocked: std::collections::HashSet::new(),
+            siege_fame_armed: std::collections::HashSet::new(),
             offline_traders: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: rustc_hash::FxHashMap::default(),

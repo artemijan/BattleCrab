@@ -381,3 +381,107 @@ fn owning_clan(id: i32, castle_id: i32) -> crate::model::clan::Clan {
         blood_alliance_count: 0,
     }
 }
+
+// ---------------------------------------------------------------------------
+// The siege-zone fame task
+// ---------------------------------------------------------------------------
+
+/// `SiegeZone.onEnter` → `startFameTask`, `FameTask.run`, `stopFameTask`.
+///
+/// Everything about this is inert on the shipped dist, where
+/// `CastleZoneFameAquirePoints = 0` — so the test raises the amount, which is
+/// exactly the operator change the port has to keep working.
+#[test]
+fn a_participant_standing_in_the_siege_zone_earns_fame_until_they_leave() {
+    use crate::model::siege::{Siege, SiegeClanType};
+    use crate::network::server_packets::sm_ids;
+
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const POS: (i32, i32, i32) = (-17964, 110730, -1000);
+    const PLAYER: i32 = 6101;
+    const CASTLE: i32 = 1;
+    const CID: u32 = 1;
+
+    let build = || {
+        let (mut world, _db, _l) = combat_test_world();
+        world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
+        world.cfg.character.castle_zone_fame_task_frequency = 300;
+        world.cfg.character.castle_zone_fame_acquire_points = 125;
+        world.cfg.character.fame_for_dead_players = false;
+        let rx = ingame_caster(&mut world, CID, PLAYER, POS.0, POS.1);
+        world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&PLAYER)
+            .unwrap()
+            .z = POS.2;
+        world
+            .objects
+            .get_component_mut::<crate::model::Player>(&PLAYER)
+            .unwrap()
+            .clan_id = 700;
+        let mut siege = Siege::new(CASTLE);
+        siege.in_progress = true;
+        siege.add_clan(700, SiegeClanType::Attacker);
+        world.sieges.insert(CASTLE, siege);
+        crate::game_loop::zones::revalidate_zone(&mut world, PLAYER, true);
+        (world, rx)
+    };
+
+    let fame = |w: &World| {
+        w.objects
+            .get_component::<crate::model::Player>(&PLAYER)
+            .unwrap()
+            .fame
+    };
+
+    // Entering the zone arms the task; it pays on the configured cadence.
+    let (mut world, mut rx) = build();
+    assert!(
+        world.siege_fame_armed.contains(&PLAYER),
+        "standing in the zone as a participant arms the task"
+    );
+    assert_eq!(fame(&world), 0, "and pays nothing before the first tick");
+    drain(&mut rx);
+    advance_world(&mut world, 3001);
+    assert_eq!(fame(&world), 125, "one payment after the frequency elapses");
+    assert!(has_system_message(
+        &drain(&mut rx),
+        sm_ids::YOU_HAVE_ACQUIRED_S1_FAME
+    ));
+    // It re-arms, so a second period pays again.
+    advance_world(&mut world, 3001);
+    assert_eq!(fame(&world), 250, "and it keeps ticking");
+
+    // Walking out ends it — the task notices at its next firing and stops
+    // re-arming, which is this port's stand-in for `stopFameTask()`.
+    let (mut world, _rx) = build();
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&PLAYER)
+        .unwrap()
+        .x = 0;
+    advance_world(&mut world, 3001);
+    assert_eq!(fame(&world), 0, "no pay outside the zone");
+    assert!(
+        !world.siege_fame_armed.contains(&PLAYER),
+        "and the task is not re-armed"
+    );
+
+    // A corpse in the zone is skipped while `FameForDeadPlayers` is off, but
+    // the task keeps running — Java only skips the payment, not the task.
+    let (mut world, _rx) = build();
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&PLAYER)
+        .unwrap()
+        .dead = true;
+    advance_world(&mut world, 3001);
+    assert_eq!(fame(&world), 0, "a corpse earns nothing…");
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&PLAYER)
+        .unwrap()
+        .dead = false;
+    advance_world(&mut world, 3001);
+    assert_eq!(fame(&world), 125, "…but earns again once it stands up");
+}

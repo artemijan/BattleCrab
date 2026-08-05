@@ -38,14 +38,10 @@ pub struct OfflineTradeConfig {
     pub abnormal_effects: Vec<i16>,
     /// `OfflineFame` — whether a detached character still earns fame.
     ///
-    /// Read nowhere yet (`TODO(G33)`), because the thing it gates is unported:
-    /// Java's fame source is `SiegeZone`'s fame task, and this only decides
-    /// whether an *offline* shop inside such a zone keeps earning. Note the
-    /// earlier claim here — "a later-chronicle stat with no ported source on
-    /// Interlude" — was wrong: castle sieges are ported, so the source is
-    /// reachable. It is inert only because this dist sets
-    /// `CastleZoneFameAquirePoints = 0`. See `game_loop::siege`'s
-    /// `update_player_siege_state_flags`.
+    /// Read by `siege::handle_siege_fame`, the port of Java's `FameTask`: a
+    /// detached shop standing in an active siege zone keeps earning unless
+    /// this is off. Inert on this dist, which sets
+    /// `CastleZoneFameAquirePoints = 0` — the task runs and pays nothing.
     pub fame: bool,
     /// `RestoreOffliners` — restore the stored shops at boot.
     pub restore_offliners: bool,
