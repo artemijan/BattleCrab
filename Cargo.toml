@@ -19,6 +19,10 @@ license = "GPL-3.0"
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "macros", "signal", "io-util"] }
 bytes = "1"
+# FxHash for the hot integer-keyed maps (object-id → entity/session/region).
+# These are internal ids, not attacker-controlled keys, so SipHash's DoS
+# resistance buys nothing there and costs on every broadcast recipient lookup.
+rustc-hash = "2"
 # Pinned to the version SeaORM 2 links: the two must agree or `SqlitePool`
 # from `commons::db` and the one inside a `DatabaseConnection` become different
 # types (docs/PLAN_ORM_MIGRATION.md §2). Raw sqlx survives only until the last

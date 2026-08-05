@@ -739,11 +739,16 @@ pub(crate) fn is_siege_defender(world: &World, castle_id: i32, player_oid: i32) 
 /// The castle whose active siege a stationed guard (`Defender`) is standing in,
 /// if any — the guard's employer.
 pub(crate) fn active_siege_guard_castle(world: &World, guard_oid: i32) -> Option<i32> {
+    // No siege state anywhere (the overwhelming majority of uptime) answers
+    // every guard with one map probe, and the `Defender` type test reads the
+    // fact memoized on the `Npc` core instead of the template.
+    if world.sieges.is_empty() {
+        return None;
+    }
     let is_guard = world
         .objects
         .get_component::<crate::model::npc::Npc>(&guard_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.type_name == "Defender");
+        .is_some_and(|n| n.is_defender(world));
     if !is_guard {
         return None;
     }
