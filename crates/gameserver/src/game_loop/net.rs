@@ -126,6 +126,9 @@ pub(crate) fn handle_net_event(world: &mut World, event: NetEvent) {
                 }
             }
         }
+        NetEvent::ProtocolVersion { client_id, version } => {
+            world.protocol_versions.insert(client_id, version);
+        }
         NetEvent::Disconnected { client_id } => {
             on_disconnect(world, client_id);
         }
@@ -751,6 +754,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
     }
     world.clients.remove(&client_id);
     world.hwids.remove(&client_id); // Java `GameClient` hardware info dies with the connection (G31).
+    world.protocol_versions.remove(&client_id); // same lifetime — it is the connection's, not the character's.
     let account = world
         .login
         .accounts_in_gameserver

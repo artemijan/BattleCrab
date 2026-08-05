@@ -507,6 +507,27 @@ fn admin_editchar_info_commands_use_html() {
         info.contains("admin_find_ip 127.0.0.1"),
         "the IP is a working find_ip link"
     );
+    // `%protocol%` — Java's `client.getProtocolVersion()`. It lives on the
+    // connection, so the game thread only has it because the handshake
+    // forwards a `NetEvent::ProtocolVersion`; the port used to hardcode 0.
+    world.protocol_versions.insert(1, 746);
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("character_info"),
+        ]
+        .concat(),
+    );
+    let info = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("charinfo html");
+    assert!(
+        info.contains("746"),
+        "charinfo shows the client protocol version, got: {info}"
+    );
 }
 
 /// `//grandboss` opens the boss menu; `//grandboss <id>` shows one boss's live

@@ -104,6 +104,12 @@ pub struct World {
     /// G31), keyed by client id — reported by `RequestHardWareInfo`, read by the
     /// HWID punishment matching and `//hwid`. Cleared on disconnect.
     pub hwids: HashMap<u32, crate::network::client_packets::HardwareInfo>,
+    /// Per-connection client protocol version (Java
+    /// `GameClient._protocolVersion`), keyed by client id. Reported by the
+    /// handshake, read only by `//charinfo`. Cleared on disconnect alongside
+    /// [`World::hwids`], for the same reason: it belongs to the connection,
+    /// not the character.
+    pub protocol_versions: HashMap<u32, i32>,
     /// The unattended private shops (Java: players whose `GameClient` is
     /// *detached*), keyed by player object id. They are the only players in
     /// `objects` with no entry in `clients`, so the visibility scans — which
@@ -509,6 +515,7 @@ impl World {
             scheduler: Scheduler::new(),
             clients: ClientTable::new(),
             hwids: HashMap::new(),
+            protocol_versions: HashMap::new(),
             offline_traders: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),

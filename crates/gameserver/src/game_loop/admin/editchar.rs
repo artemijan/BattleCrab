@@ -175,7 +175,7 @@ pub(super) fn admin_character_info(
     // and falls back to "N/A"/"Unknown" when there is none (client null or
     // detached), telling the GM which case it was. An offline trader is the
     // port's detached client — its session is gone but the `Player` stays.
-    let (ip, hwid) = match super::super::helpers::client_for_player(world, target) {
+    let (ip, hwid, protocol) = match super::super::helpers::client_for_player(world, target) {
         Some(cid) => (
             world
                 .clients
@@ -187,6 +187,15 @@ pub(super) fn admin_character_info(
                 .get(&cid)
                 .map(|h| h.mac_address.clone())
                 .unwrap_or_else(|| "Unknown".into()),
+            // Java `client.getProtocolVersion()`. Reported by the handshake and
+            // kept for the connection's lifetime; `0` means the client has not
+            // announced one yet, which is also `GameClient`'s initial value.
+            world
+                .protocol_versions
+                .get(&cid)
+                .copied()
+                .unwrap_or(0)
+                .to_string(),
         ),
         None => {
             let detached = super::super::offline_trade::is_offline_trader(world, target);
@@ -199,21 +208,18 @@ pub(super) fn admin_character_info(
                     "Client is null."
                 },
             );
-            ("N/A".to_string(), "Unknown".to_string())
+            ("N/A".to_string(), "Unknown".to_string(), "0".to_string())
         }
     };
     // Fill `charinfo.htm`. Stats not computed in the port yet (regen/load/
     // ai/instance) default to `0`/`N/A`; class is the numeric id (no client-code
     // table ported).
-    // TODO(G33): `%protocol%` — the client's protocol version lives on the
-    // connection-side `GameClient`, not in the game loop, so Java's
-    // `client.getProtocolVersion()` has nothing to read here yet.
     let r: Vec<(&str, String)> = vec![
         ("name", p.name.clone()),
         ("account", p.account.clone()),
         ("ip", ip),
         ("hwid", hwid),
-        ("protocol", "0".into()),
+        ("protocol", protocol),
         ("level", p.level.to_string()),
         ("class", p.class_id.to_string()),
         ("baseclass", p.base_class_id.to_string()),

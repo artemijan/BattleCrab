@@ -167,6 +167,13 @@ pub enum NetEvent {
         /// (`connection::MAX_PACKETS_IN_FLIGHT`).
         permit: tokio::sync::OwnedSemaphorePermit,
     },
+    /// The client announced its protocol version during the handshake.
+    ///
+    /// Purely informational on the game thread — the handshake itself already
+    /// accepted or rejected the version connection-side. It is forwarded so
+    /// `//charinfo`'s `%protocol%` has something to read, which is the one
+    /// place Java surfaces `GameClient.getProtocolVersion()` to an operator.
+    ProtocolVersion { client_id: u32, version: i32 },
     /// The connection closed (EOF, IO error, or server-side close).
     Disconnected { client_id: u32 },
 }
