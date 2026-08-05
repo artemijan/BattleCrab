@@ -4700,6 +4700,32 @@ an extension, not a port.
 
 ---
 
+### Post-G33 — `gen-messages`: the system-message generator, now in Rust ✅ (2026-08-05)
+
+`crates/commons/src/system_messages/generated.rs` (5382 messages) was produced
+by `tools/gen_system_messages.py`, which was deleted in `42551abf` along with
+the rest of `tools/` — leaving a committed generated file whose generator only
+existed in git history, in a language the repo no longer carries. Reimplemented
+as `l2r-tools gen-messages` (`crates/tools/src/msg_gen.rs`), a line-for-line
+behavioural port: same regex over the Java `@ClientString` annotations, same
+name-derived arity (`C<n>`/`S<n>`, highest token wins, gaps become `S`), same
+BGRA→RGBA colour swap from the unpacked client table, same emitted text
+(`cargo fmt` afterwards, as before). The custom messages
+(`custom_system_messages.json`, deleted in the same commit) are now the typed
+`CUSTOM` table inside `msg_gen.rs`, with the id-window and `%%` rules from the
+json's comments carried into its docs.
+
+**Verified by regeneration:** running the new tool over the current Java
+reference and a fresh `client-dat decrypt` reproduces the committed file
+byte-for-byte after `cargo fmt`, except (a) the header, which now names the
+Rust tool, and (b) 7 colour cells (ids 331, 362, 2261, 2319, 2326, 3259, 3615)
+where the *client* has drifted — `dist/client` is untracked, and the vivid
+colours in the committed table are deliberate `msg-color` work no longer
+present in the local client tree. The committed colours were kept; the README
+section warns that a stale client tree tries to revert them on regeneration.
+
+---
+
 ## Deferred TODOs (by system)
 
 Empty/placeholder now, to be filled in the owning milestone:

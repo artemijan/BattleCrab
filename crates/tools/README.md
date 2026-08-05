@@ -40,6 +40,7 @@ explains *when* to reach for each one and how to read what comes back.
 | [`client-dat`](#client-dat) | Client `system` ⇄ editable text, end to end, plus a round-trip check |
 | [`dat-text`](#dat-text) | One stage of that pipeline alone: decrypted `.dat` ⇄ `.dat.txt` |
 | [`msg-color`](#msg-color) | Recolour system messages in a terminal UI |
+| [`gen-messages`](#gen-messages) | Regenerate `commons`' system-message table from Java + client |
 | [`sync-messages`](#sync-messages) | Push the server's system-message table into the client |
 | [`sync-npc`](#sync-npc) | Reconcile NPC names and titles between datapack and client |
 
@@ -206,6 +207,36 @@ leaves the file untouched and says so in the status line.
 
 ---
 
+## `gen-messages`
+
+`commons::system_messages::generated` — the typed table of every system
+message the server can send — is committed, not built. This regenerates it,
+for when a newer Java drop or client lands (it is the Rust port of the removed
+`tools/gen_system_messages.py`; the original is at
+`git show 42551abf^:tools/gen_system_messages.py`):
+
+```sh
+l2r-tools client-dat decrypt        # refresh the unpacked client table first
+l2r-tools gen-messages
+cargo fmt -p commons                # emitted lines are not pre-wrapped
+```
+
+Three sources are merged: `SystemMessageId.java` from the sibling
+`interlude_classic` repo (name, id and text of every retail message), the
+unpacked `SystemMsg_Classic-eu.dat` (the colour each id is drawn in), and the
+`CUSTOM` table in `src/msg_gen.rs` (messages this server adds — the file's own
+docs say how to write one). Constructor arity comes from the `C<n>`/`S<n>`
+tokens in the message *name*, exactly as Java's `parseMessageParameters` reads
+them; a run refuses a custom id that collides with a retail one.
+
+Review the diff before committing. In particular, the colour column mirrors
+whatever the client table holds at run time, and `dist/client` is not under
+version control — colours set with `msg-color` after the last generation will
+show up as changes, and a client tree older than the committed table will try
+to *revert* deliberate colours.
+
+---
+
 ## `sync-messages`
 
 The server sends a message *id*; the client supplies the wording from its own
@@ -342,6 +373,7 @@ src/dat_pack.rs        text -> decrypted .dat
 src/dat_roundtrip.rs   the identical / equivalent / broken verdicts
 src/datapack.rs        spawn rows, teleport seeds, region bboxes
 src/spawn_pockets.rs   the burial detector and its calibrated thresholds
+src/msg_gen.rs         Java reference + client table -> commons' generated message table
 src/msg_sync.rs        system-message table -> client
 src/system_msg.rs      the msg-color session model
 src/npc_sync.rs        NPC names/titles both ways
