@@ -210,6 +210,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         server_id: config.server_id,
         is_classic: (config.server.server_list_type & 0x400) == 0x400,
         security: config.security.clone(),
+        drop_packets: config.network.drop_packets,
+        drop_packet_threshold: config.network.drop_packet_threshold,
     });
     let bind = format!(
         "{}:{}",

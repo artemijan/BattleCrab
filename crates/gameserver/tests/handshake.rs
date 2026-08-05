@@ -36,6 +36,8 @@ fn cfg() -> NetworkConfig {
         // The shipped `Security.ini` defaults, so the transport limits are
         // exercised by the end-to-end tests rather than bypassed by them.
         security: gameserver::config::SecurityConfig::default(),
+        drop_packets: false,
+        drop_packet_threshold: 0,
     }
 }
 

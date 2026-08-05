@@ -69,7 +69,7 @@ impl<S> Session<S> {
             },
             body.len()
         );
-        let _ = self.out.send(body);
+        self.out.send(body);
     }
 }
 
@@ -92,10 +92,13 @@ pub struct InLobby {
 }
 
 impl Session<Connecting> {
-    pub fn new(client_id: u32, out: OutboundTx, addr: SocketAddr) -> Self {
+    /// `impl Into<OutboundTx>` so tests can pass a bare channel sender (the
+    /// `#[cfg(test)]` `From` impl wraps it without a drop policy); production
+    /// passes the connection task's policy-carrying `OutboundTx` through.
+    pub fn new(client_id: u32, out: impl Into<OutboundTx>, addr: SocketAddr) -> Self {
         Self {
             client_id,
-            out,
+            out: out.into(),
             addr,
             flood: FloodProtectors::new(),
             state: Connecting,
@@ -503,7 +506,7 @@ mod client_table_tests {
         let (out, _rx) = tokio::sync::mpsc::unbounded_channel();
         ClientSession::InGame(Session {
             client_id,
-            out,
+            out: out.into(),
             addr: "127.0.0.1:0".parse().unwrap(),
             flood: FloodProtectors::new(),
             state: InGame {

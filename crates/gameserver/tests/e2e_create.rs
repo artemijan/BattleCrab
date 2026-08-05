@@ -313,6 +313,10 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
         // The shipped `Security.ini` defaults, so the transport limits are
         // exercised by the end-to-end tests rather than bypassed by them.
         security: gameserver::config::SecurityConfig::default(),
+        // The dist `Network.ini` policy, so the e2e path runs with dropping
+        // armed (the threshold is far above anything this test queues).
+        drop_packets: true,
+        drop_packet_threshold: 2500,
     });
     tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg));
     addr

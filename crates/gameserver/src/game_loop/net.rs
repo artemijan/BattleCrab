@@ -46,6 +46,7 @@ fn players_online() -> &'static commons::metrics::Gauge {
 pub fn register_metrics() {
     packets_handled();
     players_online().set(0);
+    crate::network::register_metrics();
 }
 
 /// One network event: connect, inbound packet (dispatched under the
@@ -66,7 +67,13 @@ pub(crate) fn handle_net_event(world: &mut World, event: NetEvent) {
                 world.clients.len()
             );
         }
-        NetEvent::Received { client_id, data } => {
+        // `_permit` is the connection's in-flight slot: holding it to the end
+        // of this arm keeps the packet "in flight" until it is fully handled.
+        NetEvent::Received {
+            client_id,
+            data,
+            permit: _permit,
+        } => {
             // Java `ExecuteThread`/`PacketHandler` catches Throwable around
             // each packet's run(), so one bad packet (an admin command with
             // missing args, a malformed bypass…) must not take the whole

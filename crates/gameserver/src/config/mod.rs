@@ -20,6 +20,7 @@ pub mod general;
 pub mod geoengine;
 pub mod hexid;
 pub mod ipconfig;
+pub mod network;
 pub mod npc;
 pub mod offline_trade;
 pub mod premium;
@@ -150,6 +151,8 @@ pub struct Config {
     pub custom_mail: CustomMailConfig,
     pub auto_play: AutoPlayConfig,
     pub flood_protector: FloodProtectorsConfig,
+    /// `Network.ini` — the outbound drop policy (Java `ConnectionConfig`).
+    pub network: network::NetworkConfig,
     /// `Security.ini` — transport-level flood limits (no Java counterpart).
     pub security: SecurityConfig,
     pub chat_filter: ChatFilterConfig,
@@ -226,6 +229,7 @@ impl Config {
         let custom_mail = CustomMailConfig::load_from(root);
         let auto_play = AutoPlayConfig::load_from(root);
         let flood_protector = FloodProtectorsConfig::load_from(root);
+        let network = network::NetworkConfig::load_from(root);
         let security = SecurityConfig::load_from(root);
         let chat_filter = ChatFilterConfig::load_from(root);
         let bot_report = BotReportConfig::load_from(root);
@@ -258,6 +262,7 @@ impl Config {
             custom_mail,
             auto_play,
             flood_protector,
+            network,
             security,
             chat_filter,
             bot_report,
