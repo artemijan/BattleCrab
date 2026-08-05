@@ -83,8 +83,10 @@ impl QuestScript for Q00641AttackSailren {
             } else if ctx.other_quest_completed(NAME_OF_EVIL_2) {
                 "32109-0a.htm".to_string()
             } else {
-                // TODO(quests): gated until Q00126_TheNameOfEvil2 is ported;
-                // until then this branch is always taken above 77.
+                // Prereq unmet: the page carries no accept button. Java picks
+                // between 0a and 0b off the same `Q00126_TheNameOfEvil2` quest
+                // state, and that quest is ported and registered, so both
+                // branches are reachable (both are covered by the test).
                 "32109-0b.htm".to_string()
             }
         } else if ctx.is_cond(1) {

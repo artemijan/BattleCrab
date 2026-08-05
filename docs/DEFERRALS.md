@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **155** such
+of narrow behaviours deferred and marked at the site. There are **153** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -117,8 +117,6 @@ also registering its NPCs would strand the player.
 | `TODO(G7)` | 1 | `data/player_template.rs` |
 | `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
 | `TODO(q214-gargoyle-name)` | 1 | `scripts/q00214_trial_of_the_scholar.rs` |
-| `TODO(quests)` | 1 | `scripts/q00641_attack_sailren.rs` |
-| `TODO(reco)` | 1 | `game_loop/reco.rs` |
 | `TODO(saga)` | 1 | `scripts/saga.rs` |
 | `TODO(sieges)` | 1 | `network/server_packets/residence.rs` |
 | `TODO(skill-see-range)` | 1 | `game_loop/skills/cast.rs` |
@@ -130,6 +128,8 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(quests)` ×1 (`scripts/q00641_attack_sailren.rs`) | **Stale.** "Gated until Q00126_TheNameOfEvil2 is ported" — it is ported *and* registered, the gate already calls `other_quest_completed`, and the test exercises both branches. Nothing to do but delete the claim. |
+| 2026-08-05 | `TODO(reco)` ×1 (`game_loop/reco.rs`) | **Not a gap** — retagged `SKIP(fake-players)`. Recommending a `fakePlayerTalkable` NPC belongs to a Mobius `config/Custom/*` feature that ROADMAP.md scopes out except where an operator enables it, and this dist ships `EnableFakePlayers = False`. Reviving it means porting `FakePlayerData`/`FakePlayerInfo` first, not adding a branch. |
 | 2026-08-05 | `TODO(login-playauth)` ×2 — **not closed, corrected** (`tests/e2e_create.rs`) | The recorded cause was false. It claimed `RequestServerLogin` answers PlayFail instead of PlayOk; instrumenting the handshake shows **PlayOk on both logins** and the whole login half completing cleanly. The real failure is on relogin: the list loads and `CharSelectionInfo` is sent, then `handle_request_restart` runs *unprompted* (the test never sends 0x57, and that handler has one non-test caller), which reloads the list and puts a second `CharSelectionInfo` where the client expects `CharSelected`. The exchange never resynchronises, so the test **hangs** rather than failing an assertion — which is why the wrong guess survived: nothing contradicted it. Marker rewritten with the walkthrough; still open, still `#[ignore]`. |
 | 2026-08-05 | `TODO(pets)` ×5 (`scripts/q00421_little_wings_big_adventure.rs`) | Java's `npc.setTarget(x); npc.doCast(skill)` — **real** casts (root, DoT, debuff), not visuals. Added `QuestCtx::npc_cast`, which routes through the same `npc_cast::start_cast` the boss AIs use, plus `npc_hp_ratio` for the HP-gated arm. Dryad Root is cast at **level 33**, not 1; the level sets the root's strength and Java's `SkillHolder` carries it. The test initially passed with the casts silently doing nothing, because the fixture uses `SkillData::empty()` and an unregistered skill id makes `npc_cast` return false — see the note in `tests/mod.rs`. |
 | 2026-08-05 | `TODO(cinematic)` ×1, `TODO(cosmetic)` ×1 (`scripts/q00235_mimirs_elixir.rs`, `q00125_the_name_of_evil_1.rs`) | Both wanted one `MagicSkillUse` from a named caster at a named target, which `cast_visual` could not express (it emits *two* self-casts). Added `QuestCtx::cast_visual_at`. The Q125 marker **undercounted its own gap threefold**: Java casts the pillar flourish at all three Kaimu (Ulu cond 5, Balu 6, Chuta 7) and only Ulu carried a marker — the other two were missing it with nothing to say so. |
