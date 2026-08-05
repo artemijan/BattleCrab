@@ -17,7 +17,7 @@
 
 use crate::data::zone_data::ZoneKind;
 use crate::model::Player;
-use crate::model::components::{Position, Vitals, WaterTask};
+use crate::model::components::{Vitals, WaterTask};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
@@ -72,13 +72,13 @@ pub(crate) fn is_drowning_task_active(world: &World, object_id: i32) -> bool {
 /// Java `Player.checkWaterState()`, called from `revalidateZone` under
 /// `Config.ALLOW_WATER`: start the clock inside a water zone, stop it outside.
 pub(crate) fn check_water_state(world: &mut World, object_id: i32) {
+    // The sole caller (`zones::revalidate_zone`) has just recomputed and
+    // written the membership mask for this exact position, so read it back
+    // instead of walking the zone grid a second time.
     let in_water_zone = world
         .objects
-        .get_component::<Position>(&object_id)
-        .copied()
-        .is_some_and(|pos| {
-            world.data.zone_data.mask_at(pos.x, pos.y, pos.z) & ZoneKind::Water.bit() != 0
-        });
+        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .is_some_and(|f| f.mask & ZoneKind::Water.bit() != 0);
     if in_water_zone {
         start_water_task(world, object_id);
     } else {

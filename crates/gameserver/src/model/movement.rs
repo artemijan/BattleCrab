@@ -108,6 +108,13 @@ fn advance(m: &MoveData, now: u64) -> (i32, i32, i32, bool) {
 pub struct TickOutcome {
     /// NPCs whose position changed (region re-index/visibility deltas).
     pub moved_npcs: Vec<i32>,
+    /// Players whose position changed — the only players whose region/zone
+    /// membership can have moved with it, so `visibility::movement_tick`
+    /// revalidates exactly these instead of sweeping everyone online. Every
+    /// *other* Position writer (teleports, respawn, slides) already calls
+    /// `update_region`/`revalidate_zone` itself; the debug region-index check
+    /// keeps that contract honest.
+    pub moved_players: Vec<i32>,
     /// Movers that finished a route segment and started the next one — the
     /// caller broadcasts `MoveToLocation` for the new segment (Java
     /// `moveToNextRoutePoint` → `broadcastMoveToLocation`).
@@ -148,6 +155,9 @@ pub fn tick(world: &mut crate::world::World) -> TickOutcome {
         let object_id = player.map(|p| p.object_id).or(npc.map(|n| n.object_id));
         if let Some(npc) = npc {
             out.moved_npcs.push(npc.object_id);
+        }
+        if let Some(player) = player {
+            out.moved_players.push(player.object_id);
         }
         if done {
             let speed = speeds.map(Speeds::move_speed).unwrap_or(0.0);

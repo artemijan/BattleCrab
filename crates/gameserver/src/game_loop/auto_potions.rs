@@ -60,6 +60,8 @@ pub(crate) fn tick(world: &mut World) {
     if !world.cfg.auto_potions.enabled || world.auto_potion_players.is_empty() {
         return;
     }
+    // One clone per sweep, not per player — the pool id lists ride along.
+    let cfg = world.cfg.auto_potions.clone();
     let players: Vec<i32> = world.auto_potion_players.iter().copied().collect();
     for player_oid in players {
         // Java drops (not skips) anyone dead, offline, or in the Olympiad
@@ -75,13 +77,12 @@ pub(crate) fn tick(world: &mut World) {
             world.auto_potion_players.remove(&player_oid);
             continue;
         }
-        run_for_player(world, player_oid);
+        run_for_player(world, player_oid, &cfg);
     }
 }
 
 /// The three pools, in Java's order: HP, then CP, then MP.
-fn run_for_player(world: &mut World, player_oid: i32) {
-    let cfg = world.cfg.auto_potions.clone();
+fn run_for_player(world: &mut World, player_oid: i32, cfg: &crate::config::AutoPotionsConfig) {
     let hp = world
         .objects
         .get_component::<Vitals>(&player_oid)

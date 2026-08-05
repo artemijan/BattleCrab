@@ -18,7 +18,7 @@
 use commons::util::rnd;
 
 use crate::data::zone_data::ZoneKind;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::{Position, Vitals, ZoneFlags};
 use crate::world::World;
 
 /// How often the sweep runs (10 × 100 ms). Individual zones still fire at their
@@ -30,30 +30,18 @@ pub(crate) const SWEEP_PERIOD: u64 = 10;
 /// zone's skills.
 pub(crate) fn effect_zone_tick(world: &mut World) {
     // Group living players by the effect zones they're standing in.
-    let mut occupants: Vec<(usize, Vec<i32>)> = Vec::new();
-    {
-        let mut pairs: Vec<(usize, i32)> = Vec::new();
-        let crate::world::World { objects, data, .. } = &mut *world;
-        objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
-            if v.dead {
-                return;
-            }
-            for idx in data.zone_data.zone_indices_at(pos.x, pos.y, pos.z) {
-                if data.zone_data.zones[idx].kind == ZoneKind::Effect {
-                    pairs.push((idx, p.object_id));
-                }
-            }
-        });
-        pairs.sort_unstable();
-        for (idx, oid) in pairs {
-            match occupants.last_mut() {
-                Some((i, list)) if *i == idx => list.push(oid),
-                _ => occupants.push((idx, vec![oid])),
-            }
-        }
-    }
+    let occupants = zone_occupants(world, ZoneKind::Effect);
 
     for (idx, players) in occupants {
+        // Cheapest test first: an occupied zone whose timer hasn't elapsed
+        // costs one hash probe — the params clone below only happens on the
+        // ticks a zone actually fires (or is seen for the first time).
+        let now = world.tick;
+        if let Some(&due) = world.effect_zone_next_tick.get(&idx)
+            && due > now
+        {
+            continue;
+        }
         let Some(params) = world.data.zone_data.zones[idx].effect.clone() else {
             continue;
         };
@@ -67,19 +55,12 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
         // Per-zone cadence. First sight schedules `initialDelay` out (Java's
         // `scheduleAtFixedRate(task, initialDelay, reuse)`) rather than firing
         // immediately.
-        let now = world.tick;
-        match world.effect_zone_next_tick.get(&idx) {
-            Some(&due) if due > now => continue,
-            Some(_) => {
-                world
-                    .effect_zone_next_tick
-                    .insert(idx, now + ms_to_ticks(params.reuse));
+        match world.effect_zone_next_tick.entry(idx) {
+            std::collections::hash_map::Entry::Occupied(mut e) => {
+                e.insert(now + ms_to_ticks(params.reuse));
             }
-            None => {
-                world.effect_zone_next_tick.insert(
-                    idx,
-                    now + ms_to_ticks(params.initial_delay.max(params.reuse)),
-                );
+            std::collections::hash_map::Entry::Vacant(e) => {
+                e.insert(now + ms_to_ticks(params.initial_delay.max(params.reuse)));
                 continue;
             }
         }
@@ -110,6 +91,36 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
     }
 }
 
+/// Living players grouped by the `kind` zones they stand in. The cached
+/// `ZoneFlags` mask (maintained by `zones::revalidate_zone`) rejects the
+/// vast majority of players with one bit test before the per-zone grid walk
+/// — only players actually inside a zone of this kind pay `zone_indices_at`.
+fn zone_occupants(world: &mut World, kind: ZoneKind) -> Vec<(usize, Vec<i32>)> {
+    let mut occupants: Vec<(usize, Vec<i32>)> = Vec::new();
+    let mut pairs: Vec<(usize, i32)> = Vec::new();
+    let crate::world::World { objects, data, .. } = &mut *world;
+    objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals, &ZoneFlags)>(
+        |(p, pos, v, flags)| {
+            if v.dead || flags.mask & kind.bit() == 0 {
+                return;
+            }
+            for idx in data.zone_data.zone_indices_at(pos.x, pos.y, pos.z) {
+                if data.zone_data.zones[idx].kind == kind {
+                    pairs.push((idx, p.object_id));
+                }
+            }
+        },
+    );
+    pairs.sort_unstable();
+    for (idx, oid) in pairs {
+        match occupants.last_mut() {
+            Some((i, list)) if *i == idx => list.push(oid),
+            _ => occupants.push((idx, vec![oid])),
+        }
+    }
+    occupants
+}
+
 /// `Creature.getAffectedSkillLevel(skillId) >= level`.
 fn already_affected_at_least(world: &World, oid: i32, skill_id: i32, level: i32) -> bool {
     world
@@ -134,30 +145,16 @@ fn ms_to_ticks(ms: i32) -> u64 {
 /// then skips anyone defending it — otherwise the castle's own garrison would
 /// cook itself on its own traps.
 pub(crate) fn damage_zone_tick(world: &mut World) {
-    let mut occupants: Vec<(usize, Vec<i32>)> = Vec::new();
-    {
-        let mut pairs: Vec<(usize, i32)> = Vec::new();
-        let crate::world::World { objects, data, .. } = &mut *world;
-        objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
-            if v.dead {
-                return;
-            }
-            for idx in data.zone_data.zone_indices_at(pos.x, pos.y, pos.z) {
-                if data.zone_data.zones[idx].kind == ZoneKind::Damage {
-                    pairs.push((idx, p.object_id));
-                }
-            }
-        });
-        pairs.sort_unstable();
-        for (idx, oid) in pairs {
-            match occupants.last_mut() {
-                Some((i, list)) if *i == idx => list.push(oid),
-                _ => occupants.push((idx, vec![oid])),
-            }
-        }
-    }
+    let occupants = zone_occupants(world, ZoneKind::Damage);
 
     for (idx, players) in occupants {
+        // Same order as the effect tick: hash probe before params clone.
+        let now = world.tick;
+        if let Some(&due) = world.effect_zone_next_tick.get(&idx)
+            && due > now
+        {
+            continue;
+        }
         let Some(params) = world.data.zone_data.zones[idx].damage.clone() else {
             continue;
         };
@@ -170,19 +167,12 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
             continue;
         }
 
-        let now = world.tick;
-        match world.effect_zone_next_tick.get(&idx) {
-            Some(&due) if due > now => continue,
-            Some(_) => {
-                world
-                    .effect_zone_next_tick
-                    .insert(idx, now + ms_to_ticks(params.reuse));
+        match world.effect_zone_next_tick.entry(idx) {
+            std::collections::hash_map::Entry::Occupied(mut e) => {
+                e.insert(now + ms_to_ticks(params.reuse));
             }
-            None => {
-                world.effect_zone_next_tick.insert(
-                    idx,
-                    now + ms_to_ticks(params.initial_delay.max(params.reuse)),
-                );
+            std::collections::hash_map::Entry::Vacant(e) => {
+                e.insert(now + ms_to_ticks(params.initial_delay.max(params.reuse)));
                 continue;
             }
         }

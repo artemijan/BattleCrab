@@ -122,8 +122,13 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
 
     // SwampZone.onEnter/onExit: refresh the cached move-speed multiplier and,
     // when it actually changed, recompute the speeds and rebroadcast UserInfo
-    // (Java's `broadcastUserInfo()` on both edges).
-    let swamp = super::effect_zones::swamp_multiplier_at(world, object_id);
+    // (Java's `broadcastUserInfo()` on both edges). The mask bit answers the
+    // common "not in any swamp" case without the per-zone walk.
+    let swamp = if new_mask & crate::data::zone_data::ZoneKind::Swamp.bit() != 0 {
+        super::effect_zones::swamp_multiplier_at(world, object_id)
+    } else {
+        1.0
+    };
     let swamp_changed = world
         .objects
         .get_component::<Speeds>(&object_id)
