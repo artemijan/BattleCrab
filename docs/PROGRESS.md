@@ -141,10 +141,17 @@ sweeps (108 µs/s), regen (39 µs), weight (30 µs).
   re-derive from the template instead, because fixtures hand-roll `Npc`s and
   tweak synthetic templates after spawn. `active_siege_guard_castle` answers
   `sieges.is_empty()` first. **7.50 ms → 3.49 ms** (the index swap alone was
-  −49%; the memoization batch another −9%). Still the dominant tick cost —
-  the next lever is a second, finer sleep tier (skip the idle tail when the
-  nearest indexed player is beyond `max(aggro_range, drift)`), not taken this
-  round.
+  −49%; the memoization batch another −9%). What remains is **genuine engaged
+  combat, not waste**: two follow-ups were tried and measured dead —
+  skipping already-hated players in the aggro scans changed nothing (+2%,
+  reverted — engaged mobs sit in `Attack` intention and never reach the scan;
+  the steady-state cost is `think_attack` itself, i.e. thousands of mobs
+  actually fighting 400 players), and the "second sleep tier" idea (freeze
+  idle mobs beyond aggro+drift range) was rejected on Java parity — active
+  regions always wander their mobs, and a frozen wanderer is visible from
+  across the block. 3.5 ms once per second in the all-out worst case is
+  ~3.5% of one tick's budget; this is the stopping point until
+  `tick_busy_micros` says otherwise.
 - **The movement tick revalidates movers, not everyone.**
   `TickOutcome::moved_players` now drives `update_region`/`revalidate_zone`;
   every other Position writer (teleport, respawn, snaps) already revalidates on
