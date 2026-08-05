@@ -138,7 +138,30 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
-    let load = total_load(inventory, &world.data);
+    // The memoized load makes the periodic sweep skip the per-stack walk for
+    // every player whose inventory didn't change since last time. The debug
+    // re-derivation is the rot guard the sweep's doc-comment worries about: a
+    // new count-mutating `Inventory` method that forgets to unsettle the
+    // cache fails the whole test suite, not production.
+    let load = match inventory.cached_load() {
+        Some(cached) => {
+            #[cfg(debug_assertions)]
+            assert_eq!(
+                cached,
+                total_load(inventory, &world.data),
+                "stale cached inventory load for {object_id} — a count-mutating \
+                 Inventory method missed `load_settled = false`"
+            );
+            cached
+        }
+        None => {
+            let computed = total_load(inventory, &world.data);
+            if let Some(inv) = world.objects.get_component_mut::<Inventory>(&object_id) {
+                inv.settle_load(computed);
+            }
+            computed
+        }
+    };
     let diet = world
         .objects
         .get_component::<crate::model::components::AdminFlags>(&object_id)

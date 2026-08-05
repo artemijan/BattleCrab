@@ -26,6 +26,24 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         })
         .collect();
     for (client_id, object_id) in targets {
+        // Dead-or-full players skip the whole tick up front: the move-type
+        // and clan-hall probes below (the latter a zone polygon query) are
+        // the expensive part, and an idle town of topped-up players would
+        // otherwise pay them every 3 s for nothing. `regen_player` re-checks
+        // the same condition — this is purely the cheap pre-filter.
+        let skip = world
+            .objects
+            .get_component::<Vitals>(&object_id)
+            .zip(world.objects.get_component::<PlayerVitals>(&object_id))
+            .is_none_or(|(v, pv)| {
+                v.dead
+                    || (v.cur_hp >= v.max_hp as f64
+                        && v.cur_mp >= v.max_mp as f64
+                        && pv.cur_cp >= pv.max_cp as f64)
+            });
+        if skip {
+            continue;
+        }
         // Java reads the move type live inside the finalizer
         // (`creature.getMoveType()`), so it is resolved per regen tick here
         // rather than cached anywhere — a player who starts running between
@@ -190,12 +208,16 @@ pub(crate) fn regen_player(
     {
         return None;
     }
+    // Borrow, don't clone — the template carries six level tables and a
+    // stat map, and this runs per wounded player per regen tick. The static
+    // default only exists to keep the `None` arm allocation-free too.
+    static DEFAULT_TEMPLATE: std::sync::LazyLock<crate::data::player_template::PlayerTemplate> =
+        std::sync::LazyLock::new(Default::default);
     let t = data
         .player_templates
         .get(p.class_id)
         .or_else(|| data.player_templates.get(p.base_class_id))
-        .cloned()
-        .unwrap_or_default();
+        .unwrap_or(&DEFAULT_TEMPLATE);
     let level_mod = (p.level as f64 + 89.0) / 100.0;
     let con_bonus = data.stat_bonus.bonus(BaseStat::Con, base.con);
     let men_bonus = data.stat_bonus.bonus(BaseStat::Men, base.men);

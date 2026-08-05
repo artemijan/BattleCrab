@@ -108,10 +108,10 @@ fn random_animation_think(world: &mut World, npc_oid: i32) {
     else {
         return;
     };
-    let Some(t) = npc.template(world) else { return };
-    let attackable = t.attackable;
+    // Both flags are memoized on the core at spawn — no template lookup here.
+    let attackable = npc.attackable(world);
     let enabled =
-        super::spawn_scripts::random_animation_enabled(world, npc_oid, t.random_animation);
+        super::spawn_scripts::random_animation_enabled(world, npc_oid, npc.random_animation(world));
     let (min_s, max_s) = if attackable {
         (
             world.cfg.npc.min_monster_animation,
@@ -278,19 +278,18 @@ fn think(world: &mut World, npc_oid: i32) {
         controllable_think(world, npc_oid, group_id);
         return;
     }
-    let Some(t) = npc.template(world) else { return };
     // Only the Attackable subtree has this AI; the slice narrows to monsters —
     // plus town `Guard`s (Java `Guard extends Attackable`, so they run this same
     // AI; they're what hunts PKs) and stationed siege guards (`Defender`) while
     // their castle's siege runs, which use the same scan/attack/chase to defend
-    // against attackers.
-    if !t.is_monster()
-        && !t.is_guard()
-        && super::siege::active_siege_guard_castle(world, npc_oid).is_none()
+    // against attackers. Both facts are memoized on the `Npc` core — no
+    // template lookup on the every-NPC-every-second path.
+    if !npc.attackable_ai(world)
+        && !(npc.is_defender(world)
+            && super::siege::active_siege_guard_castle(world, npc_oid).is_some())
     {
         return;
     }
-    let _ = npc;
     // A servitor runs `SummonAI`, not `AttackableAI`: it trails its owner
     // instead of scanning for prey, and only fights what its owner points it
     // at. Once ordered, the ordinary attack think below drives it — "attack the
@@ -667,32 +666,8 @@ fn think_active(world: &mut World, npc_oid: i32) {
                 .expect("caller checked");
             (pos.x, pos.y, pos.z)
         };
-        let mut in_range: Vec<i32> = Vec::new();
-        {
-            let crate::world::World { objects, geo, .. } = &mut *world;
-            objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(
-                |(p, pos, r, v)| {
-                    // 3D range (`World.forEachVisibleObjectInRange` uses
-                    // `calculateDistance3D`): a player a floor above is out
-                    // of a ground mob's aggro sphere even when horizontally
-                    // on top of it.
-                    if !v.dead
-                        && regions_adjacent(region, r.0)
-                        && (((pos.x - nx) as f64).powi(2)
-                            + ((pos.y - ny) as f64).powi(2)
-                            + ((pos.z - nz) as f64).powi(2))
-                        .sqrt()
-                            <= aggro_range as f64
-                        && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
-                    {
-                        in_range.push(p.object_id);
-                    }
-                },
-            );
-        }
-        // Stealth / fake death (`isAggressiveTowards`): filtered after the
-        // sweep because the sweep closure holds `objects` mutably and the flag
-        // lookup needs it shared — the same shape the siege branch below uses.
+        let mut in_range = players_in_range_los(world, region, nx, ny, nz, aggro_range as f64);
+        // Stealth / fake death (`isAggressiveTowards`).
         in_range.retain(|&pid| notices_target(world, npc_oid, pid));
         let mut newly_seen: Vec<i32> = Vec::new();
         if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
@@ -732,8 +707,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
     if world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_guard())
+        .is_some_and(|n| n.is_guard(world))
     {
         guard_aggro_scan(world, npc_oid, region);
     }
@@ -754,25 +728,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
                 .expect("caller checked");
             (pos.x, pos.y, pos.z)
         };
-        let mut in_range: Vec<i32> = Vec::new();
-        {
-            let crate::world::World { objects, geo, .. } = &mut *world;
-            objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(
-                |(p, pos, r, v)| {
-                    if !v.dead
-                        && regions_adjacent(region, r.0)
-                        && (((pos.x - nx) as f64).powi(2)
-                            + ((pos.y - ny) as f64).powi(2)
-                            + ((pos.z - nz) as f64).powi(2))
-                        .sqrt()
-                            <= aggro_range as f64
-                        && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
-                    {
-                        in_range.push(p.object_id);
-                    }
-                },
-            );
-        }
+        let mut in_range = players_in_range_los(world, region, nx, ny, nz, aggro_range as f64);
         // Keep only actual enemies (attackers / non-defenders).
         in_range.retain(|&pid| super::siege::attackable_siege_guard(world, npc_oid, pid));
         in_range.retain(|&pid| notices_target(world, npc_oid, pid));
@@ -863,8 +819,8 @@ fn think_active(world: &mut World, npc_oid: i32) {
     if !can_move || moving {
         return;
     }
-    let dist = (((spawn.0 - x) as f64).powi(2) + ((spawn.1 - y) as f64).powi(2)).sqrt();
-    if dist > max_drift {
+    let dist_sq = ((spawn.0 - x) as f64).powi(2) + ((spawn.1 - y) as f64).powi(2);
+    if dist_sq > max_drift * max_drift {
         // Drifted out of range with nothing to chase: walk back home.
         move_npc_to(world, npc_oid, spawn.0, spawn.1, spawn.2);
     } else if random_walk && world.roll(RANDOM_WALK_RATE) == 0 {
@@ -891,8 +847,8 @@ fn random_walk_move(world: &mut World, npc_oid: i32, cur: (i32, i32, i32), spawn
         .geo
         .get_valid_location(cur.0, cur.1, cur.2, x1, y1, z1);
     // `Util.calculateDistance(spawn, moveLoc) <= MAX_DRIFT_RANGE`.
-    let from_spawn = (((vx - spawn.0) as f64).powi(2) + ((vy - spawn.1) as f64).powi(2)).sqrt();
-    if from_spawn <= drift as f64 {
+    let from_spawn_sq = ((vx - spawn.0) as f64).powi(2) + ((vy - spawn.1) as f64).powi(2);
+    if from_spawn_sq <= (drift as f64) * (drift as f64) {
         move_npc_to(world, npc_oid, vx, vy, vz);
     }
 }
@@ -978,13 +934,9 @@ fn think_attack(world: &mut World, npc_oid: i32) {
             else {
                 return;
             };
-            let mut any = false;
-            world
-                .objects
-                .for_each_mut::<(&crate::model::Player, &RegionCell)>(|(_, r)| {
-                    any |= regions_adjacent(region, r.0);
-                });
-            any
+            // Index-derived (≤9 cells); like the sweep it replaced, unattended
+            // shops count — a mob doesn't teleport home over an offline store.
+            world.players_visible_from(region).next().is_some()
         };
         if is_monster && instance_of(world, npc_oid) == 0 && (in_combat || !players_visible) {
             let heading = world
@@ -1093,9 +1045,8 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     } else {
         attacker.atk_range as f64 + combined_collision
     };
-    let dist = (((victim.x - attacker.x) as f64).powi(2)
-        + ((victim.y - attacker.y) as f64).powi(2))
-    .sqrt();
+    let dist_sq =
+        ((victim.x - attacker.x) as f64).powi(2) + ((victim.y - attacker.y) as f64).powi(2);
 
     let can_move = world
         .objects
@@ -1114,7 +1065,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     // Java then falls straight through to `doAutoAttack` with the new pick,
     // without re-testing the range — so does this.
     let mut target_oid = target_oid;
-    if dist > reach {
+    if dist_sq > reach * reach {
         if can_move && check_target(world, npc_oid, target_oid) {
             chase(world, npc_oid, target_oid, reach);
             return;
@@ -1283,7 +1234,7 @@ fn archer_backs_off(world: &mut World, npc_oid: i32, target_oid: i32) -> bool {
     };
     let combined = me.collision_radius + target.collision_radius;
     let (dx, dy) = ((target.x - me.x) as f64, (target.y - me.y) as f64);
-    if (dx * dx + dy * dy).sqrt() > 60.0 + combined {
+    if dx * dx + dy * dy > (60.0 + combined) * (60.0 + combined) {
         return false;
     }
 
@@ -1498,21 +1449,24 @@ fn aggro_range_candidates(world: &mut World, npc_oid: i32) -> Vec<i32> {
     ) else {
         return Vec::new();
     };
+    // Index-derived like the aggro scan, but deliberately without the LOS and
+    // liveness filters the scan applies — this candidate list feeds
+    // `target_reconsider`, which does its own checks.
+    let range_sq = range * range;
     let mut out = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&crate::model::Player, &Position, &RegionCell)>(|(p, ppos, r)| {
-            if regions_adjacent(region, r.0) {
-                let (dx, dy, dz) = (
-                    (ppos.x - pos.x) as f64,
-                    (ppos.y - pos.y) as f64,
-                    (ppos.z - pos.z) as f64,
-                );
-                if (dx * dx + dy * dy + dz * dz).sqrt() <= range {
-                    out.push(p.object_id);
-                }
-            }
-        });
+    for pid in world.players_visible_from(region) {
+        let Some(ppos) = world.objects.get_component::<Position>(&pid) else {
+            continue;
+        };
+        let (dx, dy, dz) = (
+            (ppos.x - pos.x) as f64,
+            (ppos.y - pos.y) as f64,
+            (ppos.z - pos.z) as f64,
+        );
+        if dx * dx + dy * dy + dz * dz <= range_sq {
+            out.push(pid);
+        }
+    }
     out
 }
 
@@ -1653,8 +1607,8 @@ fn leash_home_point(world: &World, npc_oid: i32) -> Option<(i32, i32, i32)> {
         world.cfg.npc.aggro_distance_check_range
     } as f64;
     let pos = world.objects.get_component::<Position>(&npc_oid)?;
-    let dist = (((spawn.0 - pos.x) as f64).powi(2) + ((spawn.1 - pos.y) as f64).powi(2)).sqrt();
-    (dist > range).then_some(spawn)
+    let dist_sq = ((spawn.0 - pos.x) as f64).powi(2) + ((spawn.1 - pos.y) as f64).powi(2);
+    (dist_sq > range * range).then_some(spawn)
 }
 
 /// One leashed mob's trip home: full HP/MP (when configured), an emptied aggro
@@ -1919,6 +1873,42 @@ pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bo
     true
 }
 
+/// The shared body of the AI proximity scans: live players within `range`
+/// (3D — `World.forEachVisibleObjectInRange` uses `calculateDistance3D`, so a
+/// player a floor above is outside a ground mob's aggro sphere) of (nx,ny,nz)
+/// with geodata line of sight, drawn from the `player_regions` index (≤9
+/// cells) instead of a full player-table sweep. Like Java's knownlist it
+/// includes unattended shops — they are `Player` objects in the region index.
+fn players_in_range_los(
+    world: &World,
+    region: (i32, i32),
+    nx: i32,
+    ny: i32,
+    nz: i32,
+    range: f64,
+) -> Vec<i32> {
+    let range_sq = range * range;
+    let mut out = Vec::new();
+    for pid in world.players_visible_from(region) {
+        let (Some(pos), Some(v)) = (
+            world.objects.get_component::<Position>(&pid),
+            world.objects.get_component::<Vitals>(&pid),
+        ) else {
+            continue;
+        };
+        if !v.dead
+            && ((pos.x - nx) as f64).powi(2)
+                + ((pos.y - ny) as f64).powi(2)
+                + ((pos.z - nz) as f64).powi(2)
+                <= range_sq
+            && world.geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
+        {
+            out.push(pid);
+        }
+    }
+    out
+}
+
 /// Java `AttackableAI.isAggressiveTowards`, `me instanceof Guard` branch.
 /// Guards seed hate on nearby **PKs** (reputation < 0) so the ordinary attack
 /// loop takes over from there.
@@ -1935,28 +1925,15 @@ fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
         };
         (pos.x, pos.y, pos.z)
     };
-    let mut pks: Vec<i32> = Vec::new();
-    {
-        let crate::world::World { objects, geo, .. } = &mut *world;
-        objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(
-            |(p, pos, r, v)| {
-                // `getReputation() < 0` is the whole test: a clean player walks
-                // past a guard untouched no matter how close.
-                if !v.dead
-                    && p.reputation < 0
-                    && regions_adjacent(region, r.0)
-                    && (((pos.x - nx) as f64).powi(2)
-                        + ((pos.y - ny) as f64).powi(2)
-                        + ((pos.z - nz) as f64).powi(2))
-                    .sqrt()
-                        <= GUARD_AGGRO_RANGE
-                    && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
-                {
-                    pks.push(p.object_id);
-                }
-            },
-        );
-    }
+    let mut pks = players_in_range_los(world, region, nx, ny, nz, GUARD_AGGRO_RANGE);
+    // `getReputation() < 0` is the whole test: a clean player walks past a
+    // guard untouched no matter how close.
+    pks.retain(|&pid| {
+        world
+            .objects
+            .get_component::<crate::model::Player>(&pid)
+            .is_some_and(|p| p.reputation < 0)
+    });
     // Guards run the same `isAggressiveTowards` (Java `Guard extends
     // Attackable`), so stealth and fake death hide a PK from them too.
     pks.retain(|&pid| notices_target(world, npc_oid, pid));
@@ -2181,11 +2158,10 @@ fn faction_recruits(
         // Java's explicit ±600 z band against the *target* — a helper on
         // another tower level never answers a call about a target it could
         // only reach by crossing floors.
-        let dist = (((opos.x - pos.x) as f64).powi(2)
+        let dist_sq = ((opos.x - pos.x) as f64).powi(2)
             + ((opos.y - pos.y) as f64).powi(2)
-            + ((opos.z - pos.z) as f64).powi(2))
-        .sqrt();
-        if dist > range || (opos.z - target_z).abs() > 600 {
+            + ((opos.z - pos.z) as f64).powi(2);
+        if dist_sq > range * range || (opos.z - target_z).abs() > 600 {
             continue;
         }
         // Only the uncommitted answer.

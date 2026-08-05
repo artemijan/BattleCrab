@@ -81,18 +81,22 @@ pub(crate) fn walker_tick(world: &mut World) {
             continue;
         }
 
-        let Some(route) = world.data.routes.get(state.route_idx).cloned() else {
+        // Borrowed per use rather than cloned — Gordon's 67-node route was
+        // being copied wholesale every second, mid-delay ticks included.
+        if world.data.routes.get(state.route_idx).is_none() {
             world.objects.remove_component::<WalkState>(&oid);
             continue;
-        };
+        }
 
         if state.travelling {
             // The `Movement` vanished, so the NPC reached `node`: bank its
             // delay, then wait (Java schedules `ArrivedTask` with the node's
             // `delay` and blocks the walk check meanwhile).
-            let delay_ticks = route
-                .nodes
-                .get(state.node)
+            let delay_ticks = world
+                .data
+                .routes
+                .get(state.route_idx)
+                .and_then(|r| r.nodes.get(state.node))
                 .map_or(0, |n| n.delay.max(0) as u64 * 10);
             state.travelling = false;
             state.resume_at = world.tick + delay_ticks;
@@ -105,7 +109,12 @@ pub(crate) fn walker_tick(world: &mut World) {
         }
 
         // Delay served — pick the next node.
-        let Some(next) = advance(&route, state.node, &mut state.forward) else {
+        let next = world
+            .data
+            .routes
+            .get(state.route_idx)
+            .and_then(|route| advance(route, state.node, &mut state.forward));
+        let Some(next) = next else {
             // A non-repeating route ends at its last node.
             world.objects.remove_component::<WalkState>(&oid);
             continue;
@@ -114,8 +123,14 @@ pub(crate) fn walker_tick(world: &mut World) {
         state.travelling = true;
         world.objects.add_components(&oid, state);
 
-        if let Some(n) = route.nodes.get(next) {
-            super::npc_ai::move_npc_to(world, oid, n.x, n.y, n.z);
+        let dest = world
+            .data
+            .routes
+            .get(state.route_idx)
+            .and_then(|r| r.nodes.get(next))
+            .map(|n| (n.x, n.y, n.z));
+        if let Some((x, y, z)) = dest {
+            super::npc_ai::move_npc_to(world, oid, x, y, z);
         }
     }
 }

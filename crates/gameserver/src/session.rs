@@ -393,8 +393,11 @@ impl ClientSession {
 /// and [`remove`](Self::remove), so the two maps cannot drift.
 #[derive(Default)]
 pub struct ClientTable {
-    by_client: std::collections::HashMap<u32, ClientSession>,
-    by_player: std::collections::HashMap<i32, u32>,
+    // FxHash, not SipHash: both keys are internal ids (never
+    // attacker-chosen), and `by_player` is probed once per broadcast
+    // recipient — the hasher is the hot part of that lookup.
+    by_client: rustc_hash::FxHashMap<u32, ClientSession>,
+    by_player: rustc_hash::FxHashMap<i32, u32>,
 }
 
 impl ClientTable {

@@ -139,6 +139,18 @@ pub struct Npc {
     /// sometimes. Drives the title prefix, the red team aura, the incoming-
     /// damage divisor, the stat multipliers and the reward multipliers.
     pub champion: bool,
+    /// Template-static AI facts, memoized at spawn like the speeds (the
+    /// template never changes): the Attackable-subtree gate
+    /// (`is_monster || is_guard`), the guard flag itself (the PK-hunting
+    /// branch), the stationed-siege-guard type (`"Defender"`), and the two
+    /// idle-animation inputs. The 1 s think re-derived every one of these
+    /// through template hash lookups (plus a string compare) for every NPC
+    /// in an active region.
+    pub attackable_ai: bool,
+    pub is_guard: bool,
+    pub is_defender: bool,
+    pub random_animation: bool,
+    pub attackable: bool,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -337,6 +349,61 @@ impl Npc {
         world.data.npc_data.get(self.npc_id)
     }
 
+    // Template-static AI facts. In production these read the spawn-time
+    // memoized copy — `GameData` is immutable after boot, so it is
+    // definitionally equal to the template — sparing the every-NPC-every-
+    // second think its template hash lookups. Under `cfg(test)` they
+    // re-derive from the template on every read instead: fixtures hand-roll
+    // `Npc` instances and tweak synthetic templates after spawn, and the
+    // template must stay their source of truth.
+
+    /// Runs the `AttackableAI` subtree: monster or town guard.
+    pub fn attackable_ai(&self, world: &World) -> bool {
+        if cfg!(test) {
+            self.template(world)
+                .is_some_and(|t| t.is_monster() || t.is_guard())
+        } else {
+            self.attackable_ai
+        }
+    }
+
+    /// Town `Guard` — the PK-hunting branch.
+    pub fn is_guard(&self, world: &World) -> bool {
+        if cfg!(test) {
+            self.template(world).is_some_and(|t| t.is_guard())
+        } else {
+            self.is_guard
+        }
+    }
+
+    /// Stationed siege guard (`"Defender"` type).
+    pub fn is_defender(&self, world: &World) -> bool {
+        if cfg!(test) {
+            self.template(world)
+                .is_some_and(|t| t.type_name == "Defender")
+        } else {
+            self.is_defender
+        }
+    }
+
+    /// Template `randomAnimation` flag (idle social animations).
+    pub fn random_animation(&self, world: &World) -> bool {
+        if cfg!(test) {
+            self.template(world).is_some_and(|t| t.random_animation)
+        } else {
+            self.random_animation
+        }
+    }
+
+    /// Template `attackable` flag (picks the monster vs. NPC animation bounds).
+    pub fn attackable(&self, world: &World) -> bool {
+        if cfg!(test) {
+            self.template(world).is_some_and(|t| t.attackable)
+        } else {
+            self.attackable
+        }
+    }
+
     /// A synthetic instance for unit tests (spawn-fresh AI/combat state),
     /// with its extracted components: spawn via
     /// `world.objects.spawn(id, (npc, extra))`.
@@ -376,6 +443,14 @@ impl Npc {
             team: 0,
             display_effect: 0,
             champion: false,
+            // The `default_template` these synthetic ids resolve to is "Folk";
+            // `tests::add_test_npc` re-derives these from the template it
+            // registers (the spawn-site mirror).
+            attackable_ai: false,
+            is_guard: false,
+            is_defender: false,
+            random_animation: false,
+            attackable: false,
         };
         let extra = (
             Position {
@@ -749,6 +824,11 @@ fn spawn_npc_entity(
             t.weapon_enchant
         },
         champion,
+        attackable_ai: t.is_monster() || t.is_guard(),
+        is_guard: t.is_guard(),
+        is_defender: t.type_name == "Defender",
+        random_animation: t.random_animation,
+        attackable: t.attackable,
     };
     let object_id = npc.object_id;
     let region = region_of(x, y);

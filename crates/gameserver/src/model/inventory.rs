@@ -161,11 +161,30 @@ pub struct Inventory {
     /// so an inventory nobody drains (mail attachments, which never call the
     /// removal methods) cannot accumulate.
     pending_audit: Vec<(i32, i64)>,
+    /// Memoized `weight::total_load` so the periodic weight sweep only walks
+    /// inventories that changed. `false` (the default — a fresh or restored
+    /// inventory is unsettled) until the sweep computes and stores the load;
+    /// every count-mutating method clears it again. The funnel is closed:
+    /// `items` is private and only the five methods below change counts, and
+    /// the sweep re-derives and asserts the cache in debug builds.
+    load_settled: bool,
+    cached_load: i64,
 }
 
 impl Inventory {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// The memoized carried weight, `None` while a count change (or a fresh
+    /// restore) has it unsettled — the caller recomputes and [`Self::settle_load`]s.
+    pub fn cached_load(&self) -> Option<i64> {
+        self.load_settled.then_some(self.cached_load)
+    }
+
+    pub fn settle_load(&mut self, load: i64) {
+        self.cached_load = load;
+        self.load_settled = true;
     }
 
     /// Build from stored `items` rows (Java: `PlayerInventory.restore`). Rows
@@ -307,6 +326,7 @@ impl Inventory {
         item_id: i32,
         count: i64,
     ) -> i32 {
+        self.load_settled = false;
         let stackable = catalog
             .get(item_id)
             .map(|t| t.is_stackable)
@@ -373,6 +393,7 @@ impl Inventory {
         enchant: i32,
         mana: i32,
     ) {
+        self.load_settled = false;
         let stackable = catalog
             .get(item_id)
             .map(|t| t.is_stackable)
@@ -392,6 +413,7 @@ impl Inventory {
     /// object id, enchant, augment, and remaining time. Returns the resulting
     /// instance snapshot for the `InventoryUpdate`.
     pub fn restore_instance(&mut self, catalog: &ItemData, inst: ItemInstance) -> ItemInstance {
+        self.load_settled = false;
         let stackable = catalog
             .get(inst.item_id)
             .map(|t| t.is_stackable)
@@ -432,6 +454,7 @@ impl Inventory {
     /// [`Self::equipped_object_ids`] before calling and hand what this
     /// unequipped to `game_loop::items::finish_equipped_item_destroyed`.
     pub fn remove_item(&mut self, item_id: i32, count: i64) -> Vec<ItemChange> {
+        self.load_settled = false;
         let mut remaining = if count < 0 { i64::MAX } else { count };
         // The *actual* amount that left, which is not `count`: a request for
         // more than the player holds removes only what is there, and `count < 0`
@@ -483,6 +506,7 @@ impl Inventory {
     /// `ExtractableItems`), where the client names the object id, not the
     /// item id.
     pub fn remove_by_object_id(&mut self, object_id: i32, count: i64) -> Option<ItemChange> {
+        self.load_settled = false;
         let idx = self.items.iter().position(|i| i.object_id == object_id)?;
         let item_id = self.items[idx].item_id;
         if self.items[idx].count > count {

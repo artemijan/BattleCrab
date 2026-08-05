@@ -6,7 +6,6 @@
 //! leaving it exchanges `DeleteObject`, and every broadcast helper is scoped
 //! by the same rule (`helpers::broadcast_to_others`).
 
-use crate::model::Player;
 use crate::model::components::{Movement, Position, RegionCell, TargetRef};
 use crate::network::server_packets;
 use crate::session::ClientSession;
@@ -210,20 +209,24 @@ fn send_summon_info(
 }
 
 fn send_npc_info(world: &World, session: &ClientSession, npc_id: i32) {
-    let Some(v) = crate::model::npc::NpcView::of(&world.objects, npc_id) else {
-        return;
-    };
-    let Some(t) = v.npc.template(world) else {
-        return;
-    };
+    if let Some(pkt) = npc_info_bytes(world, npc_id) {
+        session.send(pkt);
+    }
+}
+
+/// One `NpcInfo` payload as refcountable `Bytes` — build once, send to any
+/// number of observers.
+fn npc_info_bytes(world: &World, npc_id: i32) -> Option<bytes::Bytes> {
+    let v = crate::model::npc::NpcView::of(&world.objects, npc_id)?;
+    let t = v.npc.template(world)?;
     let visuals = super::abnormal::visual_effects(world, npc_id);
-    session.send(server_packets::npc_info(
+    Some(bytes::Bytes::from(server_packets::npc_info(
         &v,
         t,
         &world.cfg.npc,
         &world.cfg.champion,
         &visuals,
-    ));
+    )))
 }
 
 /// The region cell a player is registered in (`None` once they're gone).
@@ -504,25 +507,33 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
         }
         // Unattended shops, same shape: they have no session so the `deltas`
         // scan above never sees them, and they never move — only the mover's
-        // own screen changes.
-        for &trader_id in world.offline_traders.keys() {
-            if trader_id == object_id {
+        // own screen changes. They *are* `Player` entities in the region
+        // index, so the two blocks are inspected instead of every shop on
+        // the server. A shop from the old block always has `was == true`
+        // (its cell is in that 3×3), so only the leave test remains — and
+        // symmetrically for the new block.
+        for trader_id in world.players_visible_from(old) {
+            if trader_id == object_id || !world.offline_traders.contains_key(&trader_id) {
                 continue;
             }
             let Some(r) = world.objects.get_component::<RegionCell>(&trader_id) else {
                 continue;
             };
-            let was = regions_adjacent(old, r.0);
-            let now = regions_adjacent(new, r.0);
-            if was == now {
+            if !regions_adjacent(new, r.0) {
+                cs.send(server_packets::delete_object(trader_id));
+            }
+        }
+        for trader_id in world.players_visible_from(new) {
+            if trader_id == object_id || !world.offline_traders.contains_key(&trader_id) {
                 continue;
             }
-            if now {
-                if super::helpers::instance_of(world, trader_id) == my_instance {
-                    send_char_info(world, cs, trader_id);
-                }
-            } else {
-                cs.send(server_packets::delete_object(trader_id));
+            let Some(r) = world.objects.get_component::<RegionCell>(&trader_id) else {
+                continue;
+            };
+            if !regions_adjacent(old, r.0)
+                && super::helpers::instance_of(world, trader_id) == my_instance
+            {
+                send_char_info(world, cs, trader_id);
             }
         }
     }
@@ -668,10 +679,11 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
     // moving NPC that crosses a cell boundary, so it was the client scan that
     // hurt most during mass combat.
     let mut seen: std::collections::HashSet<i32> = std::collections::HashSet::new();
+    // The loop body only reads, so the chained index iterators feed it
+    // directly — no collected id Vec.
     for player_id in world
         .in_game_players_visible_from(old)
         .chain(world.in_game_players_visible_from(new))
-        .collect::<Vec<_>>()
     {
         if !seen.insert(player_id) {
             continue;
@@ -690,10 +702,19 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
             deltas.push((cid, player_id, now));
         }
     }
+    // The NpcInfo payload is identical for every gaining observer — build it
+    // once and refcount it into each session (the `char_info_bytes` shape),
+    // instead of re-running NpcView + visual effects + a 256-byte build per
+    // observer on the mass-combat hot path.
+    let info: Option<bytes::Bytes> = deltas
+        .iter()
+        .any(|&(_, _, appeared)| appeared)
+        .then(|| npc_info_bytes(world, npc_object_id))
+        .flatten();
     for (cid, player_id, appeared) in deltas {
         if appeared {
-            if let Some(cs) = world.clients.get(&cid) {
-                send_npc_info(world, cs, npc_object_id);
+            if let (Some(cs), Some(pkt)) = (world.clients.get(&cid), info.as_ref()) {
+                cs.send(pkt.clone());
             }
         } else {
             if world
@@ -726,15 +747,14 @@ pub(crate) fn movement_tick(world: &mut World) {
     world.debug_check_player_regions();
 
     let outcome = crate::model::movement::tick(world);
-    let mut ids: Vec<i32> = Vec::new();
-    world
-        .objects
-        .for_each_mut::<&Player>(|p| ids.push(p.object_id));
-    for id in ids {
-        update_region(world, id);
+    // Only a player who moved this tick can have crossed a cell or zone
+    // boundary here — everyone else's membership was settled by whichever
+    // site last wrote their Position (see `TickOutcome::moved_players`).
+    for id in &outcome.moved_players {
+        update_region(world, *id);
         // Java couples `updatePosition` with `revalidateZone(false)` — the
-        // 100-unit `last_validate` filter inside makes this cheap per tick.
-        super::zones::revalidate_zone(world, id, false);
+        // 100-unit `last_validate` filter inside keeps this cheap per tick.
+        super::zones::revalidate_zone(world, *id, false);
     }
     for id in outcome.moved_npcs {
         update_npc_region(world, id);
@@ -748,18 +768,13 @@ pub(crate) fn movement_tick(world: &mut World) {
     // closed on its target swing immediately: the chase destination is already
     // shortened to attack range, so arrival means "in range".
     for id in &outcome.arrived {
-        if world
-            .objects
-            .get_component::<crate::model::npc::NpcAi>(id)
-            .is_none()
-        {
-            continue; // players run their own AI, not `AttackableAI`
-        }
-        if let Some(ai) = world
+        let Some(ai) = world
             .objects
             .get_component_mut::<crate::model::npc::NpcAi>(id)
-            && ai.intention == crate::model::npc::NpcIntention::MoveTo
-        {
+        else {
+            continue; // players run their own AI, not `AttackableAI`
+        };
+        if ai.intention == crate::model::npc::NpcIntention::MoveTo {
             ai.intention = crate::model::npc::NpcIntention::Active;
         }
         super::npc_ai::on_npc_arrived(world, *id);

@@ -168,6 +168,16 @@ pub(crate) fn instance_of(world: &World, object_id: i32) -> i32 {
 /// `World.forEachVisibleObject`: only players whose world region is in the
 /// broadcaster's 3×3 surrounding-region block **and same instance** receive it.
 pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[u8]) {
+    // The packet is copied into `Bytes` once and refcounted from there, instead
+    // of `to_vec()`-ing it per recipient — a crowded region turned one
+    // broadcast into dozens of allocations on the game thread.
+    broadcast_to_others_shared(world, from_object_id, bytes::Bytes::copy_from_slice(packet));
+}
+
+/// [`broadcast_to_others`] for a payload already in `Bytes` —
+/// `broadcast_including_self` shares one buffer between the self-send and the
+/// onlookers instead of copying the packet twice.
+fn broadcast_to_others_shared(world: &World, from_object_id: i32, shared: bytes::Bytes) {
     use crate::model::components::RegionCell;
     let Some(from) = world.objects.get_component::<RegionCell>(&from_object_id) else {
         return;
@@ -178,11 +188,6 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
     // than every connected client. Indexed players without a session (the
     // unattended shops) simply resolve to no client and are skipped, which is
     // what the old session scan did by never seeing them.
-    //
-    // The packet is copied into `Bytes` once and refcounted from there, instead
-    // of `to_vec()`-ing it per recipient — a crowded region turned one
-    // broadcast into dozens of allocations on the game thread.
-    let shared = bytes::Bytes::copy_from_slice(packet);
     for other_id in world.players_visible_from(from_region) {
         if other_id == from_object_id {
             continue;
@@ -301,12 +306,14 @@ pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
 /// player that can see them — Java `Creature.broadcastPacket(packet)` with
 /// `includeSelf == true`.
 pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[u8]) {
+    // One `Bytes` for the mover and every onlooker alike.
+    let shared = bytes::Bytes::copy_from_slice(packet);
     if let Some(client_id) = client_for_player(world, object_id)
         && let Some(cs) = world.clients.get(&client_id)
     {
-        cs.send(bytes::Bytes::copy_from_slice(packet));
+        cs.send(shared.clone());
     }
-    broadcast_to_others(world, object_id, packet);
+    broadcast_to_others_shared(world, object_id, shared);
 }
 
 /// Fire the held-back action — the tail of Java `SkillCaster.stopCasting`

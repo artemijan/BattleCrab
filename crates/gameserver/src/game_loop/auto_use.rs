@@ -78,7 +78,7 @@ fn run_for_player(world: &mut World, player_oid: i32) {
 /// The supply-item loop: use each configured item whose skill the player is not
 /// already under. An id the player no longer carries is dropped from the list.
 fn use_supply_items(world: &mut World, player_oid: i32) {
-    let ids = settings(world, player_oid).supply_items;
+    let ids = setting_list(world, player_oid, |s| &s.supply_items);
     for item_id in ids {
         let Some(item_object_id) = carried(world, player_oid, item_id) else {
             forget_item(world, player_oid, item_id);
@@ -114,7 +114,10 @@ fn use_potion(world: &mut World, player_oid: i32) {
     if max <= 0.0 || (cur / max) * 100.0 >= percent as f64 {
         return;
     }
-    let item_id = settings(world, player_oid).potion_item;
+    let item_id = world
+        .objects
+        .get_component::<AutoUseSettings>(&player_oid)
+        .map_or(0, |s| s.potion_item);
     if item_id <= 0 {
         return;
     }
@@ -131,7 +134,7 @@ fn use_potion(world: &mut World, player_oid: i32) {
 /// The buff loop — the one that also runs **in town**. A skill the player has
 /// forgotten is dropped; one already up is skipped.
 fn cast_buffs(world: &mut World, player_oid: i32) {
-    let ids = settings(world, player_oid).buffs;
+    let ids = setting_list(world, player_oid, |s| &s.buffs);
     for skill_id in ids {
         if known_level(world, player_oid, skill_id).is_none() {
             forget_skill(world, player_oid, skill_id, true);
@@ -151,7 +154,7 @@ fn cast_buffs(world: &mut World, player_oid: i32) {
 /// The attack-skill loop: needs a live hostile target, and casts one skill per
 /// pass. Java also refuses a target inside a peace zone.
 fn cast_attack_skills(world: &mut World, player_oid: i32) {
-    let ids = settings(world, player_oid).skills;
+    let ids = setting_list(world, player_oid, |s| &s.skills);
     if ids.is_empty() {
         return;
     }
@@ -370,6 +373,21 @@ pub(crate) fn settings(world: &World, player_oid: i32) -> AutoUseSettings {
         .objects
         .get_component::<AutoUseSettings>(&player_oid)
         .cloned()
+        .unwrap_or_default()
+}
+
+/// One configured list, cloned alone. The 300 ms loops need an owned id list
+/// (their bodies mutate `world`), but `settings()` clones all three `Vec`s to
+/// hand out one — 3–4 times per active player per pass.
+fn setting_list(
+    world: &World,
+    player_oid: i32,
+    pick: fn(&AutoUseSettings) -> &Vec<i32>,
+) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<AutoUseSettings>(&player_oid)
+        .map(|s| pick(s).clone())
         .unwrap_or_default()
 }
 

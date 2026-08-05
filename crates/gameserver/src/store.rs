@@ -16,8 +16,6 @@
 //!   store lives inside `World`, mutated by the game thread alone; object
 //!   ids (`i32`) remain the only key the game logic speaks — `Entity` never
 //!   leaves this module's API surface.
-use std::collections::HashMap;
-
 use bevy_ecs::bundle::Bundle;
 use bevy_ecs::component::{Component, Mutable};
 use bevy_ecs::entity::Entity;
@@ -28,8 +26,9 @@ use bevy_ecs::world::{Mut, World as EcsWorld};
 #[derive(Default)]
 pub struct EntityStore {
     ecs: EcsWorld,
-    /// Game object id → ECS entity.
-    index: HashMap<i32, Entity>,
+    /// Game object id → ECS entity. FxHash — the id is internal, and this map
+    /// fronts every by-id component access in the server.
+    index: rustc_hash::FxHashMap<i32, Entity>,
 }
 
 impl EntityStore {

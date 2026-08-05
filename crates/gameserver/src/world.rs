@@ -118,7 +118,7 @@ pub struct World {
     /// Region cell → NPC object ids in it — the materialized side of Java's
     /// per-region object lists, built at spawn and kept current by
     /// `visibility::update_npc_region`.
-    pub npc_regions: HashMap<(i32, i32), Vec<i32>>,
+    pub npc_regions: rustc_hash::FxHashMap<(i32, i32), Vec<i32>>,
     /// Region cell → **player** object ids in it — the player half of the same
     /// index, and the reason a broadcast no longer costs one adjacency compare
     /// per connected client.
@@ -138,7 +138,7 @@ pub struct World {
     /// [`debug_check_player_regions`](Self::debug_check_player_regions)
     /// re-derives it from the ECS and is asserted on every tick in debug and
     /// test builds.
-    player_regions: HashMap<(i32, i32), Vec<i32>>,
+    player_regions: rustc_hash::FxHashMap<(i32, i32), Vec<i32>>,
     /// `dbSave` spawn definitions the static spawn pass deliberately left
     /// unplaced, awaiting their `npc_respawns` rows — see
     /// [`crate::game_loop::boss_respawn`]. Drained once at boot.
@@ -511,8 +511,8 @@ impl World {
             hwids: HashMap::new(),
             offline_traders: HashMap::new(),
             objects: EntityStore::new(),
-            npc_regions: HashMap::new(),
-            player_regions: HashMap::new(),
+            npc_regions: rustc_hash::FxHashMap::default(),
+            player_regions: rustc_hash::FxHashMap::default(),
             effect_zone_next_tick: HashMap::new(),
             item_mana_consuming: std::collections::HashMap::new(),
             published_items: HashMap::new(),
@@ -813,12 +813,13 @@ impl World {
     #[cfg(debug_assertions)]
     pub fn debug_check_player_regions(&mut self) {
         use crate::model::components::RegionCell;
-        let mut expected: HashMap<(i32, i32), Vec<i32>> = HashMap::new();
+        let mut expected: rustc_hash::FxHashMap<(i32, i32), Vec<i32>> =
+            rustc_hash::FxHashMap::default();
         self.objects
             .for_each_mut::<(&crate::model::Player, &RegionCell)>(|(p, cell)| {
                 expected.entry(cell.0).or_default().push(p.object_id);
             });
-        let mut actual: HashMap<(i32, i32), Vec<i32>> = self.player_regions.clone();
+        let mut actual: rustc_hash::FxHashMap<(i32, i32), Vec<i32>> = self.player_regions.clone();
         for ids in expected.values_mut() {
             ids.sort_unstable();
         }
