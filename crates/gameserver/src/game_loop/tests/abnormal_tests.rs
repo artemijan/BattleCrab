@@ -275,6 +275,71 @@ fn stun_interrupts_an_in_flight_cast_and_movement() {
     );
 }
 
+/// Java's `startParalyze`/`startStunning` also call `abortAttack()`: the swing
+/// already in flight is dropped, not just the cast.
+///
+/// Two things have to hold, and they are asserted separately because they fail
+/// separately. **The wiring**: a stun bumps the attacker's swing counter.
+/// **The mechanic**: a hit carrying a stale counter does nothing when it
+/// fires. The port cannot cancel a scheduled task, so the counter *is* the
+/// cancel.
+///
+/// The observable is the attacker's own damage line rather than the victim's
+/// HP: these two fixtures are both players, and player-on-player damage is
+/// gated elsewhere, which would make an HP assertion pass for the wrong
+/// reason.
+#[test]
+fn a_stun_mid_swing_drops_the_hit_that_was_already_in_flight() {
+    use crate::game_loop::combat::{abort_attack, do_auto_attack, handle_attack_hit};
+    use crate::model::components::AttackState;
+    use crate::network::server_packets::sm_ids;
+
+    let (mut world, _db, _l) = cc_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut vout = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+
+    // The wiring: a swing arms the attacker's counter, and the stun bumps it.
+    do_auto_attack(&mut world, VICTIM, CASTER);
+    let queued = world
+        .objects
+        .get_component::<AttackState>(&VICTIM)
+        .expect("a swing arms the attack state")
+        .swing_seq;
+    land(&mut world, STUN_ID, VICTIM);
+    let after_stun = world
+        .objects
+        .get_component::<AttackState>(&VICTIM)
+        .unwrap()
+        .swing_seq;
+    assert_ne!(
+        after_stun, queued,
+        "the stun aborts the swing — Java's `abortAttack()` inside `startStunning`"
+    );
+
+    // The mechanic, driven directly so no attack roll can make it flaky.
+    let landed = |w: &mut World, rx: &mut _, seq: u64| {
+        drain(rx);
+        handle_attack_hit(w, VICTIM, CASTER, 25, false, false, seq);
+        has_system_message(&drain(rx), sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2)
+    };
+    assert!(
+        !landed(&mut world, &mut vout, queued),
+        "the pre-stun swing is discarded when it fires"
+    );
+    assert!(
+        landed(&mut world, &mut vout, after_stun),
+        "…and the guard is the *stale counter*, not a blanket refusal to hit"
+    );
+
+    // A direct abort with no stun involved does the same thing, which is what
+    // the fake-death and physical-mute call sites rely on.
+    abort_attack(&mut world, VICTIM);
+    assert!(
+        !landed(&mut world, &mut vout, after_stun),
+        "any `abort_attack` invalidates the hits queued before it"
+    );
+}
+
 /// The object ids named by every `MagicSkillCanceled` in `packets`.
 fn canceled_ids(packets: &[Vec<u8>]) -> Vec<i32> {
     packets

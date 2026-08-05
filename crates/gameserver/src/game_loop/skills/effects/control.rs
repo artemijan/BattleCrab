@@ -382,6 +382,13 @@ pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &S
     // `MagicSkillCanceled` applies here: a silenced caster's animation has to
     // stop with the cast.
     crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
+    // `startPhysicalAttackMuted()` is `abortAttack()` and nothing else, so the
+    // swing in flight dies with a **physical** mute only. A plain silence
+    // stops the cast and leaves the swing alone — Java's `Mute.onStart` never
+    // calls `abortAttack`.
+    if skill.effect_flags() & crate::model::skill::effect_flag::PHYSICAL_MUTED != 0 {
+        crate::game_loop::combat::abort_attack(world, target_oid);
+    }
 }
 
 /// Java `AttackableStatus.reduceHp` + `Attackable.setOverhitValues`: bank the
@@ -438,16 +445,18 @@ pub(crate) fn record_overhit(
 /// A root deliberately does not do this — it stops movement (the movement
 /// primitives refuse it from the next tick) but leaves a cast running.
 ///
-/// TODO(G34): Java's `startParalyze` also calls `abortAttack()`, which drops the
-/// swing already in flight (`CreatureAttackTaskManager.abortAttack`). This port
-/// has no cancel handle on a scheduled `AttackHit`, so a stun landing between a
-/// swing's start and its hit tick still lets that hit land.
+/// Java's `startParalyze`/`startStunning` also call `abortAttack()`, so the
+/// swing already in flight never lands either — a stun arriving between a
+/// swing's start and its hit tick eats that hit.
 pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
     // Order matters: abort the cast *first*. `stop_casting` resumes the move
     // the cast interrupted (`start_casting` stashes it), so clearing movement
     // before the cast would see it immediately restored — the victim would keep
     // walking while stunned.
     crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
+    // `abortAttack()` — the swing already in flight is dropped too, so a stun
+    // arriving between a swing's start and its hit tick eats that hit.
+    crate::game_loop::combat::abort_attack(world, target_oid);
     // Then freeze them where they stand and tell everyone who can see them.
     if world
         .objects

@@ -62,6 +62,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
         crate::model::components::AttackState {
             attack_end_tick: 0,
             stance_until_tick: world.tick + 150,
+            swing_seq: 0,
         },
     );
     handle_request_bypass_to_server(

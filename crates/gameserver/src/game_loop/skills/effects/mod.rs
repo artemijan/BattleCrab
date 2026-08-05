@@ -1100,6 +1100,9 @@ pub(crate) fn apply_skill_effects(
                 if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
                     crate::game_loop::skills::cast::stop_casting(world, target_oid);
                 }
+                // `startFakeDeath` calls `abortAttack()` too: you cannot play
+                // dead and still land the swing you were mid-way through.
+                crate::game_loop::combat::abort_attack(world, target_oid);
                 world.objects.remove_component::<crate::model::components::Movement>(&target_oid);
                 broadcast_change_wait_type(world, target_oid, server_packets::wait_type::START_FAKEDEATH);
             }

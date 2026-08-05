@@ -779,6 +779,7 @@ fn a_mob_mid_swing_still_casts() {
         crate::model::components::AttackState {
             attack_end_tick: world.tick + 100,
             stance_until_tick: world.tick + 200,
+            swing_seq: 0,
         },
     );
 
@@ -807,6 +808,7 @@ fn a_mob_mid_swing_does_not_start_a_second_swing() {
         crate::model::components::AttackState {
             attack_end_tick: end,
             stance_until_tick: world.tick + 200,
+            swing_seq: 0,
         },
     );
 

@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **125** such
+of narrow behaviours deferred and marked at the site. There are **124** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -341,3 +341,4 @@ grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
 | 2026-08-06 | `TODO(G34)` ×1 (`skills/conditions.rs`) | **Closed.** `ConditionPlayerCanResurrect`'s summon leg ported: dead → resurrection-blocked → owner's open prompt. It waited on a servitor subsystem that had already landed (`ServitorOf`), and a pet carries the same component, so the one branch covers both. |
 | 2026-08-06 | `TODO(G34)` ×1 → `SKIP(off-chronicle)` (`skills/instant.rs`) | Fort half of the door-unlock gate. Fort sieges are an explicit scope-out for this build, so "once forts exist" names a milestone that cannot arrive; the skill path is vacuous regardless, since none of the 34 `BY_SKILL` doors belongs to a fort. |
 | 2026-08-06 | `TODO(G34)` ×1 (`skills/effects/control.rs`) | **Stale.** "Extend the recall gate as those states land" — they had all landed: `ROOTED`, `olympiad::in_match`, `is_registered`, `OlympiadObserver`, `is_flying`, `has_combat_flag`, `is_on_event`, `jailed`. Gate extracted as `check_summon_target_status` and completed in Java's branch order, which is load-bearing (a rooted olympiad fighter reads the *combat* line). Only `isInTraingCamp` and the instance summon permission stay out, both noted at their branch. |
+| 2026-08-06 | `TODO(G34)` ×1 (`skills/effects/control.rs`) | **Closed.** `abortAttack()` — the swing in flight — now dies with the cast. The blocker was real (a heap scheduler has no cancel handle), so it was solved rather than waited on: `AttackState::swing_seq` is bumped by an abort and every `AttackHit` carries the value it was queued with, so a stale hit is dropped when it fires. Wired to stun/sleep/paralyze, fake death, and **physical** mute only — Java's `Mute.onStart` never aborts the swing, only `startPhysicalAttackMuted` does. |

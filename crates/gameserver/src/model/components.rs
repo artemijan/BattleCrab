@@ -453,6 +453,19 @@ pub struct AttackState {
     /// In combat stance until this tick — 15 s past the last swing/hit;
     /// 0 = not in stance.
     pub stance_until_tick: u64,
+    /// Which swing the pending `AttackHit` tasks belong to.
+    ///
+    /// Java's `CreatureAttackTaskManager.abortAttack` holds a handle on the
+    /// scheduled hit and cancels it. The port's scheduler is a plain heap with
+    /// no cancel, so an abort bumps this counter instead: every `AttackHit`
+    /// carries the value current when it was scheduled, and a hit whose value
+    /// no longer matches is a swing that was aborted after it was queued and
+    /// is dropped when it fires.
+    ///
+    /// This is equivalent to cancelling, not an approximation of it: the two
+    /// disagree only if the counter could be bumped *back*, and it only ever
+    /// increments.
+    pub swing_seq: u64,
 }
 
 /// PvP flag state (Java `Player._pvpFlag` + `_pvpFlagLasts`), runtime-only —
