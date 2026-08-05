@@ -1722,17 +1722,40 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     } else {
         Vec::new()
     };
-    // `Npc.onSkillSee` witnesses for after the effects land. Java broadcasts to
-    // every NPC in range; here it fires for the skill's NPC targets, which is
-    // the case quest 350's Soul Crystal (a single-target cast on the mob) needs.
-    // TODO(skill-see-range): widen to an in-range broadcast if a script ever
-    // needs a non-targeted witness. (Tagged `soul-crystal` until 2026-08-05,
-    // which named the one *caller* that happens to be satisfied rather than the
-    // gap itself — the narrowing is in `onSkillSee` breadth, not in Q350.)
-    let skill_see_witnesses = affected.clone();
+    // `Npc.onSkillSee` witnesses. Java scans **every NPC within 1000 units of
+    // the caster** (`forEachVisibleObjectInRange(player, Npc.class, 1000, …)`),
+    // not just the skill's targets — a mob can react to a spell aimed at
+    // something else. This narrowed to the target set until 2026-08-05, which
+    // happened to satisfy quest 350 (a single-target cast on the mob it
+    // watches) and so looked correct.
+    const SKILL_SEE_RANGE: f64 = 1000.0;
+    let caster_pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&player_object_id)
+        .copied();
+    let caster_region = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&player_object_id)
+        .map(|r| r.0);
+    let skill_see_witnesses: Vec<i32> = match (caster_pos, caster_region) {
+        (Some(pos), Some(region)) => world
+            .npcs_visible_from(region)
+            .into_iter()
+            .filter(|oid| {
+                world
+                    .objects
+                    .get_component::<crate::model::components::Position>(oid)
+                    .is_some_and(|p| pos.distance_2d(p) <= SKILL_SEE_RANGE)
+            })
+            .collect(),
+        _ => Vec::new(),
+    };
     // Kept for `OnCreatureSkillFinishCast` below, which resolves its trigger
     // against the cast's own target.
     let first_affected = affected.first().copied();
+    // The skill's target list, kept for the support-aggro test below (the
+    // effect loop consumes `affected`).
+    let affected_for_hate = affected.clone();
 
     for target_oid in affected {
         // Each target is re-checked: an AoE's effects on an early target can
@@ -1768,7 +1791,8 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         apply_cast_consequences(world, player_object_id, target_oid, &skill);
     }
 
-    // `Npc.onSkillSee` for each NPC that was a target of the cast.
+    // `Npc.onSkillSee` for each NPC that saw the cast, plus the support-aggro
+    // rule that shares Java's scan.
     for witness in skill_see_witnesses {
         let npc_id = world
             .objects
@@ -1782,6 +1806,45 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
                 npc_id,
                 cast.skill_id,
             );
+        }
+        // Java's "On Skill See logic", in the same loop: a *beneficial* skill
+        // (`effectPoint > 0`) cast near an attackable that is already fighting
+        // draws hate onto the caster — the reason healing the tank pulls the
+        // mob onto the healer. It fires when the mob's current target is one of
+        // the skill's targets, or when the mob is itself a target.
+        //
+        // Hate is `effectPoint * 150 / (level + 7)`, and the *caster* credited
+        // is the summon when a summon cast it, otherwise the player.
+        // `npcMob.isAttackable() && attackable.getAI().getIntention() ==
+        // AI_INTENTION_ATTACK`. The port has no `TargetRef` on NPCs — the aggro
+        // list *is* the target, and `npc_ai` already documents `most_hated` as
+        // standing in for `getTarget()`.
+        let fighting = world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(&witness)
+            .is_some_and(|ai| ai.intention == crate::model::npc::NpcIntention::Attack)
+            && world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&witness)
+                .and_then(|n| n.template(world))
+                .is_some_and(|tpl| tpl.is_auto_attackable());
+        if skill.effect_point > 0 && fighting {
+            let npc_target = world
+                .objects
+                .get_component::<crate::model::npc::AggroList>(&witness)
+                .and_then(|a| a.most_hated());
+            let relevant = affected_for_hate
+                .iter()
+                .any(|&t| Some(t) == npc_target || t == witness);
+            if relevant {
+                let level = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&witness)
+                    .and_then(|n| n.template(world))
+                    .map_or(1, |tpl| tpl.level);
+                let hate = f64::from(skill.effect_point) * 150.0 / f64::from(level + 7);
+                crate::game_loop::minions::add_hate(world, witness, player_object_id, hate);
+            }
         }
     }
 

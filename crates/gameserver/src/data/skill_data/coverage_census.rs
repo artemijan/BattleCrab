@@ -456,7 +456,6 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("G9+", 1),
         ("G?", 1),
         ("login-playauth", 2),
-        ("skill-see-range", 1),
     ];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected

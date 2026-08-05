@@ -6028,3 +6028,62 @@ fn pvit_npc_hp(world: &World, oid: i32) -> f64 {
         .map(|v| v.cur_hp)
         .unwrap_or(0.0)
 }
+
+/// **A beneficial skill cast near a fighting mob pulls it onto the caster** —
+/// Java's "On Skill See logic", the rule that makes healing the tank aggro the
+/// healer.
+///
+/// Two halves are being checked. The witness scan is Java's
+/// `forEachVisibleObjectInRange(player, Npc.class, 1000, …)`, so the mob reacts
+/// to a cast it was never a target of; and the hate is
+/// `effectPoint * 150 / (level + 7)` credited to the caster. Until 2026-08-05
+/// the port only notified the skill's own targets, so neither happened.
+#[test]
+fn healing_beside_a_fighting_mob_draws_its_hate_onto_the_healer() {
+    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+
+    let (mut world, ..) = cast_test_world();
+    // The healer, the tank it heals, and a mob already fighting the tank.
+    let mut healer_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let _tank_rx = ingame_caster(&mut world, 2, 3002, 60, 0);
+    let mob = NPC_OID;
+    add_test_npc(&mut world, mob, 20001, "Monster", 10, 80, 0, 0);
+    world
+        .objects
+        .get_component_mut::<NpcAi>(&mob)
+        .unwrap()
+        .intention = NpcIntention::Attack;
+    // The mob's target is the tank — never the healer.
+    crate::game_loop::minions::add_hate(&mut world, mob, 3002, 500.0);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<AggroList>(&mob)
+            .and_then(|a| a.most_hated()),
+        Some(3002),
+        "the mob is on the tank to begin with"
+    );
+    let hate_on_healer = |w: &World| -> f64 {
+        w.objects
+            .get_component::<AggroList>(&mob)
+            .and_then(|a| a.0.get(&3001).map(|i| i.hate))
+            .unwrap_or(0.0)
+    };
+    assert_eq!(
+        hate_on_healer(&world),
+        0.0,
+        "the healer has drawn no hate yet"
+    );
+
+    // Heal the tank. The mob is not a target of the cast at all.
+    set_target(&mut world, 1, 3001, Some(3002));
+    drain(&mut healer_rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
+    advance_ticks(&mut world, 45);
+
+    let after = hate_on_healer(&world);
+    assert!(
+        after > 0.0,
+        "the mob noticed the heal and now hates the healer ({after})"
+    );
+}

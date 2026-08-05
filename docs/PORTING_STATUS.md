@@ -119,7 +119,7 @@ The per-milestone column above counts only tags of the exact form `TODO(G<N>)`.
 Two more milestone markers are not milestone-*scoped* — `TODO(G-pvp)` (3) and
 `TODO(G-later)` (1) — and a further nine use a `+`, `?` or `/` suffix (`G9+`,
 `G13+`, `G19+`, `G21+` ×2, `G29+` ×2, `G?`, `G24/G26`) that this column does
-not break out. Alongside them sit **4 topic-tagged** markers (`pets`,
+not break out. Alongside them sit **3 topic-tagged** markers (`pets`,
 `manor`, `newbie-guide`, `login-playauth`, …) which belong to no milestone at
 all. A separate `SKIP(<tag>)` family marks work examined and deliberately not
 done — dead Java no route on this dist can reach — and is deliberately *not*

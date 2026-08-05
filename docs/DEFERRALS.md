@@ -112,10 +112,9 @@ also registering its NPCs would strand the player.
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
-| `TODO(G35)` | 1 | `commons/src/audit.rs` |
+| `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
 | `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
-| `TODO(skill-see-range)` | 1 | `game_loop/skills/cast.rs` |
 
 ## Closed
 
@@ -124,6 +123,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(skill-see-range)` ×1 (`game_loop/skills/cast.rs`) | Java notifies **every NPC within 1000 units of the caster**, not just the skill's targets, and the *same* scan carries the "On Skill See logic" that makes a beneficial cast near a fighting mob pull it onto the caster (`effectPoint * 150 / (level + 7)` hate). The port had narrowed to the target set, which silently dropped both. Widened, and the support-aggro rule ported alongside it — porting the scan without it would have been another half-port. Sabotage-verified. |
 | 2026-08-05 | `TODO(manor)` ×2 (`game_loop/manor.rs`) | Both real, both closed. **Persistence:** Java saves per action when `AltManorSaveAllActions` is on and otherwise runs a `storeMe` autosave every `AltManorSavePeriodRate` hours *plus* one on shutdown — the port had `store_manor` but called it only at rollover, and the shutdown sweep (which saves players, bosses, olympiad, cursed weapons) did not include the manor. All three paths ported, with the new `AltManorSavePeriodRate` key. **Weight/capacity:** added `weight::validate_weight` / `validate_capacity` / `slots_needed` mirroring `PlayerInventory`, and wired them into `RequestBuySeed` in **Java's order** — weight, then slots, then adena, so an overloaded pauper is told about the weight. |
 | 2026-08-05 | `TODO(frintezza-4b)` ×1 (`game_loop/frintezza.rs`) | The marker was right, and **undercounted**: Java calls `playRandomSong` at *four* sites — the intro, both Scarlet morphs, and the 90 s timer — and the port only had the timer. Only the first morph carried a marker. Split `handle_song` (timer: play + re-arm) from `play_song` (Java's `playRandomSong`), because calling the timer entry point from a morph would have given each morph its own duplicate 90 s timer. Also cleared a stale doc comment claiming the 5008 debuff was unported, contradicted by the code 15 lines below it. |
 | 2026-08-05 | `TODO(saga)` ×1 (`scripts/saga.rs`) | **The marker named something that does not exist.** Neither `givePormanders` nor `SkillTransfer` appears anywhere in this dist's Java or datapack. Reading what the saga quests *actually* do at the transfer exposed a real bug instead: the port cast `4339` (quest 235's elixir flash) via `cast_visual`, which emits two *self*-casts, where all 40 sites across the 31 saga quests broadcast `MagicSkillUse(npc, player, 5103, 1, 1000, 0)`. Fixed with `cast_visual_at`. Note the transfer legitimately produces **two** 5103 casts — `Player.setClassId` broadcasts its own self-cast first — which the test now pins by caster/target rather than by skill id. |
