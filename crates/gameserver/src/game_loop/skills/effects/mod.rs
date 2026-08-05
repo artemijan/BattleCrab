@@ -34,7 +34,7 @@ use crate::world::World;
 use super::instant;
 
 mod continuous;
-mod control;
+pub(crate) mod control;
 mod damage;
 mod gathering;
 mod support;
