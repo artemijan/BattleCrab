@@ -421,14 +421,36 @@ fn u16str(s: &str) -> Vec<u8> {
     v
 }
 
-// Pre-existing failure surfaced by nextest (the old in-process `cargo test`
-// hung before ever reaching this test): the login server answers
-// RequestServerLogin with PlayFail (0x06) instead of PlayOk (0x07) — see the
-// `assert_eq!(play[0], 0x07, "PlayOk")` at the top of this file. This is a real
-// login/game play-auth bug, not a nextest issue; ignored so the suite stays
-// green and the failure is explicit. Remove #[ignore] once the play-auth flow
-// is fixed. TODO(login-playauth): PlayFail vs PlayOk on RequestServerLogin.
-#[ignore = "pre-existing PlayFail-vs-PlayOk regression in login play-auth; see TODO(login-playauth)"]
+// Pre-existing failure, still open. **The cause recorded here until 2026-08-05
+// was wrong**, which is worth stating plainly because it pointed the next
+// reader at the wrong server: it claimed RequestServerLogin answers PlayFail
+// (0x06) instead of PlayOk (0x07). It does not. Instrumenting the handshake
+// shows PlayOk arriving on *both* logins and the login half completing cleanly
+// end to end — Init, GGAuth, LoginOk, ServerList, PlayOk.
+//
+// What actually happens, in order, on the **relogin** half of this test (the
+// first login, character creation and all, is fine):
+//
+//   1. AuthLogin -> LOGIN_SUCCESS (0x0A). Fine.
+//   2. The character list loads — every per-character query completes — and
+//      CharSelectionInfo is built and sent. Fine.
+//   3. `handle_request_restart` then runs for this client, unprompted. The
+//      test never sends RequestRestart (0x57), and that handler has exactly
+//      one non-test caller: the `cop::REQUEST_RESTART` dispatch arm. So a
+//      packet arrived whose first decrypted byte was 0x57.
+//   4. The restart reloads the list, so a *second* CharSelectionInfo goes out
+//      where the client expects CharSelected, and the exchange never
+//      resynchronises. The test then blocks until nextest's 120 s timeout — it
+//      does not fail an assertion, which is why "PlayFail" was a guess nothing
+//      contradicted.
+//
+// So the bug lives in the second session's lifecycle — between the first
+// client's disconnect cleanup (keyed by *account*, which the relogin reuses)
+// and the client/server cipher state — not in play-auth. Note the test also
+// self-skips unless the untracked `interlude_classic.db` is present, so a
+// worktree without it never even reaches this. TODO(login-playauth): spurious
+// restart + duplicate CharSelectionInfo on relogin; walkthrough above.
+#[ignore = "open: spurious restart + duplicate CharSelectionInfo on relogin (NOT play-auth); see TODO(login-playauth)"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn full_login_to_character_create() {
     // The runtime DB is an untracked working-tree file; skip on a fresh checkout
