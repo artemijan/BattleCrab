@@ -204,6 +204,8 @@ pub mod sm_ids {
     // Item use (G14): `ExtractableItems` (pack/box unpacking).
     pub const THERE_WAS_NOTHING_FOUND_INSIDE: i16 = 1669;
     pub const YOUR_INVENTORY_IS_FULL: i16 = 129;
+    /// `You have exceeded the weight limit.` — the bulk-purchase weight refusal.
+    pub const YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT: i16 = 422;
     pub const YOU_HAVE_AVOIDED_C1_S_ATTACK: i16 = 42;
     pub const YOU_HAVE_MISSED: i16 = 43;
     pub const CRITICAL_HIT: i16 = 44;

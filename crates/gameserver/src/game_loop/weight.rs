@@ -357,3 +357,56 @@ fn passive_weight_buff(level: i32, effects: Vec<StatModifierEffect>) -> ActiveBu
         effects,
     }
 }
+
+/// Java `PlayerInventory.validateWeight(long)` — would the player still be
+/// within `getMaxLoad()` after taking on `added` more weight?
+///
+/// The GM bypass is Java's and is deliberately all three conditions
+/// (`isGM() && getDietMode() && getAccessLevel().allowTransaction()`), not just
+/// `isGM()`: a GM with diet mode off is weighed like anyone else.
+pub(crate) fn validate_weight(world: &World, object_id: i32, added: i64) -> bool {
+    let Some(player) = world.objects.get_component::<Player>(&object_id) else {
+        return false;
+    };
+    let diet = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .is_some_and(|f| f.diet);
+    if player.is_gm(&world.data) && diet {
+        return true;
+    }
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+        return false;
+    };
+    total_load(inventory, &world.data) + added <= i64::from(max_load(world, object_id))
+}
+
+/// Java `PlayerInventory.validateCapacity(long slots)` — is there room for
+/// `slots` more *non-quest* slots? Every caller in this datapack passes
+/// `questItem = false`, so only that branch is ported.
+pub(crate) fn validate_capacity(world: &World, object_id: i32, slots: i64) -> bool {
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+        return false;
+    };
+    let used = inventory.non_quest_size(&world.data.item_data) as i64;
+    used + slots <= i64::from(inventory_limit(world, object_id))
+}
+
+/// The slot cost of adding `count` of `item_id`, as Java counts it when
+/// validating a bulk purchase: a non-stackable item needs one slot per unit, a
+/// stackable one needs a slot only if the player holds none yet.
+pub(crate) fn slots_needed(world: &World, object_id: i32, item_id: i32, count: i64) -> i64 {
+    let stackable = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_stackable);
+    if !stackable {
+        return count;
+    }
+    let held = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .map_or(0, |i| i.count_of(item_id));
+    i64::from(held == 0)
+}

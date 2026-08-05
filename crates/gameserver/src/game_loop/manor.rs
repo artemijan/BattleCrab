@@ -422,6 +422,9 @@ pub(crate) fn schedule_manor_at_boot(world: &mut World) {
     let mode = boot_mode(now, mode_times(world));
     world.manor.set_mode(mode);
     arm_next_mode_change(world, now);
+    // Java arms the autosave in the same `load()` that sets the mode, and only
+    // when per-action saving is off.
+    arm_autosave(world);
 }
 
 /// The wall-clock instant the current mode is scheduled to end — Java
@@ -655,6 +658,52 @@ fn add_to_clan_warehouse(world: &mut World, clan_id: i32, item_id: i32, count: i
     super::warehouse::persist_clan_warehouse(world, clan_id);
 }
 
+/// `AltManorSaveAllActions` — write this castle's rows now if the operator
+/// asked for per-action persistence. With it off (this dist) the setup rides
+/// in memory until [`handle_autosave`] or the shutdown sweep, which is what
+/// Java does too.
+fn save_after_action(world: &World, castle_id: i32) {
+    if world.cfg.general.alt_manor_save_all_actions {
+        store_manor(world, castle_id);
+    }
+}
+
+/// The autosave timer (`ThreadPool.scheduleAtFixedRate(this::storeMe, rate,
+/// rate)`): persist every castle's manor, then re-arm.
+///
+/// Java's `storeMe` walks all castles, not just the one that changed — a
+/// per-castle save here would leave any castle whose owner set up during the
+/// previous window unwritten.
+pub(crate) fn handle_autosave(world: &mut World) {
+    for castle_id in world.castles.iter().map(|c| c.id).collect::<Vec<_>>() {
+        store_manor(world, castle_id);
+    }
+    arm_autosave(world);
+}
+
+/// Arm the autosave, if the config wants one. Called at boot and after each
+/// run. Java only schedules this when per-action saving is **off**.
+pub(crate) fn arm_autosave(world: &mut World) {
+    if world.cfg.general.alt_manor_save_all_actions {
+        return;
+    }
+    let hours = world.cfg.general.alt_manor_save_period_rate.max(1) as u64;
+    let delay = hours * 3600 * TICKS_PER_SECOND;
+    world
+        .scheduler
+        .schedule(world.tick + delay, ScheduledTask::ManorAutosave);
+}
+
+/// `Shutdown`: "Save all manor data", guarded by `!ALT_MANOR_SAVE_ALL_ACTIONS`.
+pub(crate) fn save_all_on_shutdown(world: &World) {
+    if world.cfg.general.alt_manor_save_all_actions {
+        return; // already written per action
+    }
+    for castle in &world.castles {
+        store_manor(world, castle.id);
+    }
+}
+
 /// `CastleManorManager.storeMe` for one castle — write all four period lists.
 fn store_manor(world: &World, castle_id: i32) {
     let mut production = Vec::new();
@@ -806,10 +855,7 @@ pub(crate) fn handle_request_set_seed(world: &mut World, client_id: u32, body: &
         })
         .collect();
     world.manor.set_next_seed_production(manor_id, list);
-    // TODO(manor): with `AltManorSaveAllActions` (off on this dist) Java
-    // persists the next-period rows immediately; otherwise a periodic `storeMe`
-    // (unported) does. Either way the setup survives in memory this slice.
-    let _ = world.cfg.general.alt_manor_save_all_actions;
+    save_after_action(world, manor_id);
 }
 
 /// Port of `clientpackets/RequestSetCrop` — the owner submits the next-period
@@ -871,7 +917,7 @@ pub(crate) fn handle_request_set_crop(world: &mut World, client_id: u32, body: &
         })
         .collect();
     world.manor.set_next_crop_procure(manor_id, list);
-    let _ = world.cfg.general.alt_manor_save_all_actions;
+    save_after_action(world, manor_id);
 }
 
 const MAX_ADENA: i64 = 99_999_999_999;
@@ -933,8 +979,12 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         return;
     }
 
-    // Validate every line against the live production, summing the price.
+    // Validate every line against the live production, summing the price —
+    // and, as Java does in the same loop, the weight and slots the purchase
+    // would add.
     let mut total_price = 0i64;
+    let mut total_weight = 0i64;
+    let mut slots = 0i64;
     for &(item_id, cnt) in &items {
         let ok = world
             .manor
@@ -957,9 +1007,35 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
             }
             return;
         }
+        total_weight += cnt
+            * world
+                .data
+                .item_data
+                .get(item_id)
+                .map_or(0, |tpl| i64::from(tpl.weight));
+        slots += crate::game_loop::weight::slots_needed(world, player_oid, item_id, cnt);
     }
-    // TODO(manor): Java also validates inventory weight/capacity here
-    // (`validateWeight`/`validateCapacity`); the shop buy path skips these too.
+
+    // Java's order is weight, then slots, then adena — and it matters: an
+    // overloaded player with no money is told about the weight, not the money.
+    if !crate::game_loop::weight::validate_weight(world, player_oid, total_weight) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT,
+                &[],
+            ));
+        }
+        return;
+    }
+    if !crate::game_loop::weight::validate_capacity(world, player_oid, slots) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOUR_INVENTORY_IS_FULL,
+                &[],
+            ));
+        }
+        return;
+    }
 
     let adena = world
         .objects

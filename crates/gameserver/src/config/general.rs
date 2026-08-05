@@ -76,11 +76,18 @@ pub struct GeneralConfig {
     /// The dist ships `False`; the manor data + packets exist regardless so the
     /// feature works the moment an operator enables it.
     pub allow_manor: bool,
-    /// `AltManorSaveAllActions`: persist every manor setup change immediately
-    /// (vs. a periodic save). `False` on this dist — the owner's seed/crop setup
-    /// lives in memory until the periodic `storeMe` (unported), so with the dist
-    /// default nothing is written per-action.
+    /// `AltManorSaveAllActions`: persist every manor setup change immediately.
+    /// `False` on this dist, in which case the setup is written by the periodic
+    /// autosave every [`alt_manor_save_period_rate`] hours and again on
+    /// shutdown — exactly Java's two branches in `CastleManorManager.load` and
+    /// `Shutdown`.
+    ///
+    /// [`alt_manor_save_period_rate`]: General::alt_manor_save_period_rate
     pub alt_manor_save_all_actions: bool,
+    /// `AltManorSavePeriodRate` (hours, dist 2) — the autosave interval used
+    /// when `AltManorSaveAllActions` is off. Java schedules it at that rate
+    /// both for the initial delay and the period.
+    pub alt_manor_save_period_rate: i32,
     /// `AltManorRefreshTime` (hour, dist 20) — when the daily manor cycle rolls:
     /// the `APPROVED → MAINTENANCE` change (production rollover) fires at
     /// `refresh_time:refresh_min`.
@@ -185,6 +192,7 @@ impl GeneralConfig {
             allow_manor: p.get_bool("AllowManor", d.allow_manor),
             alt_manor_save_all_actions: p
                 .get_bool("AltManorSaveAllActions", d.alt_manor_save_all_actions),
+            alt_manor_save_period_rate: p.get_int("AltManorSavePeriodRate", 2),
             alt_manor_refresh_time: p.get_int("AltManorRefreshTime", 20),
             alt_manor_refresh_min: p.get_int("AltManorRefreshMin", 0),
             alt_manor_maintenance_min: p.get_int("AltManorMaintenanceMin", 6),

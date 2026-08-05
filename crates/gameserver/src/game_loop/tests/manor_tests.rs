@@ -1461,3 +1461,90 @@ fn the_manor_admin_page_reports_the_period_and_the_costs() {
         "the page carries the scheduled next mode change"
     );
 }
+
+/// **An overweight buyer is refused before the adena check.** Java validates
+/// weight, then slots, then adena, and the order is visible: a player who is
+/// both overloaded and broke is told about the weight.
+#[test]
+fn buy_seed_refused_when_it_would_exceed_the_weight_limit() {
+    let (mut world, mut rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_manor_manager(&mut world, 702, 35103, 1);
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    world.manor.set_seed_production(
+        1,
+        false,
+        vec![SeedProduction {
+            seed_id: 5016,
+            amount: 500,
+            price: 1,
+            start_amount: 500,
+        }],
+    );
+    // Give the seed a real weight and the buyer plenty of adena, so weight is
+    // the only thing that can refuse the purchase.
+    {
+        let mut t = world.data.item_data.get(ADENA_ID).unwrap().clone();
+        t.item_id = 5016;
+        t.name = "Seed".into();
+        t.weight = 10_000;
+        t.is_stackable = true;
+        world.data.item_data.insert_for_test(t);
+    }
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
+    drain(&mut rx);
+
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(1);
+    w.write_i32(5016);
+    w.write_i64(500);
+    crate::game_loop::manor::handle_request_buy_seed(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, 5016), 0, "no seeds delivered");
+    assert_eq!(
+        world.manor.seed_product(1, 5016, false).unwrap().amount,
+        500,
+        "stock unchanged"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&crate::network::server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT),
+        "the buyer is told it is the weight, not the money"
+    );
+}
+
+/// **The manor autosave is armed at boot and re-arms itself**, which is how the
+/// owner's setup reaches the database at all with `AltManorSaveAllActions` off
+/// (this dist). With it on, Java never schedules the timer.
+#[test]
+fn manor_autosave_is_armed_only_when_per_action_saving_is_off() {
+    use crate::scheduler::ScheduledTask;
+
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world.cfg.general.alt_manor_save_all_actions = false;
+    world.cfg.general.alt_manor_save_period_rate = 2;
+    crate::game_loop::manor::schedule_manor_at_boot(&mut world);
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .into_iter()
+            .any(|t| matches!(t, ScheduledTask::ManorAutosave)),
+        "autosave armed when per-action saving is off"
+    );
+
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world.cfg.general.alt_manor_save_all_actions = true;
+    crate::game_loop::manor::schedule_manor_at_boot(&mut world);
+    assert!(
+        !world
+            .scheduler
+            .pending_tasks_for_test()
+            .into_iter()
+            .any(|t| matches!(t, ScheduledTask::ManorAutosave)),
+        "per-action saving replaces the timer, as in Java's load()"
+    );
+}

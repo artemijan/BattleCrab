@@ -381,6 +381,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // kill tally and the time already burned off a wielded weapon are lost on
     // restart — it would come back with its count and deadline as of pickup.
     cursed_weapon::save_all(&world);
+    // `Shutdown`: "Save all manor data", guarded by `!ALT_MANOR_SAVE_ALL_ACTIONS`
+    // exactly as Java guards it — with per-action saving on, the rows are
+    // already current and the sweep is redundant.
+    manor::save_all_on_shutdown(&world);
 }
 
 /// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`
@@ -831,6 +835,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ManorModeChange => {
                 manor::advance_manor_mode(world);
+            }
+            ScheduledTask::ManorAutosave => {
+                manor::handle_autosave(world);
             }
             ScheduledTask::SitDownFinish { object_id } => {
                 sit_stand::handle_sit_down_finish(world, object_id);

@@ -625,6 +625,10 @@ pub enum ScheduledTask {
     /// advances APPROVED → MAINTENANCE → MODIFIABLE → APPROVED on the wall
     /// clock, rolls the production/procure period, and re-arms the next change.
     ManorModeChange,
+    /// `CastleManorManager`'s autosave (`ThreadPool.scheduleAtFixedRate(this::
+    /// storeMe, rate, rate)`), armed only when `AltManorSaveAllActions` is off
+    /// — with it on, every action writes and the timer is never scheduled.
+    ManorAutosave,
     /// `SitDownTask` — 2.5 s after sitting, the animation is over and actions
     /// unblock (Java `setBlockActions(false)`).
     SitDownFinish {

@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **149** such
+of narrow behaviours deferred and marked at the site. There are **147** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -102,7 +102,6 @@ also registering its NPCs would strand the player.
 | `TODO(G29+)` | 2 | `model/components.rs`, `network/enter_world.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data/build.rs` |
 | `TODO(login-playauth)` | 2 | `tests/e2e_create.rs` |
-| `TODO(manor)` | 2 | `game_loop/manor.rs` |
 | `TODO(D4)` | 1 | `dashboard_api: routes/status.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G?)` | 1 | `model/mod.rs` |
@@ -124,6 +123,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(manor)` ×2 (`game_loop/manor.rs`) | Both real, both closed. **Persistence:** Java saves per action when `AltManorSaveAllActions` is on and otherwise runs a `storeMe` autosave every `AltManorSavePeriodRate` hours *plus* one on shutdown — the port had `store_manor` but called it only at rollover, and the shutdown sweep (which saves players, bosses, olympiad, cursed weapons) did not include the manor. All three paths ported, with the new `AltManorSavePeriodRate` key. **Weight/capacity:** added `weight::validate_weight` / `validate_capacity` / `slots_needed` mirroring `PlayerInventory`, and wired them into `RequestBuySeed` in **Java's order** — weight, then slots, then adena, so an overloaded pauper is told about the weight. |
 | 2026-08-05 | `TODO(frintezza-4b)` ×1 (`game_loop/frintezza.rs`) | The marker was right, and **undercounted**: Java calls `playRandomSong` at *four* sites — the intro, both Scarlet morphs, and the 90 s timer — and the port only had the timer. Only the first morph carried a marker. Split `handle_song` (timer: play + re-arm) from `play_song` (Java's `playRandomSong`), because calling the timer entry point from a morph would have given each morph its own duplicate 90 s timer. Also cleared a stale doc comment claiming the 5008 debuff was unported, contradicted by the code 15 lines below it. |
 | 2026-08-05 | `TODO(saga)` ×1 (`scripts/saga.rs`) | **The marker named something that does not exist.** Neither `givePormanders` nor `SkillTransfer` appears anywhere in this dist's Java or datapack. Reading what the saga quests *actually* do at the transfer exposed a real bug instead: the port cast `4339` (quest 235's elixir flash) via `cast_visual`, which emits two *self*-casts, where all 40 sites across the 31 saga quests broadcast `MagicSkillUse(npc, player, 5103, 1, 1000, 0)`. Fixed with `cast_visual_at`. Note the transfer legitimately produces **two** 5103 casts — `Player.setClassId` broadcasts its own self-cast first — which the test now pins by caster/target rather than by skill id. |
 | 2026-08-05 | `TODO(q214-gargoyle-name)` ×1 (`scripts/q00214_trial_of_the_scholar.rs`) | Settled on **"Reinforced Gargoyle"** — the name three of the five disagreeing surfaces already used, including the client's own `ItemName` table. The operator renamed the client `QuestName` entry; `30612-04.html` was aligned to match and the constants renamed `ENCHANTED_*` → `REINFORCED_*`. Recorded in [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md), because a re-sync from the Java reference dist would silently restore the retail wording. Sabotage-verified. |
