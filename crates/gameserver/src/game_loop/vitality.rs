@@ -29,9 +29,11 @@ use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
-/// `CommonSkill.LUCKY` — the newbie "Lucky" skill that, under level 10,
-/// exempts a character from vitality consumption entirely.
-const LUCKY_SKILL_ID: i32 = 194;
+/// Java `Player.isLucky()` — the newbie skill that, under level 10, exempts a
+/// character from both the death exp penalty and vitality consumption. Shared
+/// with the death path rather than reimplemented: two copies of one predicate
+/// is two places for the level bound to drift.
+use crate::game_loop::death::is_lucky;
 
 /// `PlayerStat.getVitalityPoints` — the stored pool, clamped. (Java's
 /// subclass branch is absent: no subclasses on this dist, `class_index` is
@@ -78,19 +80,6 @@ pub(crate) fn exp_bonus_multiplier(world: &World, object_id: i32) -> f64 {
     // `BONUS_SP` in the sp twin). Neither stat is modelled — and **no skill on
     // this dist grants either**, so the term is identically 0.
     bonus.max(1.0)
-}
-
-/// Java `Player.isLucky()`: level ≤ 9 **and** carrying the Lucky skill. Such a
-/// character never spends vitality.
-fn is_lucky(world: &World, object_id: i32) -> bool {
-    let Some(p) = world.objects.get_component::<Player>(&object_id) else {
-        return false;
-    };
-    p.level <= 9
-        && world
-            .objects
-            .get_component::<crate::model::components::Buffs>(&object_id)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == LUCKY_SKILL_ID))
 }
 
 /// `PlayerStat.setVitalityPoints(value, quiet)` — clamp, store, and (unless
