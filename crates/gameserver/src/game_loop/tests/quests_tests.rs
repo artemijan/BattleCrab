@@ -15810,6 +15810,33 @@ fn quest_q00234_fates_whisper() {
         npcs_of(&mut world, 31027).len() > before,
         "killing boss 25035 spawns a 31027 chest"
     );
+    // Java's `addSpawn(…, true, 120000)`: the chest is on a two-minute fuse,
+    // so a drop nobody collects clears itself instead of standing for ever.
+    // Just short of two minutes it is still there…
+    advance_ticks(&mut world, 1190);
+    assert!(
+        npcs_of(&mut world, 31027).len() > before,
+        "the chest is still standing before its 120 s are up"
+    );
+    // …and past it, gone.
+    advance_ticks(&mut world, 30);
+    assert_eq!(
+        npcs_of(&mut world, 31027).len(),
+        before,
+        "the chest despawns after two minutes"
+    );
+    // Re-spawn one for the rest of the walkthrough, which opens it.
+    add_test_npc(
+        &mut world,
+        NPC_OID + 41,
+        BOSS_25035,
+        "Monster",
+        80,
+        300,
+        300,
+        0,
+    );
+    death::npc_do_die(&mut world, NPC_OID + 41, 3001);
 
     // --- Chest 31027 → Reiria Soul Orb, then Reorin advances to cond 2. ---
     talk(&mut world, chest27);

@@ -46,6 +46,8 @@ const CRYSTAL_B: i32 = 1460;
 // Reward
 const STAR_OF_DESTINY: i32 = 5011;
 // Misc
+/// Java `addSpawn(…, 120000)` — the chest lives two minutes.
+const CHEST_DESPAWN_MS: u64 = 120_000;
 const MIN_LEVEL: i32 = 75;
 
 /// The thirteen B-grade weapons Reorin can upgrade, id → name (Java's `WEAPONS`
@@ -203,12 +205,14 @@ impl QuestScript for Q00234FatesWhisper {
     }
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        // Each boss drops a chest beside its corpse.
-        // TODO(G24): Java's addSpawn carries a 120000ms despawn; a general
-        // timed-despawn for world NPCs is not modelled, so the chest lingers
-        // until talked-to or restart.
-        if let Some(chest) = chest_for_boss(ctx.npc_id) {
-            ctx.spawn_near_npc(chest, true);
+        // Each boss drops a chest beside its corpse, which Java despawns after
+        // two minutes (`addSpawn(…, true, 120000)`) whether or not anyone
+        // opened it. Without that the chest lingered until talked-to or
+        // restart, so a missed drop stayed on the field indefinitely.
+        if let Some(chest) = chest_for_boss(ctx.npc_id)
+            && let Some(oid) = ctx.spawn_near_npc(chest, true)
+        {
+            ctx.schedule_despawn(oid, CHEST_DESPAWN_MS);
         }
     }
 
