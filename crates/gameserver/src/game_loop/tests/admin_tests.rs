@@ -3148,6 +3148,7 @@ fn admin_transform_refused_in_water() {
     let mut rx = ingame_player_access(&mut world, 1, 8925, 100);
     drain(&mut rx);
 
+    world.cfg.general.allow_water = true;
     // A water zone over the GM, then the revalidation Java runs on movement —
     // `checkWaterState` is what starts the drowning task, and that task (not
     // the zone) is what `Player.isInWater()` reports.
@@ -3159,7 +3160,10 @@ fn admin_transform_refused_in_water() {
         -1000,
         1000,
     );
-    crate::game_loop::water::check_water_state(&mut world, 8925);
+    // Go through `revalidate_zone`, not `check_water_state` directly: since
+    // the hot-paths work the latter reads the cached `ZoneFlags` mask that
+    // revalidation writes, rather than walking the zone grid itself.
+    crate::game_loop::zones::revalidate_zone(&mut world, 8925, true);
     assert!(
         crate::game_loop::water::is_drowning_task_active(&world, 8925),
         "fixture must actually be drowning for this to mean anything"
