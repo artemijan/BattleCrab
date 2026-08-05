@@ -19,6 +19,9 @@ pub(crate) mod auto_potions;
 pub(crate) mod auto_use;
 pub(crate) mod baium;
 mod basic_property;
+/// Bench-only wrappers over the private tick systems (`benches/tick.rs`).
+#[cfg(feature = "bench-api")]
+pub mod bench_api;
 pub(crate) mod boats;
 mod boss_respawn;
 mod boss_threat;
