@@ -265,7 +265,11 @@ and instances partition naturally. The single-owner invariant is unchanged
 inside each shard, so this is an evolution rather than a rewrite.
 
 **Do not build it until a profiler asks.** The tick-overrun warning and the
-`tick_busy_micros` headroom gauge are the triggers to watch.
+`tick_busy_micros` headroom gauge are the triggers to watch — and the tick
+benchmarks (`cargo bench -p gameserver --features bench-api --bench tick`,
+PROGRESS "Perf round 2") measure each system in isolation against the full
+dist world, so a regression names its system before it ever shows up in the
+gauge.
 
 ---
 

@@ -109,6 +109,96 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 > been done for milestones, and five `TODO` markers PROGRESS said existed were
 > absent from the code entirely — all five turned out to be finished work.
 
+## Perf round 2: tick benchmarks, index-driven AI scans, cached sweeps (2026-08-05)
+
+**The tick loop's cost is now benchmarked, and its dominant term dropped ~10×.**
+Branch `perf/hot-paths-round2`. Round 1 (`perf/hot-paths`, 2026-08-04) was
+structural reasoning with no numbers; this round starts by building the
+measurement it lacked.
+
+**The harness.** `game_loop::bench_api` (feature `bench-api`, never in a normal
+build) exposes the crate-private tick systems one at a time plus a world
+builder: full dist datapack + geodata, all ~35k boot spawns, players placed
+through the real `Session` state chain. `benches/tick.rs` (criterion) measures
+each system at a fixed world state — 100 players in Giran, 300 more standing at
+monster spawn points. `cargo bench -p gameserver --features bench-api --bench
+tick`.
+
+**What the baseline said.** `npc_ai_tick` cost 7.50 ms per 1 s invocation —
+two orders of magnitude above everything else; the next tier was the movement
+tick's all-players region/zone pass (33 µs every 100 ms), the effect-zone
+sweeps (108 µs/s), regen (39 µs), weight (30 µs).
+
+**The fixes, each measured (baseline → final, same world):**
+
+- **`npc_ai` proximity scans use the `player_regions` index.** Every scan
+  (aggro range, siege guard, guard-PK, target reconsider, the teleport-home
+  probe) swept the whole player archetype *per NPC per second*, filtering by
+  region afterwards — O(awake NPCs × players online). Now candidates come from
+  the ≤9-cell index (`players_in_range_los`), distances compare squared, and
+  the template-static AI facts (monster/guard/`Defender`/animation flags) are
+  memoized on the `Npc` core at spawn — under `cfg(test)` the accessors
+  re-derive from the template instead, because fixtures hand-roll `Npc`s and
+  tweak synthetic templates after spawn. `active_siege_guard_castle` answers
+  `sieges.is_empty()` first. **7.50 ms → 3.49 ms** (the index swap alone was
+  −49%; the memoization batch another −9%). Still the dominant tick cost —
+  the next lever is a second, finer sleep tier (skip the idle tail when the
+  nearest indexed player is beyond `max(aggro_range, drift)`), not taken this
+  round.
+- **The movement tick revalidates movers, not everyone.**
+  `TickOutcome::moved_players` now drives `update_region`/`revalidate_zone`;
+  every other Position writer (teleport, respawn, snaps) already revalidates on
+  site, and the debug region-index check enforces the contract suite-wide.
+  Idle: **32.8 µs → 0.56 µs**; 50 movers: **576 µs → 345 µs**.
+- **Effect/damage zone sweeps gate on the cached `ZoneFlags` mask** — the same
+  revalidate-fed membership Java's `_characterList` reflects (the old
+  exact-point sweep was *stricter* than Java), and zone params are cloned only
+  on the tick a zone fires. **108 µs → 1.7 µs.** The two zone-test fixtures
+  now force a revalidate after inserting zones mid-test (production zones are
+  boot-static).
+- **Regen skips dead-or-full players before the expensive probes** (move type,
+  clan-hall polygon query), and the per-player `PlayerTemplate` clone (6 level
+  tables + a map, per wounded player per 3 s) became a borrow with a static
+  default. **39.4 µs → 4.9 µs.**
+- **Carried load is memoized on `Inventory`** (`load_settled`, cleared by the
+  five count-mutating methods — `items` is private so the funnel is closed; a
+  debug assert re-derives the cache under the whole suite, per
+  [[l2r-conditional-writes-fail-open]]). The weight sweep only walks changed
+  inventories; `max_load`/band math still runs live every pass so buff-driven
+  limit changes re-band as before. **29.7 µs → 15.9 µs** (empty bench
+  inventories — the win scales with real ~80-stack characters).
+- **Broadcast path:** one `Bytes` shared between self-send and onlookers
+  (`broadcast_including_self` copied the packet twice); `NpcInfo` built once
+  per NPC region crossing and refcounted to every gaining observer (was
+  rebuilt per observer — the mass-combat hot path); `ClientTable`, both region
+  indexes and the `EntityStore` id map moved to FxHash (internal integer keys,
+  probed once per broadcast recipient; SipHash's DoS resistance buys nothing
+  there). Broadcast to ~100 observers: **5.35 µs → 2.73 µs**; NPC region
+  crossing: **12.7 µs → 8.6 µs**; the item-audit drain and the stance/PvP
+  sweeps ride the FxHash swap **5.05 µs → 2.63 µs** and
+  **1.81 µs → 0.86 µs**; `revalidate_zone` **0.70 µs → 0.51 µs**.
+- **`update_region`'s offline-shop deltas walk the two 3×3 blocks** via the
+  region index (shops are `Player` entities, so they were already indexed)
+  instead of every shop on the server; `revalidate_zone` reuses its freshly
+  written mask for the water re-check and gates the swamp query on the Swamp
+  bit; walker routes / `AutoUseSettings` / auto-potion config are no longer
+  cloned per entity per pass.
+
+**Deliberately not done, with reasons measured:** the 162-call-site
+`impl Into<Bytes>` signature sweep (the copy it saves is ~2% of a broadcast;
+the recipient lookups dominated and FxHash addressed those), and a dirty-set
+for the item-audit drain (its per-player probe is O(1) — 2.7 µs at 400
+players is not worth call-site risk).
+
+**One honest regression:** `npc_regen_tick` 38.7 µs → 41.8 µs (+8%) — the
+five memoized bools grew the `Npc` core, and the full-table `(Npc, Vitals)`
+walk every 3 s feels the density loss. 3 µs per 3 s against the multi-ms AI
+win; recorded, accepted.
+
+**Verification:** 2774 tests pass, clippy clean (`-D warnings --all-targets`),
+and the two new debug invariants (weight cache vs. re-derived load; the
+existing region-index check) ran under the whole suite.
+
 ## The threading ledger shrinks: event-driven tick, backpressure, attribution (2026-08-05)
 
 **THREADING_MODEL.md §5 carried six costs; three are retired and the survivors
