@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **147** such
+of narrow behaviours deferred and marked at the site. There are **146** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -102,7 +102,6 @@ also registering its NPCs would strand the player.
 | `TODO(G29+)` | 2 | `model/components.rs`, `network/enter_world.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data/build.rs` |
 | `TODO(login-playauth)` | 2 | `tests/e2e_create.rs` |
-| `TODO(D4)` | 1 | `dashboard_api: routes/status.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G?)` | 1 | `model/mod.rs` |
 | `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
@@ -123,6 +122,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(D4)` ×1 (`dashboard_api: routes/status.rs`) | Not a deferral but an **open design question** (DASHBOARD.md §12 q3), now decided with the operator: an internal TCP status channel on the **login server**, loopback by default, answering one JSON line. It lives there because the login server already tracks each game server's live link and account count — the client's server-select screen needs exactly that — so one channel covers the cluster. `/server/status` reads it instead of `characters.online`, whose rows survive a crash and kept reporting players on a dead server. |
 | 2026-08-05 | `TODO(skill-see-range)` ×1 (`game_loop/skills/cast.rs`) | Java notifies **every NPC within 1000 units of the caster**, not just the skill's targets, and the *same* scan carries the "On Skill See logic" that makes a beneficial cast near a fighting mob pull it onto the caster (`effectPoint * 150 / (level + 7)` hate). The port had narrowed to the target set, which silently dropped both. Widened, and the support-aggro rule ported alongside it — porting the scan without it would have been another half-port. Sabotage-verified. |
 | 2026-08-05 | `TODO(manor)` ×2 (`game_loop/manor.rs`) | Both real, both closed. **Persistence:** Java saves per action when `AltManorSaveAllActions` is on and otherwise runs a `storeMe` autosave every `AltManorSavePeriodRate` hours *plus* one on shutdown — the port had `store_manor` but called it only at rollover, and the shutdown sweep (which saves players, bosses, olympiad, cursed weapons) did not include the manor. All three paths ported, with the new `AltManorSavePeriodRate` key. **Weight/capacity:** added `weight::validate_weight` / `validate_capacity` / `slots_needed` mirroring `PlayerInventory`, and wired them into `RequestBuySeed` in **Java's order** — weight, then slots, then adena, so an overloaded pauper is told about the weight. |
 | 2026-08-05 | `TODO(frintezza-4b)` ×1 (`game_loop/frintezza.rs`) | The marker was right, and **undercounted**: Java calls `playRandomSong` at *four* sites — the intro, both Scarlet morphs, and the 90 s timer — and the port only had the timer. Only the first morph carried a marker. Split `handle_song` (timer: play + re-arm) from `play_song` (Java's `playRandomSong`), because calling the timer entry point from a morph would have given each morph its own duplicate 90 s timer. Also cleared a stale doc comment claiming the 5008 debuff was unported, contradicted by the code 15 lines below it. |

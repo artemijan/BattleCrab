@@ -72,6 +72,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         listener,
     ));
 
+    // The internal status channel (loopback by default) — the dashboard's only
+    // accurate source of "is the game server actually up".
+    loginserver::status_channel::spawn(ctx.clone()).await;
+
     // Scheduled LS restart (Java: ThreadPool.schedule(() -> shutdown(true))).
     // Exit code 2 = restart request, honored by a wrapper/orchestrator.
     let restart = async {

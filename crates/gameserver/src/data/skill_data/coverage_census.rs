@@ -420,7 +420,6 @@ fn deferral_markers_match_the_recorded_inventory() {
     // that never had a milestone to hang off — they are gaps just the same,
     // and were invisible to this test until the scan widened past `TODO(G`.
     let expected: &[(&str, usize)] = &[
-        ("D4", 1),
         ("G-later", 1),
         ("G-pvp", 3),
         ("G13+", 1),

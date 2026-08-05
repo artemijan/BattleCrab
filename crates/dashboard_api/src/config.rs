@@ -85,6 +85,15 @@ pub struct DashboardConfig {
     pub bind_address: String,
     pub port: u16,
 
+    /// `StatusChannelAddress` — the login server's internal status channel
+    /// (`host:port`). Empty disables the probe, and `/server/status` then falls
+    /// back to reporting offline rather than guessing from the database.
+    ///
+    /// This is the *only* accurate liveness source available to the dashboard:
+    /// a crashed game server leaves its `characters.online` rows set, so a
+    /// DB-derived count keeps ticking for a server that is gone.
+    pub status_channel_address: String,
+
     /// The API's own public origin (e.g. `https://api.battlecrab.com`).
     /// Only decides whether session cookies get the `Secure` flag.
     pub public_base_url: String,
@@ -213,6 +222,7 @@ impl DashboardConfig {
                 "URL",
                 "jdbc:sqlite:interlude_classic.db?journal_mode=WAL&busy_timeout=5000",
             ),
+            status_channel_address: p.get_string("StatusChannelAddress", "127.0.0.1:7778"),
             database_max_connections: p.get_int("MaximumDatabaseConnections", 5).max(1) as u32,
 
             // Deliberately NOT p.get_string: the value must never be readable

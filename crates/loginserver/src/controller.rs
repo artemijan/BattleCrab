@@ -67,6 +67,25 @@ pub struct ServerListEntry {
     pub brackets: bool,
 }
 
+/// One game server's live state, for the internal status channel.
+///
+/// Deliberately *not* [`ServerListEntry`]: that is the client-facing view and
+/// applies visibility rules — a GM-only server reports DOWN to ordinary
+/// players, and the address is resolved per client subnet. An operator dashboard
+/// wants the truth, so this reports what the login server actually knows.
+#[derive(Debug, Clone)]
+pub struct GameServerStatus {
+    pub id: i32,
+    pub name: String,
+    /// Registered, authenticated **and** holding a live link. The link is the
+    /// part that matters: it drops when the game-server process dies, which is
+    /// exactly the case a database-derived "online" flag cannot see.
+    pub up: bool,
+    /// Accounts currently in game, as the link reports them.
+    pub players: u16,
+    pub max_players: u16,
+}
+
 /// Result of a `GameServerAuth` registration attempt.
 pub struct GsRegistration {
     pub server_id: i32,
@@ -126,6 +145,9 @@ pub enum Msg {
         account: String,
         key: SessionKey,
         reply: oneshot::Sender<bool>,
+    },
+    StatusSnapshot {
+        reply: oneshot::Sender<Vec<GameServerStatus>>,
     },
     ServerListData {
         client_ip: String,
@@ -347,6 +369,15 @@ impl ControllerHandle {
             })
             .await;
         rx.await.unwrap_or(false)
+    }
+
+    /// Every registered game server's live state, for the internal status
+    /// channel. Unlike [`Controller::server_list_data`] this applies no client
+    /// visibility rules.
+    pub async fn status_snapshot(&self) -> Vec<GameServerStatus> {
+        let (reply, rx) = oneshot::channel();
+        let _ = self.tx.send(Msg::StatusSnapshot { reply }).await;
+        rx.await.unwrap_or_default()
     }
 
     pub async fn server_list_data(
@@ -626,6 +657,27 @@ impl Controller {
             } => {
                 self.change_password(account, character_name, current_password, new_password)
                     .await;
+            }
+            Msg::StatusSnapshot { reply } => {
+                let mut out: Vec<GameServerStatus> = self
+                    .gs
+                    .servers
+                    .values()
+                    .map(|gsi| GameServerStatus {
+                        id: gsi.id,
+                        name: self
+                            .gs
+                            .server_names
+                            .get(&gsi.id)
+                            .cloned()
+                            .unwrap_or_else(|| format!("server{}", gsi.id)),
+                        up: gsi.authed && gsi.link.is_some(),
+                        players: gsi.accounts.len() as u16,
+                        max_players: gsi.max_players as u16,
+                    })
+                    .collect();
+                out.sort_by_key(|s| s.id);
+                let _ = reply.send(out);
             }
             Msg::IsLoginPossible {
                 server_id,

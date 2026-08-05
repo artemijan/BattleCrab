@@ -26,6 +26,9 @@ pub const STATIC_BLOWFISH_KEY: [u8; 16] = [
 
 pub fn test_config() -> LoginConfig {
     LoginConfig {
+        // Status channel off in tests: nothing binds a monitoring port.
+        internal_status_bind_address: "127.0.0.1".into(),
+        internal_status_port: 0,
         login_bind_address: "127.0.0.1".into(),
         port_login: 0,
         game_server_login_host: "127.0.0.1".into(),

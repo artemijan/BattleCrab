@@ -20,6 +20,8 @@ use tower::ServiceExt;
 
 fn test_config() -> DashboardConfig {
     DashboardConfig {
+        // No status channel in tests — the probe reports offline.
+        status_channel_address: String::new(),
         bind_address: "127.0.0.1".into(),
         port: 0,
         public_base_url: "http://localhost".into(),
@@ -61,6 +63,37 @@ async fn test_app() -> (axum::Router, SqlitePool) {
 
     let state = Arc::new(App::new(db, test_config()));
     (dashboard_api::app(state), pool)
+}
+
+/// `test_app`, but with `/server/status` pointed at `channel` (a `host:port`
+/// running something that speaks the login server's status line).
+async fn test_app_with_status_channel(channel: &str) -> (axum::Router, SqlitePool) {
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
+    let mut config = test_config();
+    config.status_channel_address = channel.to_string();
+    let state = Arc::new(App::new(db, config));
+    (dashboard_api::app(state), pool)
+}
+
+/// Stand in for the login server's status channel: accept one connection,
+/// write `line`, close. Returns the address to point the dashboard at.
+async fn fake_status_channel(line: &'static str) -> String {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap().to_string();
+    tokio::spawn(async move {
+        while let Ok((mut stream, _)) = listener.accept().await {
+            use tokio::io::AsyncWriteExt;
+            let _ = stream.write_all(line.as_bytes()).await;
+            let _ = stream.shutdown().await;
+        }
+    });
+    addr
 }
 
 /// Adds a game account under a master address — the row the dashboard will
@@ -1001,9 +1034,14 @@ async fn unknown_api_routes_404_instead_of_returning_the_spa() {
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }
 
+/// **A crashed server leaves `characters.online` set, and that must not read as
+/// players being online.** This endpoint used to answer straight from that
+/// column with a hard-coded `online: true`, so a dead server kept reporting a
+/// population. With no status channel reachable, the honest answer is offline
+/// and zero — the rows below say otherwise and are ignored.
 #[tokio::test]
-async fn server_status_is_public_and_counts_online_players() {
-    let (app, pool) = test_app().await;
+async fn server_status_ignores_stale_online_rows_when_the_server_is_unreachable() {
+    let (app, pool) = test_app().await; // no status channel configured
     sqlx::query(
         "INSERT INTO characters (account_name, charId, char_name, online, lastAccess)
          VALUES ('alice', 1, 'A', 1, 1), ('bob', 2, 'B', 0, 1)",
@@ -1022,7 +1060,57 @@ async fn server_status_is_public_and_counts_online_players() {
         .await
         .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(body_json(response).await["playersOnline"], 1);
+    let body = body_json(response).await;
+    assert_eq!(body["online"], false, "unreachable login server is offline");
+    assert_eq!(
+        body["playersOnline"], 0,
+        "a leftover characters.online row is not a player"
+    );
+}
+
+/// The whole point of the channel: status comes from the **live** login server,
+/// so the count is right even though the database says nothing useful.
+#[tokio::test]
+async fn server_status_reports_what_the_status_channel_says() {
+    let channel = fake_status_channel(
+        "{\"login\":\"up\",\"servers\":[{\"id\":1,\"name\":\"Bartz\",\"up\":true,\"players\":42,\"maxPlayers\":2000}]}\n",
+    )
+    .await;
+    let (app, _pool) = test_app_with_status_channel(&channel).await;
+
+    let response = app
+        .oneshot(with_peer(
+            Request::builder()
+                .uri("/api/v1/server/status")
+                .body(Body::empty())
+                .unwrap(),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = body_json(response).await;
+    assert_eq!(body["online"], true);
+    assert_eq!(body["playersOnline"], 42, "counted from the live link");
+    assert_eq!(body["servers"][0]["name"], "Bartz");
+}
+
+/// A refused connection is offline, not a 500. The endpoint is public, so a
+/// dead login server must not become an error page.
+#[tokio::test]
+async fn server_status_survives_a_dead_status_channel() {
+    // Port 1 on loopback: nothing listens, connection refused immediately.
+    let (app, _pool) = test_app_with_status_channel("127.0.0.1:1").await;
+    let response = app
+        .oneshot(with_peer(
+            Request::builder()
+                .uri("/api/v1/server/status")
+                .body(Body::empty())
+                .unwrap(),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK, "offline, not an error");
+    assert_eq!(body_json(response).await["online"], false);
 }
 
 // ---------------------------------------------------------------------------

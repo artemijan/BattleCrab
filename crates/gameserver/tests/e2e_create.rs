@@ -32,6 +32,9 @@ async fn setup_login_schema(db: &sea_orm::DatabaseConnection) {
 fn login_config() -> loginserver::config::LoginConfig {
     use loginserver::config::LoginConfig;
     LoginConfig {
+        // Status channel off in tests: nothing binds a monitoring port.
+        internal_status_bind_address: "127.0.0.1".to_string(),
+        internal_status_port: 0,
         login_bind_address: "127.0.0.1".into(),
         port_login: 0,
         game_server_login_host: "127.0.0.1".into(),

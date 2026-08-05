@@ -12,3 +12,4 @@ pub mod gs_table;
 pub mod net_flood;
 pub mod network;
 pub mod session;
+pub mod status_channel;

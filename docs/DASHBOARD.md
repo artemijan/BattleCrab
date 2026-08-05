@@ -548,9 +548,16 @@ separate future effort gated on a storage decision.
 2. **Session revocation.** Signed cookies cannot be individually revoked (§5.3). If instant
    ban-kick from the web matters, that also needs a table (or a very short cookie lifetime plus a
    revocation check against something already in `accounts`).
-3. **Live server status**: reading `characters.online` gives a stale-ish count and says nothing
-   about whether the process is actually up. A tiny internal HTTP endpoint on the game server
-   would be accurate. Worth it, or is the DB good enough for v1?
+3. ~~**Live server status**~~ — **decided, 2026-08-05.** An internal TCP status channel on the
+   **login server** (`InternalStatusPort`, loopback by default), answering one line of JSON and
+   closing. The login server was the right host for it because it already tracks, per game
+   server, whether the link is live and how many accounts are in game — the client's
+   server-select screen needs exactly that — so one channel answers for the whole cluster and
+   keeps working with more than one game server. `/server/status` now reports that instead of
+   `characters.online`, whose rows survive a crash. No auth: loopback is the control, and
+   widening the bind address is documented as the operator's call. Tradeoff accepted: with the
+   login server down the dashboard reports offline regardless of the game server, which is the
+   honest answer since nobody can log in either way.
 4. **Multi-server**: schema has `accounts.lastServer` and the login server supports several game
    servers. Does the dashboard need to be server-aware (character list per server), or is there
    exactly one game server for the foreseeable future?

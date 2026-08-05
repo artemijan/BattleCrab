@@ -35,6 +35,15 @@ pub struct LoginConfig {
 
     pub backup_database: bool,
     pub backup_path: String,
+
+    /// `InternalStatusBindAddress` — where the internal status channel listens.
+    /// **Loopback by default, and that is the security control**: the channel
+    /// has no authentication because the kernel will not route off-host traffic
+    /// to `127.0.0.1`. Widening this publishes account counts and server
+    /// topology to anything that can reach the port.
+    pub internal_status_bind_address: String,
+    /// `InternalStatusPort` — `0` disables the channel entirely.
+    pub internal_status_port: u16,
 }
 
 pub const LOGIN_CONFIG_FILE: &str = "dist/login/config/LoginServer.ini";
@@ -57,6 +66,8 @@ impl LoginConfig {
     /// the ini body directly; every key and default is unchanged.
     pub fn from_parser(p: &PropertiesParser) -> Self {
         Self {
+            internal_status_bind_address: p.get_string("InternalStatusBindAddress", "127.0.0.1"),
+            internal_status_port: p.get_int("InternalStatusPort", 7778) as u16,
             login_bind_address: p.get_string("LoginserverHostname", "0.0.0.0"),
             port_login: p.get_int("LoginserverPort", 2106) as u16,
             game_server_login_host: p.get_string("LoginHostname", "127.0.0.1"),

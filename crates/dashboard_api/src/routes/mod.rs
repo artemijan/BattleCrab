@@ -158,6 +158,10 @@ mod tests {
 
     fn config() -> DashboardConfig {
         DashboardConfig {
+            // No status channel in tests: the probe fails fast and
+            // `/server/status` reports offline, which is the correct answer
+            // when nothing is running.
+            status_channel_address: String::new(),
             bind_address: "127.0.0.1".into(),
             port: 0,
             public_base_url: "http://localhost".into(),
