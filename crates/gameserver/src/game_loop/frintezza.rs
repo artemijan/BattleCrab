@@ -9,9 +9,10 @@
 //! ecosystem + Dewdrop suicide (slice 4b) — and the finish cinematic (Frintezza's
 //! death → doors reopen, slice 5), Scarlet's custom daemon-skill AI (Java
 //! `ScarletVanHalisha`), and the crawl polish — the room aggro-nudge, the 5%
-//! Dewdrop drop, and the song debuff (5008). The only gap left is cosmetic: the
-//! exhaustive dummy-anchored `SpecialCamera` choreography is abbreviated
-//! throughout (`PLAN_FRINTEZZA.md`).
+//! Dewdrop drop, and the song debuff (5008). Songs play at all four of Java's
+//! sites — the intro, both Scarlet morphs, and the 90 s timer. The only gap
+//! left is cosmetic: the exhaustive dummy-anchored `SpecialCamera` choreography
+//! is abbreviated throughout.
 
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;
@@ -373,6 +374,9 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
             world
                 .instances
                 .set_var(instance_id, "demonCount", PORTRAIT_SPAWNS.len() as i64);
+            // Java performs a song during the intro (`FRINTEZZA_INTRO_18`)
+            // and arms the 90 s timer separately — hence play *and* schedule.
+            play_song(world, instance_id);
             schedule_song(world, instance_id);
             schedule_demons(world, instance_id);
         }
@@ -658,12 +662,17 @@ fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
                     &server_packets::magic_skill_use_raw(src, src, FIRST_MORPH_SKILL, 1, 1000),
                 );
             }
-            // TODO(frintezza-4b): playRandomSong here.
+            // Java `SCARLET_FIRST_MORPH` ends with `playRandomSong(world)`.
+            play_song(world, instance_id);
         }
         // SCARLET_SECOND_MORPH: freeze the party, then replace Scarlet1 with its
         // final form at the same spot.
         STEP_SECOND_MORPH_A => {
             disable_players(world, instance_id);
+            // Java `SCARLET_SECOND_MORPH` plays a song too, right after the
+            // freeze. This site carried no marker at all — only the first
+            // morph did — so the gap here was invisible.
+            play_song(world, instance_id);
             let scarlet1 = var_oid(world, instance_id, "activeScarlet");
             let (x, y, z, h) = world
                 .objects
@@ -762,13 +771,29 @@ fn schedule_demons(world: &mut World, instance_id: i32) {
     );
 }
 
-/// `PLAY_RANDOM_SONG`: Frintezza performs one of five songs (announced on
-/// screen), then the timer re-arms while the fight lasts. The song's debuff
-/// (skill 5008) is a TODO — only the animation + name are broadcast for now.
+/// The `PLAY_RANDOM_SONG` **timer**: play a song, then re-arm while the fight
+/// lasts.
+///
+/// Kept separate from [`play_song`] on purpose. Java's `playRandomSong` only
+/// performs; the 90 s re-arm lives in the timer case that calls it. The morph
+/// steps call it too, and folding the re-arm in here would give every morph its
+/// own duplicate song timer.
 pub(crate) fn handle_song(world: &mut World, instance_id: i32) {
     if world.instances.get_var(instance_id, "fightActive") == 0 {
         return;
     }
+    play_song(world, instance_id);
+    schedule_song(world, instance_id);
+}
+
+/// Java `playRandomSong` — Frintezza performs one of five songs: the name on
+/// screen, the 5007 animation, and the matching 5008 debuff on every player in
+/// the instance.
+///
+/// Java's `isPlayingSong` guard is not ported because it cannot fire: the flag
+/// is set true on entry and false again before the method returns, and nothing
+/// else ever sets it, so the check only ever sees `false`.
+fn play_song(world: &mut World, instance_id: i32) {
     let frintezza = var_oid(world, instance_id, "frintezza");
     let n = world.roll(SONG_NAMES.len() as i32) as usize;
     instances::broadcast_to_instance(
@@ -797,7 +822,6 @@ pub(crate) fn handle_song(world: &mut World, instance_id: i32) {
             }
         }
     }
-    schedule_song(world, instance_id);
 }
 
 /// `SPAWN_DEMONS`: each still-standing portrait emits one demon (capped at

@@ -308,16 +308,32 @@ fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
 
 /// Drive the crawl + intro so Scarlet1 is on the field, returning `(iid,
 /// scarlet1_oid)`.
-fn arena_with_scarlet(world: &mut World) -> (i32, i32) {
+fn arena_with_scarlet(
+    world: &mut World,
+) -> (i32, i32, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     seed_frintezza(world);
-    let _rx = ingame_player(world, 1, 100, 1000, 1000, 0);
+    let rx = ingame_player(world, 1, 100, 1000, 1000, 0);
     frintezza::try_enter(world, 100);
     let iid = instance_of(world, 100);
     for step in 0..=5 {
         frintezza::handle_intro_step(world, iid, step);
     }
     let scarlet1 = world.instances.get_var(iid, "activeScarlet") as i32;
-    (iid, scarlet1)
+    (iid, scarlet1, rx)
+}
+
+/// Skill ids of every `MagicSkillUse` in a drained batch.
+fn cast_ids(pkts: &[Vec<u8>]) -> Vec<i32> {
+    pkts.iter()
+        .filter(|p| p[0] == crate::network::server_packets::opcodes::MAGIC_SKILL_USE)
+        .filter_map(|p| {
+            let mut r = commons::network::PacketReader::new(&p[1..]);
+            r.read_i32()?; // cast bar
+            r.read_i32()?; // caster
+            r.read_i32()?; // target
+            r.read_i32()
+        })
+        .collect()
 }
 
 fn set_hp_fraction(world: &mut World, oid: i32, frac: f64) {
@@ -339,7 +355,7 @@ fn npc_id_of(world: &World, oid: i32) -> i32 {
 #[test]
 fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, scarlet1) = arena_with_scarlet(&mut world);
+    let (iid, scarlet1, mut arena_rx) = arena_with_scarlet(&mut world);
     assert_eq!(npc_id_of(&world, scarlet1), frintezza::SCARLET1);
 
     // Above 80 %: no morph.
@@ -366,12 +382,28 @@ fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
             .script_value,
         1
     );
+    drain(&mut arena_rx);
     frintezza::handle_fight_step(&mut world, iid, 1); // first morph cast
+    // Java's SCARLET_FIRST_MORPH ends with `playRandomSong`, so the morph cast
+    // (FIRST_MORPH_SKILL) and a song animation (5007) both go out.
+    let first = cast_ids(&drain(&mut arena_rx));
+    assert!(
+        first.contains(&5007),
+        "the first morph plays a song: {first:?}"
+    );
 
     // Crossing 20 % arms the second morph → Scarlet1 is replaced by Scarlet2.
     set_hp_fraction(&mut world, scarlet1, 0.19);
     frintezza::on_scarlet_attack(&mut world, scarlet1, frintezza::SCARLET1);
+    drain(&mut arena_rx);
     frintezza::handle_fight_step(&mut world, iid, 2); // second morph A
+    // The second morph plays one too. This site never had a marker — only the
+    // first morph did — so nothing recorded that it was missing.
+    let second = cast_ids(&drain(&mut arena_rx));
+    assert!(
+        second.contains(&5007),
+        "the second morph plays a song: {second:?}"
+    );
     let scarlet2 = world.instances.get_var(iid, "activeScarlet") as i32;
     assert_ne!(scarlet2, scarlet1, "a new actor took the field");
     assert_eq!(
@@ -402,7 +434,7 @@ fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
 #[test]
 fn each_standing_portrait_emits_a_demon_capped_at_the_maximum() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    let (iid, _scarlet1, _arena_rx) = arena_with_scarlet(&mut world);
 
     // Four intro demons seeded the count; a spawn pass adds one per portrait.
     assert_eq!(world.instances.get_var(iid, "demonCount"), 4);
@@ -426,7 +458,7 @@ fn each_standing_portrait_emits_a_demon_capped_at_the_maximum() {
 #[test]
 fn a_downed_portrait_stops_feeding_demons() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    let (iid, _scarlet1, _arena_rx) = arena_with_scarlet(&mut world);
     let portrait0 = world.instances.get_var(iid, "portrait0") as i32;
 
     frintezza::on_portrait_killed(&mut world, 100, portrait0);
@@ -449,7 +481,7 @@ fn a_downed_portrait_stops_feeding_demons() {
 #[test]
 fn the_dewdrop_of_destruction_makes_a_portrait_suicide() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    let (iid, _scarlet1, _arena_rx) = arena_with_scarlet(&mut world);
     let portrait0 = world.instances.get_var(iid, "portrait0") as i32;
 
     // A normal skill does nothing; the Dewdrop (2276) kills it.
@@ -475,7 +507,7 @@ fn the_dewdrop_of_destruction_makes_a_portrait_suicide() {
 #[test]
 fn a_slain_demon_frees_a_slot_under_the_cap() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    let (iid, _scarlet1, _arena_rx) = arena_with_scarlet(&mut world);
     world.instances.set_var(iid, "demonCount", 10);
     frintezza::on_demon_killed(&mut world, 100);
     assert_eq!(world.instances.get_var(iid, "demonCount"), 9);
@@ -484,7 +516,7 @@ fn a_slain_demon_frees_a_slot_under_the_cap() {
 #[test]
 fn scarlet_wakes_its_skill_ai_when_struck_and_stops_it_when_slain() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, scarlet1) = arena_with_scarlet(&mut world);
+    let (iid, scarlet1, _arena_rx) = arena_with_scarlet(&mut world);
     assert_eq!(
         world.instances.get_var(iid, "scarletAi"),
         0,
@@ -513,7 +545,7 @@ fn scarlet_wakes_its_skill_ai_when_struck_and_stops_it_when_slain() {
 #[test]
 fn scarlets_skill_table_only_yields_its_daemon_skills() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, _s) = arena_with_scarlet(&mut world);
+    let (iid, _s, _arena_rx) = arena_with_scarlet(&mut world);
 
     // First form: charge / yoke / attack only.
     let first_form = [(5015, 2), (5015, 5), (5016, 1), (5014, 2)];
@@ -548,7 +580,7 @@ fn scarlets_skill_table_only_yields_its_daemon_skills() {
 #[test]
 fn killing_the_final_form_runs_the_finish_cinematic() {
     let (mut world, _tx, _db, _l) = test_world();
-    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    let (iid, _scarlet1, _arena_rx) = arena_with_scarlet(&mut world);
     let frintezza_oid = world.instances.get_var(iid, "frintezza") as i32;
 
     // Player 100 (inside the instance) lands the killing blow on Scarlet2.

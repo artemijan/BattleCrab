@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **150** such
+of narrow behaviours deferred and marked at the site. There are **149** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -104,7 +104,6 @@ also registering its NPCs would strand the player.
 | `TODO(login-playauth)` | 2 | `tests/e2e_create.rs` |
 | `TODO(manor)` | 2 | `game_loop/manor.rs` |
 | `TODO(D4)` | 1 | `dashboard_api: routes/status.rs` |
-| `TODO(frintezza-4b)` | 1 | `game_loop/frintezza.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G?)` | 1 | `model/mod.rs` |
 | `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
@@ -125,6 +124,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(frintezza-4b)` ×1 (`game_loop/frintezza.rs`) | The marker was right, and **undercounted**: Java calls `playRandomSong` at *four* sites — the intro, both Scarlet morphs, and the 90 s timer — and the port only had the timer. Only the first morph carried a marker. Split `handle_song` (timer: play + re-arm) from `play_song` (Java's `playRandomSong`), because calling the timer entry point from a morph would have given each morph its own duplicate 90 s timer. Also cleared a stale doc comment claiming the 5008 debuff was unported, contradicted by the code 15 lines below it. |
 | 2026-08-05 | `TODO(saga)` ×1 (`scripts/saga.rs`) | **The marker named something that does not exist.** Neither `givePormanders` nor `SkillTransfer` appears anywhere in this dist's Java or datapack. Reading what the saga quests *actually* do at the transfer exposed a real bug instead: the port cast `4339` (quest 235's elixir flash) via `cast_visual`, which emits two *self*-casts, where all 40 sites across the 31 saga quests broadcast `MagicSkillUse(npc, player, 5103, 1, 1000, 0)`. Fixed with `cast_visual_at`. Note the transfer legitimately produces **two** 5103 casts — `Player.setClassId` broadcasts its own self-cast first — which the test now pins by caster/target rather than by skill id. |
 | 2026-08-05 | `TODO(q214-gargoyle-name)` ×1 (`scripts/q00214_trial_of_the_scholar.rs`) | Settled on **"Reinforced Gargoyle"** — the name three of the five disagreeing surfaces already used, including the client's own `ItemName` table. The operator renamed the client `QuestName` entry; `30612-04.html` was aligned to match and the constants renamed `ENCHANTED_*` → `REINFORCED_*`. Recorded in [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md), because a re-sync from the Java reference dist would silently restore the retail wording. Sabotage-verified. |
 | 2026-08-05 | `TODO(sieges)` ×1 (`network/server_packets/residence.rs`) | A **subsystem-level claim** that G24 falsified — the header said "sieges aren't ported yet", so the world-map overlay reported every castle unowned. Everything it needed already existed (`world.castles`, the clan `castle_id` back-reference, `castle::tax_percent`, `world.sieges`). `ExShowCastleInfo` now carries owner, tax, siege date and side. The **fortress** overlay stays static, and that is not a deferral: fort sieges are an explicit scope-out, so no fort on this dist can have an owner — the header now says that instead of implying deferred work. |
