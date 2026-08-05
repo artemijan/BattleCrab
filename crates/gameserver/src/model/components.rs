@@ -1414,3 +1414,23 @@ pub struct DebugDraw {
     pub last_dest: Option<(i32, i32, i32)>,
     pub last_path: Option<Vec<(i32, i32, i32)>>,
 }
+
+/// Marks an HQ flag planted by **skill 326 "Build Advanced Headquarters"**
+/// (Java `SiegeFlag._isAdvanced`). Same NPC as the basic camp (35062); the
+/// flag only changes how much damage the thing takes.
+///
+/// **Deliberate deviation from Java** — see `docs/CUSTOM_DIST_DEVIATIONS.md`.
+/// `SiegeFlagStatus.reduceHp` reads:
+///
+/// ```text
+/// if (isAdvancedHeadquarter()) super.reduceHp(value / 2, …);
+/// super.reduceHp(value, …);
+/// ```
+///
+/// with no `else` and no `return`, so upstream an advanced HQ takes
+/// `value/2 + value` — **1.5× damage**, making the noble-only skill strictly
+/// worse than the basic one. This port halves, which is what the skill's name,
+/// its `autoGet` place in the noble tree, and the obvious intent of that `if`
+/// all say it should do.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AdvancedHeadquarter;

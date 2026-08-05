@@ -917,7 +917,7 @@ fn a_headquarters_needs_an_hq_zone() {
 
     // Outside the HQ patch (x = 0): refused, with the message that names why.
     assert!(
-        !crate::game_loop::siege::place_siege_flag(&mut world, LEADER),
+        !crate::game_loop::siege::place_siege_flag(&mut world, LEADER, false),
         "no camp outside an HQ zone"
     );
     assert!(
@@ -934,7 +934,7 @@ fn a_headquarters_needs_an_hq_zone() {
         .unwrap()
         .x = 200;
     assert!(crate::game_loop::siege::place_siege_flag(
-        &mut world, LEADER
+        &mut world, LEADER, false
     ));
     assert_eq!(world.sieges[&CASTLE].flag_count(CLAN), 1, "camp planted");
 }

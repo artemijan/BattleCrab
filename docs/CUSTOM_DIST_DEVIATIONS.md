@@ -64,3 +64,33 @@ change is dropped.
   `interlude_classic` reference dist still ships the retail wording.
 - **Guarded by:** `game_loop::tests::quests_tests::quest_q00214_trial_of_the_scholar`
   — the reagent page asserts the "Reinforced" wording.
+
+## Advanced Headquarters takes half damage, not one and a half times
+
+- **Files:** `game_loop/combat/damage.rs` (the halving),
+  `model/components.rs` (`AdvancedHeadquarter`), `game_loop/siege.rs`
+- **Retail:** skill 326 "Build Advanced Headquarters" plants the same flag NPC
+  (35062) as the basic skill 247, and `SiegeFlagStatus.reduceHp` reads:
+
+  ```java
+  if (isAdvancedHeadquarter()) super.reduceHp(value / 2, …);
+  super.reduceHp(value, …);
+  ```
+
+  There is no `else` and no `return`, so an advanced camp takes `value/2 +
+  value` — **1.5× damage**. The noble-only skill is therefore strictly worse
+  than the basic one it upgrades.
+- **Here:** an advanced camp takes **half** damage.
+- **Why this one is a deviation and not a bug fix:** it is a bug fix, and that
+  is the point — the repo's rule is to port behaviour rather than intent, so
+  choosing intent has to be written down. Everything about the skill says
+  halving: its name, its `autoGet="true"` place in `nobleSkillTree.xml`, and
+  the obvious purpose of that `if`. Reproducing the arithmetic faithfully would
+  hand nobles a downgrade, which no player would read as correct.
+- **The trap if it is re-synced:** nothing in the Java source marks this as a
+  bug, so a future parity pass comparing `reduceHp` line by line will see a
+  mismatch and "correct" it. That would silently make advanced camps three
+  times easier to destroy than they are now.
+- **Guarded by:** `game_loop::tests::combat_tests::
+  an_advanced_headquarters_takes_half_damage` — asserts 950 HP after a 100
+  hit, and names the 1.5× alternative so the intent survives the assertion.

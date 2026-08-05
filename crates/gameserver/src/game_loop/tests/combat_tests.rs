@@ -2299,14 +2299,14 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
 
     // Leader plants the flag (HeadquarterCreate).
     assert!(
-        crate::game_loop::siege::place_siege_flag(&mut world, 3001),
+        crate::game_loop::siege::place_siege_flag(&mut world, 3001, false),
         "leader plants the HQ"
     );
     let flag = world.sieges[&3].flag_of(700).expect("flag registered");
     assert_eq!(world.sieges[&3].flag_count(700), 1);
     // A second flag is refused (MaxFlags = 1).
     assert!(
-        !crate::game_loop::siege::place_siege_flag(&mut world, 3001),
+        !crate::game_loop::siege::place_siege_flag(&mut world, 3001, false),
         "flag cap enforced"
     );
     assert!(
@@ -2938,5 +2938,45 @@ fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
             .iter()
             .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
         "the new attackers are teleported out"
+    );
+}
+
+/// **An advanced HQ takes half damage** — skill 326's flag versus skill 247's.
+///
+/// Java's `SiegeFlagStatus.reduceHp` omits an `else`, so upstream the advanced
+/// camp takes `value/2 + value` — 1.5x, making the noble-only skill *worse*
+/// than the basic one. This port halves instead, a deliberate deviation
+/// recorded in `docs/CUSTOM_DIST_DEVIATIONS.md`; the test pins the intended
+/// behaviour so a future "fix toward Java" has to argue with it.
+#[test]
+fn an_advanced_headquarters_takes_half_damage() {
+    use crate::model::components::{AdvancedHeadquarter, Vitals};
+
+    let hp_after_hit = |advanced: bool| -> f64 {
+        let (mut world, ..) = test_world();
+        let flag = NPC_OID;
+        add_test_npc(&mut world, flag, 35062, "Monster", 60, 100, 100, 0);
+        {
+            let v = world.objects.get_component_mut::<Vitals>(&flag).unwrap();
+            v.max_hp = 1000;
+            v.cur_hp = 1000.0;
+        }
+        if advanced {
+            world.objects.add_components(&flag, AdvancedHeadquarter);
+        }
+        let _rx = ingame_player(&mut world, 1, 3001, 100, 100, 0);
+        combat::npc_receive_damage(&mut world, flag, 3001, 100.0, false);
+        world
+            .objects
+            .get_component::<Vitals>(&flag)
+            .map(|v| v.cur_hp)
+            .unwrap_or(0.0)
+    };
+
+    assert_eq!(hp_after_hit(false), 900.0, "a basic camp takes it all");
+    assert_eq!(
+        hp_after_hit(true),
+        950.0,
+        "an advanced camp takes half — not 1.5x, which is Java's missing-else bug"
     );
 }

@@ -993,9 +993,13 @@ pub(crate) fn build_skill(
                                 .unwrap_or(0);
                             vec![SkillEffect::DispelByCategory { slot, rate, max }]
                         }
-                        // Both the basic (247) and advanced HQ skills carry this;
-                        // isAdvanced is not yet behaviorally distinct (see the effect).
-                        "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
+                        // Both the basic (247) and advanced (326) HQ skills
+                        // carry this; only 326 sets `<isAdvanced>true</…>`,
+                        // which halves the flag's incoming damage.
+                        "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter {
+                            advanced: value_at(params, "isAdvanced", level)
+                                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+                        }],
                         // "Common Craft" (1322) / "Dwarven Craft" (1321): param-less
                         // self-closing effects whose whole job is to open the recipe
                         // window. Without these arms both skills parsed to zero

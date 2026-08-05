@@ -331,6 +331,18 @@ pub(crate) fn npc_receive_damage(
     // `ai/others/Servitors/SinEater`'s `ON_CREATURE_ATTACKED` bark (a no-op for
     // every other NPC).
     crate::scripts::sin_eater::on_attacked(world, npc_oid);
+    // `SiegeFlagStatus.reduceHp` — an advanced HQ takes half. **Deliberately
+    // not** Java's arithmetic, which omits an `else` and so applies `value/2`
+    // *and* `value` for 1.5x; see `AdvancedHeadquarter` and
+    // docs/CUSTOM_DIST_DEVIATIONS.md.
+    let damage = if world
+        .objects
+        .has_component::<crate::model::components::AdvancedHeadquarter>(&npc_oid)
+    {
+        damage / 2.0
+    } else {
+        damage
+    };
     let level = match world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)

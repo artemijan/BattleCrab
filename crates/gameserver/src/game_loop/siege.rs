@@ -16,7 +16,7 @@
 
 use crate::db::DbCommand;
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell};
+use crate::model::components::{AdvancedHeadquarter, Position, RegionCell};
 use crate::model::door::Door;
 use crate::model::siege::{SiegeClanType, SiegeSpawn};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -642,7 +642,7 @@ const HQ_NPC_ID: i32 = 35062;
 /// Java `HeadquarterCreate.instant` + `BuildCampSkillCondition`: the leader of an
 /// attacker clan plants an HQ flag in the siege zone, becoming the clan's respawn
 /// point until a defender destroys it. Returns whether a flag was placed.
-pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
+pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32, advanced: bool) -> bool {
     let Some(clan_id) = world
         .objects
         .get_component::<Player>(&player_oid)
@@ -697,6 +697,13 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
         return false;
     };
     super::death::introduce_npc(world, oid);
+    // `new SiegeFlag(player, template, isAdvanced)` — skill 326's flag is the
+    // same NPC (35062) but takes half damage. See `AdvancedHeadquarter` and
+    // docs/CUSTOM_DIST_DEVIATIONS.md for why this halves rather than
+    // reproducing Java's arithmetic.
+    if advanced {
+        world.objects.add_components(&oid, AdvancedHeadquarter);
+    }
     if let Some(siege) = world.sieges.get_mut(&castle_id) {
         siege.add_flag(clan_id, oid);
         // Tracked for cleanup too, so a flag still standing at siege end is
