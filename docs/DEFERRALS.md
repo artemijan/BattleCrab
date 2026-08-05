@@ -66,13 +66,13 @@ close-out gate uses.
 | `TODO(G18)` | 2 | `game_loop/death.rs`, `game_loop/pvp.rs` |
 | `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans.rs` |
 | `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
-| `TODO(G35)` | 2 | `commons/src/audit.rs`, `model/inventory.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
+| `TODO(G35)` | 1 | `commons/src/audit.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
 
 **First use, 2026-08-03.** Triaging the 15 `TODO(G33)` markers against the code

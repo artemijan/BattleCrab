@@ -164,6 +164,49 @@ pub(crate) fn record_item_change(
     );
 }
 
+/// Turns the losses noted on every player's [`Inventory`] into audit records.
+///
+/// This is the other half of the item audit. Gains have one choke point
+/// ([`add_inventory_item_tracked`]); losses have ~43, all of them holding a
+/// `&mut Inventory` borrow that a `World`-aware call could not coexist with. So
+/// the removal methods note what left, and this runs once per tick where the
+/// config gate, the item names and the owning player are all reachable.
+///
+/// Draining per tick rather than per removal also means a burst of consumption
+/// in one tick costs one pass, not one lookup per item.
+pub(crate) fn drain_item_audit(world: &mut World) {
+    // Cheap common case: nothing was removed this tick from anyone.
+    let owners: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Inventory>(oid)
+                .is_some_and(|inv| inv.has_pending_audit())
+        })
+        .collect();
+
+    for oid in owners {
+        let Some(pending) = world
+            .objects
+            .get_component_mut::<Inventory>(&oid)
+            .map(|inv| inv.take_pending_audit())
+        else {
+            continue;
+        };
+        for (item_id, count) in pending {
+            // Negative by the convention `record_item_change` documents: one
+            // query over the file reconstructs a balance.
+            record_item_change(world, oid, item_id, -count, "consume");
+        }
+    }
+}
+
 /// Port of `clientpackets/RequestItemList.runImpl`: the client opened its
 /// inventory window and wants the current contents. Java calls
 /// `player.sendItemList(true)`, which (after a 300 ms debounce we don't
@@ -481,7 +524,9 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     else {
         return;
     };
-    record_item_change(world, object_id, item_id, -count, "destroy");
+    // No explicit audit call here: `remove_by_object_id` noted the loss, and
+    // `drain_item_audit` turns it into a record on the next tick. Recording it
+    // here as well would double-count exactly the destroys people look at most.
     let packet = ew::inventory_update_changes(&world.data, &[change]);
     super::helpers::send_inventory_update(world, client_id, object_id, packet);
 }

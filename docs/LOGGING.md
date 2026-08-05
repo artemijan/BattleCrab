@@ -168,6 +168,21 @@ those items are recorded even when `LogItems` is off. That is Java's shape, and
 the whole predicate lives in `GeneralConfig::should_log_item` so the call sites
 cannot drift apart.
 
+### How item records are collected
+
+Gains have one choke point (`add_inventory_item_tracked`). Losses have ~43, and
+every one of them holds a `&mut Inventory` borrow that a `World`-aware call
+cannot coexist with. So the removal methods *note* what left on the inventory
+itself, and `items::drain_item_audit` turns those notes into records once per
+tick, where the config gate, the item names and the owning player are all
+reachable — plus once more on disconnect, since after the session is torn down
+the per-tick drain would never see them.
+
+The noted amount is what **actually** left, not what was requested: asking to
+remove more than the player holds removes only what is there, and a negative
+count means "all of it". A record claiming 500 adena moved when only 100 existed
+would be worse than no record.
+
 Accounting and olympiad records are always written when the sink is on. Who
 logged in, and who won a match, are not debugging aids — Java has no config
 switch for them either.
@@ -203,12 +218,6 @@ which races with in-flight writes and silently loses lines.
 
 ## Gaps
 
-- **Item losses are only partly recorded.** Gains funnel through
-  `game_loop::items::add_inventory_item_tracked`, and the explicit destroy path
-  records too, but the ~43 direct callers of `Inventory::remove_item` (shots,
-  quest consumption, crafting, trades) do not. That method is a plain data
-  component with no access to `World`, so closing the gap means routing those
-  callers through a `World`-aware helper. Marked `TODO(G35)` at the method.
 - **The `audit` (illegal actions) category has no call site**: no
   `IllegalPlayerActionTask` equivalent is ported. The category is kept so the
   filename and the Java category stay aligned for when it lands.

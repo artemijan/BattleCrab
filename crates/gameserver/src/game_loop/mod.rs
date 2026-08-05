@@ -344,6 +344,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // drowning player; the port sweeps the component instead). Every tick,
         // because each player's clock starts when *they* went under.
         water::drown_tick(&mut world);
+        // Item losses noted by the inventory removal methods become audit
+        // records here, where the config gate and the owning player exist.
+        // Every tick: a record that waits is a record that a crash loses.
+        items::drain_item_audit(&mut world);
         // 5. Flush outbound packets / DB commands — added in G3+.
 
         let elapsed = tick_start.elapsed();

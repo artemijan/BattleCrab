@@ -611,6 +611,12 @@ pub(crate) fn handle_logout(world: &mut World, client_id: u32) {
 
 /// Clean up a disconnected client and inform the login server.
 pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
+    // Flush any item losses this player noted before the session is torn down —
+    // after removal the inventory is gone and the per-tick drain would never
+    // see them. The last thing someone does before vanishing is exactly what an
+    // audit gets asked about.
+    super::items::drain_item_audit(world);
+
     // Java `GameClient.onDisconnection` → the `accounting` logger. Recorded
     // first, while the account and character are still reachable through the
     // session. Ungated on purpose: unlike chat and items, Java has no config

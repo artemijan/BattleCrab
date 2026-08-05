@@ -146,6 +146,21 @@ impl Refund {
 pub struct Inventory {
     items: Vec<ItemInstance>,
     paperdoll: [Option<i32>; PAPERDOLL_TOTAL_SLOTS],
+    /// Item losses awaiting an audit record, as `(item_id, count_removed)`.
+    ///
+    /// Java records ownership changes down in `Item.setOwnerId`/`changeCount`,
+    /// which every path funnels through. This component cannot do that — it has
+    /// no access to `World`, so it cannot reach the config gate, the item names
+    /// or the owning player. Rather than route all ~43 callers of
+    /// [`Self::remove_item`] through a `World`-aware helper (borrow surgery at
+    /// every site, for an audit feature), the removal is *noted* here and
+    /// [`crate::game_loop::items::drain_item_audit`] turns it into a record on
+    /// the next tick, where the context exists.
+    ///
+    /// Only ever appended by the removal methods and drained by that function,
+    /// so an inventory nobody drains (mail attachments, which never call the
+    /// removal methods) cannot accumulate.
+    pending_audit: Vec<(i32, i64)>,
 }
 
 impl Inventory {
@@ -416,17 +431,12 @@ impl Inventory {
     /// none of which a plain data component can do. Snapshot
     /// [`Self::equipped_object_ids`] before calling and hand what this
     /// unequipped to `game_loop::items::finish_equipped_item_destroyed`.
-    // TODO(G35): item-loss audit records. Java logs every ownership change down
-    // in `Item.setOwnerId`/`changeCount`, so consumption through this method is
-    // audited there too. Here the gains go through the
-    // `game_loop::items::add_inventory_item_tracked` choke point and the
-    // explicit destroy path calls `record_item_change`, but the ~43 direct
-    // callers of this method (shots, quest consumption, crafting, trades) do
-    // not. This method is a plain data component with no access to `World`, so
-    // closing the gap means routing those callers through a `World`-aware
-    // helper rather than adding a call here.
     pub fn remove_item(&mut self, item_id: i32, count: i64) -> Vec<ItemChange> {
         let mut remaining = if count < 0 { i64::MAX } else { count };
+        // The *actual* amount that left, which is not `count`: a request for
+        // more than the player holds removes only what is there, and `count < 0`
+        // means "all of it". An audit record has to state what really moved.
+        let mut removed_total: i64 = 0;
         let mut changes = Vec::new();
         while remaining > 0 {
             let Some(idx) = self.items.iter().position(|i| i.item_id == item_id) else {
@@ -434,11 +444,13 @@ impl Inventory {
             };
             if self.items[idx].count > remaining {
                 self.items[idx].count -= remaining;
+                removed_total += remaining;
                 changes.push(ItemChange::Modified(self.items[idx]));
                 break;
             }
             let removed = self.items.remove(idx);
             remaining -= removed.count;
+            removed_total += removed.count;
             self.paperdoll.iter_mut().for_each(|s| {
                 if *s == Some(removed.object_id) {
                     *s = None; // Java `Inventory.removeItem`; see doc comment
@@ -446,7 +458,22 @@ impl Inventory {
             });
             changes.push(ItemChange::Removed(removed));
         }
+        if removed_total > 0 {
+            self.pending_audit.push((item_id, removed_total));
+        }
         changes
+    }
+
+    /// Takes the noted losses, leaving the buffer empty. Called by
+    /// [`crate::game_loop::items::drain_item_audit`] — see [`Self::pending_audit`].
+    pub fn take_pending_audit(&mut self) -> Vec<(i32, i64)> {
+        std::mem::take(&mut self.pending_audit)
+    }
+
+    /// Whether anything is waiting, so the per-tick drain can skip the common
+    /// case without allocating.
+    pub fn has_pending_audit(&self) -> bool {
+        !self.pending_audit.is_empty()
     }
 
     /// Destroy `count` of one specific instance by `object_id` (Java
@@ -457,11 +484,16 @@ impl Inventory {
     /// item id.
     pub fn remove_by_object_id(&mut self, object_id: i32, count: i64) -> Option<ItemChange> {
         let idx = self.items.iter().position(|i| i.object_id == object_id)?;
+        let item_id = self.items[idx].item_id;
         if self.items[idx].count > count {
             self.items[idx].count -= count;
+            // A partial take: `count` is bounded by the stack above, so here it
+            // really is the amount that left.
+            self.pending_audit.push((item_id, count));
             return Some(ItemChange::Modified(self.items[idx]));
         }
         let removed = self.items.remove(idx);
+        self.pending_audit.push((item_id, removed.count));
         self.paperdoll.iter_mut().for_each(|s| {
             if *s == Some(removed.object_id) {
                 *s = None; // defensive; see remove_item's doc comment
@@ -921,6 +953,49 @@ mod tests {
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
         }
+    }
+
+    /// The audit note must state what actually left, not what was asked for.
+    /// Java records the real count change; a record saying 500 adena moved when
+    /// only 100 existed would be worse than no record.
+    #[test]
+    fn the_pending_audit_note_is_what_actually_left() {
+        let catalog = ItemData::from_templates(vec![armor(1, item_data::SLOT_CHEST)]);
+        let mut inv = Inventory::new();
+        inv.add_item(&catalog, 1, 1, 1);
+        assert!(!inv.has_pending_audit(), "adding must not note a loss");
+
+        // Ask for more than is held.
+        inv.remove_item(1, 50);
+        assert_eq!(inv.take_pending_audit(), vec![(1, 1)]);
+        // Draining empties it, so the next tick cannot re-record the same loss.
+        assert!(!inv.has_pending_audit());
+    }
+
+    /// `count < 0` is the "remove all of it" convention; the note has to
+    /// resolve that to the real amount rather than passing the sentinel on.
+    #[test]
+    fn removing_all_notes_the_real_amount_not_the_sentinel() {
+        let catalog = ItemData::from_templates(vec![armor(1, item_data::SLOT_CHEST)]);
+        let mut inv = Inventory::new();
+        inv.add_item(&catalog, 1, 1, 1);
+        inv.add_item(&catalog, 2, 1, 1);
+        inv.remove_item(1, -1);
+        let noted = inv.take_pending_audit();
+        assert_eq!(
+            noted,
+            vec![(1, 2)],
+            "expected both instances, got {noted:?}"
+        );
+    }
+
+    /// A removal that matches nothing must stay silent — an audit file full of
+    /// zero-count entries is how a real one stops being read.
+    #[test]
+    fn a_removal_that_finds_nothing_notes_nothing() {
+        let mut inv = Inventory::new();
+        inv.remove_item(1, 5);
+        assert!(!inv.has_pending_audit());
     }
 
     #[test]
