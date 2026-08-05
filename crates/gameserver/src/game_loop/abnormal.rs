@@ -109,7 +109,11 @@ pub(crate) fn visual_effects(world: &World, object_id: i32) -> Vec<i16> {
         out.extend(admin.0.iter().copied());
     }
     if let Some(buffs) = world.objects.get_component::<Buffs>(&object_id) {
-        for buff in &buffs.0 {
+        // Java's visual recalculation loop (`EffectList.updateEffectFlags`)
+        // runs under the same `isDisplayedForEffected()` gate as the icon
+        // list, so a buff hidden from the effected shows them no visual
+        // either.
+        for buff in buffs.0.iter().filter(|b| b.displayed) {
             for &id in &buff.abnormal_visuals {
                 if !out.contains(&id) {
                     out.push(id);

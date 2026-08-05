@@ -19,6 +19,7 @@ const ADENA: i32 = 57;
 /// The test skill at level 40 with a +1/+2 route on `power`.
 fn install_enchant_data(world: &mut World) {
     let base = Skill {
+        self_continuous: false,
         id: SKILL,
         level: 40,
         name: "Test Nuke".into(),
@@ -32,6 +33,7 @@ fn install_enchant_data(world: &mut World) {
     world.data.skill_data.insert_for_test(base.clone());
     for sub in 1001..=1005 {
         world.data.skill_data.insert_enchanted_for_test(Skill {
+            self_continuous: false,
             sub_level: sub,
             // A big, visible power step so the cast test can tell +N landed.
             effects: vec![SkillEffect::MagicalAttack {

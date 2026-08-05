@@ -21,6 +21,7 @@ const ROOT_ID: i32 = 9301;
 /// entirely the state flag.
 fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
     Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -3740,5 +3741,100 @@ fn an_end_effect_call_skill_lands_on_expiry() {
     assert!(
         has(&world, 9461),
         "and its expiry fired the second — the half Anchor was missing"
+    );
+}
+
+/// `BuffInfo.isDisplayedForEffected()` — the one rule `isSelfContinuous()`
+/// exists to feed.
+///
+/// An `A3` skill that also declares `<selfEffects>` shows its row only to the
+/// caster. Blinding Blow's victim is blinded and *feels* it; they are simply
+/// never sent an icon for it. Six skills on this dist qualify (321, 368, 369,
+/// 409, 1231, 1996) and every other buff in the game is unaffected, so the
+/// zero case is most of the assertion's value here.
+#[test]
+fn a_self_continuous_skills_debuff_shows_no_icon_to_its_victim() {
+    let skills = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+
+    let blinding_blow = skills.get(321, 1).expect("Blinding Blow loads");
+    assert!(
+        blinding_blow.self_continuous && !blinding_blow.self_effects.is_empty(),
+        "the dist still declares 321 as A3 with selfEffects — the whole premise"
+    );
+
+    // A plain buff is A2/A1 and is displayed to whoever it lands on.
+    let wind_walk = skills.get(1204, 1).expect("Wind Walk loads");
+    assert!(
+        !wind_walk.self_continuous,
+        "an ordinary buff is not self-continuous"
+    );
+
+    // The rule itself, as `apply_continuous_effects` evaluates it.
+    let displayed = |skill: &crate::model::skill::Skill, on_caster: bool| {
+        !skill.self_continuous || on_caster || skill.self_effects.is_empty()
+    };
+    assert!(
+        !displayed(blinding_blow, false),
+        "the victim gets no icon for a self-continuous skill's debuff"
+    );
+    assert!(
+        displayed(blinding_blow, true),
+        "…but the caster still sees their own half of it"
+    );
+    assert!(
+        displayed(wind_walk, false),
+        "and nothing else in the game is hidden by this rule"
+    );
+}
+
+/// The hidden buff must stay invisible in **both** channels Java gates on
+/// `isDisplayedForEffected()`: the icon row and the abnormal-visual fold.
+#[test]
+fn a_hidden_buff_is_absent_from_the_icon_row_and_the_visuals() {
+    use crate::model::components::Buffs;
+    use crate::model::skill::{ActiveBuff, BuffSlot};
+
+    let buff = |displayed: bool| ActiveBuff {
+        skill_id: 321,
+        skill_level: 1,
+        abnormal_type_client_id: 7,
+        abnormal_type: "NONE".to_string(),
+        abnormal_level: 0,
+        slot: BuffSlot::Uncapped,
+        expires_at_tick: 1000,
+        passive: false,
+        displayed,
+        effect_flags: 0,
+        blocked_abnormals: Vec::new(),
+        abnormal_visuals: vec![13],
+        effects: Vec::new(),
+    };
+
+    // The icon row: the count field is the first thing after the opcode, so a
+    // hidden buff has to leave it at zero rather than write a blank entry.
+    let row = |displayed: bool| {
+        let pkt =
+            crate::network::enter_world::abnormal_status_update(&Buffs(vec![buff(displayed)]), 0);
+        i16::from_le_bytes([pkt[1], pkt[2]])
+    };
+    assert_eq!(row(true), 1, "a displayed buff occupies a row");
+    assert_eq!(row(false), 0, "a hidden one occupies none");
+
+    // The visual fold, which Java runs under the same gate.
+    let (mut world, _db, _l) = cc_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    world
+        .objects
+        .add_components(&CASTER, Buffs(vec![buff(true)]));
+    assert_eq!(abnormal::visual_effects(&world, CASTER), vec![13]);
+    world
+        .objects
+        .add_components(&CASTER, Buffs(vec![buff(false)]));
+    assert!(
+        abnormal::visual_effects(&world, CASTER).is_empty(),
+        "a hidden buff shows the effected no visual either"
     );
 }

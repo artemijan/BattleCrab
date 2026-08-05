@@ -538,6 +538,7 @@ fn npc_view_skills_page_lists_the_npcs_skills() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: 4045,
             level: 1,
             name: "Resist Shock".into(),

@@ -22,6 +22,7 @@ const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 /// cooldown — the *victim* of the rates, not a carrier of them.
 fn cost_skill(id: i32, magic_type: i32, mp_consume: i32, reuse_delay: i32) -> Skill {
     Skill {
+        self_continuous: false,
         id,
         name: format!("Cost{id}"),
         magic_type,
@@ -34,6 +35,7 @@ fn cost_skill(id: i32, magic_type: i32, mp_consume: i32, reuse_delay: i32) -> Sk
 /// A rate buff: `MagicMpCost`/`Reuse` percentages on one bucket.
 fn rate_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
     Skill {
+        self_continuous: false,
         id,
         name: format!("Rate{id}"),
         target_type: TargetType::Self_,

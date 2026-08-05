@@ -266,6 +266,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     fn flag(world: &mut World, flags: u32) {
         let mut buffs = crate::model::components::Buffs::default();
         buffs.0.push(ActiveBuff {
+            displayed: true,
             skill_id: 1,
             skill_level: 1,
             abnormal_type_client_id: 0,

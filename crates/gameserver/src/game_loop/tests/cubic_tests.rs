@@ -53,6 +53,7 @@ fn attack_template(level: i32) -> CubicTemplate {
 fn register(world: &mut World, t: CubicTemplate) {
     world.data.cubic_data.insert_for_test(t);
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: CUBIC_SKILL,
         level: 1,
         effects: vec![crate::model::skill::SkillEffect::MagicalAttack { power: 50.0 }],

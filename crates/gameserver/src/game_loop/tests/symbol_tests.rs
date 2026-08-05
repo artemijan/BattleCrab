@@ -42,6 +42,7 @@ fn register_totem_template(world: &mut World) {
 /// the shape of Day of Doom 5145.
 fn aura_skill() -> Skill {
     Skill {
+        self_continuous: false,
         id: AURA_SKILL,
         name: "Test Seal Aura".into(),
         operate_type: OperateType::Active,
@@ -74,6 +75,7 @@ fn aura_skill() -> Skill {
 /// The symbol skill: a GROUND cast whose only effect drops the totem.
 fn symbol_skill() -> Skill {
     Skill {
+        self_continuous: false,
         id: SYMBOL_SKILL,
         name: "Test Symbol".into(),
         operate_type: OperateType::Active,

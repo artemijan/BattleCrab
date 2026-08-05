@@ -15,6 +15,7 @@ const CID: u32 = 1;
 /// exactly as the parser would deliver it (`unk;startDegree;radius;angle`).
 fn geo_skill(scope: AffectScope, fan_range: [i32; 4], affect_range: i32) -> Skill {
     Skill {
+        self_continuous: false,
         id: 9100,
         name: "Geo test".into(),
         operate_type: OperateType::Active,

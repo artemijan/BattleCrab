@@ -750,6 +750,7 @@ fn insert_valakas_skill(world: &mut World, id: i32, cast_range: i32) {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id,
             level: 1,
             cast_range,

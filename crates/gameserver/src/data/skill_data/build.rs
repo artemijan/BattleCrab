@@ -28,19 +28,19 @@ pub(crate) fn build_skill(
                 .and_then(|v| v.parse().ok())
                 .unwrap_or(default)
         };
+        // `SkillOperateType.isSelfContinuous()` — A3 and nothing else.
+        let self_continuous = value_at(values, "operateType", level) == Some("A3");
         let operate_type = match value_at(values, "operateType", level) {
             // `SkillOperateType.isActive()` minus the channeling and fly
             // families. A1..A6 differ in continuity, which is read off the
             // `operateType` string into `is_continuous` rather than from this
             // enum, so they collapse here.
             //
-            // TODO(G34): A3 additionally sets `isSelfContinuous()`, whose only
-            // consumer is `BuffInfo.isDisplayedForEffected` — an A3 skill that
-            // has `<selfEffects>` hides its buff **icon** on a target that is
-            // not the caster (Blinding Blow 321, Vengeance 368, Critical Blow
-            // 409 all qualify). Not ported: `ActiveBuff` records no effector,
-            // so the rule has nothing to test. Display-only; the effects
-            // themselves are unaffected.
+            // A3 additionally sets `isSelfContinuous()`, which
+            // `BuffInfo.isDisplayedForEffected` reads — see
+            // `ActiveBuff::displayed`. It is carried on the skill separately
+            // (`self_continuous`) rather than through this enum, because the
+            // enum is about *castability* and A3 is an ordinary active here.
             //
             // Falling to `Other` is not a cosmetic gap: `use_magic_on` bails
             // outright on anything that is neither `Active` nor `Channeling`,
@@ -1679,6 +1679,7 @@ pub(crate) fn build_skill(
             removed_on_damage: value_at(values, "removedOnDamage", level)
                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             effects: skill_effects,
+            self_continuous,
             self_effects,
             pve_effects,
             pvp_effects,

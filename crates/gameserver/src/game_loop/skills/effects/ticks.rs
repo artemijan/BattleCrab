@@ -349,6 +349,7 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     // same target cannot race it.
     if was_active && !end_effects.is_empty() {
         let called = Skill {
+            self_continuous: false,
             effects: end_effects,
             ..world
                 .data

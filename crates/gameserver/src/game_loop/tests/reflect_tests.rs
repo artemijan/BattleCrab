@@ -26,6 +26,7 @@ fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
         .unwrap()
         .0
         .push(crate::model::skill::ActiveBuff {
+            displayed: true,
             skill_id,
             skill_level: 1,
             abnormal_type_client_id: 0,

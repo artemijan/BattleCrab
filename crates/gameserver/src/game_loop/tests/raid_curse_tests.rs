@@ -48,6 +48,7 @@ fn curse_world() -> (
             .data
             .skill_data
             .insert_for_test(crate::model::skill::Skill {
+                self_continuous: false,
                 id,
                 level: 1,
                 abnormal_time: 120,

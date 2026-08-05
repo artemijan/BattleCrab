@@ -211,6 +211,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
             tiles: vec![(20, 18)], // the tile containing (0,0)
         }]);
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -336,6 +337,7 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
     let (mut world, ..) = test_world();
     world.cfg.character.unstuck_interval = 30;
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 2099,
         level: 1,
         name: "Escape".into(),

@@ -245,6 +245,11 @@ pub(crate) fn apply_continuous_effects(
         abnormal_level: skill.abnormal_level,
         slot: skill.buff_slot(),
         expires_at_tick,
+        // `BuffInfo.isDisplayedForEffected()`. A self-continuous skill that
+        // also has `<selfEffects>` shows no icon to anyone but the caster.
+        displayed: !skill.self_continuous
+            || caster_oid == target_oid
+            || skill.self_effects.is_empty(),
         passive: false,
         effect_flags: skill.effect_flags(),
         blocked_abnormals: skill.blocked_abnormals(),

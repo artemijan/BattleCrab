@@ -2556,6 +2556,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     // A skill carrying just the Spoil effect (magic level 10 ⇒ near-certain
     // land on a level-5 mob), and the Sweeper skill (Sweeper then ConsumeBody).
     let make = |id: i32, target_type, magic_level, effects| Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,

@@ -912,6 +912,7 @@ fn match_start_strips_active_buffs() {
     let (mut world, _tx, _db, _l) = test_world();
     let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
     let buff = ActiveBuff {
+        displayed: true,
         skill_id: 1204, // Wind Walk
         skill_level: 1,
         abnormal_type_client_id: 0,

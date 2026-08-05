@@ -42,6 +42,7 @@ fn install(world: &mut World, effect: SkillEffect) {
     };
     use crate::model::stats::{Stat, StatModifierType};
     let base = |id: i32, effects: Vec<SkillEffect>, abnormal_time: i32, op: OperateType| Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,

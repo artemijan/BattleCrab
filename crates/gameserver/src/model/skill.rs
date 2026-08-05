@@ -2131,6 +2131,10 @@ pub struct Skill {
     /// action-blocked while the mob beats on them.
     pub removed_on_damage: bool,
     pub effects: Vec<SkillEffect>,
+    /// Java `SkillOperateType.isSelfContinuous()` — true for `A3` alone.
+    /// Read only by [`ActiveBuff::displayed`]; the effects themselves behave
+    /// exactly like any other active skill's.
+    pub self_continuous: bool,
     /// Java `EffectScope.SELF` (`<selfEffects>`) — applied to the **caster**,
     /// as a separate `applyEffects(caster, caster, …)` after the target loop.
     /// Blinding Blow 321, Sonic Rage 345, Raging Force 346, Vengeance 368,
@@ -2469,6 +2473,7 @@ impl Default for Skill {
             stay_after_death: false,
             removed_on_damage: false,
             effects: Vec::new(),
+            self_continuous: false,
             self_effects: Vec::new(),
             pve_effects: Vec::new(),
             pvp_effects: Vec::new(),
@@ -2772,6 +2777,15 @@ pub struct ActiveBuff {
     /// Absolute tick the buff expires at (for `AbnormalStatusUpdate`'s
     /// remaining-time field).
     pub expires_at_tick: u64,
+    /// Java `BuffInfo.isDisplayedForEffected()`:
+    /// `!isSelfContinuous() || (effected == effector) || !hasEffects(SELF)`.
+    ///
+    /// An `A3` skill that also carries `<selfEffects>` hides its row from
+    /// anyone who is not the caster — Blinding Blow 321, Vengeance 368, Evade
+    /// Shot 369, Critical Blow 409, Aura Flare 1231 and Hurricane Shackle 1996
+    /// on this dist. The victim feels the debuff but is never shown an icon
+    /// for it. Stamped at creation because the effector is not stored.
+    pub displayed: bool,
     /// True for entries that stand in for a passive skill's stat pump (the
     /// grade-penalty skills 6209/6213) rather than a timed buff. They drive
     /// stats through the same modifier maps but are hidden from

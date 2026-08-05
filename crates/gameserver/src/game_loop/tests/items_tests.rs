@@ -964,6 +964,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -1115,6 +1116,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
             tiles: vec![(20, 18)],
         }]);
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 2013,
         level: 1,
         name: "Scroll of Escape".into(),
@@ -1260,6 +1262,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -1431,6 +1434,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     world.forced_rolls.push_back(600_000);
 
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -1615,6 +1619,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     world.forced_rolls.push_back(1);
 
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -4689,6 +4694,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
     world.id_pool = 0x4600_0000..0x4600_0100;
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 2260,
         level: 1,
         name: "Key of Enigma".into(),

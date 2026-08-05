@@ -14,6 +14,7 @@ const BUFF_ID: i32 = 8501;
 
 fn zone_skill(id: i32, effects: Vec<SkillEffect>, abnormal: &str) -> Skill {
     Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,

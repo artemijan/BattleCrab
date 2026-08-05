@@ -224,6 +224,7 @@ fn penalty_effects(
 /// never scheduled to expire) and permanent while the gear stays equipped.
 fn passive_penalty_buff(skill_id: i32, level: i32, effects: Vec<StatModifierEffect>) -> ActiveBuff {
     ActiveBuff {
+        displayed: true,
         skill_id,
         skill_level: level,
         abnormal_type_client_id: -1,

@@ -540,6 +540,7 @@ fn cast_test_world() -> (
     data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![template]);
 
     let base = Skill {
+        self_continuous: false,
         basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -604,6 +605,7 @@ fn cast_test_world() -> (
         effects: vec![],
     };
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 1177,
         name: "Wind Strike".into(),
         target_type: TargetType::EnemyOnly,
@@ -613,6 +615,7 @@ fn cast_test_world() -> (
         ..base.clone()
     });
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 1015,
         name: "Battle Heal".into(),
         target_type: TargetType::Target,
@@ -622,6 +625,7 @@ fn cast_test_world() -> (
         ..base.clone()
     });
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 1068,
         name: "Might".into(),
         target_type: TargetType::Target,
@@ -643,6 +647,7 @@ fn cast_test_world() -> (
     });
     // Power Strike 3 — the canonical physical attack skill (`magic_type: 0`).
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 3,
         name: "Power Strike".into(),
         target_type: TargetType::EnemyOnly,
@@ -665,6 +670,7 @@ fn cast_test_world() -> (
     // lvl-bonus trio matches dist level 1 so the landing-rate roll and its
     // caster-facing chance line compute the real 90 (constrained) vs a low-level mob.
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 1160,
         name: "Decrease Speed".into(),
         target_type: TargetType::EnemyOnly,
@@ -698,6 +704,7 @@ fn cast_test_world() -> (
     });
     // Vampiric Touch 1147 — HpDrain: magic damage + 40% self-heal.
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 1147,
         name: "Vampiric Touch".into(),
         target_type: TargetType::Enemy,
@@ -711,6 +718,7 @@ fn cast_test_world() -> (
     });
     // Backstab 30 — a dagger blow requiring a flank (backstab: true).
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 30,
         name: "Backstab".into(),
         target_type: TargetType::Enemy,
@@ -728,6 +736,7 @@ fn cast_test_world() -> (
     });
     // Mortal Blow 16 — a FatalBlow (no flank requirement).
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 16,
         name: "Mortal Blow".into(),
         target_type: TargetType::Enemy,
@@ -745,6 +754,7 @@ fn cast_test_world() -> (
     });
     // A slow self-buff (10 s cast) used as the interruptible victim cast.
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 91,
         name: "Slow Aura".into(),
         target_type: TargetType::Self_,
@@ -770,6 +780,7 @@ fn cast_test_world() -> (
     // indistinguishable from a working port that simply did not fire. Any
     // test asserting an NPC cast needs its skill present.
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         id: 4243,
         name: "Venomous Poison".into(),
         target_type: TargetType::EnemyOnly,
@@ -1532,6 +1543,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        self_continuous: false,
         basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -1614,6 +1626,7 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        self_continuous: false,
         basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),

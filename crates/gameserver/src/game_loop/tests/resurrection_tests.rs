@@ -475,6 +475,7 @@ fn salvation_proposes_its_revive_when_death_strips_the_buff() {
     let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
 
     let salvation = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1410,
         level: 1,
         target_type: TargetType::Self_,
@@ -522,6 +523,7 @@ fn salvation_does_not_fire_inside_an_olympiad_match() {
     let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
 
     let salvation = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1410,
         level: 1,
         target_type: TargetType::Self_,
@@ -576,6 +578,7 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
     let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
 
     let salvation = crate::model::skill::Skill {
+        self_continuous: false,
         id: 1410,
         level: 1,
         target_type: TargetType::Self_,
@@ -591,6 +594,7 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
     };
     // An ordinary buff that does *not* survive death on its own.
     let haste = crate::model::skill::Skill {
+        self_continuous: false,
         id: 9430,
         level: 1,
         target_type: TargetType::Self_,

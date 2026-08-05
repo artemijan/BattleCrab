@@ -41,6 +41,7 @@ fn cast(
 ) {
     use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
     let skill = Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -243,6 +244,7 @@ fn mp_block_refuses_a_restore() {
         .unwrap()
         .0
         .push(crate::model::skill::ActiveBuff {
+            displayed: true,
             skill_id: 1418,
             skill_level: 1,
             abnormal_type_client_id: 0,

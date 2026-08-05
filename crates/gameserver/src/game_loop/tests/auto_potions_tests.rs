@@ -44,6 +44,7 @@ fn potion_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>)
             .data
             .skill_data
             .insert_for_test(crate::model::skill::Skill {
+                self_continuous: false,
                 id: skill_id,
                 level: 1,
                 name: format!("Restore {item_id}"),
@@ -280,6 +281,7 @@ fn cp_has_its_own_pool() {
         .data
         .skill_data
         .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
             id: 9104,
             level: 1,
             name: "Restore CP".into(),

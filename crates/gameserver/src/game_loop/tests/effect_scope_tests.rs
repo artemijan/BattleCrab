@@ -129,6 +129,7 @@ fn a_self_effect_lands_on_the_caster() {
     let _t = ingame_caster(&mut world, 2, target, 40, 0);
 
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: 9950,
         name: "SelfScoped".into(),
         target_type: crate::model::skill::TargetType::Target,
@@ -143,6 +144,7 @@ fn a_self_effect_lands_on_the_caster() {
 
     // Apply the self scope the way the cast path does.
     let self_skill = crate::model::skill::Skill {
+        self_continuous: false,
         effects: skill.self_effects.clone(),
         ..skill.clone()
     };
@@ -194,6 +196,7 @@ fn self_scope_buffs_use_the_normal_pipeline() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     let skill = crate::model::skill::Skill {
+        self_continuous: false,
         id: 9951,
         name: "SelfBuff".into(),
         abnormal_time: 60,

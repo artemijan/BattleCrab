@@ -1399,6 +1399,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         return;
     };
     let scoped = Skill {
+        self_continuous: false,
         effects: skill.channeling_effects.clone(),
         ..skill.clone()
     };
@@ -1781,6 +1782,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             && !extra.is_empty()
         {
             let scoped = Skill {
+                self_continuous: false,
                 effects: extra,
                 ..skill.clone()
             };
@@ -1854,6 +1856,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // parser used to read only `<effects>`, so none of these landed.
     if !skill.self_effects.is_empty() {
         let self_skill = Skill {
+            self_continuous: false,
             effects: skill.self_effects.clone(),
             ..skill.clone()
         };

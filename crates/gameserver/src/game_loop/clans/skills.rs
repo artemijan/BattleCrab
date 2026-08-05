@@ -129,6 +129,7 @@ fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32,
         return; // known for the skill list, but nothing to fold into stats
     }
     let buff = ActiveBuff {
+        displayed: true,
         skill_id,
         skill_level: level,
         abnormal_type_client_id: -1,

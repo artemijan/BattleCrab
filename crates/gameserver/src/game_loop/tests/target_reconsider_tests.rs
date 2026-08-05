@@ -22,6 +22,7 @@ const STRANGER: i32 = NPC_OID + 2;
 
 fn support_skill(id: i32, effects: Vec<SkillEffect>, continuous: bool) -> Skill {
     Skill {
+        self_continuous: false,
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
@@ -350,6 +351,7 @@ fn a_buff_goes_to_a_faction_mate_that_lacks_it() {
     world.objects.add_components(
         &HEALER,
         crate::model::components::Buffs(vec![crate::model::skill::ActiveBuff {
+            displayed: true,
             skill_id: BUFF_SKILL,
             skill_level: 1,
             abnormal_type_client_id: 0,

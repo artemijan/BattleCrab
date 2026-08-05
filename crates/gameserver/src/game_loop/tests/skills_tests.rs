@@ -75,6 +75,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         },
     );
     data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -1552,6 +1553,7 @@ fn shared_reuse_group_blocks_sibling_skill() {
     let base = world.data.skill_data.get(91, 1).unwrap().clone();
     for id in [7001, 7002] {
         world.data.skill_data.insert_for_test(Skill {
+            self_continuous: false,
             id,
             hit_time: 400,
             reuse_delay: 2000,
@@ -3187,6 +3189,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     // values: Poison 129 (abnormalType POISON, abnormalLevel 3 @ lvl 1 / 7 @
     // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
     let poison = |level: i32, abnormal_level: i32| Skill {
+        self_continuous: false,
         basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -3257,6 +3260,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(poison(1, 3));
     world.data.skill_data.insert_for_test(poison(4, 7));
     world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
         basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -3386,6 +3390,7 @@ mod dispel_by_category {
     /// `can_be_dispelled`/`is_debuff`/`effects` per case.
     fn base_skill(id: i32, name: &str) -> Skill {
         Skill {
+            self_continuous: false,
             basic_property: crate::model::skill::BasicProperty::None,
             conditions: Vec::new(),
             target_conditions: Vec::new(),
@@ -4065,6 +4070,7 @@ fn synthetic_buff(
     use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        self_continuous: false,
         basic_property: crate::model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
