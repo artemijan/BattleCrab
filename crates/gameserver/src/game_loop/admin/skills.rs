@@ -400,11 +400,18 @@ pub(super) fn admin_getbuffs_ps(world: &mut World, client_id: u32, object_id: i3
     show_buffs(world, client_id, object_id, args, true);
 }
 
+/// Entries per page (Java `PageBuilder.newBuilder(effects, 3, pageLink)`).
+///
+/// Three is not a typo. Java pages *buffs*, and renders one row per
+/// `AbstractEffect` **inside** each one, so a page of three buffs can be a
+/// dozen rows. This port keeps its existing one-row-per-buff table — it has no
+/// per-effect display model — so its pages are shorter than Java's. The page
+/// *size* matches; the rows per page do not, and that is a pre-existing
+/// difference in the row shape, not something pagination introduced.
+const BUFF_PAGE_SIZE: usize = 3;
+
 /// Render `getbuffs.htm` for the target (Java `showBuffs`): a table of the
-/// active (or passive) effects with per-row `admin_stopbuff` buttons.
-// TODO(G33): Java paginates this list 3-per-page through `PageBuilder` and
-// fills `%pages%` with the pager template; the port renders every effect on one
-// page and leaves `%pages%` empty.
+/// active (or passive) effects with per-row `admin_stopbuff` buttons, paged.
 fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], passive: bool) {
     // Java: `//getbuffs <playername>` wins over the target; otherwise **any
     // Creature** target is valid — which is what the `Buffs` button on the
@@ -444,12 +451,34 @@ fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], 
             Some(npc.template(world)?.name.clone())
         })
         .unwrap_or_default();
+    // The pager link always carries the target's name (Java's `pageLink` uses
+    // `target.getName()`), so a page button works even when the GM opened the
+    // window off a selection rather than by typing a name.
+    let name_for_link = name.clone();
     let now = world.tick;
+    // `//getbuffs <name> <page>` — the pager appends the page to a link that
+    // always carries the target's name, as Java's `pageLink` does.
+    let page: i32 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
+    let total = world
+        .objects
+        .get_component::<Buffs>(&target)
+        .map(|b| b.0.iter().filter(|x| x.passive == passive).count())
+        .unwrap_or(0);
+    let pages = total.div_ceil(BUFF_PAGE_SIZE) as i32;
+    // Java's clamp tests `>`, not `>=` (see `flags::show_ave_menu`): a
+    // hand-typed page equal to the count runs off the end and lists nothing.
+    // No pager button can reach it — they only link 0..pages-1.
+    let current = if page > pages { pages - 1 } else { page.max(0) };
+    let start = (BUFF_PAGE_SIZE as i32 * current).max(0) as usize;
     let mut rows = String::new();
-    let mut count = 0;
     if let Some(buffs) = world.objects.get_component::<Buffs>(&target) {
-        for b in buffs.0.iter().filter(|x| x.passive == passive) {
-            count += 1;
+        for b in buffs
+            .0
+            .iter()
+            .filter(|x| x.passive == passive)
+            .skip(start)
+            .take(BUFF_PAGE_SIZE)
+        {
             let skill = world.data.skill_data.get(b.skill_id, b.skill_level);
             let sname = skill
                 .map(|s| s.name.clone())
@@ -471,7 +500,8 @@ fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], 
         ("targetName", name),
         ("targetObjId", target.to_string()),
         ("buffs", rows),
-        ("effectSize", count.to_string()),
+        // Java fills `%effectSize%` from the *whole* list, not the page.
+        ("effectSize", total.to_string()),
         (
             "buffsText",
             if passive {
@@ -484,7 +514,25 @@ fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], 
             "passives",
             if passive { String::new() } else { "_ps".into() },
         ),
-        ("pages", String::new()),
+        (
+            "pages",
+            if pages > 1 {
+                format!(
+                    "<table width=280 cellspacing=0><tr>{}</tr></table>",
+                    super::spawn::default_pager(
+                        &format!(
+                            "bypass -h admin_getbuffs{} {name_for_link}",
+                            if passive { "_ps" } else { "" }
+                        ),
+                        current,
+                        pages,
+                    )
+                )
+            } else {
+                // Java: `if (result.getPages() > 0) … else replace("%pages%", "")`.
+                String::new()
+            },
+        ),
     ];
     super::menu::show_admin_html_replace(world, client_id, "getbuffs.htm", &r);
 }

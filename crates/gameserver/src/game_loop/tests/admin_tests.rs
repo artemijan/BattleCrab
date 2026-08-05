@@ -2455,6 +2455,52 @@ fn admin_getbuffs_lists_active_buffs() {
         html.contains("admin_stopbuff 8401 1068"),
         "buff row carries a cancel button"
     );
+    // One buff is a single page, so Java leaves `%pages%` empty rather than
+    // drawing a one-button pager.
+    assert!(
+        !html.contains("admin_getbuffs "),
+        "no pager for a single page: {html}"
+    );
+}
+
+/// `//getbuffs` pages at 3 buffs (Java `PageBuilder.newBuilder(effects, 3, …)`),
+/// and the pager links carry the target's name so a page button works even when
+/// the window was opened off a selection.
+#[test]
+fn admin_getbuffs_pages_at_three() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8402, 100);
+    drain(&mut gm_rx);
+
+    // Four buffs → two pages.
+    for id in [1068, 1204, 1085, 1077] {
+        on_packet(&mut world, 1, build_admin(&format!("buff {id} 1")));
+    }
+    drain(&mut gm_rx);
+
+    let page = |world: &mut World, rx: &mut _, arg: &str| -> String {
+        on_packet(world, 1, build_admin(arg));
+        drain(rx)
+            .iter()
+            .find_map(|p| decode_npc_html(p))
+            .expect("getbuffs html")
+    };
+
+    let first = page(&mut world, &mut gm_rx, "getbuffs");
+    let rows = |h: &str| h.matches("admin_stopbuff").count();
+    assert_eq!(rows(&first), 3, "page one holds three buffs: {first}");
+    assert!(
+        first.contains("admin_getbuffs "),
+        "a pager appears past one page"
+    );
+
+    // Page two holds the remainder. The link the pager builds is what a GM
+    // would click, so drive it rather than a hand-made command.
+    let second = page(&mut world, &mut gm_rx, "getbuffs P8402 1");
+    assert_eq!(rows(&second), 1, "page two holds the fourth: {second}");
 }
 
 /// `//stopbuff <id>` removes that one buff.
