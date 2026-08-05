@@ -204,6 +204,13 @@ pub mod sm_ids {
     // Item use (G14): `ExtractableItems` (pack/box unpacking).
     pub const THERE_WAS_NOTHING_FOUND_INSIDE: i16 = 1669;
     pub const YOUR_INVENTORY_IS_FULL: i16 = 129;
+    // Clan-hall lease (G24) — broadcast to the owning clan's online members.
+    /// `Payment for your clan hall has not been made. Please make payment to
+    /// your clan warehouse by $s1 tomorrow.` — takes the lease as an `Int`.
+    pub const PAYMENT_FOR_YOUR_CLAN_HALL_HAS_NOT_BEEN_MADE: i16 = 1051;
+    /// `The clan hall fee is one week overdue; therefore the clan hall
+    /// ownership has been revoked.`
+    pub const THE_CLAN_HALL_FEE_IS_ONE_WEEK_OVERDUE: i16 = 1052;
     // Castle-siege registration refusals (G24). Java sends one of these from
     // `Siege.checkIfCanRegister`, plus the dissolution guard in
     // `RequestJoinSiege` itself.

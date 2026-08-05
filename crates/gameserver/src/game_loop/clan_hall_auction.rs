@@ -335,11 +335,29 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
 
     if !can_pay {
         if cost_fail_days(paid_until, now) > FAIL_LIMIT_DAYS {
-            // A week overdue → ownership revoked (Java sends SM 3? here — the
-            // clan-member broadcast is deferred, TODO(G24)).
+            // A week overdue → ownership revoked, and Java tells the clan
+            // before taking the hall (`broadcastToOnlineMembers` then
+            // `setOwner(null)`), so the members learn why the hall vanished.
+            super::clans::broadcast_to_clan(
+                world,
+                owner_id,
+                &crate::network::server_packets::system_message_with(
+                    crate::network::server_packets::sm_ids::THE_CLAN_HALL_FEE_IS_ONE_WEEK_OVERDUE,
+                    &[],
+                ),
+            );
             revoke_hall(world, hall_id);
         } else {
-            // Retry tomorrow (Java's daily reminder; the SM is deferred).
+            // Java's daily reminder, carrying the outstanding lease so the
+            // clan knows how much to bank.
+            super::clans::broadcast_to_clan(
+                world,
+                owner_id,
+                &crate::network::server_packets::system_message_with(
+                    crate::network::server_packets::sm_ids::PAYMENT_FOR_YOUR_CLAN_HALL_HAS_NOT_BEEN_MADE,
+                    &[commons::system_messages::SmParam::Int(lease as i32)],
+                ),
+            );
             world.scheduler.schedule(
                 world.tick + super::helpers::ms_to_ticks(DAY_MS as i32),
                 ScheduledTask::ClanHallLeaseCheck { hall_id },

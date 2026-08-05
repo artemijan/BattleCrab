@@ -472,6 +472,68 @@ fn a_week_overdue_owner_is_evicted() {
     );
 }
 
+/// **The clan is told, both times.** Java broadcasts to the owning clan's
+/// online members — a daily reminder carrying the outstanding lease, and the
+/// eviction notice *before* the hall is taken. Without them a clan hall simply
+/// disappeared with no explanation.
+#[test]
+fn the_owning_clan_hears_about_the_overdue_lease() {
+    use crate::network::server_packets::sm_ids;
+
+    // Overdue but inside the week: the reminder.
+    let mut world = auction_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .clan_id = 10;
+    world.clans.get_mut(&10).unwrap().members.push(member(3001));
+    let now = commons::util::now_millis();
+    own_hall(&mut world, ONYX, 10, now - 2 * DAY_MS);
+    drain(&mut rx);
+    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::PAYMENT_FOR_YOUR_CLAN_HALL_HAS_NOT_BEEN_MADE),
+        "the clan is reminded while it still has time"
+    );
+
+    // Past the week: the eviction notice, sent before ownership is cleared.
+    let mut world = auction_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .clan_id = 10;
+    world.clans.get_mut(&10).unwrap().members.push(member(3001));
+    own_hall(&mut world, ONYX, 10, now - 10 * DAY_MS);
+    drain(&mut rx);
+    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::THE_CLAN_HALL_FEE_IS_ONE_WEEK_OVERDUE),
+        "and told why the hall is gone"
+    );
+    assert_eq!(world.clan_halls[&ONYX].owner_id, 0);
+}
+
+/// A roster entry for the broadcast tests.
+fn member(char_id: i32) -> crate::model::clan::ClanMember {
+    crate::model::clan::ClanMember {
+        char_id,
+        name: format!("P{char_id}"),
+        level: 20,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+        power_grade: 5,
+        title: String::new(),
+        pledge_type: 0,
+    }
+}
+
 // ---------------------------------------------------------------------------
 // The Clan Hall Door Manager (owner opens/closes doors)
 // ---------------------------------------------------------------------------
