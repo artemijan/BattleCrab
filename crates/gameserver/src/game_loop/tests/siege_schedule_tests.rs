@@ -286,3 +286,98 @@ fn ending_a_siege_reopens_the_hour_picking_window() {
         "the window is 24 h (got {window} ms)"
     );
 }
+
+/// `ExShowCastleInfo` reports live ownership rather than the static
+/// all-unowned list it sent until 2026-08-05.
+///
+/// The overlay is what the world map draws, so every field is a visible claim:
+/// who holds the castle, what it taxes, when it is next besieged, and whether
+/// a siege is running right now.
+#[test]
+fn castle_info_overlay_carries_owner_tax_and_siege() {
+    use crate::network::server_packets;
+
+    let (mut world, ..) = test_world();
+    world.castles = vec![
+        Castle {
+            id: 1,
+            name: "Gludio".into(),
+            side: CastleSide::Dark,
+            ticket_buy_count: 0,
+            first_mid_victory: false,
+            time_registration_over: true,
+            siege_time_registration_end: 0,
+            siege_date: 1_700_000_000_000,
+            treasury: 0,
+        },
+        Castle {
+            id: 2,
+            name: "Dion".into(),
+            side: CastleSide::Neutral,
+            ticket_buy_count: 0,
+            first_mid_victory: false,
+            time_registration_over: true,
+            siege_time_registration_end: 0,
+            siege_date: 0,
+            treasury: 0,
+        },
+    ];
+    // Gludio is held; Dion is not. A castle with no owning clan must still
+    // occupy its slot with an empty name, or every field after it shifts.
+    world.clans.insert(10, owning_clan(10, 1));
+    world.cfg.feature.castle_buy_tax_dark = 8;
+    world.cfg.feature.castle_buy_tax_neutral = 15;
+    let mut siege = Siege::new(1);
+    siege.in_progress = true;
+    world.sieges.insert(1, siege);
+
+    let pkt = server_packets::ex_show_castle_info(&world);
+    let mut r = commons::network::PacketReader::new(&pkt[3..]);
+    assert_eq!(r.read_i32().unwrap(), 2, "one entry per castle in the list");
+
+    assert_eq!(r.read_i32().unwrap(), 1, "Gludio id");
+    assert_eq!(r.read_string().unwrap(), "Clan10", "owner clan name");
+    assert_eq!(r.read_i32().unwrap(), 8, "buy tax follows the DARK side");
+    assert_eq!(
+        r.read_i32().unwrap(),
+        1_700_000_000,
+        "siege date in SECONDS, not the millis it is stored as"
+    );
+    assert_eq!(r.read_u8().unwrap(), 1, "siege in progress");
+    assert_eq!(r.read_u8().unwrap(), 2, "CastleSide::Dark ordinal");
+
+    assert_eq!(r.read_i32().unwrap(), 2, "Dion id");
+    assert_eq!(r.read_string().unwrap(), "", "unowned writes an empty name");
+    assert_eq!(r.read_i32().unwrap(), 15, "NEUTRAL tax");
+    assert_eq!(r.read_i32().unwrap(), 0, "no siege scheduled");
+    assert_eq!(r.read_u8().unwrap(), 0, "no siege running");
+    assert_eq!(r.read_u8().unwrap(), 0, "CastleSide::Neutral ordinal");
+}
+
+/// A minimal clan holding `castle_id` — enough for the overlay's owner lookup.
+fn owning_clan(id: i32, castle_id: i32) -> crate::model::clan::Clan {
+    crate::model::clan::Clan {
+        id,
+        name: format!("Clan{id}"),
+        leader_id: id * 10,
+        level: 5,
+        reputation_score: 0,
+        castle_id,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    }
+}

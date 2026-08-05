@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **153** such
+of narrow behaviours deferred and marked at the site. There are **152** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -118,7 +118,6 @@ also registering its NPCs would strand the player.
 | `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
 | `TODO(q214-gargoyle-name)` | 1 | `scripts/q00214_trial_of_the_scholar.rs` |
 | `TODO(saga)` | 1 | `scripts/saga.rs` |
-| `TODO(sieges)` | 1 | `network/server_packets/residence.rs` |
 | `TODO(skill-see-range)` | 1 | `game_loop/skills/cast.rs` |
 
 ## Closed
@@ -128,6 +127,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(sieges)` ×1 (`network/server_packets/residence.rs`) | A **subsystem-level claim** that G24 falsified — the header said "sieges aren't ported yet", so the world-map overlay reported every castle unowned. Everything it needed already existed (`world.castles`, the clan `castle_id` back-reference, `castle::tax_percent`, `world.sieges`). `ExShowCastleInfo` now carries owner, tax, siege date and side. The **fortress** overlay stays static, and that is not a deferral: fort sieges are an explicit scope-out, so no fort on this dist can have an owner — the header now says that instead of implying deferred work. |
 | 2026-08-05 | `TODO(quests)` ×1 (`scripts/q00641_attack_sailren.rs`) | **Stale.** "Gated until Q00126_TheNameOfEvil2 is ported" — it is ported *and* registered, the gate already calls `other_quest_completed`, and the test exercises both branches. Nothing to do but delete the claim. |
 | 2026-08-05 | `TODO(reco)` ×1 (`game_loop/reco.rs`) | **Not a gap** — retagged `SKIP(fake-players)`. Recommending a `fakePlayerTalkable` NPC belongs to a Mobius `config/Custom/*` feature that ROADMAP.md scopes out except where an operator enables it, and this dist ships `EnableFakePlayers = False`. Reviving it means porting `FakePlayerData`/`FakePlayerInfo` first, not adding a branch. |
 | 2026-08-05 | `TODO(login-playauth)` ×2 — **not closed, corrected** (`tests/e2e_create.rs`) | The recorded cause was false. It claimed `RequestServerLogin` answers PlayFail instead of PlayOk; instrumenting the handshake shows **PlayOk on both logins** and the whole login half completing cleanly. The real failure is on relogin: the list loads and `CharSelectionInfo` is sent, then `handle_request_restart` runs *unprompted* (the test never sends 0x57, and that handler has one non-test caller), which reloads the list and puts a second `CharSelectionInfo` where the client expects `CharSelected`. The exchange never resynchronises, so the test **hangs** rather than failing an assertion — which is why the wrong guess survived: nothing contradicted it. Marker rewritten with the walkthrough; still open, still `#[ignore]`. |

@@ -21,11 +21,30 @@ fn request_show_mini_map_opens_world_map() {
 }
 
 /// The world map's data requests: `RequestAllCastleInfo` (0xD0:0x39) and
-/// `RequestAllFortressInfo` (0xD0:0x3A) are answered with the static
-/// residence lists — 9 castles and 21 forts, all unowned.
+/// `RequestAllFortressInfo` (0xD0:0x3A) are answered.
+///
+/// The castle count is the **server's castle list**, as Java's
+/// `CastleManager.getCastles()` is — not a fixed 9 — so the fixture seeds the
+/// nine this dist ships. The fort list really is static: fort sieges are out
+/// of scope, so all 21 are permanently unowned.
+/// `castle_info_overlay_carries_owner_tax_and_siege` covers the per-castle
+/// fields; this test covers the request plumbing.
 #[test]
 fn map_castle_and_fortress_info_requests_answered() {
     let (mut world, ..) = cast_test_world();
+    world.castles = (1..=9)
+        .map(|id| crate::model::castle::Castle {
+            id,
+            name: format!("Castle{id}"),
+            side: crate::model::castle::CastleSide::Neutral,
+            ticket_buy_count: 0,
+            first_mid_victory: false,
+            time_registration_over: true,
+            siege_time_registration_end: 0,
+            siege_date: 0,
+            treasury: 0,
+        })
+        .collect();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     drain(&mut a_rx);
 

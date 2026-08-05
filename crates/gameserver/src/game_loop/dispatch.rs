@@ -685,7 +685,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // shows party member dots).
         exop::REQUEST_ALL_CASTLE_INFO => {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_show_castle_info());
+                cs.send(server_packets::ex_show_castle_info(world));
                 let player_id = session.player_object_id();
                 if let Some(&crate::model::components::PartyRef(party_id)) =
                     world.objects.get_component(&player_id)
