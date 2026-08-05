@@ -46,6 +46,7 @@ fn players_online() -> &'static commons::metrics::Gauge {
 pub fn register_metrics() {
     packets_handled();
     players_online().set(0);
+    super::tick_busy_micros().set(0);
     crate::network::register_metrics();
 }
 
