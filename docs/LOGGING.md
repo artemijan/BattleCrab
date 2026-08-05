@@ -119,6 +119,34 @@ panics, and anything written before the subscriber exists:
 journalctl -u l2-gameserver -f
 ```
 
+## What each service has
+
+| | diagnostics | panic hook | audit records | metrics | spans |
+|---|---|---|---|---|---|
+| game server | ✓ | ✓ | 6 categories | ✓ | ✓ per packet |
+| login server | ✓ | ✓ | accounting (every auth attempt) | — | — |
+| dashboard API | ✓ | ✓ | accounting + gmaudit (account lifecycle) | — | — |
+| launcher, migration | plain `fmt()` | — | — | — | — |
+
+The gaps are deliberate, not oversights:
+
+- **Metrics on login and dashboard.** Both are request/response services whose
+  load is visible from the outside; the game server is the one with a tick
+  budget to protect. Add counters there when there is a question they answer.
+- **Spans outside the game server.** The game server's span exists because a
+  packet is a unit of work with no other identity. HTTP requests already have
+  one, and axum carries it.
+- **Launcher and migration** still use a bare `tracing_subscriber::fmt()`. A
+  desktop app and a one-shot CLI have no rotation or retention problem to
+  solve; giving them a datapack-relative log directory would be worse than
+  leaving them printing to stdout.
+
+**The dashboard writes to its own audit directory** (`log/audit-dashboard`),
+not the game server's. Both resolve against `dist/game`, so sharing one
+directory would put two processes on the same NDJSON files — interleaved
+appends, and two independent retention sweeps deleting each other's rotated
+files. Any future service that audits needs the same treatment.
+
 ## Correlation spans
 
 Packet handling runs inside a `packet` span carrying `client_id`, `oid` and

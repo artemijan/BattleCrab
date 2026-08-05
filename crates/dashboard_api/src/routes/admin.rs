@@ -260,6 +260,18 @@ async fn create_game_account(
         level = actor.access_level,
         "admin: created GM game account at own access level"
     );
+    // GmAudit, not Accounting: one person acting on the game's access levels is
+    // the same class of event as a `//` command in-game.
+    commons::audit::record(
+        commons::audit::Category::GmAudit,
+        serde_json::json!({
+            "event": "create_gm_game_account",
+            "source": "dashboard",
+            "admin": actor.subject(),
+            "target": login,
+            "access_level": actor.access_level,
+        }),
+    );
     Ok(StatusCode::CREATED)
 }
 
@@ -322,6 +334,17 @@ async fn set_game_account_password(
         admin = %actor.subject(),
         target = %login,
         "admin: reset game account password"
+    );
+    // The record that answers "who changed my password" — the single most
+    // likely question to reach a support inbox.
+    commons::audit::record(
+        commons::audit::Category::GmAudit,
+        serde_json::json!({
+            "event": "set_game_account_password",
+            "source": "dashboard",
+            "admin": actor.subject(),
+            "target": login,
+        }),
     );
     Ok(StatusCode::NO_CONTENT)
 }

@@ -16,6 +16,18 @@ async fn main() {
     let _log_guard = commons::logging::init("dist/game/", "dashboard_api");
     commons::logging::install_panic_hook();
 
+    // Account creation, password resets and admin actions on other people's
+    // accounts are records, so this service gets the never-dropped sink too.
+    //
+    // Its own directory, NOT the game server's. Both resolve against
+    // `dist/game`, so sharing `log/audit` would put two processes on the same
+    // NDJSON files — interleaved appends, and worse, two independent retention
+    // sweeps deleting each other's rotated files. Overridden here rather than in
+    // `Logging.ini` because both services read that same file.
+    let mut audit_config = commons::audit::AuditConfig::load("dist/game/");
+    audit_config.directory = "log/audit-dashboard".to_string();
+    let _audit_guard = commons::audit::init("dist/game/", &audit_config);
+
     let config = DashboardConfig::load();
 
     // Refuse rather than generate: a per-boot key silently logs every user out

@@ -3910,6 +3910,7 @@ dependencies = [
  "models",
  "num-bigint-dig",
  "quick-xml 0.37.5",
+ "serde_json",
  "sqlx",
  "thiserror 2.0.18",
  "tokio",

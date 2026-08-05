@@ -117,6 +117,14 @@ async fn register(
     let hash = commons::crypt::hash_password(&body.password);
     let account = accounts::create_master(&app.db, &email, &hash).await?;
     tracing::info!("registered master account {email}");
+    commons::audit::record(
+        commons::audit::Category::Accounting,
+        serde_json::json!({
+            "event": "master_account_registered",
+            "source": "dashboard",
+            "email": email,
+        }),
+    );
 
     send_verification(&app, &email).await;
 
@@ -275,6 +283,16 @@ async fn reset_password(
     let hash = commons::crypt::hash_password(&body.password);
     accounts::set_master_password(&app.db, &subject, &hash).await?;
     tracing::info!("password reset for {subject}");
+    // A completed reset kills every outstanding session, so this is the record
+    // that explains why someone was suddenly logged out everywhere.
+    commons::audit::record(
+        commons::audit::Category::Accounting,
+        serde_json::json!({
+            "event": "master_password_reset",
+            "source": "dashboard",
+            "subject": subject,
+        }),
+    );
 
     // Every outstanding session and reset link is now dead: both sign over the
     // old hash.
