@@ -326,9 +326,30 @@ fn record_castle_taken_for_nobles(world: &mut World, clan_id: i32, castle_id: i3
 /// 35063) is a permanent castle spawn, so an attacker touching it during an
 /// active siege calls [`try_capture_artifact`] → here.
 ///
-/// TODO(G24): castle crests. (`Castle.removeUpgrade()` needs nothing: castle
-/// upgrades — the door/trap tiers bought from the chamberlain — are not
-/// modelled at all, so there is nothing to strip.)
+/// TODO(G24): castle crests — and what that means is narrower than it sounds.
+///
+/// The only crest behaviour tied to castle ownership is `setShowNpcCrest(false)`
+/// plus its display side: `Npc.onSpawn` does `setClanId(castle.getOwnerId())`
+/// for an NPC standing in the castle's **TAX zone**, so the client draws the
+/// owner's crest over it. The gate is
+/// `(SHOW_CREST_WITHOUT_QUEST || castle.getShowNpcCrest()) && ownerId != 0`.
+///
+/// **Both halves of that gate are false on this dist, permanently.**
+/// `NPC.ini` sets `ShowCrestWithoutQuest = False`; `castle.showNpcCrest`
+/// defaults to `'false'` in the Java schema *and* this port's migration; and
+/// `setShowNpcCrest(true)` appears **nowhere** in the Java tree — only the
+/// `false` above. Nothing in the server can turn it on, so no NPC ever flies a
+/// castle crest here.
+///
+/// It stays a deferral rather than a `SKIP` because an operator can reach it
+/// two ways — flip the ini, or set the DB column by hand. Doing it needs a
+/// `show_npc_crest` field on `Castle`, the tax-zone clan-id assignment at NPC
+/// spawn, and a clan-id field in `NpcInfo`, which this port's packet does not
+/// currently carry.
+///
+/// (`Castle.removeUpgrade()` needs nothing: castle upgrades — the door/trap
+/// tiers bought from the chamberlain — are not modelled at all, so there is
+/// nothing to strip.)
 pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;

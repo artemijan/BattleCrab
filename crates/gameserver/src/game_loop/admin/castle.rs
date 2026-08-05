@@ -201,7 +201,9 @@ fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, r
         castle_id,
     });
     // `Castle.setOwner`'s skill half — the new owner's online members get the
-    // castle's residential skills at once. TODO(G24): the castle crest.
+    // castle's residential skills at once. TODO(G24): the castle crest —
+    // `setShowNpcCrest(false)`, whose display side cannot fire on this dist
+    // (see `siege::capture`).
     super::super::clans::grant_residential_skills_to_clan(world, target_clan_id, castle_id);
     show_castle_menu(world, client_id, idx);
 }
@@ -224,7 +226,8 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
                 castle_id,
                 side: CastleSide::Neutral.as_db().to_string(),
             });
-            // `Castle.removeOwner`'s skill half. TODO(G24): the crest.
+            // `Castle.removeOwner`'s skill half. TODO(G24): the crest — same
+            // permanently-inert display feature as `siege::capture` documents.
             super::super::clans::strip_residential_skills_from_clan(world, clan_id, castle_id);
             // `removeOwner` also calls `removeCirclet(clan, residenceId)`.
             super::super::castle::remove_circlets_from_clan(world, clan_id, castle_id);
