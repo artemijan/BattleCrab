@@ -234,23 +234,25 @@ async fn do_login(addr: std::net::SocketAddr, user: &str, password: &str) -> (i3
 // ---------- game server ----------
 
 async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std::net::SocketAddr {
-    use gameserver::db::{self, DbCommand, DbEvent};
+    use gameserver::db::{self, DbCommand};
+    use gameserver::events::GameEvent;
     use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
-    use gameserver::loginlink::{self, LoginLinkConfig, LoginLinkEvent};
-    use gameserver::network::NetEvent;
+    use gameserver::loginlink::{self, LoginLinkConfig};
+    use gameserver::network::NetEventTx;
     use gameserver::network::connection::{self, NetworkConfig};
 
-    let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
-    let (login_tx, login_rx) = std::sync::mpsc::channel::<LoginLinkEvent>();
+    let (events_tx, events_rx) = std::sync::mpsc::channel::<GameEvent>();
+    let net_tx = NetEventTx(events_tx.clone());
+    let login_tx = loginlink::EventTx(events_tx.clone());
+    let db_event_tx = db::EventTx(events_tx.clone());
+    let path_event_tx = gameserver::geo::worker::PathEventTx(events_tx);
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel::<DbCommand>();
-    let (db_event_tx, db_rx) = std::sync::mpsc::channel::<DbEvent>();
 
     db::spawn(db_url, 1, 7, db_cmd_rx, db_event_tx);
 
     let geo = std::sync::Arc::new(gameserver::geo::GeoEngine::empty());
     let (path_tx, path_req_rx) = std::sync::mpsc::channel();
-    let (path_event_tx, path_rx) = std::sync::mpsc::channel();
     gameserver::geo::worker::spawn(geo.clone(), Default::default(), path_req_rx, path_event_tx);
 
     let data = gameserver::data::GameData::load();
@@ -258,16 +260,13 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
     let _game = game_loop::spawn(
         Shutdown::new(),
         GameThreadChannels {
-            net_rx,
-            login_rx,
+            events_rx,
             link_tx: link_tx.clone(),
             login_ready_tx,
-            db_rx,
             db_tx,
             data,
             geo,
             path_tx,
-            path_rx,
             path_finding: 2,
             path_cfg: Default::default(),
             geoedit_path: "saves/".to_string(),

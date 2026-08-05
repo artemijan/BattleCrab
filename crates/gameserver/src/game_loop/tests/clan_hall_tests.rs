@@ -39,17 +39,16 @@ fn ownership_overlays_at_boot() {
     world.data.clan_halls = load_clan_halls(DIST);
     assert!(world.clan_halls.is_empty(), "nothing until the rows arrive");
 
-    let (tx, rx) = std::sync::mpsc::channel();
-    tx.send(crate::db::DbEvent::ClanHallsLoaded {
-        rows: vec![crate::db::ClanHallRow {
-            id: 27,
-            owner_id: 500,
-            paid_until: 1_700_000_000_000,
-        }],
-    })
-    .unwrap();
-    drop(tx);
-    crate::game_loop::net::drain_db(&mut world, &rx);
+    crate::game_loop::net::handle_db_event(
+        &mut world,
+        crate::db::DbEvent::ClanHallsLoaded {
+            rows: vec![crate::db::ClanHallRow {
+                id: 27,
+                owner_id: 500,
+                paid_until: 1_700_000_000_000,
+            }],
+        },
+    );
 
     assert_eq!(world.clan_halls.len(), 48, "the defs are in the world");
     let onyx = world.clan_halls.get(&27).unwrap();
@@ -65,17 +64,16 @@ fn ownership_overlays_at_boot() {
 fn a_clan_can_be_found_by_the_hall_it_owns() {
     let (mut world, _db, _l) = combat_test_world();
     world.data.clan_halls = load_clan_halls(DIST);
-    let (tx, rx) = std::sync::mpsc::channel();
-    tx.send(crate::db::DbEvent::ClanHallsLoaded {
-        rows: vec![crate::db::ClanHallRow {
-            id: 27,
-            owner_id: 777,
-            paid_until: 0,
-        }],
-    })
-    .unwrap();
-    drop(tx);
-    crate::game_loop::net::drain_db(&mut world, &rx);
+    crate::game_loop::net::handle_db_event(
+        &mut world,
+        crate::db::DbEvent::ClanHallsLoaded {
+            rows: vec![crate::db::ClanHallRow {
+                id: 27,
+                owner_id: 777,
+                paid_until: 0,
+            }],
+        },
+    );
 
     let owned = world
         .clan_halls
@@ -359,19 +357,18 @@ fn bids_are_restored_at_boot() {
     world.clan_halls = load_clan_halls(DIST);
     assert!(world.clan_hall_bids.is_empty());
 
-    let (tx, rx) = std::sync::mpsc::channel();
-    tx.send(crate::db::DbEvent::ClanHallBiddersLoaded {
-        rows: vec![crate::db::ClanHallBidRow {
-            hall_id: ONYX,
-            clan_id: 10,
-            bid: 5_000_000,
-            bid_time: 7,
-        }],
-    })
-    .unwrap();
-    drop(tx);
     let before = world.scheduler.len();
-    crate::game_loop::net::drain_db(&mut world, &rx);
+    crate::game_loop::net::handle_db_event(
+        &mut world,
+        crate::db::DbEvent::ClanHallBiddersLoaded {
+            rows: vec![crate::db::ClanHallBidRow {
+                hall_id: ONYX,
+                clan_id: 10,
+                bid: 5_000_000,
+                bid_time: 7,
+            }],
+        },
+    );
 
     assert_eq!(
         highest_bidder(&world, ONYX),

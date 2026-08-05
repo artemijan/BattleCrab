@@ -2,9 +2,11 @@
 //!
 //! Runs on one dedicated OS thread that owns [`World`]. The base tick is 100 ms,
 //! matching Java's `GameTimeTaskManager` and high-priority task-manager rate.
-//! Steps: drain network events → drain login-link events → fire timers → run
-//! tick systems (G4+) → flush. Packet dispatch and login handoff land here on
-//! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
+//! Each tick: handle service events (network, login-link, DB, path) **as they
+//! arrive** while sleeping on the unified channel, then at the tick boundary
+//! fire due timers and run the fixed-rate systems (G4+). Packet dispatch and
+//! login handoff land here on the game thread, keeping handler code sequential
+//! and 1:1 with Java `run()`.
 
 mod abnormal;
 pub(crate) mod academy;
@@ -135,13 +137,13 @@ use std::time::{Duration, Instant};
 use tracing::{info, warn};
 
 use crate::data::GameData;
-use crate::db::{self, DbEventRx};
-use crate::loginlink::{CommandTx, LoginLinkEventRx};
-use crate::network::NetEventRx;
+use crate::db;
+use crate::events::GameEventRx;
+use crate::loginlink::CommandTx;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use net::{drain_db, drain_login_link, drain_network, drain_path};
+use net::handle_game_event;
 use regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};
 use skills::cast::{handle_cast_end, handle_skill_finish, handle_skill_launch};
 use skills::effects::handle_buff_expire;
@@ -179,18 +181,17 @@ impl Shutdown {
 
 /// Everything the game thread needs to start.
 pub struct GameThreadChannels {
-    pub net_rx: NetEventRx,
-    pub login_rx: LoginLinkEventRx,
+    /// The unified service→game channel (`crate::events`): network, login-link,
+    /// DB and path events all arrive here, and the loop sleeps on it.
+    pub events_rx: GameEventRx,
     pub link_tx: CommandTx,
     /// Released once all boot data (incl. clans) is loaded, letting the
     /// login-link task begin connecting to the login server.
     pub login_ready_tx: tokio::sync::oneshot::Sender<()>,
-    pub db_rx: DbEventRx,
     pub db_tx: db::CmdTx,
     pub data: GameData,
     pub geo: std::sync::Arc<crate::geo::GeoEngine>,
     pub path_tx: crate::geo::worker::PathReqTx,
-    pub path_rx: crate::geo::worker::PathEventRx,
     pub path_finding: i32,
     /// `GeoEngine.ini`'s pathfinding tuning + geo-editor output dir, for the
     /// two admin commands that use them on the game thread (`//path_find`,
@@ -214,16 +215,13 @@ pub fn spawn(shutdown: Shutdown, ch: GameThreadChannels) -> JoinHandle<()> {
 
 fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     let GameThreadChannels {
-        net_rx,
-        login_rx,
+        events_rx,
         link_tx,
         login_ready_tx,
-        db_rx,
         db_tx,
         data,
         geo,
         path_tx,
-        path_rx,
         path_finding,
         path_cfg,
         geoedit_path,
@@ -280,20 +278,26 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
+    // The boundary the current tick's event phase runs to. Starting at "now"
+    // makes tick 0 drain whatever the services queued during boot and run its
+    // boundary work immediately (parity with the old drain-first order).
+    let mut deadline = Instant::now();
     while !shutdown.is_requested() {
-        let tick_start = Instant::now();
+        // 1. Events: connects, disconnects, inbound packets, and login-link /
+        //    DB / path results — handled the moment they arrive. This *is* the
+        //    tick sleep: between events the thread blocks on the channel until
+        //    the deadline, so a packet no longer waits out the remainder of
+        //    the 100 ms (the added-latency cost THREADING_MODEL §5 used to
+        //    carry).
+        let event_work = pump_events_until(&mut world, &events_rx, deadline);
 
-        // 1. Network events: connects, disconnects, and inbound packets.
-        drain_network(&mut world, &net_rx);
-        // 2. Service results: login-link + DB + path worker.
-        drain_login_link(&mut world, &login_rx);
-        drain_db(&mut world, &db_rx);
-        drain_path(&mut world, &path_rx);
+        // The tick boundary: timers + fixed-rate systems.
+        let boundary_start = Instant::now();
 
-        // 3. One-shot timers due this tick.
+        // 2. One-shot timers due this tick.
         apply_due_tasks(&mut world);
 
-        // 4. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
+        // 3. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
         // Movement runs every tick (unlike the gated systems below) — it
         // needs to recompute the authoritative server-side position each
         // 100 ms, same as Java's `MovementTaskManager`. Region-switch
@@ -348,20 +352,24 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // records here, where the config gate and the owning player exist.
         // Every tick: a record that waits is a record that a crash loses.
         items::drain_item_audit(&mut world);
-        // 5. Flush outbound packets / DB commands — added in G3+.
+        // 4. Flush outbound packets / DB commands — added in G3+.
 
-        let elapsed = tick_start.elapsed();
-        if elapsed > TICK_OVERRUN_WARN {
+        // The tick's *busy* time: event handling (waiting excluded) plus the
+        // boundary work above. Overrun is the failure mode of the
+        // single-thread design, so it must stay visible (rule 4).
+        let busy = event_work + boundary_start.elapsed();
+        if busy > TICK_OVERRUN_WARN {
             warn!(
                 "GameLoop: tick {} ran {} ms (budget {} ms).",
                 world.tick,
-                elapsed.as_millis(),
+                busy.as_millis(),
                 TICK.as_millis()
             );
         }
-        if let Some(remaining) = TICK.checked_sub(elapsed) {
-            std::thread::sleep(remaining);
-        }
+        // Next boundary: one TICK after the previous one, but never in the
+        // past — an overrun tick slides the phase (the old sleep-skipping
+        // behaviour) rather than running back-to-back catch-up ticks.
+        deadline = std::cmp::max(deadline + TICK, Instant::now());
 
         world.tick += 1;
     }
@@ -388,6 +396,52 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // kill tally and the time already burned off a wielded weapon are lost on
     // restart — it would come back with its count and deadline as of pickup.
     cursed_weapon::save_all(&world);
+}
+
+/// Phase 1 of each tick: handle service events until `deadline`.
+///
+/// Blocks on the unified channel (`recv_timeout`) between events — this *is*
+/// the tick sleep, so an event is handled the moment it arrives instead of
+/// waiting out the remainder of the 100 ms. When the deadline has already
+/// passed (boot, an overrun tick), everything queued is still drained: the
+/// deadline bounds *waiting*, not handling, exactly like the old
+/// drain-at-boundary calls. A client flooding faster than we can handle is
+/// therefore bounded by the flood protector (dispatch punishes it), not here
+/// — also as before.
+///
+/// Returns the time spent handling events (waiting excluded), for the
+/// tick-overrun metric.
+fn pump_events_until(world: &mut World, events_rx: &GameEventRx, deadline: Instant) -> Duration {
+    let mut busy = Duration::ZERO;
+    loop {
+        // Everything already queued, without blocking.
+        while let Ok(event) = events_rx.try_recv() {
+            let start = Instant::now();
+            handle_game_event(world, event);
+            busy += start.elapsed();
+        }
+        let Some(remaining) = deadline.checked_duration_since(Instant::now()) else {
+            return busy;
+        };
+        if remaining.is_zero() {
+            return busy;
+        }
+        match events_rx.recv_timeout(remaining) {
+            Ok(event) => {
+                let start = Instant::now();
+                handle_game_event(world, event);
+                busy += start.elapsed();
+            }
+            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => return busy,
+            Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
+                // Every service sender is gone — teardown (or a test driving
+                // the loop by hand). Keep the tick cadence instead of
+                // busy-spinning on an empty, closed channel.
+                std::thread::sleep(remaining);
+                return busy;
+            }
+        }
+    }
 }
 
 /// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`

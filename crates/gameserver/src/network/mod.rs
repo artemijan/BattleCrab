@@ -34,11 +34,22 @@ pub use connection_state::ConnectionState;
 pub type OutboundTx = tokio::sync::mpsc::UnboundedSender<bytes::Bytes>;
 pub type OutboundRx = tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>;
 
-/// Sender side of the network→game channel. `std::sync::mpsc` because the game
-/// thread is a plain (non-async) thread draining it with `try_recv` each tick;
-/// sends from the async connection tasks are non-blocking.
-pub type NetEventTx = std::sync::mpsc::Sender<NetEvent>;
-pub type NetEventRx = std::sync::mpsc::Receiver<NetEvent>;
+/// Sender facade for the network's share of the unified service→game channel
+/// ([`crate::events::GameEvent`]). `std::sync::mpsc` because the game thread
+/// is a plain (non-async) thread that sleeps on the receiver between tick
+/// boundaries; sends from the async connection tasks are non-blocking and
+/// wake it.
+#[derive(Clone)]
+pub struct NetEventTx(pub crate::events::GameEventTx);
+
+impl NetEventTx {
+    /// An `Err` means the game thread is gone — callers treat it as shutdown.
+    pub fn send(&self, event: NetEvent) -> Result<(), std::sync::mpsc::SendError<()>> {
+        self.0
+            .send(crate::events::GameEvent::Net(event))
+            .map_err(|_| std::sync::mpsc::SendError(()))
+    }
+}
 
 /// Events the network layer reports to the game thread.
 pub enum NetEvent {
