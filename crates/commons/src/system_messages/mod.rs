@@ -6,10 +6,10 @@
 //! a string in [`generated::ALL`] changes nothing until the client table is
 //! rebuilt from it with `l2r-tools client-dat sync-messages`.
 //!
-//! [`generated`] is produced by `tools/gen_system_messages.py` from the Java
-//! reference plus the client table. Messages that take parameters are types
-//! whose constructor takes exactly the right number of arguments; the rest are
-//! constants.
+//! [`generated`] is produced by `l2r-tools gen-messages` (`tools::msg_gen`)
+//! from the Java reference plus the client table. Messages that take
+//! parameters are types whose constructor takes exactly the right number of
+//! arguments; the rest are constants.
 //!
 //! ```ignore
 //! use commons::system_messages::generated::*;

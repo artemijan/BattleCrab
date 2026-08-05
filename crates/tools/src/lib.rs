@@ -15,6 +15,7 @@ pub mod dat_roundtrip;
 pub mod dat_schema;
 pub mod dat_text;
 pub mod datapack;
+pub mod msg_gen;
 pub mod msg_sync;
 pub mod npc_sync;
 pub mod npc_xml;
