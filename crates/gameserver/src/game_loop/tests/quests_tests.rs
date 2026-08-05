@@ -14920,8 +14920,27 @@ fn quest_q00214_trial_of_the_scholar() {
     assert_eq!(item_count(&world, 3001, 2708), 1, "Scripture Chapter 3");
     // Chapter 4 (Poitan/Casian + four reagents)
     talk(&mut world, poitan); // Poitan's Notes
+    drain(&mut rx);
     ev(&mut world, casian, "30612-04.html"); // Casian's List, cond 28
     assert_eq!(quest_cond(&world, 3001, q), Some(28));
+    // The reagent page must name the gargoyle the way the npc/item data and
+    // the client's tables do. It shipped saying "Enhanced Gargoyle Nails"
+    // against data reading "Reinforced Gargoyle's Nail", which left the errand
+    // pointing at a monster no name in the world matched — see
+    // docs/CUSTOM_DIST_DEVIATIONS.md. A re-sync from the Java reference dist
+    // would silently restore the old wording, so pin it.
+    let list_page = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("Casian's reagent list");
+    assert!(
+        list_page.contains("Reinforced Gargoyle's Nails"),
+        "reagent page names the item as the data does: {list_page}"
+    );
+    assert!(
+        !list_page.contains("Enhanced Gargoyle"),
+        "the retail wording must not come back: {list_page}"
+    );
     inject(&mut world, 3001, 0x0214_0004, 2717, 11);
     kill(&mut world, 20158); // Medusa's Blood → 12
     inject(&mut world, 3001, 0x0214_0005, 2716, 9);

@@ -71,7 +71,7 @@ const CASIANS_LIST: i32 = 2715;
 const GHOULS_SKIN: i32 = 2716;
 const MEDUSAS_BLOOD: i32 = 2717;
 const FETTERED_SOULS_ICHOR: i32 = 2718;
-const ENCHANTED_GARGOYLES_NAIL: i32 = 2719;
+const REINFORCED_GARGOYLES_NAIL: i32 = 2719;
 const SYMBOL_OF_CRONOS: i32 = 2720;
 // Reward
 const MARK_OF_SCHOLAR: i32 = 2674;
@@ -84,34 +84,19 @@ const BREKA_ORC_SHAMAN: i32 = 20269;
 const SHACKLE2: i32 = 20279;
 const FETTERED_SOUL: i32 = 20552;
 const GRANDIS: i32 = 20554;
-/// TODO(q214-gargoyle-name): this mob carries four different names across the
-/// server data, the NPC dialogue and the client's own text tables, so Casian's
-/// reagent step reads as an errand against a monster the player never finds:
+/// Mob 20567, Casian's reagent step. This carried five surfaces' worth of
+/// disagreeing names until 2026-08-05 — the npc xml and item xml said
+/// "Reinforced Gargoyle(' s Nail)", the client's `ItemName` table agreed, but
+/// the client's `QuestName` journal for step 28 said "Enchanted Gargoyles" and
+/// `30612-04.html` said "Enhanced Gargoyle Nails", so the errand read as a hunt
+/// for a monster the player could never find by name.
 ///
-/// - `stats/npcs/20500-20599.xml` names 20567 "Reinforced Gargoyle",
-/// - `stats/items/02700-02799.xml` names 2719 "Reinforced Gargoyle's Nail",
-/// - the client's `ItemName` table agrees — id 2719 is "Reinforced Gargoyle's
-///   Nail" there too,
-/// - but the client's `QuestName` journal entry for quest 214 step 28
-///   ("Casian's Magic Ingredient") tells the player to hunt "Enchanted
-///   Gargoyles" in the Crater of Ivory Tower,
-/// - and `Q00214_TrialOfTheScholar/30612-04.html` calls them "Enhanced
-///   Gargoyles" dropping "Enhanced Gargoyle Nails",
-/// - these constants follow the journal: `ENCHANTED_GARGOYLE` /
-///   `ENCHANTED_GARGOYLES_NAIL`.
-///
-/// Note this is not fixable server-side alone: the journal line the player reads
-/// in the quest window lives in the client's `QuestName` .dat, so whichever name
-/// wins, that entry has to be repacked and shipped with a client patch.
-///
-/// Cheapest consistent fix is "Reinforced Gargoyle" everywhere — three of the
-/// five surfaces, including the client's own item table, already say it, so only
-/// the journal step and `30612-04.html` change and the mob keeps its name. The
-/// alternative, renaming the NPC to match the journal, additionally means
-/// editing the client npcname table and both item names.
-///
-/// Either way rename these constants to match whichever name wins.
-const ENCHANTED_GARGOYLE: i32 = 20567;
+/// **Settled on "Reinforced Gargoyle"** — the name three of the five surfaces,
+/// including the client's own item table, already used. The operator renamed
+/// the client-side `QuestName` entry; `30612-04.html` was aligned here and the
+/// change is recorded in `docs/CUSTOM_DIST_DEVIATIONS.md`. The npc and item
+/// data were already correct and are untouched.
+const REINFORCED_GARGOYLE: i32 = 20567;
 const LETO_LIZARDMAN_WARRIOR: i32 = 20580;
 // Misc
 const MIN_LEVEL: i32 = 35;
@@ -183,7 +168,7 @@ impl QuestScript for Q00214TrialOfTheScholar {
             SHACKLE2,
             FETTERED_SOUL,
             GRANDIS,
-            ENCHANTED_GARGOYLE,
+            REINFORCED_GARGOYLE,
             LETO_LIZARDMAN_WARRIOR,
         ]
     }
@@ -232,7 +217,7 @@ impl QuestScript for Q00214TrialOfTheScholar {
             GHOULS_SKIN,
             MEDUSAS_BLOOD,
             FETTERED_SOULS_ICHOR,
-            ENCHANTED_GARGOYLES_NAIL,
+            REINFORCED_GARGOYLES_NAIL,
             SYMBOL_OF_CRONOS,
         ]
     }
@@ -389,7 +374,7 @@ impl QuestScript for Q00214TrialOfTheScholar {
                 ctx.take_items(GHOULS_SKIN, -1);
                 ctx.take_items(MEDUSAS_BLOOD, -1);
                 ctx.take_items(FETTERED_SOULS_ICHOR, -1);
-                ctx.take_items(ENCHANTED_GARGOYLES_NAIL, -1);
+                ctx.take_items(REINFORCED_GARGOYLES_NAIL, -1);
                 ctx.set_cond(30, true);
                 Some(event.to_string())
             }
@@ -432,7 +417,7 @@ impl QuestScript for Q00214TrialOfTheScholar {
             MEDUSA => casian_kill(ctx, MEDUSAS_BLOOD, 12),
             GHOUL => casian_kill(ctx, GHOULS_SKIN, 10),
             FETTERED_SOUL => casian_kill(ctx, FETTERED_SOULS_ICHOR, 5),
-            ENCHANTED_GARGOYLE => casian_kill(ctx, ENCHANTED_GARGOYLES_NAIL, 5),
+            REINFORCED_GARGOYLE => casian_kill(ctx, REINFORCED_GARGOYLES_NAIL, 5),
             _ => {}
         }
     }
@@ -516,7 +501,7 @@ fn casian_set_done(ctx: &QuestCtx) -> bool {
     ctx.quest_items_count(GHOULS_SKIN) >= 10
         && ctx.quest_items_count(MEDUSAS_BLOOD) >= 12
         && ctx.quest_items_count(FETTERED_SOULS_ICHOR) >= 5
-        && ctx.quest_items_count(ENCHANTED_GARGOYLES_NAIL) >= 5
+        && ctx.quest_items_count(REINFORCED_GARGOYLES_NAIL) >= 5
 }
 
 /// A Casian reagent leg (Symbol of Cronos, Chapter 4). Cond 29 ("return to
@@ -943,7 +928,7 @@ fn casian_talk(ctx: &mut QuestCtx) -> String {
         } else if ctx.quest_items_count(GHOULS_SKIN)
             + ctx.quest_items_count(MEDUSAS_BLOOD)
             + ctx.quest_items_count(FETTERED_SOULS_ICHOR)
-            + ctx.quest_items_count(ENCHANTED_GARGOYLES_NAIL)
+            + ctx.quest_items_count(REINFORCED_GARGOYLES_NAIL)
             < 32
         {
             "30612-05.html".to_string()

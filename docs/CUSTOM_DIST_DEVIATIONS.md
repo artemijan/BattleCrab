@@ -37,3 +37,30 @@ change is dropped.
 - **Guarded by:** `game_loop::tests::cruma_tower_tests` — the entrance list
   contents, the page's single button walked end to end onto the 3rd floor,
   Rombel's list and spawn, and Ian's original route.
+
+## Quest 214 — the Ivory Tower gargoyle is "Reinforced", not "Enhanced"
+
+- **Files:** `data/scripts/quests/Q00214_TrialOfTheScholar/30612-04.html`
+  (plus a client-side `QuestName` edit made by the operator, outside this repo)
+- **Retail:** mob 20567 and item 2719 are named **"Reinforced Gargoyle"** and
+  **"Reinforced Gargoyle's Nail"** in `stats/npcs/20500-20599.xml` and
+  `stats/items/02700-02799.xml`, and the client's `ItemName` table agrees. But
+  Casian's page calls them **"Enhanced Gargoyle Nails"** / **"Enhanced
+  Gargoyles"**, and the client's `QuestName` journal entry for quest 214 step
+  28 calls them **"Enchanted Gargoyles"**. Three different names for one mob
+  across five surfaces, all shipped that way upstream.
+- **Here:** everything says **"Reinforced"**. `30612-04.html` was rewritten to
+  match the data, and the operator renamed the client `QuestName` entry to
+  match too. The npc and item xml were already correct and are untouched.
+- **Why this one is a deviation and not a bug fix:** nothing was *broken* —
+  the quest always tracked the right ids, and the port reproduced Java exactly.
+  What failed was the player's ability to act on the instructions: the journal
+  named a monster that appears nowhere in the world, so the errand read as
+  impossible. Only three of the five surfaces could be fixed server-side, which
+  is why this needed a client change to finish.
+- **The trap if it is re-synced:** a refresh from the Java reference repo will
+  bring "Enhanced Gargoyle Nails" back into `30612-04.html`, and the page will
+  then disagree with both the item table and the (patched) journal. The
+  `interlude_classic` reference dist still ships the retail wording.
+- **Guarded by:** `game_loop::tests::quests_tests::quest_q00214_trial_of_the_scholar`
+  — the reagent page asserts the "Reinforced" wording.
