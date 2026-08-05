@@ -96,6 +96,12 @@ pub(crate) fn show_buy_window_taxed(
             crate::game_loop::servitor::active_pet_collar(world, player),
         ));
     }
+    // Java `Merchant.showBuyWindow` calls `setInventoryBlockingStatus(true)`
+    // just before these sends. It runs after them here only because `list`
+    // borrows `world.data` — and the ordering is unobservable, since the flag
+    // gates the client's *next* packet, which cannot arrive until this handler
+    // has returned.
+    super::helpers::block_inventory(world, player);
 }
 
 /// Port of `clientpackets/RequestBuyItem.runImpl`, minus the systems that

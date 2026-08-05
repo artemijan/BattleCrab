@@ -945,6 +945,13 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::ManorAutosave => {
                 manor::handle_autosave(world);
             }
+            ScheduledTask::InventoryEnable { object_id } => {
+                // Java's task sets the flag false unconditionally, so a second
+                // window opened inside the window is unblocked by the *first*
+                // task rather than extending the block. Removing here keeps
+                // that, where an expiry timestamp would not.
+                world.inventory_blocked.remove(&object_id);
+            }
             ScheduledTask::SitDownFinish { object_id } => {
                 sit_stand::handle_sit_down_finish(world, object_id);
             }

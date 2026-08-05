@@ -411,3 +411,17 @@ pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec
     out.sort_unstable();
     out
 }
+
+/// Java `Player.setInventoryBlockingStatus(true)` — suppress inventory
+/// refreshes for this player, and schedule the 1500 ms `InventoryEnableTask`
+/// that lifts it.
+///
+/// Called wherever Java calls it: opening a merchant buy list, a private or
+/// clan warehouse, and the "wear" (try-on) shop.
+pub(crate) fn block_inventory(world: &mut World, object_id: i32) {
+    world.inventory_blocked.insert(object_id);
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(1500),
+        crate::scheduler::ScheduledTask::InventoryEnable { object_id },
+    );
+}

@@ -5150,3 +5150,45 @@ fn the_user_info_stats_block_reports_weapon_attack_range() {
         "the armed attack range reaches the client"
     );
 }
+
+/// **Opening a shop suppresses inventory refreshes for 1500 ms** (Java
+/// `Player.setInventoryBlockingStatus` + `InventoryEnableTask`).
+///
+/// The client fires its own `RequestItemList` while a buy window is coming up;
+/// answering it redraws the inventory over the window the player just asked
+/// for. Java ignores those requests for 1.5 s, and so does this now.
+#[test]
+fn a_shop_window_suppresses_item_list_refreshes_briefly() {
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    // Not blocked to begin with: a plain request is answered.
+    drain(&mut rx);
+    crate::game_loop::items::handle_request_item_list(&mut world, 1);
+    assert!(
+        !drain(&mut rx).is_empty(),
+        "an unblocked item-list request is answered"
+    );
+
+    // Block, as opening a shop/warehouse does.
+    crate::game_loop::helpers::block_inventory(&mut world, 3001);
+    crate::game_loop::items::handle_request_item_list(&mut world, 1);
+    assert!(
+        drain(&mut rx).is_empty(),
+        "the request is dropped while the window is opening"
+    );
+
+    // 1500 ms later the scheduled task lifts it. Java's task clears the flag
+    // unconditionally, so a second window opened inside the window is
+    // unblocked by the *first* task rather than extending the block.
+    advance_ticks(&mut world, 16); // 1.6 s at 10 ticks/s
+    assert!(
+        !world.inventory_blocked.contains(&3001),
+        "InventoryEnableTask lifted the block"
+    );
+    crate::game_loop::items::handle_request_item_list(&mut world, 1);
+    assert!(
+        !drain(&mut rx).is_empty(),
+        "refreshes are answered again once the window has settled"
+    );
+}

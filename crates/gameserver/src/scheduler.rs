@@ -629,6 +629,11 @@ pub enum ScheduledTask {
     /// storeMe, rate, rate)`), armed only when `AltManorSaveAllActions` is off
     /// — with it on, every action writes and the timer is never scheduled.
     ManorAutosave,
+    /// `InventoryEnableTask` — 1500 ms after a shop/warehouse/wear window
+    /// opened, inventory refreshes are answered again.
+    InventoryEnable {
+        object_id: i32,
+    },
     /// `SitDownTask` — 2.5 s after sitting, the animation is over and actions
     /// unblock (Java `setBlockActions(false)`).
     SitDownFinish {

@@ -110,6 +110,14 @@ pub struct World {
     /// [`World::hwids`], for the same reason: it belongs to the connection,
     /// not the character.
     pub protocol_versions: HashMap<u32, i32>,
+    /// Players whose inventory refreshes are suppressed (Java
+    /// `Player._inventoryDisable`), by object id.
+    ///
+    /// Set when a shop / warehouse / wear window opens and cleared 1500 ms
+    /// later by [`crate::scheduler::ScheduledTask::InventoryEnable`]. The
+    /// client emits spurious `RequestItemList`s while such a window is coming
+    /// up, and answering them clobbers the window it just drew.
+    pub inventory_blocked: std::collections::HashSet<i32>,
     /// The unattended private shops (Java: players whose `GameClient` is
     /// *detached*), keyed by player object id. They are the only players in
     /// `objects` with no entry in `clients`, so the visibility scans — which
@@ -516,6 +524,7 @@ impl World {
             clients: ClientTable::new(),
             hwids: HashMap::new(),
             protocol_versions: HashMap::new(),
+            inventory_blocked: std::collections::HashSet::new(),
             offline_traders: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),

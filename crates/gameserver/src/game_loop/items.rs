@@ -219,6 +219,12 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
+    // `if (player.isInventoryDisabled()) return;` — the client fires spurious
+    // item-list requests while a shop/warehouse/wear window is opening, and
+    // answering them redraws the inventory over the window it just asked for.
+    if world.inventory_blocked.contains(&object_id) {
+        return;
+    }
     let max_load = crate::game_loop::weight::max_load(world, object_id);
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
