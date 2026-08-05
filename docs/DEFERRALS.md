@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **139** such
+of narrow behaviours deferred and marked at the site. There are **138** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -86,7 +86,7 @@ also registering its NPCs would strand the player.
 | `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, `scripts/primeval_isle.rs`, `scripts/q00224_test_of_sagittarius.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
 | `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
-| `TODO(G33)` | 8 | `config/offline_trade.rs`, `game_loop/admin/skills.rs`, `game_loop/combat/intent.rs`, `game_loop/death/restart.rs`, `game_loop/offline_trade.rs`, `game_loop/party.rs` |
+| `TODO(G33)` | 7 | `config/offline_trade.rs`, `game_loop/admin/skills.rs`, `game_loop/combat/intent.rs`, `game_loop/offline_trade.rs`, `game_loop/party.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
@@ -122,6 +122,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(G33)` ×1 — detached teleport (`game_loop/death/restart.rs`) | Java completes a teleport inline for a character with no client to answer `Appearing` (`if (!isPlayer() \|\| client.isDetached()) onTeleported()`). Offline shops are the case that reaches it, and without it they stayed `teleporting` **for ever** — a flag that gates position validation, which the watchdog also could not clear. `on_teleported` now takes `Option<u32>` and skips only the client-facing halves; the visibility half needs nothing, because `set_player_region` has already re-indexed the shop and other players' scans read that index. Sabotage-verified. |
 | 2026-08-05 | **Justification audit** — 4 markers corrected, none closed (`game_loop/siege.rs` ×2, `config/offline_trade.rs`, `game_loop/offline_trade.rs`) | Three fame markers said fame has "no earning path" / is "a later-chronicle stat with no ported source on Interlude". Both false: `SiegeZone.startFameTask` is the source and castle sieges *are* ported. It is inert because this dist sets `CastleZoneFameAquirePoints = 0` — a config an operator can raise, so the deferral stands but for a different reason. The offline-**craft** marker read as unported work; in fact `setCrafting(true/false)` both happen inside `RecipeItemMaker`'s constructor and `AltGameCreation = False` runs the craft inline, so no other packet can observe `isCrafting()` — the branch is *unreachable*, and Java behaves identically here. A marker that justifies itself with a wrong reason is worse than a bare one: it stops the next reader checking. |
 | 2026-08-05 | `TODO(G33)` ×1 — wyvern NO_LANDING (`game_loop/servitor.rs`) | The marker's blocker was `no_landing.xml` being unloaded, and that file **is in the dist** — the port's zone loader simply never listed it. Added `ZoneKind::NoLanding` (no mask bit: the u8 is full, and this is a geometry query like `Fishing`), loaded its 9 zones, and ported Java's refusal — checked *before* the hungry branch, as Java orders it. Unlike the hungry branch, which the port notes can never fire, this one is live: the zones cover the airspace over the Grand Boss lairs and the Tower of Insolence. |
 | 2026-08-05 | `TODO(G33)` ×1 — `isInventoryDisabled` (`game_loop/dispatch.rs`, `items.rs`) | Ported, and the **marker misnamed the mechanic**: it said "enchant/crystallize in progress", but Java sets `_inventoryDisable` from `Merchant.showBuyWindow` and the private/clan warehouse and wear bypasses, cleared 1500 ms later by `InventoryEnableTask`. It exists so the client's own spurious `RequestItemList` cannot redraw the inventory over a shop window that is still opening. Implemented as a `HashSet` + scheduled task rather than an expiry timestamp, because Java's task clears unconditionally — a second window opened inside the window is unblocked by the *first* task, which a timestamp would silently extend. |

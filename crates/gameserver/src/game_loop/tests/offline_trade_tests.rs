@@ -565,3 +565,48 @@ fn entering_the_world_clears_the_stored_shop() {
         "the rows go away when the owner is back"
     );
 }
+
+/// **Teleporting an unattended shop completes inline** (Java: `if (!isPlayer()
+/// || client.isDetached()) onTeleported()`).
+///
+/// A detached character has no client to answer `Appearing`, so without this
+/// the `teleporting` flag is set and never cleared — and it gates position
+/// validation, while the watchdog cannot clear it either. A GM-teleported shop
+/// was left in a state nothing short of a relog could resolve.
+#[test]
+fn teleporting_an_offline_shop_completes_without_a_client() {
+    use crate::model::Player;
+
+    let (mut world, _db_tx, ..) = test_world();
+    enable_offline(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+    open_sell_store(&mut world, 5001, 4242, 3, 100);
+    drain(&mut rx);
+
+    // Detach: the shop stands, the session is gone.
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::DLG_ANSWER], dlg_answer_body(125, 1, 0)].concat(),
+    );
+    assert!(!world.clients.contains_key(&1), "detached");
+    assert!(world.offline_traders.contains_key(&5001));
+
+    // Teleport it, as `//teleportto` or a restart point would.
+    crate::game_loop::death::teleport_player(&mut world, 5001, 9000, 9000, -1000);
+
+    let p = world.objects.get_component::<Player>(&5001).unwrap();
+    assert!(
+        !p.teleporting,
+        "the teleport completed inline — no client will ever send Appearing"
+    );
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&5001)
+        .unwrap();
+    assert_eq!((pos.x, pos.y), (9000, 9000), "and it actually moved");
+    assert!(
+        !world.teleport_watchdog_due.contains_key(&5001),
+        "the watchdog is cancelled, not left to expire on a shop that cannot answer"
+    );
+}

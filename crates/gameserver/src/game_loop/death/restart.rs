@@ -328,12 +328,15 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
             player_oid, x, y, z, heading,
         ));
     }
-    // TODO(G33): Java completes the teleport inline for anyone with no live
-    // client to answer with `Appearing` ("Allow recall of the detached
-    // characters": `if (!isPlayer() || client.isDetached()) onTeleported()`).
-    // Offline traders are the case that reaches this in practice; here they
-    // stay `teleporting` until they log back in, and the watchdog above skips
-    // them too because `on_teleported` has no session to send to.
+    // Java: `if (!isPlayer() || client.isDetached()) onTeleported()` — with no
+    // client to answer `Appearing`, the teleport is completed inline. Offline
+    // traders are the case that reaches this, and without it they stay
+    // `teleporting` for ever: the flag gates position validation and the
+    // watchdog cannot clear it either, so a GM-teleported shop was left in a
+    // state nothing could resolve short of a relog.
+    if client_for_player(world, player_oid).is_none() {
+        on_teleported(world, None, player_oid);
+    }
 }
 
 /// Port of `clientpackets/Appearing`: the client finished loading after a
@@ -350,7 +353,7 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     {
         return;
     }
-    on_teleported(world, client_id, object_id);
+    on_teleported(world, Some(client_id), object_id);
 }
 
 /// `Creature.onTeleported` + `Player.onTeleported`: leave the teleporting
@@ -360,7 +363,16 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
 /// only way in — [`teleport_watchdog_tick`] calls this too when the client
 /// never answers, exactly as Java's `TeleportWatchdogTask` calls the same
 /// `onTeleported`. The caller has already checked `teleporting`.
-fn on_teleported(world: &mut World, client_id: u32, object_id: i32) {
+/// `Player.onTeleported`. `client_id` is `None` for a **detached** character —
+/// an unattended shop — which Java reaches through the `isDetached()` branch
+/// above rather than through `Appearing`.
+///
+/// The client-facing halves (the visibility exchange and the fresh `UserInfo`)
+/// are skipped in that case because there is no session to send to. Onlookers
+/// still learn about the move: `set_player_region` has already re-indexed the
+/// shop, and every other player's visibility scan reads that index — which is
+/// why offline traders are indexed there in the first place.
+fn on_teleported(world: &mut World, client_id: Option<u32>, object_id: i32) {
     // Java `setTeleporting(false)` — which also cancels the watchdog.
     world.teleport_watchdog_due.remove(&object_id);
     if let Some(p) = world
@@ -377,12 +389,16 @@ fn on_teleported(world: &mut World, client_id: u32, object_id: i32) {
         do_revive(world, object_id);
     }
     // `spawnMe`-equivalent visibility exchange at the new position.
-    crate::game_loop::visibility::on_enter_world(world, client_id, object_id);
-    // Java `onTeleported` → `revalidateZone(true)`.
+    if let Some(cid) = client_id {
+        crate::game_loop::visibility::on_enter_world(world, cid, object_id);
+    }
+    // Java `onTeleported` → `revalidateZone(true)`. Runs for a detached
+    // character too: the destination's zone membership is what later decides
+    // whether the shop is still allowed to be there.
     crate::game_loop::zones::revalidate_zone(world, object_id, true);
     if let (Some(v), Some(cs)) = (
         crate::model::PlayerView::of_world(world, object_id),
-        world.clients.get(&client_id),
+        client_id.and_then(|cid| world.clients.get(&cid)),
     ) {
         cs.send(crate::network::user_info::user_info(
             &v,
@@ -467,6 +483,6 @@ pub(crate) fn teleport_watchdog_tick(world: &mut World) {
             oid,
             world.cfg.character.teleport_watchdog_timeout_ticks / 10
         );
-        on_teleported(world, client_id, oid);
+        on_teleported(world, Some(client_id), oid);
     }
 }
