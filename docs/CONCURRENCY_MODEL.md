@@ -323,6 +323,8 @@ byte work is parallel per connection.
   permitting) — but 100 ms is already the game's own action granularity, and the
   client interpolates; this matches how retail-era servers behaved. If it ever
   matters, the drain step can be woken early by the channel instead of sleeping.
+  *(As built, it is: the tick sleep is a blocking receive on a unified event
+  channel, so packets are handled on arrival — THREADING_MODEL §2.)*
 
 ### 2.8 Object storage: ECS via `bevy_ecs`
 
