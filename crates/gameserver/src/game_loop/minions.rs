@@ -441,3 +441,20 @@ pub struct MinionOf(pub i32);
 /// so nothing has to prune it from the death path.
 #[derive(Debug, Clone, bevy_ecs::component::Component)]
 pub struct Minions(pub Vec<i32>);
+
+/// Java `Attackable.isRaidMinion()` — set by `Monster.onSpawn` as
+/// `setIsRaidMinion(_master.isRaid())`, so it is simply "my master is a raid".
+///
+/// The port has no separate minion NPC type; the link is the `MinionOf`
+/// component written when the master spawns its group, which is why this is a
+/// lookup rather than a template flag.
+pub(crate) fn is_raid_minion(world: &World, npc_oid: i32) -> bool {
+    let Some(MinionOf(master)) = world.objects.get_component::<MinionOf>(&npc_oid).copied() else {
+        return false;
+    };
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&master)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+        .is_some_and(|t| t.is_raid())
+}

@@ -279,6 +279,20 @@ pub(crate) fn apply_heroes_loaded(
 /// On enter-world, apply hero status to a crowned character (Java
 /// `Player.setHero(Hero.isHero(objectId))` — crowned **and** claimed, so a
 /// hero who has not visited the monument yet logs in without the status).
+/// Java `Player.isInOlympiadMode()` — the player is *in a running match*, not
+/// merely registered or spectating.
+///
+/// Distinct from the composite `offline_trade` builds, which also refuses a
+/// registered or observing player from going offline. Effects that ask
+/// "is this an olympiad fight?" want only the match.
+pub(crate) fn in_match(world: &World, object_id: i32) -> bool {
+    world
+        .olympiad
+        .matches
+        .iter()
+        .any(|m| m.player_a == object_id || m.player_b == object_id)
+}
+
 pub(crate) fn on_enter_world(world: &mut World, object_id: i32) {
     if world.olympiad.is_hero(object_id) {
         crate::game_loop::admin::hero::set_hero(world, object_id, true);

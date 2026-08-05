@@ -513,6 +513,59 @@ fn salvation_proposes_its_revive_when_death_strips_the_buff() {
     );
 }
 
+/// **…except in an olympiad match**, where Java returns before proposing
+/// (`effected.getActingPlayer().isInOlympiadMode()`). An auto-resurrect inside
+/// a duel to the death would decide the match, which is why the gate exists.
+#[test]
+fn salvation_does_not_fire_inside_an_olympiad_match() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
+
+    let salvation = crate::model::skill::Skill {
+        id: 1410,
+        level: 1,
+        target_type: TargetType::Self_,
+        abnormal_time: 1200,
+        abnormal_type: "SALVATION".into(),
+        effects: vec![SkillEffect::ResurrectionSpecial {
+            power: 100,
+            hp_percent: 0,
+            mp_percent: 0,
+            cp_percent: 0,
+        }],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(salvation.clone());
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CORPSE, CORPSE, &salvation);
+
+    // Put the holder in a running match.
+    world
+        .olympiad
+        .matches
+        .push(crate::model::olympiad::OlympiadMatch {
+            arena: 0,
+            player_a: CORPSE,
+            player_b: CORPSE + 1,
+            instance_id: 0,
+            deadline_tick: u64::MAX,
+            return_a: (0, 0, 0),
+            return_b: (0, 0, 0),
+        });
+
+    kill(&mut world, CORPSE, 10_000);
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CORPSE, 1410);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&CORPSE)
+            .unwrap()
+            .revive_request
+            .is_none(),
+        "no auto-resurrect inside an olympiad match"
+    );
+}
+
 /// The other half of the flag: like Noblesse Blessing, a `RESURRECTION_SPECIAL`
 /// holder loses **only that effect** on death and keeps the rest of its buffs.
 /// Without this the auto-resurrect would revive you stripped, which is the

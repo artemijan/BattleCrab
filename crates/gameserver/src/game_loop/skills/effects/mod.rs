@@ -682,12 +682,12 @@ pub(crate) fn apply_skill_effects(
                     .objects
                     .get_component::<crate::model::npc::Npc>(&target_oid)
                     .and_then(|n| world.data.npc_data.get(n.npc_id))
-                    // Java also excludes `isRaidMinion()`; this port has no
-                    // separate minion type — a raid's minions carry ordinary
-                    // `Monster` templates and are tracked by the leader's
-                    // `MinionList` instead — so only the boss itself is immune.
-                    // TODO(G34): extend to minions if a minion predicate lands.
-                    .is_some_and(|t| t.is_raid());
+                    .is_some_and(|t| t.is_raid())
+                    // Java's `isRaidMinion()` is `Monster.onSpawn`'s
+                    // `setIsRaidMinion(_master.isRaid())` — a minion inherits
+                    // its master's raid immunity. The port tracks the link as
+                    // `MinionOf`, so ask the master's template.
+                    || crate::game_loop::minions::is_raid_minion(world, target_oid);
                 if is_raid || !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
                     continue;
                 }

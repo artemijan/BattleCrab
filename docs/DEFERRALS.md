@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **130** such
+of narrow behaviours deferred and marked at the site. There are **128** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,10 +79,10 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G34)` | 13 | `data/skill_data/build.rs`, `game_loop/death/player_death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/conditions.rs`, `game_loop/skills/effects/control.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/skills/effects/ticks.rs`, `game_loop/skills/instant.rs` |
 | `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data/coverage_census.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, `model/skill.rs`, `network/client_packets.rs` |
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/tests/mana_restore_tests.rs`, `model/mod.rs`, `model/skill.rs`, `network/enter_world.rs` |
 | `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, `scripts/primeval_isle.rs`, `scripts/q00224_test_of_sagittarius.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
+| `TODO(G34)` | 11 | `data/skill_data/build.rs`, `game_loop/death/player_death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/conditions.rs`, `game_loop/skills/effects/control.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/skills/instant.rs` |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
 | `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
 | `TODO(G24)` | 8 | `game_loop/admin/castle.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs` |
@@ -122,6 +122,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G34)` ×2 — olympiad gate + raid-minion predicate (`skills/effects/ticks.rs`, `effects/mod.rs`, `minions.rs`) | Both were "waiting on a subsystem that has since landed". The auto-resurrect (`ResurrectionSpecial.onExit`) now refuses inside an olympiad match — where firing would decide a duel to the death — via a new shared `olympiad::in_match`, distinct from the registered/observing composite `offline_trade` builds. And Confuse's raid immunity now covers minions: Java's `isRaidMinion()` is just `Monster.onSpawn`'s `setIsRaidMinion(_master.isRaid())`, and the port's `MinionOf` component already carried the link. |
 | 2026-08-06 | `TODO(G24)` ×3 — castle crests, **justified not closed** (`siege.rs`, `admin/castle.rs` ×2) | "Castle crests" turns out to mean one display feature: `Npc.onSpawn` assigns the castle owner's clan id to NPCs in the **tax zone** so the client draws their crest, gated on `(SHOW_CREST_WITHOUT_QUEST \|\| castle.getShowNpcCrest()) && ownerId != 0`. **Both halves are false on this dist, permanently** — `ShowCrestWithoutQuest = False`, `showNpcCrest` defaults to `'false'` in both schemas, and `setShowNpcCrest(true)` appears *nowhere* in the Java tree. Kept as deferrals (an operator can flip the ini or the column), now naming what implementing needs: a `Castle` field, the tax-zone assignment, and a clan-id field `NpcInfo` does not carry. |
 | 2026-08-06 | `TODO(G24)` ×1 — advanced HQ **implemented** (`combat/damage.rs`, `model/components.rs`, `siege.rs`) | Skill 326's camp now takes **half** damage. Deliberately not Java's arithmetic: `SiegeFlagStatus.reduceHp` omits an `else` and applies `value/2` *and* `value` for 1.5×, which makes the noble-only skill worse than the basic one. Operator decision, recorded in [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md) — a future line-by-line parity pass will see a mismatch and must argue with the note rather than "correct" it. |
 | 2026-08-06 | `TODO(G24)` ×1 — clan-hall lease broadcasts (`game_loop/clan_hall_auction.rs`) | Java broadcasts to the owning clan's online members twice: a daily reminder carrying the outstanding lease (1051), and the eviction notice (1052) sent **before** ownership is cleared. Neither was ported, so a clan hall simply disappeared with no explanation. Both wired through `clans::broadcast_to_clan`, keeping Java's order — tell them, then take the hall. |

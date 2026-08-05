@@ -375,9 +375,15 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     }
     // `ResurrectionSpecial.onExit` — the auto-resurrect. The buff does nothing
     // while it is up; what fires it is being *stripped*, which is what death
-    // does. Java refuses in olympiad and outside the effect's `instanceId`
-    // list; neither is modelled for this path (no carrier on this dist
-    // declares `instanceId`). TODO(G34): add the olympiad gate.
+    // does.
+    //
+    // Java refuses in an olympiad match (`isInOlympiadMode()`), which matters:
+    // an auto-resurrect inside a duel-to-the-death would decide the match. The
+    // `instanceId` allow-list is the other half and stays unmodelled — no
+    // carrier on this dist declares one, so the list is empty everywhere.
+    if crate::game_loop::olympiad::in_match(world, player_object_id) {
+        return;
+    }
     if let Some(res) = world.data.skill_data.get(skill_id, 1).and_then(|s| {
         s.effects.iter().find_map(|e| match e {
             SkillEffect::ResurrectionSpecial {
