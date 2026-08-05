@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **119** such
+of narrow behaviours deferred and marked at the site. There are **118** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -345,3 +345,4 @@ grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
 | 2026-08-06 | `TODO(G34)` ×3 → `SKIP` (`skills/cast.rs` ×2, `npc_cast.rs`) | Both waited on capability the dist cannot exercise. `NextAction::Cast` needs an AI intention queue, but all 11 `<nextAction>CAST` skills are off-chronicle and appear in no skill tree or NPC list. The instant-cast move-stop exemption needs a `SIMULTANEOUS`/`abnormalInstant`/`withoutAction` skill on an NPC; 57 skills carry those markers and none is in any of the 2159 NPC-castable ids or any script's `getSkill`. |
 | 2026-08-06 | `TODO(G34)` ×1 (`skill_data/build.rs`) | **Closed.** `isSelfContinuous()` / `isDisplayedForEffected()`. The marker said `ActiveBuff` records no effector so the rule had nothing to test — but the rule only needs the *answer*, not the effector, so `displayed` is stamped at creation where the caster is still in scope. Gates both channels Java gates: the icon row and the abnormal-visual fold. Six skills qualify on this dist (321, 368, 369, 409, 1231, 1996). |
 | 2026-08-06 | `TODO(G34)` ×1 (`death/player_death.rs`) | **Stale.** "The vitality-consumption exemption, once that branch exists" — `vitality::update_vitality_points` has had the branch since G33, complete with its own private `is_lucky`. Two copies of one predicate is two places for the level bound to drift, so the duplicate is gone and vitality calls the death one. |
+| 2026-08-06 | `TODO(G34)` ×1 → `SKIP(census)` (`skills/effects/mod.rs`) | "Re-check if any `ImmobilePetBuff` carrier uses a wider target type." Censused: the effect appears on exactly one skill in the whole dist — Servitor Empowerment 1299, `SUMMON`/`SINGLE` — so Java's owner gate is satisfied by construction and there is no wider carrier to re-check. |

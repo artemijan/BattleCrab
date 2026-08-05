@@ -648,7 +648,11 @@ pub(crate) fn apply_skill_effects(
             // satisfied by construction here: Servitor Empowerment (1299) is
             // `targetType SUMMON`, which resolves to the caster's *own*
             // servitor, so there is no way to aim it at somebody else's pet.
-            // TODO(G34): re-check if any carrier ever uses a wider target type.
+            //
+            // SKIP(census): the whole dist carries this effect on exactly one
+            // skill — 1299, `SUMMON`/`SINGLE`. There is no wider carrier to
+            // re-check, so porting the gate would guard a case no data can
+            // produce.
             SkillEffect::ImmobilePetBuff => {}
             // `CallParty.instant` — Chant of Gate (1429). Every *other* party
             // member is pulled to the caster, each gated by CallPc's shared
