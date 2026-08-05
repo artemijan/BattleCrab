@@ -251,3 +251,77 @@ fn spoil_uses_the_flat_premium_spoil_rates() {
         "x2 chance lands it, x2 amount doubles it"
     );
 }
+
+// ---------------------------------------------------------------------------
+// `.premium` — the account panel (G33)
+// ---------------------------------------------------------------------------
+
+/// Decode the `NpcHtmlMessage` a voiced command produced, if any.
+fn voiced_html(pkts: &[Vec<u8>]) -> Option<String> {
+    pkts.iter()
+        .find(|p| p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE)
+        .and_then(|p| decode_npc_html(p))
+}
+
+fn say(world: &mut World, text: &str) {
+    let mut w = commons::network::PacketWriter::new();
+    w.write_string(text);
+    w.write_i32(0); // ChatType::General
+    crate::game_loop::chat::handle_say2(world, CID, &w.into_bytes());
+}
+
+/// **Without premium the panel advertises what premium would give**, showing
+/// the base rates as "Normal" alongside the premium ones.
+#[test]
+fn the_premium_panel_shows_normal_status_and_the_upgrade_rates() {
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+    world.cfg.premium.enabled = true;
+    world.cfg.rates.rate_xp = 2.0;
+    world.cfg.premium.rate_xp = 3.0;
+    drain(&mut rx);
+
+    say(&mut world, ".premium");
+    let html = voiced_html(&drain(&mut rx)).expect("the panel is an NpcHtmlMessage");
+    assert!(
+        html.contains("Normal"),
+        "no premium → Normal status: {html}"
+    );
+    // Java multiplies the premium rate *onto* the base rate, so the page shows
+    // the effective x6, not the x3 multiplier.
+    assert!(html.contains("x2"), "base rate shown: {html}");
+    assert!(html.contains("x6"), "effective premium rate shown: {html}");
+}
+
+/// **With premium it reports Premium status and an expiry date.**
+#[test]
+fn the_premium_panel_reports_status_and_expiry_when_active() {
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+    grant_premium(&mut world, PLAYER);
+    drain(&mut rx);
+
+    say(&mut world, ".premium");
+    let html = voiced_html(&drain(&mut rx)).expect("the panel is an NpcHtmlMessage");
+    assert!(html.contains("Premium"), "active status: {html}");
+    assert!(html.contains("Expires"), "expiry row present: {html}");
+}
+
+/// **With the system off the line is said aloud, not handled** — Java only
+/// registers the handler when `EnablePremiumSystem` is on, so an unregistered
+/// voiced command falls through to chat. Sending a panel anyway would leak a
+/// feature the operator switched off.
+#[test]
+fn premium_is_not_a_command_when_the_system_is_disabled() {
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+    world.cfg.premium.enabled = false;
+    drain(&mut rx);
+
+    say(&mut world, ".premium");
+    let pkts = drain(&mut rx);
+    assert!(
+        voiced_html(&pkts).is_none(),
+        "no panel when the system is off"
+    );
+}

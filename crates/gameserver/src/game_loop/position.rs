@@ -207,9 +207,11 @@ fn take_admin_tele_mode(
             // Java sends `ExFlyMove` to the GM and `ExFlyMoveBroadcast` to
             // everyone else around the Sayune hop, then `setXYZ`.
             //
-            // TODO(G33): those two are `0xFE:0xE8` / `0xFE:0x108`, Ertheia-era
-            // ex-opcodes with no counterpart in the Interlude protocol this
-            // server speaks — there is no way to send them to this client. The
+            // SKIP(protocol): those two are `0xFE:0xE8` / `0xFE:0x108`,
+            // Ertheia-era ex-opcodes with no counterpart in the Interlude
+            // protocol this server speaks. This is not deferred work — the
+            // client on the other end has no handler for them, so there is
+            // nothing to send and nothing a later milestone could change. The
             // hop itself (the `setXYZ` half) is ported; the port substitutes a
             // `FlyToLocation(DUMMY)` — the Interlude "slide, no animation"
             // packet — so the client actually follows the server instead of

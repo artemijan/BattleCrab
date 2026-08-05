@@ -196,6 +196,90 @@ pub(crate) fn format_datetime(millis: i64) -> String {
     format!("{day:02}.{month:02}.{year:04} {hour:02}:{minute:02}")
 }
 
+/// `handlers/voicedcommandhandlers/Premium` — the `.premium` account panel.
+///
+/// Two layouts, chosen by whether the account has time left: a "Normal" page
+/// that advertises what premium *would* give, and a "Premium" page showing the
+/// rates in force plus the expiry. Java builds both by hand in a
+/// `StringBuilder` and sends them as `NpcHtmlMessage(5)`.
+///
+/// The rates shown are Java's arithmetic verbatim: the premium multiplier is
+/// applied *on top of* the base rate (`RATE_XP * PREMIUM_RATE_XP`), so the page
+/// reports the effective rate rather than the multiplier.
+pub(crate) fn show_premium_panel(world: &World, client_id: u32, object_id: i32) {
+    let Some(player) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+    else {
+        return;
+    };
+    let end_date = get_premium_expiration(world, &player.account);
+    let r = &world.cfg.rates;
+    let p = &world.cfg.premium;
+    // Java prints raw `double`s, so a 1.0 rate reads "x1.0" rather than "x1".
+    let row = |label: &str, value: f64| {
+        format!("<tr><td>{label}: <font color=\"LEVEL\"> x{value}<br1></font></td></tr>")
+    };
+    let premium_rows = format!(
+        "{}{}{}{}{}{}",
+        row("Rate XP", r.rate_xp * p.rate_xp),
+        row("Rate SP", r.rate_sp * p.rate_sp),
+        row(
+            "Drop Chance",
+            r.death_drop_chance_multiplier * p.rate_drop_chance
+        ),
+        row(
+            "Drop Amount",
+            r.death_drop_amount_multiplier * p.rate_drop_amount
+        ),
+        row(
+            "Spoil Chance",
+            r.spoil_drop_chance_multiplier * p.rate_spoil_chance
+        ),
+        row(
+            "Spoil Amount",
+            r.spoil_drop_amount_multiplier * p.rate_spoil_amount
+        ),
+    );
+    const RULES: &str = concat!(
+        "<tr><td> <font color=\"70FFCA\">1. Premium benefits CAN NOT BE TRANSFERED.<br1></font></td></tr>",
+        "<tr><td> <font color=\"70FFCA\">2. Premium does not effect party members.<br1></font></td></tr>",
+        "<tr><td> <font color=\"70FFCA\">3. Premium benefits effect ALL characters in same account.</font></td></tr>",
+    );
+    let html = if end_date == 0 {
+        format!(
+            "<html><body><title>Account Details</title><center><table>\
+             <tr><td><center>Account Status: <font color=\"LEVEL\">Normal<br></font></td></tr>\
+             {}{}{}{}{}{}\
+             <tr><td><center>Premium Info &amp; Rules<br></td></tr>\
+             {premium_rows}{RULES}</table></center></body></html>",
+            row("Rate XP", r.rate_xp),
+            row("Rate SP", r.rate_sp),
+            row("Drop Chance", r.death_drop_chance_multiplier),
+            row("Drop Amount", r.death_drop_amount_multiplier),
+            row("Spoil Chance", r.spoil_drop_chance_multiplier),
+            row("Spoil Amount", r.spoil_drop_amount_multiplier),
+        )
+    } else {
+        format!(
+            "<html><body><title>Premium Account Details</title><center><table>\
+             <tr><td><center>Account Status: <font color=\"LEVEL\">Premium<br></font></td></tr>\
+             {premium_rows}\
+             <tr><td>Expires: <font color=\"00A5FF\">{}</font></td></tr>\
+             <tr><td>Current Date: <font color=\"70FFCA\">{}<br><br></font></td></tr>\
+             <tr><td><center>Premium Info &amp; Rules<br></center></td></tr>\
+             {RULES}\
+             <tr><td><center>Thank you for supporting our server.</td></tr>\
+             </table></center></body></html>",
+            format_datetime(end_date),
+            format_datetime(commons::util::now_millis()),
+        )
+    };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::server_packets::npc_html_message(5, &html));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::format_datetime;

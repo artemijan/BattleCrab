@@ -166,9 +166,13 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     // handler runs and the text is never broadcast. Java's `MasterHandler`
     // registers each handler only when its `Custom/*.ini` flag is on, so an
     // unregistered command falls through to being *said*; the gates below keep
-    // that shape. Still unported: `.premium` and `.password` (`TODO(G33)`) —
-    // auto-play and auto-potions landed with the `Custom/*.ini` audit and are
-    // dispatched below.
+    // that shape.
+    //
+    // `.password` is deliberately absent: `handlers/voicedcommandhandlers/
+    // ChangePassword` needs `AllowChangePassword`, which is `False` on this
+    // dist, so Java never registers it either and the line is said aloud —
+    // which is what happens here too. Porting it would need the login server's
+    // account-password path, since the game server does not hold credentials.
     if chat_type == ChatType::General
         && let Some(rest) = pkt.text.strip_prefix('.')
     {
@@ -176,6 +180,13 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         match command {
             "offline" => {
                 super::offline_trade::handle_voiced_offline(world, client_id);
+                return;
+            }
+            // `handlers/voicedcommandhandlers/Premium` — the account panel.
+            // Gated on the same `EnablePremiumSystem` Java gates it on, so with
+            // the system off the line falls through and is said aloud.
+            "premium" if world.cfg.premium.enabled => {
+                super::admin::premium::show_premium_panel(world, client_id, sender_oid);
                 return;
             }
             "online" if world.cfg.custom_misc.online_command => {
