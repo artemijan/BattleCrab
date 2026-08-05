@@ -534,14 +534,37 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
     // Action 38 (`Ride` playeraction — `/dismount`): dismounting a mounted
     // player is live; *mounting* an owned strider/wolf runs through the
     // `/mount` user command (`user_commands`, Java `mountPlayer(getPet())`
-    // with its level/range/combat gates). TODO(G33): Java also refuses a wyvern
-    // dismount inside a NO_LANDING zone (`no_landing.xml` unloaded).
+    // with its level/range/combat gates).
     if pkt.action_id == action::RIDE {
         if world
             .objects
             .get_component::<crate::model::Player>(&owner_oid)
             .is_some_and(crate::model::Player::is_mounted)
         {
+            // Java checks NO_LANDING **before** the hungry branch: a wyvern
+            // rider over a no-landing zone is refused outright. Unlike the
+            // hungry branch below, this one really fires — `no_landing.xml`
+            // covers the airspace around the four Grand Boss lairs.
+            const MOUNT_WYVERN: u8 = 2;
+            let over_no_landing = world
+                .objects
+                .get_component::<crate::model::components::Position>(&owner_oid)
+                .is_some_and(|p| world.data.zone_data.in_no_landing_zone(p.x, p.y, p.z));
+            if over_no_landing
+                && world
+                    .objects
+                    .get_component::<crate::model::Player>(&owner_oid)
+                    .is_some_and(|p| p.mount_type == MOUNT_WYVERN)
+            {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::action_failed());
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::YOU_ARE_NOT_ALLOWED_TO_DISMOUNT_IN_THIS_LOCATION,
+                        &[],
+                    ));
+                }
+                return;
+            }
             // Java's other refusal, ported for shape: a hungry mount cannot be
             // dismounted. The branch never fires — `isHungry()` requires a live
             // pet and `mount()` unsummons it (see `mounts::is_hungry`) — but a

@@ -33,6 +33,9 @@ pub enum ZoneKind {
     Peace,
     Water,
     NoRestart,
+    /// Java `NoLandingZone` → `ZoneId.NO_LANDING` (`no_landing.xml`): airspace
+    /// a wyvern rider may not put down in.
+    NoLanding,
     /// Java `ArenaZone` → `ZoneId.PVP`: free-for-all areas where players are
     /// auto-attackable and hostile actions don't raise a flag.
     Pvp,
@@ -125,6 +128,9 @@ impl ZoneKind {
             ZoneKind::Swamp => 128,
             // Queried by geometry, not membership — no bit (like `Script`).
             ZoneKind::Fishing => 0,
+            // Same: the dismount gate asks "is this point inside one", and the
+            // u8 mask has no free bit left anyway.
+            ZoneKind::NoLanding => 0,
             // Queried by geometry (`clan_hall_at`), no membership bit.
             ZoneKind::ClanHall => 0,
             // Queried by geometry (`zones_at`), no membership bit (u8 mask full).
@@ -256,6 +262,9 @@ impl ZoneData {
             ("water.xml", ZoneKind::Water),
             ("fishing.xml", ZoneKind::Fishing),
             ("no_restart.xml", ZoneKind::NoRestart),
+            // `no_landing.xml` is uniformly `NoLandingZone` — where a wyvern
+            // rider is refused a dismount.
+            ("no_landing.xml", ZoneKind::NoLanding),
             // `pvp.xml` is uniformly `ArenaZone`, so the filename→kind mapping
             // is correct. `underground_coliseum.xml` mixes zone types and needs
             // per-zone `type=` parsing before it can be loaded — deferred.
@@ -476,6 +485,14 @@ impl ZoneData {
         self.zones_at(x, y, z).any(|zn| zn.kind == ZoneKind::Castle)
     }
 
+    /// Whether `(x, y, z)` is inside a `NoLandingZone` (Java
+    /// `isInsideZone(ZoneId.NO_LANDING)`) — a wyvern rider cannot dismount
+    /// here.
+    pub fn in_no_landing_zone(&self, x: i32, y: i32, z: i32) -> bool {
+        self.zones_at(x, y, z)
+            .any(|zn| zn.kind == ZoneKind::NoLanding)
+    }
+
     /// Whether `(x, y, z)` is inside a `JailZone` (Java `isInsideZone(ZoneId
     /// .JAIL)`) — the confinement check for jailed players (G31).
     pub fn in_jail_zone(&self, x: i32, y: i32, z: i32) -> bool {
@@ -526,6 +543,7 @@ impl ZoneData {
 fn kind_from_type(ty: &str) -> Option<ZoneKind> {
     Some(match ty {
         "PeaceZone" => ZoneKind::Peace,
+        "NoLandingZone" => ZoneKind::NoLanding,
         "WaterZone" => ZoneKind::Water,
         "FishingZone" => ZoneKind::Fishing,
         "NoRestartZone" => ZoneKind::NoRestart,
@@ -843,7 +861,9 @@ mod tests {
         // the exception to `moveToLocation`'s water branch.
         // 1262 → 1269: `no_drop_item.xml`'s 7 `ConditionZone`s — where
         // `RequestDropItem` refuses (`ZoneId.NO_ITEM_DROP`).
-        assert_eq!(data.zones.len(), 1269);
+        // 1269 → 1278: `no_landing.xml`'s 9 `NoLandingZone`s — the airspace a
+        // wyvern rider may not dismount over (G33).
+        assert_eq!(data.zones.len(), 1278);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::Condition), 7, "no_drop_item.xml");
         // Every zone in that file declares the flag, and nothing else does.
@@ -890,6 +910,13 @@ mod tests {
         // zone; the jail-out location is not.
         assert!(data.in_jail_zone(-114356, -249645, -2984));
         assert!(!data.in_jail_zone(17836, 170178, -3507));
+        assert_eq!(count(ZoneKind::NoLanding), 9, "no_landing.xml");
+        // Inside the Valakas lair's no-landing airspace (its quad spans
+        // x 196478..229126, y -130845..-96162, z >= -3753), and outside it.
+        // A wyvern rider is refused a dismount at the first, allowed at the
+        // second (`servitor`'s Ride action).
+        assert!(data.in_no_landing_zone(210000, -115000, 0));
+        assert!(!data.in_no_landing_zone(-14000, 123000, -3100));
         assert_eq!(count(ZoneKind::ClanHall), 48, "clan_hall.xml");
         assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
         assert_eq!(count(ZoneKind::Peace), 134);
@@ -1008,6 +1035,7 @@ mod effect_zone_tests {
                         | ZoneKind::Peace
                         | ZoneKind::Water
                         | ZoneKind::NoRestart
+                        | ZoneKind::NoLanding
                         | ZoneKind::Hq
                         | ZoneKind::Pvp
                         | ZoneKind::Siege

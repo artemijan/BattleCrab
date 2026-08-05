@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **140** such
+of narrow behaviours deferred and marked at the site. There are **139** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -85,8 +85,8 @@ also registering its NPCs would strand the player.
 | `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/tests/mana_restore_tests.rs`, `model/mod.rs`, `model/skill.rs`, `network/enter_world.rs` |
 | `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, `scripts/primeval_isle.rs`, `scripts/q00224_test_of_sagittarius.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
 | `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
-| `TODO(G33)` | 9 | `config/offline_trade.rs`, `game_loop/admin/skills.rs`, `game_loop/combat/intent.rs`, `game_loop/death/restart.rs`, `game_loop/offline_trade.rs`, `game_loop/party.rs`, `game_loop/servitor.rs` |
 | `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
+| `TODO(G33)` | 8 | `config/offline_trade.rs`, `game_loop/admin/skills.rs`, `game_loop/combat/intent.rs`, `game_loop/death/restart.rs`, `game_loop/offline_trade.rs`, `game_loop/party.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
@@ -122,6 +122,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-05 | `TODO(G33)` ×1 — wyvern NO_LANDING (`game_loop/servitor.rs`) | The marker's blocker was `no_landing.xml` being unloaded, and that file **is in the dist** — the port's zone loader simply never listed it. Added `ZoneKind::NoLanding` (no mask bit: the u8 is full, and this is a geometry query like `Fishing`), loaded its 9 zones, and ported Java's refusal — checked *before* the hungry branch, as Java orders it. Unlike the hungry branch, which the port notes can never fire, this one is live: the zones cover the airspace over the Grand Boss lairs and the Tower of Insolence. |
 | 2026-08-05 | `TODO(G33)` ×1 — `isInventoryDisabled` (`game_loop/dispatch.rs`, `items.rs`) | Ported, and the **marker misnamed the mechanic**: it said "enchant/crystallize in progress", but Java sets `_inventoryDisable` from `Merchant.showBuyWindow` and the private/clan warehouse and wear bypasses, cleared 1500 ms later by `InventoryEnableTask`. It exists so the client's own spurious `RequestItemList` cannot redraw the inventory over a shop window that is still opening. Implemented as a `HashSet` + scheduled task rather than an expiry timestamp, because Java's task clears unconditionally — a second window opened inside the window is unblocked by the *first* task, which a timestamp would silently extend. |
 | 2026-08-05 | `TODO(G33)` ×1 — `//transform` in water (`game_loop/admin/transforms.rs`) | Ported, and it nearly went in with the **wrong predicate**. `position::is_in_water` is the WATER-*zone* test (swim speed, geodata) and its own doc comment warns it is not Java's `Player.isInWater()` — which is `_taskWater != null`, the *drowning task*. `water::is_drowning_task_active` is the counterpart. Fixing the gate also exposed that the port tested the **target's** posture for the sitting refusal where Java tests the **GM's** (`activeChar.isSitting()`), and ran the checks in a different order — both corrected to Java's. |
 | 2026-08-05 | `TODO(G33)` ×1 — `%protocol%` (`game_loop/admin/editchar.rs`) | The marker's blocker was real when written and had just been dissolved by someone else's work: the client's protocol version lives on the connection-side `GameClient`, and main's threading refactor gave the network layer a unified `NetEvent` channel to the game thread. Added `NetEvent::ProtocolVersion`, forwarded from the handshake, stored in `World::protocol_versions` and cleared on disconnect beside `hwids` — same lifetime, since both belong to the connection rather than the character. **Worth re-checking markers after a refactor lands**: this one aged out without anyone touching it. |
