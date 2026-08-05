@@ -31,9 +31,16 @@ pub struct OfflineTradeConfig {
     /// shop reads as unattended. Java decodes the value as hex (`0x` prefixed).
     pub set_name_color: bool,
     pub name_color: i32,
-    /// `OfflineFame` — whether a detached character still earns fame. Fame is a
-    /// later-chronicle stat with no ported source on Interlude, so this is
-    /// carried for completeness and read nowhere (`TODO(G33)`).
+    /// `OfflineFame` — whether a detached character still earns fame.
+    ///
+    /// Read nowhere yet (`TODO(G33)`), because the thing it gates is unported:
+    /// Java's fame source is `SiegeZone`'s fame task, and this only decides
+    /// whether an *offline* shop inside such a zone keeps earning. Note the
+    /// earlier claim here — "a later-chronicle stat with no ported source on
+    /// Interlude" — was wrong: castle sieges are ported, so the source is
+    /// reachable. It is inert only because this dist sets
+    /// `CastleZoneFameAquirePoints = 0`. See `game_loop::siege`'s
+    /// `update_player_siege_state_flags`.
     pub fame: bool,
     /// `RestoreOffliners` — restore the stored shops at boot.
     pub restore_offliners: bool,

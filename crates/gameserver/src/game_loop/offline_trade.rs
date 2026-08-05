@@ -106,11 +106,21 @@ pub(crate) fn can_enter_offline_mode(world: &World, object_id: i32) -> bool {
     }
     let mut can_set_shop = match store_type(world, object_id) {
         STORE_SELL | STORE_PACKAGE_SELL | STORE_BUY | STORE_MANUFACTURE => cfg.trade_enable,
-        // Java's `default:` — no store, but the dwarven recipe window open.
-        // The port has no "crafting" state (`Player.isCrafting()` is set while
-        // a `RecipeItemMaker` runs), so this branch is always false.
-        // TODO(G33): honour `OfflineCraftEnable` once a craft-in-progress state
-        // exists — Java lets a mid-craft dwarf go offline with no store at all.
+        // Java's `default:` — no store, but a craft in progress:
+        // `canSetShop = OFFLINE_CRAFT_ENABLE && player.isCrafting()`.
+        //
+        // Always false here, and **Java is too on this dist**, which is the
+        // part the earlier comment missed. `setCrafting(true)` and
+        // `setCrafting(false)` both happen inside `RecipeItemMaker`'s
+        // constructor, and `AltGameCreation = False` makes the whole craft run
+        // inline within one packet handler — so no *other* packet, logout
+        // included, can ever observe `isCrafting()` as true. The branch is
+        // unreachable, not unported.
+        //
+        // TODO(G33): it becomes reachable if an operator sets
+        // `AltGameCreation = True`, which restores Java's staged multi-pass
+        // craft (`_activeMakers`, the gauge, the animation loop) — that whole
+        // machinery is unported, and this branch is one consequence of it.
         _ => false,
     };
     if cfg.mode_in_peace_zone

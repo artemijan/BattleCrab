@@ -11,8 +11,8 @@
 //! What is still deferred is narrow and marked at its own site: castle crests,
 //! `Castle.removeUpgrade()` (castle *functions* — the chamberlain's door/trap
 //! tiers — are not modelled at all, so there is nothing to strip), the
-//! members-inside-the-zone fame task (fame has no earning path anywhere in this
-//! port), and two registration refusal messages.
+//! members-inside-the-zone fame task (see `update_player_siege_state_flags`),
+//! and two registration refusal messages.
 
 use crate::db::DbCommand;
 use crate::model::Player;
@@ -107,8 +107,20 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
 /// unable to fight each other anywhere on the map for the duration.
 ///
 /// TODO(G24): Java also starts/stops a **fame task** for members inside the
-/// zone (`startFameTask`). Fame has no earning path anywhere in this port, so
-/// there is nothing to start.
+/// zone — `SiegeZone` calls `startFameTask(fameFrequency * 1000,
+/// fameAmount)` on entry and `stopFameTask()` on exit.
+///
+/// The reason recorded here until 2026-08-05 — "fame has no earning path
+/// anywhere in this port" — was circular, and the version in
+/// `config/offline_trade.rs` went further and was simply wrong ("a
+/// later-chronicle stat with no ported source on Interlude"). `SiegeZone` *is*
+/// the source, castle sieges *are* ported, so the path exists in Java and is
+/// reachable here.
+///
+/// What actually makes it inert is the datapack: `Character.ini` sets
+/// `CastleZoneFameAquirePoints = 0`, so the task would award nothing. That is
+/// a **config value an operator can raise**, not a chronicle fact — which is
+/// why this stays a deferral rather than becoming a `SKIP`.
 pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32, clear: bool) {
     let Some(siege) = world.sieges.get(&castle_id) else {
         return;
