@@ -125,11 +125,11 @@ all. A separate `SKIP(<tag>)` family marks work examined and deliberately not
 done — dead Java no route on this dist can reach — and is deliberately *not*
 counted here; see [DEFERRALS.md](DEFERRALS.md).
 
-**Total recorded gaps: 138.** Enumerated in [DEFERRALS.md](DEFERRALS.md) and
+**Total recorded gaps: 137.** Enumerated in [DEFERRALS.md](DEFERRALS.md) and
 asserted by the test named above — if this number and that file disagree, the
 file is right. It read 134 until 2026-08-05, when the scanner was widened to
 see the suffixed and topic-tagged families it had been dropping in silence; see
-that file's seventh pass. Because every milestone row here is ✅, these 138 are
+that file's seventh pass. Because every milestone row here is ✅, these 137 are
 what is actually left to do.
 
 ---

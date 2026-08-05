@@ -534,9 +534,35 @@ fn maybe_move_to_pawn(
         return true;
     }
 
-    // TODO(G33): Java refuses a *cast* here while the player is transformed
-    // into a non-combat form ("while flying there is no move to cast" — SM 748
-    // + ActionFailed, `maybeMoveToPawn` returning true).
+    // "while flying there is no move to cast": a player who would have to walk
+    // into range to finish a cast is refused outright while transformed into a
+    // **non-combat** form, rather than walked there. `checkTransformed(t ->
+    // !t.isCombat())` in Java — so an untransformed player, or one in a COMBAT
+    // form (89 of the 174 templates on this dist), is unaffected.
+    if matches!(
+        world.objects.get_component::<Intent>(&object_id),
+        Some(Intent(PlayerIntent::Cast { .. }))
+    ) {
+        let non_combat_form = world
+            .objects
+            .get_component::<crate::model::Player>(&object_id)
+            .filter(|p| p.transform_id != 0)
+            .and_then(|p| world.data.transforms.get(p.transform_id))
+            .is_some_and(|tr| !tr.combat);
+        if non_combat_form {
+            if let Some(cs) = crate::game_loop::helpers::client_for_player(world, object_id)
+                .and_then(|cid| world.clients.get(&cid))
+            {
+                cs.send(crate::network::server_packets::system_message_with(
+                    crate::network::server_packets::sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
+                    &[],
+                ));
+                cs.send(crate::network::server_packets::action_failed());
+            }
+            return true;
+        }
+    }
+
     let mut offset = offset_value;
     if followable {
         // `startFollow(target, offset)`. A moving pawn is chased 100 units

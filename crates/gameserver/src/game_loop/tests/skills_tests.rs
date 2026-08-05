@@ -6087,3 +6087,48 @@ fn healing_beside_a_fighting_mob_draws_its_hate_onto_the_healer() {
         "the mob noticed the heal and now hates the healer ({after})"
     );
 }
+
+/// **A non-combat transform cannot walk into range to cast** — Java's "while
+/// flying there is no move to cast" (`checkTransformed(t -> !t.isCombat())` →
+/// SM 748 + `ActionFailed`, `maybeMoveToPawn` returning true).
+///
+/// The discrimination is the point: a COMBAT form walks as normal. Asserting
+/// only the refusal would pass just as well if the gate ignored the flag and
+/// refused everyone.
+#[test]
+fn a_non_combat_transform_is_refused_a_walk_to_cast() {
+    use crate::model::Player;
+
+    let refused_for = |transform_id: i32| -> bool {
+        let (mut world, ..) = cast_test_world();
+        world.data.transforms = crate::data::TransformData::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
+        let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        // A target far enough that the cast needs a walk.
+        let _target_rx = ingame_caster(&mut world, 2, 3002, 5000, 0);
+        world
+            .objects
+            .get_component_mut::<Player>(&3001)
+            .unwrap()
+            .transform_id = transform_id;
+        set_target(&mut world, 1, 3001, Some(3002));
+        drain(&mut rx);
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
+        sm_ids_of(&drain(&mut rx)).contains(
+            &crate::network::server_packets::sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
+        )
+    };
+
+    // Transform 101 is NON_COMBAT on this dist; 1 is COMBAT.
+    assert!(
+        refused_for(101),
+        "a non-combat form is refused the walk-to-cast"
+    );
+    assert!(
+        !refused_for(1),
+        "a COMBAT form walks as normal — the gate reads the flag, not merely 'is transformed'"
+    );
+    assert!(!refused_for(0), "and an untransformed player is unaffected");
+}
