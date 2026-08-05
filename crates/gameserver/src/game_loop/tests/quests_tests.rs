@@ -17731,7 +17731,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     }
     let start = NPC_OID;
     add_test_npc(&mut world, start, START_NPC, "Folk", 78, 100, 200, 0);
-    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     {
         let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
         p.level = 76;
@@ -17823,11 +17823,37 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     assert_eq!(cond(&world), Some(19));
 
     // The quest-giver performs the class transfer.
+    drain(&mut rx);
     ev(&mut world, "0-2");
     assert_eq!(
         item_count(&world, 3001, REWARD_MARK),
         1,
         "Mark of the class transfer"
+    );
+    // Two 5103 casts land here, and both are Java's:
+    //   * `Player.setClassId` broadcasts its own class-change flash as a
+    //     *self*-cast (`MagicSkillUse(this, 5103, 1, 0, 0)`), and
+    //   * the saga quest then casts npc->player
+    //     (`MagicSkillUse(npc, player, 5103, 1, 1000, 0)`).
+    // In that order, as in Java's `setClassId(...)` then `broadcastPacket(...)`.
+    // The port had the first but sent 4339 — quest 235's elixir flash — for
+    // the second, as two self-casts. Assert the caster/target pairs, since the
+    // skill id alone cannot tell the two apart.
+    let transfer_cast = drain(&mut rx)
+        .into_iter()
+        .filter(|p| p[0] == crate::network::server_packets::opcodes::MAGIC_SKILL_USE)
+        .map(|p| {
+            let mut r = commons::network::PacketReader::new(&p[1..]);
+            r.read_i32().unwrap(); // cast bar
+            let caster = r.read_i32().unwrap();
+            let target = r.read_i32().unwrap();
+            (caster, target, r.read_i32().unwrap())
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(
+        transfer_cast,
+        vec![(3001, 3001, 5103), (NPC_OID, 3001, 5103)],
+        "setClassId's self-cast, then the saga's npc->player cast"
     );
     assert_eq!(
         world

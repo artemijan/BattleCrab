@@ -47,6 +47,9 @@ pub struct SagaData {
 const REWARD_EXP: i64 = 2_299_404;
 const REWARD_ADENA: i64 = 5_000_000;
 const MARK_OF_SAGA: i32 = 6622;
+/// The 3rd-class-transfer flourish every saga quest broadcasts as the rite
+/// completes (Java: `MagicSkillUse(npc, player, 5103, 1, 1000, 0)`).
+const CLASS_TRANSFER_FLOURISH: i32 = 5103;
 const ARCHON_HALISHA_NORM: [i32; 5] = [18212, 18214, 18215, 18216, 18218];
 const MIN_LEVEL: i32 = 76;
 // Finale battle chatter. The authentic `_text` lines are quest-specific (18
@@ -104,8 +107,15 @@ impl SagaQuest {
         ctx.give_items(57, REWARD_ADENA);
         ctx.give_items(MARK_OF_SAGA, 1);
         ctx.set_class_id(self.data.class_id);
-        ctx.cast_visual(4339, 1); // the transform flash
-        // TODO(saga): the SkillTransfer "givePormanders" hand-off.
+        // `npc.broadcastPacket(new MagicSkillUse(npc, player, 5103, 1, 1000, 0))`
+        // — the class-transfer flourish, cast by the NPC *at* the player.
+        //
+        // This was `cast_visual(4339, 1)`, wrong twice over: 4339 is quest
+        // 235's elixir-mixing flash, and `cast_visual` emits two *self*-casts
+        // (one on the player, one on the NPC) rather than one npc→player cast.
+        // All 40 `MagicSkillUse` sites across the 31 saga quests use 5103.
+        let (npc, player) = (ctx.npc, ctx.player);
+        ctx.cast_visual_at(npc, player, CLASS_TRANSFER_FLOURISH, 1, 1000);
     }
 }
 

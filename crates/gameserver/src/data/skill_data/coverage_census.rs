@@ -457,7 +457,6 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("frintezza-4b", 1),
         ("login-playauth", 2),
         ("manor", 2),
-        ("saga", 1),
         ("skill-see-range", 1),
     ];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
