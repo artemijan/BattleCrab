@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **128** such
+of narrow behaviours deferred and marked at the site. There are **126** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -338,3 +338,5 @@ worse; the ledger got honest.
 grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
   awk -F: '{print $3}' | sort | uniq -c | sort -rn
 ```
+| 2026-08-06 | `TODO(G34)` ×1 (`skills/conditions.rs`) | **Closed.** `ConditionPlayerCanResurrect`'s summon leg ported: dead → resurrection-blocked → owner's open prompt. It waited on a servitor subsystem that had already landed (`ServitorOf`), and a pet carries the same component, so the one branch covers both. |
+| 2026-08-06 | `TODO(G34)` ×1 → `SKIP(off-chronicle)` (`skills/instant.rs`) | Fort half of the door-unlock gate. Fort sieges are an explicit scope-out for this build, so "once forts exist" names a milestone that cannot arrive; the skill path is vacuous regardless, since none of the 34 `BY_SKILL` doors belongs to a fort. |

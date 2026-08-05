@@ -5136,3 +5136,66 @@ fn servitor_empowerment_roots_the_servitor_until_it_expires() {
         "and expiry frees it — otherwise the servitor is stuck for good"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Resurrecting a servitor
+// ---------------------------------------------------------------------------
+
+/// `ConditionPlayerCanResurrect`'s summon leg, which the port used to answer
+/// with a blanket refusal.
+///
+/// The three gates, in Java's order: the summon must be **dead**, must not be
+/// resurrection-blocked, and its **owner** must not already have a revive
+/// prompt open (`player.isRevivingPet()` — the flag lives on the owner, not on
+/// the summon, which is the part that is easy to get wrong).
+#[test]
+fn a_dead_servitor_can_be_resurrected_but_a_live_one_cannot() {
+    use crate::game_loop::skills::conditions::check_cast;
+
+    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let res = skills.get(1016, 2).expect("Resurrection loads");
+
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
+    let pet = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
+
+    // Alive: refused. This is the case the blanket refusal used to get right
+    // by accident, so on its own it proves nothing — it is the *pair* that
+    // discriminates.
+    assert!(
+        check_cast(&world, OWNER, res, pet).is_err(),
+        "a living servitor is not a resurrection target"
+    );
+
+    world
+        .objects
+        .get_component_mut::<Vitals>(&pet)
+        .unwrap()
+        .dead = true;
+    assert!(
+        check_cast(&world, OWNER, res, pet).is_ok(),
+        "a dead servitor is one — the leg the port was missing"
+    );
+
+    // Resurrection-blocked (Java `isResurrectionBlocked`): refused again.
+    let mut buffs = crate::model::components::Buffs::default();
+    buffs.0.push(crate::model::skill::ActiveBuff {
+        skill_id: 1,
+        skill_level: 1,
+        abnormal_type_client_id: 0,
+        abnormal_type: "NONE".to_string(),
+        abnormal_level: 0,
+        slot: crate::model::skill::BuffSlot::Uncapped,
+        expires_at_tick: u64::MAX,
+        passive: false,
+        effect_flags: crate::model::skill::effect_flag::BLOCK_RESURRECTION,
+        blocked_abnormals: Vec::new(),
+        abnormal_visuals: Vec::new(),
+        effects: Vec::new(),
+    });
+    world.objects.add_components(&pet, buffs);
+    assert!(
+        check_cast(&world, OWNER, res, pet).is_err(),
+        "a resurrection-blocked servitor stays down"
+    );
+}
