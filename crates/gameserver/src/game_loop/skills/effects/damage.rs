@@ -215,7 +215,7 @@ fn crit_message(is_magic: bool, caster_name: &str) -> Vec<u8> {
 /// target and for DoT ticks. The counter damage itself is
 /// `target.pAtk * 873 / attacker.pDef`, scaled by the weapon/general trait and
 /// attribute bonuses.
-fn calc_counter_attack(
+pub(crate) fn calc_counter_attack(
     world: &mut World,
     attacker_oid: i32,
     target_oid: i32,

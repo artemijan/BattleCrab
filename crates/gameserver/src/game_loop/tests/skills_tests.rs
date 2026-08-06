@@ -5690,6 +5690,95 @@ fn lethal_half_kill_sets_player_cp_to_1() {
     );
 }
 
+/// `Lethal.instant`'s closing `calcCounterAttack` — "No matter if lethal
+/// succeeded or not, its reflected", in Java's own words.
+///
+/// Java has exactly two `calcCounterAttack` call sites: `reduceCurrentHp`
+/// (once per damaging skill) and `Lethal.instant`. Every lethal carrier on
+/// this dist pairs Lethal with a damage effect, so both fire and the victim
+/// counters **twice** for one cast. That double is the observable, and it is
+/// Java's behaviour, not a duplicate to suppress — before this, only one
+/// counter fired.
+#[test]
+fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
+    let (mut world, ..) = test_world();
+    world.data =
+        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut a_rx = ingame_player_access(&mut world, 1, 5621, 0);
+    let mut b_rx = ingame_player_access(&mut world, 2, 5622, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&5622)
+        .unwrap()
+        .x = 30;
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&5621)
+        .unwrap()
+        .0
+        .insert(344, 1);
+    arm(&mut world, 5621, 11);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&5621)
+        .unwrap()
+        .cur_mp = 200.0;
+    // Survive the blow: the counter bails on a dead target, so a one-shot
+    // victim would silently lose the second roll and look like a missing
+    // call site.
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&5622).unwrap();
+        v.max_hp = 100_000;
+        v.cur_hp = 100_000.0;
+    }
+    // The counter needs a real p_atk behind it or the damage rounds to 0 and
+    // the whole thing bails before sending anything.
+    if let Some(cs) = world
+        .objects
+        .get_component_mut::<crate::model::components::CombatStats>(&5622)
+    {
+        cs.p_atk = 500.0;
+    }
+    // `VENGEANCE_SKILL_PHYSICAL_DAMAGE` at 100 — the counter always rolls.
+    {
+        let mut mods = world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&5622)
+            .cloned()
+            .unwrap_or_default();
+        mods.add.insert(
+            crate::model::stats::Stat::VengeanceSkillPhysicalDamage,
+            100.0,
+        );
+        world.objects.add_components(&5622, mods);
+    }
+
+    handle_action(&mut world, 1, &action_body(5622, 0));
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    world.forced_rolls.extend(std::iter::repeat_n(0, 40));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, true));
+    advance_world(&mut world, 30);
+
+    let counters = drain(&mut b_rx)
+        .iter()
+        .filter(|p| {
+            has_system_message(
+                std::slice::from_ref(*p),
+                server_packets::sm_ids::YOU_COUNTERED_C1_S_ATTACK,
+            )
+        })
+        .count();
+    assert_eq!(
+        counters, 2,
+        "one counter from the damage effect and one from Lethal — Java's two \
+         call sites; a single counter means the Lethal one is missing"
+    );
+}
+
 /// The other half of `Lethal`: raid bosses are immune (`isLethalable()`),
 /// mirroring the same raid-immunity check `Mute`'s cast-interrupt already
 /// has. A real dist raid boss (3404 "Tracker Captain Sharuk", level 23 — well

@@ -383,16 +383,20 @@ pub(super) fn lethal(
     if skill.magic_level < target_level - 6 {
         return;
     }
-    // `isLethalable()`: raid bosses are immune — the same check
-    // `apply_mute_interrupt` already uses — as is anything a script
-    // exempted (`setLethalable(false)`: the siege Headquarters).
-    // Grand-boss/door immunity isn't modeled, so it's not checked.
+    // `isLethalable()` is false for four things in Java, and all four are
+    // covered here: `Door` and `RaidBoss` and `GrandBoss` set it in their
+    // constructors, and the `NonLethalableNpcs` script sets it on the siege
+    // Headquarters. `is_raid()` matches the `GrandBoss` type name as well as
+    // `RaidBoss`, so the grand bosses need no separate test.
     let is_raid = world
         .objects
         .get_component::<crate::model::npc::Npc>(&target_oid)
         .and_then(|n| n.template(world))
         .is_some_and(|t| t.is_raid());
     if is_raid
+        || world
+            .objects
+            .has_component::<crate::model::door::Door>(&target_oid)
         || world
             .objects
             .has_component::<crate::model::components::NotLethalable>(&target_oid)
@@ -483,6 +487,19 @@ pub(super) fn lethal(
             cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
         }
     }
+    // "No matter if lethal succeeded or not, its reflected." — Java's own
+    // comment. The counter sits *outside* the if/else chain, so a lethal that
+    // rolled nothing still bounces off a Vengeance.
+    //
+    // This is Java's **second** counter roll for the same cast, not a
+    // duplicate: `reduceCurrentHp` already ran one for the skill's damage
+    // effect, and `Lethal.instant` adds another. Java has exactly those two
+    // call sites, so every reachable lethal carrier on this dist — all of them
+    // pair Lethal with FatalBlow/Backstab/PhysicalAttack — counters twice
+    // there as well. Suppressing the second would be the deviation.
+    crate::game_loop::skills::effects::damage::calc_counter_attack(
+        world, caster_oid, target_oid, skill.id, false,
+    );
 }
 
 pub(super) fn hp_drain(
