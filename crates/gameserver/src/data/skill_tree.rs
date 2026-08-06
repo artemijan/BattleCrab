@@ -36,6 +36,8 @@ const CLASS_TREE_SUBDIRS: [&str; 4] = ["StartingClass", "1stClass", "2ndClass", 
 const COMMON_TREE_FILE: &str = "Commons.xml";
 pub const HERO_SKILL_TREE_FILE: &str = "data/skillTrees/heroSkillTree.xml";
 pub const NOBLE_SKILL_TREE_FILE: &str = "data/skillTrees/nobleSkillTree.xml";
+pub const GM_SKILL_TREE_FILE: &str = "data/skillTrees/gameMasterSkillTree.xml";
+pub const GM_AURA_SKILL_TREE_FILE: &str = "data/skillTrees/gameMasterAuraSkillTree.xml";
 
 /// Java `CommonSkill.EXPERTISE` (239): the one skill `checkPlayerSkills`
 /// verifies with no level grace — its level *is* the wearable grade, so it may
@@ -96,6 +98,15 @@ pub struct SkillTreeData {
     /// `nobleSkillTree.xml` (Noblesse Blessing, the three Noblesse songs,
     /// Build Advanced Headquarters, …), granted/removed with nobless status.
     noble_skills: Vec<Skill>,
+    /// `gameMasterSkillTree.xml` / `gameMasterAuraSkillTree.xml` — the GM
+    /// convenience kits (Super Haste, the Master's Blessing buffs, and their
+    /// party-wide aura twins), handed out at enter-world under
+    /// `GMGiveSpecialSkills` / `GMGiveSpecialAuraSkills`.
+    ///
+    /// Flat lists like the hero/noble trees: Java's `addSkills` ignores every
+    /// learn condition and grants outright.
+    gm_skills: Vec<Skill>,
+    gm_aura_skills: Vec<Skill>,
 }
 
 impl SkillTreeData {
@@ -126,6 +137,8 @@ impl SkillTreeData {
             &mut common,
         );
         let hero_skills = parse_hero_tree(&format!("{file_path}{HERO_SKILL_TREE_FILE}"));
+        let gm_skills = parse_hero_tree(&format!("{file_path}{GM_SKILL_TREE_FILE}"));
+        let gm_aura_skills = parse_hero_tree(&format!("{file_path}{GM_AURA_SKILL_TREE_FILE}"));
         // Same flat `<skill id level/>` shape as the hero tree.
         let noble_skills = parse_hero_tree(&format!("{file_path}{NOBLE_SKILL_TREE_FILE}"));
         let total: usize = trees.values().map(|v| v.len()).sum();
@@ -141,6 +154,8 @@ impl SkillTreeData {
             parents,
             common,
             hero_skills,
+            gm_skills,
+            gm_aura_skills,
             noble_skills,
         }
     }
@@ -179,6 +194,28 @@ impl SkillTreeData {
     /// granted while a player holds hero status.
     pub fn hero_skills(&self) -> &[Skill] {
         &self.hero_skills
+    }
+
+    /// Java `SkillTreeData.addSkills(gm, auraSkills)` — the whole tree, no
+    /// conditions.
+    pub fn gm_skills(&self, aura: bool) -> &[Skill] {
+        if aura {
+            &self.gm_aura_skills
+        } else {
+            &self.gm_skills
+        }
+    }
+
+    /// Whether `skill_id` came from a GM tree. Read by the persistence flush:
+    /// Java grants these with `addSkill(skill, false)` — **not saved** — so a
+    /// GM who logs in once must not carry Super Haste in `character_skills`
+    /// forever, least of all after the config is turned back off. Same shape
+    /// as the transform-skill filter that flush already has.
+    pub fn is_gm_skill(&self, skill_id: i32) -> bool {
+        self.gm_skills
+            .iter()
+            .chain(&self.gm_aura_skills)
+            .any(|(id, _)| *id == skill_id)
     }
 
     /// The class this one advanced from (`ClassId.getParent`), if any.
@@ -376,6 +413,8 @@ impl SkillTreeData {
             parents: HashMap::new(),
             common: Vec::new(),
             hero_skills: Vec::new(),
+            gm_skills: Vec::new(),
+            gm_aura_skills: Vec::new(),
             noble_skills: Vec::new(),
         }
     }

@@ -260,6 +260,47 @@ pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32
         super::helpers::send_etc_status_update(world, client_id, object_id);
     }
     register_gm(world, object_id, access_level);
+    grant_special_skills(world, client_id, object_id);
+}
+
+/// `EnterWorld`'s two `SkillTreeData.addSkills(player, …)` calls — the GM
+/// convenience kits, granted after `addGm`.
+///
+/// **Session-only.** Java passes `false` for the save flag, and the port
+/// enforces that at the flush (`is_gm_skill` is filtered out there) rather
+/// than here, because a GM who logs in once must not keep Super Haste in
+/// `character_skills` afterwards — least of all after the config is turned
+/// back off. Same shape as the transform-skill filter that flush already has.
+fn grant_special_skills(world: &mut World, client_id: u32, object_id: i32) {
+    let gm = &world.data.gm;
+    let mut granted = false;
+    for aura in [false, true] {
+        if !(if aura {
+            gm.give_special_aura_skills
+        } else {
+            gm.give_special_skills
+        }) {
+            continue;
+        }
+        let skills: Vec<(i32, i32)> = world.data.skill_trees.gm_skills(aura).to_vec();
+        if skills.is_empty() {
+            continue;
+        }
+        if let Some(book) = world
+            .objects
+            .get_component_mut::<crate::model::components::SkillBook>(&object_id)
+        {
+            for (id, level) in skills {
+                book.0.insert(id, level);
+            }
+            granted = true;
+        }
+    }
+    if granted {
+        // The client needs the new rows or the skills are unusable.
+        let _ = client_id;
+        super::refresh_skill_list(world, object_id);
+    }
 }
 
 /// Java `AdminData.addGm(player, hidden)`: register the live GM with a

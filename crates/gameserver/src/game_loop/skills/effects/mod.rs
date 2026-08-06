@@ -214,6 +214,61 @@ pub(crate) fn max_recoverable(
 /// The owner link lives on the servitor as `ServitorOf`, which is also what
 /// makes Java's `canStart` (`effected.isSummon()`) expressible: no component,
 /// not a servitor, no unsummon.
+/// Java's ten-minute Force decay: `restartChargeTask` on every gain or partial
+/// spend, `stopChargeTask` when the pool empties, `ResetChargesTask` clearing
+/// it when the timer runs out.
+///
+/// Arming and the stale check both live here so the two halves cannot drift.
+pub(crate) fn arm_charge_decay(world: &mut World, player_oid: i32) {
+    /// `ThreadPool.schedule(new ResetChargesTask(this), 600000)`.
+    const CHARGE_DECAY_TICKS: u64 = 6_000;
+
+    let Some(seq) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player_oid)
+        .map(|p| {
+            p.charges_seq = p.charges_seq.wrapping_add(1);
+            p.charges_seq
+        })
+    else {
+        return;
+    };
+    // The bump alone is `stopChargeTask`: an emptied pool invalidates the
+    // pending task and arms nothing, so nothing fires.
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_none_or(|p| p.charges <= 0)
+    {
+        return;
+    }
+    world.scheduler.schedule(
+        world.tick + CHARGE_DECAY_TICKS,
+        crate::scheduler::ScheduledTask::ResetCharges { player_oid, seq },
+    );
+}
+
+/// `ResetChargesTask.run` — `clearCharges()` plus the `EtcStatusUpdate` that
+/// makes the Force gauge empty on screen.
+pub(crate) fn reset_charges(world: &mut World, player_oid: i32, seq: u64) {
+    let stale = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_none_or(|p| p.charges_seq != seq);
+    if stale {
+        return;
+    }
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player_oid)
+    {
+        p.charges = 0;
+    }
+    if let Some(client_id) = client_for_player(world, player_oid) {
+        crate::game_loop::helpers::send_etc_status_update(world, client_id, player_oid);
+    }
+}
+
 pub(crate) fn servitor_owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
     world
         .objects
@@ -782,6 +837,8 @@ pub(crate) fn apply_skill_effects(
                 if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&target_oid) {
                     p.charges = new_charge;
                 }
+                // `setCharges` restarts the decay clock.
+                arm_charge_decay(world, target_oid);
                 if let Some(cs) = world.clients.get(&client_id) {
                     if new_charge == max {
                         cs.send(server_packets::system_message_with(sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY, &[]));

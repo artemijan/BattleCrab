@@ -60,6 +60,7 @@ async fn user_info_test() {
         raidboss_points: 0,
         cursed_weapon_equipped_id: 0,
         charges: 0,
+        charges_seq: 0,
         vitality_points: 0,
         pccafe_points: 0,
         pc_cafe_seq: 0,

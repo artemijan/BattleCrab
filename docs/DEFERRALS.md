@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **105** such
+of narrow behaviours deferred and marked at the site. There are **103** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -353,3 +353,5 @@ grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
 | 2026-08-06 | `TODO(G22)` ×2 (`q00224`, `q00230`) | Both **stale**. Kadesh's 300 s despawn needed `schedule_despawn`, which the quest ctx already had; without it an unfought Kadesh stood in the field forever and the next roll spawned another beside him. The `onKill` range gate needed a distance helper — `AltPartyRange` was parsed and `party.rs` already measured against it — so `QuestCtx::in_range_of_npc` now exists and q230 hoists the check that Java repeats on every branch. |
 | 2026-08-06 | `TODO(G22)` ×1 (`forge_of_the_gods.rs`) | **Closed.** A lavasaurus outliving its minute now runs Java's "suicide" event — `doDie(null)` via a new `ScheduledTask::NpcSuicide` — instead of a silent despawn, so it dies where it stands and leaves a corpse. Killer 0 is inert on every reward and aggro path (both gate on the killer being playable), which is what makes the null-killer death safe. |
 | 2026-08-06 | `TODO(G19)` ×1 (`model/skill.rs`, Lethal) | **Closed** — and two of its three bullets were already false when read. `isHpBlocked()` *was* consulted, and grand bosses *were* immune (`is_raid()` matches the `GrandBoss` type name). Real work: the door case (`Door` component existed) and `calcCounterAttack`, which Java fires from `Lethal.instant` on top of the one `reduceCurrentHp` already ran — so a lethal cast counters **twice**, and suppressing the second would be the deviation. |
+| 2026-08-06 | `TODO(G19)` ×1 (`model/mod.rs`, charges) | **Closed.** `ResetChargesTask` — Force decays after ten idle minutes, the clock restarts on every gain and partial spend, and stops when the pool empties. Same generation-counter shape as `AttackState::swing_seq`, since the scheduler has no cancel; bumping the counter without re-arming *is* `stopChargeTask`. |
+| 2026-08-06 | `TODO(G14)` ×1 (`config/general.rs`) | **Stale.** "Honor these once `SkillTreeData.addSkills` has the special-skill data" — `gameMasterSkillTree.xml` and its aura twin ship in the dist and parse with the same shape as the hero/noble trees the loader already read. Granted at enter-world under the two config flags, and **filtered out of the persistence flush**: Java's `addSkill(skill, false)` means session-only, or turning the config back off leaves every GM who ever logged in holding Super Haste. |

@@ -270,6 +270,72 @@ fn gm_startup_applies_invul_and_invisible() {
     assert!(!f.silence && !f.diet, "unset startup flags stay off");
 }
 
+/// `GMGiveSpecialSkills` / `GMGiveSpecialAuraSkills` — the GM convenience
+/// kits from `gameMasterSkillTree.xml` and its aura twin.
+///
+/// The part worth pinning is that they are **session-only**. Java grants them
+/// with `addSkill(skill, false)`, so a GM who logs in once must not carry
+/// Super Haste in `character_skills` afterwards — least of all after the
+/// config is turned back off.
+#[test]
+fn gm_special_skills_are_granted_but_never_persisted() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    /// Super Haste, the first row of `gameMasterSkillTree.xml`.
+    const SUPER_HASTE: i32 = 7029;
+
+    let (mut world, ..) = admin_world();
+    world.data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
+    assert!(
+        world.data.skill_trees.gm_skills(false).len() > 1
+            && !world.data.skill_trees.gm_skills(true).is_empty(),
+        "sanity: both GM trees really loaded from the dist"
+    );
+
+    // Off by default: no kit.
+    let mut rx = ingame_player_access(&mut world, 1, 6431, 100);
+    drain(&mut rx);
+    super::admin::apply_gm_startup(&mut world, 1, 6431);
+    assert!(
+        !world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&6431)
+            .unwrap()
+            .0
+            .contains_key(&SUPER_HASTE),
+        "no kit while the config is off"
+    );
+
+    // On: the kit lands in the live book.
+    world.data.gm.give_special_skills = true;
+    world.data.gm.give_special_aura_skills = true;
+    let mut rx = ingame_player_access(&mut world, 2, 6432, 100);
+    drain(&mut rx);
+    super::admin::apply_gm_startup(&mut world, 2, 6432);
+    let book = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&6432)
+        .unwrap()
+        .0
+        .clone();
+    assert!(book.contains_key(&SUPER_HASTE), "the kit is granted");
+
+    // …and none of it reaches what would be written. This reads the real
+    // save payload rather than re-asserting the predicate, so a filter that
+    // stopped being applied would fail here even though `is_gm_skill` still
+    // answered correctly.
+    let saved = crate::game_loop::net::build_save_data(&world, 6432).expect("save data");
+    for (id, ..) in &saved.skills {
+        assert!(
+            !world.data.skill_trees.is_gm_skill(*id),
+            "GM skill {id} must never become a learned row"
+        );
+    }
+    assert!(
+        book.contains_key(&SUPER_HASTE) && !saved.skills.iter().any(|(id, ..)| *id == SUPER_HASTE),
+        "granted in the live book, absent from the save — the whole point"
+    );
+}
+
 /// `GMStartupBuilderHide` hides the GM and **breaks** the startup process, so
 /// the invul/invisible/silence/diet flags below the break are not applied
 /// (Java's `break gmStartupProcess`). The three "…default for builder" notices

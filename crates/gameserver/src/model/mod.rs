@@ -287,11 +287,20 @@ pub struct Player {
     /// Java `Player._charges` — the warrior "Force" resource (Sonic Focus →
     /// Sonic Blaster/Buster, and the Orc/Dark Elf Force Burst/Storm/Blaster
     /// equivalents). Transient, never persisted (matches Java: an
-    /// `AtomicInteger`, not a DB column). TODO(G19): Java also resets this to
-    /// 0 after 10 minutes of inactivity (`ResetChargesTask`,
-    /// `restartChargeTask`/`stopChargeTask`) — not ported; charges only ever
-    /// change via an explicit gain/consume here.
+    /// `AtomicInteger`, not a DB column). Java clears it after ten minutes of
+    /// inactivity, which `charges_seq` implements — see there.
     pub charges: i32,
+    /// Which charge-decay timer is the live one.
+    ///
+    /// Java restarts a cancellable `ResetChargesTask` on every gain and every
+    /// partial spend, and cancels it outright when the pool hits 0. The port's
+    /// scheduler cannot cancel, so each gain/spend bumps this counter and
+    /// schedules a fresh task carrying the new value; a task whose value no
+    /// longer matches is stale and does nothing. Bumping on the spend-to-zero
+    /// case is what stands in for Java's `stopChargeTask`.
+    ///
+    /// Transient, like `charges` itself.
+    pub charges_seq: u64,
     /// `PlayerStat._vitalityPoints` — always clamped to
     /// [`MIN_VITALITY_POINTS`]..=[`MAX_VITALITY_POINTS`]. Persisted in
     /// `characters.vitality_points`; consumed on monster kills and spent as an
@@ -1147,6 +1156,7 @@ impl Player {
             // (G28) restores it for a player who logged out still cursed.
             cursed_weapon_equipped_id: 0,
             charges: 0,
+            charges_seq: 0,
             vitality_points: c.vitality_points,
             pccafe_points: c.pccafe_points,
             prime_points: c.prime_points,

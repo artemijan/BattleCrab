@@ -264,6 +264,12 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
                 // (Java `_transformSkills`, never written by `storeSkills`) —
                 // a flush mid-transform must not turn them into learned rows.
                 .filter(|(id, _)| !world.data.transforms.is_transform_skill(**id))
+                // The GM convenience kits are the same shape: granted at
+                // enter-world with Java's `addSkill(skill, false)`, so they
+                // must not survive as learned rows — otherwise turning
+                // `GMGiveSpecialSkills` back off leaves every GM who ever
+                // logged in still holding Super Haste.
+                .filter(|(id, _)| !world.data.skill_trees.is_gm_skill(**id))
                 .map(|(id, lvl)| (*id, *lvl, skill_enchants.get(id).copied().unwrap_or(0)))
                 .collect()
         })
