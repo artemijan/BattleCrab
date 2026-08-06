@@ -5307,3 +5307,21 @@ Still large, and fine as they are: `db/queries.rs` (2334, 54 sibling `load_*`
 readers), `db/commands.rs` (2179, the command dispatch table),
 `skill_data/build.rs` (1704, one function). `migration/*` stays untouched —
 applied migrations are write-once.
+
+### Coverage census → the `tools` crate (2026-08-06)
+
+The G34 coverage census and the deferral-marker inventory moved out of the
+gameserver source tree (`data/skill_data/coverage_census.rs`) to an integration
+test of the tools crate: `crates/tools/tests/coverage_census.rs`. Repo
+convention, per the owner: **tooling of any kind lives in `crates/tools`**, not
+inside the server crates — and the census is a measurement over the datapack,
+not server code, so it belongs with the rest of the datapack tooling.
+
+Pure code motion. Both gates (`datapack_skill_coverage_census`,
+`deferral_markers_match_the_recorded_inventory`) still run in every workspace
+test run, and the `--ignored` reporting aid moved with them. Only plumbing
+changed: `use super::*` became the public `gameserver::data::skill_data` API
+(`SkillData::load_from` / `gaps()` / `GapMap`), and both relative roots — the
+`dist/game/` datapack and the `crates/` marker scan — resolve identically from
+the tools manifest, since `crates/tools` sits at the same depth as
+`crates/gameserver`.

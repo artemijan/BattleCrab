@@ -1,4 +1,24 @@
-use super::*;
+//! **The G34 coverage census** — the skill-parity gate, run against the real
+//! dist datapack.
+//!
+//! `SkillGaps` (gameserver `data/skill_data`) records what the skill parser
+//! dropped; this test intersects that with what the rest of the datapack can
+//! actually *reach*, and asserts the result. The whole point is that the
+//! numbers are checked in: land a handler and the census fails until its name
+//! is struck off, so coverage can only move deliberately.
+//!
+//! **Reachability is measured from the raw XML, not from the ported loaders.**
+//! A text scan answers "does the dist reference this skill id anywhere",
+//! which is the honest denominator; going through `SkillTreeData`/`NpcData`
+//! would measure the port's own coverage of *those* files instead and quietly
+//! shrink the gap it is supposed to expose.
+//!
+//! Lives in the `tools` crate with the rest of the datapack tooling because it
+//! is a measurement over the datapack, not server code — and like every other
+//! tool here it links the server's own parser, so a verdict here is a verdict
+//! in game.
+
+use gameserver::data::skill_data::{GapMap, SkillData};
 use std::collections::BTreeSet;
 
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
