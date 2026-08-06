@@ -178,11 +178,53 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         // `PlayerAI.thinkPickUp` lifts it once inside `maybeMoveToPawn(target,
         // 36)`. A wyvern rider gets nothing at all (no ActionFailed either;
         // the handler returns `true` having done nothing).
-        // TODO(G24): `ItemAction` first refuses mercenary-ticket items during a
-        // siege for anyone without `CS_MERCENARIES` in the owning clan
-        // (`SiegeGuardManager.getSiegeGuardByItem`) — mercenary tickets aren't
-        // modelled yet.
-        if !world
+        //
+        // First, though, `ItemAction` refuses a mercenary posting ticket lying
+        // inside a castle's zone (`CastleManager.getCastle` = the siege zone)
+        // to anyone who is not in the owning clan with `CS_MERCENARIES` — the
+        // hiring system isn't modelled, but a bought ticket dropped on castle
+        // grounds must still be protected. No siege-active check, as in Java.
+        let ticket_refused = (|| {
+            let pos = world.objects.get_component::<Position>(&pkt.object_id)?;
+            let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
+            let item_id = world
+                .objects
+                .get_component::<crate::model::components::GroundItem>(&pkt.object_id)
+                .map(|g| g.item_id)?;
+            if !world
+                .data
+                .castle_siege_guards
+                .is_ticket_of(castle_id, item_id)
+            {
+                return None;
+            }
+            let clan_id = world
+                .objects
+                .get_component::<crate::model::Player>(&object_id)
+                .map(|p| p.clan_id)?;
+            let owns = clan_id != 0
+                && world
+                    .clans
+                    .get(&clan_id)
+                    .is_some_and(|c| c.castle_id == castle_id);
+            let privileged = owns
+                && super::clans::has_clan_privilege(
+                    world,
+                    object_id,
+                    crate::model::clan::CS_MERCENARIES,
+                );
+            (!privileged).then_some(())
+        })()
+        .is_some();
+        if ticket_refused {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(crate::network::server_packets::system_message_with(
+                    crate::network::server_packets::sm_ids::YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING,
+                    &[],
+                ));
+                cs.send(crate::network::server_packets::action_failed());
+            }
+        } else if !world
             .objects
             .get_component::<crate::model::Player>(&object_id)
             .is_some_and(crate::model::Player::is_flying)

@@ -301,6 +301,8 @@ pub mod sm_ids {
     pub const SWEEPER_FAILED_TARGET_NOT_SPOILED: i16 = 343;
     pub const IT_HAS_ALREADY_BEEN_SPOILED: i16 = 357;
     pub const THE_SPOIL_CONDITION_HAS_BEEN_ACTIVATED: i16 = 612;
+    /// `ItemAction`'s mercenary-ticket pickup refusal.
+    pub const YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING: i16 = 654;
     pub const THERE_ARE_NO_PRIORITY_RIGHTS_ON_A_SWEEPER: i16 = 683;
     /// "Your shield defense has succeeded." (Interlude has no separate perfect-
     /// block message; the perfect block reuses this.)

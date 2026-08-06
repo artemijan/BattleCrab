@@ -158,16 +158,14 @@ pub(crate) fn resume_attack_intent(world: &mut World, object_id: i32, target_obj
     player_attack_think(world, object_id);
 }
 
-/// A player's melee swing against a targeted siege door — the `DoorAction`
-/// attack path. Only castle doors during an active siege take damage; the swing
-/// lands immediately (per `AttackRequest`; the chase + auto-repeat loop and the
-/// scheduled hit-time delay are a refinement, TODO(G24)).
 /// A player's melee swing against a targeted siege gate — the in-reach half of
 /// the `DoorAction` attack path, called from `player_attack_think` once the
 /// chase (`chase_target`) has closed the distance. Doors don't roll
 /// miss/crit/shield and have no AI, so this is a straight pAtk-vs-pDef hit
 /// (front, no shot); paced by the attacker's swing period so the loop
-/// auto-repeats until the gate breaches.
+/// auto-repeats until the gate breaches, and the damage lands at the swing's
+/// `timeToHit` through the same queued-hit machinery as `do_auto_attack`
+/// (so an abort mid-swing drops it).
 fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // Re-check the siege gate (the loop can outlive the siege ending).
     if !crate::game_loop::siege::attackable_door(world, door_oid) {
@@ -210,16 +208,45 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // fire the swing-end hook (queued action), exactly like `do_auto_attack`.
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
     let now = world.tick;
+    let mut swing_seq = 0;
     if let Some(st) = world
         .objects
         .get_component_mut::<AttackState>(&attacker_oid)
     {
         st.attack_end_tick = now + ms_to_ticks(time_atk);
+        swing_seq = st.swing_seq;
     }
     world.scheduler.schedule(
         now + ms_to_ticks(time_atk),
         ScheduledTask::AttackFinish {
             object_id: attacker_oid,
+        },
+    );
+    // Land the damage at `timeToHit`, like a creature swing (Java `doAttack`
+    // schedules `onHitTimeNotDual`); the shared `AttackHit` task carries the
+    // door branch, and the seq guard drops it if the swing is aborted.
+    let two_handed = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
+        .is_some_and(|inv| {
+            let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
+            rhand != 0
+                && world
+                    .data
+                    .item_data
+                    .get(rhand)
+                    .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
+        });
+    let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
+    world.scheduler.schedule(
+        now + ms_to_ticks(time_to_hit),
+        ScheduledTask::AttackHit {
+            attacker: attacker_oid,
+            target: door_oid,
+            damage,
+            miss: false,
+            crit: false,
+            swing_seq,
         },
     );
 
@@ -244,10 +271,6 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     );
     broadcast_including_self(world, attacker_oid, &pkt);
     refresh_attack_stance(world, attacker_oid);
-
-    // Apply the damage; on a breach the gate opens and nearby clients see the
-    // new HP bar.
-    apply_door_damage(world, door_oid, damage);
 }
 
 /// Apply damage to a siege door's HP and push its refreshed HP bar to nearby

@@ -351,7 +351,14 @@ fn npc_info_carries_the_red_team_only_with_the_aura_on() {
     let build = |world: &World| {
         let v = crate::model::npc::NpcView::of(&world.objects, MOB).expect("a live mob");
         let t = v.npc.template(world).expect("its template");
-        crate::network::server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &[])
+        crate::network::server_packets::npc_info(
+            &v,
+            t,
+            &world.cfg.npc,
+            &world.cfg.champion,
+            &[],
+            None,
+        )
     };
 
     let plain = build(&world);
@@ -409,8 +416,14 @@ fn npc_info_title_survives_with_the_show_npc_decorations_on() {
 
     let v = crate::model::npc::NpcView::of(&world.objects, MOB).expect("a live mob");
     let t = v.npc.template(&world).expect("its template");
-    let pkt =
-        crate::network::server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &[]);
+    let pkt = crate::network::server_packets::npc_info(
+        &v,
+        t,
+        &world.cfg.npc,
+        &world.cfg.champion,
+        &[],
+        None,
+    );
     assert!(
         contains_utf16(&pkt, "Champion Lv 40"),
         "the decorated branch prefixes CHAMP_TITLE onto \"Lv 40\""

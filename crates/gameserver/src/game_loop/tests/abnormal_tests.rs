@@ -1047,6 +1047,7 @@ fn npc_info_carries_the_mobs_abnormal_visuals() {
             &world.cfg.npc,
             &world.cfg.champion,
             &crate::game_loop::abnormal::visual_effects(world, NPC_OID),
+            None,
         )
     };
 
@@ -1113,7 +1114,14 @@ fn npc_info_carries_the_team_and_display_effect() {
     let build = |world: &World| {
         let v = NpcView::of(&world.objects, NPC_OID).expect("a live mob");
         let t = v.npc.template(world).expect("its template");
-        crate::network::server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &[])
+        crate::network::server_packets::npc_info(
+            &v,
+            t,
+            &world.cfg.npc,
+            &world.cfg.champion,
+            &[],
+            None,
+        )
     };
     let clean = build(&world);
 

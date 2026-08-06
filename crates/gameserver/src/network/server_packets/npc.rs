@@ -137,6 +137,10 @@ pub fn npc_info(
     cfg: &crate::config::NpcConfig,
     champion_cfg: &crate::config::ChampionConfig,
     abnormal_visuals: &[i16],
+    // `[clanId, crestId, largeCrestId, allyId, allyCrestId]` — the CLAN
+    // component, resolved by `visibility::npc_clan_block` (the tax-zone
+    // castle-owner crest; `None` for the overwhelming case of no crest).
+    clan_block: Option<[i32; 5]>,
 ) -> Vec<u8> {
     let crate::model::npc::NpcView {
         npc,
@@ -246,6 +250,11 @@ pub fn npc_info(
     if npc.display_effect > 0 {
         add(&mut mask_bytes, T::DisplayEffect);
     }
+    // Java `if (npc.getClanId() > 0)` + its non-monster/peace-zone gate —
+    // both already resolved into `clan_block` by the caller.
+    if clan_block.is_some() {
+        add(&mut mask_bytes, T::Clan);
+    }
     add(&mut mask_bytes, T::PetEvolutionId);
     // Status mask: 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 show name.
     let mut status_mask = 0u8;
@@ -337,6 +346,12 @@ pub fn npc_info(
     }
     if contains(T::Name) {
         w.write_string(&t.name);
+    }
+    if contains(T::Clan) {
+        // clanId, clanCrest, clanLargeCrest, allyId, allyCrest.
+        for v in clan_block.unwrap_or_default() {
+            w.write_i32(v);
+        }
     }
     if contains(T::Abnormals) {
         w.write_i16(abnormal_visuals.len() as i16);
@@ -695,7 +710,8 @@ mod tests {
                 &t,
                 &crate::config::NpcConfig::default(),
                 &crate::config::ChampionConfig::default(),
-                &[]
+                &[],
+                None
             ),
             expected
         );
@@ -763,7 +779,8 @@ mod tests {
                 &t,
                 &crate::config::NpcConfig::default(),
                 &crate::config::ChampionConfig::default(),
-                &[]
+                &[],
+                None
             ),
             expected
         );

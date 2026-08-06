@@ -30,6 +30,7 @@ fn add_manor_manager(world: &mut World, oid: i32, npc_id: i32, manor_id: i32) {
 /// Put Gludio (castle 1) on the world so the manor sale has a vault to pay.
 fn add_gludio(world: &mut World) {
     world.castles = vec![crate::model::castle::Castle {
+        show_npc_crest: false,
         id: 1,
         name: "Gludio".into(),
         side: crate::model::castle::CastleSide::Neutral,
@@ -1389,6 +1390,7 @@ fn the_manor_admin_page_reports_the_period_and_the_costs() {
     world.cfg.general.allow_manor = true;
     // Two castles, deliberately inserted out of id order.
     let castle = |id: i32, name: &str| crate::model::castle::Castle {
+        show_npc_crest: false,
         id,
         name: name.into(),
         side: crate::model::castle::CastleSide::Neutral,

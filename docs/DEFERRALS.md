@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **76** such
+of narrow behaviours deferred and marked at the site. There are **69** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -80,7 +80,6 @@ also registering its NPCs would strand the player.
 | marker | count | files |
 |---|---:|---|
 | `TODO(G21)` | 7 | `data/npc_ai_skills.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
-| `TODO(G24)` | 7 | `game_loop/admin/castle.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs` |
 | `TODO(G30)` | 6 | `config/community_board.rs`, `game_loop/community_board.rs`, `network/client_packets.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
@@ -119,6 +118,10 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G24)` ×7 — the whole group | Castle crests modelled end to end, the mercenary-ticket pickup refusal, and the door-swing hit-time delay. |
+| 2026-08-06 | `TODO(G24)` ×4 (crests: `siege.rs`, `admin/castle.rs` ×2 + header) | **Closed.** The display is inert on this dist (both gate halves ship false and Java never sets `showNpcCrest` true), but per the config-disabled-still-port rule the chain now exists: `spawn_npc_entity` records the tax-zone castle owner (`Npc.onSpawn`'s `setClanId` gate), `NpcInfo` grew its CLAN component (`visibility::npc_clan_block` — non-monster + peace zone, resolved positionally since NPCs never carry `ZoneFlags`), `Castle.show_npc_crest` loads from the DB column that already existed, `ShowCrestWithoutQuest` is parsed, and every ownership change resets the flag like `Castle.setOwner`. |
+| 2026-08-06 | `TODO(G24)` ×1 (`target.rs`, mercenary tickets) | **Closed.** The hiring system stays unported, but the refusal doesn't need it: `data/residences/castles/*.xml` `<siegeGuards>` now loads as an itemId → castle table, and `ItemAction`'s gate refuses a ticket lying in a castle's siege zone (SM 654) to anyone but an owning-clan `CS_MERCENARIES` holder. Reachable because the mercenary manager's buylists sell tickets a player can drop. No siege-active check, as in Java. |
+| 2026-08-06 | `TODO(G24)` ×1 (`combat/intent.rs`, door swing) | **Mostly stale** — the marker's own doc block had been superseded in place: the chase, auto-repeat and swing-period pacing all existed one paragraph below it. The one live remainder, the `timeToHit` damage delay, is now real: the door swing rides the shared `AttackHit` queued-hit (door branch in `handle_attack_hit`, re-checking the siege gate at fire time), so an abort mid-swing drops the hit. |
 | 2026-08-06 | `TODO(G22)` ×7 of 8 — the Beast Farm / scripts group | Five implementations, one evidence-backed `SKIP`, one placeholder-data fix; only Primeval Isle's creature-see hook remains (its marker now names the one true blocker — the `<parameters>` half of its claim was stale, `ai_skill_params` has parsed those for milestones). |
 | 2026-08-06 | `TODO(G22)` ×1 (`tamed_beast.rs`) | **Closed.** The 5 s `CheckOwnerBuffs` beat: "deferred until the beast's buff lists are wired" — `<skillList>` had been parsed into `NpcTemplate.skill_list` for milestones. When the tamer holds fewer than ⅔ of the beast's continuous non-debuff template skills, a random one is sit-cast on them, with Java's owner-offline despawn, distance/dead/casting skips, and its roll-before-count pick. |
 | 2026-08-06 | `TODO(G22)` ×1 (`area_npcs.rs`) | **Stale premise.** "This port has no map-region table" — `world.data.map_region` had existed since the SHOUT chat path used it. The castle mass-teleport warning now reaches every player in the gatekeeper's map region (`MapRegionManager.getMapRegionLocId`), not just the broadcast radius. |

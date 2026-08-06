@@ -1303,6 +1303,7 @@ pub(crate) async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::c
             name: r.name,
             side: crate::model::castle::CastleSide::from_str(&r.side).unwrap_or_default(),
             ticket_buy_count: r.ticket_buy_count,
+            show_npc_crest: r.show_npc_crest == "true",
             // Runtime-only in Java too — a restart clears it.
             first_mid_victory: false,
             // `regTimeOver` is an enum('true','false'); default (missing) is true.

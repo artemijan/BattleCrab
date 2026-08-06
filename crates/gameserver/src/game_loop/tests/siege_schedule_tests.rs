@@ -77,6 +77,7 @@ fn schedule_world() -> (
     let (mut world, db, l) = combat_test_world();
     world.castles = vec![
         Castle {
+            show_npc_crest: false,
             id: 1,
             name: "Gludio".into(),
             side: CastleSide::Neutral,
@@ -88,6 +89,7 @@ fn schedule_world() -> (
             treasury: 0,
         },
         Castle {
+            show_npc_crest: false,
             id: 2,
             name: "Dion".into(),
             side: CastleSide::Neutral,
@@ -300,6 +302,7 @@ fn castle_info_overlay_carries_owner_tax_and_siege() {
     let (mut world, ..) = test_world();
     world.castles = vec![
         Castle {
+            show_npc_crest: false,
             id: 1,
             name: "Gludio".into(),
             side: CastleSide::Dark,
@@ -311,6 +314,7 @@ fn castle_info_overlay_carries_owner_tax_and_siege() {
             treasury: 0,
         },
         Castle {
+            show_npc_crest: false,
             id: 2,
             name: "Dion".into(),
             side: CastleSide::Neutral,

@@ -480,7 +480,8 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
         return;
     };
     let visuals = super::abnormal::visual_effects(world, object_id);
-    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &visuals);
+    let clan = super::visibility::npc_clan_block(world, object_id);
+    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &visuals, clan);
     broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
 }
 

@@ -28,6 +28,11 @@ pub struct NpcConfig {
     /// opens the `NpcViewMod` info window (Java `Action` case 1 →
     /// `Npc.onActionShift`) instead of a plain re-target.
     pub alt_game_view_npc: bool,
+    /// `ShowCrestWithoutQuest` — tax-zone NPCs fly the owning clan's crest
+    /// even when the castle's own `showNpcCrest` flag is off. `False` on this
+    /// dist, and nothing in Java ever sets the castle flag true, so the crest
+    /// display is operator-only.
+    pub show_crest_without_quest: bool,
     /// `ShowNpcLevel` — prefix every monster's title with `Lv <level>`
     /// (Java `Creature.getTitle()`'s custom-title branch). True on this dist.
     pub show_npc_level: bool,
@@ -139,6 +144,7 @@ impl Default for NpcConfig {
             min_monster_animation: 5,
             max_monster_animation: 60,
             alt_game_view_npc: false,
+            show_crest_without_quest: false,
             show_npc_level: false,
             show_npc_aggression: false,
             enable_random_enchant_effect: false,
@@ -193,6 +199,8 @@ impl NpcConfig {
             min_monster_animation: g.get_int("MinMonsterAnimation", d.min_monster_animation),
             max_monster_animation: g.get_int("MaxMonsterAnimation", d.max_monster_animation),
             alt_game_view_npc: p.get_bool("AltGameViewNpc", d.alt_game_view_npc),
+            show_crest_without_quest: p
+                .get_bool("ShowCrestWithoutQuest", d.show_crest_without_quest),
             show_npc_level: p.get_bool("ShowNpcLevel", d.show_npc_level),
             show_npc_aggression: p.get_bool("ShowNpcAggression", d.show_npc_aggression),
             enable_random_enchant_effect: p

@@ -1272,6 +1272,7 @@ fn siege_start_evicts_non_owners_to_town() {
     world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
     insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
@@ -1357,6 +1358,7 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
     use crate::model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
@@ -1480,6 +1482,7 @@ fn siege_end_world(tickets: i32) -> (World, tokio::sync::mpsc::UnboundedReceiver
     use crate::model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, db_rx, _link) = test_world();
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
@@ -1794,13 +1797,15 @@ fn siege_door_can_be_targeted_and_breached_by_attack() {
     );
     drain(&mut rx);
 
-    // Attack it → the first swing is broadcast and the gate takes damage.
+    // Attack it → the first swing is broadcast; the damage lands at
+    // `timeToHit`, like a creature swing.
     handle_attack_request(&mut world, 1, &attack_request_body(door));
     let pkts = drain(&mut rx);
     assert!(
         pkts.iter().any(|p| p[0] == server_packets::opcodes::ATTACK),
         "swing broadcast"
     );
+    advance_ticks(&mut world, 20);
     assert!(
         world
             .objects
@@ -1808,7 +1813,7 @@ fn siege_door_can_be_targeted_and_breached_by_attack() {
             .unwrap()
             .current_hp
             < 50,
-        "gate took damage"
+        "gate took damage at hit time"
     );
 
     // The attack loop auto-repeats each swing period (no re-clicking) until the
@@ -1951,6 +1956,18 @@ fn siege_door_second_action_click_starts_attack() {
         pkts.iter().any(|p| p[0] == server_packets::opcodes::ATTACK),
         "swing broadcast on the second click"
     );
+    // The damage lands at `timeToHit`, not at swing start (Java `doAttack`
+    // schedules `onHitTimeNotDual`).
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Door>(&door)
+            .unwrap()
+            .current_hp,
+        5000,
+        "nothing lands at swing start"
+    );
+    advance_ticks(&mut world, 20);
     assert!(
         world
             .objects
@@ -1958,7 +1975,7 @@ fn siege_door_second_action_click_starts_attack() {
             .unwrap()
             .current_hp
             < 5000,
-        "gate took damage"
+        "gate took damage at hit time"
     );
 }
 
@@ -2010,6 +2027,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
@@ -2666,6 +2684,7 @@ fn siege_sides_world(
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
@@ -2817,6 +2836,7 @@ fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
     // be there — an empty one resolves no respawn point and nobody moves.
     world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
@@ -2979,5 +2999,122 @@ fn an_advanced_headquarters_takes_half_damage() {
         hp_after_hit(true),
         950.0,
         "an advanced camp takes half — not 1.5x, which is Java's missing-else bug"
+    );
+}
+
+/// The castle-crest chain (`Npc.onSpawn` → `NpcInfo` CLAN): a Folk NPC
+/// spawning in an owned castle's TAX zone records the owner clan when the
+/// display is on (`castle.show_npc_crest` here), and `npc_clan_block`
+/// resolves the crest ids only inside a peace zone. Off = the dist default:
+/// nothing recorded at all. A capture resets the flag like
+/// `Castle.setOwner`.
+#[test]
+fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
+    use crate::data::zone_data::{Zone, ZoneKind};
+    use crate::model::castle::{Castle, CastleSide};
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let tax_zone = |castle_id: i32| Zone {
+        id: 0,
+        name: format!("test_tax_{castle_id}"),
+        kind: ZoneKind::Tax,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: -500,
+                x2: 500,
+                y1: -500,
+                y2: 500,
+            },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+        condition: None,
+    };
+    world.data.zone_data.insert(tax_zone(3));
+    insert_zone(&mut world, ZoneKind::Peace, -500, 500, -500, 500);
+    world.castles = vec![Castle {
+        show_npc_crest: true,
+        id: 3,
+        name: "Giran".into(),
+        side: CastleSide::Neutral,
+        ticket_buy_count: 0,
+        first_mid_victory: false,
+        time_registration_over: true,
+        siege_time_registration_end: 0,
+        siege_date: 0,
+        treasury: 0,
+    }];
+    let clan = crate::model::clan::Clan {
+        id: 500,
+        name: "Owners".into(),
+        leader_id: 5000,
+        level: 5,
+        reputation_score: 0,
+        castle_id: 3,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 77,
+        ally_name: "Ally".into(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 11,
+        crest_large_id: 12,
+        ally_crest_id: 13,
+        blood_alliance_count: 0,
+    };
+    world.clans.insert(500, clan);
+    let mut t = crate::data::npc_data::default_template(30099);
+    t.type_name = "Folk".into();
+    world.data.npc_data.insert_for_test(t);
+
+    let npc = crate::model::npc::spawn_npc_at(&mut world, 30099, 0, 0, 0, 0).unwrap();
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc)
+            .unwrap()
+            .crest_clan_id,
+        500,
+        "the tax-zone spawn recorded the owner clan"
+    );
+    assert_eq!(
+        crate::game_loop::visibility::npc_clan_block(&world, npc),
+        Some([500, 11, 12, 77, 13]),
+        "NpcInfo's CLAN block resolves the crest ids"
+    );
+
+    // The dist default: display off → nothing recorded at spawn.
+    world.castles[0].show_npc_crest = false;
+    let plain = crate::model::npc::spawn_npc_at(&mut world, 30099, 10, 10, 0, 0).unwrap();
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&plain)
+            .unwrap()
+            .crest_clan_id,
+        0,
+        "with both gate halves off (the dist default) no crest is recorded"
+    );
+
+    // A change of hands resets the flag, like `Castle.setOwner`.
+    world.castles[0].show_npc_crest = true;
+    let mut siege = crate::model::siege::Siege::new(3);
+    siege.in_progress = true;
+    world.sieges.insert(3, siege);
+    crate::game_loop::siege::capture(&mut world, 3, 500);
+    assert!(
+        !world.castles[0].show_npc_crest,
+        "capture ran Castle.setOwner's setShowNpcCrest(false)"
     );
 }

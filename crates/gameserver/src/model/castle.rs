@@ -59,6 +59,11 @@ pub struct Castle {
     pub id: i32,
     pub name: String,
     pub side: CastleSide,
+    /// Java `Castle._showNpcCrest` (`castle.showNpcCrest`): whether tax-zone
+    /// NPCs fly the owner clan's crest. Nothing in the Java tree ever sets it
+    /// true — an operator flips the DB column (or `ShowCrestWithoutQuest` in
+    /// `NPC.ini`) to turn the display on.
+    pub show_npc_crest: bool,
     /// Java `Castle._ticketBuyCount` (`castle.ticketBuyCount`): how many
     /// mercenary tickets the owner has placed; reset to 0 when the castle
     /// changes hands at a siege end. (The mercenary-placement system itself is

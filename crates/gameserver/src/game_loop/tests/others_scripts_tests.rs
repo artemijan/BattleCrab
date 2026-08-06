@@ -749,6 +749,7 @@ fn castle_teleporter_serves_defenders_during_a_siege() {
 
 fn castle_row(id: i32, name: &str) -> crate::model::castle::Castle {
     crate::model::castle::Castle {
+        show_npc_crest: false,
         id,
         name: name.into(),
         side: Default::default(),
@@ -1721,5 +1722,59 @@ fn maintain_enchantment_carries_the_enchant_over() {
     assert_eq!(
         produced.enchant_level, 7,
         "the enchant level came along (maintainEnchantment)"
+    );
+}
+
+/// `ItemAction`'s mercenary-ticket refusal: a posting ticket lying inside a
+/// castle's siege zone can only be picked up by an owning-clan member with
+/// `CS_MERCENARIES` — everyone else gets SM 654 and no pickup walk. The gate
+/// has no siege-active requirement, as in Java.
+#[test]
+fn mercenary_ticket_pickup_needs_the_privilege() {
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::model::components::Intent;
+
+    let (mut world, _db, _l, _link) = test_world();
+    insert_siege_zone(&mut world, GLUDIO, -500, 500, -500, 500);
+    world.data.castle_siege_guards.insert_for_test(3960, GLUDIO);
+    let mut rx = ingame_player(&mut world, 1, 8815, 0, 0, 0);
+    let ticket = spawn_ground_item(&mut world, 3960, 1, 0, 50, 0, 0, 8815, DropSource::Player);
+    drain(&mut rx);
+
+    // A clanless passer-by: refused, no walk starts.
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::ACTION], action_body(ticket, 0)].concat(),
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&654),
+        "SM 654: no authority to cancel mercenary positioning"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&8815),
+        "no pickup intent for the unprivileged"
+    );
+
+    // Owning-clan member with CS_MERCENARIES: the pickup walk starts.
+    let mut clan = mk_test_clan(79, 9999);
+    clan.castle_id = GLUDIO;
+    world.clans.insert(79, clan);
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&8815)
+            .unwrap();
+        p.clan_id = 79;
+        p.clan_privs = CS_MERCENARIES;
+    }
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::ACTION], action_body(ticket, 0)].concat(),
+    );
+    assert!(
+        world.objects.has_component::<Intent>(&8815),
+        "the privileged owner walks to the ticket"
     );
 }

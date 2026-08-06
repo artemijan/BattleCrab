@@ -19,6 +19,7 @@ const ADEN: i32 = 5;
 
 fn castle(id: i32, name: &str, side: CastleSide) -> Castle {
     Castle {
+        show_npc_crest: false,
         id,
         name: name.into(),
         side,

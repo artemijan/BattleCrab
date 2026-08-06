@@ -4,8 +4,8 @@
 //! (add/remove attacker/defender, start/stop siege) over the
 //! [`crate::model::siege`] slice. The siege *combat* — control towers, flags,
 //! guards, zone PvP, teleport, the timed window and ownership-on-victory — has
-//! since landed; what is left of this module's TODO(G24)s is listed at their
-//! sites (castle crests, the control-tower/weakened-door mechanics).
+//! since landed, and the castle-crest bookkeeping (`setShowNpcCrest`) is
+//! wired through `siege::set_show_npc_crest`.
 
 use crate::db::DbCommand;
 use crate::model::Player;
@@ -150,8 +150,8 @@ fn switch_side(world: &mut World, client_id: u32, idx: usize) {
 }
 
 /// Java `setOwner`: give the castle to the targeted clanned player's clan (on a
-/// chosen side). Residential skills / crests / siege bookkeeping are deferred
-/// (TODO(G24)); this sets the ownership + side the panel displays.
+/// chosen side) — ownership + side, the residential skills, and the crest
+/// reset.
 fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, rest: &[&str]) {
     let castle_id = world.castles[idx].id;
     let Some(target) = clanned_target(world, gm_object_id) else {
@@ -200,10 +200,9 @@ fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, r
         clan_id: target_clan_id,
         castle_id,
     });
-    // `Castle.setOwner`'s skill half — the new owner's online members get the
-    // castle's residential skills at once. TODO(G24): the castle crest —
-    // `setShowNpcCrest(false)`, whose display side cannot fire on this dist
-    // (see `siege::capture`).
+    // `Castle.setOwner`: reset the crest display, then the skill half — the
+    // new owner's online members get the castle's residential skills at once.
+    super::super::siege::set_show_npc_crest(world, castle_id, false);
     super::super::clans::grant_residential_skills_to_clan(world, target_clan_id, castle_id);
     show_castle_menu(world, client_id, idx);
 }
@@ -226,8 +225,9 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
                 castle_id,
                 side: CastleSide::Neutral.as_db().to_string(),
             });
-            // `Castle.removeOwner`'s skill half. TODO(G24): the crest — same
-            // permanently-inert display feature as `siege::capture` documents.
+            // `Castle.removeOwner` → `setOwner(null)`: the crest display
+            // resets, then the skill half.
+            super::super::siege::set_show_npc_crest(world, castle_id, false);
             super::super::clans::strip_residential_skills_from_clan(world, clan_id, castle_id);
             // `removeOwner` also calls `removeCirclet(clan, residenceId)`.
             super::super::castle::remove_circlets_from_clan(world, clan_id, castle_id);

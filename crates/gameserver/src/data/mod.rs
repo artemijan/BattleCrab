@@ -5,6 +5,7 @@
 pub mod action_data;
 pub mod admin_data;
 pub mod buy_list_data;
+pub mod castle_siege_guards;
 pub mod castle_zone_data;
 pub mod category_data;
 pub mod clan_hall_data;
@@ -220,6 +221,9 @@ pub struct GameData {
     /// The 48 clan-hall definitions (`data/residences/clanHalls/**`), keyed by id.
     /// Static defs only; ownership is overlaid onto `World::clan_halls` at boot.
     pub clan_halls: std::collections::HashMap<i32, crate::model::clan_hall::ClanHall>,
+    /// Mercenary posting tickets per castle (`data/residences/castles/*.xml`
+    /// `<siegeGuards>`) — read by `ItemAction`'s pickup refusal.
+    pub castle_siege_guards: castle_siege_guards::CastleSiegeGuards,
     /// The clan-hall function upgrade catalogue (`data/ResidenceFunctions.xml`).
     pub residence_functions: residence_function_data::ResidenceFunctionData,
     /// Gatekeeper teleport lists (G15.5), see [`TeleporterData`].
@@ -307,6 +311,7 @@ impl GameData {
             siege_schedule: siege_data::load_siege_schedule(file_path),
             castle_restart_points: castle_zone_data::load_castle_restart_points(file_path),
             clan_halls: clan_hall_data::load_clan_halls(file_path),
+            castle_siege_guards: castle_siege_guards::CastleSiegeGuards::load_from(file_path),
             residence_functions: residence_function_data::ResidenceFunctionData::load_from(
                 file_path,
             ),
@@ -374,6 +379,7 @@ impl GameData {
             siege_schedule: std::collections::HashMap::new(),
             castle_restart_points: std::collections::HashMap::new(),
             clan_halls: std::collections::HashMap::new(),
+            castle_siege_guards: castle_siege_guards::CastleSiegeGuards::empty(),
             residence_functions: residence_function_data::ResidenceFunctionData::default(),
             teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),

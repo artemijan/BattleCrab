@@ -428,6 +428,18 @@ pub(crate) async fn run(
                         .await,
                 );
             }
+            DbCommand::UpdateCastleShowNpcCrest { castle_id, show } => {
+                warn_err(
+                    castle::Entity::update_many()
+                        .col_expr(
+                            castle::Column::ShowNpcCrest,
+                            if show { "true" } else { "false" }.into(),
+                        )
+                        .filter(castle::Column::Id.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
+            }
             DbCommand::UpdateClanLeader { clan_id, leader_id } => {
                 warn_err(
                     clan_data::Entity::update_many()

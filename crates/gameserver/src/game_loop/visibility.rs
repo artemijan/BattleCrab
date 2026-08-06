@@ -220,13 +220,53 @@ fn npc_info_bytes(world: &World, npc_id: i32) -> Option<bytes::Bytes> {
     let v = crate::model::npc::NpcView::of(&world.objects, npc_id)?;
     let t = v.npc.template(world)?;
     let visuals = super::abnormal::visual_effects(world, npc_id);
+    let clan = npc_clan_block(world, npc_id);
     Some(bytes::Bytes::from(server_packets::npc_info(
         &v,
         t,
         &world.cfg.npc,
         &world.cfg.champion,
         &visuals,
+        clan,
     )))
+}
+
+/// `NpcInfo`'s CLAN gate — the spawn-time `crest_clan_id` (a TAX-zone NPC of
+/// an owned castle with the crest display on), resolved to the owner clan's
+/// crest ids at send time. Java shows it only for a non-monster standing in a
+/// peace zone (`!npc.isMonster() && npc.isInsideZone(ZoneId.PEACE)`).
+pub(crate) fn npc_clan_block(world: &World, npc_oid: i32) -> Option<[i32; 5]> {
+    let npc = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)?;
+    if npc.crest_clan_id == 0 {
+        return None;
+    }
+    let t = npc.template(world)?;
+    if t.is_monster() {
+        return None;
+    }
+    // Positional (`zones_at`), not `ZoneFlags` — the flag component is
+    // maintained by the player zone tick and never exists on an NPC.
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&npc_oid)?;
+    let in_peace = world
+        .data
+        .zone_data
+        .zones_at(pos.x, pos.y, pos.z)
+        .any(|z| z.kind == crate::data::zone_data::ZoneKind::Peace);
+    if !in_peace {
+        return None;
+    }
+    let clan = world.clans.get(&npc.crest_clan_id)?;
+    Some([
+        npc.crest_clan_id,
+        clan.crest_id,
+        clan.crest_large_id,
+        clan.ally_id,
+        clan.ally_crest_id,
+    ])
 }
 
 /// The region cell a player is registered in (`None` once they're gone).

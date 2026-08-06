@@ -3759,6 +3759,7 @@ fn admin_castlemanage_ownership_and_side() {
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
@@ -3935,6 +3936,7 @@ fn admin_castlemanage_siege_registration_and_state() {
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     world.castles = vec![Castle {
+        show_npc_crest: false,
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,

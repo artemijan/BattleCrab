@@ -440,6 +440,11 @@ pub enum DbCommand {
         castle_id: i32,
         side: String,
     },
+    /// `Castle.setShowNpcCrest` — ownership changes reset the crest display.
+    UpdateCastleShowNpcCrest {
+        castle_id: i32,
+        show: bool,
+    },
     /// Castle ownership on the clan side (`Castle.setOwner`/`removeOwner` →
     /// `clan_data.hasCastle`).
     /// `//clan_changeleader` — persist a forced leader swap (`clan_data.leader_id`).

@@ -398,6 +398,7 @@ async fn character_create_inserts_into_real_schema() {
         siege_schedule: std::collections::HashMap::new(),
         castle_restart_points: std::collections::HashMap::new(),
         clan_halls: std::collections::HashMap::new(),
+        castle_siege_guards: crate::data::castle_siege_guards::CastleSiegeGuards::empty(),
         residence_functions: crate::data::residence_function_data::ResidenceFunctionData::default(),
         teleporters: crate::data::TeleporterData::empty(),
         transforms: crate::data::TransformData::empty(),

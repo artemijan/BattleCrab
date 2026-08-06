@@ -502,6 +502,18 @@ pub(crate) fn handle_attack_hit(
     if attacker_alive != Some(true) {
         return;
     }
+    // A siege-gate swing (`do_door_swing`): doors have no `Vitals`, so they
+    // take their own branch — re-checking the siege gate, since the hit can
+    // outlive the siege ending mid-swing.
+    if world
+        .objects
+        .has_component::<crate::model::door::Door>(&target)
+    {
+        if crate::game_loop::siege::attackable_door(world, target) {
+            super::intent::apply_door_damage(world, target, damage);
+        }
+        return;
+    }
     // Target dead/gone → skipped (Java's per-hit target check).
     let target_alive = vitals_of(world, target).map(|v| !v.dead);
     if target_alive != Some(true) {

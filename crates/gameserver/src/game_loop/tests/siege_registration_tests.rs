@@ -57,6 +57,7 @@ fn siege_world() -> (
     let (mut world, db, l) = combat_test_world();
     world.castles = vec![
         Castle {
+            show_npc_crest: false,
             id: CASTLE,
             name: "Gludio".into(),
             side: CastleSide::Neutral,
@@ -68,6 +69,7 @@ fn siege_world() -> (
             treasury: 0,
         },
         Castle {
+            show_npc_crest: false,
             id: OTHER_CASTLE,
             name: "Dion".into(),
             side: CastleSide::Neutral,

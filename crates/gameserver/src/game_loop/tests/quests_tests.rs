@@ -34,6 +34,7 @@ fn map_castle_and_fortress_info_requests_answered() {
     let (mut world, ..) = cast_test_world();
     world.castles = (1..=9)
         .map(|id| crate::model::castle::Castle {
+            show_npc_crest: false,
             id,
             name: format!("Castle{id}"),
             side: crate::model::castle::CastleSide::Neutral,

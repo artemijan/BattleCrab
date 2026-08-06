@@ -96,6 +96,12 @@ pub struct Npc {
     /// `Attackable._mustRewardExpSp` — cleared by a successful `OpenChest`, so
     /// an unlocked box hands out loot but no exp/sp.
     pub must_reward_exp_sp: bool,
+    /// Java `Npc._clanId` (`setClanId` in `onSpawn`): the castle-owner clan
+    /// whose crest a TAX-zone NPC wears. Gated at spawn on
+    /// `ShowCrestWithoutQuest || castle.show_npc_crest` — both off on this
+    /// dist, so 0 unless an operator turns the display on. Read by
+    /// `NpcInfo`'s CLAN component (non-monster, peace zone).
+    pub crest_clan_id: i32,
     /// `Attackable._spoilerObjectId` — object id of the player who landed the
     /// Spoil skill on this mob (0 = not spoiled). Set by the `Spoil` effect,
     /// checked on death to roll the sweep list. A fresh instance on respawn
@@ -434,6 +440,7 @@ impl Npc {
             special_drop: false,
             must_reward_exp_sp: true,
             spoiler_object_id: 0,
+            crest_clan_id: 0,
             sweep_items: None,
             seed_id: 0,
             seeder_object_id: 0,
@@ -796,6 +803,27 @@ fn spawn_npc_entity(
         crate::model::ChampionStatMods::of(&world.cfg.champion, champion),
     );
 
+    // `Npc.onSpawn`: an NPC standing in a castle's TAX zone wears the owner
+    // clan's crest when `ShowCrestWithoutQuest` or the castle's own
+    // `showNpcCrest` flag turns the display on (both off on this dist —
+    // operator-only; see `siege::capture`'s note).
+    let crest_clan_id = world
+        .data
+        .zone_data
+        .tax_castle_at(x, y, z)
+        .and_then(|castle_id| {
+            let castle = world.castles.iter().find(|c| c.id == castle_id)?;
+            if !(world.cfg.npc.show_crest_without_quest || castle.show_npc_crest) {
+                return None;
+            }
+            world
+                .clans
+                .iter()
+                .find(|(_, c)| c.castle_id == castle_id)
+                .map(|(&id, _)| id)
+        })
+        .unwrap_or(0);
+
     let npc = Npc {
         object_id: world.next_npc_object_id,
         npc_id,
@@ -810,6 +838,7 @@ fn spawn_npc_entity(
         special_drop: false,
         must_reward_exp_sp: true,
         spoiler_object_id: 0,
+        crest_clan_id,
         sweep_items: None,
         seed_id: 0,
         seeder_object_id: 0,
