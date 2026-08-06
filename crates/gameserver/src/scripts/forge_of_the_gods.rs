@@ -125,12 +125,14 @@ impl QuestScript for ForgeOfTheGods {
     }
 
     fn on_spawn(&self, ctx: &mut QuestCtx) {
-        // The 60 s lifespan. Java `doDie` — the port despawns; TODO(G22):
-        // Java's death animation/corpse on expiry.
+        // The 60 s lifespan, ended by Java's "suicide" event — `doDie(null)`,
+        // not a despawn. The difference is visible: a lavasaurus that outlives
+        // its minute dies where it stands and leaves a corpse, rather than
+        // blinking out in front of whoever was fighting it.
         let npc = ctx.npc;
         ctx.world.scheduler.schedule(
             ctx.world.tick + LAVASAURUS_LIFE_TICKS,
-            crate::scheduler::ScheduledTask::DespawnNpc { npc_oid: npc },
+            crate::scheduler::ScheduledTask::NpcSuicide { npc_oid: npc },
         );
     }
 }

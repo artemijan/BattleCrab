@@ -15519,6 +15519,22 @@ fn quest_q00230_test_of_the_summoner() {
         "no drop for a mismatched list"
     );
 
+    // `Util.checkIfInRange(ALT_PARTY_RANGE, npc, killer, true)` gates every
+    // branch: a party member who was nowhere near the kill collects nothing.
+    // 1500 is the configured range, so 5000 units out is comfortably outside.
+    {
+        let held = item_count(&world, 3001, LETO_AMULET);
+        let far = NPC_OID + 90;
+        add_test_npc(&mut world, far, LETO, "Monster", 40, 5_000, 5_000, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, far, 3001);
+        assert_eq!(
+            item_count(&world, 3001, LETO_AMULET),
+            held,
+            "a kill outside AltPartyRange drops nothing"
+        );
+    }
+
     // --- Turn in the 1st list: 30 + 30 tokens → two Beginner's Arcana, cond 3. ---
     inject(&mut world, 3001, 0x0230_1000, LETO_AMULET, 30);
     inject(&mut world, 3001, 0x0230_2000, SAC_OF_REDSPORES, 30);

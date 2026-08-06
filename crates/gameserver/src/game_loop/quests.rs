@@ -1342,6 +1342,32 @@ impl<'w> QuestCtx<'w> {
     /// Tree Guardian ambush arms one per guardian.
     ///
     /// [`start_quest_timer`]: Self::start_quest_timer
+    /// Java `Util.checkIfInRange(range, npc, player, includeZAxis)` for the
+    /// quest ctx's own pair — the guard most `onKill` bodies open with, so a
+    /// party member farming on the other side of the map does not collect.
+    ///
+    /// Java measures **centre to centre plus both collision radii**; the port
+    /// has the radii on the templates but a quest kill is always npc↔player,
+    /// where the difference is a few units against a 1500-unit range. Plain
+    /// centre distance is used, and `include_z` matches Java's flag rather
+    /// than always being on: several callers pass false.
+    pub fn in_range_of_npc(&self, other_oid: i32, range: i32, include_z: bool) -> bool {
+        let pos = |oid: i32| {
+            self.world
+                .objects
+                .get_component::<crate::model::components::Position>(&oid)
+                .map(|p| (p.x as f64, p.y as f64, p.z as f64))
+        };
+        let (Some(a), Some(b)) = (pos(self.npc), pos(other_oid)) else {
+            // A dead or despawned actor is not "in range" — refusing is the
+            // safe answer for a reward gate.
+            return false;
+        };
+        let (dx, dy) = (a.0 - b.0, a.1 - b.1);
+        let d2 = dx * dx + dy * dy + if include_z { (a.2 - b.2).powi(2) } else { 0.0 };
+        d2 <= (range as f64).powi(2)
+    }
+
     pub fn schedule_despawn(&mut self, npc_oid: i32, delay_ms: u64) {
         if self.simulated {
             return;

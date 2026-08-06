@@ -280,10 +280,14 @@ impl QuestScript for Q00224TestOfSagittarius {
                     // Chance to conjure Kadesh climbs as the Blood stack grows.
                     let blood = ctx.quest_items_count(BLOOD_OF_LIZARDMAN) as i32;
                     if ((blood - 10) * 5) > ctx.roll(100) {
-                        // TODO(G22): Java despawns Kadesh after 300000 ms
-                        // (`addSpawn(..., 300000)`); we spawn without the cleanup
-                        // timer, which does not affect quest progression.
-                        ctx.spawn_near_npc(SERPENT_DEMON_KADESH, true);
+                        // `addSpawn(..., 300000)` — Kadesh gives up after five
+                        // minutes. Not a progression gate (the quest only cares
+                        // that he was killed) but without it an unfought Kadesh
+                        // stands in the field forever, and the next roll spawns
+                        // another beside him.
+                        if let Some(kadesh) = ctx.spawn_near_npc(SERPENT_DEMON_KADESH, true) {
+                            ctx.schedule_despawn(kadesh, 300_000);
+                        }
                         ctx.take_items(BLOOD_OF_LIZARDMAN, -1);
                         ctx.play_sound(quest_sounds::BEFORE_BATTLE);
                     } else {
