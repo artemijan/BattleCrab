@@ -560,6 +560,12 @@ pub enum ScheduledTask {
     TamedBeastFollow {
         beast_oid: i32,
     },
+    /// A tamed beast's 5 s `CheckOwnerBuffs` beat — when the tamer is
+    /// missing more than a third of the beast's template buffs, sit-cast a
+    /// random one on them. Reschedules itself.
+    TamedBeastBuffCheck {
+        beast_oid: i32,
+    },
     /// Beast Farm: a "mad cow" reverts to the plain top-stage animal 10 s
     /// after emerging, keeping its grudge against the feeder.
     MadCowPolymorph {

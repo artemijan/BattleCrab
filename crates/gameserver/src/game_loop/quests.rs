@@ -1667,6 +1667,20 @@ impl<'w> QuestCtx<'w> {
         Some(spawned)
     }
 
+    /// `addSpawn(npcId, x, y, z, heading, false, 0)` **without** any attack
+    /// desire — a fixed-spot bystander. Quest 227's staged duels spawn the
+    /// decoy Ol Mahum Pilgrim (and its attacker) this way; the aggro is
+    /// seeded separately, at the decoy, not the player.
+    pub fn spawn_bystander_at(&mut self, npc_id: i32, x: i32, y: i32, z: i32) -> Option<i32> {
+        if self.simulated {
+            return None;
+        }
+        let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, 0)?;
+        super::death::introduce_npc(self.world, spawned);
+        self.link_summoned(spawned);
+        Some(spawned)
+    }
+
     /// `summoner.addSummonedNpc(npc)` — record that the *talking* NPC spawned
     /// this one, so [`summoned_npc_count`](Self::summoned_npc_count) can cap
     /// repeat spawns.

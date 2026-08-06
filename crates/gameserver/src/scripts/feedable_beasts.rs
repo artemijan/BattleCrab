@@ -275,7 +275,11 @@ fn spawn_next(ctx: &mut QuestCtx, growth: &Growth, food: i32) {
         let beast = crate::game_loop::tamed_beast::spawn_tamed_beast(
             ctx.world, next_id, player, food_skill, x, y, z,
         );
-        // TODO(G22): Java hooks quests 20 (Bring Up With Love) and 655 here.
+        // SKIP(off-chronicle): Java's quest hooks here — 20 (Bring Up With
+        // Love) and 655 (A Grand Plan for Taming Wild Beasts) — are both
+        // commented out in the reference (`// TODO: Q00020…` / `// Q00655…`),
+        // and neither quest exists anywhere in this datapack. Dead code even
+        // in Java; revive only if those quests ever ship here.
         if let (Some(beast), 0) = (beast, ctx.roll(20)) {
             // A rare word from the newly tamed friend ($s1 = the tamer).
             let msg = TAMED_TEXT[ctx.roll(5) as usize];

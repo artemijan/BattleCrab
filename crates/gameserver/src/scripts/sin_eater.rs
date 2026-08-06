@@ -80,9 +80,26 @@ pub(crate) fn on_death(world: &mut World, pet_oid: i32) {
     say(world, pet_oid, line);
 }
 
-/// TODO(G22): Java's `onSummonTalk` (a 10 % chance of four more lines when the
-/// owner clicks their own pet) has no hook here — the port's action handler
-/// doesn't distinguish "clicked my own summon" yet. Strings 42239–42242.
+/// Java's `onSummonTalk` — the owner interacting with their own Sin Eater
+/// has a 10 % chance of one of four more lines, 25 % each (strings
+/// 42239–42242). Reached from `interact_with_npc`'s own-summon branch, the
+/// port's `ON_PLAYER_SUMMON_TALK`.
+pub(crate) fn on_summon_talk(world: &mut World, pet_oid: i32) {
+    if !is_sin_eater(world, pet_oid) {
+        return;
+    }
+    if world.roll(100) >= 10 {
+        return;
+    }
+    let line = match world.roll(100) {
+        0..=24 => 42239,
+        25..=49 => 42240,
+        50..=74 => 42241,
+        _ => 42242,
+    };
+    say(world, pet_oid, line);
+}
+
 fn is_sin_eater(world: &World, pet_oid: i32) -> bool {
     world
         .objects

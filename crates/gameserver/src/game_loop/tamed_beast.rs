@@ -6,9 +6,8 @@
 //! minute and, if the owner carries the right spice, auto-feeds one (which
 //! routes through the feed path and gives 20 s back — net -40 s/min); with
 //! no spice the beast leaves at once unless it is inside its first five
-//! minutes. TODO(G22): Java also runs a 5 s `CheckOwnerBuffs` task casting
-//! the beast's template buffs on the tamer — deferred until the beast's
-//! buff lists are wired.
+//! minutes. A 5 s `CheckOwnerBuffs` beat keeps the tamer buffed from the
+//! beast's `<skillList>` (see [`handle_buff_check`]).
 
 use crate::model::components::{Position, TamedBeastOf, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -26,6 +25,9 @@ const NO_FOOD_GRACE_TICKS: i32 = 3_000;
 /// The follow beat and its trigger distance (Java `startFollow(owner, 100)`).
 const FOLLOW_TICKS: u64 = 10;
 const FOLLOW_DISTANCE: f64 = 100.0;
+/// `BUFF_INTERVAL` (5 s) and `MAX_DISTANCE_FROM_OWNER` — the owner-buff beat.
+const BUFF_CHECK_TICKS: u64 = 50;
+const MAX_DISTANCE_FROM_OWNER: f64 = 2000.0;
 
 /// Spice skill → spice item (2188→6643 golden, 2189→6644 crystal).
 pub(crate) fn spice_item_for_skill(skill_id: i32) -> Option<i32> {
@@ -67,6 +69,10 @@ pub(crate) fn spawn_tamed_beast(
     world.scheduler.schedule(
         world.tick + FOLLOW_TICKS,
         ScheduledTask::TamedBeastFollow { beast_oid: oid },
+    );
+    world.scheduler.schedule(
+        world.tick + BUFF_CHECK_TICKS,
+        ScheduledTask::TamedBeastBuffCheck { beast_oid: oid },
     );
     Some(oid)
 }
@@ -185,6 +191,94 @@ pub(crate) fn handle_follow(world: &mut World, beast_oid: i32) {
         world.tick + FOLLOW_TICKS,
         ScheduledTask::TamedBeastFollow { beast_oid },
     );
+}
+
+/// The 5 s `CheckOwnerBuffs` beat: gather the continuous non-debuff skills
+/// from the beast's `<skillList>`; when the tamer carries fewer than two
+/// thirds of them, cast one picked at random (Java rolls the index before
+/// counting, so the pick is independent of what's missing). Skipped while
+/// the owner is dead or out of `MAX_DISTANCE_FROM_OWNER`, or while the
+/// beast is mid-cast; the task dies with the beast.
+pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
+    let Some(owner) = world
+        .objects
+        .get_component::<TamedBeastOf>(&beast_oid)
+        .map(|t| t.owner)
+    else {
+        return; // despawned — the fixed-rate task ends here
+    };
+    // `if ((owner == null) || !owner.isOnline()) deleteMe()`.
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&owner)
+        .is_none()
+    {
+        despawn_beast(world, beast_oid);
+        return;
+    }
+    world.scheduler.schedule(
+        world.tick + BUFF_CHECK_TICKS,
+        ScheduledTask::TamedBeastBuffCheck { beast_oid },
+    );
+    // Too far: Java startFollows and returns — the follow beat here already
+    // chases, so just skip the buffing.
+    let too_far = match (
+        world.objects.get_component::<Position>(&beast_oid),
+        world.objects.get_component::<Position>(&owner),
+    ) {
+        (Some(b), Some(o)) => b.distance_2d(o) > MAX_DISTANCE_FROM_OWNER,
+        _ => true,
+    };
+    let owner_dead = world
+        .objects
+        .get_component::<Vitals>(&owner)
+        .is_some_and(|v| v.dead);
+    let beast_casting = world
+        .objects
+        .has_component::<crate::model::components::Casting>(&beast_oid);
+    if too_far || owner_dead || beast_casting {
+        return;
+    }
+
+    // The template's buffs: `<skillList>` entries that parse to a continuous
+    // non-debuff skill.
+    let buffs: Vec<(i32, i32)> = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&beast_oid)
+        .and_then(|n| n.template(world))
+        .map(|t| {
+            t.skill_list
+                .iter()
+                .copied()
+                .filter(|&(id, lvl)| {
+                    world
+                        .data
+                        .skill_data
+                        .get(id, lvl)
+                        .is_some_and(|s| s.is_continuous && !s.is_debuff)
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    if buffs.is_empty() {
+        return;
+    }
+    let pick = buffs[world.roll(buffs.len() as i32) as usize];
+    let on_owner = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&owner)
+        .map_or(0, |b| {
+            buffs
+                .iter()
+                .filter(|(id, _)| b.0.iter().any(|a| a.skill_id == *id))
+                .count()
+        });
+    // `if (((numBuffs * 2) / 3) > totalBuffsOnOwner) sitCastAndFollow(...)`.
+    if (buffs.len() * 2) / 3 > on_owner
+        && let Some(skill) = world.data.skill_data.get(pick.0, pick.1).cloned()
+    {
+        crate::game_loop::npc_cast::start_cast(world, beast_oid, owner, &skill);
+    }
 }
 
 /// The mad-cow reversion: 10 s after a mad cow emerges it becomes the plain

@@ -121,20 +121,20 @@ const SHADOW_TUREN: i32 = 27104;
 const MIMI_THE_CAT: i32 = 27105;
 const UNICORN_PHANTASM: i32 = 27106;
 const SILHOUETTE_TILFO: i32 = 27107;
-// NpcStringId battle chatter. TODO(G22): these numeric ids are placeholders
-// pending the client NpcString table; the strings themselves are cosmetic
-// duel taunts and do not gate any quest state.
-const NS_WHHIISSHH: i32 = 23001; // Pako, on engage
-const NS_IM_SORRY_LORD: i32 = 23002; // Pako, on defeat
-const NS_START_DUEL: i32 = 23003; // Unicorn Racer / Phantasm, on engage
-const NS_I_LOSE: i32 = 23004; // Unicorn Racer / Phantasm, on defeat
-const NS_SO_SHALL_WE_START: i32 = 23005; // Shadow Turen, on engage
-const NS_UGH_I_LOST: i32 = 23006; // Shadow Turen, on defeat
-const NS_WHISH_FIGHT: i32 = 23007; // Mimi, on engage
-const NS_LOST_SORRY_LORD: i32 = 23008; // Mimi, on defeat
-const NS_ILL_WALK_ALL_OVER_YOU: i32 = 23009; // Silhouette Tilfo, on engage
-const NS_UGH_CAN_THIS_BE_HAPPENING: i32 = 23010; // Silhouette Tilfo, on defeat
-const NS_RULE_VIOLATION: i32 = 23011; // any, on foul
+// NpcStringId battle chatter — Java's `NpcStringId` client ids (the
+// 2306x/7x block, `@ClientString` annotations), cosmetic duel taunts that
+// gate no quest state.
+const NS_WHHIISSHH: i32 = 23063; // Pako, on engage
+const NS_IM_SORRY_LORD: i32 = 23065; // Pako, on defeat
+const NS_START_DUEL: i32 = 23060; // Unicorn Racer / Phantasm, on engage
+const NS_I_LOSE: i32 = 23062; // Unicorn Racer / Phantasm, on defeat
+const NS_SO_SHALL_WE_START: i32 = 23072; // Shadow Turen, on engage
+const NS_UGH_I_LOST: i32 = 23074; // Shadow Turen, on defeat
+const NS_WHISH_FIGHT: i32 = 23066; // Mimi, on engage
+const NS_LOST_SORRY_LORD: i32 = 23068; // Mimi, on defeat
+const NS_ILL_WALK_ALL_OVER_YOU: i32 = 23075; // Silhouette Tilfo, on engage
+const NS_UGH_CAN_THIS_BE_HAPPENING: i32 = 23077; // Silhouette Tilfo, on defeat
+const NS_RULE_VIOLATION: i32 = 23061; // any, on foul
 // Misc
 const MIN_LEVEL: i32 = 39;
 const WIZARD: i32 = 11;
@@ -291,8 +291,11 @@ impl Q00230TestOfTheSummoner {
     /// The Summoner-side dialog: convert Beginner's Arcana into a Starting
     /// crystal for `slot`, clearing any prior Foul/Defeat. Java's `-04.html`.
     fn summoner_start_duel(&self, ctx: &mut QuestCtx, slot: &Slot, html: &str) -> Option<String> {
-        // TODO(G22): addSkillCastDesire(npc, player, REDUCTION_IN_RECOVERY_TIME
-        // (4126,1)) — a cosmetic summon-cooldown buff, no cast-desire helper yet.
+        // `addSkillCastDesire(npc, player, REDUCTION_IN_RECOVERY_TIME (4126,1),
+        // 1000000)` — the trainer casts Reduce Delay on the summoner before
+        // the duel.
+        let (npc, player) = (ctx.npc, ctx.player);
+        ctx.npc_cast(npc, player, 4126, 1);
         ctx.take_items(BEGINNERS_ARCANA, 1);
         ctx.give_items(slot.starting, 1);
         ctx.take_items(slot.foul, 1);

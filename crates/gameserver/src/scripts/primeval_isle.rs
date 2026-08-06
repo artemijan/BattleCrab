@@ -2,10 +2,13 @@
 //! on this dist: Ancient Eggs that raise the jungle when struck, Sprigant
 //! poison traps, and the Tyrannosaurus's curiosity pause + berserk ladder.
 //!
-//! Deferred with the creature-see gap (TODO(G22)): the Trex hunting
-//! herbivores (`CREW_SKILL` presentation) and the parameter-driven herd
-//! flee/specials of the ordinary dinosaurs (needs `<parameters>` skill
-//! holders). Skipped as off-chronicle: the Deinonychus Mesozoic Stone
+//! Deferred with the creature-see gap (TODO(G22)): Java's `onCreatureSee`
+//! drives the Trex hunting herbivores (`CREW_SKILL` presentation 6172), the
+//! Deino/Ornit herd flee, and the `ag_type`-gated on-sight specials — the
+//! port has no creature-enters-vision hook (only the aggro scan), and
+//! approximating it there would fire on a different population. The skill
+//! params themselves are already parsed (`ai_skill_params`); the hook is the
+//! whole remainder. Skipped as off-chronicle: the Deinonychus Mesozoic Stone
 //! taming (Gracia; its tamed dinos 22742/22743 never spawn here).
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};

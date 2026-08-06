@@ -638,6 +638,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TamedBeastFollow { beast_oid } => {
                 tamed_beast::handle_follow(world, beast_oid);
             }
+            ScheduledTask::TamedBeastBuffCheck { beast_oid } => {
+                tamed_beast::handle_buff_check(world, beast_oid);
+            }
             ScheduledTask::MadCowPolymorph {
                 cow_oid,
                 feeder_oid,

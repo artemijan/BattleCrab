@@ -615,6 +615,18 @@ pub(crate) fn interact_with_npc(
     {
         return;
     }
+    // `PetAction`/`SummonAction`: the owner interacting with their **own**
+    // summon never reaches the NPC talk/attack flow — Java shows the status
+    // window and fires `ON_PLAYER_SUMMON_TALK`, whose only listener on this
+    // dist is the Sin Eater's grumbling.
+    if world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&npc_object_id)
+        .is_some_and(|s| s.owner_object_id == object_id)
+    {
+        crate::scripts::sin_eater::on_summon_talk(world, npc_object_id);
+        return;
+    }
     let Some(npc) = world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_object_id)

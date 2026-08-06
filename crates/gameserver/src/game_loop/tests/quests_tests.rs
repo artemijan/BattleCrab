@@ -15085,8 +15085,32 @@ fn quest_q00227_test_of_the_reformer() {
     assert_eq!(item_count(&world, 3001, 2825), 1, "Greetings");
     assert_eq!(quest_cond(&world, 3001, q), Some(11));
     talk(&mut world, kakan);
-    ev(&mut world, kakan, "30669-03.html"); // cond 12, spawn werewolf
+    // Register the duel monster's template so the staged spawn can conjure it.
+    if world.data.npc_data.get(27131).is_none() {
+        let mut t = crate::data::npc_data::default_template(27131);
+        t.type_name = "Monster".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    ev(&mut world, kakan, "30669-03.html"); // cond 12, spawn the staged duel
     assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    // The staged duel: a decoy Ol Mahum Pilgrim and the werewolf appear at
+    // Java's fixed spots, and the wolf's hate points at the *decoy*, not the
+    // player.
+    {
+        let wolf = npcs_of(&mut world, 27131)[0];
+        let hate_on_decoy = world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&wolf)
+            .is_some_and(|a| {
+                a.0.keys().any(|t| {
+                    world
+                        .objects
+                        .get_component::<crate::model::npc::Npc>(t)
+                        .is_some_and(|n| n.npc_id == 30732)
+                })
+            });
+        assert!(hate_on_decoy, "the werewolf opens on the decoy pilgrim");
+    }
     // --- Crimson Werewolf: flees from melee, credited only to a mage attack. ---
     add_test_npc(&mut world, NPC_OID + 21, 27131, "Monster", 40, 40, 0, 0);
     combat::npc_receive_damage(&mut world, NPC_OID + 21, 3001, 10.0, false); // melee → flees

@@ -188,21 +188,30 @@ impl QuestScript for Q00227TestOfTheReformer {
             }
             "30669-03.html" => {
                 ctx.set_cond(12, true);
-                // `if (npc.getSummonedNpcCount() < 1)`.
-                //
-                // TODO(G22): Java spawns a decoy Ol Mahum Pilgrim at a fixed
-                // spot and points the werewolf at *it* (`addDamageHate` 99999);
-                // the port conjures the werewolf onto the player instead, so it
-                // can be engaged at all. The fight is winnable either way, but
-                // the staged duel is missing.
+                // `if (npc.getSummonedNpcCount() < 1)`: the staged duel — a
+                // decoy Ol Mahum Pilgrim at Java's fixed spot, the Crimson
+                // Werewolf beside it, and the werewolf pointed at the *decoy*
+                // (`addDamageHate` 99999), not the player.
                 if ctx.summoned_npc_count() < 1 {
-                    ctx.spawn_attacker(CRIMSON_WEREWOLF, true);
+                    let pilgrim = ctx.spawn_bystander_at(OL_MAHUM_PILGRIM, -9282, -89975, -2331);
+                    let wolf = ctx.spawn_bystander_at(CRIMSON_WEREWOLF, -9382, -89852, -2333);
+                    if let (Some(pilgrim), Some(wolf)) = (pilgrim, wolf) {
+                        crate::game_loop::npc_ai::seed_attack(ctx.world, wolf, pilgrim);
+                    }
                 }
                 Some(event.to_string())
             }
             "30670-03.html" => {
                 ctx.set_cond(15, true);
-                ctx.spawn_attacker(KRUDEL_LIZARDMAN, true);
+                // The same staging for Krudel Lizardman, with Java's gate the
+                // port had dropped here.
+                if ctx.summoned_npc_count() < 1 {
+                    let pilgrim = ctx.spawn_bystander_at(OL_MAHUM_PILGRIM, 125947, -180049, -1778);
+                    let lizard = ctx.spawn_bystander_at(KRUDEL_LIZARDMAN, 126019, -179983, -1781);
+                    if let (Some(pilgrim), Some(lizard)) = (pilgrim, lizard) {
+                        crate::game_loop::npc_ai::seed_attack(ctx.world, lizard, pilgrim);
+                    }
+                }
                 Some(event.to_string())
             }
             _ => None,

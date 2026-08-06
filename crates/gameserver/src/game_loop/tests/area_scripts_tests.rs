@@ -1446,3 +1446,70 @@ fn the_sepulcher_entry_stamps_round_trip_through_global_variables() {
         "each hall recovers its own stamp, in hall order"
     );
 }
+
+/// The 5 s `CheckOwnerBuffs` beat: a tamer missing more than a third of the
+/// beast's `<skillList>` buffs gets one cast on them; a sufficiently buffed
+/// tamer is left alone. (Java's threshold is `(numBuffs * 2) / 3 >
+/// totalBuffsOnOwner` — with two buffs that means "cast only when the owner
+/// has neither".)
+#[test]
+fn tamed_beast_buffs_its_underbuffed_owner() {
+    use crate::model::components::{Buffs, Casting};
+    use crate::model::skill::{ActiveBuff, BuffSlot};
+
+    let (mut world, _db, _l) = combat_test_world();
+    const TAMED: i32 = 16013;
+    const HASTE: i32 = 5186;
+    const REGEN: i32 = 5188;
+
+    let mut t = crate::data::npc_data::default_template(TAMED);
+    t.type_name = "TamedBeast".into();
+    t.skill_list = vec![(HASTE, 2), (REGEN, 3)];
+    world.data.npc_data.insert_for_test(t);
+    for (id, lvl) in [(HASTE, 2), (REGEN, 3)] {
+        let mut s = passive_clan_test_skill(id);
+        s.level = lvl;
+        s.operate_type = OperateType::Active;
+        s.is_continuous = true;
+        world.data.skill_data.insert_for_test(s);
+    }
+    let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    let beast_oid =
+        crate::game_loop::tamed_beast::spawn_tamed_beast(&mut world, TAMED, 5001, 2188, 30, 0, 0)
+            .expect("beast spawned");
+
+    // Unbuffed owner: 0 of 2 template buffs → the beast starts a cast.
+    world.forced_rolls.push_back(0); // the random pick
+    crate::game_loop::tamed_beast::handle_buff_check(&mut world, beast_oid);
+    assert!(
+        world.objects.has_component::<Casting>(&beast_oid),
+        "an under-buffed tamer gets a buff cast"
+    );
+
+    // Owner carrying one of the two: 1 ≥ (2*2)/3 → left alone.
+    world.objects.remove_component::<Casting>(&beast_oid);
+    world.objects.add_components(
+        &5001,
+        Buffs(vec![ActiveBuff {
+            skill_id: HASTE,
+            skill_level: 2,
+            abnormal_type_client_id: 0,
+            abnormal_type: "NONE".to_string(),
+            abnormal_level: 0,
+            slot: BuffSlot::Uncapped,
+            expires_at_tick: u64::MAX,
+            passive: false,
+            displayed: true,
+            effect_flags: 0,
+            blocked_abnormals: Vec::new(),
+            abnormal_visuals: Vec::new(),
+            effects: Vec::new(),
+        }]),
+    );
+    world.forced_rolls.push_back(0);
+    crate::game_loop::tamed_beast::handle_buff_check(&mut world, beast_oid);
+    assert!(
+        !world.objects.has_component::<Casting>(&beast_oid),
+        "a sufficiently buffed tamer is left alone"
+    );
+}

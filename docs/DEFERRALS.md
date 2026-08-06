@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **83** such
+of narrow behaviours deferred and marked at the site. There are **76** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G22)` | 8 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/primeval_isle.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
 | `TODO(G21)` | 7 | `data/npc_ai_skills.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
 | `TODO(G24)` | 7 | `game_loop/admin/castle.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs` |
 | `TODO(G30)` | 6 | `config/community_board.rs`, `game_loop/community_board.rs`, `network/client_packets.rs` |
@@ -103,6 +102,7 @@ also registering its NPCs would strand the player.
 | `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
 | `TODO(G14)` | 1 | `model/mod.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
+| `TODO(G22)` | 1 | `scripts/primeval_isle.rs` |
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
@@ -119,6 +119,13 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G22)` ×7 of 8 — the Beast Farm / scripts group | Five implementations, one evidence-backed `SKIP`, one placeholder-data fix; only Primeval Isle's creature-see hook remains (its marker now names the one true blocker — the `<parameters>` half of its claim was stale, `ai_skill_params` has parsed those for milestones). |
+| 2026-08-06 | `TODO(G22)` ×1 (`tamed_beast.rs`) | **Closed.** The 5 s `CheckOwnerBuffs` beat: "deferred until the beast's buff lists are wired" — `<skillList>` had been parsed into `NpcTemplate.skill_list` for milestones. When the tamer holds fewer than ⅔ of the beast's continuous non-debuff template skills, a random one is sit-cast on them, with Java's owner-offline despawn, distance/dead/casting skips, and its roll-before-count pick. |
+| 2026-08-06 | `TODO(G22)` ×1 (`area_npcs.rs`) | **Stale premise.** "This port has no map-region table" — `world.data.map_region` had existed since the SHOUT chat path used it. The castle mass-teleport warning now reaches every player in the gatekeeper's map region (`MapRegionManager.getMapRegionLocId`), not just the broadcast radius. |
+| 2026-08-06 | `TODO(G22)` ×2 (`q00230_test_of_the_summoner.rs`) | **Closed.** The duel-taunt NpcStringIds were invented placeholders (23001–23011) "pending the client NpcString table" — Java's `@ClientString` annotations carry the real ids (23060–23077 block); replaced. And `addSkillCastDesire(4126)` "had no cast-desire helper" — `ctx.npc_cast` was that helper; the trainer now casts Reduce Delay before each duel. |
+| 2026-08-06 | `TODO(G22)` ×1 (`q00227_test_of_the_reformer.rs`) | **Closed.** Both staged duels ported: decoy Ol Mahum Pilgrim + attacker at Java's fixed spots, attacker's hate seeded at the decoy. The Krudel branch had also silently dropped Java's `getSummonedNpcCount() < 1` gate — restored. |
+| 2026-08-06 | `TODO(G22)` ×1 (`sin_eater.rs`) | **Closed.** `onSummonTalk`: `interact_with_npc` now short-circuits an owner interacting with their own summon (`ServitorOf` owner match) — Java's `PetAction`/`SummonAction` never reach the NPC talk flow — and fires the Sin Eater's 10 % grumble (42239–42242), this dist's only `ON_PLAYER_SUMMON_TALK` listener. |
+| 2026-08-06 | `TODO(G22)` ×1 → `SKIP(off-chronicle)` (`feedable_beasts.rs`) | "Java hooks quests 20 and 655 here" — it does not: both call sites are commented out in the reference (`// TODO: Q00020…`), and neither quest exists anywhere in this datapack. |
 | 2026-08-06 | `TODO(G19)` ×9 + `TODO(G19+)` ×1 — the whole G19 group | See the rows below; three were implementations, four were stale or misworded claims converted to evidence-backed `SKIP`s/prose, and chasing the target-handler one exposed a live bug beside it. |
 | 2026-08-06 | `TODO(G19)` ×1 (`skills/cast.rs`, NpcBody) | **Closed — live bug beside the marker.** The spoil/owner gate was applied to *every* `NPC_BODY` cast, but `OpSweeper` belongs to Sweeper 42 alone; the learnable corpse skills (Life Scavenge 46, Corpse Plague 103, Corpse Life Drain 1151, Corpse Burst 1155) were refused with SWEEPER_FAILED on any unspoiled corpse where Java casts them. The gate now keys off the `Sweeper` effect (same carrier set on this dist). |
 | 2026-08-06 | `TODO(G19)` ×1 (`skill_enchant.rs`) | **Closed.** "The olympiad/sell-buff gates (neither system is modeled)" — both had landed (G25, Custom SellBuffs). `busy_for_enchant` now carries Java's transaction-only refusals (transform, attack stance, casting, boat, stores, sell-buff, olympiad), the private-store gate moved off the info packets (Java gates only the transaction), a sub-level change now drops the running cooldown (Java's reuse hash spans sub-level), and UNTRAIN turned out to be exact parity — Java's own `runImpl` switch has no UNTRAIN case. |

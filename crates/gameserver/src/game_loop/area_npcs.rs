@@ -264,17 +264,31 @@ pub(crate) fn handle_castle_mass_teleport(world: &mut World, npc_oid: i32) {
         DEFENDERS_TELEPORTED_STRING_ID,
         &name,
     );
-    // TODO(G22): Java scopes the shout to `MapRegionManager.getMapRegionLocId`
-    // — every player in the gatekeeper's map region, whether or not they can
-    // see it. This port has no map-region table, so it reaches the NPC's own
-    // broadcast region instead (a smaller radius, same audience in practice
-    // since the region is the castle).
-    if let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    {
-        crate::game_loop::helpers::broadcast_near_region(world, region, &say);
+    // Java scopes the shout to `MapRegionManager.getMapRegionLocId` — every
+    // player in the gatekeeper's map region hears it, whether or not they can
+    // see the NPC. Same bucket rule as the SHOUT chat path: two off-map
+    // players share Java's `0` region.
+    let from_region = world
+        .data
+        .map_region
+        .region_at(x, y)
+        .map(|r| r.name.clone());
+    for cs in world.clients.values() {
+        let ClientSession::InGame(s) = cs else {
+            continue;
+        };
+        let other_pos = world
+            .objects
+            .get_component::<crate::model::components::Position>(&s.player_object_id());
+        let Some(p) = other_pos else { continue };
+        let other_region = world
+            .data
+            .map_region
+            .region_at(p.x, p.y)
+            .map(|r| r.name.clone());
+        if from_region == other_region {
+            cs.send(say.clone());
+        }
     }
 
     crate::game_loop::siege::oust_all_players(world, castle_id);
