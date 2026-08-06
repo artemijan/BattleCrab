@@ -427,36 +427,26 @@ fn u16str(s: &str) -> Vec<u8> {
     v
 }
 
-// Pre-existing failure, still open. **The cause recorded here until 2026-08-05
-// was wrong**, which is worth stating plainly because it pointed the next
-// reader at the wrong server: it claimed RequestServerLogin answers PlayFail
-// (0x06) instead of PlayOk (0x07). It does not. Instrumenting the handshake
-// shows PlayOk arriving on *both* logins and the login half completing cleanly
-// end to end — Init, GGAuth, LoginOk, ServerList, PlayOk.
+// This test was broken (a 120 s timeout, not an assertion failure) from its
+// introduction until 2026-08-06, and **both causes recorded over that time
+// were wrong** — a cautionary tale worth keeping. "RequestServerLogin answers
+// PlayFail" (recorded until 2026-08-05) was false: the login half completes
+// cleanly on both logins. "A spurious 0x57 triggers an unprompted restart on
+// the relogin" (recorded until 2026-08-06) misread the trace: the 0x57 the
+// server dispatches is the RequestRestart *this test sends* in its restart
+// phase, and everything up to and including that restart works.
 //
-// What actually happens, in order, on the **relogin** half of this test (the
-// first login, character creation and all, is fine):
+// The real cause, from a full per-packet trace of both sides: the
+// post-restart CharacterSelect was silently swallowed by the CharacterSelect
+// flood protector (`FloodProtector.ini` interval 30 ticks = 3 s — Java's
+// `CharacterSelect.runImpl` returns without any reply inside the window, and
+// the port mirrors it). The scripted client re-selected within ~2 s of its
+// first select and then blocked forever on a CharSelected that was never
+// coming. Server behavior was retail-faithful all along; the fix is the
+// wait-out-the-window sleep at the re-select below.
 //
-//   1. AuthLogin -> LOGIN_SUCCESS (0x0A). Fine.
-//   2. The character list loads — every per-character query completes — and
-//      CharSelectionInfo is built and sent. Fine.
-//   3. `handle_request_restart` then runs for this client, unprompted. The
-//      test never sends RequestRestart (0x57), and that handler has exactly
-//      one non-test caller: the `cop::REQUEST_RESTART` dispatch arm. So a
-//      packet arrived whose first decrypted byte was 0x57.
-//   4. The restart reloads the list, so a *second* CharSelectionInfo goes out
-//      where the client expects CharSelected, and the exchange never
-//      resynchronises. The test then blocks until nextest's 120 s timeout — it
-//      does not fail an assertion, which is why "PlayFail" was a guess nothing
-//      contradicted.
-//
-// So the bug lives in the second session's lifecycle — between the first
-// client's disconnect cleanup (keyed by *account*, which the relogin reuses)
-// and the client/server cipher state — not in play-auth. Note the test also
-// self-skips unless the untracked `interlude_classic.db` is present, so a
-// worktree without it never even reaches this. TODO(login-playauth): spurious
-// restart + duplicate CharSelectionInfo on relogin; walkthrough above.
-#[ignore = "open: spurious restart + duplicate CharSelectionInfo on relogin (NOT play-auth); see the login-playauth note above"]
+// Note the test self-skips unless the untracked `interlude_classic.db` is
+// present, so a fresh checkout / CI runs it as a no-op.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn full_login_to_character_create() {
     // The runtime DB is an untracked working-tree file; skip on a fresh checkout
@@ -786,6 +776,15 @@ async fn full_login_to_character_create() {
     );
 
     // Relogin without reconnecting (the original bug): select → enter again.
+    //
+    // CharacterSelect is flood-gated (Java `CharacterSelectFloodProtector`,
+    // `FloodProtector.ini` interval 30 ticks = 3 s): a re-select inside the
+    // window of the previous one is *silently* swallowed — Java's `runImpl`
+    // returns before building a reply, and the port mirrors it. A real client
+    // spends longer than that on the character screen; this scripted one must
+    // wait the window out or block forever on the CharSelected that never
+    // comes (which is exactly what this test did for months).
+    tokio::time::sleep(Duration::from_millis(3200)).await;
     let mut w = PacketWriter::new();
     w.write_u8(0x12); // CharacterSelect
     w.write_i32(0); // slot

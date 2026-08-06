@@ -5325,3 +5325,26 @@ changed: `use super::*` became the public `gameserver::data::skill_data` API
 `dist/game/` datapack and the `crates/` marker scan — resolve identically from
 the tools manifest, since `crates/tools` sits at the same depth as
 `crates/gameserver`.
+
+### `login-playauth` closed — the e2e create test un-ignored (2026-08-06)
+
+`full_login_to_character_create` had hung to nextest's 120 s timeout since its
+introduction, under two successive wrong diagnoses (PlayFail on
+RequestServerLogin; then a "spurious unprompted restart" on relogin). A full
+per-packet trace of both sides — client send/recv, transport decrypt, game-loop
+dispatch with session state — showed the server correct at every step: the
+"unprompted" 0x57 was the test's own restart-phase RequestRestart, and the real
+failure was one step later. The post-restart CharacterSelect landed ~2 s after
+the first one, inside the CharacterSelect flood window
+(`FloodProtector.ini` interval 30 ticks = 3 s), and was silently swallowed —
+exactly what Java does (`CharacterSelect.runImpl` returns before building any
+reply when `canSelectCharacter()` refuses). The scripted client then blocked
+forever on a CharSelected that was never coming. A human on the character
+screen cannot re-select that fast, which is why no GUI client ever showed it.
+
+Fix: the test waits out the window (3.2 s) before re-selecting, with the
+mechanism documented at the sleep. `#[ignore]` is gone — the full path (login
+server → game server: create, relogin, restart, re-select, re-enter, logout,
+DB assertions) runs green in ~7 s wherever the untracked `interlude_classic.db`
+exists, and self-skips where it doesn't. The `TODO(login-playauth)` marker
+retires: inventory 10 → 9 (census + DEFERRALS.md updated together).

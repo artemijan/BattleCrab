@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **10** such
+of narrow behaviours deferred and marked at the site. There are **9** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -88,7 +88,6 @@ also registering its NPCs would strand the player.
 | `TODO(G30)` | 1 | `game_loop/community_board.rs` |
 | `TODO(G33)` | 1 | `game_loop/offline_trade.rs` |
 | `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
-| `TODO(login-playauth)` | 1 | `crates/gameserver/tests/e2e_create.rs` |
 
 ## Closed
 
@@ -97,6 +96,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(login-playauth)` | **Closed — the server was never wrong.** A full per-packet trace of both sides showed the 2026-08-05 walkthrough was *also* false: the "unprompted" 0x57 was the test's own restart-phase RequestRestart, and everything through it worked. The real failure: the post-restart CharacterSelect landed inside the CharacterSelect flood window (`FloodProtector.ini` interval 30 ticks = 3 s) and was silently swallowed — Java's `CharacterSelect.runImpl` returns without a reply there, and the port mirrors it; the scripted client then blocked forever on CharSelected. Fix: the test waits the window out before re-selecting. `#[ignore]` removed — the full e2e (login → create → relogin → restart → re-select → re-enter → logout) now passes in ~7 s wherever `interlude_classic.db` exists. |
 | 2026-08-06 | `TODO(G7.5)` | **Closed — implemented.** `MagicalAttackRange` now rolls `calcShldUse` for the target before the damage calc: a block adds `shieldDef × shieldDefPercent / 100` to m.def, a perfect block caps the hit at 1, and a player target hears SHIELD_DEFENSE_SUCCEEDED — Java's exact three-way ladder. Tested front-vs-back arc, block, and perfect block. |
 | 2026-08-06 | `TODO(G13+)` | **Closed — implemented.** `QuestCtx::retarget_random_party_member` ports `getRandomPartyMemberState`: candidates are the killer's party members whose quest state qualifies (any-STARTED or an exact cond), the killer weighted `playerChance`×, the pick range-gated 3D by `AltPartyRange` (the solo arm range-checks too, as Java does); on success the quest context re-targets to the picked member. Wired into Q303 (`(1, 1)`) and Q416 (`(-1, 3)`), the two quests whose Java uses it. Tested: a questless killer's kill credits an in-range started party mate; an out-of-range mate gets nothing. |
 | 2026-08-06 | Singleton pass: 19 → 12 | Seven closed; every survivor is a deliberate, precisely-worded feature deferral. |
