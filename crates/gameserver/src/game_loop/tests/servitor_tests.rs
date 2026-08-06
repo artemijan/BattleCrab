@@ -3262,6 +3262,13 @@ fn a_summons_blow_cannot_kill_a_duel_opponent() {
             countdown: 0,
             ends_at_tick: u64::MAX,
             surrender: 0,
+            party: false,
+            team_a: Vec::new(),
+            team_b: Vec::new(),
+            member_snapshot: Vec::new(),
+            instance_id: 0,
+            defeated: Vec::new(),
+            winner_team: 0,
         },
     );
     world

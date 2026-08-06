@@ -6,15 +6,17 @@
 //! models it as a `Duel` object owned by `DuelManager`, driven by a countdown
 //! task and then a per-second condition check.
 //!
-//! **Scope — 1v1 only. TODO(G27): party duels.** Java teleports both parties
-//! into a fresh olympiad-stadium instance (`DuelManager.getDuelArena` picks a
-//! random arena template; both templates and the instance engine are ported
-//! now, so the blocker is gone — the remaining work is the party flow itself:
-//! per-member `canDuel` checks, the countdown's teleport step, per-member
-//! condition snapshots and the teleport back, party surrender/defeat rules).
-//! This slice implements the player-vs-player duel that happens where the two
-//! players stand; `party_duel` on the wire is honoured only far enough to
-//! refuse it politely.
+//! **Party duels** ride the same machinery: the leaders challenge and answer,
+//! every member must pass `canDuel`, and at countdown 4 both teams snapshot
+//! (vitals *and* positions) and teleport into a fresh instance built from a
+//! random Olympiad arena template — the fight lasts 5 minutes, a surrender by
+//! any member forfeits for the whole team, and the end restores and teleports
+//! everyone back before the instance dies. Java quirk ported as-is: a member
+//! knocked out while a teammate still stands hands the WIN to the *other*
+//! team (`onPlayerDefeat`'s inverted `teamdefeated` test), and knocking out
+//! the *last* member sets no winner at all — the bout then runs to its
+//! timeout tie. Retail surely intended last-man-standing, but this is what
+//! the reference does.
 //!
 //! G25's olympiad matches reuse this shape, which is why the audit put duels
 //! here rather than with the end-game milestones.
@@ -27,6 +29,15 @@ use crate::world::World;
 
 /// `Duel.PLAYER_DUEL_DURATION` — 120 s, in 100 ms ticks.
 const DUEL_DURATION_TICKS: u64 = 1200;
+/// `Duel.PARTY_DUEL_DURATION` — 300 s.
+const PARTY_DUEL_DURATION_TICKS: u64 = 3000;
+/// `DuelManager.ARENAS` — the four Olympiad arena instance templates (all
+/// four share the grassy arena's geometry on this dist).
+const DUEL_ARENAS: [i32; 4] = [147, 148, 149, 150];
+/// The grassy-arena team spawn points (the same coordinates the olympiad
+/// matches use; the zone's spawn list halves map to these two ends).
+const DUEL_SPAWN_A: (i32, i32, i32) = (-89597, -252841, -3320);
+const DUEL_SPAWN_B: (i32, i32, i32) = (-86544, -252846, -3320);
 /// `Duel._countdown` starts at 5 and is decremented once per second; the
 /// teleport step (count 4) is party-only, so a 1v1 counts 4…1 then begins.
 const COUNTDOWN_START: i32 = 5;
@@ -53,6 +64,22 @@ pub struct Duel {
     /// (before the countdown) and restored at the end — a duel leaves no mark
     /// either way. `[a, b]`.
     pub snapshot: [(f64, f64, f64); 2],
+    /// Party duel? (`_partyDuel`). The fields below are empty for a 1v1.
+    pub party: bool,
+    /// The two teams, leaders first (Java uses the live party; the roster is
+    /// fixed when the countdown starts).
+    pub team_a: Vec<i32>,
+    pub team_b: Vec<i32>,
+    /// Per-member `PlayerCondition` for a party duel: vitals + the return
+    /// position (`_x/_y/_z`), captured at the count-4 teleport step.
+    pub member_snapshot: Vec<(i32, (f64, f64, f64), (i32, i32, i32))>,
+    /// The arena instance a party duel fights in (0 until the teleport step).
+    pub instance_id: i32,
+    /// Members knocked to `DUELSTATE_DEAD` (capped at 1 HP).
+    pub defeated: Vec<i32>,
+    /// 0 = undecided; 1/2 = that team was declared winner (Java's
+    /// `DUELSTATE_WINNER` on the leaders, read by the tick).
+    pub winner_team: u8,
 }
 
 impl Duel {
@@ -61,6 +88,26 @@ impl Duel {
             self.player_b
         } else {
             self.player_a
+        }
+    }
+
+    /// Every duellist (both members of a 1v1, both rosters of a party duel).
+    fn everyone(&self) -> Vec<i32> {
+        if self.party {
+            self.team_a.iter().chain(&self.team_b).copied().collect()
+        } else {
+            vec![self.player_a, self.player_b]
+        }
+    }
+
+    /// 1 or 2 for a rostered member, 0 for a stranger.
+    fn team_of(&self, oid: i32) -> u8 {
+        if self.team_a.contains(&oid) {
+            1
+        } else if self.team_b.contains(&oid) {
+            2
+        } else {
+            0
         }
     }
 }
@@ -130,8 +177,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     };
 
     if party_duel != 0 {
-        // Party duels are the module header's remaining G27 deferral.
-        super::admin::send_message(world, client_id, "Party duels are not available yet.");
+        handle_party_duel_start(world, client_id, challenger, &name);
         return;
     }
 
@@ -187,7 +233,10 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     // Park the pending challenge on the target and ask them.
     world.objects.add_components(
         &target,
-        crate::model::components::PendingDuel { challenger },
+        crate::model::components::PendingDuel {
+            challenger,
+            party: false,
+        },
     );
     let challenger_name = player_name(world, challenger);
     send_to(
@@ -222,6 +271,7 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
         .objects
         .remove_component::<crate::model::components::PendingDuel>(&responder);
     let challenger = pending.challenger;
+    let party = pending.party;
 
     if response != 1 {
         send_sm(
@@ -232,8 +282,23 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
         );
         return;
     }
-    // Both must *still* be able to duel (Java re-checks on the answer).
-    if can_duel(world, challenger).is_err() || can_duel(world, responder).is_err() {
+    // Both sides must *still* be able to duel (Java re-checks on the answer);
+    // for a party duel that means every member of both rosters.
+    let (ok, team_a, team_b) = if party {
+        let ta = party_members_of(world, challenger);
+        let tb = party_members_of(world, responder);
+        let all_ok = !ta.is_empty()
+            && !tb.is_empty()
+            && ta.iter().chain(&tb).all(|&m| can_duel(world, m).is_ok());
+        (all_ok, ta, tb)
+    } else {
+        (
+            can_duel(world, challenger).is_ok() && can_duel(world, responder).is_ok(),
+            Vec::new(),
+            Vec::new(),
+        )
+    };
+    if !ok {
         send_sm(
             world,
             challenger,
@@ -242,7 +307,92 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
         );
         return;
     }
-    start_countdown(world, challenger, responder);
+    start_countdown(world, challenger, responder, party, team_a, team_b);
+}
+
+/// `RequestDuelStart`'s party branch: the challenger must lead their party,
+/// every member of both parties must pass `canDuel`, and the ask goes to the
+/// *target's party leader* (Java sends `ExDuelAskStart(name, 1)` there).
+fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, name: &str) {
+    let team_a = party_members_of(world, challenger);
+    if team_a.first() != Some(&challenger) {
+        super::admin::send_message(
+            world,
+            client_id,
+            "You have to be the leader of a party in order to request a party duel.",
+        );
+        return;
+    }
+    let Some((_, target)) = super::party::find_player_by_name(world, name) else {
+        send_sm(
+            world,
+            challenger,
+            sm_ids::THERE_IS_NO_OPPONENT_TO_RECEIVE_YOUR_CHALLENGE_FOR_A_DUEL,
+            &[],
+        );
+        return;
+    };
+    let team_b = party_members_of(world, target);
+    if team_b.is_empty() {
+        super::admin::send_message(world, client_id, "This player is not in a party.");
+        return;
+    }
+    if team_a.contains(&target) {
+        super::admin::send_message(
+            world,
+            client_id,
+            "This player is a member of your own party.",
+        );
+        return;
+    }
+    if team_a.iter().any(|&m| can_duel(world, m).is_err()) {
+        super::admin::send_message(
+            world,
+            client_id,
+            "Not all the members of your party are ready for a duel.",
+        );
+        return;
+    }
+    if team_b.iter().any(|&m| can_duel(world, m).is_err()) {
+        // Java forwards the target-side refusal per member; one line covers it.
+        super::admin::send_message(
+            world,
+            client_id,
+            "The opposing party is currently unable to duel.",
+        );
+        return;
+    }
+    // The ask lands on the *other party's leader*, whoever was targeted.
+    let leader_b = team_b[0];
+    world.objects.add_components(
+        &leader_b,
+        crate::model::components::PendingDuel {
+            challenger,
+            party: true,
+        },
+    );
+    let challenger_name = player_name(world, challenger);
+    send_to(
+        world,
+        leader_b,
+        server_packets::ex_duel_ask_start(&challenger_name, 1),
+    );
+    send_sm(
+        world,
+        challenger,
+        sm_ids::C1_HAS_BEEN_CHALLENGED_TO_A_DUEL,
+        &[SmParam::PlayerName(player_name(world, leader_b))],
+    );
+}
+
+/// The player's party roster, leader first — empty when partyless.
+fn party_members_of(world: &World, oid: i32) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&oid)
+        .and_then(|r| world.parties.get(&r.0))
+        .map(|p| p.members.clone())
+        .unwrap_or_default()
 }
 
 /// `RequestDuelSurrender` — give up; the opponent wins.
@@ -256,6 +406,16 @@ pub(crate) fn handle_request_duel_surrender(world: &mut World, client_id: u32) {
     let Some(duel) = world.duels.get(&duel_id) else {
         return;
     };
+    if duel.party {
+        // Java: any member may surrender, forfeiting for the whole team.
+        let (winner, loser) = match duel.team_of(oid) {
+            1 => (duel.player_b, duel.player_a),
+            2 => (duel.player_a, duel.player_b),
+            _ => return,
+        };
+        end_duel(world, duel_id, DuelResult::Win { winner, loser });
+        return;
+    }
     let winner = duel.other(oid);
     end_duel(world, duel_id, DuelResult::Win { winner, loser: oid });
 }
@@ -264,7 +424,14 @@ pub(crate) fn handle_request_duel_surrender(world: &mut World, client_id: u32) {
 // Lifecycle
 // ---------------------------------------------------------------------------
 
-fn start_countdown(world: &mut World, a: i32, b: i32) {
+fn start_countdown(
+    world: &mut World,
+    a: i32,
+    b: i32,
+    party: bool,
+    team_a: Vec<i32>,
+    team_b: Vec<i32>,
+) {
     let id = world.next_duel_id;
     world.next_duel_id += 1;
     // `new PlayerCondition(player, …)` — the pre-duel vitals, taken at duel
@@ -279,6 +446,11 @@ fn start_countdown(world: &mut World, a: i32, b: i32) {
         )
     };
     let snapshot = [snap(a), snap(b)];
+    let everyone: Vec<i32> = if party {
+        team_a.iter().chain(&team_b).copied().collect()
+    } else {
+        Vec::new()
+    };
     world.duels.insert(
         id,
         Duel {
@@ -289,12 +461,32 @@ fn start_countdown(world: &mut World, a: i32, b: i32) {
             ends_at_tick: 0,
             surrender: 0,
             snapshot,
+            party,
+            team_a,
+            team_b,
+            member_snapshot: Vec::new(),
+            instance_id: 0,
+            defeated: Vec::new(),
+            winner_team: 0,
         },
     );
-    // Both are "in" the duel from the countdown on, so neither can be
+    // Everyone is "in" the duel from the countdown on, so nobody can be
     // challenged again mid-countdown.
-    world.objects.add_components(&a, DuelRef(id));
-    world.objects.add_components(&b, DuelRef(id));
+    if party {
+        // Java announces the upcoming teleport when the duel is created.
+        for &oid in &everyone {
+            world.objects.add_components(&oid, DuelRef(id));
+            send_sm(
+                world,
+                oid,
+                sm_ids::IN_A_MOMENT_YOU_WILL_BE_TRANSPORTED_TO_THE_SITE_WHERE_THE_DUEL_WILL_TAKE_PLACE,
+                &[],
+            );
+        }
+    } else {
+        world.objects.add_components(&a, DuelRef(id));
+        world.objects.add_components(&b, DuelRef(id));
+    }
     world.scheduler.schedule(
         world.tick + COUNTDOWN_STEP_TICKS,
         ScheduledTask::DuelCountdown { duel_id: id },
@@ -302,7 +494,9 @@ fn start_countdown(world: &mut World, a: i32, b: i32) {
 }
 
 /// One countdown second (`Duel.countdown`): announce, then either continue or
-/// begin. The teleport step Java runs at count 4 is party-only.
+/// begin. At count 4 a party duel snapshots everyone (vitals + return
+/// position), builds the arena instance and teleports both teams in — then
+/// waits 20 s (Java's post-teleport grace) before counting on.
 pub(crate) fn handle_countdown(world: &mut World, duel_id: u32) {
     let Some(duel) = world.duels.get_mut(&duel_id) else {
         return;
@@ -310,9 +504,23 @@ pub(crate) fn handle_countdown(world: &mut World, duel_id: u32) {
     duel.countdown -= 1;
     let count = duel.countdown;
     let (a, b) = (duel.player_a, duel.player_b);
+    let party = duel.party;
 
+    if party && count == 4 {
+        teleport_party_duel(world, duel_id);
+        world.scheduler.schedule(
+            world.tick + 200, // Java: 20 s to complete the teleport
+            ScheduledTask::DuelCountdown { duel_id },
+        );
+        return;
+    }
+    let members = world
+        .duels
+        .get(&duel_id)
+        .map(|d| d.everyone())
+        .unwrap_or_default();
     if count > 0 {
-        for oid in [a, b] {
+        for oid in members {
             send_sm(
                 world,
                 oid,
@@ -326,10 +534,55 @@ pub(crate) fn handle_countdown(world: &mut World, duel_id: u32) {
         );
         return;
     }
-    for oid in [a, b] {
+    for oid in members {
         send_sm(world, oid, sm_ids::LET_THE_DUEL_BEGIN, &[]);
     }
+    let _ = (a, b);
     start_duel(world, duel_id);
+}
+
+/// `Duel.teleportPlayers` + `savePlayerConditions`: snapshot every member
+/// (vitals and the spot to return to), spin up an instance from a random
+/// Olympiad arena template, and port team A / team B to the two ends.
+fn teleport_party_duel(world: &mut World, duel_id: u32) {
+    let Some(duel) = world.duels.get(&duel_id) else {
+        return;
+    };
+    let (team_a, team_b) = (duel.team_a.clone(), duel.team_b.clone());
+    let template = DUEL_ARENAS[world.roll(DUEL_ARENAS.len() as i32) as usize];
+    let instance_id = super::instances::create_from_template(world, template)
+        .unwrap_or_else(|| world.instances.create(0));
+
+    let mut snapshot = Vec::new();
+    for &oid in team_a.iter().chain(&team_b) {
+        let v = world.objects.get_component::<Vitals>(&oid);
+        let pv = world.objects.get_component::<PlayerVitals>(&oid);
+        let pos = world
+            .objects
+            .get_component::<Position>(&oid)
+            .map_or((0, 0, 0), |p| (p.x, p.y, p.z));
+        snapshot.push((
+            oid,
+            (
+                v.map_or(0.0, |v| v.cur_hp),
+                v.map_or(0.0, |v| v.cur_mp),
+                pv.map_or(0.0, |p| p.cur_cp),
+            ),
+            pos,
+        ));
+    }
+    if let Some(d) = world.duels.get_mut(&duel_id) {
+        d.member_snapshot = snapshot;
+        d.instance_id = instance_id;
+    }
+    for (team, spawn) in [(team_a, DUEL_SPAWN_A), (team_b, DUEL_SPAWN_B)] {
+        for oid in team {
+            world
+                .objects
+                .add_components(&oid, crate::model::components::InstanceId(instance_id));
+            crate::game_loop::death::teleport_player(world, oid, spawn.0, spawn.1, spawn.2);
+        }
+    }
 }
 
 /// `Duel.startDuel` (the 1v1 branch): both sides go live, get the ready/start
@@ -338,16 +591,39 @@ fn start_duel(world: &mut World, duel_id: u32) {
     let Some(duel) = world.duels.get_mut(&duel_id) else {
         return;
     };
-    duel.ends_at_tick = world.tick + DUEL_DURATION_TICKS;
+    let party = duel.party;
+    duel.ends_at_tick = world.tick
+        + if party {
+            PARTY_DUEL_DURATION_TICKS
+        } else {
+            DUEL_DURATION_TICKS
+        };
     let (a, b) = (duel.player_a, duel.player_b);
+    let flag = i32::from(party);
+    let (team_a, team_b) = (duel.team_a.clone(), duel.team_b.clone());
 
-    for oid in [a, b] {
-        send_to(world, oid, server_packets::ex_duel_ready(0));
-        send_to(world, oid, server_packets::ex_duel_start(0));
-        // Java broadcasts the opponent's duel HP/MP/CP bar to each side.
-        let opponent = if oid == a { b } else { a };
-        if let Some(pkt) = duel_user_info(world, opponent) {
-            send_to(world, oid, pkt);
+    if party {
+        // Each member gets the ready/start pair and every opponent's duel bar.
+        for (mine, theirs) in [(&team_a, &team_b), (&team_b, &team_a)] {
+            for &oid in mine {
+                send_to(world, oid, server_packets::ex_duel_ready(flag));
+                send_to(world, oid, server_packets::ex_duel_start(flag));
+                for &opponent in theirs {
+                    if let Some(pkt) = duel_user_info(world, opponent) {
+                        send_to(world, oid, pkt);
+                    }
+                }
+            }
+        }
+    } else {
+        for oid in [a, b] {
+            send_to(world, oid, server_packets::ex_duel_ready(flag));
+            send_to(world, oid, server_packets::ex_duel_start(flag));
+            // Java broadcasts the opponent's duel HP/MP/CP bar to each side.
+            let opponent = if oid == a { b } else { a };
+            if let Some(pkt) = duel_user_info(world, opponent) {
+                send_to(world, oid, pkt);
+            }
         }
     }
     world
@@ -362,9 +638,47 @@ pub(crate) fn handle_tick(world: &mut World, duel_id: u32) {
     };
     let (a, b) = (duel.player_a, duel.player_b);
 
-    // A duelist who logged out / vanished cancels it.
+    // A leader who logged out / vanished cancels it.
     if !world.objects.has_component::<Player>(&a) || !world.objects.has_component::<Player>(&b) {
         end_duel(world, duel_id, DuelResult::Canceled);
+        return;
+    }
+    if duel.party {
+        // A team already declared winner (the defeat rule) ends it.
+        match duel.winner_team {
+            1 => {
+                end_duel(
+                    world,
+                    duel_id,
+                    DuelResult::Win {
+                        winner: a,
+                        loser: b,
+                    },
+                );
+                return;
+            }
+            2 => {
+                end_duel(
+                    world,
+                    duel_id,
+                    DuelResult::Win {
+                        winner: b,
+                        loser: a,
+                    },
+                );
+                return;
+            }
+            _ => {}
+        }
+        if world.tick >= duel.ends_at_tick {
+            end_duel(world, duel_id, DuelResult::Canceled);
+            return;
+        }
+        // The 1v1 separation / interruption checks don't apply — "party duels
+        // take place in arenas" (Java `isDuelistInPvp`).
+        world
+            .scheduler
+            .schedule(world.tick + 10, ScheduledTask::DuelTick { duel_id });
         return;
     }
     // Someone dropped → the other wins.
@@ -399,31 +713,30 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
     };
     let (a, b) = (duel.player_a, duel.player_b);
     let snapshot = duel.snapshot;
+    let flag = i32::from(duel.party);
+    let everyone = duel.everyone();
 
-    for oid in [a, b] {
+    for &oid in &everyone {
         world.objects.remove_component::<DuelRef>(&oid);
-        send_to(world, oid, server_packets::ex_duel_end(0));
+        send_to(world, oid, server_packets::ex_duel_end(flag));
     }
 
     match result {
         DuelResult::Win { winner, loser } => {
-            let (wname, lname) = (player_name(world, winner), player_name(world, loser));
-            send_sm(
-                world,
-                winner,
-                sm_ids::C1_HAS_WON_THE_DUEL,
-                &[SmParam::PlayerName(wname.clone())],
-            );
-            send_sm(
-                world,
-                loser,
-                sm_ids::C1_HAS_WON_THE_DUEL,
-                &[SmParam::PlayerName(wname)],
-            );
-            let _ = lname;
+            // A party duel announces "C1's party has won"; a 1v1 "C1 has won".
+            let sm = if duel.party {
+                sm_ids::C1_S_PARTY_HAS_WON_THE_DUEL
+            } else {
+                sm_ids::C1_HAS_WON_THE_DUEL
+            };
+            let wname = player_name(world, winner);
+            for &oid in &everyone {
+                send_sm(world, oid, sm, &[SmParam::PlayerName(wname.clone())]);
+            }
+            let _ = loser;
         }
         DuelResult::Canceled => {
-            for oid in [a, b] {
+            for &oid in &everyone {
                 send_sm(world, oid, sm_ids::THE_DUEL_HAS_ENDED_IN_A_TIE, &[]);
             }
         }
@@ -435,6 +748,29 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
     // a duel-debuff removal list, but its feeder — `DuelManager.onBuff` — has
     // no caller anywhere in this Java tree, so nothing is ever registered and
     // nothing is stripped there either.)
+    if duel.party {
+        // Party duels also teleport everyone back (`PlayerCondition` stored
+        // the spot at the count-4 step) and tear the arena instance down.
+        for (oid, (hp, mp, cp), (x, y, z)) in duel.member_snapshot {
+            if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+                v.dead = false;
+                v.cur_hp = hp.min(v.max_hp as f64);
+                v.cur_mp = mp.min(v.max_mp as f64);
+            }
+            if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&oid) {
+                pv.cur_cp = cp.min(pv.max_cp as f64);
+            }
+            world
+                .objects
+                .remove_component::<crate::model::components::InstanceId>(&oid);
+            crate::game_loop::death::teleport_player(world, oid, x, y, z);
+            super::party::broadcast_user_info(world, oid);
+        }
+        if duel.instance_id != 0 {
+            super::instances::destroy(world, duel.instance_id);
+        }
+        return;
+    }
     for (i, oid) in [a, b].into_iter().enumerate() {
         let (hp, mp, cp) = snapshot[i];
         if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
@@ -477,16 +813,40 @@ pub(crate) fn duel_lethal_guard(
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&target) {
         v.cur_hp = 1.0;
     }
-    if let Some(duel_id) = world.objects.get_component::<DuelRef>(&target).map(|r| r.0) {
-        end_duel(
-            world,
-            duel_id,
-            DuelResult::Win {
-                winner: attacker,
-                loser: target,
-            },
-        );
+    let Some(duel_id) = world.objects.get_component::<DuelRef>(&target).map(|r| r.0) else {
+        return true;
+    };
+    let is_party = world.duels.get(&duel_id).is_some_and(|d| d.party);
+    if is_party {
+        // Java `onPlayerDefeat`, quirk included: the knockout hands the WIN
+        // to the attacker's team as long as a teammate of the victim still
+        // stands; felling the LAST member sets no winner, and the bout runs
+        // to its timeout tie. (Retail surely meant last-man-standing — port
+        // the behaviour, not the intent.)
+        if let Some(d) = world.duels.get_mut(&duel_id) {
+            if !d.defeated.contains(&target) {
+                d.defeated.push(target);
+            }
+            let victim_team = d.team_of(target);
+            let teammate_standing = match victim_team {
+                1 => d.team_a.iter().any(|m| !d.defeated.contains(m)),
+                2 => d.team_b.iter().any(|m| !d.defeated.contains(m)),
+                _ => false,
+            };
+            if teammate_standing && d.winner_team == 0 {
+                d.winner_team = if victim_team == 1 { 2 } else { 1 };
+            }
+        }
+        return true;
     }
+    end_duel(
+        world,
+        duel_id,
+        DuelResult::Win {
+            winner: attacker,
+            loser: target,
+        },
+    );
     true
 }
 

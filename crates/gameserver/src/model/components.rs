@@ -707,6 +707,8 @@ pub struct DuelRef(pub u32);
 #[derive(Component, Debug, Clone, Copy, Default)]
 pub struct PendingDuel {
     pub challenger: i32,
+    /// A party-duel challenge (the answerer is the target party's leader).
+    pub party: bool,
 }
 
 /// Java `Attackable`'s over-hit trio (`_overhitEnabled` / `_overhitDamage` /
