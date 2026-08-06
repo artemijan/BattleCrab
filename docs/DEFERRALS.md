@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **8** such
+of narrow behaviours deferred and marked at the site. There are **7** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -83,7 +83,6 @@ also registering its NPCs would strand the player.
 | `TODO(G17)` | 1 | `game_loop/subclass.rs` |
 | `TODO(G22)` | 1 | `scripts/primeval_isle.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
-| `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
 | `TODO(G27)` | 1 | `game_loop/duel.rs` |
 | `TODO(G30)` | 1 | `game_loop/community_board.rs` |
 | `TODO(G33)` | 1 | `game_loop/offline_trade.rs` |
@@ -95,6 +94,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G25)` | **Superseded in place, plus one real gap beside it.** The marker claimed concurrent olympiad matches "share these coordinates and can see each other" — while `start_match`, one screen below, already created a private per-match instance and scoped both fighters and every observer into it (isolation tests included). The real find: observers were stranded when their match's instance died — Java's per-slot stadium instance is permanent, ours is per-match — so `start_match` now re-scopes the slot's spectators into the new bout's instance; tested across two consecutive matches on one slot. |
 | 2026-08-06 | `TODO(G35)` | **Closed — implemented.** `Util.handleIllegalPlayerAction` + the 5-second `IllegalPlayerActionTask` are ported into `game_loop/punishment.rs`: the immediate warning (and KICKBAN's instant character/account access drop), then the task writes the never-dropped `Category::Illegal` audit record and applies `DefaultPunish` — GM broadcast, kick, kick+ban, or jail via the G31 punishment engine (GMs are audited but never punished). New `General.ini` keys `DefaultPunish`/`DefaultPunishParam` (0 → Java's hundred years). ~30 Java guard sites wired across chat (L2Walker), shop, private stores, mail, warehouse/freight, pet transfers, enchant, henna, crafting, manor seeds, drop/destroy/crystallize and skill acquisition — including guards the port had been missing outright (sell-store price-overflow caps, the acquire-skill sequential-level hack check, the enchant-window deposit exploit). Sites whose parent feature is unported (over-enchant login scan, item preview, post-IL packets) are noted, not wired. |
 | 2026-08-06 | `TODO(login-playauth)` | **Closed — the server was never wrong.** A full per-packet trace of both sides showed the 2026-08-05 walkthrough was *also* false: the "unprompted" 0x57 was the test's own restart-phase RequestRestart, and everything through it worked. The real failure: the post-restart CharacterSelect landed inside the CharacterSelect flood window (`FloodProtector.ini` interval 30 ticks = 3 s) and was silently swallowed — Java's `CharacterSelect.runImpl` returns without a reply there, and the port mirrors it; the scripted client then blocked forever on CharSelected. Fix: the test waits the window out before re-selecting. `#[ignore]` removed — the full e2e (login → create → relogin → restart → re-select → re-enter → logout) now passes in ~7 s wherever `interlude_classic.db` exists. |
 | 2026-08-06 | `TODO(G7.5)` | **Closed — implemented.** `MagicalAttackRange` now rolls `calcShldUse` for the target before the damage calc: a block adds `shieldDef × shieldDefPercent / 100` to m.def, a perfect block caps the hit at 1, and a player target hears SHIELD_DEFENSE_SUCCEEDED — Java's exact three-way ladder. Tested front-vs-back arc, block, and perfect block. |
