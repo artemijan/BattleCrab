@@ -12,15 +12,21 @@
 //! Also applied: the option's **passive skills**, whose own stat effects are
 //! folded the same way (a passive skill is a stat pump with no icon).
 //!
-//! TODO(G15.5): the option's **active** skills (Java `addSkill` → they appear
-//! on the skill bar) and its **activation** skills (`attack_skill` /
-//! `magic_skill` / `critical_skill` → `Player.addTriggerSkill`) are parsed and
-//! carried on the entry but not yet granted; both need a temporary-skill grant
-//! path (`SkillBook` + `SkillList`) and a trigger registry keyed by something
-//! other than a learned skill, which the port doesn't have yet.
+//! Also applied, since G15.5: the option's **active** skills (Java `addSkill`
+//! → they appear on the skill bar) and its **activation** skills
+//! (`attack_skill` / `magic_skill` / `critical_skill` → `addTriggerSkill`).
+//!
+//! Both live in their own transient components rather than the
+//! [`crate::model::components::SkillBook`], because Java grants them with
+//! `store = false` and this port persists the whole book — an option skill
+//! filed there would outlive the item. See
+//! [`crate::model::components::OptionSkills`] /
+//! [`crate::model::components::OptionTriggers`].
 
 use crate::model::Player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers};
+use crate::model::components::{
+    BaseStats, Buffs, CombatStats, OptionSkills, OptionTriggers, Speeds, StatModifiers,
+};
 use crate::model::inventory::Inventory;
 use crate::model::skill::{ActiveBuff, BuffSlot, StatModifierEffect};
 use crate::world::World;
@@ -38,6 +44,29 @@ fn option_buff_id(option_id: i32) -> i32 {
 pub(crate) fn apply_item_options(world: &mut World, player_oid: i32, item_object_id: i32) {
     for option_id in option_ids_of(world, player_oid, item_object_id) {
         apply_option(world, player_oid, option_id);
+    }
+}
+
+/// Every currently-equipped item's options, applied at enter-world.
+///
+/// Java reaches this through `restoreCharData` → the equip listeners; there is
+/// no equivalent replay here, so it is done explicitly. Idempotent by
+/// construction: each option lands as one buff keyed by
+/// [`option_buff_id`], and the skill grants are map inserts.
+pub(crate) fn apply_equipped_item_options(world: &mut World, player_oid: i32) {
+    let equipped: Vec<i32> = world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .map(|inv| {
+            inv.items()
+                .iter()
+                .filter(|it| it.is_augmented() && inv.paperdoll_slot_of(it.object_id).is_some())
+                .map(|it| it.object_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    for item_oid in equipped {
+        apply_item_options(world, player_oid, item_oid);
     }
 }
 
@@ -67,6 +96,12 @@ fn option_ids_of(world: &World, player_oid: i32, item_object_id: i32) -> Vec<i32
 /// `Options.apply(player)`, narrowed to the stat half: the option's own effects
 /// plus every effect of its passive skills.
 fn apply_option(world: &mut World, player_oid: i32, option_id: i32) {
+    // The skill halves run first and unconditionally: an option can grant an
+    // active skill or a trigger while contributing no stats at all (1793
+    // `<active_skill>` rows on this dist, and plenty of options carry nothing
+    // else), so they must not sit behind the `effects.is_empty()` bail below.
+    apply_option_skills(world, player_oid, option_id);
+
     let Some(effects) = option_effects(world, option_id) else {
         return;
     };
@@ -117,6 +152,7 @@ fn apply_option(world: &mut World, player_oid: i32, option_id: i32) {
 
 /// `Options.remove(player)` — drop this option's contribution and rebuild.
 fn remove_option(world: &mut World, player_oid: i32, option_id: i32) {
+    remove_option_skills(world, player_oid, option_id);
     let skill_id = option_buff_id(option_id);
     if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
         world.objects.get_many_mut::<(
@@ -164,4 +200,88 @@ fn option_effects(world: &World, option_id: i32) -> Option<Vec<StatModifierEffec
         }
     }
     Some(effects)
+}
+
+/// `Options.apply`'s skill half — the active skills and the activation
+/// (trigger) skills.
+///
+/// Java grants the actives with `addSkill(skill, false)`; the `false` is
+/// `store`, so they never reach `character_skills`. That distinction is
+/// load-bearing here, where the whole [`crate::model::components::SkillBook`]
+/// is persisted: they go into [`OptionSkills`] instead.
+///
+/// The reuse-timestamp restore Java does alongside (`getSkillRemainingReuseTime`
+/// → `addTimeStamp`/`disableSkill` + `SkillCoolTime`) is a no-op here: this
+/// port keeps reuse entries keyed by skill id in `Reuses` whether or not the
+/// skill is currently known, so a cooldown already survives unequip/re-equip
+/// without being re-armed.
+fn apply_option_skills(world: &mut World, player_oid: i32, option_id: i32) {
+    let Some(entry) = world.data.options.get(option_id) else {
+        return;
+    };
+    let actives = entry.active_skills.clone();
+    let triggers = entry.triggers.clone();
+    if actives.is_empty() && triggers.is_empty() {
+        return;
+    }
+    if let Some(skills) = world.objects.get_component_mut::<OptionSkills>(&player_oid) {
+        for &(skill_id, level) in &actives {
+            skills.0.insert(skill_id, level);
+        }
+    }
+    if let Some(reg) = world
+        .objects
+        .get_component_mut::<OptionTriggers>(&player_oid)
+    {
+        // Java's `_triggerSkills` is keyed by the *triggered* skill's id, so a
+        // second option granting the same proc replaces rather than doubles it.
+        for trigger in &triggers {
+            reg.0.insert(trigger.skill_id, *trigger);
+        }
+    }
+    send_skill_list(world, player_oid);
+}
+
+/// `Options.remove`'s skill half.
+///
+/// **Java's own quirk, kept:** the removal is unconditional, so when two
+/// equipped items carry options granting the *same* skill, unequipping either
+/// one takes the skill away even though the other still grants it. Re-equipping
+/// anything restores it. Reproducing this is deliberate — the alternative is
+/// refcounting that Java does not do, which would diverge on a case the
+/// datapack can actually produce.
+fn remove_option_skills(world: &mut World, player_oid: i32, option_id: i32) {
+    let Some(entry) = world.data.options.get(option_id) else {
+        return;
+    };
+    let actives = entry.active_skills.clone();
+    let triggers = entry.triggers.clone();
+    if actives.is_empty() && triggers.is_empty() {
+        return;
+    }
+    if let Some(skills) = world.objects.get_component_mut::<OptionSkills>(&player_oid) {
+        for (skill_id, _) in &actives {
+            skills.0.remove(skill_id);
+        }
+    }
+    if let Some(reg) = world
+        .objects
+        .get_component_mut::<OptionTriggers>(&player_oid)
+    {
+        for trigger in &triggers {
+            reg.0.remove(&trigger.skill_id);
+        }
+    }
+    send_skill_list(world, player_oid);
+}
+
+/// `player.sendSkillList()`, which both halves of `Options` end with — the
+/// client only shows a granted active once the list is resent.
+fn send_skill_list(world: &World, player_oid: i32) {
+    if let Some(pkt) = super::helpers::skill_list_packet(world, player_oid)
+        && let Some(cs) =
+            super::helpers::client_for_player(world, player_oid).and_then(|c| world.clients.get(&c))
+    {
+        cs.send(pkt);
+    }
 }

@@ -329,6 +329,7 @@ fn enchants_survive_the_load_path() {
         &player.skills,
         &player.skill_enchants,
         &crate::model::components::ClanSkills::default(),
+        &crate::model::components::OptionSkills::default(),
         &world.data,
     );
     // Entry layout: d passive, h level, h sub, d id, … — find our skill's id

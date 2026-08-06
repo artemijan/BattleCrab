@@ -684,6 +684,30 @@ impl HennaSlots {
 #[derive(Component, Debug, Clone, Default)]
 pub struct ClanSkills(pub HashMap<i32, i32>);
 
+/// Active skills granted by the **augment options** on currently-equipped
+/// items (skill_id → level), Java's `Options.apply` → `addSkill(skill, false)`
+/// set.
+///
+/// **Transient**, for the same reason [`ClanSkills`] is: Java's `store = false`
+/// never reaches `character_skills`, and this port persists the whole
+/// [`SkillBook`] — so an option skill kept there would survive the item being
+/// unequipped and re-arm on every login with nothing equipped to explain it.
+/// Re-derived from the equipped items on each equip/unequip. Folded into the
+/// `SkillList` packet and into the cast path's known-skill lookup, which is what
+/// makes an augment active actually castable. Player-only.
+#[derive(Component, Debug, Clone, Default)]
+pub struct OptionSkills(pub HashMap<i32, i32>);
+
+/// Augment **activation** skills — Java `Creature._triggerSkills`, a map keyed
+/// by the triggered skill's id (so re-adding the same skill replaces rather
+/// than stacks, and one option's removal takes exactly one entry).
+///
+/// Populated by `Options.apply`/`remove` from `<attack_skill>`,
+/// `<magic_skill>` and `<critical_skill>`; read on every landed auto-attack and
+/// every finished cast. Transient like [`OptionSkills`]. Player-only.
+#[derive(Component, Debug, Clone, Default)]
+pub struct OptionTriggers(pub HashMap<i32, crate::data::option_data::OptionTrigger>);
+
 /// The player's registered crafting recipes as recipe-*list* ids, split by
 /// book (Java `Player._dwarvenRecipeBook` / `_commonRecipeBook`, keyed by
 /// `RecipeList.getId()`). Loaded from `character_recipebook`, persisted in the

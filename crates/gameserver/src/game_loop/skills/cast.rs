@@ -692,11 +692,14 @@ pub(crate) fn use_magic_on(
         return;
     }
     // Unknown skill → ActionFailed (RequestMagicSkillUse.runImpl).
-    let Some(&skill_level) = world
-        .objects
-        .get_component::<crate::model::components::SkillBook>(&object_id)
-        .and_then(|book| book.0.get(&magic_id))
-    else {
+    //
+    // Java asks `getKnownSkill`, which is one map holding both the learned
+    // skills and everything granted with `addSkill(…, false)`. This port keeps
+    // the transient grants apart so they cannot be persisted, so the lookup has
+    // to consult both: without the `OptionSkills` fallback an augment's active
+    // skill appears on the bar (it is in the `SkillList`) and then answers
+    // every click with `ActionFailed`.
+    let Some(skill_level) = known_skill_level(world, object_id, magic_id) else {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -1904,6 +1907,16 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         skill.magic_type,
     );
 
+    // The augment-option procs Java fires from `SkillCaster` alongside it:
+    // `MAGIC` on a magic cast, `ATTACK` on a physical one, nothing on a static
+    // skill.
+    super::effects::fire_option_cast_triggers(
+        world,
+        player_object_id,
+        first_affected.unwrap_or(cast.target_object_id),
+        skill.magic_type,
+    );
+
     // Attack stance is caster-scoped, so it fires once per cast rather than
     // per affected target.
     if skill.is_bad() {
@@ -2317,4 +2330,24 @@ pub(crate) fn break_cast(world: &mut World, object_id: i32) {
             &[],
         ));
     }
+}
+
+/// Java `Creature.getKnownSkill(id)` — the level at which this player knows a
+/// skill, from either the persisted book or a transient grant.
+///
+/// The book wins when both carry the id: that is Java's map-insertion order for
+/// a learned skill re-granted by an option, and it keeps a player's own trained
+/// level from being downgraded by an item.
+pub(crate) fn known_skill_level(world: &World, object_id: i32, skill_id: i32) -> Option<i32> {
+    if let Some(level) = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&object_id)
+        .and_then(|book| book.0.get(&skill_id).copied())
+    {
+        return Some(level);
+    }
+    world
+        .objects
+        .get_component::<crate::model::components::OptionSkills>(&object_id)
+        .and_then(|opts| opts.0.get(&skill_id).copied())
 }

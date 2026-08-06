@@ -204,14 +204,18 @@ pub fn skill_list(
     skills: &crate::model::components::SkillBook,
     enchants: &crate::model::components::SkillEnchants,
     clan_skills: &crate::model::components::ClanSkills,
+    option_skills: &crate::model::components::OptionSkills,
     data: &GameData,
 ) -> Vec<u8> {
-    // Java `sendSkillList` writes the player's own skills *and* the clan skills
-    // it added transiently (`addSkill(clanSkill, false)`) in one list. Merge so
-    // an id present in both (none in practice — clan ids are disjoint) isn't
-    // double-written; the player's own level wins.
+    // Java `sendSkillList` writes the player's own skills *and* everything it
+    // added transiently with `addSkill(…, false)` — clan skills and the augment
+    // options' active skills — in one list. Merge so an id present in more than
+    // one source isn't double-written; the player's own level wins.
     let mut merged: std::collections::HashMap<i32, i32> = skills.0.clone();
     for (&id, &lvl) in &clan_skills.0 {
+        merged.entry(id).or_insert(lvl);
+    }
+    for (&id, &lvl) in &option_skills.0 {
         merged.entry(id).or_insert(lvl);
     }
     let mut w = PacketWriter::new();
