@@ -583,11 +583,14 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         &bundle.henna,
     ));
     // Clan skills aren't applied yet (the clan login hook runs after the player
-    // is registered and re-sends the merged list) → empty clan set here.
+    // is registered and re-sends the merged list) → empty clan set here. Augment
+    // option skills are empty for the same reason: `apply_item_options` runs off
+    // the equip pass, which likewise re-sends the list once it has granted them.
     session.send(ew::skill_list(
         &bundle.skills,
         &bundle.skill_enchants,
         &crate::model::components::ClanSkills::default(),
+        &crate::model::components::OptionSkills::default(),
         data,
     ));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
@@ -677,14 +680,18 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // EtcStatusUpdate + UserInfo only when there's an actual penalty.
     super::expertise::refresh_expertise_penalty(world, object_id);
     super::weight::refresh_weight_penalty(world, object_id);
+    // Java gets its augment bonuses back the same way it gets the expertise
+    // penalty: `restoreCharData` re-runs the equip listeners, and
+    // `VariationInstance.applyBonus` fires for every item already in a paperdoll
+    // slot. This port only ran `apply_item_options` off an actual equip packet,
+    // so an augmented weapon worn *through* a relog contributed nothing until
+    // the player manually re-equipped it — the stat half included, not just the
+    // G15.5 skill half this sits next to.
+    super::options::apply_equipped_item_options(world, object_id);
     // Java `restoreCharData`/`addSkill` also pumps armor-conditioned passives
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.
     super::passive_skills::refresh_conditioned_passives(world, object_id);
-    // Java's equip listeners ran during `restoreInventory`: fold each worn
-    // augmented item's options in (stats, active skills, triggers), and sweep
-    // any augment-active skill the book persisted past its item.
-    super::options::apply_worn_options_at_login(world, object_id);
     // Java `EnterWorld` → `restoreEffects` (buff half): the buffs the character
     // logged out with come back, each resuming the remaining time it had at
     // logout — offline time doesn't burn buff duration. Runs after the passive

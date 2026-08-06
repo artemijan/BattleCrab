@@ -39,6 +39,7 @@ mod affect_tests;
 mod antharas_tests;
 mod area_scripts_tests;
 mod attribute_tests;
+mod augment_skill_tests;
 mod auto_play_tests;
 mod auto_potions_tests;
 mod baium_tests;

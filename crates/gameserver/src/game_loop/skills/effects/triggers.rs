@@ -334,3 +334,95 @@ fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool 
     };
     crate::model::weapon_condition_passes(mask, inv, &world.data.item_data)
 }
+
+/// The augment **activation** skills — Java's `_triggerSkills` map, checked at
+/// its two firing sites.
+///
+/// Java writes the same loop twice with different predicates, so this takes the
+/// predicate as `want`:
+///
+/// - `Creature.onHitTarget` (auto-attack): `ATTACK` on a **non-critical** hit,
+///   `CRITICAL` on a critical one — so the two are mutually exclusive there and
+///   a crit never fires an `ATTACK` proc.
+/// - `SkillCaster` (a finished cast, `!skill.isStatic()`): `MAGIC` when the cast
+///   skill is magic, `ATTACK` when it is physical.
+///
+/// `ATTACK` therefore fires from both sites, which is Java's shape and not a
+/// duplicate: a physical *skill* and a plain swing are different events.
+///
+/// The roll is Java's `Rnd.get(100) < chance` — an integer roll against a
+/// `double` chance, so a `chance` of 1.0 is a 1-in-100 proc, not 1-in-1.
+fn fire_option_triggers(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    want: impl Fn(crate::data::option_data::OptionSkillType) -> bool,
+) {
+    let Some(reg) = world
+        .objects
+        .get_component::<crate::model::components::OptionTriggers>(&caster_oid)
+    else {
+        return;
+    };
+    if reg.0.is_empty() {
+        return;
+    }
+    let candidates: Vec<crate::data::option_data::OptionTrigger> =
+        reg.0.values().filter(|t| want(t.kind)).copied().collect();
+
+    let mut fired: Vec<(i32, i32)> = Vec::new();
+    for t in candidates {
+        if t.skill_id == 0 || t.skill_level == 0 {
+            continue;
+        }
+        if (world.roll(100) as f64) < t.chance {
+            fired.push((t.skill_id, t.skill_level));
+        }
+    }
+    for (skill_id, skill_level) in fired {
+        let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+            continue;
+        };
+        // `SkillCaster.triggerCast(this, target, skill, null, false)` — the
+        // trigger lands on whoever was hit / was the cast's target, not the
+        // bearer.
+        apply_skill_effects(world, caster_oid, target_oid, &skill);
+    }
+}
+
+/// `Creature.onHitTarget`'s trigger loop — the auto-attack half.
+pub(crate) fn fire_option_attack_triggers(
+    world: &mut World,
+    attacker_oid: i32,
+    target_oid: i32,
+    crit: bool,
+) {
+    use crate::data::option_data::OptionSkillType;
+    fire_option_triggers(world, attacker_oid, target_oid, |kind| {
+        if crit {
+            kind == OptionSkillType::Critical
+        } else {
+            kind == OptionSkillType::Attack
+        }
+    });
+}
+
+/// `SkillCaster`'s trigger loop — the finished-cast half. `magic_type` is the
+/// cast skill's, so `1` is magic and `0` physical; a **static** skill (2) fires
+/// nothing, which is Java's `!skill.isStatic()` gate around the whole block.
+pub(crate) fn fire_option_cast_triggers(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    magic_type: i32,
+) {
+    use crate::data::option_data::OptionSkillType;
+    if magic_type == 2 {
+        return;
+    }
+    fire_option_triggers(world, caster_oid, target_oid, |kind| match kind {
+        OptionSkillType::Magic => magic_type == 1,
+        OptionSkillType::Attack => magic_type == 0,
+        OptionSkillType::Critical => false,
+    });
+}

@@ -68,15 +68,6 @@ pub struct OptionData {
 }
 
 impl OptionData {
-    /// Every skill id any option grants as an *active* — the login stale-sweep
-    /// uses this to spot augment skills persisted past their item.
-    pub fn all_active_skill_ids(&self) -> std::collections::HashSet<i32> {
-        self.by_id
-            .values()
-            .flat_map(|o| o.active_skills.iter().map(|&(id, _)| id))
-            .collect()
-    }
-
     pub fn load() -> Self {
         Self::load_from("")
     }

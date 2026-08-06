@@ -616,9 +616,9 @@ pub(crate) fn handle_attack_hit(
     // is the autoattack path; `allowSkillAttack` defaults to false, so skill
     // hits would be rejected anyway).
     crate::game_loop::skills::effects::fire_attack_triggers(world, attacker, target, damage, crit);
-    // Java `Creature.onHitTimer`'s `_triggerSkills` block — the augment
-    // activation skills (ATTACK on a plain hit, CRITICAL on a crit).
-    crate::game_loop::options::fire_augment_attack_triggers(world, attacker, target, crit);
+    // The augment-option procs ride the same event (Java runs both loops in
+    // `onHitTarget`): `ATTACK` on a normal hit, `CRITICAL` on a crit.
+    crate::game_loop::skills::effects::fire_option_attack_triggers(world, attacker, target, crit);
 }
 
 /// How an attacker shows up in the *victim's* damage messages ($c2).

@@ -784,6 +784,8 @@ impl PlayerData {
                     self.warehouse,
                     self.freight,
                     components::ClanSkills::default(),
+                    components::OptionSkills::default(),
+                    components::OptionTriggers::default(),
                     self.skill_enchants,
                     self.henna,
                     self.recipe_book,

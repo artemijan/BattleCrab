@@ -101,13 +101,18 @@ pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i3
 /// object carries no skill book (not a live player). The single funnel every
 /// `SkillList` resend goes through, so clan skills never fall off the list.
 pub(crate) fn skill_list_packet(world: &World, object_id: i32) -> Option<Vec<u8>> {
-    use crate::model::components::{ClanSkills, SkillBook, SkillEnchants};
+    use crate::model::components::{ClanSkills, OptionSkills, SkillBook, SkillEnchants};
     let book = world.objects.get_component::<SkillBook>(&object_id)?;
     let empty = ClanSkills::default();
     let clan = world
         .objects
         .get_component::<ClanSkills>(&object_id)
         .unwrap_or(&empty);
+    let no_options = OptionSkills::default();
+    let options = world
+        .objects
+        .get_component::<OptionSkills>(&object_id)
+        .unwrap_or(&no_options);
     let no_enchants = SkillEnchants::default();
     let enchants = world
         .objects
@@ -117,6 +122,7 @@ pub(crate) fn skill_list_packet(world: &World, object_id: i32) -> Option<Vec<u8>
         book,
         enchants,
         clan,
+        options,
         &world.data,
     ))
 }
