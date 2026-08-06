@@ -8,11 +8,17 @@
 //! Each slot keeps its own learned skills (`character_skills.class_index`), so
 //! a hand-learned skill survives a switch away and back.
 //!
-//! TODO(G17), the module's one remaining deferral bundle: per-subclass hennas
-//! and shortcuts (both still load with `class_index = 0`), certification
-//! skills, the village-master cancel/replace verbs (cases 3/6/7 — the
-//! slot-wipe), the UI flow (G22's occupation quests), and the subclass-change
-//! lock Java holds across the swap.
+//! Hennas and shortcuts are per class index end to end (banked in
+//! `hennas_by_index`/`shortcuts_by_index` on the switch, loaded and stored
+//! per index). The village-master console carries Java's full verb set,
+//! including the cancel/replace flow (cases 3/6/7 — [`modify_subclass`]'s
+//! slot wipe). Adding a subclass is gated on Fate's Whisper + Mimir's Elixir
+//! completion (noble exempt) behind `AltSubClassWithoutQuests` — **True on
+//! this dist**, so the gate is ported but inert. Not modeled, with reasons:
+//! certification skills (no `subClassSkillTree` exists anywhere in this
+//! dist's data — nothing to learn or wipe), and Java's subclass-change lock
+//! (`_subclassLock`), which guards against two threads swapping at once —
+//! the port's single-threaded game loop cannot interleave two swaps.
 
 use crate::config::flood_protector::FloodAction;
 use crate::model::components::{Position, RegionCell, SkillBook};
@@ -417,13 +423,97 @@ pub(crate) fn can_add_subclass(world: &World, player_oid: i32) -> bool {
         })
 }
 
+/// `VillageMaster.checkQuests`: a noble may always add a subclass; anyone
+/// else needs Fate's Whisper (Q234) and Mimir's Elixir (Q235) both COMPLETED.
+/// Skipped wholesale when `AltSubClassWithoutQuests` is on (this dist).
+fn add_quests_ok(world: &World, player_oid: i32) -> bool {
+    if world.cfg.character.alt_sub_class_without_quests {
+        return true;
+    }
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+        return false;
+    };
+    if p.is_noble {
+        return true;
+    }
+    let completed = |name: &str| {
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&player_oid)
+            .and_then(|q| q.0.get(name))
+            .is_some_and(|qs| qs.state == crate::model::quest::state::COMPLETED)
+    };
+    completed("Q00234_FatesWhisper") && completed("Q00235_MimirsElixir")
+}
+
+/// `Player.modifySubClass` + `VillageMaster` case 7: wipe the slot — its
+/// subclass row, banked skills, hennas and shortcuts, in memory and in the DB
+/// — then add the new class into the freed index and switch to it. Returns
+/// `false` (after reverting to the base class, as Java does) when the
+/// replacement could not be added; **the old subclass is gone either way**,
+/// which is Java's own documented behaviour ("the information about this
+/// subclass will be removed from the subclass list even if false!").
+pub(crate) fn modify_subclass(
+    world: &mut World,
+    player_oid: i32,
+    class_index: i32,
+    new_class_id: i32,
+) -> bool {
+    let Some(old_class_id) = world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .and_then(|p| {
+            p.subclasses
+                .iter()
+                .find(|s| s.class_index == class_index)
+                .map(|s| s.class_id)
+        })
+    else {
+        return false;
+    };
+    // Modifying the slot you stand on: step back to base first (Java relies
+    // on the post-wipe `setActiveClass` for this; the port keeps the active
+    // state coherent throughout instead).
+    if world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .is_some_and(|p| p.class_index == class_index)
+        && !set_active_class(world, player_oid, 0)
+    {
+        return false;
+    }
+    // Java case 7 stops every effect of the old class before the switch.
+    super::olympiad::strip_buffs(world, player_oid);
+
+    // The wipe: memory first, then the DB rows.
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
+        p.subclasses.retain(|s| s.class_index != class_index);
+        p.skills_by_index.remove(&class_index);
+        p.hennas_by_index.remove(&class_index);
+        p.shortcuts_by_index.remove(&class_index);
+    }
+    let _ = world.db.send(crate::db::DbCommand::WipeSubclassSlot {
+        char_id: player_oid,
+        class_index,
+        old_class_id,
+    });
+
+    // The replacement lands in the freed index (`add_subclass` picks the
+    // lowest free slot). Failure reverts to base, per Java.
+    match add_subclass(world, player_oid, new_class_id) {
+        Ok(index) => set_active_class(world, player_oid, index),
+        Err(_) => {
+            set_active_class(world, player_oid, 0);
+            false
+        }
+    }
+}
+
 /// `VillageMaster.onBypassFeedback`'s `Subclass <cmd> [arg]` verb.
 ///
 /// Ported cases: **0** the menu, **1** the add list, **2** the change list,
-/// **4** add-action, **5** change-action. Java's 3/6/7 (cancel/change an
-/// existing subclass, which *replaces* a slot) belong to the module header's
-/// remaining deferral bundle — they need the same slot-wipe Java does and
-/// have no caller until the UI offers them.
+/// **3** the modify list, **4** add-action, **5** change-action, **6** the
+/// modify choice list, **7** modify-action (the slot wipe + replace).
 ///
 /// The HTML is built inline rather than from `data/html/villagemaster/*.htm`
 /// because those files carry `%list%` placeholders the port's html cache
@@ -459,6 +549,16 @@ pub(crate) fn handle_village_master_bypass(
             // reach it. Java guards cases 4, 5 and 7 (7 is unported here).
             if !subclass_flood_ok(world, client_id, player_oid) {
                 return;
+            }
+            // Java `checkQuests` (noble, or Q234 + Q235 completed) — inert on
+            // this dist (`AltSubClassWithoutQuests = True`) but ported.
+            if !add_quests_ok(world, player_oid) {
+                return html(
+                    world,
+                    client_id,
+                    npc_oid,
+                    "You must complete Fate's Whisper and Mimir's Elixir first.",
+                );
             }
             // Java gates the *action* on level 75 and a free slot, not just
             // the list — a stale link must not slip past.
@@ -510,8 +610,101 @@ pub(crate) fn handle_village_master_bypass(
                 );
             }
         }
+        3 => show_modify_list(world, client_id, player_oid, npc_oid),
+        6 => {
+            // Validity per Java: the slot number must be a real held slot and
+            // there must be classes to change to.
+            if param < 1 || param > world.cfg.character.max_subclass {
+                return;
+            }
+            show_modify_choice(world, client_id, player_oid, npc_oid, param);
+        }
+        7 => {
+            if !subclass_flood_ok(world, client_id, player_oid) {
+                return;
+            }
+            let new_class: i32 = it.next().and_then(|s| s.parse().ok()).unwrap_or(0);
+            if !available_subclasses(world, player_oid).contains(&new_class) {
+                return;
+            }
+            if modify_subclass(world, player_oid, param, new_class) {
+                html(world, client_id, npc_oid, "Your subclass has been changed.");
+            } else {
+                html(
+                    world,
+                    client_id,
+                    npc_oid,
+                    "The sub class could not be added, you have been reverted to your base class.",
+                );
+            }
+        }
         _ => show_menu(world, client_id, npc_oid),
     }
+}
+
+/// Case 3 (`SubClass_Modify.htm`): the held slots, each linking to case 6.
+fn show_modify_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32) {
+    let slots: Vec<(i32, i32)> = world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .map(|p| {
+            p.subclasses
+                .iter()
+                .map(|s| (s.class_index, s.class_id))
+                .collect()
+        })
+        .unwrap_or_default();
+    if slots.is_empty() {
+        return html(
+            world,
+            client_id,
+            npc_oid,
+            "You have no subclasses to change.",
+        );
+    }
+    let mut body = String::from("Which subclass would you like to change?<br>");
+    for (index, class_id) in slots {
+        body.push_str(&format!(
+            "<a action=\"bypass -h npc_{npc_oid}_Subclass 6 {index}\">Sub-class {index}: Class {class_id}</a><br>"
+        ));
+    }
+    body.push_str(&back_link(npc_oid));
+    html(world, client_id, npc_oid, &body);
+}
+
+/// Case 6 (`SubClass_ModifyChoiceN.htm`): the classes the freed slot could
+/// hold, each linking to case 7.
+fn show_modify_choice(
+    world: &World,
+    client_id: u32,
+    player_oid: i32,
+    npc_oid: i32,
+    class_index: i32,
+) {
+    let holds = world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .is_some_and(|p| p.subclasses.iter().any(|s| s.class_index == class_index));
+    if !holds {
+        return html(world, client_id, npc_oid, "You do not hold that subclass.");
+    }
+    let avail = available_subclasses(world, player_oid);
+    if avail.is_empty() {
+        return html(
+            world,
+            client_id,
+            npc_oid,
+            "There are no sub classes available at this time.",
+        );
+    }
+    let mut body = format!("Change sub-class {class_index} to:<br>");
+    for class_id in avail {
+        body.push_str(&format!(
+            "<a action=\"bypass -h npc_{npc_oid}_Subclass 7 {class_index} {class_id}\">Class {class_id}</a><br>"
+        ));
+    }
+    body.push_str(&back_link(npc_oid));
+    html(world, client_id, npc_oid, &body);
 }
 
 fn html(world: &World, client_id: u32, npc_oid: i32, body: &str) {

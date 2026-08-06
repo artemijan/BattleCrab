@@ -694,3 +694,51 @@ fn ex_subjob_info_lists_the_base_class_and_subclasses() {
         "a character with no subclasses still reports its base class"
     );
 }
+
+/// `modifySubClass` (village-master cases 3/6/7): the slot is wiped — its
+/// banked skills/hennas/shortcuts included, plus the DB rows — the new class
+/// lands in the freed index, and the player is switched onto it. Java's
+/// documented sharp edge holds: the old subclass is gone even when the
+/// replacement fails, and the player reverts to base.
+#[test]
+fn modify_subclass_wipes_the_slot_and_replaces_it() {
+    use crate::game_loop::subclass::modify_subclass;
+    let (mut world, mut db_rx, _l) = sub_world();
+    let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
+    add_subclass(&mut world, PLAYER, 3).unwrap();
+    // Bank something under index 1 so the wipe is observable.
+    {
+        let p = world.objects.get_component_mut::<Player>(&PLAYER).unwrap();
+        p.hennas_by_index.insert(1, vec![(1, 42)]);
+        p.skills_by_index.insert(1, vec![(56, 1, 0)]);
+    }
+    drain_db(&mut db_rx);
+
+    assert!(modify_subclass(&mut world, PLAYER, 1, 4), "replaced");
+    let pl = p(&world);
+    assert_eq!(pl.subclasses.len(), 1, "still one slot");
+    assert_eq!(pl.subclasses[0].class_id, 4, "the new class holds it");
+    assert_eq!(pl.subclasses[0].class_index, 1, "in the freed index");
+    assert_eq!(pl.class_index, 1, "and the player switched onto it");
+    assert!(
+        !pl.hennas_by_index.contains_key(&1) || pl.hennas_by_index[&1].is_empty(),
+        "the old slot's banked hennas are gone"
+    );
+    assert!(
+        pl.skills_by_index.get(&1).is_none_or(|v| v.is_empty()),
+        "…and its banked skills"
+    );
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(
+            c,
+            crate::db::DbCommand::WipeSubclassSlot { class_index: 1, .. }
+        )),
+        "the slot's DB rows are wiped"
+    );
+
+    // Replacing with an unknown class still costs the slot (Java's warning).
+    assert!(!modify_subclass(&mut world, PLAYER, 1, 9999), "refused");
+    let pl = p(&world);
+    assert!(pl.subclasses.is_empty(), "the slot is gone even on failure");
+    assert_eq!(pl.class_index, 0, "reverted to the base class");
+}
