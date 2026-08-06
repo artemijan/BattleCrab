@@ -1650,6 +1650,7 @@ pub(crate) fn build_skill(
             mp_initial_consume: get_i("mpInitialConsume", 0),
             hp_consume: get_i("hpConsume", 0),
             without_action: value_at(values, "withoutAction", level) == Some("true"),
+            is_suicide_attack: value_at(values, "isSuicideAttack", level) == Some("true"),
             item_consume_id: get_i("itemConsumeId", 0),
             item_consume_count: get_i("itemConsumeCount", 0),
             abnormal_time: get_i("abnormalTime", 0),

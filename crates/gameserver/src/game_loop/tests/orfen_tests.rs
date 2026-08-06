@@ -309,3 +309,44 @@ fn the_leash_resets_a_dragged_orfen() {
     crate::game_loop::orfen::handle_distance_check(&mut world, ORFEN_OID);
     assert!(!has_hate(&world, ORFEN_OID), "dragged too far, she resets");
 }
+
+/// `OnAttackableFactionCall`'s Orfen listener, Riba Iren arm: a faction call
+/// about a half-dead Orfen has a 9-in-10 chance of an immediate Orfen Heal at
+/// her; a healthy caller is ignored, and the roll can miss.
+#[test]
+fn riba_faction_call_heals_half_dead_orfen() {
+    use crate::model::components::{Casting, Vitals};
+
+    let (mut world, _db, _l) = orfen_world();
+    add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
+    let riba = ORFEN_OID + 1;
+    add_test_npc(&mut world, riba, RIBA_IREN, "Monster", 50, 30, 0, 0);
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 200, 0);
+
+    // Healthy Orfen: nothing, no roll consumed.
+    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    assert!(!world.objects.has_component::<Casting>(&riba));
+
+    // Half-dead Orfen, roll 9 (>= chance 9): the 1-in-10 miss.
+    {
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&ORFEN_OID)
+            .unwrap();
+        v.cur_hp = v.max_hp as f64 * 0.3;
+    }
+    world.forced_rolls.push_back(9);
+    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    assert!(
+        !world.objects.has_component::<Casting>(&riba),
+        "roll 9 misses the 9-in-10 chance"
+    );
+
+    // Roll 0: the heal fires.
+    world.forced_rolls.push_back(0);
+    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    assert!(
+        world.objects.has_component::<Casting>(&riba),
+        "the recruited Riba Iren heals the half-dead Orfen"
+    );
+}

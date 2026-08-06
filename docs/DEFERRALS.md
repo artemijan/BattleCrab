@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **69** such
+of narrow behaviours deferred and marked at the site. There are **62** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G21)` | 7 | `data/npc_ai_skills.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
 | `TODO(G30)` | 6 | `config/community_board.rs`, `game_loop/community_board.rs`, `network/client_packets.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
@@ -118,6 +117,10 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G21)` ×7 — the whole group | The suicide bucket wired end to end, the faction-call script event's two listeners dispatched, and three stale-claim rewrites. |
+| 2026-08-06 | `TODO(G21)` ×1 (`npc_ai_skills.rs`, isSuicideAttack) | **False absence claim.** "No skill in this dist declares it" — 18 do, with reachable NPC carriers (Four Sepulchers' Hall Keeper Suicidal Soldier 18333, Flame of the Branded 18299, …). The flag now parses into `Skill.is_suicide_attack`, classifies exclusively into the SUICIDE bucket (Java's ladder), and `try_cast` detonates below 30 % HP with its own `hasSkillChance()` roll, before the moving/mage gate — Java's placement. |
+| 2026-08-06 | `TODO(G21)` ×2 (`npc_ai.rs`, faction-call events) | **Closed.** `EVT_AGGRESSION`'s Summon leg never applies (a faction recruit is always an `Attackable`), and the `OnAttackableFactionCall` script event has exactly two listeners on this dist — Queen Ant (`addFactionCallId(NURSE)`) and Orfen (`registerMobs`). `on_faction_call_script` dispatches them from both faction-call sites: the nurse's opportunistic Recovery at a hurt caller, Raikel Leos' 1-in-20 Blow at the attacker, Riba Iren's 9-in-10 (Orfen) / 1-in-10 heal at a half-dead caller. |
+| 2026-08-06 | `TODO(G21)` ×3 (`npc_cast.rs` header + Other-targets + heal deviation) | **Stale prose.** The header still claimed heal/buff "resolve to the caster itself" (faction-scoped reconsideration had landed one screen below) and "no resurrect effect is ported" (one is; re-verified: 52 resurrection skills, zero in any NPC `<skillList>`). The `Other` target pass-through turned out load-bearing — `OWNER_PET` backs the tamed-beast buffs with the tamer passed explicitly — and is now documented per handler. The heal-scoping deviation keeps its revisit note without a marker: no work is missing there. |
 | 2026-08-06 | `TODO(G24)` ×7 — the whole group | Castle crests modelled end to end, the mercenary-ticket pickup refusal, and the door-swing hit-time delay. |
 | 2026-08-06 | `TODO(G24)` ×4 (crests: `siege.rs`, `admin/castle.rs` ×2 + header) | **Closed.** The display is inert on this dist (both gate halves ship false and Java never sets `showNpcCrest` true), but per the config-disabled-still-port rule the chain now exists: `spawn_npc_entity` records the tax-zone castle owner (`Npc.onSpawn`'s `setClanId` gate), `NpcInfo` grew its CLAN component (`visibility::npc_clan_block` — non-monster + peace zone, resolved positionally since NPCs never carry `ZoneFlags`), `Castle.show_npc_crest` loads from the DB column that already existed, `ShowCrestWithoutQuest` is parsed, and every ownership change resets the flag like `Castle.setOwner`. |
 | 2026-08-06 | `TODO(G24)` ×1 (`target.rs`, mercenary tickets) | **Closed.** The hiring system stays unported, but the refusal doesn't need it: `data/residences/castles/*.xml` `<siegeGuards>` now loads as an itemId → castle table, and `ItemAction`'s gate refuses a ticket lying in a castle's siege zone (SM 654) to anyone but an owning-clan `CS_MERCENARIES` holder. Reachable because the mercenary manager's buylists sell tickets a player can drop. No siege-active check, as in Java. |

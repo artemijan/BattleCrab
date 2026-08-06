@@ -20,10 +20,11 @@
 //! `thinkAttack` is now walked end to end, in Java's order: the anti-stacking
 //! shuffle, the `AIType.ARCHER` kite and its flat 850 bow range, the
 //! raid/minion target-chaos block, and the `checkTarget` → `targetReconsider`
-//! tail. The remaining narrowing is that faction calls and minion assists seed
-//! hate directly instead of firing Java's `EVT_AGGRESSION` script event
-//! (`TODO(G21)` at those sites) — they do, however, run the `setRunning()` that
-//! event carries, without which a recruited mob walks to the fight.
+//! tail. Faction calls seed hate directly (Java's `EVT_AGGRESSION`, whose
+//! `Summon` leg never applies to an `Attackable` recruit), run the
+//! `setRunning()` that event carries, and dispatch the
+//! `OnAttackableFactionCall` script event's two listeners on this dist —
+//! Queen Ant's nurses and Orfen's minions — via `on_faction_call_script`.
 
 use std::collections::HashSet;
 
@@ -1959,9 +1960,10 @@ fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
 /// This runs from the think tick, so it never fires for a mob that dies before
 /// its first think — [`faction_call_on_kill`] is the site that covers that.
 ///
-/// `TODO(G21)`: Java fires `EVT_AGGRESSION` (a `Summon`-aware event) and an
-/// `OnAttackableFactionCall` script hook; the port seeds hate directly and has
-/// no script listeners yet.
+/// Java routes the recruit through `EVT_AGGRESSION` (whose `Summon`-aware leg
+/// never applies — a faction recruit is always an `Attackable`) and fires the
+/// `OnAttackableFactionCall` script event; the port seeds hate directly and
+/// dispatches the event's two listeners via [`on_faction_call_script`].
 fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
     let Some((npc_id, help_range, collision)) = world
         .objects
@@ -2030,6 +2032,8 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
         // full hate. Either way the recruit switches to the attack loop.
         let added = if target_is_player { 1.0 } else { hate };
         recruit_to_attack(world, other, target_oid, added);
+        let attacker = super::pvp::acting_player(world, target_oid);
+        on_faction_call_script(world, other, npc_oid, attacker);
     }
 }
 
@@ -2048,8 +2052,9 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
 /// the bare `clanHelpRange` (no collision radius added), and
 /// `ignoreClanNpcIds` is *not* consulted.
 ///
-/// `TODO(G21)`: as with [`faction_call`], Java fires `EVT_AGGRESSION` plus an
-/// `OnAttackableFactionCall` script hook; the port seeds hate directly.
+/// As with [`faction_call`], the recruit is seeded directly (Java's
+/// `EVT_AGGRESSION`) and the script event's listeners run via
+/// [`on_faction_call_script`].
 pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // `killer.isPlayable()` — a player or a summon, not another NPC.
     let killer_is_playable = world
@@ -2097,6 +2102,8 @@ pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: 
     // object (a summon aggroes the pack on itself, exactly as in Java).
     for other in faction_recruits(world, npc_oid, help_range as f64, killer_pos.z, false) {
         recruit_to_attack(world, other, killer_oid, 1.0);
+        let attacker = super::pvp::acting_player(world, killer_oid);
+        on_faction_call_script(world, other, npc_oid, attacker);
     }
 }
 
@@ -2194,6 +2201,90 @@ fn faction_recruits(
         recruits.push(other);
     }
     recruits
+}
+
+/// The port's `OnAttackableFactionCall`. Java fires the script event at each
+/// recruit from exactly its two faction-call sites (`AttackableAI.thinkAttack`
+/// and `Creature.doDie`); on this dist only two scripts listen — Queen Ant
+/// (`addFactionCallId(NURSE)`) and Orfen (`registerMobs`) — so the dispatch is
+/// a direct match on the recruit's npc id rather than a listener registry.
+/// Every listener starts by bailing while the recruit is mid-cast.
+fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, attacker_oid: i32) {
+    /// Queen Ant's healer minion; heals the hurt caller with Recovery (4020,1).
+    const NURSE: i32 = 29003;
+    /// Orfen's melee minion; 1-in-20 to open with Blow (4067,4) on the attacker.
+    const RAIKEL_LEOS: i32 = 29016;
+    /// Orfen Heal (4516,1) at a half-dead caller: 9-in-10 for Orfen herself,
+    /// 1-in-10 for anyone else (never for a fellow Riba Iren).
+    const ORFEN_HEAL: (i32, i32) = (4516, 1);
+    const QA_HEAL: (i32, i32) = (4020, 1);
+    const BLOW: (i32, i32) = (4067, 4);
+
+    let recruit_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&recruit_oid)
+        .map(|n| n.npc_id);
+    let riba = crate::game_loop::orfen::RIBA_IREN;
+    let Some(recruit_id) = recruit_id else { return };
+    if !(recruit_id == NURSE || recruit_id == RAIKEL_LEOS || recruit_id == riba) {
+        return;
+    }
+    if world.objects.has_component::<Casting>(&recruit_oid) {
+        return;
+    }
+    let caller_hp = world
+        .objects
+        .get_component::<Vitals>(&caller_oid)
+        .map(|v| (v.cur_hp, v.max_hp as f64));
+    let cast = |world: &mut World, target: i32, (id, lvl): (i32, i32)| {
+        if let Some(skill) = world.data.skill_data.get(id, lvl).cloned()
+            && crate::game_loop::npc_cast::check_use_conditions_pub(world, recruit_oid, &skill)
+        {
+            crate::game_loop::npc_cast::start_cast(world, recruit_oid, target, &skill);
+        }
+    };
+    match recruit_id {
+        NURSE => {
+            // `caller.getCurrentHp() < caller.getMaxHp()` — any wound at all.
+            if caller_hp.is_some_and(|(cur, max)| cur < max) {
+                cast(world, caller_oid, QA_HEAL);
+            }
+        }
+        RAIKEL_LEOS => {
+            if world.roll(20) == 0 {
+                cast(world, attacker_oid, BLOW);
+            }
+        }
+        id if id == riba => {
+            let caller_id = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&caller_oid)
+                .map(|n| n.npc_id);
+            let chance = if caller_id == Some(crate::game_loop::orfen::ORFEN) {
+                9
+            } else {
+                1
+            };
+            if caller_id != Some(riba)
+                && caller_hp.is_some_and(|(cur, max)| cur < max / 2.0)
+                && world.roll(10) < chance
+            {
+                cast(world, caller_oid, ORFEN_HEAL);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Test hook.
+#[cfg(test)]
+pub(crate) fn on_faction_call_script_for_test(
+    world: &mut World,
+    recruit_oid: i32,
+    caller_oid: i32,
+    attacker_oid: i32,
+) {
+    on_faction_call_script(world, recruit_oid, caller_oid, attacker_oid);
 }
 
 /// A faction-mate answering a call: seed hate on the target and switch it into

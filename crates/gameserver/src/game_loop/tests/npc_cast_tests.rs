@@ -909,3 +909,68 @@ fn a_mob_measures_its_cast_range_in_3d() {
         "same 400 units on the map, but 806 in 3D — out of cast range"
     );
 }
+
+/// The SUICIDE bucket (`isSuicideAttack`): exclusive in the classify ladder,
+/// and cast only below 30 % HP — a healthy bomber never detonates, a wounded
+/// one opens with it before the ordinary ladder.
+#[test]
+fn suicide_skill_detonates_only_below_thirty_percent() {
+    let mut bomb = npc_skill(
+        8410,
+        "Self-destruction",
+        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+    );
+    bomb.is_suicide_attack = true;
+    let (mut world, _db, _l) = mob_world(&[bomb]);
+    assert_eq!(
+        world
+            .data
+            .npc_ai_skills
+            .get(MAGE_NPC)
+            .unwrap()
+            .get(AiSkillScope::Suicide),
+        &[(8410, 1)],
+        "a suicide skill lands in the SUICIDE bucket…"
+    );
+    assert!(
+        world
+            .data
+            .npc_ai_skills
+            .get(MAGE_NPC)
+            .unwrap()
+            .get(AiSkillScope::Attack)
+            .is_empty(),
+        "…and nowhere else (Java's ladder is exclusive)"
+    );
+
+    // Pin `hasSkillChance()` (default 7-15 %) so the assertions aren't
+    // probabilistic — Java rolls it for the suicide block too.
+    {
+        let mut t = world.data.npc_data.get(MAGE_NPC).unwrap().clone();
+        t.min_skill_chance = 100;
+        t.max_skill_chance = 100;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 60, 0);
+    let npc = engage(&mut world);
+
+    // Full HP: the suicide block is skipped (and the mob has nothing else to
+    // cast, so no cast starts at all).
+    assert!(!crate::game_loop::npc_cast::try_cast(
+        &mut world, npc, PLAYER
+    ));
+    assert!(!world.objects.has_component::<Casting>(&npc));
+
+    // Below 30 %: it detonates.
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&npc).unwrap();
+        v.cur_hp = v.max_hp as f64 * 0.2;
+    }
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, npc, PLAYER
+    ));
+    assert!(
+        world.objects.has_component::<Casting>(&npc),
+        "the bomber opened with its suicide skill"
+    );
+}

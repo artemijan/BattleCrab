@@ -8,14 +8,14 @@
 //! immobilize a fleeing target, mute a casting one, then short/long range, then
 //! anything — casting the first skill that passes its conditions.
 //!
-//! **Deliberate narrowings** (each a `TODO(G21)` at the site):
-//! - `skillTargetReconsider` — Java re-picks the heal/buff target across the
-//!   caster's whole faction (and re-picks *any* target when the current one is
-//!   unreachable). With no faction/clan-help plumbing yet, heal and buff
-//!   resolve to the caster itself, which is what a solo mob would pick anyway.
-//! - `AIType.ARCHER`'s kite move and the raid target-chaos shuffle.
-//! - `SUICIDE`/`RES`/`NEGATIVE` buckets are filled but unused (no skill in this
-//!   dist declares `isSuicideAttack`, and no resurrect effect is ported).
+//! What once sat here as narrowings has closed: `skillTargetReconsider`
+//! re-picks heal/buff targets across the caster's faction
+//! ([`skill_target_reconsider`], with one argued deviation at its doc), the
+//! `ARCHER` kite and raid target-chaos live in `npc_ai`, and the `SUICIDE`
+//! bucket is wired (`isSuicideAttack` parses; bombers detonate below 30 %
+//! HP). Still inert by data, not by gap: `RES` — a Resurrection effect *is*
+//! ported, but no NPC on this dist carries a resurrect skill in its
+//! `<skillList>`.
 
 use commons::util::rnd;
 
@@ -59,6 +59,23 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
         template.max_skill_chance,
     );
 
+    let Some(ai_skills) = world.data.npc_ai_skills.get(npc_id).cloned() else {
+        return false;
+    };
+
+    // The SUICIDE block runs *before* the moving/mage gate (Java places it
+    // right after `isCoreAIDisabled`, with its own `hasSkillChance()` roll):
+    // below 30 % HP a bomber detonates on whoever it is fighting.
+    if !ai_skills.get(AiSkillScope::Suicide).is_empty()
+        && (hp_percent(world, npc_oid) as i32) < 30
+        && has_skill_chance(min_chance, max_chance)
+        && let Some(skill) = pick(world, &ai_skills, AiSkillScope::Suicide, npc_oid)
+        && check_skill_target(world, npc_oid, target_oid, &skill)
+        && cast_at(world, npc_oid, target_oid, &skill)
+    {
+        return true;
+    }
+
     // `(!npc.isMoving() && npc.hasSkillChance()) || (npc.getAiType() == AIType.MAGE)`
     // — a mage casts on every think, regardless of movement or the roll. 402
     // NPCs on this dist are MAGE.
@@ -69,10 +86,6 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     if !mage && (moving || !has_skill_chance(min_chance, max_chance)) {
         return false;
     }
-
-    let Some(ai_skills) = world.data.npc_ai_skills.get(npc_id).cloned() else {
-        return false;
-    };
 
     // --- Java's priority ladder, in order. ---
 
@@ -432,12 +445,16 @@ pub(crate) fn resolve_npc_cast_target(
             }
             selected_oid
         }
-        // TODO(G21): the handlers this port collapses into `Other`
-        // (`OTHERS`, `OWNER_PET`, `ARTILLERY`, `WYVERN_TARGET`,
-        // `ADVANCE_BASE`, …). Each has its own script; none is reachable from
-        // the wild-monster AI on this dist, and passing the selected target
-        // through keeps their current behaviour rather than silently
-        // disabling them.
+        // The handlers this port collapses into `Other` (`OTHERS`,
+        // `OWNER_PET`, `ARTILLERY`, `WYVERN_TARGET`, `ADVANCE_BASE`, …):
+        // passing the selected target through matches each reachable carrier.
+        // `OWNER_PET` (the tamed-beast buffs 5186-5201) is cast with the
+        // tamer already selected (`tamed_beast::handle_buff_check`), which is
+        // what Java's handler resolves to; `OTHERS` ("not self") can only
+        // receive an aggro target here, never the caster; and the
+        // siege-machine types (`ARTILLERY`, `WYVERN_TARGET`) have no AI
+        // route on this dist — their casts come from scripts that pick the
+        // target explicitly.
         TargetType::Other => selected_oid,
     };
 
@@ -744,7 +761,7 @@ fn has_abnormal_at_least(world: &World, oid: i32, abnormal_type: &str, level: i3
 /// almost certainly unintended and would read as a port bug in-game, so the
 /// candidate set here is scoped to the caster's faction (`shares_clan_with`)
 /// plus itself. The scoping makes the AI do *less* than Java, never more.
-/// TODO(G21): revisit if a capture ever shows retail mobs healing players.
+/// Revisit only if a retail capture ever shows mobs healing players.
 fn skill_target_reconsider(
     world: &World,
     npc_oid: i32,

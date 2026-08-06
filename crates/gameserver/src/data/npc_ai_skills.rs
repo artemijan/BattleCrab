@@ -114,10 +114,13 @@ impl NpcAiSkillIndex {
 fn classify(skill: &crate::model::skill::Skill) -> Vec<AiSkillScope> {
     use AiSkillScope as S;
 
-    // `isSuicideAttack` is a skill flag Java reads from the datapack; no skill
-    // in this dist declares it (self-destruct mobs are script-driven here), so
-    // the branch is ported for shape and never taken. TODO(G21): wire the flag
-    // through `SkillData` if a later dist adds it.
+    // `isSuicideAttack` is exclusive in Java's ladder: a suicide skill lands
+    // in the SUICIDE bucket and nowhere else (18 dist skills carry the flag;
+    // reachable carriers include Four Sepulchers' Hall Keeper Suicidal
+    // Soldier 18333 and Flame of the Branded 18299).
+    if skill.is_suicide_attack {
+        return vec![S::Suicide];
+    }
     let mut scopes = vec![S::General];
 
     // <=150 is Java's literal cut between the short- and long-range buckets.

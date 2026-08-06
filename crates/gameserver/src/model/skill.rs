@@ -2089,6 +2089,9 @@ pub struct Skill {
     /// dist set it, none in the Interlude ranges, but the flag is half of
     /// Java's instant/cast decision so it is parsed rather than assumed.
     pub without_action: bool,
+    /// Java `isSuicideAttack` — its only consumer is `NpcData.parse`, which
+    /// routes the skill into the AI's SUICIDE bucket (cast below 30 % HP).
+    pub is_suicide_attack: bool,
     /// `<itemConsumeId>`/`<itemConsumeCount>` (Java `Skill.getItemConsumeId`
     /// / `getItemConsumeCount`, 0 = none) — the "reagent" the skill spends.
     /// Read by `ItemSkillsTemplate.checkConsume` to decide whether the item
@@ -2467,6 +2470,7 @@ impl Default for Skill {
             mp_initial_consume: 0,
             hp_consume: 0,
             without_action: false,
+            is_suicide_attack: false,
             item_consume_id: 0,
             item_consume_count: 0,
             abnormal_time: 0,

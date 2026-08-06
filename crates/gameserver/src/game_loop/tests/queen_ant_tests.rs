@@ -343,3 +343,34 @@ fn the_heal_beat_stops_when_the_queen_dies() {
     crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
     assert_eq!(world.scheduler.len(), before, "nothing rescheduled");
 }
+
+/// `OnAttackableFactionCall`'s Queen Ant listener: a nurse recruited by a
+/// faction call heals the hurt caller at once (Recovery 4020) and ignores a
+/// caller at full health — the opportunistic heal on top of the periodic
+/// rotation.
+#[test]
+fn nurse_faction_call_heals_the_hurt_caller() {
+    use crate::model::components::Casting;
+
+    let (mut world, _db, _l) = queen_world();
+    let queen = NPC_OID;
+    add_test_npc(&mut world, queen, QUEEN, "GrandBoss", 40, 0, 0, 0);
+    let nurse = NPC_OID + 1;
+    spawn_nurse(&mut world, nurse, queen);
+    let _rx = ingame_caster(&mut world, 1, 3001, 200, 0);
+
+    // Caller at full HP: the listener does nothing.
+    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
+    assert!(
+        !world.objects.has_component::<Casting>(&nurse),
+        "a healthy caller gets no heal"
+    );
+
+    // Wound the queen: the recruited nurse opens with Recovery.
+    wound_to_half(&mut world, queen);
+    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
+    assert!(
+        world.objects.has_component::<Casting>(&nurse),
+        "the faction-called nurse heals the hurt queen"
+    );
+}
