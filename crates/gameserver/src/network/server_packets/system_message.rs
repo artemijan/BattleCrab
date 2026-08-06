@@ -129,6 +129,8 @@ pub mod sm_ids {
     // easy to swap by counting up from 1816, which is what a first pass here
     // did (the drop announce rendered as "…'s owner has logged into…").
     pub const YOU_HAVE_EQUIPPED_YOUR_S1: i16 = 49;
+    /// `Equipped +$s1 $s2.` — the staged craft's per-grab line.
+    pub const EQUIPPED_S1_S2: i16 = 368;
     // Shadow-item mana countdown (`Item.decreaseMana`) — the warnings a worn
     // shadow weapon prints as its charge runs out, then its farewell.
     /// `$s1's remaining Mana is now 10.`

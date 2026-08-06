@@ -2,8 +2,8 @@
 //! recipes from `dist/game/data/Recipes.xml`. The runtime flow (recipe book,
 //! self-craft, manufacture stores) lives in `game_loop/crafting.rs`.
 //!
-//! `AltGameCreation = False` on this dist, so `altStatChange` (XP/SP/GIM) is
-//! dead — only `statUse` HP/MP is kept. The Java `production`-block
+//! `altStatChange` (XP/SP/GIM) feeds the `AltGameCreation` staged craft —
+//! inert while the config ships `False`, parsed for when it doesn't. The Java `production`-block
 //! max-equipable-grade filter (`MAX_EQUIPABLE_ITEM_GRADE`) is a no-op here
 //! (`MaxEquipableItemGrade = S`, the top grade), so every recipe loads.
 
@@ -46,6 +46,11 @@ pub struct RecipeList {
     pub mp_use: i32,
     /// `statUse` HP cost on the crafter (0 if none).
     pub hp_use: i32,
+    /// `altStatChange` XP/SP overrides and the grab-per-pass multiplier (GIM)
+    /// — the `AltGameCreation` staged craft's knobs (`None`/1 when absent).
+    pub alt_exp: Option<i64>,
+    pub alt_sp: Option<i64>,
+    pub alt_gim: i32,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -144,6 +149,9 @@ impl RecipeData {
                                 ingredients: Vec::new(),
                                 mp_use: 0,
                                 hp_use: 0,
+                                alt_exp: None,
+                                alt_sp: None,
+                                alt_gim: 1,
                             });
                         }
                         b"ingredient" => {
@@ -184,7 +192,18 @@ impl RecipeData {
                                 }
                             }
                         }
-                        // altStatChange (XP/SP/GIM) is AltGameCreation-only (False here) — ignored.
+                        b"altStatChange" => {
+                            if let (Some(r), Some(name), Some(value)) =
+                                (cur.as_mut(), attr(b"name"), num(b"value"))
+                            {
+                                match name.as_str() {
+                                    "XP" => r.alt_exp = Some(value),
+                                    "SP" => r.alt_sp = Some(value),
+                                    "GIM" => r.alt_gim = value as i32,
+                                    _ => {}
+                                }
+                            }
+                        }
                         _ => {}
                     }
                 }

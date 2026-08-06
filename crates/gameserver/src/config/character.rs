@@ -154,6 +154,17 @@ pub struct CharacterConfig {
     /// (`productionRare`) output can roll, and the fallback rarity when the
     /// recipe omits its own.
     pub craft_masterwork: bool,
+    /// `AltGameCreation` — the staged multi-pass craft: the create skill
+    /// animates per pass, materials are "equipped" in grabs, and the finish
+    /// awards XP/SP. `False` on this dist (crafts finish inline).
+    pub alt_game_creation: bool,
+    /// `AltGameCreationSpeed` — per-pass delay multiplier (1 here).
+    pub alt_game_creation_speed: f64,
+    /// `AltGameCreationXpRate` / `AltGameCreationSpRate` /
+    /// `AltGameCreationRareXpSpRate` — the staged craft's reward scaling.
+    pub alt_game_creation_xp_rate: f64,
+    pub alt_game_creation_sp_rate: f64,
+    pub alt_game_creation_rare_xpsp_rate: f64,
     pub craft_masterwork_chance: i32,
     /// `AutoLearnSkills`: when true, `Player.rewardSkills` grants every class
     /// skill reachable at the player's level (not just autoGet skills), on
@@ -375,6 +386,11 @@ impl Default for CharacterConfig {
             dwarf_recipe_limit: 100,
             common_recipe_limit: 100,
             craft_masterwork: true,
+            alt_game_creation: false,
+            alt_game_creation_speed: 1.0,
+            alt_game_creation_xp_rate: 1.0,
+            alt_game_creation_sp_rate: 1.0,
+            alt_game_creation_rare_xpsp_rate: 1.0,
             craft_masterwork_chance: 10,
             auto_learn_skills: false,
             auto_learn_skills_without_items: true,
@@ -540,6 +556,13 @@ impl CharacterConfig {
             dwarf_recipe_limit: p.get_int("DwarfRecipeLimit", d.dwarf_recipe_limit),
             common_recipe_limit: p.get_int("CommonRecipeLimit", d.common_recipe_limit),
             craft_masterwork: p.get_bool("CraftMasterwork", d.craft_masterwork),
+            alt_game_creation: p.get_bool("AltGameCreation", d.alt_game_creation),
+            alt_game_creation_speed: f64::from(p.get_float("AltGameCreationSpeed", 1.0)),
+            alt_game_creation_xp_rate: f64::from(p.get_float("AltGameCreationXpRate", 1.0)),
+            alt_game_creation_sp_rate: f64::from(p.get_float("AltGameCreationSpRate", 1.0)),
+            alt_game_creation_rare_xpsp_rate: f64::from(
+                p.get_float("AltGameCreationRareXpSpRate", 1.0),
+            ),
             craft_masterwork_chance: p.get_int("CraftMasterworkChance", d.craft_masterwork_chance),
             auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
             auto_learn_skills_without_items: p.get_bool(
