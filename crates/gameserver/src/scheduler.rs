@@ -768,6 +768,10 @@ pub enum ScheduledTask {
     PunishmentExpire {
         punishment_id: i32,
     },
+    /// Java `CreatureSeeTaskManager`'s 1-second beat (G22): every registered
+    /// NPC scans for creatures entering its sight and fires `onCreatureSee`
+    /// once per newcomer. Re-arms itself; armed once at boot.
+    CreatureSeeSweep,
     /// `Util.handleIllegalPlayerAction`'s 5-second `IllegalPlayerActionTask`
     /// (G35): write the never-dropped audit record and apply the configured
     /// punishment (GM broadcast / kick / kick+ban / jail).

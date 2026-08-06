@@ -210,6 +210,13 @@ pub struct EnchantRequest {
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RegionCell(pub (i32, i32));
 
+/// Java `Creature._seenCreatures` — the fire-once set behind
+/// `addCreatureSeeId`: creature object ids this watcher NPC has already
+/// noticed. Attached lazily by the creature-see sweep; a respawn (fresh
+/// entity) starts blank, like Java.
+#[derive(Component, Debug, Default)]
+pub struct SeenCreatures(pub rustc_hash::FxHashSet<i32>);
+
 /// HP/MP + liveness (Java `CreatureStatus` + `Creature._isDead`). On both
 /// players and NPCs; CP is player-only and lives in [`PlayerVitals`]. `dead`
 /// rides here (not a marker component): every writer flips it in the same
