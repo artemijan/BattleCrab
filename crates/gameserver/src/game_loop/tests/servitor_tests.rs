@@ -3247,9 +3247,15 @@ fn a_summons_blow_cannot_kill_a_duel_opponent() {
     world
         .objects
         .add_components(&foe_player, crate::model::components::DuelRef(1));
+    // The snapshot the end-of-duel restore puts back: both at full.
+    let snap = |world: &World, oid: i32| {
+        let v = world.objects.get_component::<Vitals>(&oid).unwrap();
+        (v.max_hp as f64, v.max_mp as f64, 0.0)
+    };
     world.duels.insert(
         1,
         crate::game_loop::duel::Duel {
+            snapshot: [snap(&world, OWNER), snap(&world, foe_player)],
             id: 1,
             player_a: OWNER,
             player_b: foe_player,

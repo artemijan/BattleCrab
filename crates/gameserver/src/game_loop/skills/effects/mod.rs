@@ -1413,8 +1413,8 @@ pub(crate) fn apply_skill_effects(
             // the *buff* lands (`apply_continuous_effects`), not here — this is
             // the instant pass; `VampiricAttack` rides the ordinary stat
             // pipeline (`stat_modifier_effects`) and is read back by the melee
-            // damage path; `AttackTrait`'s accumulator has no consumer yet
-            // (TODO(G20) on its doc comment).
+            // damage path; `AttackTrait`'s accumulator is read by
+            // `calc_attack_trait_bonus` on every swing and physical skill.
             SkillEffect::DefenceTrait { .. }
             | SkillEffect::VampiricAttack { .. }
             | SkillEffect::AttackTrait { .. } => {}

@@ -313,6 +313,9 @@ fn human_fighter_template() -> crate::data::player_template::PlayerTemplate {
         hp_table,
         mp_table,
         creation_points: vec![(-71338, 258271, -3104)],
+        // Every one of the 89 dist class templates declares 4; the blow
+        // formula reads it bare-handed (`weaponCritical` fallback).
+        base_crit_rate: 4,
         ..Default::default()
     }
 }
@@ -535,6 +538,8 @@ fn cast_test_world() -> (
         hp_table,
         mp_table,
         cp_table,
+        // The dist-universal 4 — the blow formula's bare-hand `weaponCritical`.
+        base_crit_rate: 4,
         ..Default::default()
     };
     let mut data = GameData::for_test();

@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **57** such
+of narrow behaviours deferred and marked at the site. There are **52** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G28)` | 4 | `game_loop/events/tvt.rs` |
 | `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
@@ -117,6 +116,12 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G20)` ×5 — the whole group | Independent dual rolls, the duel snapshot, the blow formula's real weapon crit; one SKIP and one stale reference. |
+| 2026-08-06 | `TODO(G20)` ×1 (`combat/attack.rs`, dual second roll) | **Closed.** The swing is refactored into Java's `generateHit` shape: a dual weapon rolls the whole ladder twice (miss, shield, crit, damage), each hit halved, the soulshot consumed by the first non-missing hit with its boost riding the rest of the swing. The old test pinned the shared-roll deviation ("the two halves are equal") and now pins independence — one crit half, one plain. |
+| 2026-08-06 | `TODO(G20)` ×1 (`duel.rs`, restore snapshot) | **Closed.** The duel stores both sides' HP/MP/CP at creation and restores that exact snapshot at the end, replacing the full heal. The other half of the marker dissolved on inspection: Java's duel-debuff removal list is dead code in this tree — `DuelManager.onBuff` has **no caller** — so nothing is ever registered or stripped there either. |
+| 2026-08-06 | `TODO(G20)` ×1 (`formulas.rs`, blow weapon crit) | **Closed.** "Once weapon stats are exposed" — they were (`ItemStats.bonuses` carries the weapon's raw `rCrit`). `calc_blow_success` now receives Java's `weaponCritical`: the equipped weapon's raw crit stat, falling back to the caster template's `baseCritRate` bare-handed, instead of the finalized-rate ÷10 proxy. |
+| 2026-08-06 | `TODO(G20)` ×1 → `SKIP(census)` (`skill_data/build.rs`, PhysicalSoulAttack souls) | The `1 + souls·0.04` boost has no reachable caster: all 30 carriers are Kamael skills with no tree row and no item grant, and the one NPC carrier (Twin Shot 507) would NPE in Java's own handler. Two stale sentences beside it also fixed — the blow skills it claimed "fall through until calcBlowDamage is ported" parse to `SkillEffect::Blow` over the ported formula. |
+| 2026-08-06 | `TODO(G20)` ×1 (`skills/effects/mod.rs`, AttackTrait) | **Stale reference** — it deferred to "the TODO(G20) on its doc comment", which no longer exists: `AttackTrait`'s accumulator is read by `calc_attack_trait_bonus` on every swing and physical skill. |
 | 2026-08-06 | `TODO(G30)` ×5 of 6 — the community-board group | The deferral list had rotted whole: the merchant actions it claimed needed "no multisell/buy-list system" were already implemented and dispatched two screens below, and the `maintainEnchantment` validation the packet doc deferred existed at `multisell.rs:235`. Real work found and done: `_bbsdelevel` (config-off, ported per the rule: funds → level-1 floor → charge → one-level drop with full top-up), the `_bbsteleport` 3 s skill lock (`SkillsDisabled` + a `SkillsReenable` schedule — the component G28's TvT freeze introduced), and the retail home's favorite counter over the `FavoriteBoard`'s own store. One precise marker remains: the retail forum boards, unreachable under this dist's `CustomCommunityBoard = True`. |
 | 2026-08-06 | `TODO(G21)` ×7 — the whole group | The suicide bucket wired end to end, the faction-call script event's two listeners dispatched, and three stale-claim rewrites. |
 | 2026-08-06 | `TODO(G21)` ×1 (`npc_ai_skills.rs`, isSuicideAttack) | **False absence claim.** "No skill in this dist declares it" — 18 do, with reachable NPC carriers (Four Sepulchers' Hall Keeper Suicidal Soldier 18333, Flame of the Branded 18299, …). The flag now parses into `Skill.is_suicide_attack`, classifies exclusively into the SUICIDE bucket (Java's ladder), and `try_cast` detonates below 30 % HP with its own `hasSkillChance()` roll, before the moving/mage gate — Java's placement. |

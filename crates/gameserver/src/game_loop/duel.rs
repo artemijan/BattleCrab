@@ -46,6 +46,10 @@ pub struct Duel {
     pub ends_at_tick: u64,
     /// 0 none, 1 = A gave up, 2 = B gave up (`_surrenderRequest`).
     pub surrender: u8,
+    /// `PlayerCondition`'s HP/MP/CP snapshot, taken when the duel is created
+    /// (before the countdown) and restored at the end — a duel leaves no mark
+    /// either way. `[a, b]`.
+    pub snapshot: [(f64, f64, f64); 2],
 }
 
 impl Duel {
@@ -260,6 +264,18 @@ pub(crate) fn handle_request_duel_surrender(world: &mut World, client_id: u32) {
 fn start_countdown(world: &mut World, a: i32, b: i32) {
     let id = world.next_duel_id;
     world.next_duel_id += 1;
+    // `new PlayerCondition(player, …)` — the pre-duel vitals, taken at duel
+    // creation.
+    let snap = |oid: i32| {
+        let v = world.objects.get_component::<Vitals>(&oid);
+        let pv = world.objects.get_component::<PlayerVitals>(&oid);
+        (
+            v.map_or(0.0, |v| v.cur_hp),
+            v.map_or(0.0, |v| v.cur_mp),
+            pv.map_or(0.0, |p| p.cur_cp),
+        )
+    };
+    let snapshot = [snap(a), snap(b)];
     world.duels.insert(
         id,
         Duel {
@@ -269,6 +285,7 @@ fn start_countdown(world: &mut World, a: i32, b: i32) {
             countdown: COUNTDOWN_START,
             ends_at_tick: 0,
             surrender: 0,
+            snapshot,
         },
     );
     // Both are "in" the duel from the countdown on, so neither can be
@@ -378,6 +395,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
         return;
     };
     let (a, b) = (duel.player_a, duel.player_b);
+    let snapshot = duel.snapshot;
 
     for oid in [a, b] {
         world.objects.remove_component::<DuelRef>(&oid);
@@ -409,18 +427,20 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
     }
 
     // `restorePlayerConditions`: a duel leaves no mark. The loser was never
-    // actually killed (see `duel_lethal_guard`), so this only has to undo the
-    // wear — Java also restores the pre-duel HP/MP/CP snapshot and strips
-    // debuffs picked up during the fight; this slice heals both sides to the
-    // state a fresh fight expects instead of snapshotting. TODO(G20).
-    for oid in [a, b] {
+    // actually killed (see `duel_lethal_guard`), so this restores the
+    // pre-duel HP/MP/CP snapshot exactly. (Java's `PlayerCondition` also has
+    // a duel-debuff removal list, but its feeder — `DuelManager.onBuff` — has
+    // no caller anywhere in this Java tree, so nothing is ever registered and
+    // nothing is stripped there either.)
+    for (i, oid) in [a, b].into_iter().enumerate() {
+        let (hp, mp, cp) = snapshot[i];
         if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
             v.dead = false;
-            v.cur_hp = v.max_hp as f64;
-            v.cur_mp = v.max_mp as f64;
+            v.cur_hp = hp.min(v.max_hp as f64);
+            v.cur_mp = mp.min(v.max_mp as f64);
         }
         if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&oid) {
-            pv.cur_cp = pv.max_cp as f64;
+            pv.cur_cp = cp.min(pv.max_cp as f64);
         }
         super::party::broadcast_user_info(world, oid);
     }

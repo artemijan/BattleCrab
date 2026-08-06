@@ -95,116 +95,11 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         .data
         .hit_condition_bonus
         .condition_bonus(attacker.z, target.z, position);
-    let miss_roll = world.roll(1000);
-    let miss = formulas::calc_hit_miss(attacker.accuracy, target.evasion, condition, miss_roll);
-    let (crit, damage, ss, shield) = if miss {
-        (false, 0, false, formulas::SHIELD_NONE)
-    } else {
-        // `generateHit`: a charged soulshot is spent on a non-miss and doubles
-        // the swing (`unchargeShot(SOULSHOTS)` → `ss` into `calcAutoAttackDamage`).
-        let ss = if is_npc_oid(attacker_oid) {
-            crate::game_loop::servitor::uncharge_soulshot(world, attacker_oid)
-        } else {
-            world
-                .objects
-                .get_component_mut::<crate::model::Player>(&attacker_oid)
-                .is_some_and(|p| p.uncharge_shot(crate::model::ShotType::Soulshots))
-        };
-        // Shield block (`calcShldUse`): a back attack (attacker outside the 120°
-        // front arc) can't be blocked; melee only until bows land (G20).
-        // Java's `degreeside` is 360 rather than 120 while the defender is
-        // affected by `PHYSICAL_SHIELD_ANGLE_ALL` (Aegis), which makes every
-        // angle a front angle — so the back-attack exemption simply drops.
-        let from_behind = matches!(position, crate::model::movement::Position::Back)
-            && !crate::game_loop::abnormal::shields_from_all_angles(world, target_oid);
-        let shield = formulas::calc_shield_use(
-            target.shield_rate,
-            target.con_bonus,
-            false,
-            from_behind,
-            world.roll(100),
-            world.roll(100),
-        );
-        let crit_roll = world.roll(100);
-        // `DEFENCE_CRITICAL_RATE`/`_ADD` are read off the **defender** — Light
-        // Armor Mastery 233 makes its wearer harder to crit, it does not make
-        // its wearer crit less.
-        let (def_crit_mul, def_crit_add) = defence_crit_rate(world, target_oid);
-        let crit = formulas::calc_auto_attack_crit(
-            attacker.crit_stat,
-            def_crit_mul,
-            def_crit_add,
-            position,
-            crit_rate_position_mul(world, attacker_oid, position),
-            attacker.z,
-            target.z,
-            crit_roll,
-        );
-        let r = attacker.random_dmg;
-        let rand_roll = if r > 0 { world.roll(2 * r + 1) - r } else { 0 };
-        // A normal block adds the shield's defence to pDef; a perfect block
-        // reduces the hit to 1 (Java `SHIELD_DEFENSE_PERFECT_BLOCK`).
-        let eff_pdef = target.p_def
-            + if shield == formulas::SHIELD_SUCCEED {
-                target.shield_def
-            } else {
-                0.0
-            };
-        let dmg = if shield == formulas::SHIELD_PERFECT {
-            1.0
-        } else {
-            // `calcAutoAttackDamage`'s own `damage *= calcAttackTraitBonus(...)`
-            // — the weapon trait plus every group-2 weakness, which is what
-            // makes the Hunter's "Detect … Weakness" line pay off.
-            formulas::calc_auto_attack_damage(
-                attacker.p_atk,
-                formulas::random_damage_multiplier(rand_roll),
-                position,
-                eff_pdef,
-                crit,
-                crit_damage_auto(world, attacker_oid, target_oid, position),
-                ss,
-            ) * crate::game_loop::skills::effects::calc_attack_trait_bonus(world, attacker_oid, target_oid)
-                // `calcAutoAttackDamage`'s own `pvpPveMod`, passed a **null
-                // skill** — so an auto-attack reads the PHYSICAL_ATTACK pair,
-                // never either skill pair.
-                * crate::game_loop::skills::effects::pvp_pve_bonus(world, attacker_oid, target_oid, None)
-        };
-        (crit, dmg as i32, ss, shield)
-    };
-    // Notify a shielding player their block landed (Interlude has only the
-    // "succeeded" message; the perfect block reuses it).
-    if shield != formulas::SHIELD_NONE
-        && let Some(cid) = client_for_player(world, target_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(
-            sm_ids::SHIELD_DEFENSE_SUCCEEDED,
-            &[],
-        ));
-    }
-    // `Hit.getGrade()`: the equipped weapon's crystal-grade ordinal, only when
-    // a soulshot was actually spent.
-    let ss_grade = if ss {
-        world
-            .objects
-            .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
-            .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
-            .and_then(|w| world.data.item_data.get(w))
-            .map(|t| t.crystal_type.level())
-            .unwrap_or(0)
-    } else {
-        0
-    };
-
-    // `generateAttackTargetData` — one swing can carry several hits.
-    //
-    // * A **dual** weapon strikes the main target twice, each at half damage
-    //   (Java's `halfDamage` in `generateHit`).
-    // * A **polearm sweep** adds one simple hit per extra target, gated on
-    //   `ATTACK_COUNT_MAX > 1` (Polearm Mastery 216 sets it to 5). Extra
-    //   targets must be alive, auto-attackable, inside the weapon's attack
-    //   radius, and within its attack angle of the attacker's heading.
+    // `generateAttackTargetData` — one swing can carry several hits, and a
+    // **dual** weapon rolls the whole ladder twice (miss, shield, crit,
+    // damage), each hit at half damage; the soulshot is consumed by the first
+    // non-missing hit and its boost rides the rest of the swing (Java threads
+    // `shotConsumed` through `generateHit`).
     let weapon_id = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
@@ -218,24 +113,127 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             | crate::data::item_data::WeaponType::DualFist
     );
 
+    // Rolled per hit: (miss, crit, damage, ss, shield).
+    let mut rolled: Vec<(bool, bool, i32, bool, u8)> = Vec::new();
+    let mut shot_consumed = false;
+    for _ in 0..if is_dual { 2 } else { 1 } {
+        let miss_roll = world.roll(1000);
+        let miss = formulas::calc_hit_miss(attacker.accuracy, target.evasion, condition, miss_roll);
+        // `generateHit`: a charged soulshot is spent on the first non-miss and
+        // doubles the swing (`unchargeShot(SOULSHOTS)`); a later hit of the
+        // same swing reuses the charge.
+        if !shot_consumed && !miss {
+            shot_consumed = if is_npc_oid(attacker_oid) {
+                crate::game_loop::servitor::uncharge_soulshot(world, attacker_oid)
+            } else {
+                world
+                    .objects
+                    .get_component_mut::<crate::model::Player>(&attacker_oid)
+                    .is_some_and(|p| p.uncharge_shot(crate::model::ShotType::Soulshots))
+            };
+        }
+        let ss = shot_consumed;
+        let (crit, damage, shield) = if miss {
+            (false, 0, formulas::SHIELD_NONE)
+        } else {
+            // Shield block (`calcShldUse`): a back attack (attacker outside the
+            // 120° front arc) can't be blocked; melee only until bows land (G20).
+            // Java's `degreeside` is 360 rather than 120 while the defender is
+            // affected by `PHYSICAL_SHIELD_ANGLE_ALL` (Aegis), which makes every
+            // angle a front angle — so the back-attack exemption simply drops.
+            let from_behind = matches!(position, crate::model::movement::Position::Back)
+                && !crate::game_loop::abnormal::shields_from_all_angles(world, target_oid);
+            let shield = formulas::calc_shield_use(
+                target.shield_rate,
+                target.con_bonus,
+                false,
+                from_behind,
+                world.roll(100),
+                world.roll(100),
+            );
+            let crit_roll = world.roll(100);
+            // `DEFENCE_CRITICAL_RATE`/`_ADD` are read off the **defender** — Light
+            // Armor Mastery 233 makes its wearer harder to crit, it does not make
+            // its wearer crit less.
+            let (def_crit_mul, def_crit_add) = defence_crit_rate(world, target_oid);
+            let crit = formulas::calc_auto_attack_crit(
+                attacker.crit_stat,
+                def_crit_mul,
+                def_crit_add,
+                position,
+                crit_rate_position_mul(world, attacker_oid, position),
+                attacker.z,
+                target.z,
+                crit_roll,
+            );
+            let r = attacker.random_dmg;
+            let rand_roll = if r > 0 { world.roll(2 * r + 1) - r } else { 0 };
+            // A normal block adds the shield's defence to pDef; a perfect block
+            // reduces the hit to 1 (Java `SHIELD_DEFENSE_PERFECT_BLOCK`).
+            let eff_pdef = target.p_def
+                + if shield == formulas::SHIELD_SUCCEED {
+                    target.shield_def
+                } else {
+                    0.0
+                };
+            let dmg = if shield == formulas::SHIELD_PERFECT {
+                1.0
+            } else {
+                // `calcAutoAttackDamage`'s own `damage *= calcAttackTraitBonus(...)`
+                // — the weapon trait plus every group-2 weakness, which is what
+                // makes the Hunter's "Detect … Weakness" line pay off.
+                formulas::calc_auto_attack_damage(
+                    attacker.p_atk,
+                    formulas::random_damage_multiplier(rand_roll),
+                    position,
+                    eff_pdef,
+                    crit,
+                    crit_damage_auto(world, attacker_oid, target_oid, position),
+                    ss,
+                ) * crate::game_loop::skills::effects::calc_attack_trait_bonus(world, attacker_oid, target_oid)
+                    // `calcAutoAttackDamage`'s own `pvpPveMod`, passed a **null
+                    // skill** — so an auto-attack reads the PHYSICAL_ATTACK pair,
+                    // never either skill pair.
+                    * crate::game_loop::skills::effects::pvp_pve_bonus(world, attacker_oid, target_oid, None)
+            };
+            // Java `generateHit`'s `halfDamage` — each dual hit is half a swing.
+            let dmg = if is_dual { dmg / 2.0 } else { dmg };
+            (crit, dmg as i32, shield)
+        };
+        // Notify a shielding player their block landed (Interlude has only the
+        // "succeeded" message; the perfect block reuses it) — per hit, like
+        // Java's `calcShldUse`.
+        if shield != formulas::SHIELD_NONE
+            && let Some(cid) = client_for_player(world, target_oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(
+                sm_ids::SHIELD_DEFENSE_SUCCEEDED,
+                &[],
+            ));
+        }
+        rolled.push((miss, crit, damage, ss, shield));
+    }
+    let (miss, crit, damage, ss, _shield) = rolled[0];
+
+    // `Hit.getGrade()`: the equipped weapon's crystal-grade ordinal, only when
+    // a soulshot was actually spent.
+    let ss_grade = if shot_consumed {
+        world
+            .data
+            .item_data
+            .get(weapon_id)
+            .map(|t| t.crystal_type.level())
+            .unwrap_or(0)
+    } else {
+        0
+    };
+
     let mut hits: Vec<server_packets::AttackHit> = Vec::new();
-    let main_damage = if is_dual { damage / 2 } else { damage };
-    hits.push(server_packets::AttackHit {
-        target_object_id: target_oid,
-        damage: main_damage,
-        miss,
-        crit,
-        soulshot: ss,
-        ss_grade,
-    });
-    if is_dual {
-        // Java rolls the second hit independently; this port reuses the first
-        // roll's outcome for it, so a dual swing is two halves of one roll
-        // rather than two separate rolls. TODO(G20): independent second roll
-        // once the roll is factored out of `do_auto_attack`.
+    for &(miss, crit, damage, ss, _) in &rolled {
         hits.push(server_packets::AttackHit {
             target_object_id: target_oid,
-            damage: main_damage,
+            damage,
             miss,
             crit,
             soulshot: ss,

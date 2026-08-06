@@ -140,16 +140,25 @@ fn attack_hits(pkts: &[Vec<u8>]) -> Vec<(i32, i32)> {
 
 // ---------------------------------------------------------------------------
 
-/// A **dual** weapon strikes the main target twice, each hit at half damage.
+/// A **dual** weapon strikes the main target twice, each hit at half damage
+/// and **independently rolled** (Java calls `generateHit` twice): pin one
+/// crit and one plain hit through the forced-roll tape — under the old
+/// shared-roll shape the two damages could never differ.
 #[test]
-fn dual_weapon_strikes_twice_at_half_damage() {
+fn dual_weapon_strikes_twice_with_independent_rolls() {
     let (mut world, _db, _l) = melee_world();
     let mut out = ingame_caster(&mut world, CID, ATTACKER, 0, 0);
     equip(&mut world, DUAL_ID);
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 40, 0, 0);
     drain(&mut out);
 
+    // Per hit: miss(1000), shield(100)×2, crit(100), random-damage. Hit 1
+    // crits (roll 0), hit 2 doesn't (roll 99); everything else identical.
+    world
+        .forced_rolls
+        .extend([0, 99, 99, 0, 0, 0, 99, 99, 99, 0]);
     crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    world.forced_rolls.clear();
     let hits = attack_hits(&drain(&mut out));
 
     assert_eq!(hits.len(), 2, "a dual swing carries two hits: {hits:?}");
@@ -157,7 +166,11 @@ fn dual_weapon_strikes_twice_at_half_damage() {
         hits.iter().all(|(t, _)| *t == NPC_OID),
         "both land on the main target"
     );
-    assert_eq!(hits[0].1, hits[1].1, "the two halves are equal");
+    assert!(
+        hits[0].1 > hits[1].1,
+        "hit 1 crit, hit 2 didn't — the rolls are independent: {hits:?}"
+    );
+    assert!(hits[1].1 > 0, "the plain half still lands");
 }
 
 /// A single-handed weapon still swings once.

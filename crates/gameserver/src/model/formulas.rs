@@ -807,16 +807,14 @@ pub fn calc_blow_damage(
 }
 
 /// `Formulas.calcBlowSuccess` — the "does the blow land" roll (part of the blow
-/// effect's `calcSuccess`). `crit_rate` is the caster's finalized crit rate ÷10,
-/// standing in for Java's `weaponCritical` (the weapon's raw `CRITICAL_RATE`
-/// excluding the DEX bonus); the `limit` cap (`BlowRateChanceLimit`, 100 on
-/// dist) dominates for a real dagger user, so the proxy's small overshoot is
-/// absorbed. `blow_rate_mod` is the caster's finalized `Stat.BLOW_RATE`
+/// effect's `calcSuccess`). `crit_rate` is Java's `weaponCritical`: the
+/// equipped weapon's raw `rCrit` stat (no DEX bonus, no finalize), or the
+/// caster template's `baseCritRate` bare-handed — resolved by the caller.
+/// `blow_rate_mod` is the caster's finalized `Stat.BLOW_RATE`
 /// (`FatalBlowRate` — Focus Death, Critical Blow, Mortal Strike, Assassination
 /// — default 1.0 for anyone without one of those). `Stat.BLOW_RATE_DEFENCE`
 /// (`FatalBlowRateDefence`) stays identity — nothing in this datapack grants
 /// it. Lands when `roll` (`Rnd.get(100)`) < min(rate, limit).
-/// TODO(G20): use the weapon's raw crit rate once weapon stats are exposed.
 pub fn calc_blow_success(
     crit_rate: f64,
     position: Position,

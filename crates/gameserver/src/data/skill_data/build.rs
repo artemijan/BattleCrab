@@ -747,13 +747,17 @@ pub(crate) fn build_skill(
                         }],
                         // Physical skill damage. `PhysicalSoulAttack` runs the
                         // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`
-                        // core; its only extra is a charged-soul boost that is ×1
-                        // until charges are modeled, so it routes here too (like
-                        // MagicalSoulAttack→MagicalAttack). The `FatalBlow`/
-                        // `Backstab`/`SoulBlow` blow skills use a different
-                        // `calcBlowDamage` formula and are intentionally left to fall
-                        // through until that formula is ported.
-                        // TODO(G20): honor charged souls on PhysicalSoulAttack.
+                        // core, so it routes here too (like
+                        // MagicalSoulAttack→MagicalAttack). SKIP(census): its
+                        // extra — the `1 + souls·0.04` charged-soul boost — has
+                        // no reachable caster on this dist: all 30 carriers are
+                        // Kamael skills with no skill-tree row and no item
+                        // grant, and the one NPC carrier (Twin Shot 507) would
+                        // NPE in Java's own handler (`getActingPlayer()` is
+                        // null for an NPC). Verified 2026-08-06. (The
+                        // `FatalBlow`/`Backstab` blow skills parse to their own
+                        // `SkillEffect::Blow` above — `calcBlowDamage` is
+                        // ported.)
                         // Java's `criticalChance` default here is **0**, not
                         // `PhysicalAttack`'s 10, and it has no
                         // `ignoreShieldDefence` param at all.

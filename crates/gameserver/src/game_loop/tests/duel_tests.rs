@@ -287,3 +287,39 @@ fn ending_clears_the_duel_state() {
     assert!(world.objects.get_component::<DuelRef>(&B).is_none());
     assert!(duel::can_duel(&world, A).is_ok(), "free to duel again");
 }
+
+/// `restorePlayerConditions`: the duel restores the **pre-duel snapshot**, not
+/// a full heal — a challenger who accepted at 60 % HP walks away at 60 %,
+/// however the fight went.
+#[test]
+fn duel_end_restores_the_preduel_snapshot() {
+    let (mut world, ..) = test_world();
+    let (_a_rx, _b_rx) = duelists(&mut world);
+    // A stands at 60 % HP / 40 % MP before accepting.
+    let (hp60, mp40) = {
+        let v = world.objects.get_component_mut::<Vitals>(&A).unwrap();
+        v.cur_hp = v.max_hp as f64 * 0.6;
+        v.cur_mp = v.max_mp as f64 * 0.4;
+        (v.cur_hp, v.cur_mp)
+    };
+    challenge(&mut world, A_CID, B);
+    answer(&mut world, B_CID, true);
+    let duel_id = *world.duels.keys().next().expect("duel created");
+
+    // The fight wears both down.
+    for oid in [A, B] {
+        let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
+        v.cur_hp = 1.0;
+        v.cur_mp = 1.0;
+    }
+    duel::end_duel(&mut world, duel_id, DuelResult::Canceled);
+
+    let v = world.objects.get_component::<Vitals>(&A).unwrap();
+    assert_eq!(v.cur_hp, hp60, "A is back at the 60 % HP they accepted at");
+    assert_eq!(v.cur_mp, mp40, "…and the 40 % MP");
+    let vb = world.objects.get_component::<Vitals>(&B).unwrap();
+    assert_eq!(
+        vb.cur_hp, vb.max_hp as f64,
+        "B accepted at full and comes back full"
+    );
+}

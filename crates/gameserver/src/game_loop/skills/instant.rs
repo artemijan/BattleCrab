@@ -266,10 +266,9 @@ pub(super) fn blow(
         return;
     }
 
-    let (p_atk, crit_rate, str_bonus, random_dmg, blow_rate_mod, caster_name) = {
+    let (p_atk, str_bonus, random_dmg, blow_rate_mod, caster_name) = {
         let cs = world.objects.get_component::<CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
-        let crit_rate = cs.map(|c| c.crit_hit).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
         let str_bonus = world
             .objects
@@ -289,13 +288,51 @@ pub(super) fn blow(
             .and_then(|m| m.mul.get(&crate::model::stats::Stat::BlowRate).copied())
             .unwrap_or(1.0);
         let name = caster_display_name(world, caster_oid);
-        (p_atk, crit_rate, str_bonus, random_dmg, blow_rate_mod, name)
+        (p_atk, str_bonus, random_dmg, blow_rate_mod, name)
+    };
+    // Java `calcBlowSuccess` reads `weaponCritical` — the equipped weapon's
+    // raw `rCrit` stat (no DEX bonus, no ×10 finalize), falling back to the
+    // template's `baseCritRate` bare-handed; NPC casters use their template's.
+    let weapon_crit = {
+        let rhand = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&caster_oid)
+            .map_or(0, |inv| {
+                inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand)
+            });
+        let from_weapon = (rhand != 0)
+            .then(|| world.data.item_data.item_stats(rhand))
+            .flatten()
+            .and_then(|st| {
+                st.bonuses
+                    .iter()
+                    .find(|(s, _)| *s == crate::model::stats::Stat::CriticalRate)
+                    .map(|(_, v)| *v)
+            });
+        from_weapon.unwrap_or_else(|| {
+            if let Some(p) = world
+                .objects
+                .get_component::<crate::model::Player>(&caster_oid)
+            {
+                world
+                    .data
+                    .player_templates
+                    .get(p.class_id)
+                    .map_or(4.0, |t| t.base_crit_rate as f64)
+            } else {
+                world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&caster_oid)
+                    .and_then(|n| n.template(world))
+                    .map_or(4.0, |t| t.base_crit_rate)
+            }
+        })
     };
 
     // `calcBlowSuccess`: does the blow land? A miss is silent
     // (Java's `calcSuccess == false` skips the whole effect).
     let landed = formulas::calc_blow_success(
-        crit_rate / 10.0,
+        weapon_crit,
         position,
         crate::game_loop::combat::crit_rate_position_mul(world, caster_oid, position),
         a.z,
