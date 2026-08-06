@@ -48,6 +48,24 @@ pub struct FeatureConfig {
     /// `HeroPoints` (1000) — the clan reputation a clan of level ≥ 3 earns when
     /// one of its members claims hero status (Java `Hero.claimHero`).
     pub hero_points: i32,
+    /// The castle-function fees (`Castle<X>FunctionFeeRatio` / `…FeeLvl1/2`,
+    /// Java `CS_*_FEE*`): rental cost per period, per function level. Ratios
+    /// are in milliseconds (the dist ships 7 days for every castle function).
+    pub cs_tele_fee_ratio: i64,
+    pub cs_tele_fee: [i64; 2],
+    pub cs_support_fee_ratio: i64,
+    pub cs_support_fee: [i64; 2],
+    pub cs_mpreg_fee_ratio: i64,
+    pub cs_mpreg_fee: [i64; 2],
+    pub cs_hpreg_fee_ratio: i64,
+    pub cs_hpreg_fee: [i64; 2],
+    pub cs_expreg_fee_ratio: i64,
+    pub cs_expreg_fee: [i64; 2],
+    /// Door/wall upgrade prices (`OuterDoorUpgradePriceLvlN` …): indexed
+    /// `[type-1][slot]` where the slots hold the level 2 / 3 / 5 prices.
+    pub door_upgrade_price: [[i64; 3]; 3],
+    /// `TrapUpgradePriceLvlN` — the flame-tower (damage-zone) upgrade prices.
+    pub trap_upgrade_price: [i64; 4],
 }
 
 impl Default for FeatureConfig {
@@ -66,6 +84,22 @@ impl Default for FeatureConfig {
             complete_academy_min_points: 190,
             complete_academy_max_points: 650,
             hero_points: 1000,
+            cs_tele_fee_ratio: 604_800_000,
+            cs_tele_fee: [1000, 10000],
+            cs_support_fee_ratio: 604_800_000,
+            cs_support_fee: [49000, 120_000],
+            cs_mpreg_fee_ratio: 604_800_000,
+            cs_mpreg_fee: [45000, 65000],
+            cs_hpreg_fee_ratio: 604_800_000,
+            cs_hpreg_fee: [12000, 20000],
+            cs_expreg_fee_ratio: 604_800_000,
+            cs_expreg_fee: [63000, 70000],
+            door_upgrade_price: [
+                [3_000_000, 4_000_000, 5_000_000],
+                [750_000, 900_000, 1_000_000],
+                [1_600_000, 1_800_000, 2_000_000],
+            ],
+            trap_upgrade_price: [3_000_000, 4_000_000, 5_000_000, 6_000_000],
         }
     }
 }
@@ -99,6 +133,57 @@ impl FeatureConfig {
             castle_sell_tax_neutral: p.get_int("SellTaxForNeutralSide", d.castle_sell_tax_neutral),
             castle_sell_tax_light: p.get_int("SellTaxForLightSide", d.castle_sell_tax_light),
             castle_sell_tax_dark: p.get_int("SellTaxForDarkSide", d.castle_sell_tax_dark),
+            cs_tele_fee_ratio: p.get_int("CastleTeleportFunctionFeeRatio", 604_800_000) as i64,
+            cs_tele_fee: [
+                p.get_int("CastleTeleportFunctionFeeLvl1", 1000) as i64,
+                p.get_int("CastleTeleportFunctionFeeLvl2", 10000) as i64,
+            ],
+            cs_support_fee_ratio: p.get_int("CastleSupportFunctionFeeRatio", 604_800_000) as i64,
+            cs_support_fee: [
+                p.get_int("CastleSupportFeeLvl1", 49000) as i64,
+                p.get_int("CastleSupportFeeLvl2", 120_000) as i64,
+            ],
+            cs_mpreg_fee_ratio: p.get_int("CastleMpRegenerationFunctionFeeRatio", 604_800_000)
+                as i64,
+            cs_mpreg_fee: [
+                p.get_int("CastleMpRegenerationFeeLvl1", 45000) as i64,
+                p.get_int("CastleMpRegenerationFeeLvl2", 65000) as i64,
+            ],
+            cs_hpreg_fee_ratio: p.get_int("CastleHpRegenerationFunctionFeeRatio", 604_800_000)
+                as i64,
+            cs_hpreg_fee: [
+                p.get_int("CastleHpRegenerationFeeLvl1", 12000) as i64,
+                p.get_int("CastleHpRegenerationFeeLvl2", 20000) as i64,
+            ],
+            cs_expreg_fee_ratio: p.get_int("CastleExpRegenerationFunctionFeeRatio", 604_800_000)
+                as i64,
+            cs_expreg_fee: [
+                p.get_int("CastleExpRegenerationFeeLvl1", 63000) as i64,
+                p.get_int("CastleExpRegenerationFeeLvl2", 70000) as i64,
+            ],
+            door_upgrade_price: [
+                [
+                    p.get_int("OuterDoorUpgradePriceLvl2", 3_000_000) as i64,
+                    p.get_int("OuterDoorUpgradePriceLvl3", 4_000_000) as i64,
+                    p.get_int("OuterDoorUpgradePriceLvl5", 5_000_000) as i64,
+                ],
+                [
+                    p.get_int("InnerDoorUpgradePriceLvl2", 750_000) as i64,
+                    p.get_int("InnerDoorUpgradePriceLvl3", 900_000) as i64,
+                    p.get_int("InnerDoorUpgradePriceLvl5", 1_000_000) as i64,
+                ],
+                [
+                    p.get_int("WallUpgradePriceLvl2", 1_600_000) as i64,
+                    p.get_int("WallUpgradePriceLvl3", 1_800_000) as i64,
+                    p.get_int("WallUpgradePriceLvl5", 2_000_000) as i64,
+                ],
+            ],
+            trap_upgrade_price: [
+                p.get_int("TrapUpgradePriceLvl1", 3_000_000) as i64,
+                p.get_int("TrapUpgradePriceLvl2", 4_000_000) as i64,
+                p.get_int("TrapUpgradePriceLvl3", 5_000_000) as i64,
+                p.get_int("TrapUpgradePriceLvl4", 6_000_000) as i64,
+            ],
         }
     }
 }

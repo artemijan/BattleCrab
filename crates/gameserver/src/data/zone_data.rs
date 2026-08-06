@@ -485,6 +485,14 @@ impl ZoneData {
         self.zones_at(x, y, z).any(|zn| zn.kind == ZoneKind::Castle)
     }
 
+    /// The castle whose residence `CastleZone` contains `(x, y, z)`, if any
+    /// (Java `ZoneManager.getZone(player, CastleZone.class).getResidenceId()`).
+    pub fn castle_zone_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
+        self.zones_at(x, y, z)
+            .find(|zn| zn.kind == ZoneKind::Castle && zn.castle_id > 0)
+            .map(|zn| zn.castle_id)
+    }
+
     /// Whether `(x, y, z)` is inside a `NoLandingZone` (Java
     /// `isInsideZone(ZoneId.NO_LANDING)`) — a wyvern rider cannot dismount
     /// here.

@@ -102,6 +102,25 @@ pub struct Castle {
     pub treasury: i64,
 }
 
+/// Java `Castle.FUNC_*` — the five rentable castle functions.
+pub const FUNC_TELEPORT: i32 = 1;
+pub const FUNC_RESTORE_HP: i32 = 2;
+pub const FUNC_RESTORE_MP: i32 = 3;
+pub const FUNC_RESTORE_EXP: i32 = 4;
+pub const FUNC_SUPPORT: i32 = 5;
+
+/// One active castle function (Java `Castle.CastleFunction`): the rented
+/// level, its per-period fee, the period, and the absolute next-charge stamp.
+#[derive(Debug, Clone, Copy)]
+pub struct CastleFunc {
+    pub level: i32,
+    pub lease: i64,
+    /// The rental period in milliseconds (`_rate`).
+    pub rate_ms: i64,
+    /// Absolute unix-millis of the next renewal charge (`_endDate`).
+    pub end_time: i64,
+}
+
 /// Java `enums/TaxType`. `SELL` has no caller anywhere in this Java build — the
 /// sell-side keys exist in `Feature.ini` and are read by nothing — so it is
 /// carried for completeness, not because a path uses it.

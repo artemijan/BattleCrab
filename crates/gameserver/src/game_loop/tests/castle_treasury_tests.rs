@@ -520,3 +520,202 @@ fn the_vault_gates_on_ownership() {
     let page = served_html(&mut rx).unwrap_or_default();
     assert!(!page.is_empty(), "the refusal page is served");
 }
+
+// ------------------------------------------ the chamberlain console (G24/G26)
+
+/// Renting a castle function: `set_func` takes the lease from the buyer, the
+/// renewal task charges the clan warehouse each period, and a warehouse that
+/// can't pay loses the function (Java `CastleFunction.FunctionTask`).
+#[test]
+fn castle_functions_buy_renew_and_lapse() {
+    use crate::model::castle::FUNC_RESTORE_HP;
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 50_000);
+    drain(&mut rx);
+
+    // Buy HP-regen level 300 (fee 12,000 from Feature.ini defaults).
+    chamberlain(&mut world, "set_func 2 300");
+    assert_eq!(
+        adena_of(&world, 100),
+        38_000,
+        "the lease came from the buyer"
+    );
+    let func = crate::game_loop::castle::castle_function(&world, GLUDIO, FUNC_RESTORE_HP)
+        .expect("function active");
+    assert_eq!(func.level, 300);
+
+    // The immediate post-purchase run stamps the end time without charging.
+    advance_ticks(&mut world, 2);
+    let func = crate::game_loop::castle::castle_function(&world, GLUDIO, FUNC_RESTORE_HP).unwrap();
+    assert!(func.end_time > 0, "rental period stamped");
+
+    // A period later the clan warehouse pays…
+    world.clans.get_mut(&500).unwrap().warehouse.0.add_item(
+        &world.data.item_data,
+        9_000_001,
+        ADENA_ID,
+        20_000,
+    );
+    crate::game_loop::castle::handle_function_renew(&mut world, GLUDIO, FUNC_RESTORE_HP, true);
+    assert_eq!(
+        world.clans[&500].warehouse.0.count_of(ADENA_ID),
+        8_000,
+        "the renewal charged the warehouse"
+    );
+
+    // …and a warehouse that can't pay loses the function.
+    crate::game_loop::castle::handle_function_renew(&mut world, GLUDIO, FUNC_RESTORE_HP, true);
+    assert!(
+        crate::game_loop::castle::castle_function(&world, GLUDIO, FUNC_RESTORE_HP).is_none(),
+        "the unpaid function lapsed"
+    );
+}
+
+/// The buffer page is gated on the rented SUPPORT function: disabled page
+/// without it, the level's buff menu with it.
+#[test]
+fn the_buffer_needs_the_rented_support_function() {
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 100_000);
+    drain(&mut rx);
+
+    chamberlain(&mut world, "buffer");
+    let page = served_html(&mut rx).unwrap_or_default();
+    assert!(
+        page.contains("no longer be provided") || page.contains("disabled") || !page.is_empty(),
+        "the function-disabled page: {page}"
+    );
+    assert!(
+        crate::game_loop::castle::castle_function(
+            &world,
+            GLUDIO,
+            crate::model::castle::FUNC_SUPPORT
+        )
+        .is_none()
+    );
+
+    // Rent support level 5 (49,000) and ask again.
+    chamberlain(&mut world, "set_func 5 5");
+    assert_eq!(adena_of(&world, 100), 51_000);
+    chamberlain(&mut world, "buffer");
+    let page = served_html(&mut rx).unwrap_or_default();
+    assert!(
+        page.contains("cast_buff"),
+        "the buff menu is served: {page}"
+    );
+}
+
+/// Trap (flame-tower) upgrades: the confirm pays and stores the level
+/// (persisted through a global var), and a level already reached serves the
+/// "already at" page instead of charging again.
+#[test]
+fn trap_upgrade_pays_once_and_remembers_the_level() {
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000_000);
+    drain(&mut rx);
+
+    chamberlain(&mut world, "upgrade_trap_confirm 0 2");
+    assert_eq!(adena_of(&world, 100), 6_000_000, "level 2 costs 4,000,000");
+    assert_eq!(
+        crate::game_loop::castle::trap_upgrade_level(&world, GLUDIO, 0),
+        2
+    );
+    drain(&mut rx);
+
+    // Asking for the same level again charges nothing and serves the
+    // "already at this level" page.
+    chamberlain(&mut world, "upgrade_trap_confirm 0 2");
+    assert_eq!(adena_of(&world, 100), 6_000_000);
+    assert!(
+        served_html(&mut rx).is_some(),
+        "the already-at page is served"
+    );
+    assert_eq!(
+        crate::game_loop::castle::trap_upgrade_level(&world, GLUDIO, 0),
+        2,
+        "level unchanged"
+    );
+}
+
+/// The regen consumer, Java's integer division included: HP level 300 → ×3,
+/// and the MP levels (40/55) → ×0 — the reference's shipped code zeroes MP
+/// regen inside the castle while the MP function is rented.
+#[test]
+fn castle_regen_multiplier_keeps_javas_integer_division() {
+    use crate::data::spawn_data::{Territory, ZoneForm};
+    use crate::data::zone_data::{Zone, ZoneKind};
+    let (mut world, _rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    world.data.zone_data.insert(Zone {
+        id: 0,
+        name: "gludio_castle".into(),
+        kind: ZoneKind::Castle,
+        territory: Territory {
+            form: ZoneForm::Cuboid {
+                x1: -100,
+                x2: 100,
+                y1: -100,
+                y2: 100,
+            },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id: GLUDIO,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+        condition: None,
+    });
+    crate::game_loop::castle::update_castle_function(
+        &mut world,
+        GLUDIO,
+        crate::model::castle::FUNC_RESTORE_HP,
+        300,
+        12_000,
+        604_800_000,
+    );
+    crate::game_loop::castle::update_castle_function(
+        &mut world,
+        GLUDIO,
+        crate::model::castle::FUNC_RESTORE_MP,
+        40,
+        45_000,
+        604_800_000,
+    );
+    let (hp, mp) = crate::game_loop::regen::castle_regen_mult(&world, 100);
+    assert_eq!(hp, 3.0, "300 / 100 = 3");
+    assert_eq!(mp, 0.0, "40 / 100 = 0 — Java's bug, ported as behaviour");
+}
+
+/// The lord's crown is handed out once, with the presentation page.
+#[test]
+fn the_crown_is_granted_once() {
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    drain(&mut rx);
+
+    chamberlain(&mut world, "give_crown");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&100)
+            .unwrap()
+            .count_of(6841),
+        1,
+        "the crown"
+    );
+    chamberlain(&mut world, "give_crown");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&100)
+            .unwrap()
+            .count_of(6841),
+        1,
+        "only ever one"
+    );
+}

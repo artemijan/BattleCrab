@@ -269,6 +269,18 @@ pub const CS_MANAGE_SIEGE: i32 = 1 << 18;
 /// open/close the castle gates and use the doormen's post teleports.
 pub const CS_OPEN_DOOR: i32 = 1 << 16;
 
+/// `ClanPrivilege.CS_USE_FUNCTIONS` (ordinal 19) — use the castle's rented
+/// functions: the chamberlain's teleport, buffer, products and function list.
+pub const CS_USE_FUNCTIONS: i32 = 1 << 19;
+
+/// `ClanPrivilege.CS_DISMISS` (ordinal 20) — banish foreigners from the
+/// castle grounds.
+pub const CS_DISMISS: i32 = 1 << 20;
+
+/// `ClanPrivilege.CS_SET_FUNCTIONS` (ordinal 23, the last) — buy/upgrade the
+/// castle's functions, doors and traps.
+pub const CS_SET_FUNCTIONS: i32 = 1 << 23;
+
 /// `ClanPrivilege.CS_TAXES` (ordinal 21) — the chamberlain's castle vault:
 /// view the balance, deposit and withdraw.
 pub const CS_TAXES: i32 = 1 << 21;
