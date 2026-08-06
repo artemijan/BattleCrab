@@ -674,6 +674,15 @@ impl HennaSlots {
     }
 }
 
+/// The augment trigger-skill registry (Java `Creature._triggerSkills`, fed by
+/// `Options.apply`'s `addTriggerSkill`): each entry is one equipped option's
+/// activation skill — fired on a chance when the wearer attacks (ATTACK),
+/// crits (CRITICAL) or casts (MAGIC/ATTACK by the skill's kind). Keyed by the
+/// option id so unequipping removes exactly that option's entries. Transient;
+/// re-derived from the worn augments at login. Player-only.
+#[derive(Component, Debug, Clone, Default)]
+pub struct AugmentTriggers(pub Vec<(i32, crate::data::option_data::OptionTrigger)>);
+
 /// Clan skills currently granted to this member (skill_id → level), Java's
 /// `Player.addSkill(clanSkill, false)` set. **Transient** — re-derived from the
 /// clan on every login (see `game_loop::clans::apply_clan_skills`) and never

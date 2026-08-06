@@ -1897,6 +1897,15 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         first_affected.unwrap_or(cast.target_object_id),
         skill.magic_type,
     );
+    // Java `SkillCaster`'s `getTriggerSkills` block (inside `!isStatic()`):
+    // the augment activation skills — MAGIC for a magic cast, ATTACK for a
+    // physical one, resolved against the cast's own target.
+    crate::game_loop::options::fire_augment_cast_triggers(
+        world,
+        player_object_id,
+        first_affected.unwrap_or(cast.target_object_id),
+        skill.magic_type,
+    );
 
     // Attack stance is caster-scoped, so it fires once per cast rather than
     // per affected target.

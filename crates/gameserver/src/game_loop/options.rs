@@ -12,15 +12,23 @@
 //! Also applied: the option's **passive skills**, whose own stat effects are
 //! folded the same way (a passive skill is a stat pump with no icon).
 //!
-//! TODO(G15.5): the option's **active** skills (Java `addSkill` → they appear
-//! on the skill bar) and its **activation** skills (`attack_skill` /
-//! `magic_skill` / `critical_skill` → `Player.addTriggerSkill`) are parsed and
-//! carried on the entry but not yet granted; both need a temporary-skill grant
-//! path (`SkillBook` + `SkillList`) and a trigger registry keyed by something
-//! other than a learned skill, which the port doesn't have yet.
+//! The option's **active** skills (Java `addSkill`) are granted into the
+//! `SkillBook` while the item is worn — they show on the skill bar and cast
+//! like any known skill — and removed on unequip; like Java (`Options.
+//! addSkill` never stores), they are re-derived from the worn augments at
+//! login, with a stale-cleanup pass for ids the book carries but no worn
+//! option grants (the cursed-weapon pattern). The **activation** skills
+//! (`attack_skill` / `magic_skill` / `critical_skill` → Java
+//! `Player.addTriggerSkill`) live on the [`AugmentTriggers`] registry and
+//! fire from the two Java consumption sites: the auto-attack hit (ATTACK on
+//! a plain hit, CRITICAL on a crit — `Creature.onHitTimer`) and the cast
+//! launch (MAGIC for magic skills, ATTACK for physical — `SkillCaster`).
 
+use crate::data::option_data::OptionSkillType;
 use crate::model::Player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers};
+use crate::model::components::{
+    AugmentTriggers, BaseStats, Buffs, CombatStats, SkillBook, Speeds, StatModifiers,
+};
 use crate::model::inventory::Inventory;
 use crate::model::skill::{ActiveBuff, BuffSlot, StatModifierEffect};
 use crate::world::World;
@@ -38,6 +46,7 @@ fn option_buff_id(option_id: i32) -> i32 {
 pub(crate) fn apply_item_options(world: &mut World, player_oid: i32, item_object_id: i32) {
     for option_id in option_ids_of(world, player_oid, item_object_id) {
         apply_option(world, player_oid, option_id);
+        apply_option_skills(world, player_oid, option_id);
     }
 }
 
@@ -46,6 +55,7 @@ pub(crate) fn apply_item_options(world: &mut World, player_oid: i32, item_object
 pub(crate) fn remove_item_options(world: &mut World, player_oid: i32, item_object_id: i32) {
     for option_id in option_ids_of(world, player_oid, item_object_id) {
         remove_option(world, player_oid, option_id);
+        remove_option_skills(world, player_oid, option_id);
     }
 }
 
@@ -113,6 +123,189 @@ fn apply_option(world: &mut World, player_oid: i32, option_id: i32) {
     // MaxHp/MaxMp/MaxCp options don't reach `recalculate_stats`, which is why
     // the buff paths all follow up with this.
     super::skills::effects::recompute_max_vitals(world, player_oid);
+}
+
+/// The skill/trigger half of `Options.apply`: grant the active skills into
+/// the book and register the activation skills. Split from [`apply_option`]
+/// so the stat half stays a pure buff.
+fn apply_option_skills(world: &mut World, player_oid: i32, option_id: i32) {
+    let Some(entry) = world.data.options.get(option_id) else {
+        return;
+    };
+    let actives = entry.active_skills.clone();
+    let triggers = entry.triggers.clone();
+    let mut granted = false;
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
+        for (id, level) in actives {
+            // Java `addSkill` replaces; a lower level never downgrades one
+            // the player somehow knows higher.
+            let e = book.0.entry(id).or_insert(0);
+            if *e < level {
+                *e = level;
+                granted = true;
+            }
+        }
+    }
+    if !triggers.is_empty() {
+        if world
+            .objects
+            .get_component::<AugmentTriggers>(&player_oid)
+            .is_none()
+        {
+            world
+                .objects
+                .add_components(&player_oid, AugmentTriggers::default());
+        }
+        if let Some(reg) = world
+            .objects
+            .get_component_mut::<AugmentTriggers>(&player_oid)
+        {
+            for t in triggers {
+                reg.0.push((option_id, t));
+            }
+        }
+    }
+    if granted {
+        super::admin::refresh_skill_list(world, player_oid);
+    }
+}
+
+/// The skill/trigger half of `Options.remove`.
+fn remove_option_skills(world: &mut World, player_oid: i32, option_id: i32) {
+    let Some(entry) = world.data.options.get(option_id) else {
+        return;
+    };
+    let actives = entry.active_skills.clone();
+    let mut removed = false;
+    for (id, _) in actives {
+        if world
+            .objects
+            .get_component::<SkillBook>(&player_oid)
+            .is_some_and(|b| b.0.contains_key(&id))
+        {
+            super::skills::remove_player_skill(world, player_oid, id);
+            removed = true;
+        }
+    }
+    if let Some(reg) = world
+        .objects
+        .get_component_mut::<AugmentTriggers>(&player_oid)
+    {
+        reg.0.retain(|(oid, _)| *oid != option_id);
+    }
+    if removed {
+        super::admin::refresh_skill_list(world, player_oid);
+    }
+}
+
+/// Login re-derivation (Java's equip listeners ran during `restoreInventory`):
+/// fold every worn augmented item's options in — stats, actives, triggers —
+/// and sweep book entries that are option actives no worn option grants (the
+/// item was de-augmented or the data changed while the row persisted).
+pub(crate) fn apply_worn_options_at_login(world: &mut World, player_oid: i32) {
+    let worn: Vec<i32> = world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .map(|inv| {
+            inv.items()
+                .iter()
+                .filter(|it| {
+                    inv.paperdoll_slot_of(it.object_id).is_some()
+                        && (it.augment_option1 != 0 || it.augment_option2 != 0)
+                })
+                .map(|it| it.object_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    let mut granted_ids: Vec<i32> = Vec::new();
+    for item_oid in worn {
+        for option_id in option_ids_of(world, player_oid, item_oid) {
+            if let Some(e) = world.data.options.get(option_id) {
+                granted_ids.extend(e.active_skills.iter().map(|&(id, _)| id));
+            }
+            apply_option(world, player_oid, option_id);
+            apply_option_skills(world, player_oid, option_id);
+        }
+    }
+    // Stale sweep: any augment-active id in the book that no worn option
+    // grants was persisted past its item — drop it (the curse pattern).
+    let all_option_actives = world.data.options.all_active_skill_ids();
+    let stale: Vec<i32> = world
+        .objects
+        .get_component::<SkillBook>(&player_oid)
+        .map(|b| {
+            b.0.keys()
+                .filter(|id| all_option_actives.contains(id) && !granted_ids.contains(id))
+                .copied()
+                .collect()
+        })
+        .unwrap_or_default();
+    for id in stale {
+        super::skills::remove_player_skill(world, player_oid, id);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Trigger firing (Java's two `getTriggerSkills` consumption sites)
+// ---------------------------------------------------------------------------
+
+/// `Creature.onHitTimer`'s trigger block: a plain hit fires ATTACK-type
+/// activation skills, a critical fires CRITICAL-type — each at
+/// `Rnd.get(100) < chance`, cast at the hit target with no cast time.
+pub(crate) fn fire_augment_attack_triggers(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    crit: bool,
+) {
+    fire_triggers(world, attacker, target, |kind| {
+        (!crit && kind == OptionSkillType::Attack) || (crit && kind == OptionSkillType::Critical)
+    });
+}
+
+/// `SkillCaster`'s trigger block, inside `!skill.isStatic()`: a magic cast
+/// fires MAGIC-type activation skills, a physical one ATTACK-type.
+pub(crate) fn fire_augment_cast_triggers(
+    world: &mut World,
+    caster: i32,
+    target: i32,
+    magic_type: i32,
+) {
+    if magic_type == 2 {
+        return; // static skills never trigger (Java's `!skill.isStatic()`)
+    }
+    let magic = magic_type == 1;
+    fire_triggers(world, caster, target, |kind| {
+        (magic && kind == OptionSkillType::Magic) || (!magic && kind == OptionSkillType::Attack)
+    });
+}
+
+fn fire_triggers(
+    world: &mut World,
+    caster: i32,
+    target: i32,
+    wants: impl Fn(OptionSkillType) -> bool,
+) {
+    let Some(reg) = world.objects.get_component::<AugmentTriggers>(&caster) else {
+        return;
+    };
+    let candidates: Vec<(i32, i32, f64)> = reg
+        .0
+        .iter()
+        .filter(|(_, t)| wants(t.kind))
+        .map(|(_, t)| (t.skill_id, t.skill_level, t.chance))
+        .collect();
+    for (skill_id, skill_level, chance) in candidates {
+        // Java `Rnd.get(100) < holder.getChance()`.
+        if f64::from(world.roll(100)) >= chance {
+            continue;
+        }
+        let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+            continue;
+        };
+        // `SkillCaster.triggerCast` — no cast time, no MP, no reuse.
+        super::skills::effects::apply_skill_effects(world, caster, target, &skill);
+    }
 }
 
 /// `Options.remove(player)` — drop this option's contribution and rebuild.

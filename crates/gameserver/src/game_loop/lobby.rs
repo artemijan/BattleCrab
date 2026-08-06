@@ -681,6 +681,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.
     super::passive_skills::refresh_conditioned_passives(world, object_id);
+    // Java's equip listeners ran during `restoreInventory`: fold each worn
+    // augmented item's options in (stats, active skills, triggers), and sweep
+    // any augment-active skill the book persisted past its item.
+    super::options::apply_worn_options_at_login(world, object_id);
     // Java `EnterWorld` → `restoreEffects` (buff half): the buffs the character
     // logged out with come back, each resuming the remaining time it had at
     // logout — offline time doesn't burn buff duration. Runs after the passive
