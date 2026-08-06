@@ -152,6 +152,11 @@ pub struct GmSettings {
     pub startup_silence: bool,
     pub startup_auto_list: bool,
     pub startup_diet_mode: bool,
+    /// `GMGiveSpecialSkills` / `GMGiveSpecialAuraSkills` — hand a GM the
+    /// convenience kits at enter-world. Session-only: Java grants them with
+    /// `addSkill(skill, false)`.
+    pub give_special_skills: bool,
+    pub give_special_aura_skills: bool,
 }
 
 pub struct GameData {

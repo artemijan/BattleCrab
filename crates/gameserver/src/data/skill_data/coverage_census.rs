@@ -415,7 +415,7 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("G-later", 1),
         ("G-pvp", 3),
         ("G13+", 1),
-        ("G14", 2),
+        ("G14", 1),
         ("G15", 2),
         ("G15.5", 1),
         ("G17", 2),

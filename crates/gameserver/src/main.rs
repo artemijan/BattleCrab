@@ -92,6 +92,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         startup_silence: config.general.gm_startup_silence,
         startup_auto_list: config.general.gm_startup_auto_list,
         startup_diet_mode: config.general.gm_startup_diet_mode,
+        give_special_skills: config.general.gm_give_special_skills,
+        give_special_aura_skills: config.general.gm_give_special_aura_skills,
     };
     // Character.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
     // per-skill `abnormalTime` overrides into the loaded skills (Java does this

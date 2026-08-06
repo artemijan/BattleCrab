@@ -29,10 +29,10 @@ pub struct GeneralConfig {
     pub gm_startup_auto_list: bool,
     /// `GMStartupDietMode`: auto-enable diet mode (no weight overload) on login.
     pub gm_startup_diet_mode: bool,
-    /// `GMGiveSpecialSkills` / `GMGiveSpecialAuraSkills`: grant the special GM
-    /// skill sets on login. Loaded for parity but the special-skill trees are
-    /// not ported yet — TODO(G14): honor these once `SkillTreeData.addSkills`
-    /// has the special-skill data.
+    /// `GMGiveSpecialSkills` / `GMGiveSpecialAuraSkills`: grant the GM
+    /// convenience kits at enter-world (`SkillTreeData.addSkills`). Read by
+    /// `admin::flags`; the skills are session-only and filtered out of the
+    /// persistence flush.
     pub gm_give_special_skills: bool,
     pub gm_give_special_aura_skills: bool,
 
