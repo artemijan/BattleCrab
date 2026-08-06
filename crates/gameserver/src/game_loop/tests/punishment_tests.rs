@@ -445,3 +445,144 @@ fn party_ban_blocks_a_banned_requestor_and_a_banned_target() {
         "a party-banned target cannot be invited"
     );
 }
+
+// --- Illegal player actions (Java `Util.handleIllegalPlayerAction` +
+// `IllegalPlayerActionTask`, G35) -------------------------------------------
+
+use crate::model::punishment::IllegalActionPunishment;
+
+#[test]
+fn illegal_action_kick_fires_after_the_five_second_delay() {
+    let (mut world, _tx, _db_rx, _link) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 50_000, 50_000, -3000);
+    drain(&mut rx);
+
+    punishment::handle_illegal_player_action(
+        &mut world,
+        3001,
+        "test kick",
+        IllegalActionPunishment::Kick,
+    );
+    // The warning is immediate, the kick is not — Java schedules the task 5 s
+    // out and the offender stays connected until it runs.
+    assert!(!drain(&mut rx).is_empty(), "the warning line is immediate");
+    assert!(
+        world.clients.contains_key(&1),
+        "still connected at call time"
+    );
+    advance_ticks(&mut world, 51);
+    assert!(
+        !world.clients.contains_key(&1),
+        "kicked when the task fires"
+    );
+}
+
+#[test]
+fn illegal_action_jail_books_a_timed_jail_punishment() {
+    let (mut world, _tx, _db_rx, _link) = test_world();
+    add_jail_zone(&mut world);
+    let _rx = ingame_player(&mut world, 1, 3001, 50_000, 50_000, -3000);
+    world.cfg.general.default_punish_param = 60;
+
+    punishment::handle_illegal_player_action(
+        &mut world,
+        3001,
+        "test jail",
+        IllegalActionPunishment::Jail,
+    );
+    assert!(
+        !world.objects.get_component::<Player>(&3001).unwrap().jailed,
+        "not jailed until the task fires"
+    );
+    advance_ticks(&mut world, 51);
+    assert!(world.objects.get_component::<Player>(&3001).unwrap().jailed);
+    assert_eq!(pos_xy(&world, 3001), JAIL_IN);
+    assert!(world.punishments.has_punishment(
+        "3001",
+        PunishmentAffect::Character,
+        PunishmentType::Jail
+    ));
+}
+
+#[test]
+fn illegal_action_kickban_drops_access_bans_and_disconnects() {
+    let (mut world, _tx, mut db_rx, link_rx) = test_world();
+    let _rx = ingame_player(&mut world, 1, 3001, 50_000, 50_000, -3000);
+    drain_db(&mut db_rx);
+
+    punishment::handle_illegal_player_action(
+        &mut world,
+        3001,
+        "test kickban",
+        IllegalActionPunishment::KickBan,
+    );
+    // The access-level drop is immediate (Java does it in the constructor):
+    // character to −1 (persisted) and the account relayed to the login server.
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .access_level,
+        -1
+    );
+    assert!(drain_db(&mut db_rx).iter().any(|c| matches!(
+        c,
+        DbCommand::SetAccessLevel {
+            char_id: 3001,
+            level: -1
+        }
+    )));
+    let mut link_rx = link_rx;
+    assert!(matches!(
+        link_rx.try_recv(),
+        Ok(crate::loginlink::LoginLinkCommand::SetAccountAccessLevel { level: -1, .. })
+    ));
+
+    advance_ticks(&mut world, 51);
+    assert!(world.punishments.has_punishment(
+        "3001",
+        PunishmentAffect::Character,
+        PunishmentType::Ban
+    ));
+    assert!(!world.clients.contains_key(&1), "kicked with the ban");
+}
+
+#[test]
+fn illegal_action_spares_a_gm_from_the_punishment() {
+    let (mut world, _tx, _db_rx, _link) = admin_world();
+    let _rx = ingame_player_access(&mut world, 1, 3001, 70);
+
+    punishment::handle_illegal_player_action(
+        &mut world,
+        3001,
+        "gm tripped a guard",
+        IllegalActionPunishment::Kick,
+    );
+    advance_ticks(&mut world, 51);
+    assert!(
+        world.clients.contains_key(&1),
+        "the audit record is written but a GM is never punished"
+    );
+}
+
+/// End-to-end through a wired guard: a `RequestDestroyItem` with a negative
+/// count is the classic packet-tool signature — the offender is kicked
+/// (`DefaultPunish` = KICK) five seconds later.
+#[test]
+fn destroy_item_negative_count_trips_the_default_punish() {
+    let (mut world, _tx, _db_rx, _link) = test_world();
+    let _rx = ingame_player(&mut world, 1, 3001, 50_000, 50_000, -3000);
+
+    let mut body = Vec::new();
+    body.extend_from_slice(&999_i32.to_le_bytes()); // any object id
+    body.extend_from_slice(&(-5_i64).to_le_bytes()); // negative count
+    crate::game_loop::items::handle_request_destroy_item(&mut world, 1, &body);
+
+    assert!(world.clients.contains_key(&1));
+    advance_ticks(&mut world, 51);
+    assert!(
+        !world.clients.contains_key(&1),
+        "kicked for the exploit probe"
+    );
+}

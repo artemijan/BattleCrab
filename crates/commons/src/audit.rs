@@ -68,10 +68,10 @@ pub enum Category {
     /// Illegal-action reports (Java: `IllegalPlayerActionTask`, whose logger is
     /// plain `audit`).
     ///
-    /// **No call site yet**: the game server has no `IllegalPlayerActionTask`
-    /// equivalent ported, so this category is defined but never written. It is
-    /// kept rather than dropped so the file name and the Java category stay
-    /// aligned for when that task lands — TODO(G35).
+    /// Written by the game server's illegal-action task
+    /// (`game_loop::punishment::on_illegal_action_punish`, the port of Java's
+    /// `IllegalPlayerActionTask`) 5 seconds after a packet-validation guard
+    /// trips, alongside the configured `DefaultPunish` kick/ban/jail.
     Illegal,
     /// GM command usage (Java: `GMAudit.auditGMAction`).
     GmAudit,

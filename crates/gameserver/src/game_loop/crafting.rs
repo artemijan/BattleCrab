@@ -391,8 +391,8 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
         return;
     }
 
-    // Validate every recipe is in the seller's book; a bad id aborts the whole
-    // set (Java `handleIllegalPlayerAction` + return).
+    // Validate every recipe is in the seller's book; a bad id punishes and
+    // aborts the whole set (Java `handleIllegalPlayerAction` + return).
     let mut items = Vec::with_capacity(lines.len());
     for line in &lines {
         let known = world
@@ -400,6 +400,13 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
             .get_component::<RecipeBook>(&oid)
             .is_some_and(|b| b.contains(line.recipe_id));
         if !known {
+            let punish = world.cfg.general.default_punish;
+            super::punishment::handle_illegal_player_action(
+                world,
+                oid,
+                &format!("Player {oid} tried to set recipe which he dont have."),
+                punish,
+            );
             return;
         }
         items.push((line.recipe_id, line.cost));
@@ -556,12 +563,20 @@ fn do_craft(
         send_to_client(world, customer_client, sp::system_message_with(msg, params));
     };
 
-    // The crafter must actually hold this recipe (Java's book check).
+    // The crafter must actually hold this recipe; a request for a recipe not
+    // in the book punishes the requester (Java `RecipeManager`).
     if !world
         .objects
         .get_component::<RecipeBook>(&crafter)
         .is_some_and(|b| b.contains(recipe.id))
     {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            customer,
+            &format!("Player {customer} sent a false recipe id."),
+            punish,
+        );
         return;
     }
     // Empty recipe / skill-level gate (crafter's create-item level).

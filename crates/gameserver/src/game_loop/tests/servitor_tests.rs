@@ -4565,10 +4565,14 @@ fn the_evolve_gates_refuse_and_change_nothing() {
     drain(&mut rx);
     pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
     assert_eq!(held(&world), 0, "a dead pet cannot evolve");
-    assert!(
-        sm_ids_of(&drain(&mut rx)).is_empty(),
-        "Java answers with evolve_no.htm and no system message"
+    // The exploit attempt punishes: the immediate warning line (S1_TEXT) is
+    // the only system message, and the kick lands 5 s later.
+    assert_eq!(
+        sm_ids_of(&drain(&mut rx)),
+        vec![server_packets::sm_ids::S1_TEXT]
     );
+    advance_ticks(&mut world, 51);
+    assert!(!world.clients.contains_key(&CID), "kicked for the exploit");
 }
 
 /// The exchange counter: a ticket becomes a collar, and without the ticket

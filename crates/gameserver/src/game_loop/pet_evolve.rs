@@ -185,14 +185,20 @@ fn do_evolve(
     let Some(pet_oid) = super::servitor::pet_of(world, player_oid) else {
         return false;
     };
-    // Java calls a dead pet here an exploit attempt and punishes; the port
-    // simply refuses (the punishment path — `handleIllegalPlayerAction` — is
-    // not ported).
+    // Java `Evolve` calls a dead pet here an exploit attempt and punishes
+    // with `DEFAULT_PUNISH`.
     if world
         .objects
         .get_component::<crate::model::components::Vitals>(&pet_oid)
         .is_some_and(|v| v.dead)
     {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player_oid,
+            &format!("Player {player_oid} tried to use death pet exploit!"),
+            punish,
+        );
         return false;
     }
 

@@ -664,7 +664,17 @@ pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8
     let Some(m) = world.mail.get(message_id) else {
         return;
     };
-    if m.receiver_id != player || m.deleted_by_receiver {
+    if m.receiver_id != player {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player,
+            &format!("Player {player} tried to receive not own post!"),
+            punish,
+        );
+        return;
+    }
+    if m.deleted_by_receiver {
         return;
     }
     if m.has_attachments && !in_peace_zone(world, player) {
@@ -732,7 +742,17 @@ pub(crate) fn handle_sent_post(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(m) = world.mail.get(message_id) else {
         return;
     };
-    if m.sender_id != player || m.deleted_by_sender {
+    if m.sender_id != player {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player,
+            &format!("Player {player} tried to read not own post!"),
+            punish,
+        );
+        return;
+    }
+    if m.deleted_by_sender {
         return;
     }
     if m.has_attachments && !in_peace_zone(world, player) {
@@ -810,6 +830,15 @@ fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: 
         };
         let owner = if received { m.receiver_id } else { m.sender_id };
         if owner != player {
+            // Java: "... tried to delete not own post!" — a punish, not a
+            // silent refusal.
+            let punish = world.cfg.general.default_punish;
+            super::punishment::handle_illegal_player_action(
+                world,
+                player,
+                &format!("Player {player} tried to delete not own post!"),
+                punish,
+            );
             return;
         }
         let already = if received {
@@ -992,7 +1021,17 @@ pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[
     let Some(m) = world.mail.get(message_id) else {
         return;
     };
-    if m.receiver_id != player || !m.has_attachments {
+    if m.receiver_id != player {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player,
+            &format!("Player {player} tried to get not own attachment!"),
+            punish,
+        );
+        return;
+    }
+    if !m.has_attachments {
         return;
     }
     let (sender_id, req_adena) = (m.sender_id, m.req_adena);
@@ -1111,6 +1150,13 @@ pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, b
         return;
     };
     if m.sender_id != player {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player,
+            &format!("Player {player} tried to cancel not own post!"),
+            punish,
+        );
         return;
     }
     if !attachment_guards(
@@ -1207,7 +1253,17 @@ pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, b
     let Some(m) = world.mail.get(message_id) else {
         return;
     };
-    if m.receiver_id != player || !m.has_attachments || m.mail_type.is_system() {
+    if m.receiver_id != player {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player,
+            &format!("Player {player} tried to reject not own attachment!"),
+            punish,
+        );
+        return;
+    }
+    if !m.has_attachments || m.mail_type.is_system() {
         return;
     }
     let sender_id = m.sender_id;

@@ -715,8 +715,13 @@ fn you_cannot_open_someone_elses_message() {
         1,
         ex_packet(cp::ex_opcodes::REQUEST_RECEIVED_POST, &int_body(77)),
     );
-    assert!(drain(&mut a_rx).is_empty());
+    // No mail packet comes back — only the illegal-action warning (the probe
+    // punishes with `DefaultPunish` now, as in Java).
+    let pkts = drain(&mut a_rx);
+    assert!(ex_body_of(&pkts, opcodes::EX_SHOW_RECEIVED_POST).is_none());
     assert!(world.mail.get(77).unwrap().unread, "still unread");
+    advance_ticks(&mut world, 51);
+    assert!(!world.clients.contains_key(&1), "kicked for the probe");
 }
 
 #[test]

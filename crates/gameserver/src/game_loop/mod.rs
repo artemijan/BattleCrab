@@ -1032,6 +1032,11 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::PunishmentExpire { punishment_id } => {
                 punishment::on_expire(world, punishment_id)
             }
+            ScheduledTask::IllegalActionPunish {
+                object_id,
+                message,
+                punishment,
+            } => punishment::on_illegal_action_punish(world, object_id, &message, punishment),
         }
     }
 }

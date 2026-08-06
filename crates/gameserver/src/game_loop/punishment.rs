@@ -8,7 +8,9 @@ use tracing::info;
 
 use crate::db::DbCommand;
 use crate::model::Player;
-use crate::model::punishment::{Punishment, PunishmentAffect, PunishmentType};
+use crate::model::punishment::{
+    IllegalActionPunishment, Punishment, PunishmentAffect, PunishmentType,
+};
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
@@ -549,6 +551,164 @@ pub(crate) fn enforce_jail_keep_in(world: &mut World, object_id: i32) {
         object_id,
         "You cannot cheat your way out of here. You must wait until your jail time is over.",
     );
+}
+
+// ---------------------------------------------------------------------------
+// Illegal player actions (Java `Util.handleIllegalPlayerAction` +
+// `IllegalPlayerActionTask`, G35)
+// ---------------------------------------------------------------------------
+
+/// Java `Util.handleIllegalPlayerAction`: warn the offender at once (and for
+/// `KICKBAN`, drop their character + account access levels immediately), then
+/// fire the audit/punish task 5 seconds later — Java's
+/// `ThreadPool.schedule(new IllegalPlayerActionTask(...), 5000)`. The
+/// constructor messages and the access-level drop happen at call time; the
+/// audit record and the actual kick/ban/jail happen when the task runs.
+pub(crate) fn handle_illegal_player_action(
+    world: &mut World,
+    object_id: i32,
+    message: &str,
+    punishment: IllegalActionPunishment,
+) {
+    let is_gm = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(|p| p.is_gm(&world.data));
+    match punishment {
+        IllegalActionPunishment::Kick => {
+            send_text(
+                world,
+                object_id,
+                "You will be kicked for illegal action, GM informed.",
+            );
+        }
+        IllegalActionPunishment::KickBan => {
+            if !is_gm {
+                let account = world
+                    .objects
+                    .get_component_mut::<Player>(&object_id)
+                    .map(|p| {
+                        p.access_level = -1;
+                        p.account.clone()
+                    });
+                let _ = world.db.send(DbCommand::SetAccessLevel {
+                    char_id: object_id,
+                    level: -1,
+                });
+                if let Some(account) = account {
+                    let _ = world.login.link.send(
+                        crate::loginlink::LoginLinkCommand::SetAccountAccessLevel {
+                            account,
+                            level: -1,
+                        },
+                    );
+                }
+            }
+            send_text(
+                world,
+                object_id,
+                "You are banned for illegal action, GM informed.",
+            );
+        }
+        IllegalActionPunishment::Jail => {
+            send_text(world, object_id, "Illegal action performed!");
+            send_text(
+                world,
+                object_id,
+                "You will be teleported to GM Consultation Service area and jailed.",
+            );
+        }
+        IllegalActionPunishment::None | IllegalActionPunishment::Broadcast => {}
+    }
+    world.scheduler.schedule(
+        world.tick + 5 * TICKS_PER_SECOND,
+        ScheduledTask::IllegalActionPunish {
+            object_id,
+            message: message.to_string(),
+            punishment,
+        },
+    );
+}
+
+/// The 5-second task body (Java `IllegalPlayerActionTask.run`): write the
+/// audit record — always, GM or not — then apply the punishment to a non-GM.
+/// The offender may have logged out during the delay; the ban/jail punishment
+/// rows are keyed by character id and land regardless, the kick just no-ops.
+pub(crate) fn on_illegal_action_punish(
+    world: &mut World,
+    object_id: i32,
+    message: &str,
+    punishment: IllegalActionPunishment,
+) {
+    let (char_name, account, is_gm) = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| (p.name.clone(), p.account.clone(), p.is_gm(&world.data)))
+        .unwrap_or_default();
+    commons::audit::record(
+        commons::audit::Category::Illegal,
+        serde_json::json!({
+            "char_name": char_name,
+            "oid": object_id,
+            "account": account,
+            "message": message,
+            "punishment": punishment.as_str(),
+        }),
+    );
+    if is_gm {
+        return;
+    }
+    let expiration =
+        commons::util::now_millis() + world.cfg.general.default_punish_param.max(1) * 1000;
+    match punishment {
+        IllegalActionPunishment::None => {}
+        IllegalActionPunishment::Broadcast => {
+            // Java `AdminData.broadcastMessageToGMs` — a plain text line to
+            // every online GM.
+            let gms: Vec<i32> = world
+                .clients
+                .values()
+                .filter_map(|cs| match cs {
+                    ClientSession::InGame(s) => {
+                        let oid = s.player_object_id();
+                        world
+                            .objects
+                            .get_component::<Player>(&oid)
+                            .filter(|p| p.is_gm(&world.data))
+                            .map(|_| oid)
+                    }
+                    _ => None,
+                })
+                .collect();
+            for gm in gms {
+                send_text(world, gm, message);
+            }
+        }
+        IllegalActionPunishment::Kick => disconnect_player(world, object_id),
+        IllegalActionPunishment::KickBan => {
+            start_punishment(
+                world,
+                object_id.to_string(),
+                PunishmentAffect::Character,
+                PunishmentType::Ban,
+                expiration,
+                message.to_string(),
+                "IllegalPlayerActionTask".to_string(),
+            );
+            disconnect_player(world, object_id);
+        }
+        IllegalActionPunishment::Jail => {
+            start_punishment(
+                world,
+                object_id.to_string(),
+                PunishmentAffect::Character,
+                PunishmentType::Jail,
+                expiration,
+                message.to_string(),
+                "IllegalPlayerActionTask".to_string(),
+            );
+        }
+    }
 }
 
 /// Send a plain-text system line to a player's client (Java `sendMessage`).
