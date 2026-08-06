@@ -665,10 +665,11 @@ pub(crate) fn use_magic_on(
         }
         return;
     }
-    // `Creature.isAllSkillsDisabled()` → `hasBlockActions()`: no casting while
-    // stunned/asleep/paralyzed. Checked before the skill lookup, like Java's
-    // `useMagic` guard order.
-    if super::super::abnormal::is_blocked_from_actions(world, object_id) {
+    // `Creature.isAllSkillsDisabled()` — `_allSkillsDisabled ||
+    // hasBlockActions()`: no casting while stunned/asleep/paralyzed, or while
+    // a script has locked skills outright (the TvT freeze). Checked before the
+    // skill lookup, like Java's `useMagic` guard order.
+    if super::super::abnormal::all_skills_disabled(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }

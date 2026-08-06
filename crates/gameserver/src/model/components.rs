@@ -42,6 +42,17 @@ pub struct OlympiadObserver {
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Immobilized;
 
+/// Java `Creature.disableAllSkills()` — the `_allSkillsDisabled` flag, set
+/// directly by scripts rather than by any abnormal.
+///
+/// Distinct from `hasBlockActions()` (a stun/sleep/paralyze, derived from the
+/// buff list) and from [`Immobilized`] (movement only): Java's
+/// `isAllSkillsDisabled()` is `_allSkillsDisabled || hasBlockActions()`, so
+/// this blocks **casting only** and leaves walking and swinging alone. The TvT
+/// freeze sets all three at once, which is what makes them easy to conflate.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct SkillsDisabled;
+
 /// Java `Creature.setLethalable(false)` — this NPC cannot be finished by a
 /// lethal blow (`Lethal`/`HalfKill`). Raid bosses are immune by template; this
 /// marker is for the ones a script exempts, i.e. `ai/others/NonLethalableNpcs`'
