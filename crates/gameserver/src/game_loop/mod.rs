@@ -853,6 +853,12 @@ fn apply_due_tasks(world: &mut World) {
             } => {
                 combat::handle_attack_hit(world, attacker, target, damage, miss, crit, swing_seq);
             }
+            ScheduledTask::NpcSuicide { npc_oid } => {
+                // Java `doDie(null)`. Killer 0 is inert on every reward and
+                // aggro path (both gate on the killer being playable), so this
+                // is the animation and the corpse and nothing else.
+                death::npc_do_die(world, npc_oid, 0);
+            }
             ScheduledTask::SiegeFame { player_oid } => {
                 siege::handle_siege_fame(world, player_oid);
             }

@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **107** such
+of narrow behaviours deferred and marked at the site. There are **106** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -351,3 +351,4 @@ grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
 | 2026-08-06 | `TODO(G30)` ×3 (`model/skill.rs`, `coverage_census.rs` ×2) | **Closed.** Summon Friend — `CallPc`'s player half. Needed a full `ConfirmDlg` (params + time + requesterId), a `SummonRequest` holder, and the recall gate, which had landed earlier the same day. Toll is charged to the **target** before the prompt, as Java does, so declining still costs the crystal. Two census caveats warning that "`CallPc` handled" overstated things are retired with it. |
 | 2026-08-06 | `TODO(G30)` ×3 (`multisell.rs`) | Censused across all 101 lists, and the three split apart. **Special products**: none exist — every negative id in the tree is an ingredient. **Enchanted ingredients**: none exist — `enchantmentLevel` appears on 3 productions and no ingredient. **Chance**: only 2 non-degenerate entries, both owned by NPC 34262 (HappyHours), which has no spawn row. All three become `SKIP(census)`. The one real case — 10 `-200` clan-reputation *ingredients* on the spawned Clan Traders' list 1235 — is now implemented, with Java's refusal order (membership → leadership → balance). |
 | 2026-08-06 | `TODO(G22)` ×2 (`q00224`, `q00230`) | Both **stale**. Kadesh's 300 s despawn needed `schedule_despawn`, which the quest ctx already had; without it an unfought Kadesh stood in the field forever and the next roll spawned another beside him. The `onKill` range gate needed a distance helper — `AltPartyRange` was parsed and `party.rs` already measured against it — so `QuestCtx::in_range_of_npc` now exists and q230 hoists the check that Java repeats on every branch. |
+| 2026-08-06 | `TODO(G22)` ×1 (`forge_of_the_gods.rs`) | **Closed.** A lavasaurus outliving its minute now runs Java's "suicide" event — `doDie(null)` via a new `ScheduledTask::NpcSuicide` — instead of a silent despawn, so it dies where it stands and leaves a corpse. Killer 0 is inert on every reward and aggro path (both gate on the killer being playable), which is what makes the null-killer death safe. |

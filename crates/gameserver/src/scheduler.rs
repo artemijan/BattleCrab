@@ -400,6 +400,12 @@ pub enum ScheduledTask {
     AttackFinish {
         object_id: i32,
     },
+    /// A scripted `npc.doDie(null)` on a timer — Java's "suicide" event. Not
+    /// `DespawnNpc`: dying plays the death animation and leaves a corpse that
+    /// decays, where a despawn makes the NPC blink out.
+    NpcSuicide {
+        npc_oid: i32,
+    },
     /// `Player._fameTask` — one payment of the siege-zone fame task, which
     /// re-arms itself while the player still qualifies (see
     /// `game_loop::siege::arm_fame_task`).

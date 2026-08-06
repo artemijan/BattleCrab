@@ -713,6 +713,64 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
     );
 }
 
+/// A lavasaurus that outlives its minute **dies** — Java's "suicide" event is
+/// `doDie(null)`, not a despawn, so it plays the death animation and leaves a
+/// corpse instead of blinking out in front of whoever was fighting it.
+#[test]
+fn an_expiring_lavasaurus_dies_rather_than_vanishing() {
+    use crate::model::components::Vitals;
+
+    let (mut world, _db, _l) = combat_test_world();
+    const WORKER: i32 = 22634;
+    const NEWBORN: i32 = 18799;
+    for id in [WORKER, NEWBORN] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+    let w = |i: i32| NPC_OID + 700 + i;
+    for i in 0..3 {
+        add_test_npc(&mut world, w(i), WORKER, "Monster", 40, 100, 0, 0);
+    }
+    for i in 0..3 {
+        world.forced_rolls.push_back(5);
+        quests::notify_kill(&mut world, 5001, w(i), WORKER, false);
+    }
+    let mut beast = 0;
+    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+        if n.npc_id == NEWBORN {
+            beast = n.object_id;
+        }
+    });
+    assert_ne!(beast, 0, "the forge erupted");
+
+    // Still alive well inside its minute.
+    advance_world(&mut world, 300);
+    assert!(
+        world
+            .objects
+            .get_component::<Vitals>(&beast)
+            .is_some_and(|v| !v.dead),
+        "not yet"
+    );
+
+    // Just past 60 s it is dead — present as a corpse, not simply gone.
+    // Asserting "dead" rather than "absent" is the whole point: a despawn
+    // would also make it absent, so absence proves nothing. The window is
+    // tight on purpose — wait much longer and the corpse decays, which looks
+    // exactly like the despawn this is meant to rule out.
+    advance_world(&mut world, 305);
+    assert!(
+        world
+            .objects
+            .get_component::<Vitals>(&beast)
+            .is_some_and(|v| v.dead),
+        "the lavasaurus dies on expiry, and the corpse is still there to see"
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Slice 6 — the Beast Farm feeding chain
 // ---------------------------------------------------------------------------
