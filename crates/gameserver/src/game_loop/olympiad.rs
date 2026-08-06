@@ -698,12 +698,12 @@ fn make_matches(world: &mut World) {
     }
 }
 
-/// The single grassy-arena spawn points (`zones/olympiad_stadium.xml`), for
-/// player one and player two. TODO(G25): Java gives each match its own
-/// stadium instance (the four Olympiad arena templates are ported and the
-/// instance engine landed with G27, so the old blocker is gone) — until the
-/// per-match instancing is built, concurrent matches share these coordinates
-/// and can see each other.
+/// The grassy-arena spawn points (`zones/olympiad_stadium.xml`), for player
+/// one and player two. Every match shares these coordinates — isolation comes
+/// from the per-match private instance `start_match` creates (fighters and
+/// observers are scoped to it, so concurrent bouts never see each other; the
+/// dist's four arena templates all point at the grassy arena's geometry
+/// anyway, three of them explicitly commented "Use Grassy Arena").
 const ARENA_SPAWN_A: (i32, i32, i32) = (-89597, -252841, -3320);
 const ARENA_SPAWN_B: (i32, i32, i32) = (-86544, -252846, -3320);
 /// `AltOlyBattle` — the battle length (5 min); an undecided fight is a draw.
@@ -774,6 +774,22 @@ const COUNTDOWN: &[(u64, CountdownStep)] = &[
 pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player_b: i32) {
     // A private instance so concurrent bouts sharing arena coords stay isolated.
     let instance_id = world.instances.create(0);
+    // Observers already watching this stadium slot follow it to the new bout
+    // (Java's per-slot instance is permanent; ours is per-match, so the
+    // spectators must be re-scoped or they'd be stranded in the dead one).
+    let mut watching: Vec<i32> = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &OlympiadObserver)>(|(p, o)| {
+            if o.arena == arena as i32 {
+                watching.push(p.object_id);
+            }
+        });
+    for oid in watching {
+        world
+            .objects
+            .add_components(&oid, crate::model::components::InstanceId(instance_id));
+    }
     world.olympiad.matches.push(OlympiadMatch {
         arena,
         player_a,

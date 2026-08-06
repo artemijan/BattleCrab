@@ -1477,3 +1477,56 @@ fn the_round_end_snapshots_the_class_leaderboard() {
         "the snapshot is persisted too"
     );
 }
+
+/// An observer watching a stadium slot follows it into the NEXT match's
+/// instance — Java's per-slot instance is permanent, ours is per-match, so
+/// `start_match` re-scopes the slot's spectators or they would be stranded
+/// watching a destroyed instance.
+#[test]
+fn an_observer_follows_the_arena_into_the_next_match() {
+    use crate::model::components::{OlympiadObserver, Vitals};
+    use crate::model::olympiad::NobleStats;
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.in_comp_period = true;
+    let _rx_a = stage_match(&mut world, 100, 200, 50, 50);
+    let first = world.instances.create(0);
+    world.olympiad.matches[0].instance_id = first;
+
+    // A spectator scoped to the running match.
+    let _rx_o = ingame_player(&mut world, 3, 300, 0, 0, 0);
+    crate::game_loop::olympiad::enter_observer(&mut world, 3, 300, 0);
+    assert_eq!(crate::game_loop::helpers::instance_of(&world, 300), first);
+
+    // The match resolves; its instance dies but the spectator stays put.
+    world
+        .objects
+        .get_component_mut::<Vitals>(&200)
+        .unwrap()
+        .dead = true;
+    crate::game_loop::olympiad::handle_match_tick(&mut world, 0);
+    assert!(world.olympiad.matches.is_empty(), "match resolved");
+    assert!(!world.instances.contains(first), "old instance torn down");
+    assert!(
+        world.objects.has_component::<OlympiadObserver>(&300),
+        "still an observer"
+    );
+
+    // The next bout on the same slot picks the spectator up.
+    let _rx_c = ingame_player(&mut world, 4, 400, 500, 500, 0);
+    let _rx_d = ingame_player(&mut world, 5, 500, 600, 600, 0);
+    for oid in [400, 500] {
+        world
+            .olympiad
+            .nobles
+            .insert(oid, NobleStats::fresh(2, "N".into()));
+        world.olympiad.in_competition.insert(oid);
+    }
+    crate::game_loop::olympiad::start_match(&mut world, 0, 400, 500);
+    let second = world.olympiad.matches[0].instance_id;
+    assert_ne!(second, first);
+    assert_eq!(
+        crate::game_loop::helpers::instance_of(&world, 300),
+        second,
+        "the spectator was re-scoped into the new match's instance"
+    );
+}
