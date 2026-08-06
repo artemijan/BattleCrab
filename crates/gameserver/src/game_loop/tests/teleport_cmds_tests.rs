@@ -250,7 +250,9 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
-        effects: vec![crate::model::skill::SkillEffect::EscapeToTown],
+        effects: vec![crate::model::skill::SkillEffect::Escape {
+            dest: crate::model::skill::EscapeDest::Town,
+        }],
         ..Default::default()
     });
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -346,7 +348,9 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
         magic_type: 2, // static: the forced hit time is used verbatim
         hit_time: 300_000,
         mp_initial_consume: 50,
-        effects: vec![crate::model::skill::SkillEffect::EscapeToTown],
+        effects: vec![crate::model::skill::SkillEffect::Escape {
+            dest: crate::model::skill::EscapeDest::Town,
+        }],
         ..Default::default()
     });
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);

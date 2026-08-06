@@ -374,6 +374,27 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     if !still_active {
         return;
     }
+    // `Grow.onExit` — put the normal collision cylinder back. Runs on every
+    // removal path (timeout, dispel, death), which is what Java's `onExit`
+    // does too: the swell must not outlive the buff that caused it.
+    let expiring_level = world
+        .objects
+        .get_component::<Buffs>(&player_object_id)
+        .and_then(|b| {
+            b.0.iter()
+                .find(|b| b.skill_id == skill_id)
+                .map(|b| b.skill_level)
+        })
+        .unwrap_or(1);
+    if world
+        .data
+        .skill_data
+        .get(skill_id, expiring_level)
+        .is_some_and(|s| s.effects.iter().any(|e| matches!(e, SkillEffect::Grow)))
+    {
+        super::continuous::set_collision_grown(world, player_object_id, false);
+    }
+
     // `ResurrectionSpecial.onExit` — the auto-resurrect. The buff does nothing
     // while it is up; what fires it is being *stripped*, which is what death
     // does.

@@ -409,6 +409,12 @@ pub(crate) fn resolve_cast_target(
             }
             t
         }
+        // `targethandlers/OwnerPet.java` — `creature.getActingPlayer()`, which
+        // for a **player** caster is the player themselves. No skill on this
+        // dist puts OWNER_PET in a player's hands (every carrier is a pet
+        // skill, resolved on the servitor path in `npc_cast`), but Java would
+        // self-target here rather than refuse, so this does too.
+        TargetType::OwnerPet => caster.object_id,
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
     let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;

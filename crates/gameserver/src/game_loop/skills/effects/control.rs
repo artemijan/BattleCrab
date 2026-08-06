@@ -992,6 +992,85 @@ pub(crate) fn accept_summon_request(
 /// The `TargetType::Enemy` gate is Java's: `CallPc` on any other target type
 /// from a non-player effector falls to the `teleToLocation` branch, which is
 /// the *player* being recalled — not something a monster does.
+/// `TeleportToTarget.instant` — the mirror of [`call_pc`]: instead of dragging
+/// the victim to the caster, the **caster** dashes to a point 25 units behind
+/// the target.
+///
+/// "Behind" is the target's own heading flipped 180°, so the caster lands at
+/// its back — a gap-closer, not a swap. Carrier on this dist is skill 4671,
+/// used by the Splendor mobs (21524/21531/21539) to catch a runner.
+///
+/// Java's `canStart` gates on `canSeeTarget(effected, effector)`; the NPC cast
+/// pipeline has already run that geodata check by the time an effect applies,
+/// so it is not repeated here.
+pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid: i32) {
+    let (Some(from), Some(to)) = (
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&caster_oid)
+            .copied(),
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&target_oid)
+            .copied(),
+    ) else {
+        return;
+    };
+
+    // Java: `convertHeadingToDegree(heading)` (heading / 182.044444444, i.e.
+    // heading * 360 / 65536), + 180 wrapped into 0..360, then to radians.
+    let mut degrees = to.heading as f64 * 360.0 / 65536.0 + 180.0;
+    if degrees > 360.0 {
+        degrees -= 360.0;
+    }
+    let radians = degrees.to_radians();
+    let x = (to.x as f64 + 25.0 * radians.cos()) as i32;
+    let y = (to.y as f64 + 25.0 * radians.sin()) as i32;
+    let dest = world
+        .geo
+        .get_valid_location(from.x, from.y, from.z, x, y, to.z);
+
+    // `setIntention(AI_INTENTION_IDLE)` + `abortAttack()` + `abortCast()`: the
+    // dash interrupts whatever the caster was doing, its own cast included.
+    world
+        .objects
+        .remove_component::<crate::model::components::Movement>(&caster_oid);
+    world
+        .objects
+        .remove_component::<crate::model::components::Intent>(&caster_oid);
+    world
+        .objects
+        .remove_component::<crate::model::components::AttackState>(&caster_oid);
+    crate::game_loop::skills::cast::abort_cast_when_untargeted(world, caster_oid);
+
+    // Java broadcasts `FlyToLocation` *before* `setXYZ` and `ValidateLocation`
+    // after it: the client animates the slide, then has the landing confirmed.
+    crate::game_loop::helpers::broadcast_including_self(
+        world,
+        caster_oid,
+        &server_packets::fly_to_location(
+            caster_oid,
+            (from.x, from.y, from.z),
+            dest,
+            server_packets::FlyType::Dummy,
+        ),
+    );
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&caster_oid)
+    {
+        pos.x = dest.0;
+        pos.y = dest.1;
+        pos.z = dest.2;
+    }
+    world.set_player_region(caster_oid, crate::world::region_of(dest.0, dest.1));
+    crate::game_loop::helpers::broadcast_including_self(
+        world,
+        caster_oid,
+        &server_packets::validate_location(caster_oid, dest.0, dest.1, dest.2, from.heading),
+    );
+}
+
 pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
     // "if (effector == effected) return" — a mob can't summon itself.
     if caster_oid == target_oid {

@@ -121,6 +121,12 @@ pub struct NpcTemplate {
     // <collision>
     pub collision_radius: f64,
     pub collision_height: f64,
+    /// `<radius grown>` / `<height grown>` — the cylinder the `Grow` effect
+    /// swells this NPC to (Java `getCollisionRadiusGrown`). 1891 templates on
+    /// this dist declare them; 0.0 means "none declared", and `Grow` then
+    /// leaves the normal cylinder alone rather than collapsing it.
+    pub collision_radius_grown: f64,
+    pub collision_height_grown: f64,
 
     // <attack> extras consumed by G9 combat.
     /// `random` attribute → Java `baseRndDam` (`RANDOM_DAMAGE` stat base).
@@ -534,6 +540,8 @@ pub fn default_template(id: i32) -> NpcTemplate {
         base_run_spd: 120.0,
         collision_radius: 0.0,
         collision_height: 0.0,
+        collision_radius_grown: 0.0,
+        collision_height_grown: 0.0,
         base_rnd_dam: 0,
         base_crit_rate: 4.0,
         exp: 0.0,
@@ -910,11 +918,13 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             b"radius" => {
                 if let Some(t) = cur.as_mut() {
                     set_f64(&e, b"normal", &mut t.collision_radius);
+                    set_f64(&e, b"grown", &mut t.collision_radius_grown);
                 }
             }
             b"height" => {
                 if let Some(t) = cur.as_mut() {
                     set_f64(&e, b"normal", &mut t.collision_height);
+                    set_f64(&e, b"grown", &mut t.collision_height_grown);
                 }
             }
             _ => {}

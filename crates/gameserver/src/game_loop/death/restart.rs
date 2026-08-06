@@ -297,8 +297,14 @@ fn siege_restart_location(
         || matches!(role, Some(SiegeClanType::Owner | SiegeClanType::Defender));
     match point_type {
         2 if is_defender => {
+            // `getSpawnLoc()` / `getChaoticSpawnLoc()`: a defender with
+            // negative reputation restarts at the castle's chaotic points.
             let pts = world.data.castle_restart_points.get(&castle_id)?;
-            (!pts.is_empty()).then(|| pts[pick % pts.len()])
+            let chaotic = world
+                .objects
+                .get_component::<crate::model::Player>(&player_oid)
+                .is_some_and(|p| p.reputation < 0);
+            pts.pick(chaotic, pick)
         }
         4 if role == Some(SiegeClanType::Attacker) => {
             let flag_oid = siege.flag_of(clan_id)?;

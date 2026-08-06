@@ -10,6 +10,42 @@ use super::*;
 /// `skill.applyEffects(this, this, false, remainingTime)` — the `instant =
 /// false` there is exactly why this half has to be separable, since a restored
 /// buff must not re-fire the skill's damage or heal.
+/// `Grow.onStart` / `Grow.onExit` — swap an NPC's collision cylinder between
+/// its template's normal and `grown` measurements.
+///
+/// Java reads the template on both edges rather than remembering what it
+/// replaced, so a mob that grew keeps its *template's* normal size on exit even
+/// if something else changed the cylinder meanwhile. Ported as written: it is
+/// the same read either way, just a different pair of fields.
+///
+/// A template with no `grown` values (0.0) is left alone — Java would shrink it
+/// to nothing, which is plainly not the intent and which no carrier hits, since
+/// every NPC that casts a `Grow` skill declares both.
+pub(crate) fn set_collision_grown(world: &mut World, npc_oid: i32, grown: bool) {
+    let Some(size) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+        .map(|t| {
+            if grown {
+                (t.collision_radius_grown, t.collision_height_grown)
+            } else {
+                (t.collision_radius, t.collision_height)
+            }
+        })
+        .filter(|(r, h)| *r > 0.0 && *h > 0.0)
+    else {
+        return;
+    };
+    if let Some(c) = world
+        .objects
+        .get_component_mut::<crate::model::components::Collision>(&npc_oid)
+    {
+        c.radius = size.0;
+        c.height = size.1;
+    }
+}
+
 pub(crate) fn apply_continuous_effects(
     world: &mut World,
     caster_oid: i32,
@@ -79,6 +115,14 @@ pub(crate) fn apply_continuous_effects(
             // `Lucky` is an empty effect in Java too — `Player.isLucky()` asks
             // whether the buff is *present*, so landing is the whole job.
             | SkillEffect::Lucky
+            // `Grow` is modifier-less in the same way: the swell is applied by
+            // its `onStart` and undone by `handle_buff_expire`, so a buff
+            // dropped by this guard would leave the mob permanently grown.
+            // Every real carrier also has a stat half (Might 4028 pumps PAtk),
+            // which is why this was survivable — but relying on a *sibling*
+            // effect to keep the buff alive is exactly the trap the comments
+            // above record, so `Grow` joins the list on its own account.
+            | SkillEffect::Grow
             // Its grant is written *after* the buff lands (by `night_stats`),
             // so at guard time it looks modifier-less. Tenth slice caught here.
             | SkillEffect::NightStatModify { .. }
@@ -291,6 +335,9 @@ pub(crate) fn apply_continuous_effects(
             // `AttackTrait.onStart` — the attacker-side twin. Note it merges
             // onto the **effected**, which for these self-buffs is the caster.
             SkillEffect::AttackTrait { traits } => merge_attack_traits(world, target_oid, traits),
+            // `Grow.onStart` — `setCollisionHeight/Radius(getTemplate()
+            // .getCollision*Grown())`, NPCs only.
+            SkillEffect::Grow => set_collision_grown(world, target_oid, true),
             _ => {}
         }
     }

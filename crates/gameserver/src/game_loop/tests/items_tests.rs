@@ -1155,7 +1155,9 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
-        effects: vec![SkillEffect::EscapeToTown],
+        effects: vec![SkillEffect::Escape {
+            dest: crate::model::skill::EscapeDest::Town,
+        }],
         ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {

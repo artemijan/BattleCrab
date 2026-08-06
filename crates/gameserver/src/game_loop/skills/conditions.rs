@@ -307,12 +307,137 @@ fn eval(
             skill_id,
             has_learned,
         } => ok(knows_skill(world, target, *skill_id) == *has_learned),
+        // `OpSkill` — the *caster's* own book, and the level must match
+        // exactly. The negative form is "not at that level", not "absent", so
+        // an Ancient Book stays usable at every level below the one it grants.
+        SkillCondition::SkillKnown {
+            skill_id,
+            skill_level,
+            has_learned,
+        } => {
+            let at_level = world
+                .objects
+                .get_component::<crate::model::components::SkillBook>(&caster)
+                .and_then(|b| b.0.get(skill_id).copied())
+                == Some(*skill_level);
+            ok(at_level == *has_learned)
+        }
+        // ---- residences ----------------------------------------------------
+        SkillCondition::Home { residence } => ok(owns_residence(world, caster, *residence)),
+        // ---- target identity -----------------------------------------------
+        SkillCondition::TargetDoor { door_ids } => {
+            ok(is_door(world, target) && door_ids.contains(&template_id_of(world, target)))
+        }
+        // Java re-reads `caster.getTarget()` here for a player caster rather
+        // than trusting the resolved target — for a `SELF` skill like Nectar
+        // (2005) those are different objects, and it is the *selection* the
+        // condition is about.
+        SkillCondition::TargetNpc { npc_ids } => {
+            let actual = if is_player(world, caster) {
+                world
+                    .objects
+                    .get_component::<crate::model::components::TargetRef>(&caster)
+                    .and_then(|t| t.0)
+            } else {
+                Some(target)
+            };
+            ok(actual.is_some_and(|t| {
+                (is_npc(world, t) || is_door(world, t))
+                    && npc_ids.contains(&template_id_of(world, t))
+            }))
+        }
+        SkillCondition::Companion { kind } => ok(match kind {
+            crate::model::skill::CompanionKind::Pet => is_pet(world, target),
+            // `caster.getServitor(target.getObjectId()) != null` — *my*
+            // servitor, not merely any summon.
+            crate::model::skill::CompanionKind::MySummon => {
+                super::super::servitor::servitor_of(world, caster) == Some(target)
+            }
+        }),
+        // `OpAlignment` — `LAWFUL` is reputation >= 0, `CHAOTIC` below it. The
+        // `TARGET` form requires an actual player; a monster fails it.
+        SkillCondition::Alignment { affect, chaotic } => {
+            let test = |oid: i32| {
+                world
+                    .objects
+                    .get_component::<Player>(&oid)
+                    .is_some_and(|p| (p.reputation < 0) == *chaotic)
+            };
+            ok(match affect {
+                AffectType::Caster => test(caster),
+                AffectType::Target => is_player(world, target) && test(target),
+                // `SkillConditionAffectType` has only CASTER and TARGET, and
+                // every carrier on this dist declares one of them — this arm
+                // exists because the port shares one wider `AffectType` across
+                // conditions. Requiring both ends is the strict reading.
+                AffectType::Both => test(caster) && is_player(world, target) && test(target),
+            })
+        }
         // ---- the pre-G34 hold-out -------------------------------------------
         SkillCondition::ExistNpc(c) => {
             let found = super::cast::op_exist_npc_around(world, caster, c);
             ok(if found { c.is_around } else { !c.is_around })
         }
     }
+}
+
+/// `CastleManager.getCastleByOwner(clan)` / `ClanHallData.getClanHallByClan`
+/// / `FortManager.getFortByOwner` — [`SkillCondition::Home`]'s three arms.
+///
+/// Ownership only: Java's `OpHome` does **not** accept the siege-defender
+/// fallback that `getTeleToLocation` allows, so a defender who owns no castle
+/// is refused the blessed scroll even while standing on the ground it would
+/// have sent them to.
+fn owns_residence(
+    world: &World,
+    caster: i32,
+    residence: crate::model::skill::ResidenceType,
+) -> bool {
+    use crate::model::skill::ResidenceType;
+    let Some(clan_id) = world
+        .objects
+        .get_component::<Player>(&caster)
+        .map(|p| p.clan_id)
+        .filter(|id| *id != 0)
+    else {
+        return false;
+    };
+    match residence {
+        ResidenceType::Castle => world.clans.get(&clan_id).is_some_and(|c| c.castle_id > 0),
+        ResidenceType::ClanHall => world.clan_halls.values().any(|h| h.owner_id == clan_id),
+        // No fortress system on this chronicle, so this can never pass — which
+        // is the same answer Java gives on a server with no forts registered.
+        ResidenceType::Fortress => false,
+    }
+}
+
+/// The **template** id (`WorldObject.getId()`), which for a door is its door id
+/// and for an NPC its npc id — not the runtime object id the condition lists
+/// would never match.
+fn template_id_of(world: &World, object_id: i32) -> i32 {
+    if let Some(d) = world
+        .objects
+        .get_component::<crate::model::door::Door>(&object_id)
+    {
+        return d.door_id;
+    }
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&object_id)
+        .map_or(0, |n| n.npc_id)
+}
+
+fn is_npc(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .has_component::<crate::model::npc::Npc>(&object_id)
+}
+
+/// `WorldObject.isPet()` — a collar pet, as opposed to a summoner's servitor.
+fn is_pet(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .has_component::<crate::model::components::PetOf>(&object_id)
 }
 
 // ---------------------------------------------------------------------------

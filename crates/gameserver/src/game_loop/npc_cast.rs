@@ -445,16 +445,32 @@ pub(crate) fn resolve_npc_cast_target(
             }
             selected_oid
         }
-        // The handlers this port collapses into `Other` (`OTHERS`,
-        // `OWNER_PET`, `ARTILLERY`, `WYVERN_TARGET`, `ADVANCE_BASE`, …):
-        // passing the selected target through matches each reachable carrier.
-        // `OWNER_PET` (the tamed-beast buffs 5186-5201) is cast with the
-        // tamer already selected (`tamed_beast::handle_buff_check`), which is
-        // what Java's handler resolves to; `OTHERS` ("not self") can only
-        // receive an aggro target here, never the caster; and the
-        // siege-machine types (`ARTILLERY`, `WYVERN_TARGET`) have no AI
-        // route on this dist — their casts come from scripts that pick the
-        // target explicitly.
+        // `targethandlers/OwnerPet.java` — `creature.getActingPlayer()`, and
+        // `getActingPlayer()` on a summon is its **owner**. So a servitor
+        // casting one of these aims at the player who owns it, never at
+        // whatever the caster happens to have selected.
+        //
+        // The tamed-beast buffs (5186-5201) reach here with the tamer already
+        // selected, so they resolved correctly even while this arm was folded
+        // into `Other` — Master Recharge (4025, every Baby Kookaburra) did
+        // not, which is what put this arm here.
+        // Read straight off `ServitorOf` rather than through `acting_player`,
+        // whose "not a servitor → itself" fallback would let a plain monster
+        // self-target. Java has no such fallback: `getActingPlayer()` is null
+        // for a bare `Npc`, so the cast finds no target and dies.
+        TargetType::OwnerPet => {
+            world
+                .objects
+                .get_component::<crate::model::components::ServitorOf>(&npc_oid)?
+                .owner_object_id
+        }
+        // The handlers this port still collapses into `Other` (`OTHERS`,
+        // `ARTILLERY`, `WYVERN_TARGET`, `ADVANCE_BASE`, …): passing the
+        // selected target through matches each reachable carrier. `OTHERS`
+        // ("not self") can only receive an aggro target here, never the
+        // caster; and the siege-machine types (`ARTILLERY`, `WYVERN_TARGET`)
+        // have no AI route on this dist — their casts come from scripts that
+        // pick the target explicitly.
         TargetType::Other => selected_oid,
     };
 

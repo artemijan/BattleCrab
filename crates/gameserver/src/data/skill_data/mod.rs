@@ -31,8 +31,9 @@ use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use crate::model::skill::{
-    AffectObject, AffectScope, BasicProperty, DispelSlot, OperateType, RestorationGroup,
-    RestorationItem, Skill, SkillCondition, SkillEffect, StatModifierEffect, TargetType,
+    AffectObject, AffectScope, BasicProperty, CompanionKind, DispelSlot, EscapeDest, OperateType,
+    ResidenceType, RestorationGroup, RestorationItem, Skill, SkillCondition, SkillEffect,
+    StatModifierEffect, TargetType,
 };
 use crate::model::stats::{Stat, StatModifierType};
 
@@ -1035,8 +1036,57 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
             // Java `params.getBoolean("isFemale")`.
             is_female: flag("isFemale", false),
         }),
+        // An unrecognised `type`/`alignment` drops the whole condition rather
+        // than guessing a default: a residence gate that silently passes is
+        // worse than one the census still reports as missing.
+        "OpHome" => value_at(&params, "type", level)
+            .and_then(|v| match v {
+                "CASTLE" => Some(ResidenceType::Castle),
+                "CLANHALL" => Some(ResidenceType::ClanHall),
+                "FORTRESS" => Some(ResidenceType::Fortress),
+                _ => None,
+            })
+            .map(|residence| SkillCondition::Home { residence }),
+        "OpTargetDoor" => Some(SkillCondition::TargetDoor {
+            door_ids: id_list(c, "doorIds"),
+        }),
+        "OpTargetNpc" => Some(SkillCondition::TargetNpc {
+            npc_ids: id_list(c, "npcIds"),
+        }),
+        "OpCompanion" => value_at(&params, "type", level)
+            .and_then(|v| match v {
+                "PET" => Some(CompanionKind::Pet),
+                "MY_SUMMON" => Some(CompanionKind::MySummon),
+                _ => None,
+            })
+            .map(|kind| SkillCondition::Companion { kind }),
+        "OpAlignment" => value_at(&params, "alignment", level)
+            .and_then(|v| match v {
+                "LAWFUL" => Some(false),
+                "CHAOTIC" => Some(true),
+                _ => None,
+            })
+            .map(|chaotic| SkillCondition::Alignment {
+                affect: affect(),
+                chaotic,
+            }),
+        "OpSkill" => num("skillId").map(|skill_id| SkillCondition::SkillKnown {
+            skill_id,
+            skill_level: num("skillLevel").unwrap_or(1),
+            has_learned: flag("hasLearned", false),
+        }),
         _ => None,
     }
+}
+
+/// A condition's `<xxxIds>` child list as ids — the shape `OpTargetDoor`,
+/// `OpTargetNpc` and `OpExistNpc` all use. Unparseable entries are skipped
+/// rather than zeroed, since id `0` would match nothing anyway.
+fn id_list(c: &ParsedCondition, key: &str) -> Vec<i32> {
+    c.lists
+        .get(key)
+        .map(|ids| ids.iter().filter_map(|v| v.parse().ok()).collect())
+        .unwrap_or_default()
 }
 
 /// [`patched_effects`] for one condition: resolve its ranged `<value>` rows
