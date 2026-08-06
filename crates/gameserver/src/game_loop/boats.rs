@@ -14,9 +14,10 @@
 //! While under way it shouts the retail "the ferry will arrive in ~N minutes"
 //! announcements (`DockSchedule.voyage`, scheduled at departure).
 //!
-//! TODO(G24.5): the busy-dock delay messages (`dockBusy`/`BUSY_*`) are omitted —
-//! with one boat per route a harbor is never occupied by another vehicle, so the
-//! Java `dockBusy` branch is unreachable here.
+//! SKIP(census): the busy-dock delay messages (`dockBusy`/`BUSY_*`) are
+//! omitted — this dist runs one boat per route, so a harbor is never occupied
+//! by another vehicle and Java's `dockBusy` branch is unreachable. Revive only
+//! if a second boat ever shares a dock.
 
 use crate::enums::ChatType;
 use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};

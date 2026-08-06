@@ -5,9 +5,10 @@
 //! the bait's catch table for a fish (consuming one bait) and awards XP/SP; then
 //! it auto-recasts after the wait window.
 //!
-//! TODO(G32): fishing-zone geometry. `can_fish` here checks rod + bait + level
-//! but not the `FISHING`/`WATER` zones (no `FishingZone` loaded yet), so the bob
-//! lands at a heading offset rather than a validated water point.
+//! The cast is gated on the 13 `FishingZone`s (`fishing.xml`) at both entry
+//! points — the header claim that "no FishingZone is loaded yet" closed under
+//! it. The bob still lands at a heading offset rather than a geo-validated
+//! water point, which no zone can express; cosmetic only.
 
 use crate::data::item_data::WeaponType;
 use crate::model::Player;

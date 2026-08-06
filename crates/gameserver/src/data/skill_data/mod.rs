@@ -45,10 +45,10 @@ pub const SKILLS_DIR: &str = "data/stats/skills";
 
 /// `<effect name="X">` → the `Stat` it modifies (Java: the concrete effect
 /// class name, e.g. `PAtk.java` → `Stat.PHYSICAL_ATTACK`). Only the handful of
-/// generic `AbstractStatEffect`-style modifiers G6 needs are registered here;
-/// everything else (damage effects, CC, heals, …) is unregistered and simply
-/// dropped from the skill's effect list — the skill still loads. TODO(G9+):
-/// grow this table (and add non-stat-modifier effect kinds) as combat lands.
+/// generic `AbstractStatEffect`-style modifiers live here; the
+/// non-stat-modifier effect kinds grew into `build.rs`'s dedicated arms over
+/// G9–G34, and what remains unregistered is inventoried by the coverage
+/// census (`deferral_markers…`'s sibling tests), not by this comment.
 /// Java `Fear.getTicks()` — hard-coded, not a datapack param.
 pub(crate) const FEAR_TICKS: i32 = 5;
 

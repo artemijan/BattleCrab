@@ -1005,9 +1005,10 @@ impl EquippedBonuses {
                     Stat::AccuracyMagic => eq.magic_accuracy += val,
                     Stat::EvasionRate => eq.evasion += val,
                     Stat::MagicEvasionRate => eq.magic_evasion += val,
-                    // maxHp/maxMp item bonuses aren't folded in yet — max HP/MP
-                    // are computed by `calc_max_hp`/`calc_max_mp`, a separate
-                    // path from these finalizers. TODO(G14): apply there.
+                    // maxHp/maxMp item bonuses are folded in by
+                    // `calc_max_hp`/`calc_max_mp` themselves
+                    // (`equipped_stat_sum`) — adding them here would count
+                    // them twice.
                     _ => {}
                 }
             }
@@ -1840,12 +1841,11 @@ fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
 /// HP Increase, 4410 P.Atk, 4412 P.Def, …), on top of the raw `<vitals>`/
 /// `<attack>` base. The NPC counterpart of the player's `conditioned_passive_buffs`.
 ///
-/// NPCs have no `Inventory` to test `<armorType>`/`<weaponType>` conditions
-/// against, so only unconditioned effects apply.
-/// TODO(G?): condition-gated NPC passives (e.g. 4415 "One-handed Sword" weapon
-/// mastery) need the template `<equipment>` evaluated like the player path;
-/// until then they're skipped. The dominant HP/atk/def passives (4408-4413) are
-/// unconditioned, so this covers the bulk of the stat delta.
+/// Weapon-conditioned effects (4415 "One-handed Sword" mastery, …) evaluate
+/// against the template's `<equipment>` right hand — the NPC counterpart of
+/// the player's paperdoll check. Armor-conditioned ones stay skipped: an NPC
+/// wears no armor pieces, and Java's `<using kind="Heavy">` evaluates false
+/// there too.
 fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> StatModifiers {
     use crate::model::skill::{OperateType, SkillEffect};
     let mut mods = StatModifiers::default();
@@ -1859,7 +1859,10 @@ fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> 
         for effect in &skill.effects {
             if let SkillEffect::StatModifier(m) = effect
                 && m.armor_condition == 0
-                && m.weapon_condition == 0
+                && (m.weapon_condition == 0
+                    || (t.rhand != 0
+                        && m.weapon_condition & data.item_data.weapon_type(t.rhand).mask_bit()
+                            != 0))
             {
                 apply_modifier(&mut mods, m);
             }

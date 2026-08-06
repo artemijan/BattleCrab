@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **19** such
+of narrow behaviours deferred and marked at the site. There are **12** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,24 +79,17 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
-| `TODO(G14)` | 1 | `model/mod.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
 | `TODO(G17)` | 1 | `game_loop/subclass.rs` |
 | `TODO(G22)` | 1 | `scripts/primeval_isle.rs` |
-| `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
 | `TODO(G27)` | 1 | `game_loop/duel.rs` |
 | `TODO(G30)` | 1 | `game_loop/community_board.rs` |
-| `TODO(G32)` | 1 | `game_loop/fishing.rs` |
 | `TODO(G33)` | 1 | `game_loop/offline_trade.rs` |
 | `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
-| `TODO(G7)` | 1 | `data/player_template.rs` |
 | `TODO(G7.5)` | 1 | `data/skill_data/build.rs` |
-| `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
-| `TODO(G?)` | 1 | `model/mod.rs` |
 | `TODO(login-playauth)` | 1 | `crates/gameserver/tests/e2e_create.rs` |
 
 ## Closed
@@ -106,6 +99,11 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | Singleton pass: 19 → 12 | Seven closed; every survivor is a deliberate, precisely-worded feature deferral. |
+| 2026-08-06 | `TODO(G?)` (NPC conditioned passives) | **Closed.** Weapon-conditioned template passives (4415 sword mastery, …) now evaluate against the template's `<equipment>` right hand, the NPC counterpart of the paperdoll check; armor-conditioned ones stay skipped because Java's `<using kind>` evaluates false for an NPC too. Tested: the mastery applies armed, contributes nothing bare-handed. |
+| 2026-08-06 | `TODO(G14)`, `TODO(G32)`, `TODO(G-later)`, `TODO(G9+)`, `TODO(G7)` — all stale | Item maxHp/maxMp bonuses were already folded (in `calc_max_hp`/`calc_max_mp` themselves — the finalizer comment predated them); fishing's zone gate existed at both entry points; the UI keymap store/load round-trip was complete (`settings.rs` + the lobby replay) under a doc saying "null for now"; the effect-registry growth note described a process G9–G34 finished; and the player-template "full stat calc" note predated the finalizers by ~25 milestones. |
+| 2026-08-06 | `TODO(G24.5)` → `SKIP(census)` | The busy-dock messages guard a branch this dist can't reach (one boat per route); recorded with its revive condition. |
+| 2026-08-06 | `TODO(G25)` reworded | The stadium-instancing blocker (G27) is gone — arena templates + instance engine are ported; the marker now states the remaining work (per-match instancing) and its live symptom (concurrent matches share coordinates). |
 | 2026-08-06 | The ten 2-marker groups: 20 → 3 | G15, G18, G18.6, G21+, G23, G26.5, G29+ closed whole; G17, G7.5, login-playauth each consolidated to one precise survivor. |
 | 2026-08-06 | `TODO(G15)` ×2 | **Closed.** The sweep now runs `checkInventorySlotsAndWeight` before claiming loot (slots per Java's stackable rule, weight summed per *line* — Java's own quirk — refused with SM 1036's sibling YOUR_INVENTORY_IS_FULL, loot staying on the corpse); and a timed item skill that loses the race against a running cast queues as `QueuedAction::UseItem` and replays when the cast ends — the port's `_queuedSkill`. |
 | 2026-08-06 | `TODO(G18)` ×2 | **One stale, one real.** `check_if_pvp`'s doc still said clan wars "need systems this port lacks" directly above the line implementing the MUTUAL-war leg (the academy exemption is now exact too). The real half: `onDieDropItem`'s first gate — a clean victim killed by a clan-war enemy drops nothing — is ported and tested. |

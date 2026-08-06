@@ -699,8 +699,11 @@ fn make_matches(world: &mut World) {
 }
 
 /// The single grassy-arena spawn points (`zones/olympiad_stadium.xml`), for
-/// player one and player two. TODO(G25): the four stadiums are separate
-/// instances (needs G27); until then matches share these coordinates.
+/// player one and player two. TODO(G25): Java gives each match its own
+/// stadium instance (the four Olympiad arena templates are ported and the
+/// instance engine landed with G27, so the old blocker is gone) — until the
+/// per-match instancing is built, concurrent matches share these coordinates
+/// and can see each other.
 const ARENA_SPAWN_A: (i32, i32, i32) = (-89597, -252841, -3320);
 const ARENA_SPAWN_B: (i32, i32, i32) = (-86544, -252846, -3320);
 /// `AltOlyBattle` — the battle length (5 min); an undecided fight is a draw.

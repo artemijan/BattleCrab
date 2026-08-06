@@ -762,3 +762,63 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
         "ChampionFrequency = 0 → never a champion"
     );
 }
+
+/// NPC weapon-conditioned passives (`<using kind>` masteries like 4415): the
+/// stat pump applies when the template's `<equipment>` right hand matches the
+/// condition, and contributes nothing bare-handed — Java evaluates the
+/// condition against the template weapon, armor conditions stay false.
+#[test]
+fn npc_weapon_mastery_needs_the_template_weapon() {
+    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::stats::{Stat, StatModifierType};
+
+    let (mut world, ..) = cast_test_world();
+    const SWORD: i32 = 9990;
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(SWORD, crate::data::item_data::WeaponType::Sword);
+    let mut mastery = passive_clan_test_skill(9403);
+    mastery.effects = vec![SkillEffect::StatModifier(StatModifierEffect {
+        stat: Stat::PhysicalAttack,
+        mode: StatModifierType::Diff,
+        amount: 50.0,
+        armor_condition: 0,
+        weapon_condition: crate::data::item_data::WeaponType::Sword.mask_bit(),
+        qualifier: None,
+        two_handed: false,
+    })];
+    world.data.skill_data.insert_for_test(mastery);
+
+    let mut armed = monster(40);
+    armed.base_p_atk = 100.0;
+    armed.skill_list = vec![(9403, 1)];
+    armed.rhand = SWORD;
+    let mut bare = armed.clone();
+    bare.rhand = 0;
+
+    let with_sword = crate::model::npc_finalized_stats(
+        &world.data,
+        &armed,
+        &Buffs::default(),
+        crate::model::ChampionStatMods::default(),
+    )
+    .0
+    .p_atk;
+    let barehanded = crate::model::npc_finalized_stats(
+        &world.data,
+        &bare,
+        &Buffs::default(),
+        crate::model::ChampionStatMods::default(),
+    )
+    .0
+    .p_atk;
+    assert!(
+        with_sword > barehanded,
+        "the sword mastery applies only with the template sword ({with_sword} vs {barehanded})"
+    );
+    assert!(
+        (with_sword - barehanded - 50.0).abs() < 0.001,
+        "and by exactly its +50"
+    );
+}

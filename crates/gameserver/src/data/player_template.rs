@@ -55,7 +55,8 @@ pub struct PlayerTemplate {
     pub hp_regen_table: Vec<f64>,
     pub mp_regen_table: Vec<f64>,
     pub cp_regen_table: Vec<f64>,
-    // Base combat stats (TODO(G7): full stat calc with modifiers/items).
+    // Base combat stats — the naked-class bases the stat finalizers build on
+    // (modifiers/items fold in downstream, `model::calc_*` / `ItemStats`).
     pub base_p_atk: i32,
     pub base_p_atk_spd: i32,
     pub base_m_atk: i32,
