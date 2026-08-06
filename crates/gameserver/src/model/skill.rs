@@ -1286,6 +1286,14 @@ pub enum SkillEffect {
         power: f64,
         ticks: i32,
     },
+    /// `handlers/effecthandlers/MagicalAttackRange.java` — the ranged nuke
+    /// (Prominence 1230 family): `MagicalAttack`'s exact `calcMagicDam` core
+    /// plus a shield term — a successful block adds `shldDef ·
+    /// shieldDefPercent / 100` to mDef, a perfect block caps the hit at 1.
+    MagicalAttackRange {
+        power: f64,
+        shield_def_percent: f64,
+    },
     /// `handlers/effecthandlers/Restoration.java` — instant single-item
     /// grant. Backs item-use skills wrapping a fixed pack/box reward (e.g.
     /// spiritshot packs): the item's `<skills>` entry casts this, which is

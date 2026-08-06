@@ -43,10 +43,9 @@
 //!
 //! ## Deviations and dead weight
 //!
-//! - Java selects the quest state with `getRandomPartyMemberState(player, -1,
-//!   3, npc)`. The port has no party-aware selection; as in
-//!   `q00303_collect_arrowheads` this reduces to the killer, which is the same
-//!   thing solo. TODO(G13+): revisit when quest party support lands.
+//! - Kill credit selects `getRandomPartyMemberState(player, -1, 3, npc)` — a
+//!   random started party member in range, the killer 3× likelier
+//!   (`retarget_random_party_member`), the same thing solo.
 //! - The accept event is **`START`**, not the `ACCEPT` every other Path quest
 //!   uses.
 //! - `cond 10` is never assigned — the chain jumps 9 → 11.
@@ -266,7 +265,9 @@ impl QuestScript for Q00416PathOfTheOrcShaman {
     }
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
+        // `getRandomPartyMemberState(player, -1, 3, npc)` — Java bails on
+        // null; the retarget covers the has-state/started gates.
+        if !ctx.retarget_random_party_member(-1, 3) {
             return;
         }
         let npc_id = ctx.npc_id;
