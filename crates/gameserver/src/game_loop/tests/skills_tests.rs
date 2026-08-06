@@ -6360,3 +6360,61 @@ fn a_passive_rate_skill_actually_discounts_the_skill_it_names() {
     crate::game_loop::passive_skills::refresh_conditioned_passives(&mut world, 7711);
     assert_eq!(mp(&world, &song), song_before, "and it comes back off");
 }
+
+/// End to end, the way a GM actually tests it: `//add_skill 428 1`, then cast
+/// a real dance and measure the MP that actually left the bar.
+///
+/// The unit-level test above calls `mp_consume_for` directly, one layer below
+/// the cast path — this one goes through the admin command and
+/// `RequestMagicSkillUse` so nothing between them can quietly skip the rate.
+#[test]
+fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const CHAMPION_SONG: i32 = 364;
+    const OID: i32 = 7721;
+
+    let cast_cost = |learn_inner_rhythm: bool| -> f64 {
+        let (mut world, ..) = test_world();
+        world.data = crate::data::GameData::load_from(DIST);
+        let _rx = ingame_player_access(&mut world, 1, OID, 100);
+        // A real MP pool rather than a hand-set one: `//add_skill` recomputes
+        // max vitals, and a level-1 character's ~40 MP would be clamped back
+        // under the song's 60 anyway.
+        crate::game_loop::death::set_level(&mut world, OID, 78);
+        {
+            let max = world.objects.get_component::<Vitals>(&OID).unwrap().max_mp;
+            let v = world.objects.get_component_mut::<Vitals>(&OID).unwrap();
+            v.cur_mp = max as f64;
+        }
+        crate::game_loop::admin::use_admin_command(
+            &mut world,
+            1,
+            &format!("admin_add_skill {CHAMPION_SONG} 1"),
+            false,
+        );
+        if learn_inner_rhythm {
+            crate::game_loop::admin::use_admin_command(
+                &mut world,
+                1,
+                "admin_add_skill 428 1",
+                false,
+            );
+        }
+        let before = world.objects.get_component::<Vitals>(&OID).unwrap().cur_mp;
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(CHAMPION_SONG, false));
+        advance_world(&mut world, 40); // hitTime 2500 ms
+        let after = world.objects.get_component::<Vitals>(&OID).unwrap().cur_mp;
+        before - after
+    };
+
+    let plain = cast_cost(false);
+    assert_eq!(
+        plain, 60.0,
+        "sanity: the song really costs its listed 60 MP"
+    );
+    assert_eq!(
+        cast_cost(true),
+        54.0,
+        "Inner Rhythm takes 10 % off the MP that actually leaves the bar"
+    );
+}

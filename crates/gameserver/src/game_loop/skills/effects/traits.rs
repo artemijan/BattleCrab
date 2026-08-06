@@ -469,13 +469,13 @@ pub(crate) fn merge_skill_rates(world: &mut World, target_oid: i32, skill: &Skil
 /// `conditioned_passive_buffs` keeps only `StatModifier` effects, so a passive
 /// whose *only* effect is a rate produced no buff and reached no table. That
 /// left Inner Rhythm (428), Quick Recovery (164), Summon Lore (435), Divine
-/// Lore (436), Holy Squad (615), Magician\'s Will (945) and Expert Casting
+/// Lore (436), Holy Squad (615), Magician's Will (945) and Expert Casting
 /// (1527) doing nothing at all, plus the Clarity/Apella/boss-jewel item
 /// skills.
 ///
 /// Wholesale rather than incremental, and therefore idempotent — see
 /// `SkillRateStats::passive_mp_consume` for why passives cannot share the
-/// buff tables\' merge/un-merge discipline.
+/// buff tables' merge/un-merge discipline.
 pub(crate) fn refresh_passive_skill_rates(world: &mut World, object_id: i32) {
     use crate::model::components::{SkillBook, SkillRateStats};
     use crate::model::skill::OperateType;
@@ -541,7 +541,7 @@ pub(crate) fn refresh_passive_skill_rates(world: &mut World, object_id: i32) {
     }
 }
 
-/// `MagicMpCost.onExit` / `Reuse.onExit` — Java\'s `div`, the exact inverse of
+/// `MagicMpCost.onExit` / `Reuse.onExit` — Java's `div`, the exact inverse of
 /// the `mul` above, so unmerging out of order still lands back on 1.
 pub(crate) fn remove_skill_rates(world: &mut World, target_oid: i32, skill: &Skill) {
     use crate::model::components::SkillRateStats;
