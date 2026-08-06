@@ -1513,3 +1513,130 @@ fn tamed_beast_buffs_its_underbuffed_owner() {
         "a sufficiently buffed tamer is left alone"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Creature-see (G22) — Java `CreatureSeeTaskManager` + `addCreatureSeeId`
+// ---------------------------------------------------------------------------
+
+/// A player walking into an Ornithomimus's sight spooks it exactly once: the
+/// herd-flee arm clears aggro, marks the script value and sends it running —
+/// and the seen-set keeps the second sweep from firing again.
+#[test]
+fn creature_see_spooks_the_ornithomimus_once() {
+    let (mut world, _db, _l) = combat_test_world();
+    let mut t = crate::data::npc_data::default_template(22742);
+    t.type_name = "Monster".into();
+    t.level = 75;
+    t.aggro_range = 500;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID + 700, 22742, "Monster", 75, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+
+    quests::handle_creature_see_sweep(&mut world);
+    let sv = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+            .unwrap()
+            .script_value
+    };
+    assert_eq!(sv(&world), 1, "the Ornit spooked on first sight");
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Speeds>(&(NPC_OID + 700))
+            .unwrap()
+            .running,
+        "and it runs"
+    );
+
+    // Same player, second sweep: already seen — the flee arm must not re-fire.
+    if let Some(n) = world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&(NPC_OID + 700))
+    {
+        n.script_value = 0;
+    }
+    quests::handle_creature_see_sweep(&mut world);
+    assert_eq!(sv(&world), 0, "a creature is only ever seen once");
+}
+
+/// A Tyrannosaurus sighting a herbivore hunts it — the charge is seeded on
+/// the prey, not on any player.
+#[test]
+fn trex_hunts_a_herbivore_on_sight() {
+    let (mut world, _db, _l) = combat_test_world();
+    world.data.npc_data.insert_for_test(trex_template());
+    let mut prey = crate::data::npc_data::default_template(22202);
+    prey.type_name = "Monster".into();
+    prey.level = 74;
+    world.data.npc_data.insert_for_test(prey);
+    add_test_npc(&mut world, NPC_OID + 700, 22215, "Monster", 76, 0, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 701, 22202, "Monster", 74, 200, 0, 0);
+
+    quests::handle_creature_see_sweep(&mut world);
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 700))
+            .is_some_and(|a| a.0.contains_key(&(NPC_OID + 701))),
+        "the Trex charges the herbivore"
+    );
+}
+
+/// The ordinary dinosaurs' parameter block on attack: the HP band writes
+/// `SKILL_MULTIPLER`, and dropping under 30% pops the one-shot self range
+/// buff (aggro cleared, most hated re-seeded).
+#[test]
+fn dinosaur_low_hp_pops_the_selfbuff_once() {
+    let (mut world, _db, _l) = combat_test_world();
+    let mut t = crate::data::npc_data::default_template(22198);
+    t.type_name = "Monster".into();
+    t.level = 75;
+    t.base_hp_max = 1000.0;
+    t.ai_params
+        .insert("ProbPhysicalSpecial1".into(), "10".into());
+    t.ai_params
+        .insert("ProbPhysicalSpecial2".into(), "20".into());
+    t.ai_skill_params.insert("SelfRangeBuff1".into(), (5079, 1));
+    t.ai_skill_params
+        .insert("PhysicalSpecial1".into(), (5081, 2));
+    t.ai_skill_params
+        .insert("PhysicalSpecial2".into(), (5082, 2));
+    world.data.npc_data.insert_for_test(t);
+    let mut buff = passive_clan_test_skill(5079);
+    buff.operate_type = OperateType::Active;
+    world.data.skill_data.insert_for_test(buff);
+    add_test_npc(&mut world, NPC_OID + 700, 22198, "Monster", 75, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&(NPC_OID + 700)) {
+        v.max_hp = 1000;
+        v.cur_hp = 250.0; // 25% — under both bands
+    }
+    // Seed some hate so `getMostHated` resolves to the striker.
+    crate::game_loop::npc_ai::seed_attack(&mut world, NPC_OID + 700, 5001);
+
+    // Both specials miss their rolls (99 > prob × 2).
+    world.forced_rolls.push_back(99);
+    world.forced_rolls.push_back(99);
+    quests::notify_attack(&mut world, 5001, NPC_OID + 700, 22198, None, false);
+
+    let var = |world: &World, name: &str| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+            .and_then(|n| n.vars.get(name).copied())
+            .unwrap_or(0)
+    };
+    assert_eq!(
+        var(&world, "SKILL_MULTIPLER"),
+        2,
+        "under 50% doubles the odds"
+    );
+    assert_eq!(var(&world, "SELFBUFF_USED"), 1, "the self buff popped");
+
+    // A second hit must not re-pop the one-shot buff (no specials roll either
+    // — Java only rolls them on the hit that popped the buff).
+    quests::notify_attack(&mut world, 5001, NPC_OID + 700, 22198, None, false);
+    assert_eq!(var(&world, "SELFBUFF_USED"), 1);
+}

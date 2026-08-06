@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **6** such
+of narrow behaviours deferred and marked at the site. There are **5** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -81,7 +81,6 @@ also registering its NPCs would strand the player.
 |---|---:|---|
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
 | `TODO(G17)` | 1 | `game_loop/subclass.rs` |
-| `TODO(G22)` | 1 | `scripts/primeval_isle.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G30)` | 1 | `game_loop/community_board.rs` |
 | `TODO(G33)` | 1 | `game_loop/offline_trade.rs` |
@@ -93,6 +92,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G22)` | **Closed — implemented.** The creature-see hook is real: `addCreatureSeeId` → a `creature_see_npcs`/`on_creature_see` pair on the script trait, a `SeenCreatures` fire-once set per watcher, and the `CreatureSeeSweep` 1-second beat (Java `CreatureSeeTaskManager`) scanning the 3×3 region block over the template's aggro range (`AltPartyRange` fallback), players and NPCs both, instance-scoped, invisible players skipped. Primeval Isle rides it: the Deino (30 %) / Ornit (first-sight) herd flee (aggro dropped, running 3000 units straight away), the `ag_type`-gated on-sight parameter specials (`SKILL_MULTIPLER` reads the last `onAttack` value — 0 before first blood, Java's quirk kept), and the Tyrannosaurus hunting `VEGETABLE` herbivores with the Presentation - Tyranno crew skill. The ordinary dinosaurs' `onAttack` parameter block landed with it (HP-band multiplier, the one-shot self range buff at 30 % with aggro clear + most-hated re-seed, and the specials that only roll on the buff-popping hit). Tested: fire-once, the Trex hunt, and the self-buff one-shot. |
 | 2026-08-06 | `TODO(G27)` | **Closed — implemented.** Party duels ride the 1v1 machinery: the challenger must lead their party and every member of both rosters must pass `canDuel`; the ask lands on the *target party's leader* whoever was challenged. At countdown 4 everyone snapshots (vitals + position) and teleports into a fresh instance built from a random Olympiad arena template (20 s grace, then the count resumes); the fight lasts 5 minutes; any member's surrender forfeits for the whole team; the end restores vitals, teleports everyone back and destroys the instance. Java's `onPlayerDefeat` quirk is ported as behaviour, documented as such: a knockout with a teammate still standing hands the WIN to the other team, and felling the last member sets no winner (timeout tie). Tested end-to-end (handshake → instance → knockout → return) plus the member-surrender forfeit. |
 | 2026-08-06 | `TODO(G25)` | **Superseded in place, plus one real gap beside it.** The marker claimed concurrent olympiad matches "share these coordinates and can see each other" — while `start_match`, one screen below, already created a private per-match instance and scoped both fighters and every observer into it (isolation tests included). The real find: observers were stranded when their match's instance died — Java's per-slot stadium instance is permanent, ours is per-match — so `start_match` now re-scopes the slot's spectators into the new bout's instance; tested across two consecutive matches on one slot. |
 | 2026-08-06 | `TODO(G35)` | **Closed — implemented.** `Util.handleIllegalPlayerAction` + the 5-second `IllegalPlayerActionTask` are ported into `game_loop/punishment.rs`: the immediate warning (and KICKBAN's instant character/account access drop), then the task writes the never-dropped `Category::Illegal` audit record and applies `DefaultPunish` — GM broadcast, kick, kick+ban, or jail via the G31 punishment engine (GMs are audited but never punished). New `General.ini` keys `DefaultPunish`/`DefaultPunishParam` (0 → Java's hundred years). ~30 Java guard sites wired across chat (L2Walker), shop, private stores, mail, warehouse/freight, pet transfers, enchant, henna, crafting, manor seeds, drop/destroy/crystallize and skill acquisition — including guards the port had been missing outright (sell-store price-overflow caps, the acquire-skill sequential-level hack check, the enchant-window deposit exploit). Sites whose parent feature is unported (over-enchant login scan, item preview, post-IL packets) are noted, not wired. |

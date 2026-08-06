@@ -283,6 +283,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     area_npcs::spawn_at_boot(&mut world);
     // Each event's `config.xml` cron schedule (Java's per-event `loadConfig`).
     events::schedule_at_boot(&mut world);
+    // Java `CreatureSeeTaskManager`: the 1 s creature-see scan behind
+    // `addCreatureSeeId` (G22). Armed once; the sweep re-arms itself.
+    world
+        .scheduler
+        .schedule(world.tick + 10, ScheduledTask::CreatureSeeSweep);
     // The Monster Race (like the Lottery) starts from its DB-load event
     // (`DbEvent::MdtLoaded` → `monster_race::on_mdt_loaded`), which seeds the
     // race number from the loaded history before beginning the cycle.
@@ -1032,6 +1037,7 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::PunishmentExpire { punishment_id } => {
                 punishment::on_expire(world, punishment_id)
             }
+            ScheduledTask::CreatureSeeSweep => quests::handle_creature_see_sweep(world),
             ScheduledTask::IllegalActionPunish {
                 object_id,
                 message,

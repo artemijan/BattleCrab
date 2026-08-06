@@ -66,6 +66,13 @@ pub trait QuestScript: Send + Sync {
     fn skill_see_npcs(&self) -> &[i32] {
         &[]
     }
+
+    /// NPCs that watch for creatures entering their sight (`addCreatureSeeId`;
+    /// Java's `CreatureSeeTaskManager` scans once per second over the
+    /// template's aggro range and fires once per newly-seen creature).
+    fn creature_see_npcs(&self) -> &[i32] {
+        &[]
+    }
     /// NPCs whose chat window this script *replaces* (`addFirstTalkId`).
     /// Java's `NpcAction`: when an NPC carries an `ON_NPC_FIRST_TALK`
     /// listener, clicking it fires [`QuestScript::on_first_talk`] **instead
@@ -148,6 +155,13 @@ pub trait QuestScript: Send + Sync {
     fn on_skill_see(&self, ctx: &mut QuestCtx, skill_id: i32) {
         let _ = (ctx, skill_id);
     }
+
+    /// `onCreatureSee` — `creature` (a player or another NPC) entered this
+    /// NPC's sight for the first time since spawn. `ctx.player` carries the
+    /// creature when it is a player, else 0.
+    fn on_creature_see(&self, ctx: &mut QuestCtx, creature: i32) {
+        let _ = (ctx, creature);
+    }
     /// Whether this script subscribes to the GLOBAL_PLAYERS event stream
     /// (Java's `@RegisterEvent` login / tutorial-mark / item-pickup
     /// listeners). Opt-in so the enter-world path only builds a ctx for
@@ -186,6 +200,7 @@ pub struct QuestRegistry {
     skill_see: HashMap<i32, Vec<usize>>,
     aggro_enter: HashMap<i32, Vec<usize>>,
     spell_finished: HashMap<i32, Vec<usize>>,
+    creature_see: HashMap<i32, Vec<usize>>,
     first_talk: HashMap<i32, usize>,
     /// Scripts with `handles_global_events()` (login / tutorial-mark /
     /// item-pickup listeners).
@@ -203,6 +218,7 @@ impl QuestRegistry {
         let mut skill_see: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut aggro_enter: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut spell_finished: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut creature_see: HashMap<i32, Vec<usize>> = HashMap::new();
         // One entry per NPC: the first-talk listener owns the whole chat
         // window, so two scripts claiming the same NPC is a bug, not a fan-out.
         let mut first_talk: HashMap<i32, usize> = HashMap::new();
@@ -236,6 +252,9 @@ impl QuestRegistry {
             for &id in s.spell_finished_npcs() {
                 spell_finished.entry(id).or_default().push(idx);
             }
+            for &id in s.creature_see_npcs() {
+                creature_see.entry(id).or_default().push(idx);
+            }
             for &id in s.first_talk_npcs() {
                 if let Some(&prev) = first_talk.get(&id) {
                     warn!(
@@ -258,6 +277,7 @@ impl QuestRegistry {
             spawn,
             skill_see,
             aggro_enter,
+            creature_see,
             spell_finished,
             first_talk,
             global_events,
@@ -368,6 +388,19 @@ impl QuestRegistry {
             .get(&npc_id)
             .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
             .unwrap_or_default()
+    }
+
+    /// Scripts listing `npc_id` as a creature-see NPC.
+    pub fn creature_see_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.creature_see
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Whether any script watches `npc_id` for creatures entering sight.
+    pub fn has_creature_see(&self, npc_id: i32) -> bool {
+        self.creature_see.contains_key(&npc_id)
     }
 
     /// Scripts listing `npc_id` as a spawn NPC.
@@ -2711,6 +2744,121 @@ pub(crate) fn handle_tutorial_bypass(world: &mut World, client_id: u32, bypass: 
 
 /// The `onSpawn` notification: a registered NPC just (re)spawned. No player
 /// is involved — the ctx carries player/client 0 (see `QuestScript::on_spawn`).
+/// Java `CreatureSeeTaskManager.run` — the once-per-second sweep behind
+/// `addCreatureSeeId`. Every live watcher NPC scans the 3×3 region block
+/// around it for creatures (players and NPCs) within its sight range — the
+/// template's aggro range, or `AltPartyRange` when the template has none
+/// (Java `initSeenCreatures`) — and fires `on_creature_see` once per newly
+/// seen creature. The seen-set persists until the watcher despawns (a fresh
+/// spawn starts blank), exactly like Java's per-creature `_seenCreatures`.
+pub(crate) fn handle_creature_see_sweep(world: &mut World) {
+    let registry = world.quests.clone();
+    let mut watchers: Vec<(i32, i32, (i32, i32), crate::model::components::Position)> = Vec::new();
+    world.objects.for_each_mut::<(
+        &crate::model::npc::Npc,
+        &crate::model::components::Position,
+        &crate::model::components::Vitals,
+        &crate::model::components::RegionCell,
+    )>(|(n, p, v, r)| {
+        if !v.dead && registry.has_creature_see(n.npc_id) {
+            watchers.push((n.object_id, n.npc_id, r.0, *p));
+        }
+    });
+    for (npc_oid, npc_id, region, pos) in watchers {
+        let range = {
+            let aggro = world.data.npc_data.get(npc_id).map_or(0, |t| t.aggro_range);
+            f64::from(if aggro > 0 {
+                aggro
+            } else {
+                world.cfg.character.alt_party_range
+            })
+        };
+        let instance = crate::game_loop::helpers::instance_of(world, npc_oid);
+        let in_sight = |world: &World, oid: i32| {
+            if crate::game_loop::helpers::instance_of(world, oid) != instance {
+                return false;
+            }
+            if world
+                .objects
+                .get_component::<crate::model::components::Vitals>(&oid)
+                .is_none_or(|v| v.dead)
+            {
+                return false;
+            }
+            world
+                .objects
+                .get_component::<crate::model::components::Position>(&oid)
+                .is_some_and(|p| {
+                    let (dx, dy, dz) = (
+                        f64::from(p.x - pos.x),
+                        f64::from(p.y - pos.y),
+                        f64::from(p.z - pos.z),
+                    );
+                    (dx * dx + dy * dy + dz * dz).sqrt() <= range
+                })
+        };
+        let mut fresh: Vec<i32> = Vec::new();
+        // Players in the surrounding block (Java skips invisible ones).
+        for pid in world.players_visible_from(region).collect::<Vec<_>>() {
+            let hidden = world
+                .objects
+                .get_component::<crate::model::components::AdminFlags>(&pid)
+                .is_some_and(|f| f.hidden);
+            if !hidden && in_sight(world, pid) {
+                fresh.push(pid);
+            }
+        }
+        // NPCs in the surrounding block.
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                if let Some(list) = world.npc_regions.get(&(region.0 + dx, region.1 + dy)) {
+                    for &noid in list {
+                        if noid != npc_oid && in_sight(world, noid) {
+                            fresh.push(noid);
+                        }
+                    }
+                }
+            }
+        }
+        if world
+            .objects
+            .get_component::<crate::model::components::SeenCreatures>(&npc_oid)
+            .is_none()
+        {
+            world
+                .objects
+                .add_components(&npc_oid, crate::model::components::SeenCreatures::default());
+        }
+        let newly: Vec<i32> = {
+            let Some(seen) = world
+                .objects
+                .get_component_mut::<crate::model::components::SeenCreatures>(&npc_oid)
+            else {
+                continue;
+            };
+            fresh.into_iter().filter(|&c| seen.0.insert(c)).collect()
+        };
+        for creature in newly {
+            let is_player = world
+                .objects
+                .has_component::<crate::model::Player>(&creature);
+            let (player, client_id) = if is_player {
+                (creature, client_for_player(world, creature).unwrap_or(0))
+            } else {
+                (0, 0)
+            };
+            for script in registry.creature_see_quests(npc_id) {
+                let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+                script.on_creature_see(&mut ctx, creature);
+            }
+        }
+    }
+    world.scheduler.schedule(
+        world.tick + 10,
+        crate::scheduler::ScheduledTask::CreatureSeeSweep,
+    );
+}
+
 pub(crate) fn notify_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {
     let registry = world.quests.clone();
     let scripts = registry.spawn_quests(npc_id);

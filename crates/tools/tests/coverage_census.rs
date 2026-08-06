@@ -434,7 +434,6 @@ fn deferral_markers_match_the_recorded_inventory() {
     let expected: &[(&str, usize)] = &[
         ("G15.5", 1),
         ("G17", 1),
-        ("G22", 1),
         ("G24/G26", 1),
         ("G30", 1),
         ("G33", 1),

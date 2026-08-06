@@ -1,15 +1,13 @@
-//! `ai/areas/PrimevalIsle` — the island's signature behaviors that are live
-//! on this dist: Ancient Eggs that raise the jungle when struck, Sprigant
-//! poison traps, and the Tyrannosaurus's curiosity pause + berserk ladder.
-//!
-//! Deferred with the creature-see gap (TODO(G22)): Java's `onCreatureSee`
-//! drives the Trex hunting herbivores (`CREW_SKILL` presentation 6172), the
-//! Deino/Ornit herd flee, and the `ag_type`-gated on-sight specials — the
-//! port has no creature-enters-vision hook (only the aggro scan), and
-//! approximating it there would fire on a different population. The skill
-//! params themselves are already parsed (`ai_skill_params`); the hook is the
-//! whole remainder. Skipped as off-chronicle: the Deinonychus Mesozoic Stone
-//! taming (Gracia; its tamed dinos 22742/22743 never spawn here).
+//! `ai/areas/PrimevalIsle` — the island's signature behaviors: Ancient Eggs
+//! that raise the jungle when struck, Sprigant poison traps, the
+//! Tyrannosaurus's curiosity pause + berserk ladder, and the sight-driven AI
+//! over the creature-see hook (`addCreatureSeeId` → the 1 s sweep): the
+//! Deino/Ornit herd flee, the `ag_type`-gated on-sight specials, and the
+//! Trex hunting herbivores (`CREW_SKILL` presentation 6172). The ordinary
+//! dinosaurs also run Java's parameter-driven `onAttack` block (the
+//! `SKILL_MULTIPLER` HP bands, the one-shot self range buff, and the
+//! most-hated specials). Skipped as off-chronicle: the Deinonychus Mesozoic
+//! Stone taming reward (Gracia-era item 14828).
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, Vitals};
@@ -19,6 +17,25 @@ const EGG: i32 = 18344;
 pub(crate) const SPRIGANT_ANESTHESIA: i32 = 18345;
 pub(crate) const SPRIGANT_POISON: i32 = 18346;
 const TREX: [i32; 3] = [22215, 22216, 22217];
+const ORNIT: i32 = 22742;
+const DEINO: i32 = 22743;
+/// Java `MONSTERS` — the ordinary dinosaurs (creature-see + parameter AI).
+const MONSTERS: [i32; 17] = [
+    22196, 22198, 22200, 22202, 22203, 22205, 22208, 22210, 22211, 22213, 22223, 22224, 22225,
+    22226, 22227, ORNIT, DEINO,
+];
+/// Java `VEGETABLE` — the herbivores a Tyrannosaurus hunts on sight.
+const VEGETABLE: [i32; 8] = [22200, 22201, 22202, 22203, 22204, 22205, 22224, 22225];
+/// The attack listeners: the egg, the three Trex, and the ordinary dinosaurs.
+const ATTACK_NPCS: [i32; 21] = [
+    EGG, 22215, 22216, 22217, 22196, 22198, 22200, 22202, 22203, 22205, 22208, 22210, 22211, 22213,
+    22223, 22224, 22225, 22226, 22227, ORNIT, DEINO,
+];
+/// Creature-see listeners: Java registers TREX + MONSTERS.
+const CREATURE_SEE_NPCS: [i32; 20] = [
+    22215, 22216, 22217, 22196, 22198, 22200, 22202, 22203, 22205, 22208, 22210, 22211, 22213,
+    22223, 22224, 22225, 22226, 22227, ORNIT, DEINO,
+];
 
 /// Sprigant trap skills.
 const ANESTHESIA: i32 = 5085;
@@ -53,9 +70,10 @@ impl QuestScript for PrimevalIsle {
         &[SPRIGANT_ANESTHESIA, SPRIGANT_POISON]
     }
     fn attack_npcs(&self) -> &[i32] {
-        // Java also registers the ordinary dinosaurs here for their
-        // parameter-driven specials — deferred (see module doc).
-        &[EGG, 22215, 22216, 22217]
+        &ATTACK_NPCS
+    }
+    fn creature_see_npcs(&self) -> &[i32] {
+        &CREATURE_SEE_NPCS
     }
     fn aggro_enter_npcs(&self) -> &[i32] {
         &TREX
@@ -101,8 +119,22 @@ impl QuestScript for PrimevalIsle {
     fn on_attack(&self, ctx: &mut QuestCtx) {
         if ctx.npc_id == EGG {
             egg_on_attack(ctx);
-        } else {
+        } else if TREX.contains(&ctx.npc_id) {
             trex_on_attack(ctx);
+        } else {
+            monster_on_attack(ctx);
+        }
+    }
+
+    /// Java `onCreatureSee`: an ordinary dinosaur noticing a *player* either
+    /// flees with the herd (Deino 30 %, Ornit once) or opens with an
+    /// `ag_type`-gated special; a Tyrannosaurus noticing a *herbivore* hunts
+    /// it with the Presentation - Tyranno crew skill.
+    fn on_creature_see(&self, ctx: &mut QuestCtx, creature: i32) {
+        if MONSTERS.contains(&ctx.npc_id) {
+            monster_on_creature_see(ctx, creature);
+        } else {
+            trex_on_creature_see(ctx, creature);
         }
     }
 
@@ -218,6 +250,191 @@ fn trex_on_attack(ctx: &mut QuestCtx) {
     }
     if ctx.roll(100) <= 5 * sv {
         cast(ctx, npc, mh, SPECIAL_SPIN, 4);
+    }
+}
+
+/// Java `onCreatureSee`, the MONSTERS × player arm: Deino (30 %) and Ornit
+/// (first sighting) spook and lead the herd away — aggro dropped, running
+/// 3000 units directly away from the player; everyone else with `ag_type` 1
+/// opens with a parameter special. `SKILL_MULTIPLER` reads the value the last
+/// `onAttack` set — 0 before first blood, so an unbloodied special only fires
+/// on a rolled 0 (Java's `getRandom(100) <= prob * 0`), ported as-is.
+fn monster_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
+    if ctx.player == 0 {
+        return; // only players spook the herd (Java `creature.isPlayer()`)
+    }
+    let npc = ctx.npc;
+    if (ctx.npc_id == DEINO && ctx.roll(100) < 30)
+        || (ctx.npc_id == ORNIT && ctx.npc_script_value() == 0)
+    {
+        if let Some(a) = ctx.world.objects.get_component_mut::<AggroList>(&npc) {
+            a.0.clear();
+        }
+        ctx.set_npc_script_value(1);
+        set_running(ctx, npc);
+        // `calculateHeadingFrom(creature, npc)` — the direction from the
+        // player *to* the dino, extended 3000 units: straight away.
+        let (from, at) = (
+            ctx.world
+                .objects
+                .get_component::<Position>(&creature)
+                .copied(),
+            ctx.world.objects.get_component::<Position>(&npc).copied(),
+        );
+        let (Some(from), Some(at)) = (from, at) else {
+            return;
+        };
+        let (dx, dy) = (f64::from(at.x - from.x), f64::from(at.y - from.y));
+        let len = (dx * dx + dy * dy).sqrt().max(1.0);
+        let (nx, ny) = (
+            at.x + (dx / len * 3000.0) as i32,
+            at.y + (dy / len * 3000.0) as i32,
+        );
+        crate::game_loop::npc_ai::move_npc_to(ctx.world, npc, nx, ny, at.z);
+        return;
+    }
+    let Some(tpl) = ctx.world.data.npc_data.get(ctx.npc_id) else {
+        return;
+    };
+    let ag_type = tpl
+        .ai_params
+        .get("ag_type")
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(0);
+    if ag_type != 1 {
+        return;
+    }
+    let prob1 = ai_int(ctx, "ProbPhysicalSpecial1");
+    let prob2 = ai_int(ctx, "ProbPhysicalSpecial2");
+    let s1 = tpl.ai_skill_params.get("PhysicalSpecial1").copied();
+    let s2 = tpl.ai_skill_params.get("PhysicalSpecial2").copied();
+    let mult = npc_var(ctx, "SKILL_MULTIPLER");
+    if ctx.roll(100) <= prob1 * mult {
+        if let Some((id, lvl)) = s1 {
+            cast(ctx, npc, creature, id, lvl);
+        }
+    } else if ctx.roll(100) <= prob2 * mult
+        && let Some((id, lvl)) = s2
+    {
+        cast(ctx, npc, creature, id, lvl);
+    }
+}
+
+/// Java `onCreatureSee`, the else arm: a Tyrannosaurus sighting a herbivore
+/// hunts it — the Presentation - Tyranno crew skill, then a running charge.
+fn trex_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
+    const CREW_SKILL: i32 = 6172;
+    let prey_id = ctx
+        .world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&creature)
+        .map(|n| n.npc_id);
+    if !prey_id.is_some_and(|id| VEGETABLE.contains(&id)) {
+        return;
+    }
+    let npc = ctx.npc;
+    cast(ctx, npc, creature, CREW_SKILL, 1);
+    set_running(ctx, npc);
+    crate::game_loop::npc_ai::seed_attack(ctx.world, npc, creature);
+}
+
+/// Java `onAttack`'s ordinary-dinosaur block: set `SKILL_MULTIPLER` from the
+/// HP band, fire the one-shot self range buff at 30 % (clearing aggro and
+/// re-fixing the most hated), and — only on the hit that popped the buff —
+/// roll both parameter specials at that target.
+fn monster_on_attack(ctx: &mut QuestCtx) {
+    let npc = ctx.npc;
+    let hp = hp_percent(ctx, npc);
+    set_npc_var(ctx, "SKILL_MULTIPLER", if hp <= 50.0 { 2 } else { 1 });
+
+    let mut target = None;
+    if hp <= 30.0 && npc_var(ctx, "SELFBUFF_USED") == 0 {
+        target = most_hated(ctx, npc);
+        if let Some(a) = ctx.world.objects.get_component_mut::<AggroList>(&npc) {
+            a.0.clear();
+        }
+        let buff = ctx
+            .world
+            .data
+            .npc_data
+            .get(ctx.npc_id)
+            .and_then(|t| t.ai_skill_params.get("SelfRangeBuff1").copied());
+        if let Some((id, lvl)) = buff {
+            set_npc_var(ctx, "SELFBUFF_USED", 1);
+            cast(ctx, npc, npc, id, lvl);
+            set_running(ctx, npc);
+            if let Some(t) = target {
+                crate::game_loop::npc_ai::seed_attack(ctx.world, npc, t);
+            }
+        }
+    }
+    // Java: `if (target != null)` — the specials ride the self-buff hit only.
+    let Some(t) = target else {
+        return;
+    };
+    let (prob1, prob2) = (
+        ai_int(ctx, "ProbPhysicalSpecial1"),
+        ai_int(ctx, "ProbPhysicalSpecial2"),
+    );
+    let tpl_skills = ctx.world.data.npc_data.get(ctx.npc_id).map(|tpl| {
+        (
+            tpl.ai_skill_params.get("PhysicalSpecial1").copied(),
+            tpl.ai_skill_params.get("PhysicalSpecial2").copied(),
+        )
+    });
+    let Some((s1, s2)) = tpl_skills else { return };
+    let mult = npc_var(ctx, "SKILL_MULTIPLER");
+    if ctx.roll(100) <= prob1 * mult
+        && let Some((id, lvl)) = s1
+    {
+        cast(ctx, npc, t, id, lvl);
+    }
+    if ctx.roll(100) <= prob2 * mult
+        && let Some((id, lvl)) = s2
+    {
+        cast(ctx, npc, t, id, lvl);
+    }
+}
+
+/// Java `npc.setRunning()` — the run flag lives on the `Speeds` component.
+fn set_running(ctx: &mut QuestCtx, npc: i32) {
+    if let Some(sp) = ctx
+        .world
+        .objects
+        .get_component_mut::<crate::model::components::Speeds>(&npc)
+    {
+        sp.running = true;
+    }
+}
+
+/// An integer `<param>` off the template (0 when absent, like Java's
+/// `getParameters().getInt(name, 0)`).
+fn ai_int(ctx: &QuestCtx, name: &str) -> i32 {
+    ctx.world
+        .data
+        .npc_data
+        .get(ctx.npc_id)
+        .and_then(|t| t.ai_params.get(name))
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(0)
+}
+
+/// Java `npc.getVariables().getInt(name)` — 0 when unset.
+fn npc_var(ctx: &QuestCtx, name: &str) -> i32 {
+    ctx.world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&ctx.npc)
+        .and_then(|n| n.vars.get(name).copied())
+        .unwrap_or(0)
+}
+
+fn set_npc_var(ctx: &mut QuestCtx, name: &str, value: i32) {
+    if let Some(n) = ctx
+        .world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&ctx.npc)
+    {
+        n.vars.insert(name.to_string(), value);
     }
 }
 
