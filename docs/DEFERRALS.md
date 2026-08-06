@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **115** such
+of narrow behaviours deferred and marked at the site. There are **112** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -348,3 +348,4 @@ grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
 | 2026-08-06 | `TODO(G34)` ×1 → `SKIP(census)` (`skills/effects/mod.rs`) | "Re-check if any `ImmobilePetBuff` carrier uses a wider target type." Censused: the effect appears on exactly one skill in the whole dist — Servitor Empowerment 1299, `SUMMON`/`SINGLE` — so Java's owner gate is satisfied by construction and there is no wider carrier to re-check. |
 | 2026-08-06 | `TODO(G33)` ×1 (`config/offline_trade.rs`) | **Stale reason.** "No way to hold a config-driven visual on a player with no buff behind it" — `AdminVisuals` is precisely that component, and had been for milestones. `OfflineAbnormalEffect` now resolves names to client ids at load and `enter_offline_mode` applies **one at random**, as Java does (`Rnd.get(size())`), not the whole list. Inert on this dist, which ships the key empty. |
 | 2026-08-06 | `TODO(G24)` + `TODO(G33)` ×1 each (`siege.rs`, `config/offline_trade.rs`) | **Closed together** — one was the other's blocker. Ported `SiegeZone`'s fame task: armed on siege-zone entry for a registered participant, re-arming itself instead of holding a cancel handle, with Java's three `FameTask.run` refusals (dead + `FameForDeadPlayers` off, detached + `OfflineFame` off, out of zone). Inert on this dist (`CastleZoneFameAquirePoints = 0`), and deliberately ported as Java writes it — the amount is not part of the arming gate — so raising the config is enough. |
+| 2026-08-06 | `TODO(G30)` ×3 (`model/skill.rs`, `coverage_census.rs` ×2) | **Closed.** Summon Friend — `CallPc`'s player half. Needed a full `ConfirmDlg` (params + time + requesterId), a `SummonRequest` holder, and the recall gate, which had landed earlier the same day. Toll is charged to the **target** before the prompt, as Java does, so declining still costs the crystal. Two census caveats warning that "`CallPc` handled" overstated things are retired with it. |

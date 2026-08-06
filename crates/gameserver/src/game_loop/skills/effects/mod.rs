@@ -848,7 +848,8 @@ pub(crate) fn apply_skill_effects(
             // from a potion or elixir item; no skill on this dist grants that
             // stat, so the term is 1:1 with 0 and is not modelled.
             SkillEffect::Hp { amount, percent } => instant::hp(world, &ctx, *amount, *percent),
-            SkillEffect::CallPc => {
+            SkillEffect::CallPc { item_id, item_count } => {
+                control::call_pc_player(world, caster_oid, target_oid, *item_id, *item_count);
                 call_pc(world, caster_oid, target_oid, skill);
             }
             SkillEffect::GiveRecommendation { amount } => {

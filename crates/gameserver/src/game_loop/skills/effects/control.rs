@@ -848,6 +848,129 @@ pub(crate) fn check_summon_target_status(
     None
 }
 
+/// `CallPc.instant`'s **player** half — Summon Friend, Word of Invitation and
+/// friends.
+///
+/// Nothing teleports here: the target is asked. Java stashes a
+/// `SummonRequestHolder` on them and sends a `ConfirmDlg`; the answer arrives
+/// as a `DlgAnswer` and `death`-style dispatch routes it to
+/// [`accept_summon_request`]. The dialog carries a 30 s auto-decline and the
+/// summoner's object id, which the client echoes back — that echo is what
+/// stops a second summoner's prompt from being answered by the first's.
+///
+/// The toll is charged to the **target**, not the caster, and is charged
+/// *before* the prompt — so refusing the summon still costs the Spirit Ore.
+/// That is Java's order and it is deliberate here: charging on accept instead
+/// would make a declined summon free and let a party spam prompts for nothing.
+pub(crate) fn call_pc_player(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    item_id: i32,
+    item_count: i64,
+) {
+    use server_packets::{SmParam, sm_ids};
+
+    // `if (effector == effected) return` and the player-effector gate.
+    if caster_oid == target_oid
+        || !world
+            .objects
+            .has_component::<crate::model::Player>(&caster_oid)
+        || !world
+            .objects
+            .has_component::<crate::model::Player>(&target_oid)
+    {
+        return;
+    }
+    if let Some((sm, params)) = check_summon_target_status(world, target_oid) {
+        send_sm_with(world, caster_oid, sm, &params);
+        return;
+    }
+    if item_id != 0 && item_count != 0 {
+        let held = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&target_oid)
+            .map_or(0, |inv| inv.count_of(item_id));
+        if held < item_count {
+            // Java tells the **target** they are short, not the summoner.
+            send_sm_with(
+                world,
+                target_oid,
+                sm_ids::S1_IS_REQUIRED_FOR_SUMMONING,
+                &[SmParam::ItemName(item_id)],
+            );
+            return;
+        }
+        // The quest engine's take-items path is the port's one item-removal
+        // primitive that also sends the `InventoryUpdate`; the toll needs that,
+        // or the client keeps drawing the ore it no longer has.
+        let target_client = client_for_player(world, target_oid).unwrap_or(0);
+        crate::game_loop::quests::take_items(world, target_client, target_oid, item_id, item_count);
+        send_sm_with(
+            world,
+            target_oid,
+            sm_ids::S1_DISAPPEARED,
+            &[SmParam::ItemName(item_id)],
+        );
+    }
+
+    let (x, y, z) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&caster_oid)
+        .map(|p| (p.x, p.y, p.z))
+        .unwrap_or((0, 0, 0));
+    let name = world
+        .objects
+        .get_component::<crate::model::Player>(&caster_oid)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&target_oid)
+    {
+        p.summon_request = Some(crate::model::SummonRequest {
+            summoner_object_id: caster_oid,
+            x,
+            y,
+            z,
+        });
+    }
+    if let Some(cs) = client_for_player(world, target_oid).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(server_packets::confirm_dlg_with(
+            sm_ids::C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT as i32,
+            &[SmParam::Text(name), SmParam::ZoneName { x, y, z }],
+            30_000,
+            caster_oid,
+        ));
+    }
+}
+
+/// The `DlgAnswer` leg. Returns true when the reply was a summon answer, so the
+/// shared dispatch can stop offering it to the other claimants.
+///
+/// Java re-checks `holder.getSummoner().getObjectId() == _requesterId` — the
+/// stashed summoner must match the id the *client* echoed. Without that, a
+/// prompt from one summoner could be answered into a teleport to another, and
+/// the request is removed either way so a stale one cannot be replayed.
+pub(crate) fn accept_summon_request(
+    world: &mut World,
+    target_oid: i32,
+    requester_id: i32,
+    accepted: bool,
+) -> bool {
+    let Some(req) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&target_oid)
+        .and_then(|p| p.summon_request.take())
+    else {
+        return false;
+    };
+    if accepted && req.summoner_object_id == requester_id {
+        crate::game_loop::death::teleport_player(world, target_oid, req.x, req.y, req.z);
+    }
+    true
+}
+
 /// `handlers/effecthandlers/CallPc.java`, the `player == null` branch — a
 /// **monster** dragging its victim to itself. This is Porta's (20213) "Summon"
 /// (4161), and Java's body is five lines:

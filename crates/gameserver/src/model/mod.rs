@@ -154,6 +154,18 @@ pub struct ReviveRequest {
     pub is_pet: bool,
 }
 
+/// Java's `SummonRequestHolder` — a pending Summon Friend prompt.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SummonRequest {
+    pub summoner_object_id: i32,
+    /// Where the summoner stood **when the prompt was sent**. Java stores a
+    /// `Location`, not the summoner, so walking away during the 30 s window
+    /// still pulls the target to the cast site rather than to the new one.
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SubClass {
     pub class_id: i32,
@@ -405,6 +417,12 @@ pub struct Player {
     /// block. The dialog always goes to the **player**, even when what is
     /// being resurrected is their pet.
     pub revive_request: Option<ReviveRequest>,
+    /// Java's `SummonRequestHolder` script, stashed on the player a Summon
+    /// Friend prompt was sent to. Holds the summoner's id and the destination
+    /// captured **when the prompt was sent** — Java stores a `Location`, so a
+    /// summoner who walks away during the 30 s window still pulls the target
+    /// to where they cast, not to where they now stand.
+    pub summon_request: Option<SummonRequest>,
     /// The collar item object id a pet summon is about to consume — Java's
     /// `PetItemHolder`, which `SummonItems` attaches to the player as a script
     /// and `SummonPet.instant` pulls back out with `removeScript`.
@@ -1167,6 +1185,7 @@ impl Player {
             pending_revive: false,
             lost_exp_on_death: 0,
             revive_request: None,
+            summon_request: None,
             pending_pet_collar: None,
             teleporting: false,
             jailed: false,

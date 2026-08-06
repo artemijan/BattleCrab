@@ -405,3 +405,105 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
         "only the wyvern is `isFlyingMounted()`"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Summon Friend (`CallPc`, the player half)
+// ---------------------------------------------------------------------------
+
+/// Summon Friend 1403: charge the target a Summoning Crystal, prompt them, and
+/// teleport only if they say yes to *this* summoner.
+///
+/// The order is Java's and is worth pinning: the toll is charged to the
+/// **target** and charged *before* the prompt, so declining still costs the
+/// item. Charging on accept would make a declined summon free.
+#[test]
+fn summon_friend_charges_the_target_prompts_them_and_teleports_on_accept() {
+    use crate::game_loop::skills::effects::control::{accept_summon_request, call_pc_player};
+    use crate::model::components::Position;
+    use crate::model::inventory::Inventory;
+    use crate::network::server_packets::opcodes;
+
+    const TARGET: i32 = 5931;
+    const TCID: u32 = 2;
+    /// Summoning Crystal, the toll Summon Friend declares.
+    const CRYSTAL: i32 = 8615;
+
+    let build = |crystals: i64| {
+        let (mut world, _a, _b, _c) = dist_world();
+        let crx = ingame_player_access(&mut world, CID, CASTER, 0);
+        let trx = ingame_player_access(&mut world, TCID, TARGET, 0);
+        if crystals > 0 {
+            let mut inv = world
+                .objects
+                .get_component::<Inventory>(&TARGET)
+                .expect("inventory")
+                .clone();
+            inv.add_item(&world.data.item_data, 0x7700_0000, CRYSTAL, crystals);
+            world.objects.add_components(&TARGET, inv);
+        }
+        // Somewhere distinct, so a teleport is visible.
+        if let Some(p) = world.objects.get_component_mut::<Position>(&CASTER) {
+            p.x = 15_000;
+            p.y = 15_000;
+            p.z = -2_000;
+        }
+        (world, crx, trx)
+    };
+    let at_caster = |w: &World| {
+        let p = w.objects.get_component::<Position>(&TARGET).unwrap();
+        (p.x, p.y) == (15_000, 15_000)
+    };
+    let prompted = |packets: &[Vec<u8>]| packets.iter().any(|p| p[0] == opcodes::CONFIRM_DLG);
+
+    // No crystal: refused, told so, and no prompt.
+    let (mut world, _crx, mut trx) = build(0);
+    drain(&mut trx);
+    call_pc_player(&mut world, CASTER, TARGET, CRYSTAL, 1);
+    let out = drain(&mut trx);
+    assert!(
+        has_system_message(&out, sm_ids::S1_IS_REQUIRED_FOR_SUMMONING),
+        "the *target* is told they are short, not the summoner"
+    );
+    assert!(!prompted(&out), "and nothing is asked of them");
+
+    // With the crystal: charged up front, then prompted.
+    let (mut world, _crx, mut trx) = build(1);
+    drain(&mut trx);
+    call_pc_player(&mut world, CASTER, TARGET, CRYSTAL, 1);
+    let out = drain(&mut trx);
+    assert!(prompted(&out), "the target is asked");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&TARGET)
+            .unwrap()
+            .count_of(CRYSTAL),
+        0,
+        "and paid before answering — declining does not refund"
+    );
+    assert!(!at_caster(&world), "nobody has moved yet");
+
+    // Answering someone else's prompt does nothing…
+    assert!(accept_summon_request(&mut world, TARGET, CASTER + 99, true));
+    assert!(
+        !at_caster(&world),
+        "the echoed requester id has to match the stashed summoner"
+    );
+
+    // …and the request is consumed either way, so the right answer now finds
+    // nothing — a stale prompt cannot be replayed.
+    assert!(!accept_summon_request(&mut world, TARGET, CASTER, true));
+    assert!(!at_caster(&world));
+
+    // The accepting path.
+    let (mut world, _crx, _trx) = build(1);
+    call_pc_player(&mut world, CASTER, TARGET, CRYSTAL, 1);
+    assert!(accept_summon_request(&mut world, TARGET, CASTER, true));
+    assert!(at_caster(&world), "yes teleports them to the cast site");
+
+    // Declining consumes the request and moves nobody.
+    let (mut world, _crx, _trx) = build(1);
+    call_pc_player(&mut world, CASTER, TARGET, CRYSTAL, 1);
+    assert!(accept_summon_request(&mut world, TARGET, CASTER, false));
+    assert!(!at_caster(&world), "no means no");
+}

@@ -118,6 +118,7 @@ async fn user_info_test() {
         store_type: 0,
         lost_exp_on_death: 0,
         revive_request: None,
+        summon_request: None,
         pending_pet_collar: None,
     };
     let position = Position {

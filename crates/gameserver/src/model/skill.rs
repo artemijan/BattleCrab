@@ -1321,9 +1321,13 @@ pub enum SkillEffect {
     /// still cast on cooldown — two seconds of animation that did nothing, so
     /// Porta read as an ordinary melee mob.
     ///
-    /// TODO(G30): the player half is Summon Friend; it needs the
-    /// `SummonRequestHolder` + `ConfirmDlg` round trip.
-    CallPc,
+    /// `item_id`/`item_count` are the Summon Friend toll — Spirit Ore or a
+    /// Summoning Crystal — and Java charges them to the **target**, not the
+    /// caster. Both are 0 on the monster carriers.
+    CallPc {
+        item_id: i32,
+        item_count: i64,
+    },
     /// `handlers/effecthandlers/GiveRecommendation.java` — grant the target
     /// `amount` recommendations received (`rec_have`), capped at 255. Backs the
     /// "recommendation certificate" self-target skills.

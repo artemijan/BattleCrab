@@ -1042,10 +1042,18 @@ pub(crate) fn build_skill(
                         "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {
                             vec![SkillEffect::EscapeToTown]
                         }
-                        // `CallPc.java`. Its `itemId`/`itemCount` params belong
-                        // to the player (Summon Friend) half, which is not
-                        // ported; the monster half reads neither.
-                        "CallPc" => vec![SkillEffect::CallPc],
+                        // `CallPc.java`. `itemId`/`itemCount` are the Summon
+                        // Friend toll, charged to the **target**; the monster
+                        // half reads neither and every monster carrier omits
+                        // them, which is why they default to 0.
+                        "CallPc" => vec![SkillEffect::CallPc {
+                            item_id: value_at(params, "itemId", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0),
+                            item_count: value_at(params, "itemCount", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0),
+                        }],
                         // `Speed` pumps four move-speed stats at once (Java
                         // `Speed.pump`); the 1-name→1-stat `EFFECT_REGISTRY` can't
                         // express that, so expand it here. Without this, movement

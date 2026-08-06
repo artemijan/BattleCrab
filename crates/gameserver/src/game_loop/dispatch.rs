@@ -233,10 +233,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::BYPASS_USER_CMD => {
             super::user_commands::handle_bypass_user_cmd(world, client_id, body)
         }
-        // DlgAnswer (IN_GAME): reply to a ConfirmDlg. Two flows share the
-        // packet — a resurrection proposal and the admin confirm — so the
-        // revive handler gets first refusal and reports whether the reply was
-        // its own.
+        // DlgAnswer (IN_GAME): reply to a ConfirmDlg. Several flows share the
+        // packet — a resurrection proposal, a Summon Friend prompt, `.offline`
+        // and the admin confirm — so each claimant reports whether the reply
+        // was its own and the admin handler takes what is left.
         cop::DLG_ANSWER => {
             if let Some(answer) = cp::DlgAnswer::read(body) {
                 let oid = match world.clients.get(&client_id) {
@@ -248,6 +248,21 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 })
                 // `.offline`'s "Do you wish to exit the game?" — matched by the
                 // echoed message id, as Java's `DlgAnswer` does.
+                // Summon Friend, matched by the echoed message id as Java's
+                // `DlgAnswer` does. `requester_id` is checked inside: the
+                // client echoes which summoner it is answering, and a prompt
+                // must not be answered into a *different* summoner's teleport.
+                || (answer.message_id
+                    == server_packets::sm_ids::C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT
+                        as i32
+                    && oid.is_some_and(|oid| {
+                        super::skills::effects::control::accept_summon_request(
+                            world,
+                            oid,
+                            answer.requester_id,
+                            answer.answer == 1,
+                        )
+                    }))
                 || (answer.message_id
                     == server_packets::sm_ids::DO_YOU_WISH_TO_EXIT_THE_GAME as i32
                     && super::offline_trade::handle_exit_game_answer(
