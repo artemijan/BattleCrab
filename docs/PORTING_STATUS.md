@@ -129,7 +129,7 @@ counted here; see [DEFERRALS.md](DEFERRALS.md).
 asserted by the test named above — if this number and that file disagree, the
 file is right. It read 134 until 2026-08-05, when the scanner was widened to
 see the suffixed and topic-tagged families it had been dropping in silence; see
-that file's seventh pass. Because every milestone row here is ✅, these 95 are
+that file's seventh pass. Because every milestone row here is ✅, these 93 are
 what is actually left to do.
 
 ---
