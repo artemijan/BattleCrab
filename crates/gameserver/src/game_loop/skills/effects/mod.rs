@@ -396,9 +396,15 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::SummonCubic { cubic_id, cubic_level } => {
                 crate::game_loop::cubic::summon_cubic(world, target_oid, *cubic_id, *cubic_level);
             }
-            // `SummonNpc.instant`, narrowed to the `EffectPoint` branch — the
-            // symbol totems (PLAN_G19_SYMBOLS.md). `Decoy` and the default
-            // plain-spawn branch are TODO(G19) (no learnable carriers).
+            // `SummonNpc.instant` — the `EffectPoint` branch drops the symbol
+            // totems (PLAN_G19_SYMBOLS.md); every other template type takes
+            // Java's **default** plain-spawn branch (the Holiday Trees and
+            // Squash/Watermelon seeds — item-cast carriers, so "learnable"
+            // was never the right reachability test here). SKIP(G19): the
+            // `Decoy` branch — no reachable skill on this dist summons a
+            // template of type `Decoy` (Decoy 525 has no tree row or item
+            // grant; item 13769's "Life-size Decoy" 32544 is type `Folk`;
+            // verified 2026-08-06).
             SkillEffect::SummonNpc { npc_id, npc_count, despawn_delay } => {
                 // Java: effected must be a live player (dead/observer gated).
                 let effected_alive_player = world.objects.has_component::<crate::model::Player>(&target_oid)
@@ -409,18 +415,12 @@ pub(crate) fn apply_skill_effects(
                 if !effected_alive_player {
                     continue;
                 }
-                let is_effect_point = world
-                    .data
-                    .npc_data
-                    .get(*npc_id)
-                    .is_some_and(|t| t.type_name == "EffectPoint");
-                if !is_effect_point {
-                    // Java's Decoy and default-spawn branches
-                    // (`SummonNpc.java` `switch (npcTemplate.getType())`) are
-                    // not ported. Not a deferral: the only `Decoy` carrier is
-                    // skill 525, which appears in no skill tree, and every
-                    // reachable `SummonNpc` on this dist is an `EffectPoint`
-                    // symbol (454-460).
+                // `if (player.isMounted()) return;`
+                if world
+                    .objects
+                    .get_component::<crate::model::Player>(&target_oid)
+                    .is_some_and(|p| p.is_mounted())
+                {
                     continue;
                 }
                 // GROUND skills spawn at the stored world position; everything
@@ -439,16 +439,33 @@ pub(crate) fn apply_skill_effects(
                 } else {
                     fallback
                 };
+                let is_effect_point = world
+                    .data
+                    .npc_data
+                    .get(*npc_id)
+                    .is_some_and(|t| t.type_name == "EffectPoint");
                 for _ in 0..(*npc_count).max(1) {
-                    crate::game_loop::effect_point::spawn_effect_point(
-                        world,
-                        target_oid,
-                        *npc_id,
-                        x,
-                        y,
-                        z,
-                        *despawn_delay,
-                    );
+                    if is_effect_point {
+                        crate::game_loop::effect_point::spawn_effect_point(
+                            world,
+                            target_oid,
+                            *npc_id,
+                            x,
+                            y,
+                            z,
+                            *despawn_delay,
+                        );
+                    } else {
+                        crate::game_loop::effect_point::spawn_plain_summon(
+                            world,
+                            target_oid,
+                            *npc_id,
+                            x,
+                            y,
+                            z,
+                            *despawn_delay,
+                        );
+                    }
                 }
             }
             SkillEffect::MagicalAttack { power } => instant::magical_attack(world, &ctx, skill, *power),

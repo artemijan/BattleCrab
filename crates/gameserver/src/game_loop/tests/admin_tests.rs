@@ -6177,3 +6177,82 @@ fn forge_send_cs_refuses_like_java() {
         "and nothing is forged"
     );
 }
+
+/// `//playmovie` carries Java's `MovieHolder` bookkeeping: the state is
+/// remembered, a second movie is refused while one plays, `EndScenePlayer`
+/// only clears on the matching id, Esc (`RequestExEscapeScene`) ends an
+/// escapable movie with `ExStopScenePlayer` but is ignored for a
+/// non-escapable one, and an id outside the `Movie` table is refused
+/// outright (Java's `findByClientId` → catch → usage).
+#[test]
+fn playmovie_movie_holder_bookkeeping() {
+    use crate::model::components::InMovie;
+
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 6496, 100);
+    drain(&mut rx);
+
+    let play = |world: &mut World, id: &str| {
+        on_packet(
+            world,
+            1,
+            [
+                vec![cop::SEND_BYPASS_BUILD_CMD],
+                build_cmd_body(&format!("playmovie {id}")),
+            ]
+            .concat(),
+        );
+    };
+    let in_movie = |world: &World| {
+        world
+            .objects
+            .get_component::<InMovie>(&6496)
+            .map(|m| (m.movie_id, m.escapable))
+    };
+    let stop_sent = |pkts: &[Vec<u8>], id: i32| {
+        pkts.iter().any(|p| {
+            p.first() == Some(&0xFE)
+                && p[1..3] == 0xE7u16.to_le_bytes()
+                && p[3..7] == id.to_le_bytes()
+        })
+    };
+
+    // 39 is a hole in the Movie enum — refused, no state.
+    play(&mut world, "39");
+    assert_eq!(in_movie(&world), None, "an unknown id never starts a movie");
+
+    play(&mut world, "101"); // SI_ILLUSION_01_QUE, escapable
+    assert_eq!(in_movie(&world), Some((101, true)));
+    drain(&mut rx);
+
+    // A second movie while one is playing is Java's `_movieHolder != null`
+    // refusal.
+    play(&mut world, "102");
+    assert_eq!(in_movie(&world), Some((101, true)), "still the first movie");
+
+    // The end notice must echo the running movie's id to count.
+    on_packet(&mut world, 1, ex_packet(0x58, &102i32.to_le_bytes()));
+    assert_eq!(in_movie(&world), Some((101, true)), "wrong id ignored");
+    on_packet(&mut world, 1, ex_packet(0x58, &101i32.to_le_bytes()));
+    assert_eq!(in_movie(&world), None, "matching id ends the movie");
+
+    // Esc ends an escapable movie (single viewer: the vote passes at once)…
+    play(&mut world, "101");
+    drain(&mut rx);
+    on_packet(&mut world, 1, ex_packet(0x90, &[]));
+    assert_eq!(in_movie(&world), None, "Esc ended the escapable movie");
+    assert!(
+        stop_sent(&drain(&mut rx), 101),
+        "ExStopScenePlayer answers the escape"
+    );
+
+    // …but a non-escapable one ignores it (15 = SC_BOSS_FREYA_OPENING).
+    play(&mut world, "15");
+    assert_eq!(in_movie(&world), Some((15, false)));
+    on_packet(&mut world, 1, ex_packet(0x90, &[]));
+    assert_eq!(
+        in_movie(&world),
+        Some((15, false)),
+        "Esc is ignored for a non-escapable movie"
+    );
+}

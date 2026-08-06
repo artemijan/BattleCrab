@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **93** such
+of narrow behaviours deferred and marked at the site. There are **83** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,34 +79,30 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G30)` | 12 | `config/community_board.rs`, `data/skill_data/coverage_census.rs`, `game_loop/community_board.rs`, `game_loop/multisell.rs`, `model/skill.rs`, `network/client_packets.rs` |
-| `TODO(G19)` | 11 | `game_loop/admin/effects.rs`, `game_loop/skill_enchant.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/tests/mana_restore_tests.rs`, `model/mod.rs`, `model/skill.rs`, `network/enter_world.rs` |
-| `TODO(G22)` | 11 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/forge_of_the_gods.rs`, `scripts/primeval_isle.rs`, `scripts/q00224_test_of_sagittarius.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
-| `TODO(G34)` | 11 | `data/skill_data/build.rs`, `game_loop/death/player_death.rs`, `game_loop/npc_cast.rs`, `game_loop/skills/cast.rs`, `game_loop/skills/conditions.rs`, `game_loop/skills/effects/control.rs`, `game_loop/skills/effects/mod.rs`, `game_loop/skills/instant.rs` |
-| `TODO(G28)` | 9 | `game_loop/admin/cursed_weapons.rs`, `game_loop/cursed_weapon.rs`, `game_loop/events/tvt.rs`, `model/cursed_weapon.rs` |
-| `TODO(G21)` | 8 | `data/npc_ai_skills.rs`, `game_loop/admin/cursed_weapons.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
-| `TODO(G24)` | 8 | `game_loop/admin/castle.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs` |
+| `TODO(G22)` | 8 | `game_loop/area_npcs.rs`, `game_loop/tamed_beast.rs`, `scripts/feedable_beasts.rs`, `scripts/primeval_isle.rs`, `scripts/q00227_test_of_the_reformer.rs`, `scripts/q00230_test_of_the_summoner.rs`, `scripts/sin_eater.rs` |
+| `TODO(G21)` | 7 | `data/npc_ai_skills.rs`, `game_loop/npc_ai.rs`, `game_loop/npc_cast.rs` |
+| `TODO(G24)` | 7 | `game_loop/admin/castle.rs`, `game_loop/combat/intent.rs`, `game_loop/siege.rs`, `game_loop/target.rs` |
+| `TODO(G30)` | 6 | `config/community_board.rs`, `game_loop/community_board.rs`, `network/client_packets.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
-| `TODO(G23)` | 5 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs`, `game_loop/target.rs`, `game_loop/valakas.rs` |
-| `TODO(G33)` | 5 | `config/offline_trade.rs`, `game_loop/offline_trade.rs`, `game_loop/party.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
+| `TODO(G28)` | 4 | `game_loop/events/tvt.rs` |
 | `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data/build.rs`, `game_loop/skills/effects/mod.rs`, `model/skill.rs` |
-| `TODO(G14)` | 2 | `config/general.rs`, `model/mod.rs` |
+| `TODO(G33)` | 3 | `game_loop/offline_trade.rs`, `game_loop/party.rs` |
 | `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects/gathering.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
 | `TODO(G18)` | 2 | `game_loop/death/rewards.rs`, `game_loop/pvp.rs` |
 | `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans/membership.rs` |
 | `TODO(G21+)` | 2 | `model/skill.rs`, `scripts/q00414_path_of_the_orc_raider.rs` |
+| `TODO(G23)` | 2 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs` |
 | `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
 | `TODO(G29+)` | 2 | `model/components.rs`, `network/enter_world.rs` |
 | `TODO(G7.5)` | 2 | `data/skill_data/build.rs` |
-| `TODO(login-playauth)` | 2 | `tests/e2e_create.rs` |
+| `TODO(login-playauth)` | 2 | `crates/gameserver/tests/e2e_create.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
-| `TODO(G?)` | 1 | `model/mod.rs` |
 | `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
+| `TODO(G14)` | 1 | `model/mod.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
-| `TODO(G19+)` | 1 | `data/skill_data/build.rs` |
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
@@ -114,6 +110,7 @@ also registering its NPCs would strand the player.
 | `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
 | `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
+| `TODO(G?)` | 1 | `model/mod.rs` |
 
 ## Closed
 
@@ -122,6 +119,15 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G19)` ×9 + `TODO(G19+)` ×1 — the whole G19 group | See the rows below; three were implementations, four were stale or misworded claims converted to evidence-backed `SKIP`s/prose, and chasing the target-handler one exposed a live bug beside it. |
+| 2026-08-06 | `TODO(G19)` ×1 (`skills/cast.rs`, NpcBody) | **Closed — live bug beside the marker.** The spoil/owner gate was applied to *every* `NPC_BODY` cast, but `OpSweeper` belongs to Sweeper 42 alone; the learnable corpse skills (Life Scavenge 46, Corpse Plague 103, Corpse Life Drain 1151, Corpse Burst 1155) were refused with SWEEPER_FAILED on any unspoiled corpse where Java casts them. The gate now keys off the `Sweeper` effect (same carrier set on this dist). |
+| 2026-08-06 | `TODO(G19)` ×1 (`skill_enchant.rs`) | **Closed.** "The olympiad/sell-buff gates (neither system is modeled)" — both had landed (G25, Custom SellBuffs). `busy_for_enchant` now carries Java's transaction-only refusals (transform, attack stance, casting, boat, stores, sell-buff, olympiad), the private-store gate moved off the info packets (Java gates only the transaction), a sub-level change now drops the running cooldown (Java's reuse hash spans sub-level), and UNTRAIN turned out to be exact parity — Java's own `runImpl` switch has no UNTRAIN case. |
+| 2026-08-06 | `TODO(G19)` ×2 (`admin/effects.rs`, `enter_world.rs`) | **Closed.** `//playmovie` now carries Java's full `MovieHolder` bookkeeping: the 95-row `Movie` table (id + escapable), the already-playing refusal, `abortAttack` + stop-move on start (a cast survives, "confirmed in retail"), `EndScenePlayer` (ex 0x58) and `RequestExEscapeScene` (ex 0x90) handled, `ExStopScenePlayer` (ex 0xE7) added. No consumer in Java gates on the movie state, so there was no further freeze to port. |
+| 2026-08-06 | `TODO(G19)` ×1 → implementation + `SKIP(G19)` (`skills/effects/mod.rs`) | "`Decoy` and the default plain-spawn branch (no learnable carriers)" — **the reachability test was wrong**: `SummonNpc`'s plain-spawn carriers are item-cast (Holiday Trees 5560/5561 → skills 2137/2138, Squash/Watermelon Seeds → 2003/2004/2508/2509/9029-9032). The default branch is now ported (`spawn_plain_summon`: summoner link, template-name title, despawn schedule). The Decoy branch stays out as `SKIP`: no reachable skill summons a type=`Decoy` template — item 13769's "Life-size Decoy" 32544 is type `Folk`. |
+| 2026-08-06 | `TODO(G19)` ×2 → `SKIP(G19)` + prose (`model/skill.rs`, BlockActions whitelist) | Censused: every `allowedSkills` carrier on this dist lists the same ten post-Interlude ids, and none of the ten has a skill-tree row, an item `<skills>` grant, or an NPC template carrying it. Nobody can know a whitelisted skill, so folding `CONDITIONAL_BLOCK_ACTIONS` into `BLOCK_ACTIONS` is observably exact. |
+| 2026-08-06 | `TODO(G19)` ×1 → `SKIP(G19)` (`model/skill.rs`, MpConsumePerLevel) | Java's level-scaled branch needs a carrier with `abnormalTime`; all 19 carriers re-verified `abnormalTime`-less, so no cast can reach it. |
+| 2026-08-06 | `TODO(G19+)` ×1 (`skill_data/build.rs`) | **Stale.** "`TargetMe` and `RandomizeHate` fall through unregistered" — both were registered in the very same match (G34 S4, build.rs:523 and :1139). The `power`-default guidance for `MagicalAttack` in the same comment block was the only live part and stays. |
+| 2026-08-06 | `TODO(G19)` ×1 (`tests/mana_restore_tests.rs`) | **Scanner artefact** — prose describing a deferral *closed by that very slice* spelled a parseable tag. Reworded; the rule "never write a parseable tag in prose" bit again. |
 | 2026-08-06 | `TODO(G34)` ×2 — olympiad gate + raid-minion predicate (`skills/effects/ticks.rs`, `effects/mod.rs`, `minions.rs`) | Both were "waiting on a subsystem that has since landed". The auto-resurrect (`ResurrectionSpecial.onExit`) now refuses inside an olympiad match — where firing would decide a duel to the death — via a new shared `olympiad::in_match`, distinct from the registered/observing composite `offline_trade` builds. And Confuse's raid immunity now covers minions: Java's `isRaidMinion()` is just `Monster.onSpawn`'s `setIsRaidMinion(_master.isRaid())`, and the port's `MinionOf` component already carried the link. |
 | 2026-08-06 | `TODO(G24)` ×3 — castle crests, **justified not closed** (`siege.rs`, `admin/castle.rs` ×2) | "Castle crests" turns out to mean one display feature: `Npc.onSpawn` assigns the castle owner's clan id to NPCs in the **tax zone** so the client draws their crest, gated on `(SHOW_CREST_WITHOUT_QUEST \|\| castle.getShowNpcCrest()) && ownerId != 0`. **Both halves are false on this dist, permanently** — `ShowCrestWithoutQuest = False`, `showNpcCrest` defaults to `'false'` in both schemas, and `setShowNpcCrest(true)` appears *nowhere* in the Java tree. Kept as deferrals (an operator can flip the ini or the column), now naming what implementing needs: a `Castle` field, the tax-zone assignment, and a clan-id field `NpcInfo` does not carry. |
 | 2026-08-06 | `TODO(G24)` ×1 — advanced HQ **implemented** (`combat/damage.rs`, `model/components.rs`, `siege.rs`) | Skill 326's camp now takes **half** damage. Deliberately not Java's arithmetic: `SiegeFlagStatus.reduceHp` omits an `else` and applies `value/2` *and* `value` for 1.5×, which makes the noble-only skill worse than the basic one. Operator decision, recorded in [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md) — a future line-by-line parity pass will see a mismatch and must argue with the note rather than "correct" it. |

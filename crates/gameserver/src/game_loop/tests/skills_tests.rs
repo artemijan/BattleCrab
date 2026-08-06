@@ -6418,3 +6418,93 @@ fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
         "Inner Rhythm takes 10 % off the MP that actually leaves the bar"
     );
 }
+
+/// `NpcBody` targeting: the `OpSweeper` spoil gate belongs to the Sweeper
+/// family alone — on this dist only Sweeper 42 carries the condition. A
+/// corpse skill without the `Sweeper` effect (Corpse Burst 1155, Corpse Life
+/// Drain 1151, Life Scavenge 46, Corpse Plague 103 — all learnable) casts on
+/// any dead NPC, spoiled or not; Sweeper is still refused at cast time on an
+/// unspoiled corpse and passes on the caster's own spoil.
+#[test]
+fn npc_body_spoil_gate_only_for_sweeper() {
+    use crate::model::components::Position;
+    use crate::model::skill::{Skill, SkillEffect, TargetType};
+    use crate::network::server_packets::sm_ids;
+
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 9;
+    add_test_npc(&mut world, npc_oid, 40778, "Monster", 5, 50, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&npc_oid)
+        .unwrap()
+        .dead = true;
+
+    let corpse_burst = Skill {
+        id: 1155,
+        target_type: TargetType::NpcBody,
+        effects: vec![SkillEffect::MagicalAttack { power: 10.0 }],
+        ..Default::default()
+    };
+    let sweeper = Skill {
+        id: 42,
+        target_type: TargetType::NpcBody,
+        effects: vec![SkillEffect::Sweeper, SkillEffect::ConsumeBody],
+        ..Default::default()
+    };
+    let caster = world
+        .objects
+        .get_component::<crate::model::Player>(&3001)
+        .unwrap();
+    let pos = *world.objects.get_component::<Position>(&3001).unwrap();
+
+    assert_eq!(
+        skills::cast::resolve_cast_target(
+            &world,
+            caster,
+            &pos,
+            Some(npc_oid),
+            &corpse_burst,
+            false,
+            false
+        ),
+        Ok(npc_oid),
+        "a corpse skill without the Sweeper effect casts on an unspoiled corpse"
+    );
+    assert_eq!(
+        skills::cast::resolve_cast_target(
+            &world,
+            caster,
+            &pos,
+            Some(npc_oid),
+            &sweeper,
+            false,
+            false
+        ),
+        Err(sm_ids::SWEEPER_FAILED_TARGET_NOT_SPOILED),
+        "Sweeper is still refused on an unspoiled corpse at cast time"
+    );
+    world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+        .unwrap()
+        .spoiler_object_id = 3001;
+    let caster = world
+        .objects
+        .get_component::<crate::model::Player>(&3001)
+        .unwrap();
+    assert_eq!(
+        skills::cast::resolve_cast_target(
+            &world,
+            caster,
+            &pos,
+            Some(npc_oid),
+            &sweeper,
+            false,
+            false
+        ),
+        Ok(npc_oid),
+        "the caster's own spoil passes the Sweeper gate"
+    );
+}

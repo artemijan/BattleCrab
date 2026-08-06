@@ -76,6 +76,63 @@ pub(crate) fn spawn_effect_point(
     }
 }
 
+/// `SummonNpc.instant`'s **default** branch — the plain world spawn. The
+/// reachable carriers on this dist are all item-cast: the Holiday Trees
+/// 5560/5561 (skills 2137/2138 → Folk 13006/13007) and the Squash/Watermelon
+/// seeds (skills 2003/2004/2508/2509/9029-9032 → the squash Monsters). Java:
+/// `new Spawn(template)` at the point with the summoner's heading,
+/// `stopRespawn()`, `doSpawn()`, `player.addSummonedNpc(npc)`, name *and*
+/// title set to the template's name, then `scheduleDespawn(despawnDelay)`.
+/// (None of the carriers set `randomOffset`/`singleInstance`/`isSummonSpawn`,
+/// so those Java params have nothing to model here.)
+pub(crate) fn spawn_plain_summon(
+    world: &mut World,
+    owner_oid: i32,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    despawn_ms: i32,
+) {
+    let heading = world
+        .objects
+        .get_component::<crate::model::components::Position>(&owner_oid)
+        .map_or(0, |p| p.heading);
+    let Some(npc_oid) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading) else {
+        return;
+    };
+    world
+        .objects
+        .add_components(&npc_oid, SummonerRef(owner_oid));
+    // `player.addSummonedNpc(npc)` — the same registry the quest engine's
+    // NPC-side summons use; a corpse still counts until decay, as in Java.
+    {
+        use crate::model::components::SummonedNpcs;
+        match world.objects.get_component_mut::<SummonedNpcs>(&owner_oid) {
+            Some(list) => list.0.push(npc_oid),
+            None => world
+                .objects
+                .add_components(&owner_oid, SummonedNpcs(vec![npc_oid])),
+        }
+    }
+    // `npc.setTitle(npcTemplate.getName())` — a plain summon wears its own
+    // name as its title (the name itself already defaults to the template's).
+    let template_name = world.data.npc_data.get(npc_id).map(|t| t.name.clone());
+    if let Some(name) = template_name
+        && let Some(npc) = world
+            .objects
+            .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+    {
+        npc.title_override = Some(name);
+    }
+    if despawn_ms > 0 {
+        world.scheduler.schedule(
+            world.tick + ms_to_ticks(despawn_ms),
+            ScheduledTask::EffectPointDespawn { npc_oid },
+        );
+    }
+}
+
 /// One `EffectPoint` skill-task fire: `doCast(union_skill)` at itself (the
 /// auras are `SELF` + `POINT_BLANK`), then re-arm at `skill_delay` — Java's
 /// `scheduleAtFixedRate`, self-cancelling once the totem is dead or gone.

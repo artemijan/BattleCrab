@@ -344,3 +344,97 @@ fn enchants_survive_the_load_path() {
     }
     assert!(found, "the skill is in the list");
 }
+
+/// The transaction-only busy refusals (`RequestExEnchantSkill.runImpl`):
+/// a sell-buff store and a transformation both bounce the enchant with
+/// nothing consumed, and the same request goes through once the player is
+/// idle again.
+#[test]
+fn enchant_refused_while_busy() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = enchanter(&mut world);
+
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .unwrap()
+        .selling_buffs = true;
+    enchant(&mut world, 0, 1001, 0); // the roll would succeed if it got that far
+    assert_eq!(sub_of(&world, CASTER, SKILL), 0, "sell-buff store refusal");
+    assert_eq!(count_of(&world, CASTER, CODEX), 5, "nothing consumed");
+
+    {
+        let p = world.objects.get_component_mut::<Player>(&CASTER).unwrap();
+        p.selling_buffs = false;
+        p.transform_id = 101;
+    }
+    enchant(&mut world, 0, 1001, 0);
+    assert_eq!(sub_of(&world, CASTER, SKILL), 0, "transformed refusal");
+
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .unwrap()
+        .transform_id = 0;
+    enchant(&mut world, 0, 1001, 0);
+    assert_eq!(
+        sub_of(&world, CASTER, SKILL),
+        1001,
+        "goes through once idle"
+    );
+}
+
+/// Java's reuse hash spans the sub-level (`SkillData.getSkillHashCode`), so
+/// any sub-level move orphans a running cooldown — the enchanted skill is
+/// castable at once. A BLESSED failure keeps the step, so it also keeps the
+/// cooldown.
+#[test]
+fn enchant_rekeys_the_running_cooldown() {
+    use crate::model::components::Reuses;
+
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = enchanter(&mut world);
+
+    let arm_reuse = |world: &mut World| {
+        let until = world.tick + 1_000;
+        let mut map = std::collections::HashMap::new();
+        map.insert(
+            SKILL,
+            crate::model::SkillReuse {
+                skill_level: 40,
+                until_tick: until,
+                total_ms: 60_000,
+            },
+        );
+        world.objects.add_components(&CASTER, Reuses(map));
+    };
+    let has_reuse = |world: &World| {
+        world
+            .objects
+            .get_component::<Reuses>(&CASTER)
+            .is_some_and(|r| r.0.contains_key(&SKILL))
+    };
+
+    arm_reuse(&mut world);
+    enchant(&mut world, 0, 1001, 0); // NORMAL success: 0 → 1001
+    assert_eq!(sub_of(&world, CASTER, SKILL), 1001);
+    assert!(
+        !has_reuse(&world),
+        "the sub-level moved — the old cooldown is orphaned"
+    );
+
+    arm_reuse(&mut world);
+    enchant(&mut world, 1, 1002, 95); // BLESSED failure: stays at 1001
+    assert_eq!(sub_of(&world, CASTER, SKILL), 1001);
+    assert!(
+        has_reuse(&world),
+        "a BLESSED failure keeps the step, so it keeps the cooldown"
+    );
+
+    enchant(&mut world, 0, 1002, 95); // NORMAL failure: 1001 → fail level 1003
+    assert_eq!(sub_of(&world, CASTER, SKILL), 1003);
+    assert!(
+        !has_reuse(&world),
+        "a NORMAL failure also moves the sub-level, orphaning the cooldown"
+    );
+}

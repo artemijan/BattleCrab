@@ -223,6 +223,12 @@ pub mod ex_opcodes {
     /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
     /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
     pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
+    /// `EndScenePlayer` — the client's notice that a cinematic finished; the
+    /// body echoes the movie's client id.
+    pub const END_SCENE_PLAYER: u16 = 0x58;
+    /// `RequestExEscapeScene` — the player pressed Esc during an escapable
+    /// cinematic (empty body).
+    pub const REQUEST_EX_ESCAPE_SCENE: u16 = 0x90;
     /// `RequestConfirmTargetItem` — the augment window's first slot.
     pub const REQUEST_CONFIRM_TARGET_ITEM: u16 = 0x26;
     /// `RequestConfirmGemStone` — the augment window's fee slot.

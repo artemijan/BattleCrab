@@ -422,3 +422,100 @@ fn a_seal_is_titled_with_its_casters_name() {
         "with serverSideTitle on, NpcInfo carries the per-instance title"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The default plain-spawn branch (Holiday Trees, Squash seeds)
+// ---------------------------------------------------------------------------
+
+/// `SummonNpc`'s **default** branch — a non-`EffectPoint` template (the
+/// Holiday Tree shape: `Folk` 13006 from item skill 2137) spawns as a plain
+/// world NPC: linked to its summoner, registered in the player's
+/// `SummonedNpcs`, wearing its own template name as its title, and despawning
+/// after the effect's `despawnDelay`.
+#[test]
+fn plain_summon_spawns_folk_with_despawn() {
+    use crate::model::components::{Position, SummonedNpcs};
+
+    const TREE_NPC: i32 = 91301;
+    const TREE_SKILL: i32 = 9302;
+
+    let (mut world, _db, _l) = cast_test_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    let mut t = crate::data::npc_data::default_template(TREE_NPC);
+    t.type_name = "Folk".into();
+    t.name = "Holiday Tree".into();
+    t.level = 1;
+    t.base_hp_max = 30.0;
+    t.base_mp_max = 30.0;
+    world.data.npc_data.insert_for_test(t);
+
+    let tree = Skill {
+        self_continuous: false,
+        id: TREE_SKILL,
+        name: "Summon Regular Tree".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Self_,
+        effects: vec![SkillEffect::SummonNpc {
+            npc_id: TREE_NPC,
+            npc_count: 1,
+            despawn_delay: 1_000,
+        }],
+        ..Default::default()
+    };
+    skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &tree);
+
+    let tree_oid = world
+        .npc_regions
+        .values()
+        .flatten()
+        .copied()
+        .find(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::npc::Npc>(oid)
+                .is_some_and(|n| n.npc_id == TREE_NPC)
+        })
+        .expect("the tree spawned");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<SummonerRef>(&tree_oid)
+            .map(|s| s.0),
+        Some(CASTER),
+        "linked to its summoner"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<SummonedNpcs>(&CASTER)
+            .is_some_and(|s| s.0.contains(&tree_oid)),
+        "registered in the player's summoned-NPC list"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&tree_oid)
+            .unwrap()
+            .title_override
+            .as_deref(),
+        Some("Holiday Tree"),
+        "a plain summon wears its template name as its title"
+    );
+    let caster_pos = *world.objects.get_component::<Position>(&CASTER).unwrap();
+    let tree_pos = *world.objects.get_component::<Position>(&tree_oid).unwrap();
+    assert_eq!(
+        (tree_pos.x, tree_pos.y, tree_pos.z),
+        (caster_pos.x, caster_pos.y, caster_pos.z),
+        "spawned at the effected player's position"
+    );
+
+    // `scheduleDespawn(despawnDelay)` — 1 s on the test clock.
+    advance_ticks(&mut world, 15);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&tree_oid),
+        "the despawnDelay removed the tree"
+    );
+}

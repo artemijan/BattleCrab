@@ -15,11 +15,14 @@
 //! - `NORMAL` failure resets the route to `enchantFailLevel` (0 = unenchanted);
 //!   `BLESSED` failure keeps the current step; `CHANGE` failure sets the raw
 //!   `enchantFailLevel` as the sub-level.
+//! - A sub-level change orphans a running cooldown (Java's reuse hash spans
+//!   level and sub-level) — mirrored by dropping the reuse entry whenever the
+//!   sub-level moves.
 //!
-//! Deliberate narrowings, `TODO(G19)` here: `UNTRAIN` (no client button on
-//! this dist), the olympiad/sell-buff gates (neither system is modeled), and
-//! Java's reuse-timestamp re-key (the port's reuses are keyed by skill id, so
-//! they carry across an enchant on their own).
+//! `UNTRAIN` is refused exactly like Java: the `SkillEnchantType` value
+//! exists there, but `RequestExEnchantSkill.runImpl`'s switch has no UNTRAIN
+//! case — parity, not a narrowing. The one Java gate without a port
+//! equivalent is the subclass lock (see [`busy_for_enchant`]).
 
 use crate::model::Player;
 use crate::model::components::{SkillBook, SkillEnchants};
@@ -45,26 +48,47 @@ fn type_name(t: i32) -> Option<&'static str> {
     }
 }
 
-/// The gate every enchant packet shares: a live 3rd-class player
-/// (`CategoryType.FOURTH_CLASS_GROUP`) not busy with a private store.
+/// The gate every enchant packet shares: a 3rd-class player
+/// (`CategoryType.FOURTH_CLASS_GROUP`). The busy-state refusals live only on
+/// the transaction packet, as in Java — `RequestExEnchantSkillInfo` carries
+/// nothing but this class check.
 fn may_enchant(world: &World, object_id: i32) -> bool {
     let Some(p) = world.objects.get_component::<Player>(&object_id) else {
         return false;
     };
-    if !world
+    world
         .data
         .categories
         .contains("FOURTH_CLASS_GROUP", p.class_id)
-    {
-        return false;
-    }
-    // `getPrivateStoreType() != NONE` refusal — either kind of store counts.
-    !world
+}
+
+/// `RequestExEnchantSkill.runImpl`'s busy-state refusals, transaction-only:
+/// `isAllowedToEnchantSkills()` (transformed / attack stance / casting /
+/// aboard a boat), `isSellingBuffs()`, `isInOlympiadMode()` and
+/// `getPrivateStoreType() != NONE`. Java's remaining
+/// `isAllowedToEnchantSkills` leg, the subclass lock, has no port
+/// equivalent: a subclass change completes within its own tick, so no
+/// packet can arrive mid-change.
+fn busy_for_enchant(world: &World, object_id: i32) -> bool {
+    let transformed_or_selling = world
         .objects
-        .has_component::<crate::model::components::PrivateStore>(&object_id)
-        && !world
+        .get_component::<Player>(&object_id)
+        .is_none_or(|p| p.transform_id != 0 || p.selling_buffs);
+    transformed_or_selling
+        || world
+            .objects
+            .has_component::<crate::model::components::Casting>(&object_id)
+        || world
+            .objects
+            .has_component::<crate::model::boat::InVehicle>(&object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::PrivateStore>(&object_id)
+        || world
             .objects
             .has_component::<crate::model::components::PrivateBuyStore>(&object_id)
+        || super::combat::has_attack_stance(world, object_id)
+        || super::olympiad::in_match(world, object_id)
 }
 
 /// `RequestExEnchantSkillInfo` (ex 0x0E: `d skillId, h level, h sub`) — the
@@ -180,7 +204,7 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
     if skill_id <= 0 || level <= 0 || target_sub < 0 || type_name(ty).is_none() {
         return;
     }
-    if !may_enchant(world, object_id) {
+    if !may_enchant(world, object_id) || busy_for_enchant(world, object_id) {
         return;
     }
     let Some((known_level, cur_sub)) = known_skill(world, object_id, skill_id) else {
@@ -301,6 +325,26 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
             ench.0.insert(skill_id, new_sub);
         } else {
             ench.0.remove(&skill_id);
+        }
+    }
+    // Java keys reuse stamps by `SkillData.getSkillHashCode(id|group, level,
+    // subLevel)`, so the moment the sub-level moves — success *or* a
+    // NORMAL/CHANGE failure reset — a running cooldown is orphaned under the
+    // old hash and the skill is castable at once. The port's `Player.reuses`
+    // is keyed per skill; dropping the entry on a sub-level change mirrors
+    // the observable.
+    if new_sub.is_some_and(|s| s != cur_sub) {
+        let key = world
+            .data
+            .skill_data
+            .get(skill_id, level)
+            .map(|s| s.reuse_key());
+        if let Some(key) = key
+            && let Some(reuses) = world
+                .objects
+                .get_component_mut::<crate::model::components::Reuses>(&object_id)
+        {
+            reuses.0.remove(&key);
         }
     }
 

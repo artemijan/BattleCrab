@@ -2,10 +2,11 @@
 //! (`//social`, `//effect`, `//earthquake`, `//atmosphere`, `//play_sound`).
 //!
 //! The abnormal-visual-effect subset (`//invis`/`//para`/`//bighead`/…, teams,
-//! `//settargetable`, `//playmovie`, `//event_trigger`, `//set_displayeffect`)
+//! `//settargetable`, `//event_trigger`, `//set_displayeffect`)
 //! needs a per-creature AbnormalVisualEffect list / Team / targetable runtime
 //! state this server does not model yet, so those stay deferred (still gated by
-//! `AdminCommands.xml`, reaching the "not implemented" path).
+//! `AdminCommands.xml`, reaching the "not implemented" path). `//playmovie`
+//! carries the full `MovieHolder` bookkeeping (see [`admin_playmovie`]).
 
 use crate::model::Player;
 use crate::model::components::Position;
@@ -462,17 +463,202 @@ fn set_admin_visual(world: &mut World, target: i32, ave: i16, on: bool) {
     }
 }
 
-/// `//playmovie <id>` — play a client cinematic for the GM. The MovieHolder
-/// bookkeeping (movement freeze, escape handling) is TODO(G19); this is the
-/// preview tool.
+/// Java's `Movie` enum as `(client_id, isEscapable)` rows — the ids
+/// `Movie.findByClientId` accepts. An id not in this table is refused with
+/// the usage line, matching Java's `AdminEffects` catch around the lookup.
+const MOVIES: &[(i32, bool)] = &[
+    (1, true),
+    (2, true),
+    (3, true),
+    (4, true),
+    (5, true),
+    (6, true),
+    (7, true),
+    (8, true),
+    (9, true),
+    (10, true),
+    (11, true),
+    (12, true),
+    (13, true),
+    (14, true),
+    (15, false),
+    (16, true),
+    (17, true),
+    (18, false),
+    (19, false),
+    (20, false),
+    (21, true),
+    (22, true),
+    (23, false),
+    (24, true),
+    (25, true),
+    (26, false),
+    (27, true),
+    (28, false),
+    (29, false),
+    (30, false),
+    (31, true),
+    (32, false),
+    (33, true),
+    (34, true),
+    (35, true),
+    (36, false),
+    (37, true),
+    (38, true),
+    (42, false),
+    (43, false),
+    (44, false),
+    (45, false),
+    (46, false),
+    (47, false),
+    (48, false),
+    (49, false),
+    (50, true),
+    (51, true),
+    (52, true),
+    (53, false),
+    (54, true),
+    (55, true),
+    (56, false),
+    (57, false),
+    (58, false),
+    (59, false),
+    (69, true),
+    (70, true),
+    (71, false),
+    (72, true),
+    (73, false),
+    (74, false),
+    (75, false),
+    (76, false),
+    (77, true),
+    (78, true),
+    (79, true),
+    (80, true),
+    (81, false),
+    (99, true),
+    (100, true),
+    (101, true),
+    (102, true),
+    (103, true),
+    (104, true),
+    (105, true),
+    (106, true),
+    (107, false),
+    (108, false),
+    (109, false),
+    (110, false),
+    (111, false),
+    (112, true),
+    (113, true),
+    (114, true),
+    (115, true),
+    (116, false),
+    (117, false),
+    (1000, true),
+    (1001, true),
+    (1002, true),
+    (1003, true),
+    (1004, true),
+    (2001, false),
+    (2002, false),
+];
+
+/// `//playmovie <id>` — play a client cinematic for the GM, with Java's
+/// `Player.playMovie` bookkeeping: refused while one is already running,
+/// aborts the swing (but **not** a cast — "Confirmed in retail"), stops
+/// movement, and remembers the `MovieHolder` state so `EndScenePlayer` /
+/// `RequestExEscapeScene` can end it. `ExStartScenePlayer` is skipped while
+/// teleporting, as in Java.
 pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(id) = args.first().and_then(|v| v.parse::<i32>().ok()) else {
+    use crate::model::components::InMovie;
+
+    let movie = args
+        .first()
+        .and_then(|v| v.parse::<i32>().ok())
+        .and_then(|id| MOVIES.iter().find(|&&(mid, _)| mid == id).copied());
+    let Some((movie_id, escapable)) = movie else {
         send_message(world, client_id, "Usage: //playmovie <id>");
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::ex_start_scene_player(id));
+    let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    // `if (_movieHolder != null) return;`
+    if world.objects.has_component::<InMovie>(&object_id) {
+        return;
     }
+    crate::game_loop::combat::abort_attack(world, object_id);
+    crate::game_loop::position::handle_request_stop_move(world, client_id);
+    world.objects.add_components(
+        &object_id,
+        InMovie {
+            movie_id,
+            escapable,
+        },
+    );
+    let teleporting = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(|p| p.teleporting);
+    if !teleporting && let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::enter_world::ex_start_scene_player(movie_id));
+    }
+}
+
+/// `EndScenePlayer` (ex 0x58) — the client's own notice that the cinematic
+/// finished. Java: ignored unless the echoed id matches the running movie,
+/// then `stopMovie()` — which also answers `ExStopScenePlayer`, harmless for
+/// a scene the client already ended.
+pub(crate) fn handle_end_scene_player(world: &mut World, client_id: u32, ex_body: &[u8]) {
+    let mut r = commons::network::PacketReader::new(ex_body);
+    let Some(movie_id) = r.read_i32() else {
+        return;
+    };
+    let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    let matches = world
+        .objects
+        .get_component::<crate::model::components::InMovie>(&object_id)
+        .is_some_and(|m| movie_id != 0 && m.movie_id == movie_id);
+    if matches {
+        stop_movie(world, client_id, object_id);
+    }
+}
+
+/// `RequestExEscapeScene` (ex 0x90) — the player pressed Esc. Java routes
+/// this through `MovieHolder.playerEscapeVote`: refused for a non-escapable
+/// movie; with a single viewer (the only case on this dist — `//playmovie`
+/// plays to the GM alone) the vote passes at once and the movie stops.
+pub(crate) fn handle_escape_scene(world: &mut World, client_id: u32) {
+    let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    let escapable = world
+        .objects
+        .get_component::<crate::model::components::InMovie>(&object_id)
+        .is_some_and(|m| m.escapable);
+    if escapable {
+        stop_movie(world, client_id, object_id);
+    }
+}
+
+/// Java `Player.stopMovie` — send `ExStopScenePlayer` and clear the state.
+fn stop_movie(world: &mut World, client_id: u32, object_id: i32) {
+    let movie_id = world
+        .objects
+        .get_component::<crate::model::components::InMovie>(&object_id)
+        .map(|m| m.movie_id);
+    let Some(movie_id) = movie_id else {
+        return;
+    };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::enter_world::ex_stop_scene_player(movie_id));
+    }
+    world
+        .objects
+        .remove_component::<crate::model::components::InMovie>(&object_id);
 }
 
 /// `//event_trigger <id> [true|false]` — toggle a client emitter for everyone

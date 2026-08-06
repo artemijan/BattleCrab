@@ -5,7 +5,7 @@
 //! **only** `ManaHealByLevel`, so all three parsed to an empty effect list and
 //! were dropped whole — the core mage-support skill restored nothing.
 //!
-//! This slice also closes the `TODO(G19)` the `MagicalAttackMp` slice left:
+//! This slice also closes the G19 deferral the `MagicalAttackMp` slice left:
 //! all four of these handlers read `isMpBlocked()`, the flag that had been
 //! mis-documented as dead.
 

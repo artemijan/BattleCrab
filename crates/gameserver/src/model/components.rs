@@ -1093,6 +1093,21 @@ pub struct PlayerSummons(pub Vec<crate::db::SummonRow>);
 #[derive(Component, Debug, Clone, Default)]
 pub struct SummonedNpcs(pub Vec<i32>);
 
+/// Java `Player._movieHolder` — a client cinematic is playing for this
+/// player. On this dist the only route in is the GM's `//playmovie` (no
+/// quest or boss script calls `playMovie`). Present from `ExStartScenePlayer`
+/// until the client's own `EndScenePlayer` notice, or until a
+/// `RequestExEscapeScene` vote when the movie is escapable; a second
+/// `playMovie` while one is running is refused, as in Java.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct InMovie {
+    /// The `Movie` enum's client id — echoed back by `EndScenePlayer` and
+    /// written into `ExStopScenePlayer`.
+    pub movie_id: i32,
+    /// `Movie.isEscapable()` — whether Esc (`RequestExEscapeScene`) may end it.
+    pub escapable: bool,
+}
+
 /// Java `CreatureStat._defenceTraits` / `_invulnerableTraits` — the per-trait
 /// debuff resistances a `DefenceTrait` buff merges in, and the traits it makes
 /// the bearer outright immune to.

@@ -27,7 +27,7 @@ mod character;
 pub(crate) mod cursed_weapons;
 pub(crate) mod debug_draw;
 mod editchar;
-mod effects;
+pub(crate) mod effects;
 mod events;
 mod flags;
 mod geo_editor;

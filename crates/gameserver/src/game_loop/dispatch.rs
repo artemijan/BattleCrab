@@ -615,6 +615,15 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_SET_CROP if world.cfg.general.allow_manor => {
             super::manor::handle_request_set_crop(world, client_id, ex_body);
         }
+        // EndScenePlayer / RequestExEscapeScene (IN_GAME): a cinematic ended
+        // on its own, or the player pressed Esc during an escapable one
+        // (`//playmovie` is the only movie route on this dist).
+        exop::END_SCENE_PLAYER => {
+            super::admin::effects::handle_end_scene_player(world, client_id, ex_body);
+        }
+        exop::REQUEST_EX_ESCAPE_SCENE => {
+            super::admin::effects::handle_escape_scene(world, client_id);
+        }
         // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client
         // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
         exop::REQUEST_USER_BAN_INFO => {}

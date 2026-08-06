@@ -523,8 +523,13 @@ pub enum SkillEffect {
     ///
     /// `conditional` mirrors Java's `allowedSkills` whitelist (a non-empty list
     /// yields `CONDITIONAL_BLOCK_ACTIONS` instead). The whitelist contents are
-    /// not modelled — `hasBlockActions()` treats both flags the same, so the
-    /// only skills wrongly blocked are the whitelisted ones. TODO(G19).
+    /// not modelled — `hasBlockActions()` treats both flags the same.
+    /// SKIP(G19): every carrier on this dist lists the same ten ids
+    /// (10279, 10517, 10025, 10776, 11770, 1904, 11264, 11093, 13314, 1912 —
+    /// all post-Interlude), and none of the ten has any route here: no skill
+    /// tree row, no item `<skills>` grant, no NPC template carries them
+    /// (verified 2026-08-06). Nobody can know a whitelisted skill, so nobody
+    /// can be wrongly blocked from casting one.
     BlockActions {
         conditional: bool,
     },
@@ -1271,11 +1276,12 @@ pub enum SkillEffect {
     /// (`handle_dam_over_time_tick`): Java's formula is `power *
     /// getTicksMultiplier()` when the skill has no `abnormalTime` (every
     /// instance in this datapack — all 19 are toggles/`AU` skills with none
-    /// set), identical to `ManaDamOverTime`'s. TODO(G19): Java also has a
+    /// set), identical to `ManaDamOverTime`'s. SKIP(G19): Java also has a
     /// level-scaled branch (`((level-1)/7.5) * base * abnormalTime`) for a
-    /// skill *with* an `abnormalTime` — unexercised by any skill in this
-    /// datapack, so not ported; split out of the shared arm if one ever needs
-    /// it.
+    /// skill *with* an `abnormalTime` — all 19 carriers in this datapack
+    /// re-verified `abnormalTime`-less on 2026-08-06, so no cast can reach
+    /// that branch; split it out of the shared arm if a carrier ever gains
+    /// one.
     MpConsumePerLevel {
         power: f64,
         ticks: i32,
@@ -1567,8 +1573,8 @@ pub mod effect_flag {
     /// `BLOCK_ACTIONS` — stun / sleep / paralyze: no attacking, casting or
     /// moving. Java also has `CONDITIONAL_BLOCK_ACTIONS` (a `BlockActions`
     /// carrying an `allowedSkills` whitelist); `hasBlockActions()` treats the
-    /// two identically, and the whitelist itself is a TODO(G19), so both map
-    /// here.
+    /// two identically, and no whitelisted skill is obtainable on this dist
+    /// (see the SKIP on `SkillEffect::BlockActions`), so both map here.
     pub const BLOCK_ACTIONS: u32 = 1 << 0;
     /// `ROOTED` — immobilised, but still able to attack and cast.
     pub const ROOTED: u32 = 1 << 1;

@@ -561,13 +561,9 @@ pub(crate) fn build_skill(
                                 .unwrap_or(100);
                             vec![SkillEffect::DeleteHateOfMe { chance }]
                         }
-                        // TODO(G19+): `TargetMe` (paired with `GetAgro` on
-                        // Aggression 28/Aggression Aura 18) and `RandomizeHate`
-                        // (Confusion 2, Switch 12) fall through here unregistered
-                        // and are dropped — see PLAN_G19_HATE_EFFECTS.md's
-                        // "Deferred" section for why (a locked-target UI concept
-                        // and a general nearby-visible-creatures query,
-                        // respectively, neither of which exists on this port yet).
+                        // (`TargetMe` and `RandomizeHate`, once deferred here,
+                        // both landed in G34 S4 — see their own arms in this
+                        // match.)
                         // Java instantiates these handlers whenever the `<effect>` is
                         // present and reads `params.getDouble("power", 0)` — the
                         // effect is always created, `power` defaulting to 0 when the

@@ -254,10 +254,18 @@ pub fn ex_change_npc_state(object_id: i32, state: i32) -> Vec<u8> {
 }
 
 /// `ExStartScenePlayer` (0xFE 0x9A) — play a client cinematic
-/// (`//playmovie`). The port sends the raw id; Java's `MovieHolder`
-/// bookkeeping (freeze/escape handling) is TODO(G19) — GM preview only.
+/// (`//playmovie`; `game_loop::admin::effects` holds the `MovieHolder`
+/// bookkeeping — the `InMovie` state, the end notice and the escape vote).
 pub fn ex_start_scene_player(movie_id: i32) -> Vec<u8> {
     let mut w = ex(0x9A);
+    w.write_i32(movie_id);
+    w.into_bytes()
+}
+
+/// `ExStopScenePlayer` (0xFE 0xE7) — end the cinematic `movie_id` early
+/// (Java `Player.stopMovie`, reached from the escape vote).
+pub fn ex_stop_scene_player(movie_id: i32) -> Vec<u8> {
+    let mut w = ex(0xE7);
     w.write_i32(movie_id);
     w.into_bytes()
 }
