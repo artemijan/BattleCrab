@@ -638,6 +638,11 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TamedBeastFollow { beast_oid } => {
                 tamed_beast::handle_follow(world, beast_oid);
             }
+            ScheduledTask::SkillsReenable { object_id } => {
+                world
+                    .objects
+                    .remove_component::<crate::model::components::SkillsDisabled>(&object_id);
+            }
             ScheduledTask::TamedBeastBuffCheck { beast_oid } => {
                 tamed_beast::handle_buff_check(world, beast_oid);
             }

@@ -560,6 +560,11 @@ pub enum ScheduledTask {
     TamedBeastFollow {
         beast_oid: i32,
     },
+    /// The community board teleport's 3 s `disableAllSkills` window ending —
+    /// Java's `ThreadPool.schedule(enableAllSkills, 3000)`.
+    SkillsReenable {
+        object_id: i32,
+    },
     /// A tamed beast's 5 s `CheckOwnerBuffs` beat — when the tamer is
     /// missing more than a third of the beast's template buffs, sit-cast a
     /// random one on them. Reschedules itself.

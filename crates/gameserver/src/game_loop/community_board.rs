@@ -21,11 +21,17 @@
 //!     `_bbs_npc_trace`): item-name search over the drop index, the per-item
 //!     drop/spoil list at server rates, and the `RadarControl` world-map trace.
 //!
-//! Deferred with `TODO(G30)` at each site (needs subsystems not ported yet):
-//! the merchant multisell/sell (`_bbsmultisell`/`_bbsexcmultisell`/`_bbssell`
-//! — no multisell/buy-list system); `_bbsdelevel` (config-off in the dist); and
-//! the retail forum boards (`_bbsloc`/`_bbsclan`/`_bbsmail`/…), which the custom
-//! navigation never links to anyway.
+//!   - the merchant actions (`_bbsmultisell`/`_bbsexcmultisell`/`_bbssell`)
+//!     over the multisell/buy-list systems, and `_bbsdelevel` (config-off on
+//!     this dist, ported per the config-disabled rule);
+//!   - the `_bbsteleport` 3 s skill lock (`SkillsDisabled` + a timed
+//!     re-enable) and the retail home's favorite counter.
+//!
+//! TODO(G30): the retail **forum boards** (`_bbsloc`/`_bbsclan`/`_bbsmail`,
+//! the `RequestBBSwrite` Topic/Post/Region/Notice commands, and the home
+//! page's region/clan counters). Unreachable in production: this dist runs
+//! `CustomCommunityBoard = True`, whose navigation never links to them — an
+//! operator must flip the config off to even see the retail home.
 
 use tracing::warn;
 
@@ -111,6 +117,7 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
         "_bbsmultisell" => do_multisell(world, client_id, object_id, command, false),
         "_bbsexcmultisell" => do_multisell(world, client_id, object_id, command, true),
         "_bbssell" => do_sell(world, client_id, object_id, command),
+        "_bbsdelevel" => do_delevel(world, client_id, object_id),
         other => {
             warn!("CommunityBoard: unhandled/unported command [{other}] (full: [{command}]).");
         }
@@ -125,8 +132,8 @@ pub(crate) fn handle_write_command(world: &mut World, client_id: u32, url: &str)
     if !world.cfg.community_board.enabled {
         return;
     }
-    // TODO(G30): Topic/Post/Region/Notice map to the forum boards (`_bbstop`/
-    // `_bbsloc`/`_bbsclan`) — port when those boards land.
+    // Topic/Post/Region/Notice all target the retail forum boards — the one
+    // remaining G30 deferral, see the module header.
     let html = format!(
         "<html><body><br><br><center>The command: {url} is not implemented yet.</center><br><br></body></html>"
     );
@@ -171,9 +178,11 @@ fn show_home(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     if custom {
         html = finalize_custom(world, object_id, html, "");
     } else {
-        // Retail home counters. TODO(G30): real favorite/region counts (need the
-        // `bbs_favorites` table + region registration) and clan count.
-        html = html.replace("%fav_count%", "0");
+        // Retail home counters. The favorite count reads the same store the
+        // `FavoriteBoard` maintains; region/clan stay 0 with the retail forum
+        // boards (see the module header's deferral).
+        let favs = world.bbs_favorites.get(&object_id).map_or(0, |f| f.len());
+        html = html.replace("%fav_count%", &favs.to_string());
         html = html.replace("%region_count%", "0");
         html = html.replace("%clan_count%", "0");
     }
@@ -236,18 +245,70 @@ fn do_teleport(world: &mut World, client_id: u32, object_id: i32, command: &str)
     if !charge(world, client_id, object_id, price) {
         return;
     }
-    // Java hides the board (`new ShowBoard()`) and `disableAllSkills()` for 3 s
-    // around the teleport. TODO(G30): the temporary skill lock (needs a timed
-    // re-enable task) — the teleport itself is the observable effect.
+    // Java hides the board (`new ShowBoard()`) and `disableAllSkills()` for
+    // 3 s around the teleport; `SkillsDisabled` + the timed re-enable mirror
+    // the `enableAllSkills` ThreadPool.schedule.
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(sp::show_board_hide());
     }
+    world
+        .objects
+        .add_components(&object_id, crate::model::components::SkillsDisabled);
+    world.scheduler.schedule(
+        world.tick + 30,
+        crate::scheduler::ScheduledTask::SkillsReenable { object_id },
+    );
     let dead = world
         .objects
         .get_component::<crate::model::components::Vitals>(&object_id)
         .is_none_or(|v| v.dead);
     if !dead {
         super::death::teleport_player(world, object_id, x, y, z);
+    }
+}
+
+/// `HomeBoard`'s `_bbsdelevel` branch — config-off on this dist
+/// (`EnableDelevel = False`), ported per the config-disabled rule: pay the
+/// currency, drop exactly one level, come back at full HP/MP/CP. Java's
+/// refusal order is funds first, then the level-1 floor, and only then the
+/// charge; `set_level` carries the `checkPlayerSkills()` re-check.
+fn do_delevel(world: &mut World, client_id: u32, object_id: i32) {
+    if !world.cfg.community_board.enable_delevel {
+        return;
+    }
+    let price = world.cfg.community_board.delevel_price;
+    let currency = world.cfg.community_board.currency_id;
+    let have = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .map_or(0, |inv| inv.count_of(currency));
+    if have < price {
+        send_message(world, client_id, "Not enough currency!");
+        return;
+    }
+    let level = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map_or(0, |p| p.level);
+    if level <= 1 {
+        send_message(world, client_id, "You are at minimum level!");
+        return;
+    }
+    if !charge(world, client_id, object_id, price) {
+        return;
+    }
+    let new_level = level - 1;
+    let exp = world.data.experience.exp_for_level(new_level);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.exp = exp;
+    }
+    super::death::set_level(world, object_id, new_level);
+    super::admin::vitals::heal_creature(world, object_id);
+    if let Some(html) = read_html(
+        &world.data.root,
+        "data/html/CommunityBoard/Custom/delevel/complete.html",
+    ) {
+        send_cb_html(world, client_id, &html);
     }
 }
 

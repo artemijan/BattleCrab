@@ -171,6 +171,96 @@ fn teleport_action_moves_player_and_hides_board() {
             .any(|p| p[0] == server_packets::opcodes::SHOW_BOARD && p[1] == 0),
         "the board is hidden (ShowBoard show=0) around the teleport"
     );
+
+    // Java `disableAllSkills()` + `ThreadPool.schedule(enableAllSkills, 3000)`.
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::SkillsDisabled>(&7004),
+        "skills are locked around the teleport"
+    );
+    advance_ticks(&mut world, 31);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::SkillsDisabled>(&7004),
+        "the 3 s window re-enables them"
+    );
+}
+
+fn give_test_item(world: &mut World, player: i32, item_id: i32, count: i64) {
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&player)
+        .unwrap()
+        .add_item(&data.item_data, 8_200_000 + item_id, item_id, count);
+}
+
+/// `_bbsdelevel` (config-off on this dist; flipped on here): funds first,
+/// then the level-1 floor, then the charge and the one-level drop with a full
+/// top-up.
+#[test]
+fn delevel_action_drops_one_level_for_a_fee() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    world.cfg.community_board.enable_delevel = true;
+    world.cfg.community_board.delevel_price = 100;
+    let mut rx = ingame_player(&mut world, 1, 7010, 0, 0, 0);
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&7010)
+            .unwrap();
+        p.level = 10;
+    }
+    drain(&mut rx);
+
+    // Broke: refused before any level math.
+    handle_parse_command(&mut world, 1, "_bbsdelevel");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&7010)
+            .unwrap()
+            .level,
+        10,
+        "no funds, no delevel"
+    );
+
+    give_test_item(&mut world, 7010, 57, 100);
+    handle_parse_command(&mut world, 1, "_bbsdelevel");
+    let p = world
+        .objects
+        .get_component::<crate::model::Player>(&7010)
+        .unwrap();
+    assert_eq!(p.level, 9, "one level down");
+    assert_eq!(
+        p.exp,
+        world.data.experience.exp_for_level(9),
+        "exp pinned to the new level's threshold"
+    );
+    assert_eq!(item_count(&world, 7010, 57), 0, "the fee was taken");
+
+    // At the floor: refused even with funds.
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&7010)
+            .unwrap();
+        p.level = 1;
+    }
+    give_test_item(&mut world, 7010, 57, 100);
+    handle_parse_command(&mut world, 1, "_bbsdelevel");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&7010)
+            .unwrap()
+            .level,
+        1,
+        "level 1 is the floor"
+    );
+    assert_eq!(item_count(&world, 7010, 57), 100, "no charge at the floor");
 }
 
 #[test]

@@ -5,8 +5,9 @@
 //!
 //! This dist runs `CustomCommunityBoard = True`, so the live board is the
 //! custom one (navigation → buffer / heal / teleport / multisell / premium).
-//! The retail boards (`_bbsloc`/`_bbsclan`/…) are unreachable under the custom
-//! navigation and are not ported yet (`TODO(G30)`).
+//! The retail forum boards (`_bbsloc`/`_bbsclan`/…) are unreachable under the
+//! custom navigation and stay deferred — see `game_loop::community_board`'s
+//! module header.
 //!
 //! `available_teleports` is derived exactly like Java's
 //! `loadCommunityBoardAllowedTeleports`: scan the gatekeeper htmls for

@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **62** such
+of narrow behaviours deferred and marked at the site. There are **57** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G30)` | 6 | `config/community_board.rs`, `game_loop/community_board.rs`, `network/client_packets.rs` |
 | `TODO(G20)` | 5 | `data/skill_data/build.rs`, `game_loop/combat/attack.rs`, `game_loop/duel.rs`, `game_loop/skills/effects/mod.rs`, `model/formulas.rs` |
 | `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G28)` | 4 | `game_loop/events/tvt.rs` |
@@ -104,6 +103,7 @@ also registering its NPCs would strand the player.
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
+| `TODO(G30)` | 1 | `game_loop/community_board.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
 | `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
@@ -117,6 +117,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G30)` ×5 of 6 — the community-board group | The deferral list had rotted whole: the merchant actions it claimed needed "no multisell/buy-list system" were already implemented and dispatched two screens below, and the `maintainEnchantment` validation the packet doc deferred existed at `multisell.rs:235`. Real work found and done: `_bbsdelevel` (config-off, ported per the rule: funds → level-1 floor → charge → one-level drop with full top-up), the `_bbsteleport` 3 s skill lock (`SkillsDisabled` + a `SkillsReenable` schedule — the component G28's TvT freeze introduced), and the retail home's favorite counter over the `FavoriteBoard`'s own store. One precise marker remains: the retail forum boards, unreachable under this dist's `CustomCommunityBoard = True`. |
 | 2026-08-06 | `TODO(G21)` ×7 — the whole group | The suicide bucket wired end to end, the faction-call script event's two listeners dispatched, and three stale-claim rewrites. |
 | 2026-08-06 | `TODO(G21)` ×1 (`npc_ai_skills.rs`, isSuicideAttack) | **False absence claim.** "No skill in this dist declares it" — 18 do, with reachable NPC carriers (Four Sepulchers' Hall Keeper Suicidal Soldier 18333, Flame of the Branded 18299, …). The flag now parses into `Skill.is_suicide_attack`, classifies exclusively into the SUICIDE bucket (Java's ladder), and `try_cast` detonates below 30 % HP with its own `hasSkillChance()` roll, before the moving/mage gate — Java's placement. |
 | 2026-08-06 | `TODO(G21)` ×2 (`npc_ai.rs`, faction-call events) | **Closed.** `EVT_AGGRESSION`'s Summon leg never applies (a faction recruit is always an `Attackable`), and the `OnAttackableFactionCall` script event has exactly two listeners on this dist — Queen Ant (`addFactionCallId(NURSE)`) and Orfen (`registerMobs`). `on_faction_call_script` dispatches them from both faction-call sites: the nurse's opportunistic Recovery at a hurt caller, Raikel Leos' 1-in-20 Blow at the attacker, Riba Iren's 9-in-10 (Orfen) / 1-in-10 heal at a half-dead caller. |

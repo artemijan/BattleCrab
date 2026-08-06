@@ -1257,10 +1257,10 @@ impl RequestTutorialQuestionMark {
 }
 
 /// Port of `clientpackets/MultiSellChoose`: the item exchange click. Reads the
-/// full retail body (enchant/augment/elemental stats follow the amount), but
-/// only `list_id`/`entry_id`/`amount` drive the community-board exchange path
-/// (the enchant-maintenance validation is a `maintainEnchantment`-list concern,
-/// TODO(G30)).
+/// full retail body (enchant/augment/elemental stats follow the amount);
+/// `enchant_level` feeds the `maintainEnchantment` validation in
+/// `multisell::handle_multi_sell_choose` (the echoed level must match the
+/// paired inventory row, and `amount` must be 1 for such lists).
 pub struct MultiSellChoose {
     pub list_id: i32,
     pub entry_id: i32,
