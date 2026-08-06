@@ -113,6 +113,7 @@ async fn user_info_test() {
         mount_level: 0,
         mount_feed: 0,
         mount_collar_object_id: 0,
+        char_info_pending: false,
         trade_refusal: false,
         cond_overrides: 0,
         transform_id: 0,

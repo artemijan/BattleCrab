@@ -638,6 +638,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TamedBeastFollow { beast_oid } => {
                 tamed_beast::handle_follow(world, beast_oid);
             }
+            ScheduledTask::BroadcastCharInfo { object_id } => {
+                party::broadcast_char_info_now(world, object_id);
+            }
             ScheduledTask::SkillsReenable { object_id } => {
                 world
                     .objects

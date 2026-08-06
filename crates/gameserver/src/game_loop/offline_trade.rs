@@ -21,12 +21,13 @@
 //! `StoreOfflineTradeInRealtime` is on (it is, on this dist) and restored at
 //! boot by [`restore_offline_traders`].
 //!
-//! TODO(G33): NPC aggro scans enumerate players through `world.clients` too, so
-//! a monster never notices an unattended shop. `OfflineModeInPeaceZone` is on
-//! for this dist (shops only exist where nothing hostile spawns) and
-//! `OfflineModeNoDamage` would nullify the hit anyway, so nothing observable
-//! hangs on it — but it is a real divergence from Java's registry-driven
-//! knownlist.
+//! The NPC-side visibility divergence this header once carried has closed
+//! under it: the aggro scans became region-index-driven
+//! (`World::players_visible_from`), whose plain form deliberately yields
+//! unattended shops — a monster notices an offline store exactly like Java's
+//! registry-driven knownlist. Only the "active region" seeding
+//! (`occupied_player_cells`) and the teleport-home check still distinguish
+//! connected players, and each says why at its site.
 
 use tracing::info;
 

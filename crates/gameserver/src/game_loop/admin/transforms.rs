@@ -305,7 +305,7 @@ pub(super) fn recompute_speeds(world: &mut World, target: i32) {
 
 /// Broadcast the transform change: UserInfo to self + CharInfo to nearby (via
 /// `broadcast_user_info`), then [`refresh_transform_visuals`].
-fn broadcast_transform(world: &World, target: i32) {
+fn broadcast_transform(world: &mut World, target: i32) {
     super::party::broadcast_user_info(world, target);
     refresh_transform_visuals(world, target);
 }

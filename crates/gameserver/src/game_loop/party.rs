@@ -196,19 +196,14 @@ pub(crate) fn relation_changed_base(world: &World, oid: i32) -> i32 {
     relation
 }
 
-/// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, `CharInfo` to
-/// everyone who can see them.
-///
-/// TODO(G33): Java's `broadcastCharInfo` does not send the `CharInfo` inline —
-/// it schedules `_broadcastCharInfoTask` **50 ms out** and coalesces every
-/// call made in that window into one packet. This port sends it immediately,
-/// so onlookers get the `CharInfo` in the same batch as whatever packet
-/// preceded it (e.g. `Ride` on a mount) instead of 50 ms later, and a burst of
-/// updates sends a `CharInfo` each. Suspected relevance: a client that is
-/// still swapping in the mount actor when the `CharInfo` lands may drop
-/// per-actor render state (hero glow) that Java's delayed packet would apply
-/// afterwards.
-pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
+/// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, and Java's
+/// **coalesced** `CharInfo` to everyone who can see them:
+/// `broadcastCharInfo` never sends inline, it schedules
+/// `_broadcastCharInfoTask` 50 ms out and folds every call made in that
+/// window into one packet — which both spares onlookers a `CharInfo` per
+/// update in a burst and lands the packet *after* whatever actor swap (a
+/// `Ride`, a transform) preceded it.
+pub(crate) fn broadcast_user_info(world: &mut World, object_id: i32) {
     let Some(v) = crate::model::PlayerView::of_world(world, object_id) else {
         return;
     };
@@ -218,6 +213,32 @@ pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
         object_id,
         crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation),
     );
+    // `if (_broadcastCharInfoTask == null) { schedule(50ms) }`.
+    let pending = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_none_or(|p| p.char_info_pending);
+    if pending {
+        return;
+    }
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.char_info_pending = true;
+    }
+    world.scheduler.schedule(
+        world.tick + crate::game_loop::helpers::ms_to_ticks(50),
+        crate::scheduler::ScheduledTask::BroadcastCharInfo { object_id },
+    );
+}
+
+/// The `_broadcastCharInfoTask` body: build the `CharInfo` **now** (state can
+/// have moved since the calls that scheduled it) and send it to onlookers.
+pub(crate) fn broadcast_char_info_now(world: &mut World, object_id: i32) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.char_info_pending = false;
+    }
+    let Some(v) = crate::model::PlayerView::of_world(world, object_id) else {
+        return;
+    };
     let cubics = world
         .objects
         .get_component::<super::cubic::Cubics>(&object_id)

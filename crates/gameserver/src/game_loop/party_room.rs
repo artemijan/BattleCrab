@@ -141,7 +141,7 @@ fn broadcast_room_info(world: &World, room_id: i32) {
 
 /// Java calls `broadcastUserInfo(UserInfoType.CLAN)` on every room membership
 /// change, because the CLAN block carries the `isInMatchingRoom` flag.
-fn broadcast_user_info(world: &World, object_id: i32) {
+fn broadcast_user_info(world: &mut World, object_id: i32) {
     super::party::broadcast_user_info(world, object_id);
 }
 

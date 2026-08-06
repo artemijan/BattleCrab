@@ -356,7 +356,7 @@ fn store_lines(world: &World, owner: i32) -> Vec<StoreLine<'_>> {
 
 /// Activate the store visually: the store title to self + nearby, and a CharInfo
 /// re-send so the store byte / sitting shows on other clients.
-fn broadcast_store(world: &World, owner: i32, title: &str, packaged: bool) {
+fn broadcast_store(world: &mut World, owner: i32, title: &str, packaged: bool) {
     let packet = if packaged {
         sp::ex_private_store_whole_msg(owner, title)
     } else {

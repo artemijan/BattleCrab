@@ -542,8 +542,10 @@ fn hero_glow_survives_mount_for_gm_and_hero() {
     // take the script path the WyvernManager uses (Java `Player.mount`).
     for (is_gm, oid, own_rx) in [(true, 8940i32, &mut gm_rx), (false, 8941, &mut hero_rx)] {
         let (ui_off, ci_off) = glow_offsets(&mut world, oid);
-        // Unmounted baseline.
-        crate::game_loop::party::broadcast_user_info(&world, oid);
+        // Unmounted baseline. (`CharInfo` is coalesced 50 ms out, so tick
+        // the scheduler before draining the onlooker.)
+        crate::game_loop::party::broadcast_user_info(&mut world, oid);
+        advance_ticks(&mut world, 1);
         let (ui, ci) = (
             drain(own_rx).into_iter().find(|p| p[0] == 0x32).unwrap(),
             drain(&mut ob_rx)
@@ -567,6 +569,7 @@ fn hero_glow_survives_mount_for_gm_and_hero() {
                 .is_flying(),
             "{oid}: on the wyvern"
         );
+        advance_ticks(&mut world, 1);
         let (ui, ci) = (
             drain(own_rx)
                 .into_iter()
@@ -600,6 +603,7 @@ fn hero_glow_survives_mount_for_gm_and_hero() {
             0,
             "{oid}: dismounted"
         );
+        advance_ticks(&mut world, 1);
         let (ui, ci) = (
             drain(own_rx)
                 .into_iter()
@@ -639,7 +643,8 @@ fn settruehero_is_a_separate_flag_from_sethero() {
         .add_components(&8950, crate::model::components::TargetRef(Some(8950)));
 
     let true_hero_byte = |pk: &[u8]| pk[pk.len() - 3]; // …trueHero, hairAccessory, abilityPoints
-    crate::game_loop::party::broadcast_user_info(&world, 8950);
+    crate::game_loop::party::broadcast_user_info(&mut world, 8950);
+    advance_ticks(&mut world, 1);
     let before = drain(&mut ob_rx)
         .into_iter()
         .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
@@ -652,6 +657,7 @@ fn settruehero_is_a_separate_flag_from_sethero() {
         assert!(p.true_hero, "the flag flipped");
         assert!(!p.is_hero, "and it did NOT touch isHero()");
     }
+    advance_ticks(&mut world, 1);
     let after = drain(&mut ob_rx)
         .into_iter()
         .rev()
@@ -682,15 +688,18 @@ fn char_info_reflects_live_player_state() {
     let mut ob_rx = ingame_player_access(&mut world, 2, 8961, 0);
     drain(&mut ob_rx);
 
-    let snapshot = |world: &World, rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| {
-        crate::game_loop::party::broadcast_user_info(world, 8960);
-        drain(rx)
-            .into_iter()
-            .rev()
-            .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
-            .expect("CharInfo")
-    };
-    let base = snapshot(&world, &mut ob_rx);
+    // Content test, not a timing one — call the coalesced task's body
+    // directly rather than waiting out the 50 ms window.
+    let snapshot =
+        |world: &mut World, rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| {
+            crate::game_loop::party::broadcast_char_info_now(world, 8960);
+            drain(rx)
+                .into_iter()
+                .rev()
+                .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+                .expect("CharInfo")
+        };
+    let base = snapshot(&mut world, &mut ob_rx);
 
     // Sit down + flag for PvP: both bytes must move.
     {
@@ -705,7 +714,7 @@ fn char_info_reflects_live_player_state() {
             ..Default::default()
         },
     );
-    let sitting = snapshot(&world, &mut ob_rx);
+    let sitting = snapshot(&mut world, &mut ob_rx);
     let moved: Vec<usize> = base
         .iter()
         .zip(&sitting)
@@ -729,7 +738,7 @@ fn char_info_reflects_live_player_state() {
         .get_component_mut::<crate::model::components::Vitals>(&8960)
         .unwrap()
         .dead = true;
-    let dead = snapshot(&world, &mut ob_rx);
+    let dead = snapshot(&mut world, &mut ob_rx);
     let dead_moved: Vec<usize> = sitting
         .iter()
         .zip(&dead)

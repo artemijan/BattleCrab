@@ -560,6 +560,11 @@ pub enum ScheduledTask {
     TamedBeastFollow {
         beast_oid: i32,
     },
+    /// Java `Player._broadcastCharInfoTask` firing: the 50 ms-coalesced
+    /// `CharInfo` broadcast to onlookers.
+    BroadcastCharInfo {
+        object_id: i32,
+    },
     /// The community board teleport's 3 s `disableAllSkills` window ending —
     /// Java's `ThreadPool.schedule(enableAllSkills, 3000)`.
     SkillsReenable {

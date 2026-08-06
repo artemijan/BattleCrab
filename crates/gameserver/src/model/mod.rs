@@ -512,6 +512,10 @@ pub struct Player {
     /// back onto its `pets` row (`storePetFood`). 0 for wyverns and admin
     /// mounts, which have no collar.
     pub mount_collar_object_id: i32,
+    /// A `BroadcastCharInfo` task is already scheduled (Java
+    /// `_broadcastCharInfoTask != null`) — further `broadcastUserInfo` calls
+    /// inside the 50 ms window coalesce into it.
+    pub char_info_pending: bool,
 
     /// `Player.getTradeRefusal()` — `//tradeoff`: refuse incoming trade
     /// requests. Transient.
@@ -1218,6 +1222,7 @@ impl Player {
             mount_level: 0,
             mount_feed: 0,
             mount_collar_object_id: 0,
+            char_info_pending: false,
             trade_refusal: false,
             cond_overrides: 0,
             transform_id: 0,
