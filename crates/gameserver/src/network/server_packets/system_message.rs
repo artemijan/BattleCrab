@@ -853,6 +853,11 @@ pub mod sm_ids {
     pub const THE_DUEL_WILL_BEGIN_IN_S1_SECOND_S: i16 = 1945;
     pub const LET_THE_DUEL_BEGIN: i16 = 1949;
     pub const C1_HAS_WON_THE_DUEL: i16 = 1950;
+    pub const C1_S_PARTY_HAS_WON_THE_DUEL: i16 = 1951;
+    /// `In a moment, you will be transported to the site where the duel will
+    /// take place.`
+    pub const IN_A_MOMENT_YOU_WILL_BE_TRANSPORTED_TO_THE_SITE_WHERE_THE_DUEL_WILL_TAKE_PLACE: i16 =
+        1944;
     pub const THE_DUEL_HAS_ENDED_IN_A_TIE: i16 = 1952;
     pub const C1_CANNOT_DUEL_BECAUSE_C1_S_HP_OR_MP_IS_BELOW_50: i16 = 2019;
     pub const C1_CANNOT_DUEL_BECAUSE_C1_IS_CURRENTLY_ENGAGED_IN_BATTLE: i16 = 2021;

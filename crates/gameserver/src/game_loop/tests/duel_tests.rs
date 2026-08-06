@@ -323,3 +323,170 @@ fn duel_end_restores_the_preduel_snapshot() {
         "B accepted at full and comes back full"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Party duels (G27)
+// ---------------------------------------------------------------------------
+
+/// The full party-duel arc: leaders handshake (the ask lands on the target's
+/// party LEADER even when a member was challenged), everyone is teleported
+/// into a private arena instance at count 4, a knockout with a teammate still
+/// standing hands the win to the other team (Java's quirk, ported as-is), and
+/// the end restores vitals, teleports everyone back and tears the instance
+/// down.
+#[test]
+fn a_party_duel_fights_in_an_instance_and_returns_everyone() {
+    use crate::model::components::{InstanceId, PartyRef, Position};
+    let (mut world, ..) = test_world();
+    let _ra = ingame_caster(&mut world, 1, 2001, 0, 0);
+    let _ra2 = ingame_caster(&mut world, 2, 2002, 50, 0);
+    let mut rb = ingame_caster(&mut world, 3, 2003, 100, 0);
+    let _rb2 = ingame_caster(&mut world, 4, 2004, 150, 0);
+    for oid in [2001, 2002, 2003, 2004] {
+        let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
+        v.cur_hp = v.max_hp as f64;
+        v.cur_mp = v.max_mp as f64;
+    }
+    // Two parties: A leads 2001+2002, B leads 2003+2004.
+    for (leader, member) in [(2001, 2002), (2003, 2004)] {
+        let pid = world.next_party_id;
+        world.next_party_id += 1;
+        let seq = world.next_request_seq();
+        world.parties.insert(
+            pid,
+            crate::model::party::Party::new(
+                leader,
+                crate::model::party::LootRule::FindersKeepers,
+                seq,
+            ),
+        );
+        world.objects.add_components(&leader, PartyRef(pid));
+        crate::game_loop::party::add_party_member(&mut world, pid, member);
+    }
+    drain(&mut rb);
+
+    // Leader A challenges MEMBER 2004 — the ask must land on leader B (2003).
+    let mut w = PacketWriter::new();
+    w.write_string(&name_of(&world, 2004));
+    w.write_i32(1); // party duel
+    duel::handle_request_duel_start(&mut world, 1, &w.into_bytes());
+    assert!(
+        world.objects.has_component::<PendingDuel>(&2003),
+        "the target party's leader got the ask"
+    );
+    assert!(!drain(&mut rb).is_empty(), "ExDuelAskStart to leader B");
+
+    // Leader B accepts; the countdown starts with everyone locked in.
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(0);
+    w.write_i32(1);
+    duel::handle_request_duel_answer(&mut world, 3, &w.into_bytes());
+    for oid in [2001, 2002, 2003, 2004] {
+        assert!(world.objects.has_component::<DuelRef>(&oid), "{oid} locked");
+    }
+
+    // Count 5 → 4: the teleport step (roll picks the arena template).
+    world.forced_rolls.push_back(0);
+    advance_ticks(&mut world, 11);
+    let inst = world.duels.values().next().unwrap().instance_id;
+    assert!(inst != 0, "arena instance created");
+    for (oid, x) in [
+        (2001, -89597),
+        (2002, -89597),
+        (2003, -86544),
+        (2004, -86544),
+    ] {
+        assert_eq!(
+            world.objects.get_component::<InstanceId>(&oid).map(|i| i.0),
+            Some(inst),
+            "{oid} scoped into the arena"
+        );
+        assert_eq!(
+            world.objects.get_component::<Position>(&oid).unwrap().x,
+            x,
+            "{oid} at its team's end"
+        );
+    }
+
+    // 20 s grace + the remaining 3 countdown seconds → the fight is live.
+    advance_ticks(&mut world, 200 + 31);
+    let duel_id = *world.duels.keys().next().unwrap();
+    assert!(world.duels[&duel_id].ends_at_tick > 0, "battle started");
+
+    // A knocks out 2004 while 2003 still stands: team A is declared winner
+    // (Java's inverted `teamdefeated` rule, ported as behaviour).
+    let capped = duel::duel_lethal_guard(&mut world, 2001, 2004, 1e9);
+    assert!(capped, "the blow is capped, never lethal");
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&2004).unwrap().cur_hp,
+        1.0
+    );
+    assert_eq!(world.duels[&duel_id].winner_team, 1);
+
+    // The next condition tick ends it: everyone restored, back home, freed.
+    advance_ticks(&mut world, 11);
+    assert!(world.duels.is_empty(), "duel resolved");
+    assert!(!world.instances.contains(inst), "arena instance torn down");
+    for (oid, x) in [(2001, 0), (2002, 50), (2003, 100), (2004, 150)] {
+        assert!(!world.objects.has_component::<DuelRef>(&oid));
+        assert!(!world.objects.has_component::<InstanceId>(&oid));
+        assert_eq!(
+            world.objects.get_component::<Position>(&oid).unwrap().x,
+            x,
+            "{oid} teleported back where they stood"
+        );
+        let v = world.objects.get_component::<Vitals>(&oid).unwrap();
+        assert_eq!(v.cur_hp, v.max_hp as f64, "{oid} vitals restored");
+    }
+}
+
+/// Any member may surrender a party duel — the whole team forfeits.
+#[test]
+fn a_member_surrender_forfeits_the_whole_party_duel() {
+    use crate::model::components::PartyRef;
+    let (mut world, ..) = test_world();
+    let _ra = ingame_caster(&mut world, 1, 2001, 0, 0);
+    let _ra2 = ingame_caster(&mut world, 2, 2002, 50, 0);
+    let _rb = ingame_caster(&mut world, 3, 2003, 100, 0);
+    for oid in [2001, 2002, 2003] {
+        let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
+        v.cur_hp = v.max_hp as f64;
+        v.cur_mp = v.max_mp as f64;
+    }
+    let pid = world.next_party_id;
+    world.next_party_id += 1;
+    let seq = world.next_request_seq();
+    world.parties.insert(
+        pid,
+        crate::model::party::Party::new(2001, crate::model::party::LootRule::FindersKeepers, seq),
+    );
+    world.objects.add_components(&2001, PartyRef(pid));
+    crate::game_loop::party::add_party_member(&mut world, pid, 2002);
+    let pid2 = world.next_party_id;
+    world.next_party_id += 1;
+    let seq2 = world.next_request_seq();
+    world.parties.insert(
+        pid2,
+        crate::model::party::Party::new(2003, crate::model::party::LootRule::FindersKeepers, seq2),
+    );
+    world.objects.add_components(&2003, PartyRef(pid2));
+
+    let mut w = PacketWriter::new();
+    w.write_string(&name_of(&world, 2003));
+    w.write_i32(1);
+    duel::handle_request_duel_start(&mut world, 1, &w.into_bytes());
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(0);
+    w.write_i32(1);
+    duel::handle_request_duel_answer(&mut world, 3, &w.into_bytes());
+    world.forced_rolls.push_back(0);
+    advance_ticks(&mut world, 11 + 200 + 31);
+    let duel_id = *world.duels.keys().next().unwrap();
+    assert!(world.duels[&duel_id].ends_at_tick > 0);
+
+    // The NON-leader 2002 gives up — team A (2001+2002) loses as one.
+    duel::handle_request_duel_surrender(&mut world, 2);
+    assert!(world.duels.is_empty(), "the surrender ended the duel");
+}
