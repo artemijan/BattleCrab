@@ -882,6 +882,10 @@ pub mod sm_ids {
     pub const YOU_HAVE_DODGED_C1_S_ATTACK: i16 = 2000;
     /// "Failed to change enmity." — a locked target refusing a new selection.
     pub const FAILED_TO_CHANGE_ENMITY: i16 = 564;
+    /// "Only the clan leader is enabled."
+    pub const ONLY_THE_CLAN_LEADER_IS_ENABLED: i16 = 236;
+    /// "$s1 point(s) have been deducted from the clan's Reputation."
+    pub const S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_REPUTATION: i16 = 1787;
     /// "$c1 wishes to summon you from $s2. Do you accept?"
     pub const C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT: i16 = 1842;
     /// "$s1 is required for summoning."

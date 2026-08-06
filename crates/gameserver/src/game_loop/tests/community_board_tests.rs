@@ -924,3 +924,164 @@ fn the_combat_check_refuses_a_custom_action_in_a_siege_zone() {
         "no board actions inside a siege zone"
     );
 }
+
+/// `SpecialItemType.CLAN_REPUTATION` as a multisell ingredient — the Clan
+/// Traders' list 1235, the only special ingredient the dist actually uses.
+///
+/// Java's refusal *order* is the part worth pinning: membership, then
+/// leadership, then balance. A non-leader in a broke clan is told they are not
+/// the leader, never that the clan is poor — reordering the checks would leak
+/// the clan's balance to any member who clicked.
+#[test]
+fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
+    use crate::model::clan::{Clan, ClanMember};
+
+    const PLAYER: i32 = 7290;
+    /// 1235 entry 1: 3,480 reputation + 1,740,000 adena → Sealed Apella Helm.
+    const LIST: i32 = 1235;
+    const HELM: i32 = 7870;
+    const REP_COST: i32 = 3_480;
+    const ADENA_COST: i64 = 1_740_000;
+    const CLAN: i32 = 4242;
+
+    let build = |rep: i32, in_clan: bool, leader: bool| {
+        let (mut world, ..) = test_world();
+        load_real_multisell_data(&mut world);
+        world.id_pool = 0x7100_0000..0x7100_1000;
+        let rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
+        super::items::add_inventory_item(&mut world, PLAYER, ADENA_ID, ADENA_COST);
+        if in_clan {
+            world.clans.insert(
+                CLAN,
+                Clan {
+                    id: CLAN,
+                    name: "Test".into(),
+                    leader_id: PLAYER,
+                    level: 5,
+                    reputation_score: rep,
+                    castle_id: 0,
+                    members: vec![ClanMember {
+                        char_id: PLAYER,
+                        name: "P".into(),
+                        level: 40,
+                        class_id: 0,
+                        sex: 0,
+                        race: 0,
+                        power_grade: 5,
+                        title: String::new(),
+                        pledge_type: 0,
+                    }],
+                    skills: Default::default(),
+                    warehouse: Default::default(),
+                    char_penalty_expiry_time: 0,
+                    dissolving_expiry_time: 0,
+                    rank_privs: Default::default(),
+                    new_leader_id: 0,
+                    sub_pledges: Default::default(),
+                    ally_id: 0,
+                    ally_name: String::new(),
+                    ally_penalty_expiry_time: 0,
+                    ally_penalty_type: 0,
+                    crest_id: 0,
+                    crest_large_id: 0,
+                    ally_crest_id: 0,
+                    blood_alliance_count: 0,
+                },
+            );
+            let p = world
+                .objects
+                .get_component_mut::<crate::model::Player>(&PLAYER)
+                .unwrap();
+            p.clan_id = CLAN;
+            p.clan_leader = leader;
+        }
+        // List 1235 is npc-only (it names the two Clan Traders and no `-1`
+        // sentinel), so it has to be opened from one — opening it from the
+        // community board is correctly refused.
+        const TRADER_OID: i32 = 0x7100_2000;
+        add_test_npc(&mut world, TRADER_OID, 32024, "Merchant", 70, 0, 0, 0);
+        // Open the window through the real path so the prepared rows — which
+        // the entry id indexes — are built the way the client saw them.
+        crate::game_loop::multisell::separate_and_send(
+            &mut world,
+            1,
+            PLAYER,
+            Some(TRADER_OID),
+            LIST,
+            false,
+        );
+        (world, rx)
+    };
+    let has_helm = |w: &World| {
+        w.objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .count_of(HELM)
+            > 0
+    };
+    let buy = |w: &mut World| {
+        handle_multi_sell_choose(w, 1, &multisell_choose_body(LIST, 1, 1));
+    };
+
+    // Clanless: the membership line, and nothing else.
+    let (mut world, mut rx) = build(0, false, false);
+    drain(&mut rx);
+    buy(&mut world);
+    let out = drain(&mut rx);
+    assert!(has_system_message(
+        &out,
+        server_packets::sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION
+    ));
+    assert!(!has_helm(&world));
+
+    // In a rich clan but not the leader: the *leadership* line, not the
+    // balance one — and it must not depend on the balance at all.
+    let (mut world, mut rx) = build(REP_COST * 10, true, false);
+    drain(&mut rx);
+    buy(&mut world);
+    let out = drain(&mut rx);
+    assert!(has_system_message(
+        &out,
+        server_packets::sm_ids::ONLY_THE_CLAN_LEADER_IS_ENABLED
+    ));
+    assert!(!has_helm(&world));
+
+    // Leader, but the clan is one point short.
+    let (mut world, mut rx) = build(REP_COST - 1, true, true);
+    drain(&mut rx);
+    buy(&mut world);
+    assert!(has_system_message(
+        &drain(&mut rx),
+        server_packets::sm_ids::THE_CLAN_REPUTATION_IS_TOO_LOW
+    ));
+    assert!(!has_helm(&world));
+    assert_eq!(
+        world.clans.get(&CLAN).unwrap().reputation_score,
+        REP_COST - 1,
+        "a refused trade spends nothing"
+    );
+
+    // Exactly enough: the trade goes through and both ingredients are paid.
+    let (mut world, mut rx) = build(REP_COST, true, true);
+    drain(&mut rx);
+    buy(&mut world);
+    assert!(has_helm(&world), "the helm is delivered");
+    assert_eq!(
+        world.clans.get(&CLAN).unwrap().reputation_score,
+        0,
+        "the reputation is deducted"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .count_of(ADENA_ID),
+        0,
+        "and so is the adena — the item ingredient still applies"
+    );
+    assert!(has_system_message(
+        &drain(&mut rx),
+        server_packets::sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_REPUTATION
+    ));
+}

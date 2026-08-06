@@ -255,8 +255,11 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
     // gate (no encumbrance enforcement — see module docs). ---
     for product in &entry.products {
         if product.id < 0 {
-            // TODO(G30): SpecialItemType products (clan reputation / fame / raid
-            // points). Refuse rather than silently grant nothing.
+            // SKIP(census): `SpecialItemType` **products** — a negative id in a
+            // `<production>`. The dist has none: every negative id in the whole
+            // multisell tree is an `<ingredient>`, all ten of them `-200`
+            // (clan reputation), which *is* handled below. Refusing here keeps
+            // a hand-added list from silently granting nothing.
             warn!(
                 "Multisell: list {} has an unported special product {}.",
                 pkt.list_id, product.id
@@ -278,18 +281,45 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
             return;
         };
         let _ = count;
-        // TODO(G30): chance multisell gives one *random* product — none of the
-        // CB lists are chance lists, so every declared product is granted.
+        // SKIP(census): chance multisell, where Java grants **one** product
+        // drawn by weight instead of all of them. Censused across all 101
+        // lists: only two entries are non-degenerate (3426201, 3426202), both
+        // `isChanceMultisell="true"`, both owned by NPC 34262 (the HappyHours
+        // Sibi Manager) — which has no spawn row anywhere in the dist and no
+        // ported script, so neither list can be opened. Every other
+        // chance-bearing entry declares a single product at `chance="100"`,
+        // where "pick one at random" and "grant them all" are the same thing.
     }
 
     // --- Validate ingredients present (sum by id; Java `summedIngredients`).
     // Enchanted / special ingredients are unported (never in CB lists). ---
     let mut needed: Vec<(i32, i64)> = Vec::new();
     for ing in &entry.ingredients {
-        if ing.enchant_level > 0 || ing.id < 0 {
-            // TODO(G30): enchanted-item and SpecialItemType ingredients.
+        // `SpecialItemType` ingredients — a negative id. Clan reputation is
+        // the only one the dist uses (10 entries, all on the Clan Traders'
+        // list 1235, both of whose NPCs spawn), so it is the only one
+        // implemented; the rest refuse rather than trade for nothing.
+        if ing.id < 0 {
+            // Not an item, so no tax leg — Java's tax only ever applies to
+            // the adena ingredient.
+            let Some(total) = mul(
+                ingredient_count(ing.id, ing.count, ing_mult, 0.0),
+                pkt.amount,
+            ) else {
+                return;
+            };
+            if !check_special_ingredient(world, client_id, player, ing.id, total) {
+                return;
+            }
+            continue;
+        }
+        if ing.enchant_level > 0 {
+            // SKIP(census): enchanted **ingredients**. `enchantmentLevel`
+            // appears on 3 `<production>` rows in the whole dist and on no
+            // `<ingredient>` at all, so this branch has no data behind it.
+            // (Enchanted *products* are a separate concern and are carried.)
             warn!(
-                "Multisell: list {} has an unported enchant/special ingredient {}.",
+                "Multisell: list {} has an unported enchanted ingredient {}.",
                 pkt.list_id, ing.id
             );
             return;
@@ -474,6 +504,81 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
 /// `PreparedMultisellListHolder.getIngredientCount` — the castle tax rides on
 /// the adena ingredient only. `tax_rate` has already been zeroed for a list
 /// that doesn't apply taxes.
+/// `MultiSellChoose.checkIngredients`' special-item leg, plus the deduction
+/// `SpecialItemType.CLAN_REPUTATION` performs when the trade goes through.
+///
+/// Only clan reputation is implemented, because it is the only special
+/// ingredient in the dist — the other four (`PC_CAFE_POINTS`, `FAME`,
+/// `FIELD_CYCLE_POINTS`, `RAIDBOSS_POINTS`) appear in no list. An unknown one
+/// refuses, matching Java's `default` branch, rather than trading for free.
+///
+/// The check and the spend are one function on purpose: Java runs them as two
+/// passes over the same ingredient list, and a version that validated here but
+/// deducted somewhere else is exactly how a "buy with reputation you don't
+/// have" bug gets in.
+fn check_special_ingredient(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    ingredient_id: i32,
+    total: i64,
+) -> bool {
+    /// `SpecialItemType.CLAN_REPUTATION`.
+    const CLAN_REPUTATION: i32 = -200;
+
+    if ingredient_id != CLAN_REPUTATION {
+        warn!("Multisell: unimplemented special ingredient {ingredient_id}.",);
+        return false;
+    }
+    let (clan_id, is_leader) = world
+        .objects
+        .get_component::<crate::model::Player>(&player)
+        .map(|p| (p.clan_id, p.clan_id != 0 && p.clan_leader))
+        .unwrap_or((0, false));
+    if clan_id == 0 {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
+            &[],
+        );
+        return false;
+    }
+    // Java checks leadership *after* membership and before the balance, and
+    // the order shows: a non-leader in a poor clan is told they are not the
+    // leader, not that the clan is broke.
+    if !is_leader {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::ONLY_THE_CLAN_LEADER_IS_ENABLED,
+            &[],
+        );
+        return false;
+    }
+    if world
+        .clans
+        .get(&clan_id)
+        .is_none_or(|c| (c.reputation_score as i64) < total)
+    {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::THE_CLAN_REPUTATION_IS_TOO_LOW,
+            &[],
+        );
+        return false;
+    }
+    crate::game_loop::clans::add_clan_reputation(world, clan_id, -(total as i32));
+    send_sm(
+        world,
+        client_id,
+        sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_REPUTATION,
+        &[crate::network::server_packets::SmParam::Long(total)],
+    );
+    true
+}
+
 fn ingredient_count(item_id: i32, count: i64, multiplier: f64, tax_rate: f64) -> i64 {
     if item_id == crate::data::item_data::ADENA_ID {
         (count as f64 * multiplier * (1.0 + tax_rate)).round() as i64
