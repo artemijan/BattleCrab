@@ -768,6 +768,15 @@ pub enum ScheduledTask {
     PunishmentExpire {
         punishment_id: i32,
     },
+    /// A castle function's renewal moment (Java `CastleFunction.FunctionTask`):
+    /// charge the owning clan's warehouse and extend, or drop the function.
+    /// `charge_warehouse` is Java's `_cwh` — false only for the run scheduled
+    /// right after a purchase (the buyer already paid from their inventory).
+    CastleFunctionRenew {
+        castle_id: i32,
+        func_type: i32,
+        charge_warehouse: bool,
+    },
     /// Java `CreatureSeeTaskManager`'s 1-second beat (G22): every registered
     /// NPC scans for creatures entering its sight and fires `onCreatureSee`
     /// once per newcomer. Re-arms itself; armed once at boot.

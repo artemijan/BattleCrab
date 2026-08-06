@@ -148,6 +148,13 @@ pub fn format_date(millis: i64) -> String {
     format!("{y:04}-{m:02}-{d:02}")
 }
 
+/// The `(day, month, year)` of an epoch-millis stamp (UTC) — for html
+/// `<fstring>` date slots that want the parts separately.
+pub fn date_parts(millis: i64) -> (i64, i64, i64) {
+    let (y, m, d) = civil_from_days(millis.div_euclid(86_400_000));
+    (d, m, y)
+}
+
 /// Format epoch milliseconds as `dd/MM HH:mm:ss` — Java
 /// `CastleManorManager.getNextModeChange`'s `SimpleDateFormat("dd/MM HH:mm:ss")`.
 /// No year, by Java's choice: the manor's next mode change is always within a

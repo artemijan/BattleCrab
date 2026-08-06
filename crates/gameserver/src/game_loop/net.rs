@@ -894,6 +894,10 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             tracing::info!("GameLoop: loaded {} global variables.", entries.len());
             world.global_vars = entries.into_iter().collect();
             super::four_sepulchers::restore_entry_times(world);
+            // Re-derive upgraded castle-door HP now that the ratios are known
+            // (the doors spawned before this table landed) — Java's
+            // `loadDoorUpgrade` at castle load.
+            super::castle::apply_door_upgrades_at_boot(world);
         }
         DbEvent::PremiumLoaded { entries } => {
             tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());

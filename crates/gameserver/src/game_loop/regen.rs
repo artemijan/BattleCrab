@@ -49,8 +49,13 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         // rather than cached anywhere — a player who starts running between
         // ticks regenerates at the running rate on the very next one.
         let move_type = move_type_of(world, object_id);
-        // The clan-hall regen boost (read before the mutable borrow below).
+        // The clan-hall regen boost (read before the mutable borrow below),
+        // composed with the castle-function boost — a player is in at most one
+        // residence zone, so at most one term differs from 1.
         let (hall_hp_mult, hall_mp_mult) = clan_hall_regen_mult(world, object_id);
+        let (castle_hp_mult, castle_mp_mult) = castle_regen_mult(world, object_id);
+        let (hall_hp_mult, hall_mp_mult) =
+            (hall_hp_mult * castle_hp_mult, hall_mp_mult * castle_mp_mult);
         let Some((player, mut vitals, mut pvitals, base, mods)) =
             world.objects.get_many_mut::<(
                 &Player,
@@ -114,6 +119,47 @@ pub(crate) fn clan_hall_regen_mult(world: &World, object_id: i32) -> (f64, f64) 
     let mp =
         super::clan_hall_function::active_function_value(world, hall_id, "MP_REGEN").unwrap_or(1.0);
     (hp, mp)
+}
+
+/// The castle-function regen boost (`RegenHPFinalizer`/`RegenMPFinalizer`'s
+/// castle branch): a clan member standing in their own clan's castle zone
+/// with an active HP/MP-regen function gets `baseValue *= (lvl / 100)` —
+/// **integer division, as Java wrote it**. The HP levels (300/400) come out
+/// ×3/×4; the MP levels (40/55) come out ×0, i.e. Java's shipped code zeroes
+/// MP regen inside the castle while the MP function is rented. Ported as
+/// behaviour, documented as the bug it is.
+pub(crate) fn castle_regen_mult(world: &World, object_id: i32) -> (f64, f64) {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&object_id)
+    else {
+        return (1.0, 1.0);
+    };
+    let clan_id = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
+    if clan_id == 0 {
+        return (1.0, 1.0);
+    }
+    let Some(castle_id) = world.data.zone_data.castle_zone_at(pos.x, pos.y, pos.z) else {
+        return (1.0, 1.0);
+    };
+    // Only your own clan's castle boosts you (Java compares the clan's castle
+    // id against the zone's residence id).
+    if world.clans.get(&clan_id).map(|c| c.castle_id) != Some(castle_id) {
+        return (1.0, 1.0);
+    }
+    let mult = |func_type: i32| {
+        super::castle::castle_function(world, castle_id, func_type)
+            .map(|f| f64::from(f.level / 100))
+            .unwrap_or(1.0)
+    };
+    (
+        mult(crate::model::castle::FUNC_RESTORE_HP),
+        mult(crate::model::castle::FUNC_RESTORE_MP),
+    )
 }
 
 /// `Formulas.getRegeneratePeriod`'s standing-still multiplier (1.1×).

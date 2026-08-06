@@ -273,6 +273,283 @@ pub(crate) fn remove_circlets_from_clan(world: &mut World, clan_id: i32, castle_
     }
 }
 
+// ---------------------------------------------------------------------------
+// Castle functions (Java `Castle.CastleFunction` + `updateFunctions`) — the
+// rentable teleport / support / regen services the chamberlain console sells.
+// ---------------------------------------------------------------------------
+
+use crate::model::castle::CastleFunc;
+use crate::scheduler::ScheduledTask;
+
+/// The active function of `func_type` on a castle, if rented.
+pub(crate) fn castle_function(world: &World, castle_id: i32, func_type: i32) -> Option<CastleFunc> {
+    world.castle_functions.get(&(castle_id, func_type)).copied()
+}
+
+/// Java `Castle.removeFunction`.
+pub(crate) fn remove_castle_function(world: &mut World, castle_id: i32, func_type: i32) {
+    world.castle_functions.remove(&(castle_id, func_type));
+}
+
+/// Java `Castle.updateFunctions`' bookkeeping half (the caller has already
+/// taken the lease from the buyer — `QuestCtx::take_items` sends the
+/// inventory packets). `lvl == 0` deactivates. A *fresh* purchase schedules
+/// its first renewal immediately with `charge_warehouse = false` (Java's
+/// `endDate = 0` task), which stamps the real end time without charging
+/// twice; a cheaper/equal level change rides the already-paid period (Java's
+/// `diffLease <= 0` arm), a costlier one restarts the cycle.
+pub(crate) fn update_castle_function(
+    world: &mut World,
+    castle_id: i32,
+    func_type: i32,
+    level: i32,
+    lease: i64,
+    rate_ms: i64,
+) {
+    if level == 0 && lease == 0 {
+        remove_castle_function(world, castle_id, func_type);
+        return;
+    }
+    let existing = castle_function(world, castle_id, func_type);
+    match existing {
+        // Fresh purchase, or a raise to a costlier level: (re)start the cycle.
+        None => {
+            world.castle_functions.insert(
+                (castle_id, func_type),
+                CastleFunc {
+                    level,
+                    lease,
+                    rate_ms,
+                    end_time: 0,
+                },
+            );
+            world.scheduler.schedule(
+                world.tick + 1,
+                ScheduledTask::CastleFunctionRenew {
+                    castle_id,
+                    func_type,
+                    charge_warehouse: false,
+                },
+            );
+        }
+        Some(old) if lease > old.lease => {
+            world.castle_functions.insert(
+                (castle_id, func_type),
+                CastleFunc {
+                    level,
+                    lease,
+                    rate_ms,
+                    end_time: -1,
+                },
+            );
+            world.scheduler.schedule(
+                world.tick + 1,
+                ScheduledTask::CastleFunctionRenew {
+                    castle_id,
+                    func_type,
+                    charge_warehouse: false,
+                },
+            );
+        }
+        // A cheaper/equal change rides the already-paid period.
+        Some(old) => {
+            world.castle_functions.insert(
+                (castle_id, func_type),
+                CastleFunc {
+                    level,
+                    lease,
+                    rate_ms: old.rate_ms,
+                    end_time: old.end_time,
+                },
+            );
+        }
+    }
+}
+
+/// Java `CastleFunction.FunctionTask.run`: at the end of a rental period,
+/// charge the owning clan's warehouse the lease and extend; a warehouse that
+/// can't pay loses the function. The immediate post-purchase run
+/// (`charge_warehouse == false`) only stamps the end time and re-arms.
+pub(crate) fn handle_function_renew(
+    world: &mut World,
+    castle_id: i32,
+    func_type: i32,
+    charge_warehouse: bool,
+) {
+    let Some(func) = castle_function(world, castle_id, func_type) else {
+        return;
+    };
+    let Some(owner_id) = super::siege::owner_clan_id_opt(world, castle_id) else {
+        return; // Java: `_ownerId <= 0` → the task dies silently
+    };
+    let can_pay = world
+        .clans
+        .get(&owner_id)
+        .is_some_and(|c| c.warehouse.0.count_of(57) >= func.lease);
+    if charge_warehouse && !can_pay {
+        remove_castle_function(world, castle_id, func_type);
+        return;
+    }
+    if charge_warehouse {
+        if let Some(clan) = world.clans.get_mut(&owner_id) {
+            clan.warehouse.0.remove_item(57, func.lease);
+        }
+        super::warehouse::persist_clan_warehouse(world, owner_id);
+    }
+    let rate = func.rate_ms;
+    if let Some(f) = world.castle_functions.get_mut(&(castle_id, func_type)) {
+        f.end_time = commons::util::now_millis() + rate;
+    }
+    world.scheduler.schedule(
+        world.tick + super::helpers::ms_to_ticks(rate.min(i32::MAX as i64) as i32),
+        ScheduledTask::CastleFunctionRenew {
+            castle_id,
+            func_type,
+            charge_warehouse: true,
+        },
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Door + trap (flame-tower) upgrades — persisted through `global_vars` (the
+// behaviourally-equivalent home for Java's `castle_doorupgrade` /
+// `castle_trapupgrade` rows; the storage layout differs, the round trip
+// doesn't).
+// ---------------------------------------------------------------------------
+
+fn door_upgrade_key(door_id: i32) -> String {
+    format!("CastleDoorUpgrade_{door_id}")
+}
+
+fn trap_upgrade_key(castle_id: i32, tower_index: i32) -> String {
+    format!("CastleTrapUpgrade_{castle_id}_{tower_index}")
+}
+
+/// The door's upgrade HP ratio (Java `DoorStat.getUpgradeHpRatio`, 1 = base).
+pub(crate) fn door_upgrade_ratio(world: &World, door_id: i32) -> i32 {
+    super::global_vars::get_i64(world, &door_upgrade_key(door_id), 1).max(1) as i32
+}
+
+/// Java `Castle.setDoorUpgrade(doorId, ratio, save)`: record the ratio and
+/// re-derive the door's max HP (healing it to full, as Java's
+/// `setCurrentHp(getMaxHp())` does on upgrade).
+pub(crate) fn set_door_upgrade(world: &mut World, door_id: i32, ratio: i32) {
+    super::global_vars::set(world, &door_upgrade_key(door_id), ratio);
+    let base = world
+        .data
+        .door_data
+        .get(door_id)
+        .map(|t| t.hp_max)
+        .unwrap_or(0);
+    let oid = world.door_regions.values().flatten().copied().find(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::door::Door>(oid)
+            .is_some_and(|d| d.door_id == door_id)
+    });
+    if let Some(oid) = oid
+        && let Some(d) = world
+            .objects
+            .get_component_mut::<crate::model::door::Door>(&oid)
+    {
+        d.current_hp = base * ratio.max(1);
+    }
+}
+
+/// Boot re-apply (Java `loadDoorUpgrade`): the doors spawned with base HP
+/// before the `global_variables` table landed; stamp every upgraded door's
+/// max back on. Runs once, from the boot load event.
+pub(crate) fn apply_door_upgrades_at_boot(world: &mut World) {
+    let upgraded: Vec<(i32, i32)> = world
+        .global_vars
+        .iter()
+        .filter_map(|(k, v)| {
+            let door_id = k.strip_prefix("CastleDoorUpgrade_")?.parse::<i32>().ok()?;
+            let ratio = v.parse::<i32>().ok()?;
+            (ratio > 1).then_some((door_id, ratio))
+        })
+        .collect();
+    for (door_id, ratio) in upgraded {
+        let base = world
+            .data
+            .door_data
+            .get(door_id)
+            .map(|t| t.hp_max)
+            .unwrap_or(0);
+        let oid = world.door_regions.values().flatten().copied().find(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::door::Door>(oid)
+                .is_some_and(|d| d.door_id == door_id)
+        });
+        if let Some(oid) = oid
+            && let Some(d) = world
+                .objects
+                .get_component_mut::<crate::model::door::Door>(&oid)
+        {
+            d.current_hp = base * ratio;
+        }
+    }
+}
+
+/// The trap (flame-tower damage zone) upgrade level of one tower slot.
+pub(crate) fn trap_upgrade_level(world: &World, castle_id: i32, tower_index: i32) -> i32 {
+    super::global_vars::get_i64(world, &trap_upgrade_key(castle_id, tower_index), 0) as i32
+}
+
+/// Java `Castle.setTrapUpgrade`. The level is stored and reported by the
+/// chamberlain console; the flame tower's per-level damage-zone activation is
+/// part of the (unported) tower zone machinery, same as before this console.
+pub(crate) fn set_trap_upgrade(world: &mut World, castle_id: i32, tower_index: i32, level: i32) {
+    super::global_vars::set(world, &trap_upgrade_key(castle_id, tower_index), level);
+}
+
+/// Java `Castle.banishForeigners` → `CastleZone.banishForeigners(ownerId)`:
+/// everyone inside the castle residence zone who is *not* in the owning clan
+/// is ported out to the zone's banish spawns — the same eviction shape as
+/// [`super::siege::oust_all_players`], filtered by clan.
+pub(crate) fn banish_foreigners(world: &mut World, castle_id: i32) {
+    let owner = super::siege::owner_clan_id_opt(world, castle_id).unwrap_or(0);
+    let Some(zone) = world.data.zone_data.residence_teleport_zone(castle_id) else {
+        return;
+    };
+    let spawns: Vec<(i32, i32, i32)> = world
+        .data
+        .zone_data
+        .residence_teleport_spawns(castle_id)
+        .to_vec();
+    if spawns.is_empty() {
+        return;
+    }
+    let (min_z, max_z) = (zone.territory.min_z, zone.territory.max_z);
+    let inside: Vec<i32> = world
+        .in_game_player_oids()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::Player>(oid)
+                .is_some_and(|p| p.clan_id == 0 || p.clan_id != owner)
+                && world
+                    .objects
+                    .get_component::<crate::model::components::Position>(oid)
+                    .is_some_and(|p| {
+                        p.z >= min_z
+                            && p.z <= max_z
+                            && world
+                                .data
+                                .zone_data
+                                .residence_teleport_zone(castle_id)
+                                .is_some_and(|zn| zn.territory.contains_2d(p.x, p.y))
+                    })
+        })
+        .collect();
+    for oid in inside {
+        let idx = world.roll(spawns.len() as i32) as usize;
+        let (x, y, z) = spawns[idx];
+        super::death::teleport_player(world, oid, x, y, z);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::format_adena;

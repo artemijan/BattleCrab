@@ -1037,6 +1037,11 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::PunishmentExpire { punishment_id } => {
                 punishment::on_expire(world, punishment_id)
             }
+            ScheduledTask::CastleFunctionRenew {
+                castle_id,
+                func_type,
+                charge_warehouse,
+            } => castle::handle_function_renew(world, castle_id, func_type, charge_warehouse),
             ScheduledTask::CreatureSeeSweep => quests::handle_creature_see_sweep(world),
             ScheduledTask::IllegalActionPunish {
                 object_id,

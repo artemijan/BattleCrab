@@ -339,6 +339,13 @@ pub struct World {
     /// `hall_id → func_id → function`. Loaded from `residence_functions`.
     pub clan_hall_functions: HashMap<i32, HashMap<i32, crate::model::clan_hall::ActiveFunction>>,
 
+    /// Active castle functions, keyed `(castle_id, func_type)` (Java
+    /// `Castle._function`). **Runtime-only, like Java on this dist**: the
+    /// reference's `Castle` constructor has `initFunctions()` commented out,
+    /// so bought functions never survive a restart there either — the only
+    /// divergence is that Java still writes the (never-read) DB rows.
+    pub castle_functions: HashMap<(i32, i32), crate::model::castle::CastleFunc>,
+
     /// The `tick` the current clan-hall auction cycle closes (Java
     /// `ClanHallAuctionManager.getRemainingTime`); set when the weekly close is
     /// armed. Drives the auctioneer's countdown fields.
@@ -582,6 +589,7 @@ impl World {
             clan_halls: HashMap::new(),
             clan_hall_bids: HashMap::new(),
             clan_hall_functions: HashMap::new(),
+            castle_functions: HashMap::new(),
             auction_end_tick: 0,
             siege_guards: HashMap::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),

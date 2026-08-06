@@ -43,6 +43,11 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
     // The siege restart cases (Java `RequestRestartPoint.portPlayer`); everything
     // else, and a non-participant, falls through to the map-region town respawn.
     let siege_spawn = siege_restart_location(world, object_id, pkt.point_type, pick);
+    // Java case 2 ("to castle"): the castle's EXP-restore function gives back
+    // its share of the death penalty, exactly like the clan hall's.
+    if pkt.point_type == 2 && siege_spawn.is_some() {
+        restore_castle_exp(world, object_id);
+    }
     let Some((x, y, z)) = clanhall_spawn
         .or(siege_spawn)
         .or_else(|| world.data.map_region.town_respawn(px, py, pz, race, pick))
@@ -191,6 +196,54 @@ fn restore_clanhall_exp(world: &mut World, player_oid: i32) {
     };
     if restored > 0 {
         // Java's `addExp` pushes the new exp to the client immediately.
+        crate::game_loop::party::broadcast_user_info(world, player_oid);
+    }
+}
+
+/// Java `Player.restoreExp` off the castle's `FUNC_RESTORE_EXP` (the levels
+/// are the restore *percent*, 45 or 50 on this dist) — the castle twin of
+/// [`restore_clanhall_exp`].
+fn restore_castle_exp(world: &mut World, player_oid: i32) {
+    let Some(clan_id) = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .map(|p| p.clan_id)
+        .filter(|&id| id != 0)
+    else {
+        return;
+    };
+    let Some(castle_id) = world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.castle_id)
+        .filter(|&id| id > 0)
+    else {
+        return;
+    };
+    let Some(func) = crate::game_loop::castle::castle_function(
+        world,
+        castle_id,
+        crate::model::castle::FUNC_RESTORE_EXP,
+    ) else {
+        return;
+    };
+    let percent = f64::from(func.level);
+    let restored = {
+        let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&player_oid)
+        else {
+            return;
+        };
+        if p.lost_exp_on_death <= 0 {
+            return;
+        }
+        let restored = ((p.lost_exp_on_death as f64 * percent) / 100.0).round() as i64;
+        p.exp += restored;
+        p.lost_exp_on_death = 0;
+        restored
+    };
+    if restored > 0 {
         crate::game_loop::party::broadcast_user_info(world, player_oid);
     }
 }
