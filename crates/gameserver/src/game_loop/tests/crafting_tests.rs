@@ -76,6 +76,9 @@ fn recipe(id: i32, success_rate: i32, rare: Option<RareProduction>) -> RecipeLis
         ingredients: vec![(MATERIAL, 2)],
         mp_use: 30,
         hp_use: 0,
+        alt_exp: None,
+        alt_sp: None,
+        alt_gim: 1,
     }
 }
 
@@ -593,4 +596,64 @@ fn user_info_carries_the_crest_raid_points_and_cursed_stage() {
     assert_eq!(diffs.len(), 1, "the stage is a single byte");
     let after = build(&world);
     assert_eq!(after[diffs[0]], 5, "1 + 12/3 = stage 5");
+}
+
+/// **`AltGameCreation = True` stages the craft** (G33): the session parks on
+/// the crafter (`isCrafting` — the offline-mode gate observes it), nothing is
+/// consumed up front, each pass pays its share of the stat use and "equips" a
+/// grab of materials with SM 368, and the finish settles: materials taken,
+/// product granted, session gone.
+#[test]
+fn alt_game_creation_stages_the_craft() {
+    let (mut world, ..) = cast_test_world();
+    install_fixtures(&mut world);
+    world.cfg.character.alt_game_creation = true;
+    // Zero the XP/SP knobs: the award path would level the test player against
+    // this world's EMPTY exp tables, whose recompute clamps vitals to a
+    // missing template (see the empty-fixture-tables trap).
+    world.cfg.character.alt_game_creation_xp_rate = 0.0;
+    world.cfg.character.alt_game_creation_sp_rate = 0.0;
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    learn_skill(&mut world, 3001, 172); // create-dwarven lvl 1 → grab 1/pass → 2 passes
+    world
+        .objects
+        .get_component_mut::<RecipeBook>(&3001)
+        .unwrap()
+        .dwarven
+        .push(RECIPE_LIST);
+    give(&mut world, 3001, 9001, MATERIAL, 10);
+    let mp0 = pvit(&world, 3001).cur_mp;
+    drain(&mut rx);
+
+    crafting::handle_make_self(&mut world, 1, RECIPE_LIST);
+    assert!(
+        crafting::is_crafting(&world, 3001),
+        "the staged session parked on the crafter"
+    );
+    {
+        let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+        assert_eq!(inv.count_of(MATERIAL), 10, "nothing consumed up front");
+        assert_eq!(inv.count_of(PRODUCT), 0);
+    }
+
+    // First pass: half the stat use (30 / 2 passes), one material grabbed.
+    advance_ticks(&mut world, 1);
+    assert_eq!(pvit(&world, 3001).cur_mp, mp0 - 15.0, "per-pass stat share");
+    assert!(crafting::is_crafting(&world, 3001), "still crafting");
+    assert!(
+        has_sm(&drain(&mut rx), server_packets::sm_ids::EQUIPPED_S1_S2),
+        "the grab announced itself"
+    );
+
+    // Second pass + the finish settle.
+    advance_ticks(&mut world, 6);
+    assert!(!crafting::is_crafting(&world, 3001), "session closed");
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
+    assert_eq!(inv.count_of(PRODUCT), 1, "product crafted");
+    assert_eq!(inv.count_of(MATERIAL), 8, "materials settled at the finish");
+    assert_eq!(pvit(&world, 3001).cur_mp, mp0 - 30.0, "full stat use paid");
+    assert!(
+        has_sm(&drain(&mut rx), server_packets::sm_ids::YOU_HAVE_EARNED_S1),
+        "earned message"
+    );
 }

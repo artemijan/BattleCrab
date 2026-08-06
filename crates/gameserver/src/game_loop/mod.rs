@@ -1037,6 +1037,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::PunishmentExpire { punishment_id } => {
                 punishment::on_expire(world, punishment_id)
             }
+            ScheduledTask::CraftPass { crafter_oid } => {
+                crafting::handle_craft_pass(world, crafter_oid)
+            }
+            ScheduledTask::CraftFinish { crafter_oid } => {
+                crafting::handle_craft_finish(world, crafter_oid)
+            }
             ScheduledTask::CastleFunctionRenew {
                 castle_id,
                 func_type,

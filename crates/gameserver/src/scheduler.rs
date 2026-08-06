@@ -768,6 +768,17 @@ pub enum ScheduledTask {
     PunishmentExpire {
         punishment_id: i32,
     },
+    /// One pass of the `AltGameCreation` staged craft (Java
+    /// `RecipeItemMaker.run` re-scheduling itself): grab materials, animate,
+    /// re-arm — or glide into `CraftFinish`.
+    CraftPass {
+        crafter_oid: i32,
+    },
+    /// The staged craft's settle after the last gauge (Java's post-sleep
+    /// `finishCrafting`).
+    CraftFinish {
+        crafter_oid: i32,
+    },
     /// A castle function's renewal moment (Java `CastleFunction.FunctionTask`):
     /// charge the owning clan's warehouse and extend, or drop the function.
     /// `charge_warehouse` is Java's `_cwh` — false only for the run scheduled

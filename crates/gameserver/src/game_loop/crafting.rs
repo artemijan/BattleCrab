@@ -625,7 +625,24 @@ fn do_craft(
         return;
     }
 
-    // --- all checks passed; now consume (finishCrafting) ---
+    // --- all checks passed ---
+
+    // `Config.ALT_GAME_CREATION`: the staged multi-pass craft takes over —
+    // materials are "equipped" in per-pass grabs with the create-skill
+    // animation and gauge, stat use is paid per pass, and the settle runs
+    // when the last grab lands (Java `RecipeItemMaker.run`).
+    if world.cfg.character.alt_game_creation {
+        staged_start(
+            world,
+            crafter,
+            customer,
+            customer_client,
+            recipe_id,
+            price,
+            &recipe,
+        );
+        return;
+    }
 
     // Reduce the crafter's MP/HP + StatusUpdate.
     if recipe.mp_use > 0 || recipe.hp_use > 0 {
@@ -636,6 +653,278 @@ fn do_craft(
         send_crafter_mp(world, crafter);
     }
 
+    settle_and_reward(
+        world,
+        crafter,
+        customer,
+        customer_client,
+        recipe_id,
+        price,
+        &recipe,
+    );
+}
+
+/// One player's staged craft in flight (Java `RecipeItemMaker` under
+/// `_activeMakers`). Component on the **crafter**; its presence IS Java's
+/// `isCrafting()` — which is what the logout gate observes.
+#[derive(bevy_ecs::component::Component, Debug, Clone)]
+pub struct ActiveCraft {
+    pub customer: i32,
+    pub customer_client: u32,
+    pub recipe_id: i32,
+    pub price: i64,
+    /// The material units still to "equip", as `(item_id, remaining)` — Java's
+    /// `TempItem` list.
+    pub remaining: Vec<(i32, i64)>,
+    /// `_creationPasses` — per-pass stat use divides by this.
+    pub passes: i32,
+    /// `_itemGrab` — units consumed per pass (skill level × GIM).
+    pub item_grab: i64,
+    /// The last pass delay in ms (`_delay`), reused by the finish gauge.
+    pub delay_ms: i32,
+}
+
+/// Java `RecipeItemMaker`'s ALT branch of the constructor + `_activeMakers`
+/// registration: compute the grab size and pass count, park the session on
+/// the crafter, and schedule the first pass (Java `ThreadPool.schedule(maker,
+/// 100)`).
+fn staged_start(
+    world: &mut World,
+    crafter: i32,
+    customer: i32,
+    customer_client: u32,
+    recipe_id: i32,
+    price: i64,
+    recipe: &RecipeList,
+) {
+    // Java refuses a second craft while one runs (`_activeMakers.containsKey`
+    // → "You are busy creating").
+    if world.objects.has_component::<ActiveCraft>(&crafter) {
+        send_to_client(
+            world,
+            customer_client,
+            sp::system_message_with(
+                sm_ids::YOU_MAY_NOT_ALTER_YOUR_RECIPE_BOOK_WHILE_ENGAGED_IN_MANUFACTURING,
+                &[],
+            ),
+        );
+        return;
+    }
+    let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven);
+    // `calculateAltStatChange`: grab = skill level × GIM; passes = ceil.
+    let item_grab = i64::from(skill_level.max(1)) * i64::from(recipe.alt_gim.max(1));
+    let total: i64 = recipe.ingredients.iter().map(|&(_, n)| n).sum();
+    let passes = ((total + item_grab - 1) / item_grab).max(1) as i32;
+    world.objects.add_components(
+        &crafter,
+        ActiveCraft {
+            customer,
+            customer_client,
+            recipe_id,
+            price,
+            remaining: recipe.ingredients.clone(),
+            passes,
+            item_grab,
+            delay_ms: 0,
+        },
+    );
+    update_make_info(
+        world,
+        crafter,
+        customer,
+        customer_client,
+        recipe_id,
+        recipe.is_dwarven,
+        true,
+    );
+    world.scheduler.schedule(
+        world.tick + 1,
+        crate::scheduler::ScheduledTask::CraftPass {
+            crafter_oid: crafter,
+        },
+    );
+}
+
+/// One staged pass (Java `RecipeItemMaker.run`'s ALT arm): pay the per-pass
+/// stat use (waiting on the gauge when HP/MP are short), grab up to
+/// `item_grab` material units with the "equipped" message, and either animate
+/// into the next pass or glide the gauge into the finish.
+pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
+    let Some(session) = world
+        .objects
+        .get_component::<ActiveCraft>(&crafter)
+        .cloned()
+    else {
+        return; // aborted (Java's "Item creation aborted" fires on the abort itself)
+    };
+    let Some(recipe) = world.data.recipes.get(session.recipe_id).cloned() else {
+        world.objects.remove_component::<ActiveCraft>(&crafter);
+        return;
+    };
+    // `calculateStatUse(isWait = true, isReduce = true)` — per-pass share.
+    let (mp_share, hp_share) = (
+        f64::from(recipe.mp_use) / f64::from(session.passes),
+        f64::from(recipe.hp_use) / f64::from(session.passes),
+    );
+    let Some((cur_mp, _, cur_hp)) = vitals(world, crafter) else {
+        world.objects.remove_component::<ActiveCraft>(&crafter);
+        return;
+    };
+    if (recipe.mp_use > 0 && cur_mp < mp_share) || (recipe.hp_use > 0 && cur_hp <= hp_share) {
+        // Short on HP/MP: rest — gauge + retry after the same delay, nothing
+        // consumed (Java's isWait branch).
+        send_to_player(
+            world,
+            crafter,
+            sp::setup_gauge(crafter, 0, session.delay_ms),
+        );
+        world.scheduler.schedule(
+            world.tick + 1 + super::helpers::ms_to_ticks(session.delay_ms),
+            crate::scheduler::ScheduledTask::CraftPass {
+                crafter_oid: crafter,
+            },
+        );
+        return;
+    }
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&crafter) {
+        v.cur_mp = (v.cur_mp - mp_share).max(0.0);
+        v.cur_hp = (v.cur_hp - hp_share).max(1.0);
+    }
+    send_crafter_mp(world, crafter);
+
+    // `grabSomeItems`: consume up to item_grab units off the temp list.
+    let mut grab = session.item_grab;
+    let mut remaining = session.remaining.clone();
+    while grab > 0 && !remaining.is_empty() {
+        let (item_id, qty) = remaining[0];
+        let take = qty.min(grab);
+        if qty - take <= 0 {
+            remaining.remove(0);
+        } else {
+            remaining[0] = (item_id, qty - take);
+        }
+        grab -= take;
+        if session.customer == crafter {
+            send_to_player(
+                world,
+                crafter,
+                sp::system_message_with(
+                    sm_ids::EQUIPPED_S1_S2,
+                    &[SmParam::Long(take), SmParam::ItemName(item_id)],
+                ),
+            );
+        }
+    }
+
+    // Delay = speed × the create skill's reuse (Java `getReuseTime(_skill)`).
+    let skill_id = if recipe.is_dwarven {
+        SKILL_CREATE_DWARVEN
+    } else {
+        SKILL_CREATE_COMMON
+    };
+    let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven);
+    let reuse_ms = world
+        .data
+        .skill_data
+        .get(skill_id, skill_level.max(1))
+        .map(|sk| sk.reuse_delay)
+        .unwrap_or(0);
+    let delay_ms = (world.cfg.character.alt_game_creation_speed * f64::from(reuse_ms)) as i32;
+
+    let done = remaining.is_empty();
+    if let Some(sess) = world.objects.get_component_mut::<ActiveCraft>(&crafter) {
+        sess.remaining = remaining;
+        sess.delay_ms = delay_ms;
+    }
+    if !done {
+        // The crafting animation + gauge, then the next pass.
+        let pos = world
+            .objects
+            .get_component::<crate::model::components::Position>(&crafter)
+            .map(|p| (crafter, p.x, p.y, p.z))
+            .unwrap_or((crafter, 0, 0, 0));
+        let msu = sp::magic_skill_use_raw(pos, pos, skill_id, skill_level, delay_ms);
+        super::helpers::broadcast_including_self(world, crafter, &msu);
+        send_to_player(world, crafter, sp::setup_gauge(crafter, 0, delay_ms));
+        world.scheduler.schedule(
+            world.tick + 1 + super::helpers::ms_to_ticks(delay_ms),
+            crate::scheduler::ScheduledTask::CraftPass {
+                crafter_oid: crafter,
+            },
+        );
+    } else {
+        // Last grab: gauge out, then settle (Java sleeps `_delay` and calls
+        // `finishCrafting`).
+        send_to_player(world, crafter, sp::setup_gauge(crafter, 0, delay_ms));
+        world.scheduler.schedule(
+            world.tick + 1 + super::helpers::ms_to_ticks(delay_ms),
+            crate::scheduler::ScheduledTask::CraftFinish {
+                crafter_oid: crafter,
+            },
+        );
+    }
+}
+
+/// The staged finish: drop the session and run the shared settle. Stat use
+/// was already paid per pass, so this is fee → materials → roll → reward —
+/// and on success the ALT XP/SP award (Java `rewardPlayer`'s alt tail).
+pub(crate) fn handle_craft_finish(world: &mut World, crafter: i32) {
+    let Some(session) = world
+        .objects
+        .get_component::<ActiveCraft>(&crafter)
+        .cloned()
+    else {
+        return;
+    };
+    world.objects.remove_component::<ActiveCraft>(&crafter);
+    let Some(recipe) = world.data.recipes.get(session.recipe_id).cloned() else {
+        return;
+    };
+    // Re-verify the materials are still there (Java's `listItems(true)` after
+    // the passes — "handle possible cheaters here").
+    for &(item_id, need) in &recipe.ingredients {
+        let have = world
+            .objects
+            .get_component::<Inventory>(&session.customer)
+            .map(|i| i.count_of(item_id))
+            .unwrap_or(0);
+        if have < need {
+            return; // Java falls through silently on the cheater branch
+        }
+    }
+    settle_and_reward(
+        world,
+        crafter,
+        session.customer,
+        session.customer_client,
+        session.recipe_id,
+        session.price,
+        &recipe,
+    );
+}
+
+/// Java `Player.isCrafting()` — a staged craft is in flight. The logout gate
+/// reads this; the inline mode never exposes it (the craft finishes within
+/// its own packet).
+pub(crate) fn is_crafting(world: &World, player_oid: i32) -> bool {
+    world.objects.has_component::<ActiveCraft>(&player_oid)
+}
+
+/// The shared settle (Java `finishCrafting` minus the stat use, which each
+/// mode pays its own way): fee, materials, the success roll, reward or
+/// failure messages, make-info + inventory refresh.
+fn settle_and_reward(
+    world: &mut World,
+    crafter: i32,
+    customer: i32,
+    customer_client: u32,
+    recipe_id: i32,
+    price: i64,
+    recipe: &RecipeList,
+) {
+    let sm_customer = |world: &World, msg: i16, params: &[SmParam]| {
+        send_to_client(world, customer_client, sp::system_message_with(msg, params));
+    };
     // Pay the manufacture fee (customer → crafter).
     if crafter != customer && price > 0 {
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&customer) {
@@ -663,7 +952,7 @@ fn do_craft(
     // Roll success (`Rnd.get(100) < successRate`, `CRAFT_RATE` = 0 here).
     let success = world.roll(100) < recipe.success_rate;
     if success {
-        reward(world, crafter, customer, customer_client, &recipe, price);
+        reward(world, crafter, customer, customer_client, recipe, price);
     } else if crafter != customer {
         // Cross-player failure messages.
         send_to_player(
@@ -731,6 +1020,37 @@ fn reward(
     }
 
     super::items::add_inventory_item(world, customer, item_id, count as i64);
+    // `rewardPlayer`'s ALT_GAME_CREATION tail: the crafter earns XP/SP scaled
+    // by the recipe level, the rare production, and the creation-speed knobs.
+    if world.cfg.character.alt_game_creation {
+        let cfgc = &world.cfg.character;
+        let mut exp = recipe.alt_exp.unwrap_or_else(|| {
+            let reference = world
+                .data
+                .item_data
+                .get(item_id)
+                .map(|t| t.price)
+                .unwrap_or(0);
+            reference * i64::from(count) / i64::from(recipe.level.max(1))
+        });
+        let mut sp = recipe.alt_sp.unwrap_or(exp / 10);
+        if recipe.rare.is_some_and(|r| r.item_id == item_id) {
+            exp = (exp as f64 * cfgc.alt_game_creation_rare_xpsp_rate) as i64;
+            sp = (sp as f64 * cfgc.alt_game_creation_rare_xpsp_rate) as i64;
+        }
+        let (mut exp, mut sp) = (exp.max(0), sp.max(0));
+        // Crafting under-level recipes decays the reward 4× per level over.
+        let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven);
+        for _ in recipe.level..skill_level {
+            exp /= 4;
+            sp /= 4;
+        }
+        let exp = exp as f64 * cfgc.alt_game_creation_xp_rate * cfgc.alt_game_creation_speed;
+        let sp = sp as f64 * cfgc.alt_game_creation_sp_rate * cfgc.alt_game_creation_speed;
+        if exp > 0.0 || sp > 0.0 {
+            crate::game_loop::death::add_exp_and_sp(world, crafter, exp, sp, false);
+        }
+    }
     // `Stat.CRAFTING_CRITICAL` (double output) is not modelled. Not a
     // deferral: nothing in `dist/game/data/stats` grants the stat, so the roll
     // would always be against zero.
