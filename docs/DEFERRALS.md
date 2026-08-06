@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **45** such
+of narrow behaviours deferred and marked at the site. There are **41** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data/build.rs`, `game_loop/skills/effects/mod.rs`, `model/skill.rs` |
 | `TODO(G33)` | 3 | `game_loop/offline_trade.rs`, `game_loop/party.rs` |
 | `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects/gathering.rs` |
@@ -115,6 +114,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G29)` ×4 — the whole group | `storePetFood` is real: the ride path records the pet's collar object id (`Player.mount_collar_object_id`, Java's `_controlItemId`) and the dismount writes the drained gauge back onto the `PlayerPets` row. Chasing it exposed a **bug family beside the marker**: four unsummon sites (the ride, the collar recall, `//unsummon`, the unsummon skill effect) skipped the `sync_pet_row` capture every other site runs, silently dropping a pet's hp/exp/fed deltas — all four fixed. The Wyvern Breath leg was dead in Java too (`setMount` never grants 4289, so its removal removes nothing). The other three markers were prose: two test headers describing already-closed deferrals spelled parseable tags, and the karma-drop note's "revisit on capture" keeps its sentence without one. |
 | 2026-08-06 | `TODO(G28)` ×4 — the whole group (all TvT) | Three of four were stale in place: the logout-forfeit listener was fully implemented (`on_player_logout` + `manage_forfeit`, wired at both disconnect paths in `net.rs`) with the marker still sitting on the registration branch; `canRegister`'s "the rest are TODO at the site" annotated a function that had since ported every Java gate; and the module header still claimed the freeze had "no such flag" after `Immobilized`+`SkillsDisabled` landed. The one real gap is done: the arena stand-up now leaves each participant's old party (`Player.leaveParty` = DISCONNECTED) and regroups each team into parties of 7 under FINDERS_KEEPERS with a per-team command channel (`group_team`), exercising the ported party/CC primitives the marker said didn't exist. |
 | 2026-08-06 | `TODO(G27)` ×3 of 4 — instances group | **`ExInzoneWaiting`'s empty list turned out to be exact parity**: the only `<reenter>` template on this dist (LastImperialTomb 136) has no `apply` attribute, which Java parses as `InstanceReenterType.NONE` — `setReenterTime` never fires anywhere, so Java's own penalty list is permanently empty too. `//instancedestroy` now warns everyone inside with the "destroyed by Game Master" banner before the teleport-out (its test also documents the command's `confirmDlg` flow). The two party-duel markers consolidate into one precise TODO at the duel module header: the instances blocker is gone (engine + all four olympiad arena templates ported), what remains is the party flow itself. |
 | 2026-08-06 | `TODO(G20)` ×5 — the whole group | Independent dual rolls, the duel snapshot, the blow formula's real weapon crit; one SKIP and one stale reference. |

@@ -806,7 +806,8 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 /// Not modelled: the active pet's control item — Java compares
 /// `_pet.getControlObjectId()` (an *object* id) against `itemDrop.getId()` (an
 /// *item* id), a comparison that cannot match, so porting it would add a
-/// branch that never fires; `TODO(G29)` if a capture ever shows otherwise. Nor
+/// branch that never fires; revisit only if a capture ever shows a summoned
+/// pet's collar surviving a karma drop through some other guard. Nor
 /// the `KarmaListNonDroppableItems`/`..._PET_ITEMS` whitelists (neither is
 /// populated on this dist), nor the clan-war exemption (`TODO(G18)` — warring
 /// clans don't make each other drop).

@@ -2203,9 +2203,9 @@ fn a_partial_resurrection_restores_part_of_the_loss() {
     );
 }
 
-/// Slice 7 left this branch as a `TODO(G29)` because a pet could not yet be
-/// stored dead. It can now: a pet saved with `curHp < 1` comes back as a
-/// corpse rather than silently alive at 0 HP.
+/// Slice 7 deferred this branch because a pet could not yet be stored dead.
+/// It can now: a pet saved with `curHp < 1` comes back as a corpse rather
+/// than silently alive at 0 HP.
 #[test]
 fn a_pet_stored_dead_is_restored_dead() {
     let (mut world, _db, _l) = servitor_world();
@@ -3526,7 +3526,7 @@ fn clicking_worn_pet_armour_takes_it_off() {
 
 /// Worn pet armour persists as `PET_EQUIP`, carried items as `PET` — and the
 /// slot survives the round trip, so a pet's armour comes back **on** rather
-/// than loose in its bag. This closes the `TODO(G29)` slice 8 left behind.
+/// than loose in its bag. This closes the deferral slice 8 left behind.
 #[test]
 fn pet_equipment_round_trips_through_its_own_location() {
     let (mut world, _db, _l) = servitor_world();
@@ -5221,5 +5221,66 @@ fn a_dead_servitor_can_be_resurrected_but_a_live_one_cannot() {
     assert!(
         check_cast(&world, OWNER, res, pet).is_err(),
         "a resurrection-blocked servitor stays down"
+    );
+}
+
+/// `storePetFood`: riding a pet drains the shared feed gauge, and the
+/// dismount writes the drained value back onto the collar's `pets` row — a
+/// rider who mounts at 100 and climbs off at 37 summons a pet at 37, not at
+/// the value stored when the pet was unsummoned onto the saddle.
+#[test]
+fn dismount_stores_the_drained_feed_on_the_collar_row() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    world
+        .data
+        .categories
+        .insert_for_test("WOLF_GROUP", &[WOLF_NPC]);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+    world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet)
+        .unwrap()
+        .fed = 100;
+
+    crate::game_loop::user_commands::mount(&mut world, CID, OWNER);
+    {
+        let p = world
+            .objects
+            .get_component::<crate::model::Player>(&OWNER)
+            .unwrap();
+        assert!(p.is_mounted(), "the wolf was ridden");
+        assert_eq!(
+            p.mount_collar_object_id, collar,
+            "the collar link rides along"
+        );
+        assert_eq!(p.mount_feed, 100, "the pet's food carried onto the gauge");
+    }
+
+    // The ride drains the gauge…
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&OWNER)
+        .unwrap()
+        .mount_feed = 37;
+    crate::game_loop::admin::mounts::dismount(&mut world, OWNER);
+
+    let p = world
+        .objects
+        .get_component::<crate::model::Player>(&OWNER)
+        .unwrap();
+    assert!(!p.is_mounted());
+    assert_eq!(p.mount_collar_object_id, 0, "the link cleared");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerPets>(&OWNER)
+            .unwrap()
+            .0[&collar]
+            .fed,
+        37,
+        "the drained gauge went back onto the pets row"
     );
 }

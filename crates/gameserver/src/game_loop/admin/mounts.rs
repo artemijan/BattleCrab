@@ -235,12 +235,11 @@ fn stop_all_toggles(world: &mut World, target: i32) {
 ///
 /// Java also clears the feed gauge and stops its task here; the port's task
 /// self-cancels on the next tick once `is_mounted()` is false, so only the
-/// gauge needs sending.
-///
-/// TODO(G29): Java additionally persists the leftover feed onto the control
-/// item (`storePetFood`) and removes the Wyvern Breath skill (4289) — the
-/// former needs the mount's control-item link, and Java's own `setMount` only
-/// ever grants the strider skill, so 4289 exists solely to be removed here.
+/// gauge needs sending. The leftover feed is written back onto the ridden
+/// pet's collar row first (`storePetFood` — memory-first: the `PlayerPets`
+/// row carries it to the next save/summon). Java's `removeSkill(WYVERN_BREATH
+/// 4289)` here is dead even in Java: its own `setMount` grants only the
+/// noble's Strider Siege Assault, never 4289, so there is nothing to remove.
 pub(crate) fn dismount(world: &mut World, target: i32) {
     if !world
         .objects
@@ -294,11 +293,27 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
             crate::scheduler::ScheduledTask::DismountWaterUserInfo { object_id: target },
         );
     }
+    // `storePetFood(_mountNpcId)` — the drained gauge goes back onto the
+    // ridden pet's collar row before the mount fields clear (memory-first:
+    // the `PlayerPets` row is what the save and the next summon read).
+    let (collar, feed) = world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or((0, 0), |p| (p.mount_collar_object_id, p.mount_feed));
+    if collar != 0
+        && let Some(pets) = world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerPets>(&target)
+        && let Some(row) = pets.0.get_mut(&collar)
+    {
+        row.fed = feed;
+    }
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.mount_type = 0;
         p.mount_npc_id = 0;
         p.mount_level = 0;
         p.mount_feed = 0;
+        p.mount_collar_object_id = 0;
     }
     // `stopFeed()` + `SetupGauge(3, 0, 0)`: blank the bar. Sent by hand rather
     // than through `set_current_feed`, which needs the (now cleared) mount to

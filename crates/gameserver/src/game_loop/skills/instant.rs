@@ -774,6 +774,9 @@ pub(super) fn unsummon(world: &mut World, ctx: &CastCtx, skill: &Skill, chance: 
             return;
         }
     }
+    // Capture a pet's state first (Java `unSummon` → `storeMe`); no-op for a
+    // servitor.
+    crate::game_loop::servitor::sync_pet_row(world, owner);
     crate::game_loop::servitor::unsummon_servitor(world, owner);
 }
 

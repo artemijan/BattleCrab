@@ -511,6 +511,10 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
                 .get_component::<crate::model::components::PetOf>(&pet_oid)
                 .map(|p| p.collar_object_id);
             if bound == Some(pkt.object_id) {
+                // Capture the pet's state first (Java `unSummon` → `storeMe`);
+                // without this a voluntary recall dropped every delta since
+                // the summon.
+                crate::game_loop::servitor::sync_pet_row(world, object_id);
                 crate::game_loop::servitor::unsummon_servitor(world, object_id);
             }
         }

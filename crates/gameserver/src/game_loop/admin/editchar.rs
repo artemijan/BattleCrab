@@ -746,6 +746,9 @@ pub(super) fn admin_unsummon(world: &mut World, client_id: u32, object_id: i32) 
         send_message(world, client_id, "Usable only with Pets/Summons");
         return;
     };
+    // Capture a pet's state first (Java `unSummon` → `storeMe`); no-op for a
+    // servitor.
+    crate::game_loop::servitor::sync_pet_row(world, owner);
     crate::game_loop::servitor::unsummon_servitor(world, owner);
 }
 

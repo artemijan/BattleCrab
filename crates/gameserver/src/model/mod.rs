@@ -507,6 +507,11 @@ pub struct Player {
     /// mounted (the `Feed` effect's `ride`/`wyvern` params). Hitting zero
     /// force-dismounts. Transient, like the rest of the mount state.
     pub mount_feed: i32,
+    /// Java `Player._controlItemId`/`_mountObjectID` — the collar object id of
+    /// the pet being ridden, so a dismount can write the drained feed gauge
+    /// back onto its `pets` row (`storePetFood`). 0 for wyverns and admin
+    /// mounts, which have no collar.
+    pub mount_collar_object_id: i32,
 
     /// `Player.getTradeRefusal()` — `//tradeoff`: refuse incoming trade
     /// requests. Transient.
@@ -1212,6 +1217,7 @@ impl Player {
             mount_npc_id: 0,
             mount_level: 0,
             mount_feed: 0,
+            mount_collar_object_id: 0,
             trade_refusal: false,
             cond_overrides: 0,
             transform_id: 0,

@@ -836,7 +836,20 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     }
 
     // Java `Player.mount(pet)`: mount on the pet's template, then unsummon it.
+    // `setMountObjectID(pet.getControlObjectId())` — remembered so the
+    // dismount can `storePetFood` the drained gauge back onto the collar row.
+    let collar = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet)
+        .map_or(0, |p| p.collar_object_id);
     if super::admin::mounts::mount_player(world, object_id, pet_npc_id, mount_type) {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+            p.mount_collar_object_id = collar;
+        }
+        // Capture the pet's state before the entity goes away, like every
+        // other unsummon site — without this the ride dropped the pet's
+        // hp/exp/fed deltas since its summon.
+        super::servitor::sync_pet_row(world, object_id);
         super::servitor::unsummon_servitor(world, object_id);
     }
 }
