@@ -158,6 +158,10 @@ pub struct CharacterConfig {
     /// animates per pass, materials are "equipped" in grabs, and the finish
     /// awards XP/SP. `False` on this dist (crafts finish inline).
     pub alt_game_creation: bool,
+    /// `AltSubClassWithoutQuests` — skip the Fate's Whisper + Mimir's Elixir
+    /// completion gate on adding a subclass. **True on this dist**, so the
+    /// quest gate is ported but inert.
+    pub alt_sub_class_without_quests: bool,
     /// `AltGameCreationSpeed` — per-pass delay multiplier (1 here).
     pub alt_game_creation_speed: f64,
     /// `AltGameCreationXpRate` / `AltGameCreationSpRate` /
@@ -387,6 +391,7 @@ impl Default for CharacterConfig {
             common_recipe_limit: 100,
             craft_masterwork: true,
             alt_game_creation: false,
+            alt_sub_class_without_quests: false,
             alt_game_creation_speed: 1.0,
             alt_game_creation_xp_rate: 1.0,
             alt_game_creation_sp_rate: 1.0,
@@ -557,6 +562,8 @@ impl CharacterConfig {
             common_recipe_limit: p.get_int("CommonRecipeLimit", d.common_recipe_limit),
             craft_masterwork: p.get_bool("CraftMasterwork", d.craft_masterwork),
             alt_game_creation: p.get_bool("AltGameCreation", d.alt_game_creation),
+            alt_sub_class_without_quests: p
+                .get_bool("AltSubClassWithoutQuests", d.alt_sub_class_without_quests),
             alt_game_creation_speed: f64::from(p.get_float("AltGameCreationSpeed", 1.0)),
             alt_game_creation_xp_rate: f64::from(p.get_float("AltGameCreationXpRate", 1.0)),
             alt_game_creation_sp_rate: f64::from(p.get_float("AltGameCreationSpRate", 1.0)),

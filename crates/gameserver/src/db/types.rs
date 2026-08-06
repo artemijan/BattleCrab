@@ -405,6 +405,16 @@ pub enum DbCommand {
     },
     /// `ADD_CHAR_SUBCLASS` / `UPDATE_CHAR_SUBCLASS` — upsert one subclass slot.
     /// Keyed on `(charId, class_id)` like Java's primary key.
+    /// `Player.modifySubClass`'s delete block: drop one slot's
+    /// `character_subclasses` row (keyed by the old class id) and every
+    /// per-index row — skills, hennas, shortcuts, skill reuses — for that
+    /// `class_index`. The replacement class is stored by the normal slot
+    /// upsert that follows.
+    WipeSubclassSlot {
+        char_id: i32,
+        class_index: i32,
+        old_class_id: i32,
+    },
     StoreSubClass {
         char_id: i32,
         class_id: i32,

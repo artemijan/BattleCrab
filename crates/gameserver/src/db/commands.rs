@@ -341,6 +341,40 @@ pub(crate) async fn run(
                     .await,
                 );
             }
+            DbCommand::WipeSubclassSlot {
+                char_id,
+                class_index,
+                old_class_id,
+            } => {
+                warn_err(
+                    character_subclasses::Entity::delete_many()
+                        .filter(character_subclasses::Column::CharId.eq(char_id))
+                        .filter(character_subclasses::Column::ClassId.eq(old_class_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_skills::Entity::delete_many()
+                        .filter(character_skills::Column::CharId.eq(char_id))
+                        .filter(character_skills::Column::ClassIndex.eq(class_index))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_hennas::Entity::delete_many()
+                        .filter(character_hennas::Column::CharId.eq(char_id))
+                        .filter(character_hennas::Column::ClassIndex.eq(class_index))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_shortcuts::Entity::delete_many()
+                        .filter(character_shortcuts::Column::CharId.eq(char_id))
+                        .filter(character_shortcuts::Column::ClassIndex.eq(class_index))
+                        .exec(&db)
+                        .await,
+                );
+            }
             DbCommand::StoreSubClass {
                 char_id,
                 class_id,
