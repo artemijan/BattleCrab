@@ -264,6 +264,12 @@ pub struct CharacterConfig {
     /// `AltKarmaPlayerCanUseGK`: whether a negative-reputation character may
     /// use gatekeepers (False — Java default and this dist).
     pub alt_karma_player_can_use_gk: bool,
+    /// `AltKarmaPlayerCanShop` (**False** here) — whether a player with
+    /// negative reputation may open a merchant's or fisherman's dialog at all.
+    /// Java refuses by showing `<npcId>-pk.htm` in place of the normal page,
+    /// so it only bites where that file exists: 92 merchants and one fisherman
+    /// on this dist.
+    pub alt_karma_player_can_shop: bool,
     /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
     /// a castle town whose siege is running? **False** on this dist (Java's
     /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
@@ -396,6 +402,7 @@ impl Default for CharacterConfig {
             dance_cancel_buff: false,
             max_free_teleport_level: 99,
             alt_karma_player_can_use_gk: false,
+            alt_karma_player_can_shop: false,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             teleport_watchdog_timeout_ticks: 0,
@@ -590,6 +597,8 @@ impl CharacterConfig {
             max_free_teleport_level: p.get_int("MaxFreeTeleportLevel", d.max_free_teleport_level),
             alt_karma_player_can_use_gk: p
                 .get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
+            alt_karma_player_can_shop: p
+                .get_bool("AltKarmaPlayerCanShop", d.alt_karma_player_can_shop),
             teleport_while_siege_in_progress: p.get_bool(
                 "TeleportWhileSiegeInProgress",
                 d.teleport_while_siege_in_progress,

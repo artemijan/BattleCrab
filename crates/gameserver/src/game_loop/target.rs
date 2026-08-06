@@ -667,9 +667,6 @@ pub(crate) fn interact_with_npc(
 /// the `Chat N` bypass buttons walk to). Java also gates PK players out of
 /// merchant/teleporter/warehouse dialogs via the `-pk.htm` pages
 /// (`showPkDenyChatWindow`).
-// TODO(G23): port the `showPkDenyChatWindow` reputation gate — needs the
-// `ALT_GAME_KARMA_PLAYER_CAN_SHOP`/`_USE_GK`/`_USE_WAREHOUSE` configs, which
-// we don't parse yet.
 pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id: i32, value: i32) {
     let Some(npc) = world
         .objects
@@ -681,6 +678,44 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
     if !t.talkable {
         return;
     }
+    // `showChatWindow`'s reputation gate, before anything else it does. Java
+    // writes it as an `if / else if` chain over the config-and-type pairs, but
+    // an NPC has exactly one type, so a match over the type is the same thing
+    // and says so more plainly.
+    let viewer_oid = match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),
+        _ => 0,
+    };
+    let reputation = world
+        .objects
+        .get_component::<crate::model::Player>(&viewer_oid)
+        .map_or(0, |p| p.reputation);
+    if reputation < 0 {
+        let cfg = &world.cfg.character;
+        let denied_dir = match t.type_name.as_str() {
+            "Merchant" if !cfg.alt_karma_player_can_shop => Some("merchant"),
+            "Teleporter" if !cfg.alt_karma_player_can_use_gk => Some("teleporter"),
+            "Warehouse" if !cfg.alt_karma_player_can_use_warehouse => Some("warehouse"),
+            "Fisherman" if !cfg.alt_karma_player_can_shop => Some("fisherman"),
+            _ => None,
+        };
+        // `showPkDenyChatWindow` returns false when the page is absent, and
+        // Java then falls through to the ordinary dialog — so a criminal is
+        // refused only at the NPCs the datapack wrote a refusal for.
+        if let Some(dir) = denied_dir
+            && let Some(html) = read_htm(format!(
+                "{}data/html/{dir}/{}-pk.htm",
+                world.data.root, t.id
+            ))
+        {
+            let html = html.replace("%objectId%", &npc_object_id.to_string());
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::npc_html_message(npc_object_id, &html));
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+    }
     // Java bails on the landing page of an `Auctioneer`, and on the id ranges
     // that belong to NPCs driven entirely by their own script windows.
     if (t.type_name == "Auctioneer" && value == 0)
@@ -691,13 +726,9 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
     // `Teleporter.showChatWindow`: a gatekeeper standing on castle ground has
     // three landing pages — the owner clan's, the "busy" page while that
     // castle's siege runs, and the "no" page for everyone else.
-    let viewer = match world.clients.get(&client_id) {
-        Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),
-        _ => 0,
-    };
     if t.type_name == "Teleporter"
         && value == 0
-        && let Some(file) = super::teleporter::castle_landing_page(world, npc_object_id, viewer)
+        && let Some(file) = super::teleporter::castle_landing_page(world, npc_object_id, viewer_oid)
     {
         super::teleporter::send_landing_page(world, client_id, npc_object_id, &file);
         return;
