@@ -1483,3 +1483,80 @@ fn the_drop_announce_carries_the_zone_coordinates() {
         "the drop point, which is what the client resolves the region from"
     );
 }
+
+/// `//cw_goto` has **both** of Java's branches: to the wielder while the
+/// weapon is carried, and to the item on the ground while it waits to be
+/// picked up.
+///
+/// The ground branch is the one a GM actually needs — a carried weapon
+/// announces its holder, an un-grabbed drop is silent.
+#[test]
+fn cw_goto_reaches_a_weapon_lying_on_the_ground() {
+    const GROUND_ITEM: i32 = 0x3100_0500;
+    const AWAY: (i32, i32, i32) = (77_000, 88_000, -3_000);
+
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_cursed_weapons(&mut world);
+    world.data.admin =
+        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x3100_0000..0x3100_0400;
+    let mut gm_rx = ingame_player_access(&mut world, 1, KILLER_OID, 100);
+    drain(&mut gm_rx);
+
+    let idx = cw_idx(&world, ZARICHE);
+    let id_arg = ZARICHE.to_string();
+
+    // Not in the world at all: Java answers "isn't in the World" and the GM
+    // stays put. Without this the assertion below could pass on a no-op.
+    let home = *world
+        .objects
+        .get_component::<crate::model::components::Position>(&KILLER_OID)
+        .unwrap();
+    crate::game_loop::admin::use_admin_command(
+        &mut world,
+        1,
+        &format!("admin_cw_goto {id_arg}"),
+        false,
+    );
+    let now = *world
+        .objects
+        .get_component::<crate::model::components::Position>(&KILLER_OID)
+        .unwrap();
+    assert_eq!((now.x, now.y), (home.x, home.y), "nothing to go to");
+
+    // Dropped on the ground, far away.
+    world.cursed_weapons[idx].is_dropped = true;
+    world.cursed_weapons[idx].dropped_item_oid = GROUND_ITEM;
+    world.objects.spawn(
+        GROUND_ITEM,
+        crate::model::components::Position {
+            x: AWAY.0,
+            y: AWAY.1,
+            z: AWAY.2,
+            heading: 0,
+        },
+    );
+
+    crate::game_loop::admin::use_admin_command(
+        &mut world,
+        1,
+        &format!("admin_cw_goto {id_arg}"),
+        false,
+    );
+    let at = *world
+        .objects
+        .get_component::<crate::model::components::Position>(&KILLER_OID)
+        .unwrap();
+    // x/y exactly; z within a few units, because `teleport_player` snaps the
+    // arrival to the ground the way every other teleport does.
+    assert_eq!(
+        (at.x, at.y),
+        (AWAY.0, AWAY.1),
+        "the GM is teleported to the dropped weapon"
+    );
+    assert!(
+        (at.z - AWAY.2).abs() <= 32,
+        "…landing on the ground there, not at some other z: {}",
+        at.z
+    );
+}
