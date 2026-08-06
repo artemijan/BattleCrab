@@ -498,9 +498,12 @@ impl QuestScript for Q00230TestOfTheSummoner {
         if !ctx.has_qs() || !ctx.is_started() {
             return;
         }
-        // TODO(G22): Java also gates every branch on
-        // Util.checkIfInRange(ALT_PARTY_RANGE, npc, killer, true); range is not
-        // modelled in the quest-kill path yet.
+        // `Util.checkIfInRange(ALT_PARTY_RANGE, npc, killer, true)` gates
+        // *every* branch below, so it is hoisted rather than repeated: a
+        // party member who was nowhere near the kill collects nothing.
+        if !ctx.in_range_of_npc(ctx.player, ctx.world.cfg.character.alt_party_range, true) {
+            return;
+        }
         match ctx.npc_id {
             NOBLE_ANT | NOBLE_ANT_LEADER => {
                 farm(ctx, LARAS_5TH_LIST, WINGS_OF_DRONEANT, 2);
