@@ -5537,6 +5537,70 @@ fn focus_momentum_builds_force_and_refuses_past_the_cap() {
     );
 }
 
+/// Java's ten-minute Force decay (`ResetChargesTask`): charges clear on their
+/// own, the clock restarts on every gain, and it stops when the pool empties.
+///
+/// The port cannot cancel a scheduled task, so "restart" is a generation
+/// counter — a stale task fires and does nothing. Each leg below fails
+/// differently, so they are asserted separately.
+#[test]
+fn force_charges_decay_after_ten_minutes_and_the_clock_restarts_on_a_gain() {
+    /// 600 000 ms at 100 ms a tick.
+    const DECAY: u64 = 6_000;
+
+    let charges = |w: &World| w.objects.get_component::<Player>(&5541).unwrap().charges;
+    let gain = |w: &mut World| {
+        handle_request_magic_skill_use(w, 1, &magic_skill_use_body(8, false));
+        advance_world(w, 20);
+    };
+    let build = || {
+        let (mut world, ..) = test_world();
+        world.data = crate::data::GameData::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
+        let rx = ingame_player_access(&mut world, 1, 5541, 0);
+        world
+            .objects
+            .get_component_mut::<SkillBook>(&5541)
+            .unwrap()
+            .0
+            .insert(8, 1);
+        arm(&mut world, 5541, 2);
+        (world, rx)
+    };
+
+    // A charge sitting untouched for ten minutes clears itself.
+    let (mut world, _rx) = build();
+    gain(&mut world);
+    assert_eq!(charges(&world), 1, "sanity: Sonic Focus charged");
+    advance_world(&mut world, DECAY - 100);
+    assert_eq!(charges(&world), 1, "still there just before the deadline");
+    advance_world(&mut world, 200);
+    assert_eq!(charges(&world), 0, "and gone just after it");
+
+    // A second gain restarts the clock: the *first* task still fires at its
+    // original deadline and must do nothing, or the pool empties early.
+    let (mut world, _rx) = build();
+    gain(&mut world);
+    advance_world(&mut world, DECAY / 2);
+    world
+        .objects
+        .get_component_mut::<Player>(&5541)
+        .unwrap()
+        .charges = 0; // clear the cap so the next cast really charges
+    gain(&mut world);
+    assert_eq!(charges(&world), 1, "recharged");
+    advance_world(&mut world, DECAY / 2 + 100);
+    assert_eq!(
+        charges(&world),
+        1,
+        "the first task's deadline passed, but it was superseded"
+    );
+    advance_world(&mut world, DECAY / 2);
+    assert_eq!(charges(&world), 0, "the second one still expires on time");
+}
+
 /// G19 `EnergyAttack` effect: Sonic Blaster (6, real dist data, level 1:
 /// power 369, criticalChance 15, `chargeConsume` 2 — a *skill-level* tag)
 /// spends Force for bonus physical damage — previously silently dropped, so

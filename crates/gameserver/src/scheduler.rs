@@ -400,6 +400,13 @@ pub enum ScheduledTask {
     AttackFinish {
         object_id: i32,
     },
+    /// `ResetChargesTask` — the ten-minute Force decay. `seq` is the
+    /// `Player::charges_seq` current when it was armed; a mismatch means a
+    /// later gain or spend replaced it (see that field).
+    ResetCharges {
+        player_oid: i32,
+        seq: u64,
+    },
     /// A scripted `npc.doDie(null)` on a timer — Java's "suicide" event. Not
     /// `DespawnNpc`: dying plays the death animation and leaves a corpse that
     /// decays, where a despawn makes the NPC blink out.
