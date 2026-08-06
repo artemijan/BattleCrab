@@ -280,7 +280,7 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
 
 /// `CommandChannel(Player)` — form a channel around the requestor's party.
 /// Returns the new channel id.
-fn create_channel(world: &mut World, leader: i32, leader_party: u32) -> u32 {
+pub(crate) fn create_channel(world: &mut World, leader: i32, leader_party: u32) -> u32 {
     let cc_id = world.next_command_channel_id;
     world.next_command_channel_id += 1;
     let level = party_level(world, leader_party);
@@ -299,7 +299,7 @@ fn create_channel(world: &mut World, leader: i32, leader_party: u32) -> u32 {
 
 /// `CommandChannel.addParty` — announce to the existing channel first (the
 /// joining party must not receive its own add), then attach and greet.
-fn add_party_to_channel(world: &mut World, cc_id: u32, party_id: u32) {
+pub(crate) fn add_party_to_channel(world: &mut World, cc_id: u32, party_id: u32) {
     let (leader_name, leader_oid, member_count) = world
         .parties
         .get(&party_id)

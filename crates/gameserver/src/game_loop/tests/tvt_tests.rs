@@ -986,3 +986,70 @@ fn end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them() {
         "and so is the servitor — Java leaves this one frozen forever"
     );
 }
+
+/// The arena stand-up regroups each side like Java's `StartFight`: old
+/// parties are left, each team becomes parties of ≤7 (FINDERS_KEEPERS), and a
+/// team bigger than one party gets a command channel holding every party.
+#[test]
+fn teleport_to_arena_groups_teams_into_parties_and_ccs() {
+    use crate::model::components::PartyRef;
+
+    // 18 players → 9 per team → parties of 7+2 → a CC per team.
+    let (mut world, oids) = started_with_players(18);
+
+    // Two of them share a pre-existing party that must be dissolved.
+    let pre_party = world.next_party_id;
+    world.next_party_id += 1;
+    let seq = world.next_request_seq();
+    world.parties.insert(
+        pre_party,
+        crate::model::party::Party::new(
+            oids[0],
+            crate::model::party::LootRule::FindersKeepers,
+            seq,
+        ),
+    );
+    world.objects.add_components(&oids[0], PartyRef(pre_party));
+    crate::game_loop::party::add_party_member(&mut world, pre_party, oids[1]);
+
+    tvt::teleport_to_arena(&mut world);
+
+    assert!(
+        world.parties.get(&pre_party).is_none(),
+        "the pre-existing party dissolved when its members left for the arena"
+    );
+    for team in [
+        world.events.tvt.blue_team.clone(),
+        world.events.tvt.red_team.clone(),
+    ] {
+        assert_eq!(team.len(), 9);
+        // Every member is in a party of at most 7, FINDERS_KEEPERS.
+        let mut party_ids = Vec::new();
+        for oid in &team {
+            let pid = world
+                .objects
+                .get_component::<PartyRef>(oid)
+                .expect("every participant is grouped")
+                .0;
+            let party = &world.parties[&pid];
+            assert!(party.members.len() <= 7, "parties of at most 7");
+            assert_eq!(
+                party.distribution,
+                crate::model::party::LootRule::FindersKeepers
+            );
+            if !party_ids.contains(&pid) {
+                party_ids.push(pid);
+            }
+        }
+        assert_eq!(party_ids.len(), 2, "9 members split 7 + 2");
+        // Both parties hang in one command channel.
+        let ccs: Vec<_> = party_ids
+            .iter()
+            .map(|pid| {
+                crate::game_loop::command_channel::cc_id_of_party(&world, *pid)
+                    .expect("an overflowing team forms a CC")
+            })
+            .collect();
+        assert_eq!(ccs[0], ccs[1], "one channel per team");
+    }
+}

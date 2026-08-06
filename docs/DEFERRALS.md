@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **49** such
+of narrow behaviours deferred and marked at the site. There are **45** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G28)` | 4 | `game_loop/events/tvt.rs` |
 | `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data/build.rs`, `game_loop/skills/effects/mod.rs`, `model/skill.rs` |
 | `TODO(G33)` | 3 | `game_loop/offline_trade.rs`, `game_loop/party.rs` |
@@ -116,6 +115,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G28)` ×4 — the whole group (all TvT) | Three of four were stale in place: the logout-forfeit listener was fully implemented (`on_player_logout` + `manage_forfeit`, wired at both disconnect paths in `net.rs`) with the marker still sitting on the registration branch; `canRegister`'s "the rest are TODO at the site" annotated a function that had since ported every Java gate; and the module header still claimed the freeze had "no such flag" after `Immobilized`+`SkillsDisabled` landed. The one real gap is done: the arena stand-up now leaves each participant's old party (`Player.leaveParty` = DISCONNECTED) and regroups each team into parties of 7 under FINDERS_KEEPERS with a per-team command channel (`group_team`), exercising the ported party/CC primitives the marker said didn't exist. |
 | 2026-08-06 | `TODO(G27)` ×3 of 4 — instances group | **`ExInzoneWaiting`'s empty list turned out to be exact parity**: the only `<reenter>` template on this dist (LastImperialTomb 136) has no `apply` attribute, which Java parses as `InstanceReenterType.NONE` — `setReenterTime` never fires anywhere, so Java's own penalty list is permanently empty too. `//instancedestroy` now warns everyone inside with the "destroyed by Game Master" banner before the teleport-out (its test also documents the command's `confirmDlg` flow). The two party-duel markers consolidate into one precise TODO at the duel module header: the instances blocker is gone (engine + all four olympiad arena templates ported), what remains is the party flow itself. |
 | 2026-08-06 | `TODO(G20)` ×5 — the whole group | Independent dual rolls, the duel snapshot, the blow formula's real weapon crit; one SKIP and one stale reference. |
 | 2026-08-06 | `TODO(G20)` ×1 (`combat/attack.rs`, dual second roll) | **Closed.** The swing is refactored into Java's `generateHit` shape: a dual weapon rolls the whole ladder twice (miss, shield, crit, damage), each hit halved, the soulshot consumed by the first non-missing hit with its boost riding the rest of the swing. The old test pinned the shared-roll deviation ("the two halves are equal") and now pins independence — one crit half, one plain. |

@@ -7,10 +7,11 @@
 //! `death::player_do_die` for every death), the arena **respawn**, and the
 //! winner **rewards** (`reward_team`) — see `PLAN_G28_EVENTS_ENGINE.md`.
 //!
-//! What is still flagged `TODO(G28)` at its seam is narrower: party/command-
-//! channel grouping and the logout forfeit listener, and the immobilise +
-//! skill-lock Java applies while participants are frozen (this port has no such
-//! flag).
+//! The once-deferred seams have all closed: the team split leaves old
+//! parties and regroups each side into parties of 7 under a per-team command
+//! channel (`group_team`), the logout forfeit runs from the disconnect paths
+//! (`on_player_logout`), and the freeze applies `Immobilized` +
+//! `SkillsDisabled` like Java's `disableAllSkills`.
 
 use commons::util::rnd;
 use tracing::warn;
@@ -209,6 +210,20 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
     for player in roster {
         set_registered(world, player, false);
         set_on_event(world, player, true);
+        // `participant.leaveParty()` — Java's `Player.leaveParty` leaves with
+        // `PartyMessageType.DISCONNECTED`, before the arena teleport.
+        if let Some(pid) = world
+            .objects
+            .get_component::<crate::model::components::PartyRef>(&player)
+            .map(|r| r.0)
+        {
+            crate::game_loop::party::remove_party_member(
+                world,
+                pid,
+                player,
+                crate::game_loop::party::LeaveType::Disconnected,
+            );
+        }
         instances::enter(world, player, instance_id);
         if to_blue {
             world.events.tvt.blue_team.push(player);
@@ -220,10 +235,20 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
             teleport_player(world, player, RED_SPAWN.0, RED_SPAWN.1, RED_SPAWN.2);
         }
         to_blue = !to_blue;
-        // TODO(G28): leaveParty + party-of-7 / command-channel grouping, and
-        //   addDeathListener — both slice 3 (scoring needs a CC primitive we
-        //   don't have yet; team membership is tracked in blue/red_team here).
+        // (`addDeathListener` is the port's unconditional `on_player_death`
+        // hook in `death::player_do_die`; the logout listener is
+        // `on_player_logout`, wired from the disconnect paths.)
     }
+
+    // "Make Blue CC." / "Make Red CC." — each team splits into parties of
+    // `PARTY_MEMBER_COUNT`, joined into one command channel per team when the
+    // team overflows a single party.
+    let (blue, red) = (
+        world.events.tvt.blue_team.clone(),
+        world.events.tvt.red_team.clone(),
+    );
+    group_team(world, &blue);
+    group_team(world, &red);
 
     // The two arena buffers (the manager NPC reused). Their object ids are kept
     // so the in-arena buff/heal window can be told from the town manager's.
@@ -766,8 +791,8 @@ pub(crate) fn on_manager_event(
                 world.events.tvt.player_list.push(player);
                 world.events.tvt.scores.insert(player, 0);
                 set_registered(world, player, true);
-                // TODO(G28): addLogoutListener(player) — forfeit-on-logout is
-                //   slice 4.
+                // (`addLogoutListener` — the port hooks every disconnect
+                // through `on_player_logout` instead of per-player listeners.)
                 Some("registration-success.html".to_string())
             } else {
                 Some("registration-failed.html".to_string())
@@ -885,8 +910,7 @@ const MAGE_BUFFS: &[(i32, i32)] = &[
 // Registration eligibility (Java `canRegister`)
 // ---------------------------------------------------------------------------
 
-/// Java `TvT.canRegister(player)`. Ported gates use state that exists on this
-/// port; the rest are `TODO(G28)` at the site.
+/// Java `TvT.canRegister(player)` — every gate ported.
 fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
     if world.events.tvt.player_list.contains(&player) {
         send_player_message(
@@ -1022,6 +1046,55 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     true
+}
+
+/// Java's per-team grouping in `StartFight`: parties of `PARTY_MEMBER_COUNT`
+/// (7) under FINDERS_KEEPERS, and — when the team is bigger than one party —
+/// a command channel formed around the first party with every later party
+/// added to it.
+fn group_team(world: &mut World, team: &[i32]) {
+    /// Java `PARTY_MEMBER_COUNT`.
+    const PARTY_MEMBER_COUNT: usize = 7;
+    if team.len() < 2 {
+        return;
+    }
+    let mut cc_id: Option<u32> = None;
+    let mut current_party: Option<u32> = None;
+    for (i, &member) in team.iter().enumerate() {
+        if i % PARTY_MEMBER_COUNT == 0 {
+            let party_id = world.next_party_id;
+            world.next_party_id += 1;
+            let seq = world.next_request_seq();
+            world.parties.insert(
+                party_id,
+                crate::model::party::Party::new(
+                    member,
+                    crate::model::party::LootRule::FindersKeepers,
+                    seq,
+                ),
+            );
+            world
+                .objects
+                .add_components(&member, crate::model::components::PartyRef(party_id));
+            current_party = Some(party_id);
+            if team.len() > PARTY_MEMBER_COUNT {
+                match cc_id {
+                    None => {
+                        cc_id = Some(crate::game_loop::command_channel::create_channel(
+                            world, member, party_id,
+                        ));
+                    }
+                    Some(cc) => {
+                        crate::game_loop::command_channel::add_party_to_channel(
+                            world, cc, party_id,
+                        );
+                    }
+                }
+            }
+        } else if let Some(pid) = current_party {
+            crate::game_loop::party::add_party_member(world, pid, member);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
