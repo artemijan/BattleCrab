@@ -37,6 +37,12 @@ pub(crate) fn refresh_conditioned_passives(world: &mut World, object_id: i32) {
 /// `UserInfo` on a delevel — doesn't send a redundant second one). Callers that
 /// aren't already refreshing the client use [`refresh_conditioned_passives`].
 pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) -> bool {
+    // Rate-carrying passives (`MagicMpCost`/`Reuse`) live in their own tables,
+    // not in `StatModifiers`, so they are rebuilt here rather than riding the
+    // buff diff below — which returns early when the *stat* set is unchanged
+    // and would skip them. Idempotent, so the extra calls cost nothing.
+    crate::game_loop::skills::effects::refresh_passive_skill_rates(world, object_id);
+
     // --- read phase: the buffs that should be applied now, and the ones that
     // currently are (passive buffs whose skill is in the book — the expertise
     // penalty buffs 6209/6213 aren't learned skills, so they're left alone). ---

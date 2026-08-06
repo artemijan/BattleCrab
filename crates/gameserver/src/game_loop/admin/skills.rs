@@ -34,6 +34,10 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.insert(skill_id, level);
     }
+    // Java\'s `addSkill` applies a passive\'s effects as it is learned. Without
+    // this a `//add_skill`-ed passive sat inert until the next equip change or
+    // relog, which makes testing one look like the skill is broken.
+    super::super::passive_skills::refresh_conditioned_passives(world, target);
     refresh_skill_list(world, target);
     send_message(
         world,
@@ -56,6 +60,7 @@ pub(super) fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.remove(&skill_id);
     }
+    super::super::passive_skills::refresh_conditioned_passives(world, target);
     refresh_skill_list(world, target);
     send_message(world, client_id, &format!("Removed skill {skill_id}."));
     show_char_skills(world, client_id, target);

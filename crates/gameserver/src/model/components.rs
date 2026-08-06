@@ -1125,6 +1125,21 @@ pub struct SkillRateStats {
     pub mp_consume: std::collections::HashMap<i32, f64>,
     /// magicType → reuse factor (0.80 = 20 % shorter cooldown).
     pub reuse: std::collections::HashMap<i32, f64>,
+    /// The same two tables for **passive** skills, kept apart from the buff
+    /// ones on purpose.
+    ///
+    /// Buff rates are merged and un-merged incrementally (`mul` on start,
+    /// `div` on exit), which only stays consistent because every merge has
+    /// exactly one matching un-merge. A passive has no such pair — it is
+    /// simply true or not, and re-evaluated wholesale whenever the skill book
+    /// or the worn gear changes. Folding passives into the shared tables would
+    /// mean dividing out a factor that may never have been multiplied in,
+    /// which corrupts the table rather than restoring it.
+    ///
+    /// Read multiplicatively with its buff twin, so a song's discount and
+    /// Inner Rhythm's compound exactly as Java's stacked effects do.
+    pub passive_mp_consume: std::collections::HashMap<i32, f64>,
+    pub passive_reuse: std::collections::HashMap<i32, f64>,
 }
 
 /// Java `Player.setBlockActions(true)` during the 2.5 s sit-down animation.

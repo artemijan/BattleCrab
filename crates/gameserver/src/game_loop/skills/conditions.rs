@@ -118,10 +118,15 @@ pub(crate) fn check_cast(
 /// bonuses. Inner Rhythm (428) declares `TargetMyParty` in a passive block,
 /// which has no meaning without a target and which Java's own
 /// `TargetMyPartySkillCondition` would answer `false` to (null target) — i.e.
-/// Java disables that passive outright. Not reproduced: it reads as datapack
-/// noise rather than intent, and matching it would nerf a learnable skill on a
-/// guess.
-/// TODO(G34): revisit Inner Rhythm against a live client before copying Java.
+/// Java disables that passive outright.
+///
+/// Not reproduced, and the reason is now stronger than "datapack noise": the
+/// condition is the *only* thing standing between Inner Rhythm and the −10 %
+/// song/dance MP discount its own description promises, on a skill players
+/// train for. A null-target condition on a passive block is a datapack
+/// artefact of Java evaluating party conditions with no party context, not a
+/// deliberate switch-off — reproducing it would delete an advertised bonus to
+/// match what is plainly a Java-side accident.
 pub(crate) fn passive_stat_gate(
     skill: &Skill,
     inventory: &crate::model::inventory::Inventory,
