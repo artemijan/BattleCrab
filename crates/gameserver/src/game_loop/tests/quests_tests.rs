@@ -20875,3 +20875,85 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
     assert_eq!(count_of_item(&world, 3001, BLUE_GEM), 0, "gem taken");
     assert_eq!(count_of_item(&world, 3001, 5789), 200, "soulshots given");
 }
+
+/// `getRandomPartyMember`: the kill credit can land on a party mate — a
+/// killer who never took the quest still feeds a started cond-1 member in
+/// range, and a member parked across the map gets nothing.
+#[test]
+fn quest_kill_credit_reaches_a_party_member() {
+    use crate::model::components::PartyRef;
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(963, "Orcish Arrowhead", true)]);
+    let mut t = crate::data::npc_data::default_template(20361);
+    t.type_name = "Monster".into();
+    t.level = 11;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30029, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0); // the killer, questless
+    let _rx2 = ingame_player(&mut world, 2, 3005, 40, 0, 0); // the collector
+    world
+        .objects
+        .get_component_mut::<Player>(&3005)
+        .unwrap()
+        .level = 10;
+    drain_db(&mut db_rx);
+    drain(&mut rx);
+
+    // The collector accepts the quest.
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00303_CollectArrowheads 30029-04.htm"
+        )),
+    );
+    assert_eq!(
+        quest_cond(&world, 3005, "Q00303_CollectArrowheads"),
+        Some(1)
+    );
+
+    // Party them up.
+    let party_id = world.next_party_id;
+    world.next_party_id += 1;
+    let seq = world.next_request_seq();
+    world.parties.insert(
+        party_id,
+        crate::model::party::Party::new(3001, crate::model::party::LootRule::FindersKeepers, seq),
+    );
+    world.objects.add_components(&3001, PartyRef(party_id));
+    crate::game_loop::party::add_party_member(&mut world, party_id, 3005);
+
+    // The questless killer fells the marksman: the pick (roll 0 over one
+    // candidate) and the 40% drop roll both forced.
+    let mob = NPC_OID + 40;
+    add_test_npc(&mut world, mob, 20361, "Monster", 11, 30, 0, 0);
+    world.forced_rolls.extend([0, 0]);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(
+        item_count(&world, 3005, 963),
+        1,
+        "the arrowhead landed on the started party mate"
+    );
+    assert_eq!(item_count(&world, 3001, 963), 0, "not on the killer");
+
+    // Across the map (past AltPartyRange 1500), the mate collects nothing.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&3005)
+        .unwrap()
+        .x = 99_999;
+    add_test_npc(&mut world, mob + 1, 20361, "Monster", 11, 30, 0, 0);
+    world.forced_rolls.extend([0, 0]);
+    death::npc_do_die(&mut world, mob + 1, 3001);
+    assert_eq!(
+        item_count(&world, 3005, 963),
+        1,
+        "an out-of-range mate collects nothing"
+    );
+}

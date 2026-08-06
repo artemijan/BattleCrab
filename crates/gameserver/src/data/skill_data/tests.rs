@@ -206,13 +206,16 @@ fn loads_real_dist_files() {
     assert_eq!(ws.reuse_key(), 1177);
 
     // Prominence 1230: a ranged nuke backed by the `MagicalAttackRange`
-    // effect. It must parse to a `MagicalAttack` (power 108 at lvl 28) —
-    // before the handler existed the effect fell through and was dropped,
-    // so the skill cast but dealt zero damage.
+    // effect — `MagicalAttack` plus a shield roll (power 108 at lvl 28,
+    // a block adding 40 % of the shield's def to m.def). Before the
+    // handler existed the effect fell through and was dropped, so the
+    // skill cast but dealt zero damage.
     let prominence = sd.get(1230, 28).expect("Prominence lvl 28");
-    assert!(
-        matches!(prominence.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 108.0)
-    );
+    assert!(matches!(
+        prominence.effects.as_slice(),
+        [SkillEffect::MagicalAttackRange { power, shield_def_percent }]
+            if *power == 108.0 && *shield_def_percent == 40.0
+    ));
 
     // Power Strike 3: the canonical `PhysicalAttack` skill. Before the
     // handler existed every physical attack skill (1164 XML entries) cast

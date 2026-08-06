@@ -469,6 +469,9 @@ pub(crate) fn apply_skill_effects(
                 }
             }
             SkillEffect::MagicalAttack { power } => instant::magical_attack(world, &ctx, skill, *power),
+            SkillEffect::MagicalAttackRange { power, shield_def_percent } => {
+                instant::magical_attack_range(world, &ctx, skill, *power, *shield_def_percent)
+            }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
             // `ManaHealPercent`, `Mp`). Four Java handlers, four amount
             // formulas, one shared apply path — see `restore_mp`.

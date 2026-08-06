@@ -584,17 +584,11 @@ pub(crate) fn build_skill(
                         // Ranged magical nuke (e.g. Prominence 1230). Java's
                         // `MagicalAttackRange` computes the same
                         // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
-                        // `MagicalAttack`; the only extra is a `shieldDefPercent`
-                        // shield-block term, which the `MagicalAttack` damage path
-                        // doesn't model yet either, so route it to the same effect.
-                        // Without this the effect fell through to `EFFECT_REGISTRY`,
-                        // wasn't found, and got dropped — the skill cast but dealt
-                        // no damage.
-                        // TODO(G7.5): honor `shieldDefPercent` (adds
-                        // `shldDef * pct/100` to mDef on shield-block) once shield
-                        // defense is modeled in the magic-damage formula.
-                        "MagicalAttackRange" => vec![SkillEffect::MagicalAttack {
+                        // `MagicalAttack`, plus the `shieldDefPercent` shield-block
+                        // term its own variant carries.
+                        "MagicalAttackRange" => vec![SkillEffect::MagicalAttackRange {
                             power: param("power").unwrap_or(0.0),
+                            shield_def_percent: param("shieldDefPercent").unwrap_or(0.0),
                         }],
                         // Soul-charge magic nuke. Java's `MagicalSoulAttack` runs
                         // the identical `calcMagicDam` core as `MagicalAttack`;

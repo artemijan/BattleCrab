@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **12** such
+of narrow behaviours deferred and marked at the site. There are **10** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
 | `TODO(G17)` | 1 | `game_loop/subclass.rs` |
 | `TODO(G22)` | 1 | `scripts/primeval_isle.rs` |
@@ -89,7 +88,6 @@ also registering its NPCs would strand the player.
 | `TODO(G30)` | 1 | `game_loop/community_board.rs` |
 | `TODO(G33)` | 1 | `game_loop/offline_trade.rs` |
 | `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
-| `TODO(G7.5)` | 1 | `data/skill_data/build.rs` |
 | `TODO(login-playauth)` | 1 | `crates/gameserver/tests/e2e_create.rs` |
 
 ## Closed
@@ -99,6 +97,8 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G7.5)` | **Closed — implemented.** `MagicalAttackRange` now rolls `calcShldUse` for the target before the damage calc: a block adds `shieldDef × shieldDefPercent / 100` to m.def, a perfect block caps the hit at 1, and a player target hears SHIELD_DEFENSE_SUCCEEDED — Java's exact three-way ladder. Tested front-vs-back arc, block, and perfect block. |
+| 2026-08-06 | `TODO(G13+)` | **Closed — implemented.** `QuestCtx::retarget_random_party_member` ports `getRandomPartyMemberState`: candidates are the killer's party members whose quest state qualifies (any-STARTED or an exact cond), the killer weighted `playerChance`×, the pick range-gated 3D by `AltPartyRange` (the solo arm range-checks too, as Java does); on success the quest context re-targets to the picked member. Wired into Q303 (`(1, 1)`) and Q416 (`(-1, 3)`), the two quests whose Java uses it. Tested: a questless killer's kill credits an in-range started party mate; an out-of-range mate gets nothing. |
 | 2026-08-06 | Singleton pass: 19 → 12 | Seven closed; every survivor is a deliberate, precisely-worded feature deferral. |
 | 2026-08-06 | `TODO(G?)` (NPC conditioned passives) | **Closed.** Weapon-conditioned template passives (4415 sword mastery, …) now evaluate against the template's `<equipment>` right hand, the NPC counterpart of the paperdoll check; armor-conditioned ones stay skipped because Java's `<using kind>` evaluates false for an NPC too. Tested: the mastery applies armed, contributes nothing bare-handed. |
 | 2026-08-06 | `TODO(G14)`, `TODO(G32)`, `TODO(G-later)`, `TODO(G9+)`, `TODO(G7)` — all stale | Item maxHp/maxMp bonuses were already folded (in `calc_max_hp`/`calc_max_mp` themselves — the finalizer comment predated them); fishing's zone gate existed at both entry points; the UI keymap store/load round-trip was complete (`settings.rs` + the lobby replay) under a doc saying "null for now"; the effect-registry growth note described a process G9–G34 finished; and the player-template "full stat calc" note predated the finalizers by ~25 milestones. |

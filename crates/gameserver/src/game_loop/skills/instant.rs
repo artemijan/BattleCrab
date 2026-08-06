@@ -90,6 +90,104 @@ pub(super) fn magical_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, po
     );
 }
 
+/// `MagicalAttackRange.instant` — `magical_attack`'s core with Java's shield
+/// term in front: `calcShldUse` on the target; a successful block adds
+/// `shldDef · shieldDefPercent / 100` to mDef, a perfect block caps the hit
+/// at 1 (Java's `mDef = -1` skips the damage calc, leaving `damage = 1`).
+pub(super) fn magical_attack_range(
+    world: &mut World,
+    ctx: &CastCtx,
+    skill: &Skill,
+    power: f64,
+    shield_def_percent: f64,
+) {
+    let CastCtx {
+        caster_oid,
+        target_oid,
+        mcrit,
+        magic_shots_bonus,
+        ..
+    } = *ctx;
+    // The shield roll, angle-gated exactly like the melee path (Aegis makes
+    // every angle a front angle). `combatant` carries the resolved shield
+    // stats and positions the melee swing reads.
+    let (shield, target_shield_def) = {
+        let (a, t) = (
+            crate::game_loop::combat::combatant(world, caster_oid),
+            crate::game_loop::combat::combatant(world, target_oid),
+        );
+        match (a, t) {
+            (Some(a), Some(t)) => {
+                let position = crate::model::movement::get_position(a.x, a.y, t.x, t.y, t.heading);
+                let from_behind = matches!(position, crate::model::movement::Position::Back)
+                    && !crate::game_loop::abnormal::shields_from_all_angles(world, target_oid);
+                (
+                    formulas::calc_shield_use(
+                        t.shield_rate,
+                        t.con_bonus,
+                        false,
+                        from_behind,
+                        world.roll(100),
+                        world.roll(100),
+                    ),
+                    t.shield_def,
+                )
+            }
+            _ => (formulas::SHIELD_NONE, 0.0),
+        }
+    };
+    if shield != formulas::SHIELD_NONE
+        && let Some(cid) = crate::game_loop::helpers::client_for_player(world, target_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(crate::network::server_packets::system_message_with(
+            crate::network::server_packets::sm_ids::SHIELD_DEFENSE_SUCCEEDED,
+            &[],
+        ));
+    }
+    let (m_atk, caster_name) = {
+        let m_atk = world
+            .objects
+            .get_component::<CombatStats>(&caster_oid)
+            .map(|c| c.m_atk)
+            .unwrap_or(0.0);
+        (m_atk, caster_display_name(world, caster_oid))
+    };
+    let damage = if shield == formulas::SHIELD_PERFECT {
+        1.0
+    } else {
+        let mut m_def = target_m_def(world, target_oid);
+        if shield == formulas::SHIELD_SUCCEED {
+            m_def += (target_shield_def * shield_def_percent) / 100.0;
+        }
+        let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
+        formulas::calc_magic_dam(
+            m_atk,
+            m_def,
+            power,
+            mcrit,
+            crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
+            magic_shots_bonus,
+            failure,
+        ) * attribute_mod(world, caster_oid, target_oid, skill)
+            * skill_trait_mod(world, caster_oid, target_oid, skill, false)
+            * skill_power_mul(world, caster_oid, true)
+            * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
+    };
+    apply_skill_damage(
+        world,
+        caster_oid,
+        target_oid,
+        damage,
+        mcrit,
+        true,
+        &caster_name,
+        skill.over_hit,
+        false,
+        skill.id,
+    );
+}
+
 pub(super) fn magical_attack_mp(
     world: &mut World,
     ctx: &CastCtx,

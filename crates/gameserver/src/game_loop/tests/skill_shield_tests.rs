@@ -462,3 +462,63 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
          {ignored} vs {consulted}"
     );
 }
+
+/// `MagicalAttackRange`'s shield term (Prominence-family nukes): a successful
+/// block adds `shldDef · shieldDefPercent / 100` to mDef and shrinks the hit;
+/// a perfect block caps it at exactly 1.
+#[test]
+fn magical_attack_range_consults_the_shield() {
+    use crate::model::skill::SkillEffect;
+
+    let (mut world, victim) = shield_world();
+    equip_shield(&mut world, victim);
+    // Face the caster (heading 32768 = -x, caster at the origin) from 50
+    // units out — sharing a spot computes as a back attack, which is
+    // shield-exempt.
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&victim)
+    {
+        p.x = 50;
+        p.heading = 32768;
+    }
+
+    // Power sized so even the unblocked hit is well under the fixture's
+    // 100-HP bar (the fixture template is tiny).
+    let mut nuke = physical_skill(&world, 9410, 4.0, false);
+    nuke.magic_type = 1;
+    nuke.effects = vec![SkillEffect::MagicalAttackRange {
+        power: 4.0,
+        shield_def_percent: 100.0,
+    }];
+
+    // A magic hit on a player drains CP before HP; empty the pool so
+    // `hit_for`'s HP delta measures the whole hit.
+    let zero_cp = |world: &mut World| {
+        if let Some(pv) = world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVitals>(&victim)
+        {
+            pv.cur_cp = 0.0;
+        }
+    };
+    // Rolls: mcrit throwaway, shield rate, shield perfect, magic success
+    // (0 = the first `calc_magic_success` roll passes → no failure path).
+    zero_cp(&mut world);
+    let unblocked = hit_for(&mut world, victim, &nuke, &[999, 99, 0, 0]);
+    zero_cp(&mut world);
+    let blocked = hit_for(&mut world, victim, &nuke, &[999, 0, 0, 0]);
+    zero_cp(&mut world);
+    let perfect = hit_for(&mut world, victim, &nuke, &[999, 0, 99, 0]);
+
+    assert!(unblocked > 0.0, "the nuke lands unblocked ({unblocked})");
+    assert!(
+        blocked < unblocked,
+        "a successful block adds the shield term to mDef ({blocked} vs {unblocked})"
+    );
+    assert!(blocked > 1.0, "…but is not the perfect-block cap");
+    assert!(
+        (perfect - 1.0).abs() < 0.001,
+        "a perfect block caps the hit at 1 ({perfect})"
+    );
+}

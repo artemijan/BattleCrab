@@ -1667,6 +1667,87 @@ impl<'w> QuestCtx<'w> {
         Some(spawned)
     }
 
+    /// Java `getRandomPartyMemberState(player, condition, playerChance, npc)`
+    /// / `getRandomPartyMember(player, cond)` — re-target this ctx at a random
+    /// qualifying party member and return whether one was found:
+    /// `condition == -1` means "any STARTED state", otherwise the member must
+    /// be exactly on that cond; the original player is weighted
+    /// `player_chance`× (retail kill credit favours the killer 2-3×); and the
+    /// pick must stand within `AltPartyRange` of the involved NPC. Solo, the
+    /// player is the only candidate. On success `ctx.player`/`ctx.client_id`
+    /// point at the pick, so every later give/set lands on them, like Java's
+    /// returned `QuestState`.
+    pub fn retarget_random_party_member(&mut self, condition: i32, player_chance: i32) -> bool {
+        let name = self.script.name();
+        let qualifies = |world: &World, oid: i32| {
+            world
+                .objects
+                .get_component::<Quests>(&oid)
+                .and_then(|q| q.0.get(name))
+                .is_some_and(|qs| {
+                    if condition == -1 {
+                        qs.state == state::STARTED
+                    } else {
+                        qs.state == state::STARTED && qs.cond() == condition
+                    }
+                })
+        };
+        let killer = self.player;
+        let members: Vec<i32> = self
+            .world
+            .objects
+            .get_component::<crate::model::components::PartyRef>(&killer)
+            .and_then(|r| self.world.parties.get(&r.0))
+            .map(|p| p.members.clone())
+            .unwrap_or_default();
+        let in_range = |world: &World, oid: i32, npc: i32| {
+            if npc == 0 {
+                return true;
+            }
+            match (
+                world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&oid),
+                world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&npc),
+            ) {
+                (Some(a), Some(b)) => {
+                    let (dx, dy, dz) = ((a.x - b.x) as i64, (a.y - b.y) as i64, (a.z - b.z) as i64);
+                    let r = i64::from(world.cfg.character.alt_party_range);
+                    dx * dx + dy * dy + dz * dz <= r * r
+                }
+                _ => false,
+            }
+        };
+        if members.is_empty() {
+            // Java's solo arm range-checks too.
+            return qualifies(self.world, killer) && in_range(self.world, killer, self.npc);
+        }
+        let mut candidates: Vec<i32> = Vec::new();
+        if qualifies(self.world, killer) {
+            for _ in 0..player_chance.max(1) {
+                candidates.push(killer);
+            }
+        }
+        for &m in &members {
+            if m != killer && qualifies(self.world, m) {
+                candidates.push(m);
+            }
+        }
+        if candidates.is_empty() {
+            return false;
+        }
+        let pick = candidates[self.world.roll(candidates.len() as i32) as usize];
+        // `checkDistanceToTarget`: within `AltPartyRange` (3D) of the NPC.
+        if !in_range(self.world, pick, self.npc) {
+            return false;
+        }
+        self.player = pick;
+        self.client_id = client_for_player(self.world, pick).unwrap_or(0);
+        true
+    }
+
     /// `addSpawn(npcId, x, y, z, heading, false, 0)` **without** any attack
     /// desire — a fixed-spot bystander. Quest 227's staged duels spawn the
     /// decoy Ol Mahum Pilgrim (and its attacker) this way; the aggro is
