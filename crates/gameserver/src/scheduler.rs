@@ -400,6 +400,12 @@ pub enum ScheduledTask {
     AttackFinish {
         object_id: i32,
     },
+    /// `Player._fameTask` — one payment of the siege-zone fame task, which
+    /// re-arms itself while the player still qualifies (see
+    /// `game_loop::siege::arm_fame_task`).
+    SiegeFame {
+        player_oid: i32,
+    },
     /// An NPC's swing period ended (`CreatureAttackTaskManager` re-firing at the
     /// weapon's attack rate): re-run the AI think so it swings again without
     /// waiting for the coarse 1 s `AttackableAI` tick. A no-op if the NPC has

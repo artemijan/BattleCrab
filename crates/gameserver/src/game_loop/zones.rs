@@ -75,6 +75,18 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         cs.send(server_packets::ex_set_compass_zone_code(compass));
     }
 
+    // `SiegeZone.onEnter` → `startFameTask` for a registered participant. The
+    // exit half is not here: the task checks `is_in_siege` when it fires and
+    // stops re-arming itself, which also covers the cases that are not a zone
+    // exit at all — the siege ending, or the clan unregistering under them.
+    let siege_bit = crate::data::zone_data::ZoneKind::Siege.bit();
+    if (old_mask ^ new_mask) & siege_bit != 0
+        && new_mask & siege_bit != 0
+        && crate::game_loop::pvp::is_in_siege(world, object_id)
+    {
+        crate::game_loop::siege::arm_fame_task(world, object_id);
+    }
+
     // WaterZone.onEnter/onExit: flip the swim-speed branch and let everyone
     // (self included) re-read the speeds (Java `broadcastUserInfo`).
     let water_bit = crate::data::zone_data::ZoneKind::Water.bit();

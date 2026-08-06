@@ -221,12 +221,10 @@ fn datapack_skill_coverage_census() {
     );
 
     for (label, map, expected, names, learn_hit, reach_hit) in [
-        // `CallPc` gained a handler (Porta 20213 / skill 4161) alongside
-        // G34 S4's sweep. Caveat for whoever reads these numbers as
-        // "done": only the effect's **NPC** half is implemented. Its
-        // player half is Summon Friend and is still a TODO(G30) no-op, so
-        // the census counts `CallPc` as handled while one of its two
-        // branches does nothing.
+        // `CallPc` is now handled on **both** halves — the monster drag
+        // (Porta 20213 / skill 4161) and the player prompt (Summon Friend
+        // 1403 and its siblings) — so counting it as handled no longer
+        // overstates anything. It did until 2026-08-06.
         ("effect", &gaps.effects, EFFECTS, 138, 10, 1154),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
         ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
@@ -271,12 +269,6 @@ fn datapack_skill_coverage_census() {
     wrong.extend(affected(&gaps.effects, &learn));
     wrong.extend(affected(&gaps.effect_scopes, &learn));
     wrong.extend(affected(&gaps.conditions, &learn));
-    //
-    // Note on Summon Friend: `CallPc` is registered for the **monster**
-    // half (Porta's drag-you-in), so the census stops counting the effect
-    // as unhandled even though the player half of the same handler — the
-    // `ConfirmDlg` recall — is still a TODO(G30) no-op. Whatever this
-    // number is, it does not mean "Summon Friend works".
     //
     // **G34's close-out gate (S8).** Counting the residue is not enough —
     // a shrinking number says nothing about whether what is left was
@@ -436,7 +428,7 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("G21+", 2),
         ("G22", 11),
         ("G23", 5),
-        ("G24", 8),
+        ("G24", 7),
         ("G24.5", 1),
         ("G24/G26", 1),
         ("G25", 1),
@@ -445,9 +437,9 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("G28", 9),
         ("G29", 4),
         ("G29+", 2),
-        ("G30", 12),
+        ("G30", 6),
         ("G32", 1),
-        ("G33", 4),
+        ("G33", 3),
         ("G34", 1),
         ("G35", 1),
         ("G7", 1),

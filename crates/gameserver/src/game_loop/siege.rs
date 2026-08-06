@@ -106,21 +106,80 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
 /// carries state 1 wherever they are, which is what makes two attacker clans
 /// unable to fight each other anywhere on the map for the duration.
 ///
-/// TODO(G24): Java also starts/stops a **fame task** for members inside the
-/// zone — `SiegeZone` calls `startFameTask(fameFrequency * 1000,
-/// fameAmount)` on entry and `stopFameTask()` on exit.
+/// The zone's *fame task* is separate — see [`arm_fame_task`], which
+/// `zones::revalidate_zone` drives off siege-zone entry the way Java drives it
+/// off `SiegeZone.onEnter`.
+/// `SiegeZone.onEnter` → `player.startFameTask(fameFrequency * 1000,
+/// fameAmount)`, and `onExit` → `stopFameTask()`.
 ///
-/// The reason recorded here until 2026-08-05 — "fame has no earning path
-/// anywhere in this port" — was circular, and the version in
-/// `config/offline_trade.rs` went further and was simply wrong ("a
-/// later-chronicle stat with no ported source on Interlude"). `SiegeZone` *is*
-/// the source, castle sieges *are* ported, so the path exists in Java and is
-/// reachable here.
+/// Java holds a cancellable `ScheduledFuture` per player. This scheduler has no
+/// cancel, so the task instead **re-arms itself** only while the player still
+/// qualifies: leaving the zone, unregistering, or logging out for good simply
+/// means the next firing does not schedule another. `siege_fame_armed` is what
+/// keeps a second task from being armed while one is already running — without
+/// it, every zone revalidation inside the zone would stack another earner.
 ///
-/// What actually makes it inert is the datapack: `Character.ini` sets
-/// `CastleZoneFameAquirePoints = 0`, so the task would award nothing. That is
-/// a **config value an operator can raise**, not a chronicle fact — which is
-/// why this stays a deferral rather than becoming a `SKIP`.
+/// Inert on this dist, where `CastleZoneFameAquirePoints = 0`: Java arms the
+/// task on `giveFame() && frequency > 0` — the *amount* is not part of that
+/// gate — so a 0 amount still runs the task and pays nothing. Ported as
+/// written rather than short-circuited, because an operator raising the amount
+/// should get the behaviour without a code change.
+pub(crate) fn arm_fame_task(world: &mut World, player_oid: i32) {
+    if world.cfg.character.castle_zone_fame_task_frequency <= 0
+        || !world.siege_fame_armed.insert(player_oid)
+    {
+        return;
+    }
+    let delay = world.cfg.character.castle_zone_fame_task_frequency as u64 * 10;
+    world.scheduler.schedule(
+        world.tick + delay,
+        crate::scheduler::ScheduledTask::SiegeFame { player_oid },
+    );
+}
+
+/// One firing of the fame task: pay, then decide whether there is a next one.
+///
+/// The three refusals are Java's `FameTask.run`, in Java's order. Note the
+/// first two only skip *this* payment — Java's task keeps ticking for a corpse
+/// in the zone and pays again once it stands up — while leaving the zone is
+/// what actually ends it.
+pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
+    if !crate::game_loop::pvp::is_in_siege(world, player_oid) {
+        // `stopFameTask()`: out of the zone, or no longer a participant.
+        world.siege_fame_armed.remove(&player_oid);
+        return;
+    }
+    let dead = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&player_oid)
+        .is_some_and(|v| v.dead);
+    let detached = crate::game_loop::helpers::client_for_player(world, player_oid).is_none();
+    let paid = !(dead && !world.cfg.character.fame_for_dead_players)
+        && !(detached && !world.cfg.offline_trade.fame);
+    if paid {
+        let amount = world.cfg.character.castle_zone_fame_acquire_points;
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&player_oid)
+        {
+            p.fame += amount;
+        }
+        crate::game_loop::clans::send_sm_with(
+            world,
+            player_oid,
+            crate::network::server_packets::sm_ids::YOU_HAVE_ACQUIRED_S1_FAME,
+            &[crate::network::server_packets::SmParam::Int(amount)],
+        );
+        crate::game_loop::party::broadcast_user_info(world, player_oid);
+    }
+    // Still in the zone, so it keeps ticking either way.
+    let delay = world.cfg.character.castle_zone_fame_task_frequency as u64 * 10;
+    world.scheduler.schedule(
+        world.tick + delay,
+        crate::scheduler::ScheduledTask::SiegeFame { player_oid },
+    );
+}
+
 pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32, clear: bool) {
     let Some(siege) = world.sieges.get(&castle_id) else {
         return;

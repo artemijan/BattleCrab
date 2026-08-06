@@ -882,6 +882,16 @@ pub mod sm_ids {
     pub const YOU_HAVE_DODGED_C1_S_ATTACK: i16 = 2000;
     /// "Failed to change enmity." — a locked target refusing a new selection.
     pub const FAILED_TO_CHANGE_ENMITY: i16 = 564;
+    /// "Only the clan leader is enabled."
+    pub const ONLY_THE_CLAN_LEADER_IS_ENABLED: i16 = 236;
+    /// "$s1 point(s) have been deducted from the clan's Reputation."
+    pub const S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_REPUTATION: i16 = 1787;
+    /// "$c1 wishes to summon you from $s2. Do you accept?"
+    pub const C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT: i16 = 1842;
+    /// "$s1 is required for summoning."
+    pub const S1_IS_REQUIRED_FOR_SUMMONING: i16 = 1897;
+    /// "You have acquired $s1 fame."
+    pub const YOU_HAVE_ACQUIRED_S1_FAME: i16 = 2319;
     /// "You cannot use summoning or teleporting in this area."
     pub const YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA: i16 = 1899;
     /// "$c1 is in an area which blocks summoning or teleporting."
@@ -997,6 +1007,60 @@ pub fn confirm_dlg(message_id: i32) -> Vec<u8> {
     w.write_i32(0); // parameter count
     w.write_i32(0); // time
     w.write_i32(0); // requesterId
+    w.into_bytes()
+}
+
+/// `serverpackets/ConfirmDlg` in full: a message id, typed parameters, an
+/// auto-decline `time`, and the `requesterId` the client echoes back in
+/// `DlgAnswer`.
+///
+/// The two narrower builders above are special cases of this one. The type
+/// tags are the **same values** `SystemMessage` uses, but written as 32-bit
+/// here rather than 8-bit — the one place where reusing `SmParam`'s writer
+/// would have produced a subtly wrong packet.
+pub fn confirm_dlg_with(
+    message_id: i32,
+    params: &[SmParam],
+    time_ms: i32,
+    requester_id: i32,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CONFIRM_DLG);
+    w.write_i32(message_id);
+    w.write_i32(params.len() as i32);
+    for p in params {
+        match p {
+            SmParam::Text(s) | SmParam::PlayerName(s) => {
+                // `addString` — Java's Summon Friend prompt uses the plain
+                // string form for the summoner's name, not the pc-name one.
+                w.write_i32(0);
+                w.write_string(s);
+            }
+            SmParam::Int(v) => {
+                w.write_i32(1);
+                w.write_i32(*v);
+            }
+            SmParam::ItemName(id) => {
+                w.write_i32(4);
+                w.write_i32(*id);
+            }
+            SmParam::ZoneName { x, y, z } => {
+                w.write_i32(7);
+                w.write_i32(*x);
+                w.write_i32(*y);
+                w.write_i32(*z);
+            }
+            // Nothing else has a caller yet; writing a wrong tag would
+            // desynchronise the client's read of the whole packet, so an
+            // unsupported param is dropped rather than guessed at.
+            _ => {
+                w.write_i32(0);
+                w.write_string("");
+            }
+        }
+    }
+    w.write_i32(time_ms);
+    w.write_i32(requester_id);
     w.into_bytes()
 }
 

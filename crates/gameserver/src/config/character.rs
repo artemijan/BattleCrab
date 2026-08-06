@@ -13,6 +13,17 @@ const GENERAL_CONFIG_FILE: &str = "config/General.ini";
 
 #[derive(Debug, Clone)]
 pub struct CharacterConfig {
+    /// `CastleZoneFameTaskFrequency` (seconds) — how often a registered
+    /// participant standing in a castle siege zone is paid fame.
+    pub castle_zone_fame_task_frequency: i32,
+    /// `CastleZoneFameAquirePoints` — how much each payment is worth. **0 on
+    /// this dist**, which is what makes the whole task inert here; Java gates
+    /// the task on `giveFame() && frequency > 0`, so a 0 amount still arms the
+    /// task and pays nothing, exactly as ported.
+    pub castle_zone_fame_acquire_points: i32,
+    /// `FameForDeadPlayers` (False on this dist) — whether a corpse lying in
+    /// the zone keeps earning.
+    pub fame_for_dead_players: bool,
     /// `RemoveCastleCirclets` (True on this dist) — strip the castle's circlet
     /// from a clan's members when it loses the castle, and from a member who
     /// leaves the clan. Java gates both call sites on this one flag.
@@ -298,6 +309,11 @@ impl Default for CharacterConfig {
     /// Java `Config` defaults (used by tests via `CombatConfig::default`).
     fn default() -> Self {
         Self {
+            // Java's own defaults (300 / 125 / true); the dist overrides the
+            // amount to 0 and dead players to false.
+            castle_zone_fame_task_frequency: 300,
+            castle_zone_fame_acquire_points: 125,
+            fame_for_dead_players: true,
             remove_castle_circlets: true,
             delete_days: 1,
             starting_adena: 0,
@@ -449,6 +465,15 @@ impl CharacterConfig {
             freight_slots: p.get_int("MaximumFreightSlots", d.freight_slots),
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
+            castle_zone_fame_task_frequency: p.get_int(
+                "CastleZoneFameTaskFrequency",
+                d.castle_zone_fame_task_frequency,
+            ),
+            castle_zone_fame_acquire_points: p.get_int(
+                "CastleZoneFameAquirePoints",
+                d.castle_zone_fame_acquire_points,
+            ),
+            fame_for_dead_players: p.get_bool("FameForDeadPlayers", d.fame_for_dead_players),
             remove_castle_circlets: p.get_bool("RemoveCastleCirclets", d.remove_castle_circlets),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),
             auto_loot_raids: p.get_bool("AutoLootRaids", d.auto_loot_raids),

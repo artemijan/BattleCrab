@@ -652,7 +652,14 @@ fn an_enemy_skill_is_refused_against_a_fellow_monster() {
 /// did nothing; Porta read as a plain melee mob.
 #[test]
 fn a_monsters_call_pc_drags_the_player_onto_it() {
-    let (mut world, _db, _l) = mob_world(&[npc_skill(NUKE, "Summon", vec![SkillEffect::CallPc])]);
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Summon",
+        vec![SkillEffect::CallPc {
+            item_id: 0,
+            item_count: 0,
+        }],
+    )]);
     let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world); // mob at x=100
 
