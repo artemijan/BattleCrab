@@ -96,6 +96,26 @@ pub(crate) fn start_attack_intent(
     if crate::game_loop::sit_stand::is_resting(world, object_id) {
         return;
     }
+    // `PlayableAI.onIntentionAttack`'s Blessing of Protection pair: refused
+    // with INCORRECT_TARGET + ActionFailed for a playable target.
+    let target_is_playable = world
+        .objects
+        .has_component::<crate::model::Player>(&target_object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::ServitorOf>(&target_object_id);
+    if target_is_playable
+        && crate::game_loop::pvp::protection_blessing_blocks(world, object_id, target_object_id)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::THAT_IS_AN_INCORRECT_TARGET,
+                &[],
+            ));
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
     let target_is_player = world
         .objects
         .has_component::<crate::model::Player>(&target_object_id);

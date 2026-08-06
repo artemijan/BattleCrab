@@ -222,6 +222,39 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
 /// `getActingPlayer()`" silently skipped summons. PvP flagging was the case
 /// with teeth: a player could attack through their pet and never go purple,
 /// leaving the victim unable to retaliate without taking the karma.
+/// Java `PlayableAI`'s Blessing of Protection pair, shared by the attack and
+/// bad-cast intentions: a chaotic character 10+ levels above a blessed newbie
+/// cannot touch them, and the blessed newbie cannot touch a chaotic character
+/// 10+ levels above either. Both ends resolve through [`acting_player`] (a
+/// summon fights with its owner's karma and blessing), the blessing is the
+/// `PK_PROTECT` abnormal Blessing of Protection (5182) lands, and a PVP zone
+/// on the target suspends the whole thing — exactly Java's four conditions.
+pub(crate) fn protection_blessing_blocks(world: &World, actor: i32, target: i32) -> bool {
+    let a = acting_player(world, actor);
+    let t = acting_player(world, target);
+    let (Some(ap), Some(tp)) = (
+        world.objects.get_component::<Player>(&a),
+        world.objects.get_component::<Player>(&t),
+    ) else {
+        return false;
+    };
+    if world
+        .objects
+        .get_component::<crate::model::components::ZoneFlags>(&t)
+        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
+    {
+        return false;
+    }
+    let blessed = |oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&oid)
+            .is_some_and(|b| b.0.iter().any(|x| x.abnormal_type == "PK_PROTECT"))
+    };
+    (blessed(t) && ap.level - tp.level >= 10 && ap.reputation < 0)
+        || (blessed(a) && tp.level - ap.level >= 10 && tp.reputation < 0)
+}
+
 pub(crate) fn acting_player(world: &World, object_id: i32) -> i32 {
     world
         .objects

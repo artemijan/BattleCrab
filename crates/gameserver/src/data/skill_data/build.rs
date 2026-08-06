@@ -1071,11 +1071,11 @@ pub(crate) fn build_skill(
                             .collect(),
                             None => Vec::new(),
                         },
-                        // Blessing of Protection (5182): PK-damage immunity. No stat
+                        // Blessing of Protection (5182): PK-damage immunity
+                        // (`pvp::protection_blessing_blocks`). No stat
                         // modifier, so it would otherwise fall through to an empty
                         // effect list and never land as a buff — carry a marker so
                         // `apply_skill_effects` still creates the icon-only timed buff.
-                        // TODO(G-pvp): honor the actual damage immunity.
                         "ProtectionBlessing" => vec![SkillEffect::ProtectionBlessing],
                         // Noblesse Blessing (1323): no params, no stat modifier —
                         // the whole mechanic is the `NOBLESS_BLESSING` flag the

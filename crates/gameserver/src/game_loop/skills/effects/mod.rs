@@ -1106,8 +1106,9 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::StatModifier(_) => {} // collected below
             // Blessing of Protection: no instant action — it lands purely as
             // the timed `PK_PROTECT` abnormal handled by the buff path below
-            // (kept off the empty-`buff_effects` bail via `has_protection`).
-            // TODO(G-pvp): the actual PK damage immunity.
+            // (kept off the empty-`buff_effects` bail via `has_protection`);
+            // the immunity itself is `pvp::protection_blessing_blocks`, run
+            // by both intention paths.
             // Purely state-flag effects: nothing happens at application time
             // beyond the buff landing — the mechanic is the abnormal flag the
             // buff carries, read by the action gates (`game_loop::abnormal`).

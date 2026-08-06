@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **39** such
+of narrow behaviours deferred and marked at the site. There are **36** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G-pvp)` | 3 | `data/skill_data/build.rs`, `game_loop/skills/effects/mod.rs`, `model/skill.rs` |
 | `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects/gathering.rs` |
 | `TODO(G17)` | 2 | `game_loop/subclass.rs` |
 | `TODO(G18)` | 2 | `game_loop/death/rewards.rs`, `game_loop/pvp.rs` |
@@ -114,6 +113,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G-pvp)` ×3 — the whole family (one feature) | **Closed.** All three marked the same gap: Blessing of Protection's (5182) PK immunity. `pvp::protection_blessing_blocks` ports `PlayableAI`'s pair exactly — a chaotic character 10+ levels above a blessed newbie is refused (INCORRECT_TARGET + ActionFailed), the shield is symmetric, both ends resolve through `acting_player`, the blessing is the `PK_PROTECT` abnormal, and a PVP zone on the target suspends it. Wired into both intention paths: `start_attack_intent` (every attack entry point) and `use_magic_on`'s bad-skill-at-playable branch. |
 | 2026-08-06 | `TODO(G33)` ×2 of 3 | **Closed.** `broadcastCharInfo` now matches Java's shape: the `CharInfo` half of `broadcastUserInfo` schedules a 50 ms `BroadcastCharInfo` task and coalesces every call in the window (`Player.char_info_pending`), so onlookers get one packet per burst, after the actor swap — the one divergence the hero-glow field investigation had left open. And the offline-trader visibility claim was stale: the aggro scans became region-index-driven (`players_visible_from`, whose plain form deliberately yields unattended shops) some sessions ago. The survivor is precise: `AltGameCreation = True`'s staged multi-pass craft machinery, whose absence makes the offline-craft branch unreachable. |
 | 2026-08-06 | `TODO(G29)` ×4 — the whole group | `storePetFood` is real: the ride path records the pet's collar object id (`Player.mount_collar_object_id`, Java's `_controlItemId`) and the dismount writes the drained gauge back onto the `PlayerPets` row. Chasing it exposed a **bug family beside the marker**: four unsummon sites (the ride, the collar recall, `//unsummon`, the unsummon skill effect) skipped the `sync_pet_row` capture every other site runs, silently dropping a pet's hp/exp/fed deltas — all four fixed. The Wyvern Breath leg was dead in Java too (`setMount` never grants 4289, so its removal removes nothing). The other three markers were prose: two test headers describing already-closed deferrals spelled parseable tags, and the karma-drop note's "revisit on capture" keeps its sentence without one. |
 | 2026-08-06 | `TODO(G28)` ×4 — the whole group (all TvT) | Three of four were stale in place: the logout-forfeit listener was fully implemented (`on_player_logout` + `manage_forfeit`, wired at both disconnect paths in `net.rs`) with the marker still sitting on the registration branch; `canRegister`'s "the rest are TODO at the site" annotated a function that had since ported every Java gate; and the module header still claimed the freeze had "no such flag" after `Immobilized`+`SkillsDisabled` landed. The one real gap is done: the arena stand-up now leaves each participant's old party (`Player.leaveParty` = DISCONNECTED) and regroups each team into parties of 7 under FINDERS_KEEPERS with a per-team command channel (`group_team`), exercising the ported party/CC primitives the marker said didn't exist. |

@@ -228,3 +228,88 @@ fn check_if_pvp_classifies_targets() {
         .reputation = -1;
     assert!(pvp::check_if_pvp(&world, KILLER, VICTIM), "a PK is lawful");
 }
+
+/// Blessing of Protection (`PlayableAI`'s pair): a chaotic character 10+
+/// levels above a blessed newbie can't start an attack on them — refused with
+/// INCORRECT_TARGET, no intent — and the shield is symmetric (the blessed
+/// newbie can't engage the PK either). A clean attacker of the same level gap
+/// engages normally, and a PVP zone suspends the protection.
+#[test]
+fn blessing_of_protection_blocks_the_pk_both_ways() {
+    use crate::model::components::Intent;
+    use crate::model::skill::{ActiveBuff, BuffSlot};
+
+    let (mut world, ..) = combat_test_world();
+    two_players(&mut world);
+    {
+        let p = world.objects.get_component_mut::<Player>(&KILLER).unwrap();
+        p.level = 30;
+        p.reputation = -500; // chaotic
+    }
+    {
+        let p = world.objects.get_component_mut::<Player>(&VICTIM).unwrap();
+        p.level = 15;
+    }
+    world.objects.add_components(
+        &VICTIM,
+        crate::model::components::Buffs(vec![ActiveBuff {
+            skill_id: 5182,
+            skill_level: 1,
+            abnormal_type_client_id: 0,
+            abnormal_type: "PK_PROTECT".to_string(),
+            abnormal_level: 1,
+            slot: BuffSlot::Uncapped,
+            expires_at_tick: u64::MAX,
+            passive: false,
+            displayed: true,
+            effect_flags: 0,
+            blocked_abnormals: Vec::new(),
+            abnormal_visuals: Vec::new(),
+            effects: Vec::new(),
+        }]),
+    );
+
+    // The PK can't engage the blessed newbie.
+    crate::game_loop::combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
+    assert!(
+        !world.objects.has_component::<Intent>(&KILLER),
+        "the chaotic attacker is refused"
+    );
+
+    // …and the blessed newbie can't engage the PK.
+    crate::game_loop::combat::start_attack_intent(&mut world, VICTIM_CID, VICTIM, KILLER);
+    assert!(
+        !world.objects.has_component::<Intent>(&VICTIM),
+        "the shield is symmetric"
+    );
+
+    // A clean high-level attacker engages normally.
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER)
+        .unwrap()
+        .reputation = 0;
+    crate::game_loop::combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
+    assert!(
+        world.objects.has_component::<Intent>(&KILLER),
+        "no karma, no protection"
+    );
+    world.objects.remove_component::<Intent>(&KILLER);
+
+    // Back to chaotic, but inside a PVP zone the protection is suspended.
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER)
+        .unwrap()
+        .reputation = -500;
+    let z = ZoneFlags {
+        mask: crate::data::zone_data::ZoneKind::Pvp.bit(),
+        ..Default::default()
+    };
+    world.objects.add_components(&VICTIM, z);
+    crate::game_loop::combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
+    assert!(
+        world.objects.has_component::<Intent>(&KILLER),
+        "a PVP zone suspends the blessing"
+    );
+}

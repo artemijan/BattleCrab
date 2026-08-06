@@ -881,6 +881,19 @@ pub(crate) fn use_magic_on(
             .unwrap_or_default()
             .0
     });
+    // `PlayableAI.onIntentionCast`: a bad skill aimed at a playable runs the
+    // Blessing of Protection pair before anything else about the cast.
+    if skill.is_bad()
+        && let Some(t) = caster_target
+        && (world.objects.has_component::<crate::model::Player>(&t)
+            || world
+                .objects
+                .has_component::<crate::model::components::ServitorOf>(&t))
+        && crate::game_loop::pvp::protection_blessing_blocks(world, object_id, t)
+    {
+        send_sm_and_action_failed(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET, &[]);
+        return;
+    }
     // Fetched here rather than at the top of the function: the toggle branch
     // above needs `&mut world`, so this borrow must start after it.
     let Some(player) = world

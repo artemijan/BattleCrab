@@ -1423,9 +1423,10 @@ pub enum SkillEffect {
     /// Blessing of Protection (5182): a chaotic (PK) character 10+ levels above
     /// the target cannot damage or be damaged by them. Carries no stat
     /// modifier, so it lands as an icon-only timed `ActiveBuff` (like a bare
-    /// `DamOverTime`) — the `PK_PROTECT` abnormal + 7200 s duration are honored,
-    /// but the actual damage-immunity check is deferred to the PvP milestone.
-    /// TODO(G-pvp): gate PK damage on this buff in the combat/flag path.
+    /// `DamOverTime`) — the `PK_PROTECT` abnormal + 7200 s duration are
+    /// honored, and the immunity itself is `pvp::protection_blessing_blocks`,
+    /// run from both the attack and bad-cast intention paths (Java
+    /// `PlayableAI`).
     ProtectionBlessing,
     /// `handlers/effecthandlers/NoblesseBless.java` — Noblesse Blessing (1323):
     /// the target keeps its buffs through death, losing only this blessing.
