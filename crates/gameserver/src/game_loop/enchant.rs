@@ -395,21 +395,42 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         }
     };
 
-    // Consume one scroll (Java destroyItem). If it's gone, error out.
+    // Consume one scroll (Java destroyItem). If it's gone, error out — and
+    // punish: the client can't press Enchant without the scroll in the bag.
     let removed = world
         .objects
         .get_component_mut::<Inventory>(&player)
         .and_then(|inv| inv.remove_by_object_id(scroll_oid, 1))
         .is_some();
     if !removed {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player,
+            &format!("Player {player} tried to enchant with a scroll he doesn't have"),
+            punish,
+        );
         err(world);
         return;
     }
-    // Consume the support item too, if present.
-    if support.is_some()
-        && let Some(inv) = world.objects.get_component_mut::<Inventory>(&player)
-    {
-        inv.remove_by_object_id(support_oid, 1);
+    // Consume the support item too, if present; same reasoning as the scroll.
+    if support.is_some() {
+        let removed = world
+            .objects
+            .get_component_mut::<Inventory>(&player)
+            .and_then(|inv| inv.remove_by_object_id(support_oid, 1))
+            .is_some();
+        if !removed {
+            let punish = world.cfg.general.default_punish;
+            super::punishment::handle_illegal_player_action(
+                world,
+                player,
+                &format!("Player {player} tried to enchant with a support item he doesn't have"),
+                punish,
+            );
+            err(world);
+            return;
+        }
     }
 
     // Roll. `chance_no_bonus` is the group chance with the safe-enchant

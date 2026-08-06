@@ -657,9 +657,11 @@ fn request_buy_item_purchases_and_guards() {
     );
     assert_eq!(adena_of(&world, 3001), 850);
 
-    // Off-list item: dropped, no charge.
+    // Off-list item: no charge, and the probe now punishes (the illegal-action
+    // warning line is the only reply — no inventory or trade packet).
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(702, 1)]));
-    assert!(drain(&mut rx).is_empty());
+    let pkts = drain(&mut rx);
+    assert!(!pkts.iter().any(|p| p[0] == 0x21), "no InventoryUpdate");
     assert_eq!(adena_of(&world, 3001), 850);
 
     // No merchant targeted: ActionFailed.

@@ -1243,7 +1243,8 @@ fn a_walker_whisper_kicks_the_sender() {
     );
     assert!(world.clients.contains_key(&1), "still connected");
 
-    // The same text whispered is an emulator giveaway.
+    // The same text whispered is an emulator giveaway — the punish task warns
+    // at once and kicks 5 seconds later (Java `handleIllegalPlayerAction`).
     on_packet(
         &mut world,
         1,
@@ -1253,6 +1254,8 @@ fn a_walker_whisper_kicks_the_sender() {
         ]
         .concat(),
     );
+    assert!(world.clients.contains_key(&1), "warned but not yet kicked");
+    advance_ticks(&mut world, 51);
     assert!(!world.clients.contains_key(&1), "kicked");
 }
 

@@ -173,6 +173,12 @@ pub struct GeneralConfig {
     pub log_skill_enchants: bool,
     /// `GMAudit`: record every GM command, its target and its arguments.
     pub gm_audit: bool,
+    /// `DefaultPunish`: what happens to a player caught by a packet-validation
+    /// guard (Java `Util.handleIllegalPlayerAction`). The dist ships `KICK`.
+    pub default_punish: crate::model::punishment::IllegalActionPunishment,
+    /// `DefaultPunishParam`: ban/jail duration in **seconds** for `KICKBAN` /
+    /// `JAIL`. The dist ships `0`, which Java folds to one hundred years.
+    pub default_punish_param: i64,
 }
 
 impl GeneralConfig {
@@ -254,6 +260,14 @@ impl GeneralConfig {
             log_item_enchants: p.get_bool("LogItemEnchants", d.log_item_enchants),
             log_skill_enchants: p.get_bool("LogSkillEnchants", d.log_skill_enchants),
             gm_audit: p.get_bool("GMAudit", d.gm_audit),
+            default_punish: crate::model::punishment::IllegalActionPunishment::find_by_name(
+                &p.get_string("DefaultPunish", "KICK"),
+            ),
+            // Java: `0` means "one hundred years in seconds".
+            default_punish_param: match p.get_int("DefaultPunishParam", 0) as i64 {
+                0 => 3_155_695_200,
+                v => v,
+            },
         }
     }
 

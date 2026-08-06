@@ -43,6 +43,45 @@ impl PunishmentType {
     }
 }
 
+/// What happens to a player caught by a packet-validation guard (Java
+/// `IllegalActionPunishmentType`). `Broadcast` informs online GMs, `Kick`
+/// disconnects, `KickBan` disconnects + bans the character (and drops the
+/// account's access level), `Jail` confines to the GM prison. `None` still
+/// writes the audit record — it is "log only", not "ignore".
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum IllegalActionPunishment {
+    None,
+    Broadcast,
+    #[default]
+    Kick,
+    KickBan,
+    Jail,
+}
+
+impl IllegalActionPunishment {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            IllegalActionPunishment::None => "NONE",
+            IllegalActionPunishment::Broadcast => "BROADCAST",
+            IllegalActionPunishment::Kick => "KICK",
+            IllegalActionPunishment::KickBan => "KICKBAN",
+            IllegalActionPunishment::Jail => "JAIL",
+        }
+    }
+
+    /// Java `IllegalActionPunishmentType.findByName` — case-insensitive, and an
+    /// unknown name falls back to `NONE` (not to the config default).
+    pub fn find_by_name(name: &str) -> Self {
+        match name.to_ascii_uppercase().as_str() {
+            "BROADCAST" => IllegalActionPunishment::Broadcast,
+            "KICK" => IllegalActionPunishment::Kick,
+            "KICKBAN" => IllegalActionPunishment::KickBan,
+            "JAIL" => IllegalActionPunishment::Jail,
+            _ => IllegalActionPunishment::None,
+        }
+    }
+}
+
 /// What a punishment's `key` names (Java `PunishmentAffect`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PunishmentAffect {

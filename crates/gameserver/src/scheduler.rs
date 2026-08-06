@@ -768,6 +768,14 @@ pub enum ScheduledTask {
     PunishmentExpire {
         punishment_id: i32,
     },
+    /// `Util.handleIllegalPlayerAction`'s 5-second `IllegalPlayerActionTask`
+    /// (G35): write the never-dropped audit record and apply the configured
+    /// punishment (GM broadcast / kick / kick+ban / jail).
+    IllegalActionPunish {
+        object_id: i32,
+        message: String,
+        punishment: crate::model::punishment::IllegalActionPunishment,
+    },
 }
 
 struct Entry {

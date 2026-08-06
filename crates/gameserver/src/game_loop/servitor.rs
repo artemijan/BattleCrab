@@ -1409,6 +1409,19 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     if world.data.pet_data.is_pet_collar(item_id) {
         return;
     }
+    // Java: asking for more than the stack holds punishes.
+    if amount > held {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            owner,
+            &format!(
+                "RequestGiveItemToPet: player {owner} tried to give item with oid {object_id} to pet but has invalid count {amount} item count: {held}"
+            ),
+            punish,
+        );
+        return;
+    }
     let count = amount.min(held);
     let changes = world
         .objects
@@ -1450,6 +1463,19 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
     else {
         return;
     };
+    // Java: asking for more than the stack holds punishes.
+    if amount > held {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            owner,
+            &format!(
+                "RequestGetItemFromPet: player {owner} tried to get item with oid {object_id} from pet but has invalid count {amount} item count: {held}"
+            ),
+            punish,
+        );
+        return;
+    }
     let count = amount.min(held);
     if let Some(pi) = world
         .objects

@@ -103,6 +103,47 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
+    // Java: `(_level < 1) || (_level > 1000) || (_id < 1)` — a malformed
+    // request is a packet-manipulation signature and punishes.
+    if pkt.skill_level < 1 || pkt.skill_level > 1000 || pkt.skill_id < 1 {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            object_id,
+            "Wrong Packet Data in Aquired Skill",
+            punish,
+        );
+        return;
+    }
+    // Java's hack check: class skills must be learned in order. Learning a
+    // level already known is a silent refusal; skipping a level warns the
+    // client and writes an audit record (punishment NONE).
+    let prev_level = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&object_id)
+        .and_then(|b| b.0.get(&pkt.skill_id).copied())
+        .unwrap_or(0);
+    if prev_level == pkt.skill_level {
+        return;
+    }
+    if prev_level != pkt.skill_level - 1 {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::THE_PREVIOUS_LEVEL_SKILL_HAS_NOT_BEEN_LEARNED,
+                &[],
+            ));
+        }
+        super::punishment::handle_illegal_player_action(
+            world,
+            object_id,
+            &format!(
+                "Player {object_id} is requesting skill Id: {} level {} without knowing it's previous level!",
+                pkt.skill_id, pkt.skill_level
+            ),
+            crate::model::punishment::IllegalActionPunishment::None,
+        );
+        return;
+    }
 
     let Some(player) = world
         .objects

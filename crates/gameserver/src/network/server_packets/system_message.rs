@@ -340,6 +340,8 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL: i16 = 276;
     pub const YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL: i16 = 278;
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
+    /// `The previous level skill has not been learned.`
+    pub const THE_PREVIOUS_LEVEL_SKILL_HAS_NOT_BEEN_LEARNED: i16 = 2220;
     // Shop (G12)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
     // Offline shops (G33)

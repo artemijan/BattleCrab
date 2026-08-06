@@ -313,9 +313,23 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     {
         return;
     }
-    // Java's `_count < 0` branch is a `handleIllegalPlayerAction`; `_count == 0`
-    // falls into the big refusal below. Neither may reach the inventory.
-    if pkt.count <= 0 {
+    // Java's `_count < 0` branch punishes (`handleIllegalPlayerAction`);
+    // `_count == 0` falls into the big refusal below. Neither may reach the
+    // inventory.
+    if pkt.count < 0 {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player_oid,
+            &format!(
+                "[RequestDropItem] count < 0! player {player_oid} tried to drop item oid {}",
+                pkt.object_id
+            ),
+            punish,
+        );
+        return;
+    }
+    if pkt.count == 0 {
         return;
     }
     let Some((item_id, held, enchant, is_stackable, is_quest, dropable)) = world

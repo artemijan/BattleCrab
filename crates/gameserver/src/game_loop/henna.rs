@@ -245,15 +245,25 @@ pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
         .get_component::<Inventory>(&oid)
         .map(|i| i.count_of(henna.dye_item_id))
         .unwrap_or(0);
-    let ok = henna.is_allowed_class(class_id)
-        && count >= henna.wear_count
-        && adena(world, oid) >= henna.wear_fee;
+    let class_allowed = henna.is_allowed_class(class_id);
+    let ok = class_allowed && count >= henna.wear_count && adena(world, oid) >= henna.wear_fee;
     if !ok {
         send(
             world,
             client_id,
             sp::system_message_with(sm_ids::THE_SYMBOL_CANNOT_BE_DRAWN, &[]),
         );
+        // Java: a dye the class can't wear at all is an exploit attempt (the
+        // client never offers it), on top of the cannot-draw notice.
+        if !class_allowed {
+            let punish = world.cfg.general.default_punish;
+            super::punishment::handle_illegal_player_action(
+                world,
+                oid,
+                &format!("Exploit attempt: player {oid} tryed to add a forbidden henna."),
+                punish,
+            );
+        }
         return;
     }
 

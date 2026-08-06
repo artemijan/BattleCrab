@@ -211,6 +211,21 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player_oid) = player_of(world, client_id) else {
         return;
     };
+    // Java `player.hasItemRequest()` — depositing while an enchant window is
+    // open is the classic scroll-duplication exploit and punishes.
+    if world
+        .objects
+        .has_component::<crate::model::components::EnchantRequest>(&player_oid)
+    {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player_oid,
+            &format!("Player {player_oid} tried to use enchant Exploit!"),
+            punish,
+        );
+        return;
+    }
     // Java's "Item Max Limit Check": count the slots this deposit needs — one
     // per unit for a non-stackable, one for a stackable the warehouse doesn't
     // hold yet — against the active container's cap, refusing the whole list
@@ -306,6 +321,26 @@ pub(crate) fn handle_withdraw(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player_oid) = player_of(world, client_id) else {
         return;
     };
+    // Java's first pass: every requested line must exist in the warehouse with
+    // enough count — a miss punishes and drops the whole batch.
+    let tgt = target(world, player_oid);
+    let all_present = pkt.items.iter().all(|&(obj_id, count)| {
+        container_ref(world, player_oid, tgt).is_some_and(|c| {
+            c.items()
+                .iter()
+                .any(|it| it.object_id == obj_id && it.count >= count)
+        })
+    });
+    if !all_present {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player_oid,
+            &format!("Player {player_oid} tried to withdraw non-existent item from warehouse."),
+            punish,
+        );
+        return;
+    }
     let mut moved = false;
     for (obj_id, count) in pkt.items {
         moved |= transfer(world, player_oid, obj_id, count, false);
@@ -575,6 +610,21 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
     let Some(player_oid) = player_of(world, client_id) else {
         return;
     };
+    // Java `player.hasItemRequest()` — freighting while an enchant window is
+    // open punishes (the same scroll-duplication exploit as the deposit).
+    if world
+        .objects
+        .has_component::<crate::model::components::EnchantRequest>(&player_oid)
+    {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player_oid,
+            &format!("Player {player_oid} tried to use enchant exploit!"),
+            punish,
+        );
+        return;
+    }
     if !account_chars(world, client_id)
         .iter()
         .any(|(id, _)| *id == recipient)
