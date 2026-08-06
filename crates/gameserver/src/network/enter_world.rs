@@ -677,10 +677,10 @@ pub fn ex_user_info_inven_weight(
 /// real `EnlargeSlot` passive bonuses (Expand Inventory/Warehouse/Trade/
 /// Common/Dwarven Craft) via `mods`; freight/clan-warehouse slots come from
 /// systems not implemented yet, so those two fields still carry Java's
-/// static config defaults. **Only the number reported changes here** —
-/// warehouse deposit and private-store listing aren't capacity-checked
-/// anywhere in this port yet (`TODO(G29+)`: `Warehouse.java`'s over-limit
-/// reject on deposit, `PrivateStore`'s slot-count reject on `handle_set_list`).
+/// static config defaults. The numbers reported here are enforced at their
+/// use sites: the warehouse deposit's over-limit reject
+/// (`warehouse::handle_deposit`) and both private-store slot caps
+/// (`private_store::handle_set_list`/`handle_set_list_buy`).
 ///
 /// **Field order deviates from stock L2J Mobius**: upstream writes
 /// `_inventoryExtraSlots` *before* `_inventoryQuestItems`, which puts the belt

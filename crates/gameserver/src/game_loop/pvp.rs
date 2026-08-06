@@ -114,9 +114,10 @@ fn in_active_siege_together(world: &World, a_oid: i32, b_oid: i32) -> bool {
 /// costs them no karma?
 ///
 /// True when the target is already "in PvP": a PK or currently flagged. **Party
-/// mates are explicitly not** — killing one is a PK. Java's remaining legs need
-/// systems this port lacks: clan wars (a mutual war makes kills lawful,
-/// TODO(G18)) and the faction dark-side check.
+/// mates are explicitly not** — killing one is a PK. A MUTUAL clan war makes
+/// the kill lawful (the tail below); Java's `isOnDarkSide()` faction leg has
+/// no Interlude counterpart — factions are a later-chronicle system with no
+/// state on this dist.
 pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> bool {
     if self_oid == target_oid {
         return false;
@@ -129,17 +130,17 @@ pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> boo
     // party mate in the same clan can't be at war with themselves.
     // The clan-war leg (Java `Playable.checkIfPvP`'s tail): a MUTUAL war
     // between the clans makes the kill lawful.
-    let self_clan = world
-        .objects
-        .get_component::<Player>(&self_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
-    let target_clan = world
-        .objects
-        .get_component::<Player>(&target_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
-    super::clans::mutual_war_between(world, self_clan, target_clan)
+    // Java skips the whole leg for academy members on either side
+    // (`isAcademyMember`, pledge type -1).
+    let clan_of = |oid: i32| {
+        world
+            .objects
+            .get_component::<Player>(&oid)
+            .filter(|p| p.pledge_type != -1)
+            .map(|p| p.clan_id)
+            .unwrap_or(0)
+    };
+    super::clans::mutual_war_between(world, clan_of(self_oid), clan_of(target_oid))
 }
 
 /// Java `Player.isAutoAttackable(attacker)` narrowed to the ported systems: a

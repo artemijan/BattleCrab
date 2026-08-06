@@ -108,6 +108,35 @@ fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
 /// `SetPrivateStoreListSell` (0x31): activate the store with the given
 /// items+prices (validated against the owner's inventory). An empty list is a
 /// no-op; a valid list sits the owner with a titled store visible to others.
+/// `Player.getPrivateSellStoreLimit()` / `getPrivateBuyStoreLimit()` — the
+/// dwarf/non-dwarf base finalized through `Stat::TradeSell`/`TradeBuy`
+/// (Expand Trade), matching `ex_storage_max_count`'s reporting.
+fn store_slot_limit(world: &World, owner: i32, sell: bool) -> usize {
+    let race = world
+        .objects
+        .get_component::<crate::model::Player>(&owner)
+        .map_or(0, |p| p.race);
+    let is_dwarf = race == crate::enums::Race::Dwarf as i32;
+    let (stat, base) = if sell {
+        (
+            crate::model::stats::Stat::TradeSell,
+            if is_dwarf { 4 } else { 3 },
+        )
+    } else {
+        (
+            crate::model::stats::Stat::TradeBuy,
+            if is_dwarf { 5 } else { 4 },
+        )
+    };
+    world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&owner)
+        .map_or(base, |m| {
+            crate::model::finalize(m, stat, f64::from(base)) as i32
+        })
+        .max(0) as usize
+}
+
 pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
     let Some((packaged, pkt)) = cp::PrivateStoreItemList::read_set_list(body) else {
         return;
@@ -115,6 +144,18 @@ pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(owner) = player_of(world, client_id) else {
         return;
     };
+    // "Check maximum number of allowed slots for pvt shops" — the raw list
+    // length against `getPrivateSellStoreLimit()`, refused with SM 1036
+    // before any validation, as in Java.
+    if pkt.items.len() > store_slot_limit(world, owner, true) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(sp::system_message_with(
+                sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+                &[],
+            ));
+        }
+        return;
+    }
     let mut items = Vec::new();
     for (obj_id, count, price) in pkt.items {
         let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {

@@ -178,6 +178,8 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
             power_grade: 1, // Java restore: the leader holds grade 1
             title: p.title.clone(),
             pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
         }
     };
     let clan = Clan {

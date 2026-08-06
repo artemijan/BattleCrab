@@ -531,6 +531,8 @@ fn member(char_id: i32) -> crate::model::clan::ClanMember {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     }
 }
 

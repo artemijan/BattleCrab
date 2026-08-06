@@ -211,6 +211,48 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player_oid) = player_of(world, client_id) else {
         return;
     };
+    // Java's "Item Max Limit Check": count the slots this deposit needs — one
+    // per unit for a non-stackable, one for a stackable the warehouse doesn't
+    // hold yet — against the active container's cap, refusing the whole list
+    // with SM 1036.
+    {
+        let tgt = target(world, player_oid);
+        let limit = warehouse_limit(world, player_oid, tgt);
+        let mut slots: i64 = 0;
+        for &(obj_id, count) in &pkt.items {
+            let Some((item_id, stackable)) = world
+                .objects
+                .get_component::<Inventory>(&player_oid)
+                .and_then(|inv| inv.items().iter().find(|i| i.object_id == obj_id))
+                .and_then(|i| {
+                    world
+                        .data
+                        .item_data
+                        .get(i.item_id)
+                        .map(|t| (i.item_id, t.is_stackable))
+                })
+            else {
+                continue;
+            };
+            if !stackable {
+                slots += count.max(1);
+            } else if container_ref(world, player_oid, tgt)
+                .is_none_or(|c| !c.items().iter().any(|i| i.item_id == item_id))
+            {
+                slots += 1;
+            }
+        }
+        let used = container_ref(world, player_oid, tgt).map_or(0, |c| c.items().len()) as i64;
+        if used + slots > i64::from(limit) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(sp::system_message_with(
+                    sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+                    &[],
+                ));
+            }
+            return;
+        }
+    }
     let mut moved = false;
     for (obj_id, count) in pkt.items {
         moved |= transfer(world, player_oid, obj_id, count, true);
@@ -220,6 +262,40 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
     }
     send_inventory(world, client_id, player_oid);
     open_deposit_window(world, client_id);
+}
+
+/// The active container's slot cap: the private warehouse finalizes the
+/// dwarf/non-dwarf base through `Stat::StoragePrivate` (Expand Warehouse);
+/// clan warehouse and freight carry their config/Java constants (matching
+/// `ex_storage_max_count`'s reporting).
+fn warehouse_limit(world: &World, player_oid: i32, tgt: WhTarget) -> i32 {
+    match tgt {
+        WhTarget::Clan(_) => world.cfg.character.warehouse_slots_clan,
+        WhTarget::Freight => 200,
+        WhTarget::Private => {
+            let (race, mods) = (
+                world
+                    .objects
+                    .get_component::<crate::model::Player>(&player_oid)
+                    .map_or(0, |p| p.race),
+                world
+                    .objects
+                    .get_component::<crate::model::components::StatModifiers>(&player_oid),
+            );
+            let base = if race == crate::enums::Race::Dwarf as i32 {
+                120
+            } else {
+                100
+            };
+            mods.map_or(base, |m| {
+                crate::model::finalize(
+                    m,
+                    crate::model::stats::Stat::StoragePrivate,
+                    f64::from(base),
+                ) as i32
+            })
+        }
+    }
 }
 
 /// `SendWareHouseWithDrawList` (0x3C): move the named items warehouse → inventory.

@@ -1060,6 +1060,8 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
                         power_grade: 5,
                         title: String::new(),
                         pledge_type: 0,
+                        apprentice: 0,
+                        sponsor: 0,
                     }],
                     skills: Default::default(),
                     warehouse: Default::default(),

@@ -456,7 +456,7 @@ fn u16str(s: &str) -> Vec<u8> {
 // self-skips unless the untracked `interlude_classic.db` is present, so a
 // worktree without it never even reaches this. TODO(login-playauth): spurious
 // restart + duplicate CharSelectionInfo on relogin; walkthrough above.
-#[ignore = "open: spurious restart + duplicate CharSelectionInfo on relogin (NOT play-auth); see TODO(login-playauth)"]
+#[ignore = "open: spurious restart + duplicate CharSelectionInfo on relogin (NOT play-auth); see the login-playauth note above"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn full_login_to_character_create() {
     // The runtime DB is an untracked working-tree file; skip on a fresh checkout

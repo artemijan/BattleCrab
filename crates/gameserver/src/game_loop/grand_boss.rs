@@ -234,9 +234,9 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     // Antharas spawns DORMANT and stays wherever `grandboss_data` puts it —
     // the cinematic (and the minion waves its tail starts) fire from
     // `SPAWN_ANTHARAS`, twenty minutes after the first group enters through
-    // the Heart of Warding (`scripts::antharas_heart`). Slice 17's call here
-    // was a stand-in. Valakas's cinematic stays unwired until its own entry
-    // slice — TODO(G23).
+    // the Heart of Warding (`scripts::antharas_heart`). Valakas works the
+    // same way: his entry cinematic fires from `valakas::"beginning"`, armed
+    // by his own entry flow, not from this spawn hook.
     let _ = crate::game_loop::antharas::ANTHARAS;
 
     // A stored HP of 0 means "was never wounded" (a fresh respawn), so only a

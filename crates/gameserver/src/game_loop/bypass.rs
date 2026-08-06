@@ -235,14 +235,29 @@ fn npc_bypass(
         }
         // `bypasshandlers/ChatLink.java`: the follow-up dialog pages every
         // folk html walks through (`Chat 1` → `<npcId>-1.htm`). Java parses
-        // the tail with `Integer.parseInt`, falling back to page 0.
-        // TODO(G23): `Chat 0` on an NPC with an `ON_NPC_FIRST_TALK` listener
-        // fires that quest event instead of the static page.
+        // the tail with `Integer.parseInt`, falling back to page 0 — and a
+        // `Chat 0` on an NPC with an `ON_NPC_FIRST_TALK` listener fires that
+        // quest event instead of the static page.
         "Chat" => {
             let value = command
                 .strip_prefix("Chat")
                 .and_then(|s| s.trim().parse::<i32>().ok())
                 .unwrap_or(0);
+            let npc_id = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&npc_object_id)
+                .map_or(0, |n| n.npc_id);
+            if value == 0
+                && super::quests::notify_first_talk(
+                    world,
+                    client_id,
+                    object_id,
+                    npc_object_id,
+                    npc_id,
+                )
+            {
+                return;
+            }
             super::target::show_chat_window(world, client_id, npc_object_id, value);
         }
         // `VillageMaster.onBypassFeedback` verbs — gated on the instance

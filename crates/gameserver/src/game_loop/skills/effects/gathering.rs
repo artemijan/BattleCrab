@@ -84,11 +84,44 @@ pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32)
     {
         return;
     }
+    // `checkInventorySlotsAndWeight(spoilLootItems, true, true)` — refuse the
+    // whole sweep (loot stays on the corpse) when the sweeper lacks the slots
+    // or the carry weight for it, with Java's YOUR_INVENTORY_IS_FULL.
+    {
+        let pending: Vec<(i32, i64)> = world
+            .objects
+            .get_component::<Npc>(&target_oid)
+            .and_then(|n| n.sweep_items.clone())
+            .unwrap_or_default();
+        let mut slots = 0i64;
+        let mut loot_weight = 0i64;
+        for &(item_id, count) in &pending {
+            slots += crate::game_loop::weight::slots_needed(world, caster_oid, item_id, count);
+            // Java's `getSpoilLootItems` yields one *template* per line, so
+            // `lootWeight += item.getWeight()` counts each line once — the
+            // stack count is deliberately NOT multiplied in, quirk and all.
+            let _ = count;
+            loot_weight += world
+                .data
+                .item_data
+                .get(item_id)
+                .map_or(0, |t| i64::from(t.weight));
+        }
+        if !crate::game_loop::weight::validate_capacity(world, caster_oid, slots)
+            || !crate::game_loop::weight::validate_weight(world, caster_oid, loot_weight)
+        {
+            if let Some(cid) = crate::game_loop::helpers::client_for_player(world, caster_oid)
+                && let Some(cs) = world.clients.get(&cid)
+            {
+                cs.send(crate::network::server_packets::system_message_with(
+                    crate::network::server_packets::sm_ids::YOUR_INVENTORY_IS_FULL,
+                    &[],
+                ));
+            }
+            return;
+        }
+    }
     // `takeSweep()` — atomically claim the loot (a second sweep gets nothing).
-    // TODO(G15): `checkInventorySlotsAndWeight` (inventory-full refusal) is
-    // skipped. Weight *is* modelled (`game_loop::weight`, and G34 S4.1 added
-    // the `WEIGHT_LIMIT`/`WEIGHT_PENALTY` stats); this path simply does not
-    // consult it, so the gap is the check rather than the machinery.
     let Some(items) = world
         .objects
         .get_component_mut::<Npc>(&target_oid)

@@ -8,9 +8,10 @@
 //! Each slot keeps its own learned skills (`character_skills.class_index`), so
 //! a hand-learned skill survives a switch away and back.
 //!
-//! Not here, each a `TODO(G17)` at the site: per-subclass hennas and shortcuts
-//! (both still load with `class_index = 0`), certification skills, the
-//! village-master UI flow (G22's occupation quests), and the subclass-change
+//! TODO(G17), the module's one remaining deferral bundle: per-subclass hennas
+//! and shortcuts (both still load with `class_index = 0`), certification
+//! skills, the village-master cancel/replace verbs (cases 3/6/7 — the
+//! slot-wipe), the UI flow (G22's occupation quests), and the subclass-change
 //! lock Java holds across the swap.
 
 use crate::config::flood_protector::FloodAction;
@@ -420,8 +421,9 @@ pub(crate) fn can_add_subclass(world: &World, player_oid: i32) -> bool {
 ///
 /// Ported cases: **0** the menu, **1** the add list, **2** the change list,
 /// **4** add-action, **5** change-action. Java's 3/6/7 (cancel/change an
-/// existing subclass, which *replaces* a slot) are `TODO(G17)` — they need the
-/// same slot-wipe Java does and have no caller until the UI offers them.
+/// existing subclass, which *replaces* a slot) belong to the module header's
+/// remaining deferral bundle — they need the same slot-wipe Java does and
+/// have no caller until the UI offers them.
 ///
 /// The HTML is built inline rather than from `data/html/villagemaster/*.htm`
 /// because those files carry `%list%` placeholders the port's html cache

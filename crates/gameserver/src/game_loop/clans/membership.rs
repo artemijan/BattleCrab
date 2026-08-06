@@ -293,6 +293,8 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
             power_grade: grade,
             title: p.title.clone(),
             pledge_type,
+            apprentice: 0,
+            sponsor: 0,
         }
     };
     let Some(clan) = world.clans.get_mut(&clan_id) else {
@@ -400,7 +402,8 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
 /// no separate teardown**: they ride the same transient `ClanSkills` component
 /// as the pledge skills, which `remove_clan_skills_from_member` below clears
 /// wholesale — Java has to name them separately only because it keeps them in a
-/// different collection. Sub-pledge-leader cleanup is still TODO(G18.6).
+/// different collection. A departing sub-pledge leader also vacates their
+/// unit's leader slot (`Clan.removeClanMember`'s `getLeaderSubPledge` leg).
 ///
 /// The castle circlet goes with the member (Java `Clan.removeClanMember` →
 /// `CastleManager.removeCirclet(exMember, getCastleId())`, gated on
@@ -430,6 +433,29 @@ pub(crate) fn remove_clan_member(
         return;
     };
     clan.members.remove(idx);
+    // `Clan.removeClanMember`'s `getLeaderSubPledge` leg: a departing
+    // sub-pledge leader vacates their unit's slot (0 = vacant), persisted
+    // like a leader reassignment.
+    let vacated: Vec<(i32, String)> = clan
+        .sub_pledges
+        .values_mut()
+        .filter(|sp| sp.leader_id == member_oid)
+        .map(|sp| {
+            sp.leader_id = 0;
+            (sp.id, sp.name.clone())
+        })
+        .collect();
+    for (pledge_type, name) in vacated {
+        let _ = world.db.send(crate::db::DbCommand::UpdateSubPledge {
+            clan_id,
+            pledge_type,
+            name,
+            leader_id: 0,
+        });
+    }
+    let Some(clan) = world.clans.get_mut(&clan_id) else {
+        return;
+    };
     let was_leader = clan.leader_id == member_oid;
     let leader_expiry = if was_leader {
         now_millis() + CLAN_CREATE_COOLDOWN_MS

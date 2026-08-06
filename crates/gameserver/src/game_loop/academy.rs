@@ -177,6 +177,14 @@ fn set_mentorship(world: &mut World, char_id: i32, apprentice: i32, sponsor: i32
         p.apprentice = apprentice;
         p.sponsor = sponsor;
     }
+    // Mirror onto the clan roster, so an offline member's pane still shows
+    // the pair (Java keeps it on `ClanMember` alongside the live player).
+    for clan in world.clans.values_mut() {
+        if let Some(m) = clan.members.iter_mut().find(|m| m.char_id == char_id) {
+            m.apprentice = apprentice;
+            m.sponsor = sponsor;
+        }
+    }
     // Java saves "even if online, since both must match".
     let _ = world.db.send(DbCommand::UpdateCharApprenticeSponsor {
         char_id,
@@ -341,11 +349,13 @@ pub(crate) fn notify_partner_on_login(world: &mut World, player_oid: i32) {
 pub(crate) fn partner_name(world: &World, clan_id: i32, char_id: i32) -> String {
     let (apprentice, sponsor) = match world.objects.get_component::<Player>(&char_id) {
         Some(p) => (p.apprentice, p.sponsor),
-        // Offline: the port has no roster-side copy of the pair (Java's
-        // `ClanMember._apprentice`/`_sponsor` are loaded with the clan), so an
-        // offline member's pane shows nothing. TODO(G18.6): carry the pair on
-        // `ClanMember` so it survives the owner logging out.
-        None => return String::new(),
+        // Offline: the roster carries the pair (loaded with the clan and kept
+        // in step by `set_mentorship`), exactly like Java's `ClanMember`.
+        None => world
+            .clans
+            .get(&clan_id)
+            .and_then(|c| c.members.iter().find(|m| m.char_id == char_id))
+            .map_or((0, 0), |m| (m.apprentice, m.sponsor)),
     };
     let partner = if apprentice != 0 { apprentice } else { sponsor };
     if partner == 0 {

@@ -1432,11 +1432,10 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 /// header comment). Java's pet and Olympiad legs are not narrowings any more —
 /// both subsystems landed (G29, G25) — but this path has never routed to
 /// them; wiring them is the open half, not their absence.
-/// TODO(G15): Java's busy check is `!isPotion && !isElixir && !isScroll &&
-/// isCastingNow()`, and its `useMagic` would *queue* a skill that loses that
-/// race. `QueuedAction::Skill` replays by skill id through `use_magic_on`,
-/// which would not find an item skill on the player's skill list, so the cast
-/// branch just refuses while another cast is running instead of queueing.
+/// A timed item skill that loses the race against a running cast is queued as
+/// `QueuedAction::UseItem` and replayed when the cast ends — the port's
+/// equivalent of Java's `_queuedSkill` (an immediate-effect item, a potion,
+/// never raced: its branch bypasses `Casting` entirely).
 /// Port of `handlers/itemhandlers/Seed.useItem` — sow a manor seed on the
 /// player's targeted monster: validate the target, flag the mob with the seed
 /// (`Attackable.setSeeded(seed, player)`), then cast the item's Sow skill (which
@@ -1639,6 +1638,14 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
             set_skill_reuse(world, object_id, &skill);
         } else {
             if world.objects.has_component::<Casting>(&object_id) {
+                // Java's `useMagic` queues the skill that loses this race
+                // (`Player._queuedSkill`); the port queues the *item use* and
+                // replays it when the running cast ends — same observable,
+                // and the consume happens on the replay's own branch.
+                world.objects.add_components(
+                    &object_id,
+                    crate::model::components::QueuedAction::UseItem { item_object_id },
+                );
                 continue;
             }
             // `start_casting` registers the reuse itself.

@@ -1007,10 +1007,10 @@ pub struct PetOf {
 ///
 /// Java keeps that field on `Creature`, so players and summons share it; this
 /// port grew the player half first (`Player.is_charged_shot`) and only needs
-/// the summon half now. Kept as a separate component rather than moved off
-/// `Player`, because unifying them touches every player-shot call site for no
-/// behavioural gain today.
-/// `TODO(G29+)`: fold `Player`'s shot bits into this component.
+/// the summon half now. Kept as a separate component **deliberately** rather
+/// than unified: folding `Player`'s shot bits in would touch every player-shot
+/// call site for no behavioural gain — revisit only if a third shot carrier
+/// ever appears.
 #[derive(Component, Debug, Clone, Copy, Default)]
 pub struct ChargedShots {
     pub soulshot: bool,

@@ -809,11 +809,30 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 /// branch that never fires; revisit only if a capture ever shows a summoned
 /// pet's collar surviving a karma drop through some other guard. Nor
 /// the `KarmaListNonDroppableItems`/`..._PET_ITEMS` whitelists (neither is
-/// populated on this dist), nor the clan-war exemption (`TODO(G18)` — warring
-/// clans don't make each other drop).
+/// populated on this dist). The clan-war exemption — a clean victim killed by
+/// a war enemy drops nothing — is the first gate below.
 pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     use crate::data::item_data;
 
+    // `onDieDropItem`'s first gate: a clean (reputation >= 0) victim whose
+    // clan is at war with the killer's drops nothing — war deaths are free.
+    {
+        let pk = crate::game_loop::pvp::acting_player(world, killer_oid);
+        let vc = world
+            .objects
+            .get_component::<crate::model::Player>(&victim_oid)
+            .map(|p| (p.reputation, p.clan_id));
+        let kc = world
+            .objects
+            .get_component::<crate::model::Player>(&pk)
+            .map_or(0, |p| p.clan_id);
+        if let Some((rep, victim_clan)) = vc
+            && rep >= 0
+            && crate::game_loop::clans::at_war_between(world, kc, victim_clan)
+        {
+            return;
+        }
+    }
     let killer_is_player = world
         .objects
         .has_component::<crate::model::Player>(&killer_oid);

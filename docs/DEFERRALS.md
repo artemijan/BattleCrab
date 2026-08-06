@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **36** such
+of narrow behaviours deferred and marked at the site. There are **19** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,20 +79,11 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G15)` | 2 | `game_loop/items.rs`, `game_loop/skills/effects/gathering.rs` |
-| `TODO(G17)` | 2 | `game_loop/subclass.rs` |
-| `TODO(G18)` | 2 | `game_loop/death/rewards.rs`, `game_loop/pvp.rs` |
-| `TODO(G18.6)` | 2 | `game_loop/academy.rs`, `game_loop/clans/membership.rs` |
-| `TODO(G21+)` | 2 | `model/skill.rs`, `scripts/q00414_path_of_the_orc_raider.rs` |
-| `TODO(G23)` | 2 | `game_loop/bypass.rs`, `game_loop/grand_boss.rs` |
-| `TODO(G26.5)` | 2 | `game_loop/lottery.rs`, `game_loop/monster_race.rs` |
-| `TODO(G29+)` | 2 | `model/components.rs`, `network/enter_world.rs` |
-| `TODO(G7.5)` | 2 | `data/skill_data/build.rs` |
-| `TODO(login-playauth)` | 2 | `crates/gameserver/tests/e2e_create.rs` |
 | `TODO(G-later)` | 1 | `network/server_packets/manor.rs` |
 | `TODO(G13+)` | 1 | `scripts/q00416_path_of_the_orc_shaman.rs` |
 | `TODO(G14)` | 1 | `model/mod.rs` |
 | `TODO(G15.5)` | 1 | `game_loop/options.rs` |
+| `TODO(G17)` | 1 | `game_loop/subclass.rs` |
 | `TODO(G22)` | 1 | `scripts/primeval_isle.rs` |
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
@@ -103,8 +94,10 @@ also registering its NPCs would strand the player.
 | `TODO(G33)` | 1 | `game_loop/offline_trade.rs` |
 | `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
 | `TODO(G7)` | 1 | `data/player_template.rs` |
+| `TODO(G7.5)` | 1 | `data/skill_data/build.rs` |
 | `TODO(G9+)` | 1 | `data/skill_data/mod.rs` |
 | `TODO(G?)` | 1 | `model/mod.rs` |
+| `TODO(login-playauth)` | 1 | `crates/gameserver/tests/e2e_create.rs` |
 
 ## Closed
 
@@ -113,6 +106,16 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | The ten 2-marker groups: 20 → 3 | G15, G18, G18.6, G21+, G23, G26.5, G29+ closed whole; G17, G7.5, login-playauth each consolidated to one precise survivor. |
+| 2026-08-06 | `TODO(G15)` ×2 | **Closed.** The sweep now runs `checkInventorySlotsAndWeight` before claiming loot (slots per Java's stackable rule, weight summed per *line* — Java's own quirk — refused with SM 1036's sibling YOUR_INVENTORY_IS_FULL, loot staying on the corpse); and a timed item skill that loses the race against a running cast queues as `QueuedAction::UseItem` and replays when the cast ends — the port's `_queuedSkill`. |
+| 2026-08-06 | `TODO(G18)` ×2 | **One stale, one real.** `check_if_pvp`'s doc still said clan wars "need systems this port lacks" directly above the line implementing the MUTUAL-war leg (the academy exemption is now exact too). The real half: `onDieDropItem`'s first gate — a clean victim killed by a clan-war enemy drops nothing — is ported and tested. |
+| 2026-08-06 | `TODO(G18.6)` ×2 | **Closed.** The apprentice/sponsor pair now lives on `ClanMember` (loaded with the clan, kept in step by `set_mentorship`), so an offline member's academy pane shows their partner; and a departing sub-pledge leader vacates their unit's slot (`getLeaderSubPledge` leg), persisted like a leader reassignment. |
+| 2026-08-06 | `TODO(G23)` ×2 | **Both stale.** Valakas's entry cinematic had been wired (`valakas::"beginning"`, ten camera beats) since his own slice; and `Chat 0` on a first-talk NPC now routes through `notify_first_talk` — the hook existed, only the bypass arm hadn't been told. |
+| 2026-08-06 | `TODO(G26.5)` ×2 | **Closed.** The Monster Race tick carries Java's full reminder cadence (the 30 s drumbeat, the 10/5/1-minute closing warnings, the pre-race countdown ladder); the lottery's draw date formats through `commons::util::format_date`, which had existed all along — "DateFormat isn't wired" was stale. |
+| 2026-08-06 | `TODO(G29+)` ×2 | **One real, one refactor-note.** The reported capacities are now enforced: warehouse deposits refuse over the active container's cap (private = `Stat::StoragePrivate` over the dwarf/human base; clan/freight their constants) and the sell store refuses more lines than `getPrivateSellStoreLimit` (new `MaxPvtStoreSellSlots*` config + `Stat::TradeSell`), both with SM 1036 — the buy side already had its cap. The `ChargedShots` fold-in was a refactor wish, not a gap: recorded as a deliberate non-refactor. |
+| 2026-08-06 | `TODO(G21+)` ×2 → prose | Both were argued deviations wearing marker tags: GetAgro's one-think-tick faction pre-seed gap and quest 414's skipped spawn animation. Each keeps its revisit sentence without a countable tag. |
+| 2026-08-06 | `TODO(G7.5)` ×2 → 1 | `MagicalSoulAttack`'s soul scaling closes as SKIP(census) — all 15 carriers are Kamael skills with no route, same evidence as its physical twin. The survivor is real and precise: `shieldDefPercent` needs a shield roll in the magic-damage path (Java's `MagicalAttackRange` does call `calcShldUse`). |
+| 2026-08-06 | `TODO(G17)` ×2 → 1, `TODO(login-playauth)` ×2 → 1 | Consolidations: the subclass deferral bundle (hennas/shortcuts/certification/cancel-replace/lock) now lives in one header marker its site refers to; the ignored e2e test's duplicate tag in its `#[ignore]` string is de-parseabled, leaving the investigation note itself. |
 | 2026-08-06 | `TODO(G-pvp)` ×3 — the whole family (one feature) | **Closed.** All three marked the same gap: Blessing of Protection's (5182) PK immunity. `pvp::protection_blessing_blocks` ports `PlayableAI`'s pair exactly — a chaotic character 10+ levels above a blessed newbie is refused (INCORRECT_TARGET + ActionFailed), the shield is symmetric, both ends resolve through `acting_player`, the blessing is the `PK_PROTECT` abnormal, and a PVP zone on the target suspends it. Wired into both intention paths: `start_attack_intent` (every attack entry point) and `use_magic_on`'s bad-skill-at-playable branch. |
 | 2026-08-06 | `TODO(G33)` ×2 of 3 | **Closed.** `broadcastCharInfo` now matches Java's shape: the `CharInfo` half of `broadcastUserInfo` schedules a 50 ms `BroadcastCharInfo` task and coalesces every call in the window (`Player.char_info_pending`), so onlookers get one packet per burst, after the actor swap — the one divergence the hero-glow field investigation had left open. And the offline-trader visibility claim was stale: the aggro scans became region-index-driven (`players_visible_from`, whose plain form deliberately yields unattended shops) some sessions ago. The survivor is precise: `AltGameCreation = True`'s staged multi-pass craft machinery, whose absence makes the offline-craft branch unreachable. |
 | 2026-08-06 | `TODO(G29)` ×4 — the whole group | `storePetFood` is real: the ride path records the pet's collar object id (`Player.mount_collar_object_id`, Java's `_controlItemId`) and the dismount writes the drained gauge back onto the `PlayerPets` row. Chasing it exposed a **bug family beside the marker**: four unsummon sites (the ride, the collar recall, `//unsummon`, the unsummon skill effect) skipped the `sync_pet_row` capture every other site runs, silently dropping a pet's hp/exp/fed deltas — all four fixed. The Wyvern Breath leg was dead in Java too (`setMount` never grants 4289, so its removal removes nothing). The other three markers were prose: two test headers describing already-closed deferrals spelled parseable tags, and the karma-drop note's "revisit on capture" keeps its sentence without one. |

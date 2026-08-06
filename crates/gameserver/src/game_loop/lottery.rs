@@ -645,8 +645,7 @@ fn set_picks(world: &mut World, player: i32, values: [i32; 5]) {
 /// apply the shared `%…%` replaces (Java's tail of `showLotoWindow`).
 fn page(world: &World, npc_id: i32, page: i32) -> String {
     let g = &world.cfg.general;
-    let now = commons::util::now_millis();
-    let days = ((world.lottery.enddate - now) / (24 * 3600 * 1000)).max(0);
+    let g_enddate = world.lottery.enddate;
     crate::data::htm_cache::read_htm(format!(
         "{}data/html/default/{npc_id}-{page}.htm",
         world.data.root
@@ -668,9 +667,9 @@ fn page(world: &World, npc_id: i32, page: i32) -> String {
         &format!("{:.0}", g.alt_lottery_3_number_rate * 100.0),
     )
     .replace("%prize2%", &g.alt_lottery_2and1_number_prize.to_string())
-    // Java formats the draw date; on this port we show the days remaining
-    // (`DateFormat` isn't wired — cosmetic, TODO(G26.5)).
-    .replace("%enddate%", &format!("in {days} day(s)"))
+    // Java `DateFormat.getDateInstance().format(getEndDate())` —
+    // `commons::util::format_date` gives the same calendar date.
+    .replace("%enddate%", &commons::util::format_date(g_enddate))
 }
 
 fn send_html(world: &World, client_id: u32, npc_oid: i32, content: String) {

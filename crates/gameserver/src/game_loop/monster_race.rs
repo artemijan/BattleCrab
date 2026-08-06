@@ -171,10 +171,63 @@ pub(crate) fn tick(world: &mut World) {
                 broadcast_to_derby(world, &pkt);
             }
         }
-        _ => {
-            // TODO(G26.5): the intermediate ticket-sale reminder cadence (Java's
-            //   many 30-second SM cases) — cosmetic announcements only.
+        // Java's reminder cadence, in the free-text style this module
+        // announces with: a 30-second "tickets available" drumbeat while the
+        // window is open, the 10/5/1-minute sale-closing warnings, and the
+        // pre-race countdown notices.
+        c @ 300 | c @ 600 | c @ 840 => {
+            let n = world.monster_race.race_number;
+            let minutes = match c {
+                300 => 10,
+                600 => 5,
+                _ => 1,
+            };
+            announce(
+                world,
+                &format!("Now selling tickets for Monster Race #{n}."),
+            );
+            announce(
+                world,
+                &format!("Ticket sales for the Monster Race will end in {minutes} minute(s)."),
+            );
         }
+        c @ 30..=870 if c % 30 == 0 => {
+            let n = world.monster_race.race_number;
+            announce(
+                world,
+                &format!("Tickets are now available for Monster Race #{n}."),
+            );
+        }
+        c @ 960 | c @ 1020 => {
+            let n = world.monster_race.race_number;
+            let minutes = if c == 960 { 2 } else { 1 };
+            announce(
+                world,
+                &format!("Monster Race #{n} will begin in {minutes} minute(s)."),
+            );
+        }
+        1050 => {
+            let n = world.monster_race.race_number;
+            announce(
+                world,
+                &format!("Monster Race #{n} will begin in 30 seconds."),
+            );
+        }
+        1070 => {
+            let n = world.monster_race.race_number;
+            announce(
+                world,
+                &format!("Monster Race #{n} is about to begin. Countdown in five seconds."),
+            );
+        }
+        c @ 1075..=1079 => {
+            let seconds = 1080 - c;
+            announce(
+                world,
+                &format!("The race will begin in {seconds} second(s)."),
+            );
+        }
+        _ => {}
     }
     world.monster_race.countdown += 1;
     schedule_tick(world);

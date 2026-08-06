@@ -26,10 +26,11 @@
 //! collection would make the quest unfinishable, since nothing else drops the
 //! tooth.
 //!
-//! Uses [`QuestCtx::spawn_attacker`] from slice 13. One fidelity gap: Java
-//! passes `isSummonSpawn = true` (a spawn animation) and seeds hate 999 via
-//! `addDamageHate`; our helper seeds dominant hate and skips the animation.
-//! TODO(G21+): model `isSummonSpawn` if the visual matters.
+//! Uses [`QuestCtx::spawn_attacker`] from slice 13. One cosmetic fidelity
+//! gap, deliberate: Java passes `isSummonSpawn = true` (a spawn animation)
+//! and seeds hate 999 via `addDamageHate`; our helper seeds dominant hate and
+//! skips the animation — same fight, no flash. Revisit only if the visual
+//! ever matters.
 //!
 //! ## A branch that is dead at both ends — verified, then kept
 //!

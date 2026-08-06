@@ -194,6 +194,8 @@ fn pending_transfer_clan(world: &mut World, leader: i32, nominee: i32) -> i32 {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,

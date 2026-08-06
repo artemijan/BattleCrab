@@ -1402,6 +1402,8 @@ pub(crate) async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::cla
                     power_grade: m.power_grade.unwrap_or(0),
                     title: m.title.unwrap_or_default(),
                     pledge_type: m.subpledge,
+                    apprentice: m.apprentice,
+                    sponsor: m.sponsor,
                 })
                 .collect(),
         });

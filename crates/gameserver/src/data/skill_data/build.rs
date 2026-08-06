@@ -596,16 +596,17 @@ pub(crate) fn build_skill(
                         "MagicalAttackRange" => vec![SkillEffect::MagicalAttack {
                             power: param("power").unwrap_or(0.0),
                         }],
-                        // Soul-charge magic nuke (e.g. some Kamael/dagger-mage
-                        // skills). Java's `MagicalSoulAttack` runs the identical
-                        // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
-                        // `MagicalAttack`; its only difference is scaling mAtk by
-                        // `1.3 + souls*0.05` when the caster has charged souls.
-                        // Souls/charges aren't modeled yet, so that multiplier is
-                        // exactly 1.0 here and the damage is identical to
-                        // `MagicalAttack` — same silent-drop trap as
-                        // `MagicalAttackRange` if left unhandled.
-                        // TODO(G7.5): scale mAtk by charged souls once charges land.
+                        // Soul-charge magic nuke. Java's `MagicalSoulAttack` runs
+                        // the identical `calcMagicDam` core as `MagicalAttack`;
+                        // its only difference is scaling mAtk by
+                        // `1.3 + souls*0.05` for charged souls. SKIP(census):
+                        // like `PhysicalSoulAttack`, no reachable caster — all
+                        // 15 carriers (Fallen Arrow 1431, Abyssal Blaze 1433, …)
+                        // are Kamael skills with no skill-tree row, no item
+                        // grant and no NPC carrier (verified 2026-08-06), and an
+                        // NPC caster would NPE in Java's own handler. Same
+                        // silent-drop trap as `MagicalAttackRange` if left
+                        // unhandled, hence the arm.
                         "MagicalSoulAttack" => vec![SkillEffect::MagicalAttack {
                             power: param("power").unwrap_or(0.0),
                         }],

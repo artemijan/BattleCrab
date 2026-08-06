@@ -890,8 +890,8 @@ pub enum SkillEffect {
     /// 200)`; this port leaves that to the already-ported
     /// `npc_ai::faction_call`, which pulls clan-mates in on its own once the
     /// taunted NPC is actually landing hits on the caster (at most one
-    /// think-tick later than Java's immediate pre-seed) — `TODO(G21+)` if
-    /// that one-tick gap ever turns out to matter.
+    /// think-tick later than Java's immediate pre-seed) — an argued deviation;
+    /// revisit only if that one-tick gap ever turns out to matter in play.
     GetAgro,
     /// `handlers/effecthandlers/AddHate.java` — a flat hate change with no
     /// damage. Positive `power` (Charm 15, Lure 51) adds hate for the caster;

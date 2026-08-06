@@ -25,6 +25,11 @@ pub struct ClanMember {
     /// -1 = academy, 100/200 = royal guard units, 1001/1002/2001/2002 = knight
     /// units. Mirrors the live `Player.pledge_type` for online members.
     pub pledge_type: i32,
+    /// Java `ClanMember._apprentice`/`_sponsor` (`characters.apprentice`/
+    /// `.sponsor`) — the academy mentorship pair, mirrored on the roster so an
+    /// offline member's pane still shows their partner.
+    pub apprentice: i32,
+    pub sponsor: i32,
 }
 
 /// Java `Clan`, narrowed to the creation/display slice.
@@ -484,6 +489,8 @@ mod pledge_class_tests {
                     power_grade: 5,
                     title: String::new(),
                     pledge_type: pt,
+                    apprentice: 0,
+                    sponsor: 0,
                 })
                 .collect(),
             skills: Default::default(),

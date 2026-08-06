@@ -1408,6 +1408,8 @@ fn hero_clan(world: &mut World, member: i32, level: i32) -> i32 {
                 power_grade: 1,
                 title: String::new(),
                 pledge_type: 0,
+                apprentice: 0,
+                sponsor: 0,
             }],
             skills: Default::default(),
             warehouse: Default::default(),

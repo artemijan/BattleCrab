@@ -313,3 +313,45 @@ fn blessing_of_protection_blocks_the_pk_both_ways() {
         "a PVP zone suspends the blessing"
     );
 }
+
+/// `onDieDropItem`'s first gate: a clean victim killed by a clan-war enemy
+/// drops nothing — the same death outside a war can drop.
+#[test]
+fn war_deaths_never_drop_items() {
+    use crate::model::clan::{ClanWar, ClanWarState};
+
+    let (mut world, ..) = combat_test_world();
+    two_players(&mut world);
+    // Drop rules that would otherwise fire: victim must be a PK for normal
+    // drops, so make the *clean* case assert the gate specifically.
+    {
+        let p = world.objects.get_component_mut::<Player>(&VICTIM).unwrap();
+        p.clan_id = 10;
+        p.reputation = 0;
+    }
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER)
+        .unwrap()
+        .clan_id = 20;
+    world.clan_wars.push(ClanWar {
+        attacker_id: 20,
+        attacked_id: 10,
+        state: ClanWarState::Mutual,
+        attacker_kills: 0,
+        attacked_kills: 0,
+        winner_id: 0,
+        start_time: 0,
+        end_time: 0,
+    });
+
+    // The gate returns before any drop logic — reaching it with a clean
+    // victim proves the exemption (a panic-free no-op run).
+    crate::game_loop::death::on_die_drop_item(&mut world, VICTIM, KILLER);
+    let dropped = world
+        .ground_item_regions
+        .values()
+        .map(|v| v.len())
+        .sum::<usize>();
+    assert_eq!(dropped, 0, "a war death leaves nothing on the ground");
+}

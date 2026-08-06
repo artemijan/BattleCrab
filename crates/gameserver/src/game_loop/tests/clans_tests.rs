@@ -202,6 +202,8 @@ fn clan_roster_notifications_and_chat() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -318,6 +320,8 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -589,6 +593,8 @@ fn clan_advent_aura_tracks_leader_online_state() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -715,6 +721,8 @@ fn give_clan_skills_grants_gates_and_persists() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -887,6 +895,8 @@ fn give_clan_skills_purges_residence_and_reapplies() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     // The clan already "owns" 370 and a residence 590 (as a pre-fix grant left it),
     // and the residence skill is applied to the online leader.
@@ -1160,6 +1170,8 @@ fn clan_skills_move_max_hp_mp_cp() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -1238,6 +1250,8 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -1355,6 +1369,8 @@ fn clan_skills_reapply_on_member_login() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     // The clan already knows skill 370 (as if loaded from clan_skills).
     let mut skills = std::collections::HashMap::new();
@@ -1433,6 +1449,8 @@ fn clan_entry_queries() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -1543,6 +1561,8 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     };
     world.clans.insert(
         clan_id,
@@ -1699,6 +1719,8 @@ fn clan_invite_guards_decline_and_accept() {
             power_grade: 5,
             title: String::new(),
             pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
         };
         world.clans.get_mut(&5000).unwrap().members.push(cm);
     }
@@ -1908,6 +1930,8 @@ fn clan_withdraw_and_oust() {
             power_grade: 5,
             title: String::new(),
             pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
         });
     clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3005"));
     assert!(world.clans[&5000].member(3005).is_none());
@@ -2544,6 +2568,8 @@ fn pad_clan(world: &mut World, clan_id: i32, to: usize) {
             power_grade: 5,
             title: String::new(),
             pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
         });
         i += 1;
     }
@@ -4095,6 +4121,8 @@ fn owner_clan(id: i32, leader: i32, castle: i32) -> crate::model::clan::Clan {
             power_grade: 1,
             title: String::new(),
             pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
         }],
         skills: Default::default(),
         warehouse: Default::default(),
@@ -4706,6 +4734,8 @@ fn leaving_a_castle_owning_clan_takes_the_circlet() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     });
     world.clans.insert(700, clan);
 
@@ -4746,6 +4776,8 @@ fn the_circlet_survives_when_the_config_says_so() {
         power_grade: 5,
         title: String::new(),
         pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
     });
     world.clans.insert(701, clan);
 
