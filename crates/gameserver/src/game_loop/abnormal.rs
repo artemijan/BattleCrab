@@ -230,6 +230,16 @@ fn admin_paralyzed(world: &World, object_id: i32) -> bool {
         .is_some_and(|f| f.paralyzed)
 }
 
+/// Java `Creature.isAllSkillsDisabled()` — `_allSkillsDisabled ||
+/// hasBlockActions()`. The cast gate; movement and melee are governed
+/// separately.
+pub(crate) fn all_skills_disabled(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .has_component::<crate::model::components::SkillsDisabled>(&object_id)
+        || is_blocked_from_actions(world, object_id)
+}
+
 pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
     admin_paralyzed(world, object_id)
         || world

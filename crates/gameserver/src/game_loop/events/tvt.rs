@@ -311,11 +311,11 @@ pub(crate) fn end_fight(world: &mut World) {
     instances::open_close_door(world, instance_id, BLUE_DOOR_ID, false);
     instances::open_close_door(world, instance_id, RED_DOOR_ID, false);
 
-    // Freeze participants (invulnerable) and revive any dead one. Java also
-    // immobilizes + disables skills (incl. servitors); TODO(G28): no
-    // immobilize / skill-lock flag on this port, so the freeze is invul-only.
+    // `EndFight`'s "Disable players" block: invulnerable, immobilised and
+    // skill-locked, servitors included — then revive anyone who died so the
+    // arena empties with everybody standing.
     for player in world.events.tvt.player_list.clone() {
-        set_invul(world, player, true);
+        set_frozen(world, player, true);
         if is_dead(world, player) {
             crate::game_loop::death::do_revive(world, player);
         }
@@ -360,7 +360,7 @@ pub(crate) fn teleport_out(world: &mut World) {
     for player in world.events.tvt.player_list.clone() {
         set_on_event(world, player, false);
         set_team(world, player, TEAM_NONE);
-        set_invul(world, player, false);
+        set_frozen(world, player, false);
     }
     if let Some(instance_id) = world.events.tvt.world_id.take() {
         instances::destroy(world, instance_id);
@@ -1048,6 +1048,33 @@ fn set_team(world: &mut World, player: i32, team: u8) {
 
 /// Toggle a participant's invulnerability (Java `setInvul`) — the end-of-match
 /// freeze. Presence-based `AdminFlags`, added on first use.
+/// `EndFight`'s freeze and the "Enable players" thaw, as one call: Java's
+/// `setInvul` + `setImmobilized` + `disable/enableAllSkills`, applied to the
+/// participant **and their servitor**.
+///
+/// **Deviation from Java, deliberate.** Java's thaw block unfreezes the player
+/// but re-runs `setInvul(true)`/`setImmobilized(true)`/`disableAllSkills()` on
+/// the servitor — plainly a copy-paste of the freeze block, since nothing ever
+/// undoes it. A pet that survived a TvT event would stay invulnerable and
+/// unable to move or cast for the rest of the session. Recorded in
+/// `docs/CUSTOM_DIST_DEVIATIONS.md`.
+fn set_frozen(world: &mut World, player: i32, frozen: bool) {
+    use crate::model::components::{Immobilized, SkillsDisabled};
+
+    let mut targets = vec![player];
+    targets.extend(crate::game_loop::servitor::servitor_of(world, player));
+    for oid in targets {
+        set_invul(world, oid, frozen);
+        if frozen {
+            world.objects.add_components(&oid, Immobilized);
+            world.objects.add_components(&oid, SkillsDisabled);
+        } else {
+            world.objects.remove_component::<Immobilized>(&oid);
+            world.objects.remove_component::<SkillsDisabled>(&oid);
+        }
+    }
+}
+
 fn set_invul(world: &mut World, player: i32, value: bool) {
     use crate::model::components::AdminFlags;
     if world.objects.get_component::<AdminFlags>(&player).is_none() {

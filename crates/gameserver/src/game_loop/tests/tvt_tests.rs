@@ -930,3 +930,59 @@ fn can_register_honours_every_ported_busy_gate() {
         );
     }
 }
+
+/// `EndFight`'s "Disable players" block: invulnerable, **immobilised** and
+/// **skill-locked** — not invul alone — and the same for servitors, so nobody
+/// gets a free shot while the scoreboard is up. `teleport_out` thaws all of it.
+///
+/// The servitor half deviates from Java on purpose: Java's thaw block re-runs
+/// the *freeze* calls on the servitor (a copy-paste), leaving a pet
+/// invulnerable and unable to act for the rest of the session with nothing to
+/// undo it. See `docs/CUSTOM_DIST_DEVIATIONS.md`.
+#[test]
+fn end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them() {
+    use crate::model::components::{AdminFlags, Immobilized, SkillsDisabled};
+
+    let (mut world, oids) = started_with_players(4);
+    tvt::teleport_to_arena(&mut world);
+    tvt::start_fight(&mut world);
+
+    // Give one participant a servitor to carry through the freeze.
+    const PANTHER: i32 = 14799;
+    let mut tmpl = crate::data::npc_data::default_template(PANTHER);
+    tmpl.type_name = "Servitor".into();
+    tmpl.level = 20;
+    tmpl.base_hp_max = 400.0;
+    tmpl.base_mp_max = 200.0;
+    world.data.npc_data.insert_for_test(tmpl);
+    let owner = oids[0];
+    let pet =
+        crate::game_loop::servitor::summon_servitor(&mut world, owner, PANTHER, 283, 1200, 0, 0)
+            .expect("servitor summoned");
+
+    let frozen = |w: &World, oid: i32| {
+        w.objects.has_component::<Immobilized>(&oid)
+            && w.objects.has_component::<SkillsDisabled>(&oid)
+            && w.objects
+                .get_component::<AdminFlags>(&oid)
+                .is_some_and(|f| f.invul)
+    };
+    assert!(!frozen(&world, owner), "not frozen mid-fight");
+
+    tvt::end_fight(&mut world);
+    assert!(frozen(&world, owner), "the participant is frozen");
+    assert!(frozen(&world, pet), "and so is their servitor");
+    // Skill-locked means *casting* only — Java's `disableAllSkills` does not
+    // touch movement, which `setImmobilized` handles separately.
+    assert!(
+        crate::game_loop::abnormal::all_skills_disabled(&world, owner),
+        "the cast gate sees the lock"
+    );
+
+    tvt::teleport_out(&mut world);
+    assert!(!frozen(&world, owner), "the participant is thawed");
+    assert!(
+        !frozen(&world, pet),
+        "and so is the servitor — Java leaves this one frozen forever"
+    );
+}

@@ -7,9 +7,13 @@
 //! The autonomous half of the system — drop-from-monster, pickup, and the
 //! expiry `RemoveTask` — now lives in [`crate::game_loop::cursed_weapon`] (G28),
 //! which calls back into `activate` / `end_of_life` here, and owns the login
-//! restore (`on_enter_world`). Still deferred (TODO(G28)): drop-on-PK-death,
-//! the "hungry" HP-drain / decay task, and the "already wields another cursed
-//! weapon" stage-kill bonus branch of `activate`.
+//! restore (`on_enter_world`). All three items this header listed as deferred
+//! have since landed or turned out not to exist: drop-on-PK-death is
+//! `cursed_weapon::on_wielder_death`, the per-kill time decay is the
+//! `end_time -= durationLost` tail of `increase_kills`, and the
+//! "already wields another" branch belongs to the pickup path (see
+//! `admin_cw_add` for why the GM path has none). Java has **no** HP drain on a
+//! cursed weapon at all — its only HP touch is the full heal on pickup.
 
 use crate::db::DbCommand;
 use crate::model::Player;
@@ -195,8 +199,11 @@ pub(super) fn admin_cw_reload(world: &mut World) {
 }
 
 /// `//cw_goto <id|name>` — teleport the GM to the weapon (Java `cw.goTo`).
-/// Only an activated weapon (its wielder) is reachable here; teleporting to a
-/// ground drop's position is a TODO(G28) nicety.
+///
+/// Both of Java's branches: to the wielder while the weapon is carried, and to
+/// the item itself while it lies on the ground waiting to be picked up. The
+/// second is the one a GM actually needs — a carried weapon announces its
+/// holder, an un-grabbed drop is silent.
 pub(super) fn admin_cw_goto(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
     let Some(idx) = args.first().and_then(|a| resolve(world, a)) else {
         send_message(
@@ -207,6 +214,7 @@ pub(super) fn admin_cw_goto(world: &mut World, client_id: u32, gm_object_id: i32
         return;
     };
     let cw = &world.cursed_weapons[idx];
+    // `_isActivated && _player != null` — go to the holder.
     if cw.is_activated {
         let holder = cw.player_id;
         if let Some(pos) = world.objects.get_component::<Position>(&holder).copied() {
@@ -214,6 +222,15 @@ pub(super) fn admin_cw_goto(world: &mut World, client_id: u32, gm_object_id: i32
             return;
         }
     }
+    // `_isDropped && _item != null` — go to the ground item.
+    if cw.is_dropped && cw.dropped_item_oid != 0 {
+        let item = cw.dropped_item_oid;
+        if let Some(pos) = world.objects.get_component::<Position>(&item).copied() {
+            crate::game_loop::death::teleport_player(world, gm_object_id, pos.x, pos.y, pos.z);
+            return;
+        }
+    }
+    let cw = &world.cursed_weapons[idx];
     let name = cw.name.clone();
     send_message(world, client_id, &format!("{name} isn't in the World."));
 }
@@ -257,9 +274,15 @@ pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
     let target = current_target(world, gm_object_id)
         .filter(|oid| world.objects.has_component::<Player>(oid))
         .unwrap_or(gm_object_id);
-    // TODO(G21): Java's `activate` gives a stage bonus to an existing cursed
-    // weapon and end-of-lifes the new one when the target already wields one;
-    // here we only handle the common (unowned) case.
+    // Java's `//cw_add` does **not** route through
+    // `CursedWeaponsManager.activate`, so it has no "cannot own 2 cursed
+    // swords" branch either: it calls `target.addItem(...)` and then
+    // `cw.reActivate()`. The stage-bonus-and-destroy behaviour lives on the
+    // *pickup* path, where `cursed_weapon::try_pickup` implements it.
+    //
+    // Refusing here is deliberately narrower than Java, which would hand a
+    // second cursed weapon to an already-cursed target and leave two of them
+    // claiming the same wielder.
     if world
         .objects
         .get_component::<Player>(&target)

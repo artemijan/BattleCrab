@@ -94,3 +94,42 @@ change is dropped.
 - **Guarded by:** `game_loop::tests::combat_tests::
   an_advanced_headquarters_takes_half_damage` — asserts 950 HP after a 100
   hit, and names the 1.5× alternative so the intent survives the assertion.
+
+## TvT: a servitor is thawed when the event ends
+
+- **Java** (`custom/events/TeamVsTeam/TvT.java`, the `"EndFight"` teardown).
+  The "Disable players" block freezes each participant and their servitors:
+
+  ```java
+  participant.setInvul(true);  participant.setImmobilized(true);  participant.disableAllSkills();
+  for (Summon summon : participant.getServitors().values()) {
+      summon.setInvul(true);  summon.setImmobilized(true);  summon.disableAllSkills();
+  }
+  ```
+
+  The later "Enable players" block undoes it — for the **player**:
+
+  ```java
+  participant.setInvul(false); participant.setImmobilized(false); participant.enableAllSkills();
+  for (Summon summon : participant.getServitors().values()) {
+      summon.setInvul(true);   summon.setImmobilized(true);   summon.disableAllSkills();  // <- unchanged
+  }
+  ```
+
+  The inner loop is a verbatim copy of the freeze block, and nothing else in
+  the script touches those flags again.
+- **Here:** the thaw clears invulnerability, immobilisation and the skill lock
+  on the servitor as well as the owner.
+- **Why this one is a deviation and not a bug fix:** it is a bug fix, and the
+  repo's rule is to port behaviour rather than intent, so choosing intent gets
+  written down. A servitor that survives a TvT event in Java is left
+  invulnerable and unable to move or cast **for the rest of the session**, with
+  no code path that restores it — an outcome the surrounding "Enable players"
+  comment plainly does not intend.
+- **The trap if it is re-synced:** a line-by-line comparison of the teardown
+  will read the port's `false` as a mismatch and "correct" it back, which
+  reintroduces permanently broken pets for anyone who brings a summon to the
+  event.
+- **Guarded by:** `game_loop::tests::tvt_tests::
+  end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them` — the
+  final assertion names Java's behaviour so the intent survives the assertion.

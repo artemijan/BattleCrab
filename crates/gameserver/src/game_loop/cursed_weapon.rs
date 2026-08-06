@@ -8,9 +8,11 @@
 //! **picks it up** becomes cursed (reusing `activate`), and the weapon
 //! **expires** when its life runs out — the `RemoveTask` deadline for both the
 //! un-grabbed drop and the wielder — and a wielder who relogs comes back
-//! **still cursed** ([`on_enter_world`]). (The kill-count level-up, the
-//! "hungry" HP/time decay and drop-on-PK-death are a follow-up slice —
-//! `TODO(G28)`.)
+//! **still cursed** ([`on_enter_world`]). The kill-count stage-up
+//! ([`increase_kills`]), the per-kill time decay in its tail, and
+//! drop-on-PK-death ([`on_wielder_death`]) all landed with that follow-up
+//! slice. There is no HP decay to port: Java's only HP touch is the full heal
+//! `activate` gives the new wielder.
 
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell, SkillBook};

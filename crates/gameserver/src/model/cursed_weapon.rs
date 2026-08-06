@@ -6,8 +6,9 @@
 //! Scope: the manager state + the admin surface (`//cw_*`) and its
 //! activate/end-of-life lifecycle. The autonomous parts — drop-from-monster,
 //! the expiry task and the login restore — live in
-//! `game_loop::cursed_weapon`; drop-on-PK-death and the "hungry" HP drain /
-//! decay task are still deferred (TODO(G28) at their sites).
+//! `game_loop::cursed_weapon`, including drop-on-PK-death and the per-kill
+//! time decay (the `end_time -= durationLost` tail of `increase_kills`). Java
+//! has no HP drain here.
 
 /// One cursed weapon: its `CursedWeapons.xml` config plus the runtime state Java
 /// keeps on the `CursedWeapon` object (persisted in the `cursed_weapons` table).
