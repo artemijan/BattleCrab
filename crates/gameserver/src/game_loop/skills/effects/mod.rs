@@ -35,7 +35,7 @@ use super::instant;
 
 mod continuous;
 pub(crate) mod control;
-mod damage;
+pub(crate) mod damage;
 mod gathering;
 mod support;
 mod ticks;
