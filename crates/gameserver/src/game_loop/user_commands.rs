@@ -339,8 +339,12 @@ fn clan_wars_list(world: &World, client_id: u32, object_id: i32, command_id: i32
 }
 
 /// Port of `usercommandhandlers/InstanceZone.java` — `ExInzoneWaiting`, the
-/// instance re-enter window. The port keeps no per-player instance reuse times
-/// (`TODO(G27)`), so the list is empty; the current instance's template id is
+/// instance re-enter window. The penalty list is empty, and that is exact
+/// parity: the only template with a `<reenter>` block on this dist
+/// (LastImperialTomb 136) declares no `apply` attribute, which Java parses as
+/// `InstanceReenterType.NONE` — so `setReenterTime` never fires anywhere,
+/// `character_instance_time` stays empty, and Java's own list is permanently
+/// empty too (verified 2026-08-06). The current instance's template id is
 /// real.
 fn instance_zone(world: &World, client_id: u32, object_id: i32) {
     // Java `InstanceManager.getPlayerInstance(player, false).getTemplateId()`;

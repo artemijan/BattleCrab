@@ -6258,3 +6258,57 @@ fn playmovie_movie_holder_bookkeeping() {
         "Esc is ignored for a non-escapable movie"
     );
 }
+
+/// `//instancedestroy` warns everyone inside with the "destroyed by Game
+/// Master" screen banner before the teleport-out, like Java's AdminInstance.
+#[test]
+fn admin_instancedestroy_warns_the_players_inside() {
+    use crate::data::instance_data::{ExitType, InstanceTemplate};
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world
+        .data
+        .instance_templates
+        .insert_for_test(InstanceTemplate {
+            id: 902,
+            name: Some("Doomed Arena".into()),
+            max_worlds: -1,
+            duration_min: 60,
+            empty_destroy_min: 5,
+            enter: Some((100, 200, 300)),
+            exit: ExitType::Origin,
+            doors: vec![],
+            groups: vec![],
+        });
+    let iid = crate::game_loop::instances::create_from_template(&mut world, 902).expect("template");
+    let mut gm = ingame_player_access(&mut world, 1, 6441, 100);
+    let mut inhabitant = ingame_player_access(&mut world, 2, 6442, 0);
+    crate::game_loop::instances::enter(&mut world, 6442, iid);
+    drain(&mut gm);
+    drain(&mut inhabitant);
+
+    // `admin_instancedestroy` carries `confirmDlg="true"` — answer it.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body(&format!("instancedestroy {iid}")),
+        ]
+        .concat(),
+    );
+    const S1_3: i32 = server_packets::S1_3_MESSAGE_ID;
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::DLG_ANSWER], dlg_answer_body(S1_3, 1, 0)].concat(),
+    );
+
+    let pkts = drain(&mut inhabitant);
+    let warned = pkts.iter().any(|p| {
+        p[0] == server_packets::opcodes::EX
+            && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE
+    });
+    assert!(warned, "the inhabitant saw the Game Master banner");
+    assert!(world.instances.get(iid).is_none(), "the instance is gone");
+}

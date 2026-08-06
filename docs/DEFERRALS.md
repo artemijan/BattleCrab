@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **52** such
+of narrow behaviours deferred and marked at the site. There are **49** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,7 +79,6 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
-| `TODO(G27)` | 4 | `game_loop/admin/instance.rs`, `game_loop/duel.rs`, `game_loop/user_commands.rs` |
 | `TODO(G28)` | 4 | `game_loop/events/tvt.rs` |
 | `TODO(G29)` | 4 | `game_loop/admin/mounts.rs`, `game_loop/death/rewards.rs`, `game_loop/tests/servitor_tests.rs` |
 | `TODO(G-pvp)` | 3 | `data/skill_data/build.rs`, `game_loop/skills/effects/mod.rs`, `model/skill.rs` |
@@ -102,6 +101,7 @@ also registering its NPCs would strand the player.
 | `TODO(G24.5)` | 1 | `game_loop/boats.rs` |
 | `TODO(G24/G26)` | 1 | `scripts/castle_chamberlain.rs` |
 | `TODO(G25)` | 1 | `game_loop/olympiad.rs` |
+| `TODO(G27)` | 1 | `game_loop/duel.rs` |
 | `TODO(G30)` | 1 | `game_loop/community_board.rs` |
 | `TODO(G32)` | 1 | `game_loop/fishing.rs` |
 | `TODO(G35)` | 1 | `crates/commons/src/audit.rs` |
@@ -116,6 +116,7 @@ the inventory in the same commit — the two-way discipline in both directions.
 
 | date | marker | what closed it |
 |---|---|---|
+| 2026-08-06 | `TODO(G27)` ×3 of 4 — instances group | **`ExInzoneWaiting`'s empty list turned out to be exact parity**: the only `<reenter>` template on this dist (LastImperialTomb 136) has no `apply` attribute, which Java parses as `InstanceReenterType.NONE` — `setReenterTime` never fires anywhere, so Java's own penalty list is permanently empty too. `//instancedestroy` now warns everyone inside with the "destroyed by Game Master" banner before the teleport-out (its test also documents the command's `confirmDlg` flow). The two party-duel markers consolidate into one precise TODO at the duel module header: the instances blocker is gone (engine + all four olympiad arena templates ported), what remains is the party flow itself. |
 | 2026-08-06 | `TODO(G20)` ×5 — the whole group | Independent dual rolls, the duel snapshot, the blow formula's real weapon crit; one SKIP and one stale reference. |
 | 2026-08-06 | `TODO(G20)` ×1 (`combat/attack.rs`, dual second roll) | **Closed.** The swing is refactored into Java's `generateHit` shape: a dual weapon rolls the whole ladder twice (miss, shield, crit, damage), each hit halved, the soulshot consumed by the first non-missing hit with its boost riding the rest of the swing. The old test pinned the shared-roll deviation ("the two halves are equal") and now pins independence — one crit half, one plain. |
 | 2026-08-06 | `TODO(G20)` ×1 (`duel.rs`, restore snapshot) | **Closed.** The duel stores both sides' HP/MP/CP at creation and restores that exact snapshot at the end, replacing the full heal. The other half of the marker dissolved on inspection: Java's duel-debuff removal list is dead code in this tree — `DuelManager.onBuff` has **no caller** — so nothing is ever registered or stripped there either. |

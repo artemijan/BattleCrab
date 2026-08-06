@@ -116,8 +116,23 @@ pub(super) fn admin_instance_destroy(world: &mut World, client_id: u32, args: &[
         return;
     };
     let count = world.instances.member_count(id);
-    // TODO(G27): Java also warns everyone inside with an ExShowScreenMessage
-    // ("destroyed by Game Master") before the teleport-out.
+    // Java warns everyone inside before the teleport-out.
+    let members: Vec<i32> = world
+        .instances
+        .get(id)
+        .map(|i| i.members.keys().copied().collect())
+        .unwrap_or_default();
+    for member in members {
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, member)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(crate::network::server_packets::ex_show_screen_message(
+                "Your instance has been destroyed by Game Master!",
+                2,
+                10_000,
+            ));
+        }
+    }
     instances::destroy(world, id);
     send_message(
         world,

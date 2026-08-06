@@ -6,12 +6,15 @@
 //! models it as a `Duel` object owned by `DuelManager`, driven by a countdown
 //! task and then a per-second condition check.
 //!
-//! **Scope — 1v1 only.** Java also supports *party* duels, which teleport both
-//! parties into a dedicated arena instance, open its doors, and snapshot every
-//! member's condition. That needs instances (G27) and the arena data, so this
-//! slice implements the player-vs-player duel that happens where the two
-//! players stand. `party_duel` on the wire is honoured only far enough to
-//! refuse it politely (`TODO(G27)`).
+//! **Scope — 1v1 only. TODO(G27): party duels.** Java teleports both parties
+//! into a fresh olympiad-stadium instance (`DuelManager.getDuelArena` picks a
+//! random arena template; both templates and the instance engine are ported
+//! now, so the blocker is gone — the remaining work is the party flow itself:
+//! per-member `canDuel` checks, the countdown's teleport step, per-member
+//! condition snapshots and the teleport back, party surrender/defeat rules).
+//! This slice implements the player-vs-player duel that happens where the two
+//! players stand; `party_duel` on the wire is honoured only far enough to
+//! refuse it politely.
 //!
 //! G25's olympiad matches reuse this shape, which is why the audit put duels
 //! here rather than with the end-game milestones.
@@ -127,7 +130,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     };
 
     if party_duel != 0 {
-        // TODO(G27): party duels teleport both parties into an arena instance.
+        // Party duels are the module header's remaining G27 deferral.
         super::admin::send_message(world, client_id, "Party duels are not available yet.");
         return;
     }
