@@ -461,7 +461,87 @@ pub(crate) fn merge_skill_rates(world: &mut World, target_oid: i32, skill: &Skil
     }
 }
 
-/// `MagicMpCost.onExit` / `Reuse.onExit` — Java's `div`, the exact inverse of
+/// Rebuild the **passive** halves of the rate tables from the skill book.
+///
+/// Java applies a passive skill's effects when it is learned and re-checks
+/// them on every stat recompute, so `MagicMpCost`/`Reuse` on a passive are
+/// live stats like any other. The port used to drop them entirely:
+/// `conditioned_passive_buffs` keeps only `StatModifier` effects, so a passive
+/// whose *only* effect is a rate produced no buff and reached no table. That
+/// left Inner Rhythm (428), Quick Recovery (164), Summon Lore (435), Divine
+/// Lore (436), Holy Squad (615), Magician\'s Will (945) and Expert Casting
+/// (1527) doing nothing at all, plus the Clarity/Apella/boss-jewel item
+/// skills.
+///
+/// Wholesale rather than incremental, and therefore idempotent — see
+/// `SkillRateStats::passive_mp_consume` for why passives cannot share the
+/// buff tables\' merge/un-merge discipline.
+pub(crate) fn refresh_passive_skill_rates(world: &mut World, object_id: i32) {
+    use crate::model::components::{SkillBook, SkillRateStats};
+    use crate::model::skill::OperateType;
+
+    let Some(book) = world.objects.get_component::<SkillBook>(&object_id) else {
+        return;
+    };
+    let Some(inventory) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+    else {
+        return;
+    };
+    let mut mp: std::collections::HashMap<i32, f64> = std::collections::HashMap::new();
+    let mut reuse: std::collections::HashMap<i32, f64> = std::collections::HashMap::new();
+    for (&skill_id, &level) in &book.0 {
+        let Some(skill) = world.data.skill_data.get(skill_id, level) else {
+            continue;
+        };
+        if skill.operate_type != OperateType::Passive {
+            continue;
+        }
+        // The same `checkConditions(PASSIVE, …)` gate the stat half runs.
+        if !crate::game_loop::skills::conditions::passive_stat_gate(
+            skill,
+            inventory,
+            &world.data.item_data,
+        ) {
+            continue;
+        }
+        for (kind, magic_type, factor) in skill_rate_factors(skill) {
+            let table = match kind {
+                RateKind::MpConsume => &mut mp,
+                RateKind::Reuse => &mut reuse,
+            };
+            *table.entry(magic_type).or_insert(1.0) *= factor;
+        }
+    }
+    if mp.is_empty()
+        && reuse.is_empty()
+        && world
+            .objects
+            .get_component::<SkillRateStats>(&object_id)
+            .is_none()
+    {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<SkillRateStats>(&object_id)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&object_id, SkillRateStats::default());
+    }
+    if let Some(rs) = world
+        .objects
+        .get_component_mut::<SkillRateStats>(&object_id)
+    {
+        rs.passive_mp_consume = mp;
+        rs.passive_reuse = reuse;
+    }
+}
+
+/// `MagicMpCost.onExit` / `Reuse.onExit` — Java\'s `div`, the exact inverse of
 /// the `mul` above, so unmerging out of order still lands back on 1.
 pub(crate) fn remove_skill_rates(world: &mut World, target_oid: i32, skill: &Skill) {
     use crate::model::components::SkillRateStats;
@@ -563,12 +643,15 @@ fn skill_rate(world: &World, caster_oid: i32, skill: &Skill, kind: RateKind) -> 
     world
         .objects
         .get_component::<crate::model::components::SkillRateStats>(&caster_oid)
-        .and_then(|rs| {
-            let table = match kind {
-                RateKind::MpConsume => &rs.mp_consume,
-                RateKind::Reuse => &rs.reuse,
+        .map(|rs| {
+            let (buffs, passives) = match kind {
+                RateKind::MpConsume => (&rs.mp_consume, &rs.passive_mp_consume),
+                RateKind::Reuse => (&rs.reuse, &rs.passive_reuse),
             };
-            table.get(&skill.magic_type).copied()
+            // Passive and buff contributions compound, as Java's stacked
+            // effects on the same stat do.
+            buffs.get(&skill.magic_type).copied().unwrap_or(1.0)
+                * passives.get(&skill.magic_type).copied().unwrap_or(1.0)
         })
         .unwrap_or(1.0)
 }

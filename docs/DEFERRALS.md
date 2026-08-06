@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **103** such
+of narrow behaviours deferred and marked at the site. There are **102** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -355,3 +355,4 @@ grep -rn -oE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ | \
 | 2026-08-06 | `TODO(G19)` ×1 (`model/skill.rs`, Lethal) | **Closed** — and two of its three bullets were already false when read. `isHpBlocked()` *was* consulted, and grand bosses *were* immune (`is_raid()` matches the `GrandBoss` type name). Real work: the door case (`Door` component existed) and `calcCounterAttack`, which Java fires from `Lethal.instant` on top of the one `reduceCurrentHp` already ran — so a lethal cast counters **twice**, and suppressing the second would be the deviation. |
 | 2026-08-06 | `TODO(G19)` ×1 (`model/mod.rs`, charges) | **Closed.** `ResetChargesTask` — Force decays after ten idle minutes, the clock restarts on every gain and partial spend, and stops when the pool empties. Same generation-counter shape as `AttackState::swing_seq`, since the scheduler has no cancel; bumping the counter without re-arming *is* `stopChargeTask`. |
 | 2026-08-06 | `TODO(G14)` ×1 (`config/general.rs`) | **Stale.** "Honor these once `SkillTreeData.addSkills` has the special-skill data" — `gameMasterSkillTree.xml` and its aura twin ship in the dist and parse with the same shape as the hero/noble trees the loader already read. Granted at enter-world under the two config flags, and **filtered out of the persistence flush**: Java's `addSkill(skill, false)` means session-only, or turning the config back off leaves every GM who ever logged in holding Super Haste. |
+| 2026-08-06 | `TODO(G34)` ×1 (`skills/conditions.rs`, Inner Rhythm) | **Closed — the premise was false.** The marker asked whether the port should copy Java's disabling of Inner Rhythm's passive. Testing it in-game exposed that the port applied *nothing*: `conditioned_passive_buffs` keeps only `StatModifier` effects, so a passive whose only effect is a rate (`MagicMpCost`/`Reuse`) produced no buff and reached no rate table. Seven learnable passives were inert (164, 428, 435, 436, 615, 945, 1527) plus the Clarity/Apella/boss-jewel item skills. Fixed with a separate, wholesale-rebuilt passive half of `SkillRateStats`; the deviation from Java is kept and its reasoning rewritten. |

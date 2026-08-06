@@ -6291,3 +6291,72 @@ fn a_non_combat_transform_is_refused_a_walk_to_cast() {
     );
     assert!(!refused_for(0), "and an untransformed player is unaffected");
 }
+
+/// A **passive** carrying a rate effect (`MagicMpCost` / `Reuse`) has to reach
+/// the rate tables.
+///
+/// `conditioned_passive_buffs` keeps only `StatModifier` effects, so a passive
+/// whose *only* effect is a rate produced no buff and reached no table at all
+/// — Inner Rhythm (428) advertised "−10 % MP for songs and dances" and did
+/// exactly nothing. Six more learnable passives were inert the same way
+/// (164, 435, 436, 615, 945, 1527), plus the Clarity/Apella/boss-jewel item
+/// skills.
+#[test]
+fn a_passive_rate_skill_actually_discounts_the_skill_it_names() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    /// Inner Rhythm: `MagicMpCost -10 PER`, `magicType 3` (songs and dances).
+    const INNER_RHYTHM: i32 = 428;
+    /// Champion Song — `magicType 3`, `mpConsume 60`.
+    const SONG: i32 = 364;
+    /// Wind Strike — an ordinary magic skill, a different `magicType`.
+    const WIND_STRIKE: i32 = 1177;
+
+    let (mut world, ..) = test_world();
+    world.data = crate::data::GameData::load_from(DIST);
+    let _rx = ingame_player_access(&mut world, 1, 7711, 0);
+
+    let song = world.data.skill_data.get(SONG, 1).expect("song").clone();
+    let nuke = world
+        .data
+        .skill_data
+        .get(WIND_STRIKE, 1)
+        .expect("wind strike")
+        .clone();
+    let mp = |w: &World, s: &crate::model::skill::Skill| {
+        crate::game_loop::skills::effects::mp_consume_for(w, 7711, s)
+    };
+
+    let (song_before, nuke_before) = (mp(&world, &song), mp(&world, &nuke));
+    assert_eq!(song_before, 60, "sanity: the dist still prices it at 60");
+
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&7711)
+        .unwrap()
+        .0
+        .insert(INNER_RHYTHM, 1);
+    crate::game_loop::passive_skills::refresh_conditioned_passives(&mut world, 7711);
+
+    assert_eq!(
+        mp(&world, &song),
+        54,
+        "−10 % of 60 — the discount the skill description promises"
+    );
+    // The bucket is the *skill's* magicType, so a nuke is untouched: a rate
+    // that leaked across buckets would look like a working discount too.
+    assert_eq!(
+        mp(&world, &nuke),
+        nuke_before,
+        "a skill outside magicType 3 is unaffected"
+    );
+
+    // Unlearning restores it — the rebuild is wholesale, not a one-way merge.
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&7711)
+        .unwrap()
+        .0
+        .remove(&INNER_RHYTHM);
+    crate::game_loop::passive_skills::refresh_conditioned_passives(&mut world, 7711);
+    assert_eq!(mp(&world, &song), song_before, "and it comes back off");
+}
