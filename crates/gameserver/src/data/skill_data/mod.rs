@@ -19,8 +19,9 @@
 //!   this file, so both children reach their private fields).
 //! - `build` — `build_skill`: one staged skill + a level/sub-level → the
 //!   finished `Skill`, resolving the per-level tables and effect params.
-//! - `tests`, `coverage_census` — the test modules, unchanged; the census
-//!   measures effect coverage against the real dist files.
+//! - `tests` — the test module, unchanged. The coverage census that measures
+//!   effect coverage against the real dist files lives with the datapack
+//!   tooling: `crates/tools/tests/coverage_census.rs`.
 
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -227,9 +228,9 @@ pub type GapMap = BTreeMap<String, BTreeSet<i32>>;
 /// where Java would have refused it. Nothing on the Rust side says so.
 ///
 /// This records what was dropped, per category, while parsing. Two consumers:
-/// [`SkillData::load_from`] logs a summary at boot, and
-/// `tests::datapack_skill_coverage_census` asserts the exact set so the gap can
-/// only ever shrink deliberately.
+/// [`SkillData::load_from`] logs a summary at boot, and the coverage census in
+/// the `tools` crate (`crates/tools/tests/coverage_census.rs`) asserts the
+/// exact set so the gap can only ever shrink deliberately.
 ///
 /// **This is a record of what the *parser* dropped, not of what the datapack
 /// contains.** A name that appears here is unhandled; a name that does *not*
@@ -1071,19 +1072,3 @@ fn patched_condition_params(c: &ParsedCondition, level: i32, sub: i32) -> Levele
 
 #[cfg(test)]
 mod tests;
-
-/// **The G34 coverage census** (PLAN_G34_SKILL_PARITY.md §S0).
-///
-/// [`SkillGaps`] records what the parser dropped; this module intersects that
-/// with what the rest of the datapack can actually *reach*, and asserts the
-/// result. The whole point is that the numbers are checked in: land a handler
-/// and the census fails until its name is struck off, so coverage can only move
-/// deliberately.
-///
-/// **Reachability is measured from the raw XML, not from the ported loaders.**
-/// A text scan answers "does the dist reference this skill id anywhere",
-/// which is the honest denominator; going through `SkillTreeData`/`NpcData`
-/// would measure the port's own coverage of *those* files instead and quietly
-/// shrink the gap it is supposed to expose.
-#[cfg(test)]
-mod coverage_census;

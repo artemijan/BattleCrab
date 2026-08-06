@@ -27,7 +27,7 @@ this order:
 1. **The code.** `grep -rn "TODO(" crates/ --include='*.rs'`.
 2. **[DEFERRALS.md](DEFERRALS.md)** — the marker inventory, generated from the
    code and held to it by the `deferral_markers_match_the_recorded_inventory`
-   test in `crates/gameserver/src/data/skill_data/coverage_census.rs`. Adding a gap without
+   test in `crates/tools/tests/coverage_census.rs`. Adding a gap without
    recording it fails the build; closing one without updating the count fails
    too.
 3. **[PROGRESS.md](PROGRESS.md)** — the dated journal of what landed and why.

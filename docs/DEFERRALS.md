@@ -41,7 +41,7 @@ and left this specific thing", which is the intended end state, not a
 contradiction.
 
 The count is asserted by `deferral_markers_match_the_recorded_inventory` in
-`crates/gameserver/src/data/skill_data/coverage_census.rs`. It moves only when
+`crates/tools/tests/coverage_census.rs`. It moves only when
 someone changes it deliberately: adding a gap without recording it fails, and
 closing one without updating the number fails too — the same two-way discipline
 G34's close-out gate uses.
