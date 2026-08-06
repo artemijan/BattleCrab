@@ -718,3 +718,60 @@ fn town_gatekeeper_is_not_on_castle_ground() {
         "inside the siege zone the castle branch still runs"
     );
 }
+
+/// `Npc.showChatWindow`'s reputation gate: a criminal gets `<npcId>-pk.htm`
+/// instead of the shop, and an `ActionFailed` so the client stops waiting.
+///
+/// The gate only bites where the datapack wrote a refusal — Java's
+/// `showPkDenyChatWindow` returns false for a missing file and falls through
+/// to the ordinary dialog. 92 merchants, 24 teleporters and one fisherman have
+/// one on this dist; every other NPC serves a criminal normally.
+#[test]
+fn a_criminal_is_refused_by_merchants_that_have_a_pk_page() {
+    /// Trader Lector — has `merchant/30001-pk.htm`.
+    const LECTOR: i32 = 30001;
+    /// Blacksmith Ferris — a Merchant with **no** `-pk.htm` on this dist.
+    const NO_PK_PAGE: i32 = 30847;
+
+    let (mut world, ..) = test_world();
+    world.data.root = TELE_DIST.to_string();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    let lector = NPC_OID + 60;
+    let ferris = NPC_OID + 61;
+    add_test_npc(&mut world, lector, LECTOR, "Merchant", 40, 0, 0, 0);
+    add_test_npc(&mut world, ferris, NO_PK_PAGE, "Merchant", 40, 0, 0, 0);
+
+    let page = |w: &mut World, rx: &mut _, npc: i32| {
+        drain(rx);
+        crate::game_loop::target::show_chat_window(w, 1, npc, 0);
+        drain(rx).iter().find_map(|p| decode_npc_html(p))
+    };
+
+    // Clean reputation: the ordinary dialog, not the refusal.
+    let clean = page(&mut world, &mut rx, lector).expect("a page");
+    assert!(
+        !clean.contains("scoundrel"),
+        "an honest player is served: {clean}"
+    );
+
+    // Karma: the refusal page.
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3001)
+        .unwrap()
+        .reputation = -500;
+    let refused = page(&mut world, &mut rx, lector).expect("a page");
+    assert!(
+        refused.contains("scoundrel"),
+        "the criminal gets 30001-pk.htm: {refused}"
+    );
+
+    // …but a merchant with no refusal page still serves them, which is the
+    // half that a blanket "criminals cannot shop" gate would get wrong.
+    let served = page(&mut world, &mut rx, ferris).expect("a page");
+    assert!(
+        !served.contains("scoundrel"),
+        "no -pk.htm means no refusal: {served}"
+    );
+}

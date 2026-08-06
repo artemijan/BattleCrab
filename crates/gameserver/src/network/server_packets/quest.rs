@@ -20,6 +20,28 @@ pub fn play_sound(sound_file: &str) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `new PlaySound(1, soundFile, 0, 0, 0, 0, 0)` — the **music** shape: type 1
+/// like the positioned roars, but with the ship/position fields left at zero
+/// so the track plays flat rather than attenuating with distance. The boss
+/// lair themes use it.
+///
+/// Distinct from [`play_sound`], which writes type **0** — the quest-sound
+/// form. The client treats the two differently, so a lair theme sent as a
+/// quest sound is not the same packet with a cosmetic difference.
+pub fn play_music(sound_file: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLAY_SOUND);
+    w.write_i32(1);
+    w.write_string(sound_file);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
 /// Port of the positioned `PlaySound` shape (`new PlaySound(1, soundFile, 1,
 /// objectId, x, y, z)`) — the grand-boss roars are anchored to the boss so the
 /// client attenuates them by distance instead of playing them flat.

@@ -889,3 +889,88 @@ fn valakas_re_picks_a_dead_victim() {
         "the dead victim was replaced by the living one"
     );
 }
+
+/// Java's `"broadcast_spawn"` — the lair theme and Valakas' roar animation,
+/// armed 100 ms into `"beginning"`. The port had the cinematic beats but not
+/// the two packets that open them, so the fight started in silence with no
+/// roar.
+///
+/// The theme is `PlaySound(1, …)`, the **music** shape — not the type-0
+/// quest-sound form, which is a different packet to the client rather than a
+/// cosmetic variant of the same one.
+#[test]
+fn beginning_the_cinematic_plays_the_lair_theme_and_the_roar() {
+    use crate::network::server_packets::opcodes;
+
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
+    let mut rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    put_player_at(&mut world, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    while rx.try_recv().is_ok() {}
+
+    crate::game_loop::valakas::begin_cinematic(&mut world, VALAKAS_OID);
+
+    let packets: Vec<Vec<u8>> =
+        std::iter::from_fn(|| rx.try_recv().ok().map(|b| b.to_vec())).collect();
+    let sound = packets
+        .iter()
+        .find(|p| p[0] == opcodes::PLAY_SOUND)
+        .expect("the lair theme is played");
+    assert_eq!(
+        i32::from_le_bytes([sound[1], sound[2], sound[3], sound[4]]),
+        1,
+        "type 1 — the music shape, not the type-0 quest sound"
+    );
+    assert!(
+        packets.iter().any(|p| p[0] == opcodes::SOCIAL_ACTION
+            && i32::from_le_bytes([p[1], p[2], p[3], p[4]]) == VALAKAS_OID
+            && i32::from_le_bytes([p[5], p[6], p[7], p[8]]) == 3),
+        "and Valakas performs social action 3"
+    );
+}
+
+/// The exit cubes carry Java's 15-minute `addSpawn` lifetime. Without it they
+/// stand in an empty lair until the next restart, and the next Valakas fight
+/// adds fifteen more on top of them.
+#[test]
+fn the_exit_cubes_are_armed_to_despawn() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, 0, 0, 0);
+    world.id_pool = 0x4400_0000..0x4400_0100;
+    // The cubes need a template to spawn at all — without one
+    // `spawn_npc_at` returns None and the despawn count is silently zero.
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(31759));
+
+    let before = world
+        .scheduler
+        .pending_tasks_for_test()
+        .iter()
+        .filter(|t| matches!(t, crate::scheduler::ScheduledTask::DespawnNpc { .. }))
+        .count();
+    // The final death beat is the one that drops the cubes.
+    let last = (crate::game_loop::valakas::death_cinematic_len() - 1) as u8;
+    crate::game_loop::valakas::handle_death_cinematic_step(&mut world, VALAKAS_OID, last);
+    let after = world
+        .scheduler
+        .pending_tasks_for_test()
+        .iter()
+        .filter(|t| matches!(t, crate::scheduler::ScheduledTask::DespawnNpc { .. }))
+        .count();
+    assert_eq!(
+        after - before,
+        15,
+        "one despawn armed per exit cube, not zero and not one"
+    );
+}

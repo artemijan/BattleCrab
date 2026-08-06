@@ -500,6 +500,15 @@ pub(crate) fn begin_cinematic(world: &mut World, valakas_oid: i32) {
         p.y = VALAKAS_LAIR.1;
         p.z = VALAKAS_LAIR.2;
     }
+    // `"broadcast_spawn"`, which Java arms 100 ms in: the lair theme plus
+    // Valakas' roar animation, to everyone inside. A hundred milliseconds is
+    // under one tick here, so it goes out inline rather than through a task
+    // that could only fire at the same tick anyway.
+    broadcast_to_lair(world, &crate::network::server_packets::play_music("BS03_A"));
+    broadcast_to_lair(
+        world,
+        &crate::network::server_packets::social_action(valakas_oid, 3),
+    );
     for (i, (delay_ms, _)) in CINEMATIC.iter().enumerate() {
         world.scheduler.schedule(
             world.tick + (delay_ms / 1000 * TICKS_PER_SECOND).max(1),
@@ -568,6 +577,9 @@ pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u
 /// `scripts::valakas_teleporters`; the kill just has to spawn the cubes.
 const CUBE: i32 = 31759;
 
+/// `addSpawn(..., 900000)` — the cubes' 15-minute despawn, in ticks.
+const CUBE_LIFETIME_TICKS: u64 = 900_000 / 100;
+
 /// `TELEPORT_CUBE_LOCATIONS` — the fifteen exit cubes `die_8` drops around the
 /// lair (Java's array, verbatim).
 const TELEPORT_CUBE_LOCATIONS: [(i32, i32, i32); 15] = [
@@ -612,9 +624,9 @@ const REMOVE_PLAYERS_SECS: u64 = 900;
 /// window and DEAD status are already set by `grand_boss::on_grand_boss_killed`,
 /// which runs first on the shared death path.
 pub(crate) fn on_valakas_killed(world: &mut World, valakas_oid: i32) {
-    // TODO(G23): Java plays the type-1 music variant `PlaySound(1, "B03_D", …)`;
-    // the ported builder emits the type-0 quest-sound form.
-    broadcast_to_lair(world, &crate::network::server_packets::play_sound("B03_D"));
+    // `BOSS_ZONE.broadcastPacket(new PlaySound(1, "B03_D", 0, 0, 0, 0, 0))` —
+    // the lair theme, type 1, not the type-0 quest-sound form.
+    broadcast_to_lair(world, &crate::network::server_packets::play_music("B03_D"));
     let open = crate::network::server_packets::special_camera(
         valakas_oid,
         1200,
@@ -644,6 +656,13 @@ pub(crate) fn on_valakas_killed(world: &mut World, valakas_oid: i32) {
 
 /// One death-cinematic beat. The eighth (`die_8`) also drops the fifteen exit
 /// cubes and arms the 15-minute `remove_players` oust.
+/// How many beats the death cinematic has — a test hook, so a test naming
+/// "the last beat" cannot drift from the table.
+#[cfg(test)]
+pub(crate) fn death_cinematic_len() -> usize {
+    DEATH_CINEMATIC.len()
+}
+
 pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, step: u8) {
     let Some((_, a)) = DEATH_CINEMATIC.get(step as usize).copied() else {
         return;
@@ -666,7 +685,16 @@ pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, s
 
     if step as usize == DEATH_CINEMATIC.len() - 1 {
         for (x, y, z) in TELEPORT_CUBE_LOCATIONS {
-            crate::model::npc::spawn_npc_at(world, CUBE, x, y, z, 0);
+            // `addSpawn(31759, loc, false, 900000)` — the cubes carry their own
+            // 15-minute lifetime. Without it they stand in an empty lair until
+            // the next server restart, and the next Valakas fight adds fifteen
+            // more on top.
+            if let Some(cube) = crate::model::npc::spawn_npc_at(world, CUBE, x, y, z, 0) {
+                world.scheduler.schedule(
+                    world.tick + CUBE_LIFETIME_TICKS,
+                    crate::scheduler::ScheduledTask::DespawnNpc { npc_oid: cube },
+                );
+            }
         }
         world.scheduler.schedule(
             world.tick + REMOVE_PLAYERS_SECS * TICKS_PER_SECOND,
@@ -676,8 +704,8 @@ pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, s
 }
 
 /// `remove_players` → `BOSS_ZONE.oustAllPlayers()`: teleport everyone still in
-/// the lair out to the exit. (The cubes despawn on their own 15-minute
-/// `addSpawn` lifetime — a despawn task per cube is deferred, TODO(G23).)
+/// the lair out to the exit. The cubes outlive this by design — they are on
+/// their own 15-minute `addSpawn` lifetime, armed where they spawn.
 pub(crate) fn handle_remove_players(world: &mut World) {
     for player_oid in players_in_lair_oids(world) {
         teleport_out(world, player_oid);
