@@ -173,6 +173,27 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// → 143 at S6: the item tail's two biggest names — `Teleport` (every
 /// destination Scroll of Escape, 107 reachable, all previously inert) and
 /// `Hp` (Elixir of Life and the food items). Reachable 1303 → 1167.
+/// → 134 at **S9**, the live-reachability pass. S4 onward ranked the tail by
+/// *reachable*, which counts any skill the datapack merely mentions — and
+/// most of what was left is later-chronicle content this server can never
+/// hand a player (Agathion, brooch jewels, Sayha's, Vitality runes).
+/// Re-ranking by what is actually **obtainable** — an NPC that appears in a
+/// spawn file, an item off one of their drop lists, a buylist, a multisell, a
+/// recipe or a quest reward — cut 1154 reachable to 611 live, and left a
+/// short list of real Interlude content standing out of it. These four are
+/// that list's effect half: `DispelAll` (skill 4177 Cancellation, cast by
+/// ~40 raid bosses and until now a no-op), `GiveSp` (SP Scrolls and the
+/// Primeval Isle crystals), `TeleportToTarget` (the Splendor mobs'
+/// gap-closer), `SetSkill` (the Ancient Book: Divine Inspiration family) and
+/// `Grow` (the collision swell on Might/Ultimate Buff/Berserker Spirit, which
+/// the Orc Prefect and Grandis families cast — 1891 templates on this dist
+/// declare the `grown` cylinder it reads). Reachable 1154 → 975.
+///
+/// `Escape` is **not** off this list, and should not be: its TOWN, CLANHALL
+/// and CASTLE arms are all ported now — which is what un-inerted the Scrolls
+/// of Escape: Clan Hall/Castle and their blessed twins — but `FORTRESS` still
+/// drops on purpose. There is no fortress system to teleport to, and letting
+/// it fall back to town would hide that behind a plausible-looking result.
 const EFFECTS: &[(&str, usize)] = &[("StatUp", 9), ("SafeFallHeight", 1)];
 
 /// `<effect-scope>` names with at least one **learnable** skill behind them —
@@ -181,8 +202,8 @@ const EFFECTS: &[(&str, usize)] = &[("StatUp", 9), ("SafeFallHeight", 1)];
 const EFFECT_SCOPES: &[(&str, usize)] = &[];
 
 /// `<condition>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 69 name(s), 1 learnable
-/// skill(s) affected, 916 reachable.
+/// the work list, worst first. Category totals: 61 name(s), 1 learnable
+/// skill(s) affected, 734 reachable.
 ///
 /// **G34 S1 took this from 111 names / 215 learnable skills down to this.**
 /// The single learnable hold-out is `OpSweeper`, left out on purpose: Java's
@@ -190,11 +211,24 @@ const EFFECT_SCOPES: &[(&str, usize)] = &[];
 /// about spoil ownership, corpse age and the sweeper's free inventory — all
 /// of which `effects::sweep` already does at *apply* time with the right
 /// per-corpse messages. Gating the cast on it too would double every one.
+///
+/// 69 → 61 names at S9, the live-reachability pass — six Java handlers, eight
+/// names, because `OpTargetNpc` and `OpAlignment` each appear under two
+/// scopes. `OpHome` (the blessed scrolls' residence gate), `OpTargetDoor`
+/// (the Four Sepulchers keys), `OpTargetNpc` (Nectar on a squash),
+/// `OpCompanion` (Blessed Scroll of Resurrection (Pet)), `OpAlignment` (the
+/// race-village scrolls) and `OpSkill` (the Ancient Books). Reachable
+/// 916 → 734.
 const CONDITIONS: &[(&str, usize)] = &[("conditions/OpSweeper", 1)];
 
 /// `<targetType>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 9 name(s), 0 learnable
-/// skill(s) affected, 476 reachable.
+/// the work list, worst first. Category totals: 8 name(s), 0 learnable
+/// skill(s) affected, 457 reachable.
+///
+/// 9 → 8 at S9: `OWNER_PET`. It had been folded into `TargetType::Other`
+/// with a note claiming every reachable carrier resolved correctly anyway —
+/// which was true of the tamed-beast buffs and false of Master Recharge
+/// (4025), the skill every Baby Kookaburra carries. See the `EFFECTS` note.
 const TARGET_TYPES: &[(&str, usize)] = &[];
 
 /// `<affectScope>` names with at least one **learnable** skill behind them —
@@ -245,10 +279,10 @@ fn datapack_skill_coverage_census() {
         // (Porta 20213 / skill 4161) and the player prompt (Summon Friend
         // 1403 and its siblings) — so counting it as handled no longer
         // overstates anything. It did until 2026-08-06.
-        ("effect", &gaps.effects, EFFECTS, 138, 10, 1154),
+        ("effect", &gaps.effects, EFFECTS, 133, 10, 975),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
-        ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
-        ("targetType", &gaps.target_types, TARGET_TYPES, 9, 0, 476),
+        ("condition", &gaps.conditions, CONDITIONS, 61, 1, 734),
+        ("targetType", &gaps.target_types, TARGET_TYPES, 8, 0, 457),
         ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
         (
             "affectObject",

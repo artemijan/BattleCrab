@@ -2484,11 +2484,20 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
 
     // A self/support skill targets the servitor; anything else needs the
     // owner's current target, exactly like the attack command.
+    //
+    // `OWNER_PET` is the exception Java writes out by hand ahead of target
+    // resolution (`Summon.useMagic`: `if (targetType == OWNER_PET) target =
+    // _owner`) — the skill aims at the owner whatever they have selected.
+    // Master Recharge (4025) is the carrier: without this branch a Baby
+    // Kookaburra recharged whatever mob its owner had clicked, and refused
+    // with "invalid target" when they had clicked nothing at all.
     let target_oid = if matches!(
         skill.target_type,
         crate::model::skill::TargetType::Self_ | crate::model::skill::TargetType::None_
     ) {
         servitor_oid
+    } else if skill.target_type == crate::model::skill::TargetType::OwnerPet {
+        owner_oid
     } else {
         match world
             .objects

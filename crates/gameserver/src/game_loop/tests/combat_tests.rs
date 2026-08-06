@@ -2174,10 +2174,13 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
         }]);
     insert_siege_zone(&mut world, 3, -1000, 1000, -1000, 1000);
     // The castle's owner restart point (from castle_hall.xml).
-    world
-        .data
-        .castle_restart_points
-        .insert(3, vec![(500, 600, 100)]);
+    world.data.castle_restart_points.insert(
+        3,
+        crate::data::castle_zone_data::CastleRespawnPoints {
+            spawn: vec![(500, 600, 100)],
+            ..Default::default()
+        },
+    );
     // Clan 700 owns castle 3 and is under siege.
     world.clans.insert(
         700,

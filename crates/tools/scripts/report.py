@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Cross the parser's gap map with the live-reachability index."""
-import json
+import json, os
+import os
 from collections import defaultdict
 
 live = json.load(open(os.environ.get("OUT", "target") + "/live.json"))

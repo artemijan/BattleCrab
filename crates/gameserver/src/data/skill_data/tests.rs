@@ -597,12 +597,16 @@ fn loads_real_dist_files() {
     assert_eq!(escape.target_type, TargetType::Self_);
     assert!(matches!(
         escape.effects.as_slice(),
-        [SkillEffect::EscapeToTown]
+        [SkillEffect::Escape {
+            dest: EscapeDest::Town
+        }]
     ));
     let gm_escape = sd.get(2100, 1).expect("Escape: 1 Second lvl 1");
     assert!(matches!(
         gm_escape.effects.as_slice(),
-        [SkillEffect::EscapeToTown]
+        [SkillEffect::Escape {
+            dest: EscapeDest::Town
+        }]
     ));
 
     // G15 item-cast slice: `ItemSkillsTemplate` picks the instant vs cast

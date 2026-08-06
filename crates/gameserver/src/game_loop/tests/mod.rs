@@ -89,6 +89,7 @@ mod instance_tests;
 mod item_auction_tests;
 mod item_link_tests;
 mod items_tests;
+mod live_gap_tests;
 mod lobby_tests;
 mod lottery_tests;
 mod magic_resist_tests;

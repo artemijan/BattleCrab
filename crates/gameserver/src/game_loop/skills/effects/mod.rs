@@ -878,30 +878,53 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::GiveItemRandom { groups } => {
                 give_item_random(world, target_oid, groups);
             }
-            SkillEffect::EscapeToTown => {
-                // `Escape.instant()` → `teleToLocation(TeleportWhereType.TOWN)`:
-                // the enclosing map region's town respawn, random point when
-                // `RandomRespawnInTownEnabled` (players only — NPCs never carry
-                // this effect).
-                if let Some(race) = world
+            // `GiveSp.instant` — SP Scrolls and the Primeval Isle crystals.
+            //
+            // Java credits the **effector**, guards on both ends being players
+            // and on the effected not being alike-dead, and calls the plain
+            // two-arg `addExpAndSp` — which is `useBonuses = false`, so no
+            // vitality or rate multiplier applies to a scroll.
+            SkillEffect::GiveSp { sp } => {
+                let both_players = world
                     .objects
-                    .get_component::<crate::model::Player>(&target_oid)
-                    .map(|p| crate::enums::Race::from_ordinal(p.race).unwrap_or(crate::enums::Race::Human))
-                {
-                    let pos = world
+                    .has_component::<crate::model::Player>(&caster_oid)
+                    && world
                         .objects
-                        .get_component::<crate::model::components::Position>(&target_oid)
-                        .copied();
-                    if let Some(pos) = pos {
-                        let pick = if world.cfg.character.random_respawn_in_town {
-                            world.roll(64) as usize
-                        } else {
-                            0
-                        };
-                        if let Some((x, y, z)) = world.data.map_region.town_respawn(pos.x, pos.y, pos.z, race, pick) {
-                            crate::game_loop::death::teleport_player(world, target_oid, x, y, z);
-                        }
-                    }
+                        .has_component::<crate::model::Player>(&target_oid);
+                let dead = world
+                    .objects
+                    .get_component::<crate::model::components::Vitals>(&target_oid)
+                    .is_some_and(|v| v.dead);
+                if both_players && !dead {
+                    crate::game_loop::death::add_exp_and_sp(
+                        world,
+                        caster_oid,
+                        0.0,
+                        *sp as f64,
+                        false,
+                    );
+                }
+            }
+            // `SetSkill.instant` — `addSkill(skill, true)`: granted and stored,
+            // exactly as if it had been learned from a trainer.
+            SkillEffect::SetSkill {
+                skill_id,
+                skill_level,
+            } => {
+                set_skill(world, target_oid, *skill_id, *skill_level);
+            }
+            // `TeleportToTarget.instant` — the caster dashes behind the target.
+            SkillEffect::TeleportToTarget => {
+                control::teleport_to_target(world, caster_oid, target_oid);
+            }
+            // `Escape.instant()` → `teleToLocation(TeleportWhereType)`. Players
+            // only — nothing else carries the effect.
+            SkillEffect::Escape { dest } => {
+                if world
+                    .objects
+                    .has_component::<crate::model::Player>(&target_oid)
+                {
+                    escape_to(world, target_oid, *dest);
                 }
             }
             // `Teleport.instant` — `teleToLocation(loc, true, null)`. The
@@ -1004,6 +1027,51 @@ pub(crate) fn apply_skill_effects(
                     handle_buff_expire(world, target_oid, skill_id);
                 }
             }
+            // `DispelAll.instant` — `effected.stopAllEffects()`, i.e.
+            // `stopEffects(b -> !b.getSkill().isIrreplacableBuff())`: no
+            // abnormal-type list and no level ranking, just "everything that is
+            // not irreplacable". Skill 4177 Cancellation, the raid-boss sweep.
+            //
+            // The predicate is `stay_after_death` for the same reason
+            // `DispelBySlotMyself` uses it: this port folds `<irreplacableBuff>`
+            // into that field (G34 S3) and cannot tell the three source tags
+            // apart. It spares marginally more than Java here — a skill with
+            // only `<stayAfterDeath>` survives a cancel it would lose upstream
+            // — which is the conservative direction for a buff-stripping
+            // effect, and consistent with the arm above.
+            SkillEffect::DispelAll => {
+                let candidates: Vec<(i32, i32, bool)> = world
+                    .objects
+                    .get_component::<Buffs>(&target_oid)
+                    .map(|buffs| {
+                        buffs
+                            .0
+                            .iter()
+                            .map(|b| (b.skill_id, b.skill_level, b.passive))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                let to_dispel: Vec<i32> = candidates
+                    .into_iter()
+                    // Passives never sit in Java's `_actives` list at all.
+                    .filter(|&(_, _, passive)| !passive)
+                    .filter(|&(sid, slvl, _)| {
+                        world
+                            .data
+                            .skill_data
+                            .get(sid, slvl)
+                            .is_some_and(|bs| !bs.stay_after_death)
+                    })
+                    .map(|(sid, _, _)| sid)
+                    .collect();
+                for skill_id in to_dispel {
+                    handle_buff_expire(world, target_oid, skill_id);
+                }
+            }
+            // `Grow` is a continuous-only pair of hooks (onStart/onExit);
+            // both live on the buff apply/expire path, so the instant
+            // dispatch has nothing to do for it.
+            SkillEffect::Grow => {}
             SkillEffect::DispelBySlot { dispel } => instant::dispel_by_slot(world, &ctx, skill, dispel),
             SkillEffect::DispelBySlotProbability { dispel, rate } => instant::dispel_by_slot_probability(world, &ctx, skill, dispel, *rate),
             // `DispelByCategory.instant` — the "Cancel" family (Cancellation,
@@ -1479,6 +1547,160 @@ pub(crate) fn apply_skill_effects(
 /// .servitor` link, pet excluded — the correct query rather than a component
 /// scan that would sweep the pet in.
 ///
+/// `SetSkill.instant` — `effected.getActingPlayer().addSkill(skill, true)`.
+///
+/// Java's `addSkill(skill, store = true)` writes the skill to the character and
+/// persists it; the *client* only learns about it on the next `sendSkillList()`,
+/// which Java leaves to whatever ran the effect. This port sends it here
+/// instead of relying on a caller to remember, because the alternative is a
+/// skill that is real server-side but invisible in the window until relog.
+fn set_skill(world: &mut World, player_oid: i32, skill_id: i32, skill_level: i32) {
+    if skill_id <= 0 {
+        return;
+    }
+    let Some(book) = world
+        .objects
+        .get_component_mut::<crate::model::components::SkillBook>(&player_oid)
+    else {
+        // Not a player — Java's `if (!effected.isPlayer()) return`.
+        return;
+    };
+    // Java's `addSkill` replaces by id, so a lower-level grant would *downgrade*
+    // a skill the player already has further. Nothing on this dist can hit that
+    // (the Ancient Books each gate on `OpSkill` for the preceding level), and
+    // the guard is cheap insurance against a re-read book undoing progress.
+    if book
+        .0
+        .get(&skill_id)
+        .is_some_and(|&have| have >= skill_level)
+    {
+        return;
+    }
+    book.0.insert(skill_id, skill_level);
+    // A granted passive has to start contributing now, not at the next login.
+    crate::game_loop::passive_skills::recompute_conditioned_passives(world, player_oid);
+    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid)
+        && let Some(cs) = crate::game_loop::helpers::client_for_player(world, player_oid)
+            .and_then(|c| world.clients.get(&c))
+    {
+        cs.send(pkt);
+    }
+}
+
+/// `MapRegionManager.getTeleToLocation(player, where)` for the destinations
+/// [`SkillEffect::Escape`] can name.
+///
+/// The structure is Java's, and the important part of it is that the residence
+/// branches **fall through**: `getTeleToLocation` only returns early when it
+/// resolves a residence, so a Scroll of Escape: Castle used by a clanless
+/// player is not a wasted scroll — it is a town escape. Only the *blessed*
+/// scrolls refuse, and they refuse in their `OpHome` condition before the
+/// effect ever runs.
+fn escape_to(world: &mut World, player_oid: i32, dest: crate::model::skill::EscapeDest) {
+    use crate::model::skill::EscapeDest;
+
+    if let Some((x, y, z)) = match dest {
+        EscapeDest::Town => None,
+        EscapeDest::ClanHall => clan_hall_escape(world, player_oid),
+        EscapeDest::Castle => castle_escape(world, player_oid),
+    } {
+        crate::game_loop::death::teleport_player(world, player_oid, x, y, z);
+        return;
+    }
+
+    // `TeleportWhereType.TOWN`: the enclosing map region's respawn, a random
+    // point when `RandomRespawnInTownEnabled`.
+    let Some(race) = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .map(|p| crate::enums::Race::from_ordinal(p.race).unwrap_or(crate::enums::Race::Human))
+    else {
+        return;
+    };
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&player_oid)
+        .copied()
+    else {
+        return;
+    };
+    let pick = if world.cfg.character.random_respawn_in_town {
+        world.roll(64) as usize
+    } else {
+        0
+    };
+    if let Some((x, y, z)) = world
+        .data
+        .map_region
+        .town_respawn(pos.x, pos.y, pos.z, race, pick)
+    {
+        crate::game_loop::death::teleport_player(world, player_oid, x, y, z);
+    }
+}
+
+/// `ClanHallData.getClanHallByClan(clan).getOwnerLocation()` — the hall's
+/// `<ownerRestartPoint>`. `None` (→ town) when the player has no clan or the
+/// clan holds no hall.
+fn clan_hall_escape(world: &World, player_oid: i32) -> Option<(i32, i32, i32)> {
+    let clan_id = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)?
+        .clan_id;
+    if clan_id == 0 {
+        return None;
+    }
+    world
+        .clan_halls
+        .values()
+        .find(|h| h.owner_id == clan_id)
+        .map(|h| h.owner_restart)
+}
+
+/// `CastleManager.getCastleByOwner(clan)`, falling back to "standing on the
+/// ground of a castle my clan is *defending* in a live siege" — Java accepts
+/// both. The point itself is the residence zone's `getSpawnLoc()`, or
+/// `getChaoticSpawnLoc()` for a player with negative reputation.
+fn castle_escape(world: &mut World, player_oid: i32) -> Option<(i32, i32, i32)> {
+    use crate::model::siege::SiegeClanType;
+
+    let (clan_id, reputation) = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .map(|p| (p.clan_id, p.reputation))?;
+    if clan_id == 0 {
+        return None;
+    }
+    let owned = world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.castle_id)
+        .filter(|id| *id > 0);
+    let castle_id = match owned {
+        Some(id) => id,
+        None => {
+            // Not the owner: only a defender standing on castle ground during
+            // a live siege qualifies.
+            let pos = world
+                .objects
+                .get_component::<crate::model::components::Position>(&player_oid)?;
+            let id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
+            let siege = world.sieges.get(&id)?;
+            let defending = siege.in_progress
+                && siege.clans.iter().any(|c| {
+                    c.clan_id == clan_id
+                        && matches!(c.kind, SiegeClanType::Owner | SiegeClanType::Defender)
+                });
+            defending.then_some(id)?
+        }
+    };
+    let pick = world.roll(64) as usize;
+    world
+        .data
+        .castle_restart_points
+        .get(&castle_id)?
+        .pick(reputation < 0, pick)
+}
+
 /// The recursion terminates: the servitor is an NPC, so the re-applied cast
 /// fails this function's `isPlayer()` clause and shares no further.
 fn share_with_servitor(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {

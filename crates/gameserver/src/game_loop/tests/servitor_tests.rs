@@ -3984,6 +3984,72 @@ fn a_servitor_casts_the_skill_its_action_button_names() {
     );
 }
 
+/// `OWNER_PET` aims at the **owner**, whatever they have selected.
+///
+/// Java writes this out by hand ahead of target resolution (`Summon.useMagic`:
+/// `if (targetType == OWNER_PET) target = _owner`). The port collapsed the type
+/// into `TargetType::Other`, which took the owner's *current selection*
+/// instead — so Master Recharge (4025), the skill every Baby Kookaburra
+/// carries, recharged whatever mob its owner had clicked, and refused with
+/// "invalid target" when they had clicked nothing.
+#[test]
+fn an_owner_pet_skill_targets_the_owner_not_their_selection() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    const SKILL: i32 = 4025;
+    {
+        let mut tpl = world.data.npc_data.get(PANTHER).unwrap().clone();
+        tpl.skill_list.push((SKILL, 1));
+        world.data.npc_data.insert_for_test(tpl);
+    }
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            self_continuous: false,
+            id: SKILL,
+            level: 1,
+            name: "Master Recharge".into(),
+            target_type: crate::model::skill::TargetType::OwnerPet,
+            cast_range: 400,
+            effect_range: 900,
+            effects: vec![crate::model::skill::SkillEffect::ManaHeal { power: 50.0 }],
+            ..Default::default()
+        });
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
+
+    // The owner is short on MP and — the part that used to break it — has
+    // something else entirely selected.
+    world
+        .objects
+        .get_component_mut::<Vitals>(&OWNER)
+        .unwrap()
+        .cur_mp = 1.0;
+    let before = world
+        .objects
+        .get_component::<Vitals>(&OWNER)
+        .unwrap()
+        .cur_mp;
+    world
+        .objects
+        .add_components(&OWNER, crate::model::components::TargetRef(Some(servitor)));
+
+    crate::game_loop::servitor::use_servitor_skill(&mut world, OWNER, SKILL);
+    for _ in 0..40 {
+        advance_ticks(&mut world, 1);
+    }
+
+    assert!(
+        world
+            .objects
+            .get_component::<Vitals>(&OWNER)
+            .unwrap()
+            .cur_mp
+            > before,
+        "the owner was recharged, not the selected target"
+    );
+}
+
 /// **A summon may only use skills it actually has.** `ActionData.xml` binds
 /// buttons for every summon in the game, so most rows name a skill this
 /// particular servitor has never had — casting one anyway would let any summon

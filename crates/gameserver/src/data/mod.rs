@@ -217,7 +217,8 @@ pub struct GameData {
     pub siege_schedule: std::collections::HashMap<i32, siege_data::SiegeScheduleEntry>,
     /// Castle residence respawn points per castle, from `castle_hall.xml` — where
     /// defenders respawn while the control towers stand.
-    pub castle_restart_points: std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
+    pub castle_restart_points:
+        std::collections::HashMap<i32, castle_zone_data::CastleRespawnPoints>,
     /// The 48 clan-hall definitions (`data/residences/clanHalls/**`), keyed by id.
     /// Static defs only; ownership is overlaid onto `World::clan_halls` at boot.
     pub clan_halls: std::collections::HashMap<i32, crate::model::clan_hall::ClanHall>,

@@ -80,6 +80,7 @@ pub(crate) fn build_skill(
             Some("DOOR_TREASURE") => TargetType::DoorTreasure,
             Some("OTHERS") => TargetType::Others,
             Some("SUMMON") => TargetType::Summon,
+            Some("OWNER_PET") => TargetType::OwnerPet,
             Some("PC_BODY") => TargetType::PcBody,
             Some("GROUND") => TargetType::Ground,
             Some("NONE") => TargetType::None_,
@@ -1016,8 +1017,6 @@ pub(crate) fn build_skill(
                             }
                             _ => Vec::new(),
                         },
-                        // Only the TOWN escape is portable (see `SkillEffect::EscapeToTown`);
-                        // CASTLE/CLANHALL/FORTRESS variants drop like unregistered names.
                         // Fixed-destination teleports — the Scrolls of Escape.
                         // Coordinates are per *level*: skill 2213 alone carries
                         // 22 towns, one per level.
@@ -1034,9 +1033,42 @@ pub(crate) fn build_skill(
                             amount: param("amount").unwrap_or(0.0),
                             percent: mode == "PER",
                         }],
-                        "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {
-                            vec![SkillEffect::EscapeToTown]
+                        // `FORTRESS` has no arm on purpose — with no fortress
+                        // system it would be a destination that cannot be
+                        // resolved, and letting it drop keeps it visible in the
+                        // census instead of silently teleporting to town.
+                        "Escape"
+                            if matches!(
+                                value_at(params, "escapeType", level),
+                                Some("TOWN" | "CLANHALL" | "CASTLE")
+                            ) =>
+                        {
+                            vec![SkillEffect::Escape {
+                                dest: match value_at(params, "escapeType", level) {
+                                    Some("CLANHALL") => EscapeDest::ClanHall,
+                                    Some("CASTLE") => EscapeDest::Castle,
+                                    _ => EscapeDest::Town,
+                                },
+                            }]
                         }
+                        "DispelAll" => vec![SkillEffect::DispelAll],
+                        "Grow" => vec![SkillEffect::Grow],
+                        // Java `params.getInt("sp", 0)` — an int on the XML, but
+                        // the award path takes the same i64 as every other SP
+                        // grant.
+                        "GiveSp" => vec![SkillEffect::GiveSp {
+                            sp: param("sp").unwrap_or(0.0) as i64,
+                        }],
+                        "TeleportToTarget" => vec![SkillEffect::TeleportToTarget],
+                        "SetSkill" => vec![SkillEffect::SetSkill {
+                            skill_id: value_at(params, "skillId", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0),
+                            // Java defaults this to 1, not 0.
+                            skill_level: value_at(params, "skillLevel", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(1),
+                        }],
                         // `CallPc.java`. `itemId`/`itemCount` are the Summon
                         // Friend toll, charged to the **target**; the monster
                         // half reads neither and every monster carrier omits

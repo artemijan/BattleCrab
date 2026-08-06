@@ -90,6 +90,17 @@ pub enum TargetType {
     /// but is thematically right: these are the Summoner's servitor kit, and a
     /// Wolf is not a servitor. Ported as written.
     Summon,
+    /// `OWNER_PET` (`targethandlers/OwnerPet.java`): `creature.getActingPlayer()`
+    /// — cast *by* a servitor, it resolves to its **owner**.
+    ///
+    /// This one has to be a real variant rather than falling into `Other`,
+    /// because `Summon.useMagic` special-cases it before target resolution
+    /// even runs (`Summon.java`: `if (targetType == OWNER_PET) target = _owner`).
+    /// Collapsed into `Other` it took the *owner's current selection* instead,
+    /// so a Baby Kookaburra's Master Recharge (4025) fired at whatever mob the
+    /// owner had clicked — or refused with "invalid target" when they had
+    /// clicked nothing.
+    OwnerPet,
     Other,
 }
 
@@ -502,6 +513,27 @@ pub struct RestorationItem {
 /// (0-100 space, slices summing to ~100), matching Java's
 /// `100 * Rnd.nextDouble()` roulette roll — not pre-scaled like
 /// `item_data::CapsuledItem::chance`.
+/// `Escape.java`'s `escapeType`, i.e. the `TeleportWhereType` it hands to
+/// `teleToLocation` — see [`SkillEffect::Escape`].
+///
+/// `FORTRESS` is deliberately absent: the two scrolls carrying it are fortress
+/// content, which this chronicle has none of, so the effect drops as an
+/// unhandled name rather than pretending to a destination that cannot exist.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EscapeDest {
+    /// `TOWN` — the enclosing map region's respawn point. 38 skills.
+    Town,
+    /// `CLANHALL` — `ClanHallData.getClanHallByClan(clan).getOwnerLocation()`,
+    /// i.e. the hall's `<ownerRestartPoint>`. Scroll of Escape: Clan Hall
+    /// (2040) and its blessed twin (2177).
+    ClanHall,
+    /// `CASTLE` — the owned castle's `getResidenceZone().getSpawnLoc()`, or its
+    /// `getChaoticSpawnLoc()` when the player's reputation is negative. Java
+    /// also accepts a *defender* standing on castle ground during a live siege,
+    /// not only the owning clan.
+    Castle,
+}
+
 #[derive(Debug, Clone)]
 pub struct RestorationGroup {
     pub chance: f64,
@@ -1309,11 +1341,63 @@ pub enum SkillEffect {
     GiveItemRandom {
         groups: Vec<RestorationGroup>,
     },
-    /// `handlers/effecthandlers/Escape.java`, `escapeType=TOWN` only — the
-    /// `/unstuck` skills (2099/2100) and scrolls of escape: teleport the
-    /// target to its map-region town respawn on landing. The CASTLE/CLANHALL/
-    /// FORTRESS variants wait for their residence systems (G24).
-    EscapeToTown,
+    /// `handlers/effecthandlers/Escape.java` — the `/unstuck` skills
+    /// (2099/2100) and the Scrolls of Escape: teleport the target to the
+    /// destination its `escapeType` names.
+    ///
+    /// Java runs all of these through one `teleToLocation(TeleportWhereType)`
+    /// call, so they share `MapRegionManager.getTeleToLocation`'s **fallthrough**
+    /// as well: a residence destination the player has no claim on does not
+    /// fail the cast, it lands them in town like a plain `TOWN` escape. See
+    /// [`EscapeDest`].
+    Escape {
+        dest: EscapeDest,
+    },
+    /// `handlers/effecthandlers/DispelAll.java` — `effected.stopAllEffects()`,
+    /// i.e. strip *every* abnormal, not the ranked subset `Dispel`/`DispelBySlot`
+    /// pick from. Nothing on this dist teaches it; the reachable carrier is
+    /// skill 4177 "Cancellation", cast by ~40 raid bosses (Pan Dryad, Verfa,
+    /// Chertuba of Great Soul, …) as a `POINT_BLANK`/`NOT_FRIEND` sweep.
+    ///
+    /// `stopAllEffects` is `stopEffects(b -> !b.getSkill().isIrreplacableBuff())`,
+    /// so an `irreplacableBuff` (Noblesse Blessing, the clan/pledge buffs) does
+    /// survive a raid-boss cancel — but nothing else does, at any abnormal
+    /// level, which is what makes this far blunter than `DispelBySlot`.
+    DispelAll,
+    /// `handlers/effecthandlers/Grow.java` — an NPC-only pair of hooks:
+    /// `onStart` swaps the collision cylinder for the template's `grown` one
+    /// and `onExit` puts the normal one back. Nothing else; the visible swell
+    /// is the whole mechanic, and it rides buffs whose stat half already
+    /// worked (Might 4028, Spirit Ogre 4091, Ultimate Buff 4318/4341,
+    /// Berserker Spirit 4585 — the Orc Prefect and Grandis family).
+    ///
+    /// It is not cosmetic-only: the cylinder feeds every reach test, so a
+    /// grown mob really does swing from further out.
+    Grow,
+    /// `handlers/effecthandlers/GiveSp.java` — a flat SP grant.
+    ///
+    /// Two Java quirks that read like bugs and are kept verbatim: the SP goes
+    /// to the **effector**, not the effected (they are the same player for
+    /// every carrier on this dist, all `SELF` item skills), and the guard
+    /// requires *both* ends to be players with the effected not alike-dead.
+    GiveSp {
+        sp: i64,
+    },
+    /// `handlers/effecthandlers/TeleportToTarget.java` — the caster jumps to a
+    /// point 25 units **behind** the target (the target's heading, flipped),
+    /// with a `FlyToLocation(DUMMY)` so the client animates the dash.
+    ///
+    /// Carrier on this dist: skill 4671, the "Teleport" the Splendor mobs
+    /// (21524/21531/21539) use to close on a fleeing player.
+    TeleportToTarget,
+    /// `handlers/effecthandlers/SetSkill.java` — grant a skill outright
+    /// (`addSkill(skill, true)`, so it persists). The Ancient Book: Divine
+    /// Inspiration family (skills 9214-9217 → Divine Inspiration 1405 levels
+    /// 1-4) is the only reachable carrier.
+    SetSkill {
+        skill_id: i32,
+        skill_level: i32,
+    },
     /// `handlers/effecthandlers/CallPc.java` — drag the effected player to the
     /// effector.
     ///
@@ -2417,6 +2501,56 @@ pub enum SkillCondition {
     /// nearby" gate. Folded in from the inline block that used to sit in
     /// `cast.rs` ahead of target resolution; Java runs it here with the rest.
     ExistNpc(OpExistNpcCondition),
+    /// `OpHome` — the caster's clan owns a residence of this type. Backs the
+    /// two blessed Scrolls of Escape, which refuse the cast outright rather
+    /// than falling through to town the way the unblessed ones do.
+    Home { residence: ResidenceType },
+    /// `OpTargetDoor` — the target is a **door** whose id is listed. The Four
+    /// Sepulchers keys (2235/2236/2237) use it so a key cannot be burned on
+    /// the wrong door.
+    TargetDoor { door_ids: Vec<i32> },
+    /// `OpTargetNpc` — the target is an NPC (or a door) whose id is listed.
+    ///
+    /// Java re-reads `caster.getTarget()` for a player caster instead of using
+    /// the resolved target it was handed — for a `SELF`-targeted skill like
+    /// Nectar (2005) those differ, and it is the *selection* that counts.
+    TargetNpc { npc_ids: Vec<i32> },
+    /// `OpCompanion` — the target is a pet, or a servitor of the caster.
+    Companion { kind: CompanionKind },
+    /// `OpAlignment` — caster's or target's karma standing. `LAWFUL` is
+    /// `reputation >= 0`, `CHAOTIC` is `reputation < 0`.
+    Alignment { affect: AffectType, chaotic: bool },
+    /// `OpSkill` — the caster **knows** (or does not know) exactly this skill
+    /// at exactly this level.
+    ///
+    /// Distinct from [`SkillCondition::SkillAcquire`] (`OpSkillAcquire`), which
+    /// asks the *target*: this one reads the caster's own skill list, and its
+    /// negative form is "not at that level" rather than "absent" — so an
+    /// Ancient Book stays usable while the player is below the level it grants.
+    SkillKnown {
+        skill_id: i32,
+        skill_level: i32,
+        has_learned: bool,
+    },
+}
+
+/// `enums/ResidenceType` — [`SkillCondition::Home`]'s parameter. `FORTRESS` is
+/// listed because the dist declares it (one skill); this chronicle has no
+/// fortresses, so it can never pass.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResidenceType {
+    Castle,
+    ClanHall,
+    Fortress,
+}
+
+/// `enums/SkillConditionCompanionType` — [`SkillCondition::Companion`]'s kind.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CompanionKind {
+    /// `PET` — `target.isPet()`: a collar pet, not a summoner's servitor.
+    Pet,
+    /// `MY_SUMMON` — a servitor **belonging to the caster**.
+    MySummon,
 }
 
 /// `OpExistNpcSkillCondition`'s parsed form — see
