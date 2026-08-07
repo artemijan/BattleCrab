@@ -19,6 +19,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::effects::apply_skill_effects;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// Reuse gate shared by `use_magic_on` and the `ItemSkills` item handler
 /// (Java `Player.isSkillDisabled`/`getSkillRemainingReuseTime`), keyed by the
@@ -125,14 +126,11 @@ pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) 
         && super::effects::calc_skill_mastery(world, object_id)
     {
         reuse_delay = 100;
-        if let Some(cid) = client_for_player(world, object_id)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                server_packets::sm_ids::A_SKILL_IS_READY_TO_BE_USED_AGAIN,
-                &[],
-            ));
-        }
+        send_sm_bare_to_player(
+            world,
+            object_id,
+            server_packets::sm_ids::A_SKILL_IS_READY_TO_BE_USED_AGAIN,
+        );
     }
     let until_tick = world.tick + ms_to_ticks(reuse_delay);
     // Players are given `Reuses` at load; **NPCs were not**, so this write was
@@ -2321,14 +2319,11 @@ pub(crate) fn break_cast(world: &mut World, object_id: i32) {
         return;
     }
     abort_cast(world, object_id);
-    if let Some(client_id) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(
-            server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED,
-            &[],
-        ));
-    }
+    send_sm_bare_to_player(
+        world,
+        object_id,
+        server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED,
+    );
 }
 
 /// Java `Creature.getKnownSkill(id)` — the level at which this player knows a

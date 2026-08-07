@@ -14,8 +14,9 @@
 //! scan-instead-of-subscribe trade the trigger effects make, and for the same
 //! reason: at a handful of players per flip it is not worth an index.
 
+use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::skill::SkillEffect;
-use crate::network::server_packets::{self, SmParam, sm_ids};
+use crate::network::server_packets::{SmParam, sm_ids};
 use crate::world::World;
 
 /// `CommonSkill.SHADOW_SENSE` — the one skill whose bearers get the message.
@@ -148,16 +149,14 @@ pub(crate) fn on_day_night_change(world: &mut World, night: bool) {
         if !knows {
             continue;
         }
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm,
-                &[SmParam::SkillName {
-                    id: SHADOW_SENSE,
-                    level: 1,
-                }],
-            ));
-        }
+        send_sm_to_player(
+            world,
+            oid,
+            sm,
+            &[SmParam::SkillName {
+                id: SHADOW_SENSE,
+                level: 1,
+            }],
+        );
     }
 }

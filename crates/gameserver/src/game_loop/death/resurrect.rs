@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
 /// how much of the lost XP their resurrection gives back.
@@ -99,11 +100,7 @@ pub(crate) fn revive_request(
 ) {
     use crate::network::server_packets::sm_ids;
     let send_to_reviver = |world: &World, id: i16| {
-        if let Some(cid) = client_for_player(world, reviver_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(id, &[]));
-        }
+        send_sm_bare_to_player(world, reviver_oid, id);
     };
     // **Java's first clause skips the whole condition for an AoE resurrection**
     // — `if (skill.getAffectRange() > 0) return true;`, carrying the comment
@@ -159,14 +156,11 @@ pub(crate) fn revive_request(
         return;
     }
     if target.revive_request.is_some() {
-        if let Some(cid) = client_for_player(world, reviver_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
-                &[],
-            ));
-        }
+        send_sm_bare_to_player(
+            world,
+            reviver_oid,
+            sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
+        );
         return;
     }
     // `calculateSkillResurrectRestorePercent(power, reviver)`.

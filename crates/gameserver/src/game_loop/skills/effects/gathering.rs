@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `handlers/effecthandlers/Spoil.java` + its `calcSuccess`
 /// (`Formulas.calcMagicSuccess`): mark a live monster spoiled so its `<spoil>`
@@ -110,14 +111,11 @@ pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32)
         if !crate::game_loop::weight::validate_capacity(world, caster_oid, slots)
             || !crate::game_loop::weight::validate_weight(world, caster_oid, loot_weight)
         {
-            if let Some(cid) = crate::game_loop::helpers::client_for_player(world, caster_oid)
-                && let Some(cs) = world.clients.get(&cid)
-            {
-                cs.send(crate::network::server_packets::system_message_with(
-                    crate::network::server_packets::sm_ids::YOUR_INVENTORY_IS_FULL,
-                    &[],
-                ));
-            }
+            send_sm_bare_to_player(
+                world,
+                caster_oid,
+                crate::network::server_packets::sm_ids::YOUR_INVENTORY_IS_FULL,
+            );
             return;
         }
     }

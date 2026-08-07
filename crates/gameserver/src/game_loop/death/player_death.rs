@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_to_player;
 
 /// `Player.doDie`: mark dead, stop everything, apply the XP penalty,
 /// broadcast `Die` with the to-village flag.
@@ -315,14 +316,12 @@ pub(crate) fn apply_death_exp_penalty_ex(
         // only thing a resurrection reads, so record that directly.
         p.lost_exp_on_death = lost;
     }
-    if let Some(client_id) = client_for_player(world, player_oid)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(
-            sm_ids::YOUR_XP_HAS_DECREASED_BY_S1,
-            &[SmParam::Long(lost)],
-        ));
-    }
+    send_sm_to_player(
+        world,
+        player_oid,
+        sm_ids::YOUR_XP_HAS_DECREASED_BY_S1,
+        &[SmParam::Long(lost)],
+    );
     let new_level = level_for_exp(world, new_exp, max_level);
     if new_level != level {
         set_level(world, player_oid, new_level);

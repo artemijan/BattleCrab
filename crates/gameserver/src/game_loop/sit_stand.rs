@@ -20,6 +20,7 @@
 //! range, and no throne/bench is interactive on this dist; and the queued
 //! sit-on-arrival `NextAction`, which needs an AI next-action slot.
 
+use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets;
@@ -93,16 +94,14 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
         .objects
         .has_component::<crate::model::components::Casting>(&object_id)
     {
-        if let Some(cid) = super::helpers::client_for_player(world, object_id)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                server_packets::sm_ids::S1_TEXT,
-                &[server_packets::SmParam::Text(
-                    "Cannot sit while casting.".into(),
-                )],
-            ));
-        }
+        send_sm_to_player(
+            world,
+            object_id,
+            server_packets::sm_ids::S1_TEXT,
+            &[server_packets::SmParam::Text(
+                "Cannot sit while casting.".into(),
+            )],
+        );
         return;
     }
     // `!_waitTypeSitting && !isAttackDisabled() && !isControlBlocked() &&

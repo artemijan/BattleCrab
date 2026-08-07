@@ -28,6 +28,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::{World, region_of};
 
 use super::helpers::broadcast_near_region;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 
 const fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
     VehiclePathPoint {
@@ -604,11 +605,7 @@ fn oust_rider(world: &mut World, player: i32, boat_oid: i32, fare: Fare) {
 
 /// Send a bare system message to a player if online.
 fn send_boat_sm(world: &World, player: i32, sm_id: i16) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(sp::system_message_with(sm_id, &[]));
-    }
+    send_sm_bare_to_player(world, player, sm_id);
 }
 
 /// The `BoatDepart` task (silent-dwell fallback): weigh anchor and sail on.

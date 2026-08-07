@@ -20,14 +20,7 @@ pub(crate) fn give_item(
     use server_packets::sm_ids;
 
     if item_id <= 0 || item_count <= 0 {
-        if let Some(client_id) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
-                &[],
-            ));
-        }
+        send_sm(world, target_oid, sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE);
         return;
     }
     // Java `Restoration`: `if (_itemEnchantmentLevel > 0) setEnchantLevel(...)`.
@@ -57,14 +50,7 @@ pub(crate) fn give_item_random(world: &mut World, target_oid: i32, groups: &[Res
         chance_from += group.chance;
     }
     let Some(items) = picked else {
-        if let Some(client_id) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
-                &[],
-            ));
-        }
+        send_sm(world, target_oid, sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE);
         return;
     };
     // Java `RestorationRandom`: roll `Rnd.get(minEnchant, maxEnchant)` (inclusive)

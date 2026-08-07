@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// Port of `Creature.doAutoAttack` + `generateAttackTargetData`/`generateHit`
 /// for the melee single-hit case, shared by players and NPCs: roll the hit
@@ -203,14 +204,8 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         // Notify a shielding player their block landed (Interlude has only the
         // "succeeded" message; the perfect block reuses it) — per hit, like
         // Java's `calcShldUse`.
-        if shield != formulas::SHIELD_NONE
-            && let Some(cid) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::SHIELD_DEFENSE_SUCCEEDED,
-                &[],
-            ));
+        if shield != formulas::SHIELD_NONE {
+            send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
         }
         rolled.push((miss, crit, damage, ss, shield));
     }

@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_to_player;
 
 /// `calcShldUse` applied to a **skill's** defence term (Java's
 /// `PhysicalAttack`/`EnergyAttack`/`calcBlowDamage` all share this shape).
@@ -275,22 +276,18 @@ pub(crate) fn calc_counter_attack(
         creature_name(world, attacker_oid),
         creature_name(world, target_oid),
     );
-    if let Some(cid) = client_for_player(world, target_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(
-            server_packets::sm_ids::YOU_COUNTERED_C1_S_ATTACK,
-            &[server_packets::SmParam::Text(attacker_name)],
-        ));
-    }
-    if let Some(cid) = client_for_player(world, attacker_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(
-            server_packets::sm_ids::C1_IS_PERFORMING_A_COUNTERATTACK,
-            &[server_packets::SmParam::Text(target_name)],
-        ));
-    }
+    send_sm_to_player(
+        world,
+        target_oid,
+        server_packets::sm_ids::YOU_COUNTERED_C1_S_ATTACK,
+        &[server_packets::SmParam::Text(attacker_name)],
+    );
+    send_sm_to_player(
+        world,
+        attacker_oid,
+        server_packets::sm_ids::C1_IS_PERFORMING_A_COUNTERATTACK,
+        &[server_packets::SmParam::Text(target_name)],
+    );
     crate::game_loop::combat::apply_physical_damage(
         world,
         target_oid,

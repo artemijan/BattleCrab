@@ -11,6 +11,7 @@
 //! and the `SummonInfo` packet that shows it to *other* players are separate
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
+use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
 use crate::world::World;
@@ -990,14 +991,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             .get_component::<crate::model::Player>(&owner_oid)
             .is_some_and(crate::model::Player::is_mounted)
     {
-        if let Some(cid) = client_for_player(world, owner_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_ALREADY_HAVE_A_PET,
-                &[],
-            ));
-        }
+        send_sm_bare_to_player(world, owner_oid, sm_ids::YOU_ALREADY_HAVE_A_PET);
         return None;
     }
     // Java logs and bails when the holder is missing — the effect was reached

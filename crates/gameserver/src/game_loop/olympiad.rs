@@ -18,6 +18,7 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
+use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
 use crate::model::olympiad::{
     CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
@@ -1181,17 +1182,15 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
         .get_component::<crate::model::Player>(&object_id)
         .map_or(0, |p| p.cursed_weapon_equipped_id);
     if cursed_id != 0 {
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(sp::system_message_with(
-                sm_ids::C1_DOES_NOT_MEET_THE_PARTICIPATION_REQUIREMENTS_THE_OWNER_OF_S2_CANNOT_PARTICIPATE_IN_THE_OLYMPIAD,
-                &[
-                    SmParam::PlayerName(info.name.clone()),
-                    SmParam::ItemName(cursed_id),
-                ],
-            ));
-        }
+        send_sm_to_player(
+            world,
+            object_id,
+            sm_ids::C1_DOES_NOT_MEET_THE_PARTICIPATION_REQUIREMENTS_THE_OWNER_OF_S2_CANNOT_PARTICIPATE_IN_THE_OLYMPIAD,
+            &[
+                SmParam::PlayerName(info.name.clone()),
+                SmParam::ItemName(cursed_id),
+            ],
+        );
         return false;
     }
 
@@ -1315,22 +1314,16 @@ pub(crate) fn unregister(world: &mut World, object_id: i32) -> bool {
 
 /// Send a system message with a single integer argument (the countdown seconds).
 fn send_sm_int(world: &World, object_id: i32, sm_id: i16, value: i32) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(sp::system_message_with(sm_id, &[SmParam::Int(value)]));
-    }
+    send_sm_to_player(world, object_id, sm_id, &[SmParam::Int(value)]);
 }
 
 fn send_sm_c1(world: &World, object_id: i32, sm_id: i16, name: &str) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(sp::system_message_with(
-            sm_id,
-            &[SmParam::PlayerName(name.to_string())],
-        ));
-    }
+    send_sm_to_player(
+        world,
+        object_id,
+        sm_id,
+        &[SmParam::PlayerName(name.to_string())],
+    );
 }
 
 // ---------------------------------------------------------------------------
