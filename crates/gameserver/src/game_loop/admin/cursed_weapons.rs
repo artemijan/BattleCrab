@@ -455,12 +455,9 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
         super::transforms::remove_transform(world, player_id);
         super::skills::refresh_skill_list(world, player_id);
 
-        // Destroy the weapon item and refresh the inventory. `remove_item`
-        // takes it off the paperdoll on the way out, so the equip state the
-        // client sees comes from `refresh_equip_state` below.
-        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player_id) {
-            inv.remove_item(item_id, 1);
-        }
+        // Destroy the weapon item and refresh the inventory. The weapon is
+        // worn, so this runs the destroy protocol (paperdoll, options, stats).
+        crate::game_loop::items::destroy_item_by_id(world, player_id, item_id, 1);
         if let Some(tc) = target_client {
             refresh_inventory(world, tc, player_id);
             // The bag list is only half of `unEquipItemInBodySlot` +

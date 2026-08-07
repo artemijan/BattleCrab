@@ -240,11 +240,7 @@ pub(crate) fn remove_circlet(world: &mut World, member_oid: i32, castle_id: i32)
     {
         inv.unequip_item(oid);
     }
-    let changes = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&member_oid)
-        .map(|inv| inv.remove_item(circlet_id, 1))
-        .unwrap_or_default();
+    let changes = crate::game_loop::items::destroy_item_by_id(world, member_oid, circlet_id, 1);
     if changes.is_empty() {
         return;
     }

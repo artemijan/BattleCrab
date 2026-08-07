@@ -384,11 +384,9 @@ pub(super) fn admin_delete_quest_item(
         Some(n) if n > 0 => n.min(held),
         _ => held,
     };
-    let changes = world
-        .objects
-        .get_component_mut::<Inventory>(&target)
-        .map(|inv| inv.remove_item(item_id, count))
-        .unwrap_or_default();
+    // A GM can destroy gear the target is wearing, so this takes the destroy
+    // protocol rather than a bare removal.
+    let changes = crate::game_loop::items::destroy_item_by_id(world, target, item_id, count);
     if changes.is_empty() {
         send_message(world, client_id, "Item could not be destroyed.");
         return;

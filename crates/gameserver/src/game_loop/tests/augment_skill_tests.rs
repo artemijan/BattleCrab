@@ -462,3 +462,161 @@ fn destroying_a_worn_augmented_item_takes_its_option_back() {
         "the option's skill must go with the destroyed item"
     );
 }
+
+/// A GM destroying gear off a player's back takes the augment options with it.
+///
+/// `//destroy` ran a bare `remove_item` — none of the destroy protocol — so the
+/// target kept the option's stats and granted skills. This drives the real
+/// admin command, so it covers the wiring, not just the helper.
+#[test]
+fn admin_destroy_takes_the_options_off_a_worn_item() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = augment_world();
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+    world.id_pool = 0x4200_0000..0x4200_0100;
+    world.data.options.insert_for_test(active_option(4001));
+
+    let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
+    let item_id = world
+        .objects
+        .get_component::<Inventory>(&PLAYER)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == item_oid)
+                .map(|i| i.item_id)
+        })
+        .expect("worn augmented weapon");
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        Some(1),
+        "granted while worn"
+    );
+
+    crate::game_loop::items::destroy_item_by_id(&mut world, PLAYER, item_id, 1);
+
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .is_some_and(|inv| inv.first_of_item(item_id).is_none()),
+        "the item is gone"
+    );
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        None,
+        "and so is the option it granted"
+    );
+}
+
+/// A multisell that consumes a **worn** ingredient takes its options with it.
+///
+/// Reachable because the by-item-id branch is Java's `destroyItemByItemId`,
+/// whose `getItemByItemId` returns the first match equipped or not. The window's
+/// equipped filter only decides which rows are *offered*; an equippable named as
+/// a second, non-paired ingredient never passes through it. Here the row is
+/// unpaired (`item_object_id: 0`) and the only copy of the item is worn.
+#[test]
+fn a_multisell_consuming_a_worn_ingredient_takes_its_option_back() {
+    use crate::data::multisell_data::{Ingredient, MultisellEntry, MultisellList, Product};
+    use crate::model::components::{ActiveMultisell, PreparedRow};
+    use crate::model::inventory::Inventory;
+
+    let (mut world, ..) = augment_world();
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+    world.id_pool = 0x4200_0000..0x4200_0100;
+    world.data.options.insert_for_test(active_option(4001));
+
+    let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
+    let item_id = world
+        .objects
+        .get_component::<Inventory>(&PLAYER)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == item_oid)
+                .map(|i| i.item_id)
+        })
+        .expect("worn augmented weapon");
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        Some(1),
+        "granted while worn"
+    );
+
+    const LIST_ID: i32 = 990_501;
+    world.data.multisells.insert_for_test(MultisellList {
+        list_id: LIST_ID,
+        is_chance_multisell: false,
+        apply_taxes: false,
+        maintain_enchantment: false,
+        ingredient_multiplier: 1.0,
+        product_multiplier: 1.0,
+        entries: vec![MultisellEntry {
+            ingredients: vec![Ingredient {
+                id: item_id,
+                count: 1,
+                enchant_level: 0,
+                maintain: false,
+            }],
+            products: vec![Product {
+                id: 57,
+                count: 1,
+                chance: None,
+                enchant_level: 0,
+            }],
+            stackable: false,
+        }],
+        npcs_allowed: None,
+    });
+    // An *unpaired* row: the removal takes the by-item-id branch and so picks
+    // the worn instance, which is the only copy.
+    world.objects.add_components(
+        &PLAYER,
+        ActiveMultisell {
+            list_id: LIST_ID,
+            npc_oid: 0,
+            tax_rate: 0.0,
+            rows: vec![PreparedRow {
+                entry_index: 0,
+                item_object_id: 0,
+                enchant_level: 0,
+            }],
+        },
+    );
+
+    crate::game_loop::multisell::handle_multi_sell_choose(
+        &mut world,
+        CID,
+        &multisell_choose_body(LIST_ID, 1, 1),
+    );
+
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .is_some_and(|inv| inv.first_of_item(item_id).is_none()),
+        "the worn ingredient was consumed"
+    );
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        None,
+        "and its option went with it"
+    );
+}
+
+/// `MultiSellChoose` body — list id, entry id, amount, then the tail the
+/// server ignores.
+fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(entry_id);
+    w.write_i64(amount);
+    w.write_i16(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    for _ in 0..8 {
+        w.write_i16(0);
+    }
+    w.into_bytes()
+}
