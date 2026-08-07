@@ -35,6 +35,7 @@ fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
         body_part,
         weight: 0,
         is_stackable: false,
+        is_infinite: false,
         type1: 0,
         type2: 0,
         is_quest_item: false,

@@ -102,6 +102,7 @@ fn items_tests_template() -> crate::data::item_data::ItemTemplate {
         body_part: 0,
         weight: 0,
         is_stackable: true,
+        is_infinite: false,
         type1: 0,
         type2: 5,
         is_quest_item: false,

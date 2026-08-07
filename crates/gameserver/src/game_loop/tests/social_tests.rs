@@ -723,6 +723,7 @@ fn party_loot_split_and_rotation() {
             body_part: 0,
             weight: 0,
             is_stackable: false,
+            is_infinite: false,
             type1: 4,
             type2: 5,
             is_quest_item: false,

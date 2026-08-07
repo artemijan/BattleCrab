@@ -34,6 +34,7 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
         body_part: crate::data::item_data::SLOT_LR_HAND,
         weight: 0,
         is_stackable: false,
+        is_infinite: false,
         type1: 0,
         type2: 0,
         is_quest_item: false,

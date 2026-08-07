@@ -726,6 +726,11 @@ pub struct ItemTemplate {
     pub body_part: i32,
     pub weight: i32,
     pub is_stackable: bool,
+    /// `<set name="is_infinite">` (Java `EtcItem._infinite`) — ammunition that
+    /// is never spent. `PlayerInventory.reduceArrowCount` returns before the
+    /// decrement for these, so an infinite quiver lasts forever. This dist
+    /// ships 14 of them: arrows 32249-32255 and bolts 32256-32262.
+    pub is_infinite: bool,
     pub type1: i32,
     pub type2: i32,
     pub is_quest_item: bool,
@@ -1276,6 +1281,10 @@ fn make_template(
         .get("is_questitem")
         .map(|v| v == "true")
         .unwrap_or(false);
+    let is_infinite = attrs
+        .get("is_infinite")
+        .map(|v| v == "true")
+        .unwrap_or(false);
     let part = body_part(attrs.get("bodypart").map(|s| s.as_str()).unwrap_or("none"));
 
     let (type1, type2) = match kind {
@@ -1345,6 +1354,7 @@ fn make_template(
         body_part: part,
         weight,
         is_stackable,
+        is_infinite,
         type1,
         type2,
         is_quest_item,

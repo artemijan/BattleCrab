@@ -808,6 +808,7 @@ mod tests {
             body_part: item_data::SLOT_L_EAR | item_data::SLOT_R_EAR,
             weight: 0,
             is_stackable: false,
+            is_infinite: false,
             type1: 0,
             type2: 0,
             is_quest_item: false,

@@ -575,6 +575,7 @@ mod tests {
             body_part,
             weight: 0,
             is_stackable: false,
+            is_infinite: false,
             type1: 0,
             type2,
             is_quest_item: false,

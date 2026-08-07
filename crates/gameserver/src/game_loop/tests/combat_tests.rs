@@ -2549,6 +2549,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             body_part: 0,
             weight: 0,
             is_stackable: true,
+            is_infinite: false,
             type1: 4,
             type2: 5,
             is_quest_item: false,
