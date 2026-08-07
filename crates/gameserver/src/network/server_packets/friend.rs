@@ -1,8 +1,26 @@
-//! Friend packets (G10).
+//! Friend packets (G10) and the block list that shares their table.
 
 use commons::network::PacketWriter;
 
 use super::opcodes;
+
+/// Port of `serverpackets/BlockListPacket` — the ignore list, one entry per
+/// blocked character.
+///
+/// Java writes the name looked up through `CharInfoTable` plus an empty second
+/// string its own source labels `// memo ?`. The column does exist
+/// (`character_friends.memo`) but nothing upstream writes it through this
+/// packet, so the empty string is the faithful field rather than a stub.
+pub fn block_list(names: &[String]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::BLOCK_LIST);
+    w.write_i32(names.len() as i32);
+    for name in names {
+        w.write_string(name);
+        w.write_string("");
+    }
+    w.into_bytes()
+}
 
 /// One friend entry + live online flag, assembled by `game_loop/friends.rs`.
 pub struct FriendEntry {

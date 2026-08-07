@@ -610,6 +610,14 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
 /// `UserInfo` is right the first time (the casting-speed-349 bug). A robe
 /// mystic delevelled below 7 loses its getLevel-7 class skill but keeps
 /// Spellcraft (getLevel 1), so casting speed stays 499.
+///
+/// Runs under `StrictDelevelSkillRemoval = true`, which is **not** what ships
+/// (see `the_delevel_grace_is_what_ships_and_what_defaults`). The subject here
+/// is the *stat refold* after a strip, and a strip is only the trigger — under
+/// the shipped 9-level grace a `getLevel`-7 skill can never be stripped at all
+/// (the threshold is negative), so the grace would leave this test with no
+/// trigger and nothing to assert. Strict is the cheapest way to produce one;
+/// the refold path is identical either way.
 #[test]
 fn delevel_filter_on_select_keeps_passive_stats() {
     const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
@@ -621,7 +629,10 @@ fn delevel_filter_on_select_keeps_passive_stats() {
     data.item_data = crate::data::item_data::ItemData::load_from(DIST);
     data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
     data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
-    let world = World::new(link_tx, 7, 3, 0, data, db_tx);
+    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+    // See the doc comment: the grace can never strip a getLevel-7 skill, so
+    // strict is what gives this test something to refold stats after.
+    world.cfg.character.strict_delevel_skill_removal = true;
 
     let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
         object_id,
@@ -685,6 +696,10 @@ fn delevel_filter_on_select_keeps_passive_stats() {
 /// re-folds the stat block: Weapon Mastery (249, getLevel 7, +m.atk) is stripped
 /// at level 5, lowering m.atk, while Spellcraft (getLevel 1) stays and keeps
 /// casting speed at 499. Only passive skills move stats — step 4.
+///
+/// Under `StrictDelevelSkillRemoval = true` for the same reason as
+/// `delevel_filter_on_select_keeps_passive_stats`: the shipped 9-level grace
+/// never strips a getLevel-7 skill, so it would leave this test no trigger.
 #[test]
 fn live_delevel_removes_passive_and_recomputes_stats() {
     const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
@@ -697,6 +712,8 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
     data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
     data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+    // See the doc comment — the grace would leave nothing to strip.
+    world.cfg.character.strict_delevel_skill_removal = true;
 
     let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
         object_id,
@@ -951,7 +968,7 @@ fn delevel_downgrades_then_removes_skills() {
             .copied()
     };
 
-    // --- Default strict mode (StrictDelevelSkillRemoval = true). ---
+    // --- Strict mode (StrictDelevelSkillRemoval = true), the port extension. ---
     // 40 → 30: skill 91 @ level 2 (getLevel 40) is out of range → downgrade to
     // the highest reachable level (1, getLevel 20).
     assert_eq!(
@@ -972,7 +989,7 @@ fn delevel_downgrades_then_removes_skills() {
         "strict removes a getLevel-7 skill at level 1"
     );
 
-    // --- Non-strict (Java 9-level grace). ---
+    // --- Non-strict: the Java 9-level grace, which is what ships. ---
     // …but the 9-level grace keeps it (1 ≥ 7 − 9).
     assert_eq!(
         run(true, false, 1, 92),
@@ -985,6 +1002,38 @@ fn delevel_downgrades_then_removes_skills() {
         run(false, true, 5, 91),
         Some(2),
         "kept when DecreaseSkillOnDelevel is off"
+    );
+}
+
+/// **Which of the two branches above actually ships.**
+///
+/// `StrictDelevelSkillRemoval` is a port extension with no upstream key, so
+/// nothing in the reference pins it and the choice lives entirely here. It
+/// ships — and defaults — to `false`, the Java-faithful 9-level grace; the
+/// strict branch is opt-in.
+///
+/// Asserted against the real `Character.ini` *and* the code default, because
+/// those are two independent ways to end up on the wrong branch: the key going
+/// missing from the ini falls back to the default (which
+/// `config_boot_warnings` would also catch), and a default flipped in code
+/// changes every test world at once.
+#[test]
+fn the_delevel_grace_is_what_ships_and_what_defaults() {
+    let shipped = crate::config::CharacterConfig::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    assert!(
+        !shipped.strict_delevel_skill_removal,
+        "dist/game/config/Character.ini must ship the retail grace"
+    );
+    assert!(
+        !crate::config::CharacterConfig::default().strict_delevel_skill_removal,
+        "and the code default must agree, so a missing key lands on retail too"
+    );
+    assert!(
+        shipped.decrease_skill_level,
+        "the grace only means anything while DecreaseSkillOnDelevel is on"
     );
 }
 

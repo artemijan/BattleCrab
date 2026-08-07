@@ -8,11 +8,11 @@
 //! channel name finds nothing and reads the channel as unimplemented. That is
 //! how world chat sat unported behind an enabled config for so long.
 //!
-//! Guards that need absent systems are skipped — the say filter and voiced
-//! commands landed with G33's `Custom/*.ini` audit and chat bans with G31, so
-//! what is left is the **block list** (no such subsystem) and `Say2`'s own
-//! jail gate over WHISPER/SHOUT/TRADE/HERO_VOICE. Both are recorded in
-//! `docs/DEFERRALS.md`; see PLAN_G10_SOCIAL.md §2/§4 for the original scope.
+//! Every guard `Say2` and the handlers apply is now ported: the say filter and
+//! voiced commands landed with G33's `Custom/*.ini` audit, chat bans with G31,
+//! and the jail gate, the olympiad gate and the block-list filter with the
+//! 2026-08-07 sweep. See PLAN_G10_SOCIAL.md §2/§4 for the original scope, and
+//! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use commons::audit;
 use serde_json::json;
@@ -141,6 +141,49 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         } else if world.cfg.chat_filter.ban_chat_channels.contains(&chat_type) {
             send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
         }
+        return;
+    }
+
+    // Java `Say2`: no chat at all while in a bout or sitting in the queue.
+    // Covers **every** channel, party and clan included, and has no GM escape
+    // hatch — a GM who registers is silenced like anyone else.
+    if super::olympiad::in_match(world, sender_oid) || world.olympiad.is_registered(sender_oid) {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD,
+        );
+        return;
+    }
+
+    // Java `Say2`'s jail gate, and note how it differs from the *other*
+    // `JailDisableChat` check in `world_chat` below — the two are not copies:
+    //
+    //   * this one covers **four channels only** (whisper, shout, trade, hero
+    //     voice). WORLD is absent, which is exactly why `ChatWorld` carries its
+    //     own check; ordinary, party and clan chat stay open to a prisoner on
+    //     both paths.
+    //   * it has **no `PlayerCondOverride.CHAT_CONDITIONS` escape**, where
+    //     `ChatWorld`'s does — so a GM with the override may use world chat
+    //     from jail but not a whisper.
+    //   * it answers with `sendMessage(String)`, a literal line, not a
+    //     `SystemMessage` — so the text is the server's rather than the
+    //     client's, and is reproduced verbatim here.
+    if world.cfg.general.jail_disable_chat
+        && matches!(
+            chat_type,
+            ChatType::Whisper | ChatType::Shout | ChatType::Trade | ChatType::HeroVoice
+        )
+        && world
+            .objects
+            .get_component::<Player>(&sender_oid)
+            .is_some_and(|p| p.jailed)
+    {
+        super::admin::send_message(
+            world,
+            client_id,
+            "You can not chat with players outside of the jail.",
+        );
         return;
     }
 
@@ -277,6 +320,11 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                     cs.send(say.clone());
                     continue;
                 }
+                // `ChatGeneral`: `!BlockList.isBlocked(player, activeChar)` —
+                // the *listener's* list decides, one way only.
+                if super::block_list::is_blocked(world, other_oid, sender_oid) {
+                    continue;
+                }
                 let Some(&RegionCell(other_region)) =
                     world.objects.get_component::<RegionCell>(&other_oid)
                 else {
@@ -314,6 +362,18 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                     continue;
                 };
                 let other_oid = s.player_object_id();
+                // **Shout and Trade differ here, and it is not an oversight.**
+                // `ChatShout`'s in-region branch tests *both* directions —
+                // `!isBlocked(player, activeChar) && !isBlocked(activeChar,
+                // player)` — so either party's list suppresses the line.
+                // `ChatTrade`'s otherwise-identical branch tests only the
+                // listener's. Collapsing them would silently change one.
+                if super::block_list::is_blocked(world, other_oid, sender_oid)
+                    || (chat_type == ChatType::Shout
+                        && super::block_list::is_blocked(world, sender_oid, other_oid))
+                {
+                    continue;
+                }
                 let Some(other_pos) = world.objects.get_component::<Position>(&other_oid) else {
                     continue;
                 };
@@ -345,14 +405,13 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 send_sm(world, client_id, sm_ids::THAT_PLAYER_IS_NOT_ONLINE);
                 return;
             };
-            // Java `ChatWhisper`: a receiver in silence/message-refusal mode
+            // Java `ChatWhisper`: `BlockList.isBlocked(receiver, activeChar)`
             // refuses the PM — the sender gets the refusal notice, nothing is
-            // delivered.
-            if world
-                .objects
-                .get_component::<crate::model::components::AdminFlags>(&receiver_oid)
-                .is_some_and(|f| f.silence)
-            {
+            // delivered. **Both halves matter**: message-refusal mode (which is
+            // all this used to check) *and* the receiver having the sender on
+            // their ignore list. Java answers with the same message either way,
+            // so a blocked sender cannot tell which it was.
+            if super::block_list::is_blocked(world, receiver_oid, sender_oid) {
                 send_sm(
                     world,
                     client_id,
@@ -550,10 +609,9 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         return;
     }
 
-    // TODO(chat-jail): Java gates two places on `JailDisableChat` — this one,
-    // ported here, and `Say2`'s own guard over WHISPER/SHOUT/TRADE/HERO_VOICE,
-    // which this port has never had. A jailed player is still silenced on
-    // those four channels upstream and is not here.
+    // The second of Java's two `JailDisableChat` gates — `Say2`'s is up in
+    // `handle_say2`, over a different channel set and *without* the
+    // `CHAT_CONDITIONS` escape this one has. See the note there.
     if world.cfg.general.jail_disable_chat && jailed && !may_override {
         send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
         return;
@@ -594,15 +652,26 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         return;
     }
 
-    // TODO(block-list): Java filters this broadcast with
-    // `activeChar.isNotBlocked(player)` — the *receiver's* block list, i.e.
-    // `!blockList.isBlockAll() && !blockList.isInBlockList(speaker)`. This port
-    // has no block list at all (no `BlockList`, no `/block`, no `blockall`), so
-    // every online player hears every world-chat line. The same filter is
-    // missing from the other broadcast channels for the same reason.
+    // Java `activeChar.isNotBlocked(player)` — despite reading as "the speaker
+    // is not blocked", `isNotBlocked` resolves against **`player`'s** list
+    // (`!player.getBlockList().isBlockAll() &&
+    // !player.getBlockList().isInBlockList(this)`), so it is the listener's
+    // list here exactly as on every other channel. The method name is the trap.
     let say = server_packets::creature_say(sender_oid, ChatType::World, sender_name, text, None);
-    for cs in world.clients.values() {
-        if matches!(cs, ClientSession::InGame(_)) {
+    let listeners: Vec<u32> = world
+        .clients
+        .iter()
+        .filter(|(_, cs)| matches!(cs, ClientSession::InGame(_)))
+        .filter(|(_, cs)| {
+            let ClientSession::InGame(s) = cs else {
+                return false;
+            };
+            super::block_list::is_not_blocked(world, s.player_object_id(), sender_oid)
+        })
+        .map(|(&cid, _)| cid)
+        .collect();
+    for cid in listeners {
+        if let Some(cs) = world.clients.get(&cid) {
             cs.send(say.clone());
         }
     }

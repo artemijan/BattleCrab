@@ -15,7 +15,7 @@ behaviours deliberately skipped and marked at the exact site in the code with a
 
 | State | Meaning |
 |---|---|
-| ✅ **Ported** | Gate met and verified. Any remaining gaps are recorded markers, listed in [DEFERRALS.md](DEFERRALS.md). |
+| ✅ **Ported** | Gate met and verified. Any remaining gaps are `TODO(<tag>)` markers in the source — there are currently none. |
 | ◐ **Partial by design** | Same, but the recorded gaps are numerous or user-visible enough to call out here. |
 | ⛔ **Out of scope** | Deliberately not ported. Reasons in [§ Out of scope](#out-of-scope). |
 
@@ -25,11 +25,11 @@ both times claiming work was outstanding that had in fact shipped. Trust, in
 this order:
 
 1. **The code.** `grep -rn "TODO(" crates/ --include='*.rs'`.
-2. **[DEFERRALS.md](DEFERRALS.md)** — the marker inventory, generated from the
-   code and held to it by the `deferral_markers_match_the_recorded_inventory`
-   test in `crates/tools/tests/coverage_census.rs`. Adding a gap without
-   recording it fails the build; closing one without updating the count fails
-   too.
+2. **`deferral_markers_match_the_recorded_inventory`** in
+   `crates/tools/tests/coverage_census.rs` — the marker inventory itself, as an
+   assertion rather than a document. Adding a gap without recording it there
+   fails the build; closing one without taking it off fails too. Its expected
+   list has been **empty** since 2026-08-07.
 3. **[PROGRESS.md](PROGRESS.md)** — the dated journal of what landed and why.
    Narrative, not enforced.
 
@@ -67,8 +67,8 @@ grep -rhoE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ --include='*.rs' | so
 | G4 | Enter world (Player, HP/MP, `UserInfo`, the enter-world burst) | ✅ | 0 |
 | G5 | Items & inventory | ✅ | 0 |
 | G6 | Stats, skills & effects (engine) | ✅ | 0 |
-| G7 | Movement & targeting | ✅ | 1 |
-| G7.5 | Full single-target skill casting | ✅ | 2 |
+| G7 | Movement & targeting | ✅ | 0 |
+| G7.5 | Full single-target skill casting | ✅ | 0 |
 | G7.8 | Geodata & position validation | ✅ | 0 |
 | G7.85 | Pathfinding (dedicated path-worker thread) | ✅ | 0 |
 | G7.9 | Region-grid visibility & scoped broadcasting | ✅ | 0 |
@@ -79,58 +79,68 @@ grep -rhoE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ --include='*.rs' | so
 | G10 | Social systems — chat, party, friends | ✅ | 0 |
 | G11 | Scripting engine + quests | ✅ | 0 |
 | G12 | Static world breadth — zones, all 1180 doors, static objects | ✅ | 0 |
-| G13 | Admin / GM command system | ✅ **361 of 443** `AdminCommands.xml` commands dispatched; the 82 absent are all off-chronicle, dev tooling, architecturally N/A, or unreachable in Java too — see below | 1 |
+| G13 | Admin / GM command system | ✅ **361 of 443** `AdminCommands.xml` commands dispatched; the 82 absent are all off-chronicle, dev tooling, architecturally N/A, or unreachable in Java too — see below | 0 |
 | G13.9 | TODO parity sweep | ✅ | 0 |
 
 ### Game server — breadth
 
 | Milestone | Subsystem | Status | Recorded gaps |
 |---|---|---|---:|
-| G14 | Item stats & equipment combat accuracy | ✅ | 2 |
-| G15 | Economy & item actions | ✅ | 2 |
-| G15.5 | Teleporters & user commands | ✅ | 1 |
+| G14 | Item stats & equipment combat accuracy | ✅ | 0 |
+| G15 | Economy & item actions | ✅ | 0 |
+| G15.5 | Teleporters & user commands | ✅ | 0 |
 | G15.7 | Crafting & recipes | ✅ | 0 |
 | G16 | Character variables, premium & vitality | ✅ | 0 |
-| G17 | Sub-classes, class change & nobless | ✅ | 2 |
-| G18 | Clans — full | ✅ | 2 |
-| G18.6 | Clan academy | ✅ | 2 |
-| G19 | Skills & effects breadth | ✅ | 11 |
-| G20 | Combat breadth | ✅ | 5 |
+| G17 | Sub-classes, class change & nobless | ✅ | 0 |
+| G18 | Clans — full | ✅ | 0 |
+| G18.6 | Clan academy | ✅ | 0 |
+| G19 | Skills & effects breadth | ✅ | 0 |
+| G20 | Combat breadth | ✅ | 0 |
 | G20.5 | Recommendations | ✅ | 0 |
-| G21 | NPC AI & world-content breadth | ✅ | 8 |
-| G22 | Quest & script breadth | ✅ | 11 |
-| G23 | Grand bosses & raid bosses (all 10) | ✅ | 5 |
-| G24 | Castles, sieges & clan halls | ◐ Sieges, castles and clan halls are live; **castle crests, castle functions and territory war are not** | 14 |
-| G24.5 | Boats | ✅ | 1 |
-| G25 | Olympiad & hero | ✅ | 1 |
+| G21 | NPC AI & world-content breadth | ✅ | 0 |
+| G22 | Quest & script breadth | ✅ | 0 |
+| G23 | Grand bosses & raid bosses (all 10) | ✅ | 0 |
+| G24 | Castles, sieges & clan halls | ◐ Sieges, castles and clan halls are live; **castle crests, castle functions and territory war are not** | 0 |
+| G24.5 | Boats | ✅ | 0 |
+| G25 | Olympiad & hero | ✅ | 0 |
 | G26 | Manor & Mammon | ✅ — **Seven Signs does not exist in this dist**; the Interlude Classic build drops the subsystem entirely (no Java class survives), so there was nothing to port | 0 |
-| G26.5 | Lottery & Monster Race | ✅ | 2 |
-| G27 | Instances | ✅ Engine complete (Olympiad arenas, Frintezza's tomb) | 4 |
-| G28 | Events engine & cursed weapons | ✅ | 9 |
-| G29 | Summons, pets, servitors, cubics | ✅ | 4 |
-| G30 | Mail, community board & party matching | ◐ Board home/buffer/gatekeeper/premium land; the **forum boards** (`_bbstop`/post/region/notice) are not ported | 12 |
+| G26.5 | Lottery & Monster Race | ✅ | 0 |
+| G27 | Instances | ✅ Engine complete (Olympiad arenas, Frintezza's tomb) | 0 |
+| G28 | Events engine & cursed weapons | ✅ | 0 |
+| G29 | Summons, pets, servitors, cubics | ✅ | 0 |
+| G30 | Mail, community board & party matching | ◐ Board home/buffer/gatekeeper/premium land; the **forum boards** (`_bbstop`/post/region/notice) are not ported | 0 |
 | G30.5 | Item auction | ✅ | 0 |
 | G31 | Moderation, accounts, petitions & HWID | ✅ | 0 |
-| G32 | Fishing | ✅ | 1 |
-| G33 | Misc parity & finishing sweep | ✅ All four named slices, plus the `Custom/*.ini` audit below | 15 |
-| G34 | Skills, effects & abnormal-state parity (epic) | ✅ **CLOSED** — the skill parser was fail-open; a wrong-behaviour census of every learnable skill went **275 → 11 of 758**, and each of the 11 is a recorded, named out-of-scope item | 13 |
+| G32 | Fishing | ✅ | 0 |
+| G33 | Misc parity & finishing sweep | ✅ All four named slices, plus the `Custom/*.ini` audit below | 0 |
+| G34 | Skills, effects & abnormal-state parity (epic) | ✅ **CLOSED** — the skill parser was fail-open; a wrong-behaviour census of every learnable skill went **275 → 11 of 758**, and each of the 11 is a recorded, named out-of-scope item | 0 |
 
-The per-milestone column above counts only tags of the exact form `TODO(G<N>)`.
-Two more milestone markers are not milestone-*scoped* — `TODO(G-pvp)` (3) and
-`TODO(G-later)` (1) — and a further nine use a `+`, `?` or `/` suffix (`G9+`,
-`G13+`, `G19+`, `G21+` ×2, `G29+` ×2, `G?`, `G24/G26`) that this column does
-not break out. Alongside them sit **topic-tagged** markers (`pets`,
-`manor`, `newbie-guide`, …) which belong to no milestone at
-all. A separate `SKIP(<tag>)` family marks work examined and deliberately not
-done — dead Java no route on this dist can reach — and is deliberately *not*
-counted here; see [DEFERRALS.md](DEFERRALS.md).
+**Total recorded gaps: 0.** Every column above reads 0 because the inventory is
+empty. The sweep that began at 180 markers on 2026-08-03 closed the last two on
+2026-08-07 — the block list and `Say2`'s jail gate, both opened days earlier by
+the world-chat port.
 
-**Total recorded gaps: 128.** Enumerated in [DEFERRALS.md](DEFERRALS.md) and
-asserted by the test named above — if this number and that file disagree, the
-file is right. It read 134 until 2026-08-05, when the scanner was widened to
-see the suffixed and topic-tagged families it had been dropping in silence; see
-that file's seventh pass. Because every milestone row here is ✅, these 93 are
-what is actually left to do.
+The count is still **enforced**, by
+`deferral_markers_match_the_recorded_inventory` in
+`crates/tools/tests/coverage_census.rs`, which now expects an empty list: a new
+`TODO(<tag>)` anywhere under `crates/` fails the build until someone records it
+there deliberately. The scan is total — every parseable tag counts, whether
+milestone-scoped (`G24`), suffixed (`G9+`, `G24/G26`) or topic-tagged (`pets`,
+`manor`). It reported 134 against a real 180 until 2026-08-05, when the scanner
+was widened to see the families it had been silently dropping, which is exactly
+why the test rather than prose is the authority.
+
+A separate `SKIP(<tag>)` family marks work examined and deliberately *not* done
+— dead Java that no route on this dist can reach — and is not counted.
+
+`docs/DEFERRALS.md` used to enumerate the markers alongside a log of how each
+was closed. With the inventory empty it had nothing left to list, and it was
+deleted on 2026-08-07; recover it the way any retired plan is recovered:
+
+```sh
+git log --diff-filter=D --format=%H -1 -- docs/DEFERRALS.md
+git show <sha>^:docs/DEFERRALS.md
+```
 
 ---
 

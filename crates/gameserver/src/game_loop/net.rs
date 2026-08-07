@@ -916,8 +916,9 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             messages,
             attachments,
             char_ids_by_name,
+            block_lists,
         } => {
-            super::mail::on_loaded(world, messages, attachments, char_ids_by_name);
+            super::mail::on_loaded(world, messages, attachments, char_ids_by_name, block_lists);
         }
         DbEvent::ItemAuctionsLoaded {
             next_auction_id,

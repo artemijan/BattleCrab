@@ -399,6 +399,22 @@ pub struct World {
     /// be online, which is the only reason this exists. Keys are lowercased.
     pub char_ids_by_name: std::collections::HashMap<String, i32>,
 
+    /// Every character's ignore list — owner id → blocked ids (Java
+    /// `BlockList`, the `relation = 1` rows of `character_friends`).
+    ///
+    /// **World state rather than a player component, because the party that
+    /// matters can be offline.** `RequestSendPost` must know whether an offline
+    /// addressee has blocked the sender; Java answers that with a static
+    /// `OFFLINE_LIST` sitting beside the per-player object, and this map is
+    /// both of those at once. Loaded whole at boot next to
+    /// [`Self::char_ids_by_name`] and kept current on every add/remove — which
+    /// can only happen while the *owner* is online, so it cannot go stale.
+    ///
+    /// Holds only the `isInBlockList` half of Java's `isBlocked`; the
+    /// `isBlockAll` half is the live message-refusal flag. Always ask through
+    /// `game_loop::block_list::is_blocked`.
+    pub block_lists: std::collections::HashMap<i32, std::collections::HashSet<i32>>,
+
     /// The Monster Race Track runtime (G26.5).
     pub monster_race: crate::model::monster_race::MonsterRaceState,
 
@@ -617,6 +633,7 @@ impl World {
             matching_rooms: crate::model::matching_room::MatchingRoomManager::default(),
             mail: crate::model::mail::MailManager::default(),
             char_ids_by_name: std::collections::HashMap::new(),
+            block_lists: std::collections::HashMap::new(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
             punishments: crate::model::punishment::PunishmentManager::default(),
             petitions: crate::model::petition::PetitionManager::default(),

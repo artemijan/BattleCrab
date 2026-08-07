@@ -23,6 +23,7 @@ pub(crate) fn on_loaded(
     messages: Vec<Message>,
     attachments: Vec<(i32, Vec<crate::character::ItemRow>)>,
     char_ids_by_name: Vec<(String, i32)>,
+    block_lists: Vec<(i32, std::collections::HashSet<i32>)>,
 ) {
     let mut mgr = MailManager::default();
     for m in messages {
@@ -40,6 +41,8 @@ pub(crate) fn on_loaded(
     );
     world.mail = mgr;
     world.char_ids_by_name = char_ids_by_name.into_iter().collect();
+    tracing::info!("BlockList: loaded {} ignore list(s).", block_lists.len());
+    world.block_lists = block_lists.into_iter().collect();
     schedule_all_expiries(world);
 }
 
@@ -462,6 +465,23 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
             world,
             player,
             sm_ids::YOU_CANNOT_SEND_MAIL_TO_THE_GM_STAFF,
+            &[SmParam::Text(pkt.receiver.clone())],
+        );
+        return;
+    }
+    // Java `RequestSendPost`: `BlockList.isInBlockList(receiverId, senderId)`,
+    // immediately before the outbox-size check.
+    //
+    // **`isInBlockList`, not `isBlocked`** — the persisted list only. Mail is
+    // deliberately not refused just because the addressee sits in
+    // message-refusal mode: that is a live chat toggle, and the static
+    // `isInBlockList` is what Java reaches for here precisely because the
+    // receiver may be offline, where no such flag exists to read.
+    if super::block_list::is_in_block_list(world, receiver_id, player) {
+        send_sm(
+            world,
+            player,
+            sm_ids::C1_HAS_BLOCKED_YOU_YOU_CANNOT_SEND_MAIL_TO_C1,
             &[SmParam::Text(pkt.receiver.clone())],
         );
         return;

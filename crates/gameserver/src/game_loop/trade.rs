@@ -91,6 +91,24 @@ pub(crate) fn handle_request(world: &mut World, client_id: u32, body: &[u8]) {
         );
         return;
     }
+    // Java `TradeRequest`: `BlockList.isBlocked(partner, player)`, right after
+    // the trade-refusal check and before the 150-unit range test.
+    if crate::game_loop::block_list::is_blocked(world, target, from) {
+        let partner_name = world
+            .objects
+            .get_component::<crate::model::Player>(&target)
+            .map(|p| p.name.clone())
+            .unwrap_or_default();
+        send(
+            world,
+            from,
+            sp::system_message_with(
+                sp::sm_ids::C1_HAS_PLACED_YOU_ON_HIS_HER_IGNORE_LIST,
+                &[sp::SmParam::Text(partner_name)],
+            ),
+        );
+        return;
+    }
     world.objects.add_components(&target, PendingTrade { from });
     send(world, target, sp::send_trade_request(from));
 }

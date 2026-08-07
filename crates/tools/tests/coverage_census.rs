@@ -382,7 +382,7 @@ fn datapack_skill_coverage_census() {
     );
 }
 
-/// The `TODO(G<N>)` deferral inventory — see `docs/DEFERRALS.md`.
+/// The `TODO(<tag>)` deferral inventory — **currently empty**.
 ///
 /// Every milestone row in `PROGRESS.md` is ✅, and each one still shipped a
 /// handful of deliberately-deferred behaviours marked at the site. That is the
@@ -457,15 +457,17 @@ fn deferral_markers_match_the_recorded_inventory() {
         }
     }
 
-    // Byte-sorted, as `BTreeMap` yields them and `docs/DEFERRALS.md` lists
-    // them. Update both together — the doc is the human-readable half of this
-    // assertion.
+    // Byte-sorted, as `BTreeMap` yields them. This list *is* the inventory:
+    // `docs/DEFERRALS.md` was its human-readable half until 2026-08-07, when
+    // the last marker closed and the file was deleted (recoverable from git —
+    // see `docs/PORTING_STATUS.md`). A gap recorded here should also be
+    // described wherever its milestone is written up, usually PROGRESS.md.
     //
     // Two families live here. Milestone tags (`G<N>`) are deferrals recorded
     // against a shipped milestone's gate. Topic tags (lowercase) are the ones
     // that never had a milestone to hang off — they are gaps just the same,
     // and were invisible to this test until the scan widened past `TODO(G`.
-    let expected: &[(&str, usize)] = &[("block-list", 1), ("chat-jail", 1)];
+    let expected: &[(&str, usize)] = &[];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
         .iter()
@@ -474,8 +476,9 @@ fn deferral_markers_match_the_recorded_inventory() {
     assert_eq!(
         actual, expected,
         "the TODO(G<N>) deferral inventory moved. If you recorded a new gap, add it \
-         here and to docs/DEFERRALS.md; if you closed one, take it off both. A gap \
-         that is not in this list is invisible to everyone who reads PROGRESS.md."
+         here and describe it where its milestone is written up; if you closed \
+         one, take it off. A gap that is not in this list is invisible to \
+         everyone who reads PROGRESS.md."
     );
 }
 

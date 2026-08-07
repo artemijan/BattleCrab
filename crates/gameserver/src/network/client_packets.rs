@@ -47,6 +47,7 @@ pub mod opcodes {
     /// `RequestSiegeInfo` — **empty in this Java build** (both `readImpl` and
     /// `runImpl` are no-ops); the `SiegeInfo` window is pushed by the castle
     /// Siege Manager's bypass instead.
+    pub const REQUEST_BLOCK: u8 = 0xA9;
     pub const REQUEST_SIEGE_INFO: u8 = 0xAA;
     /// `CannotMoveAnymore` — the client reports a blocked move.
     pub const CANNOT_MOVE_ANYMORE: u8 = 0x47;

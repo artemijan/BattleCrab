@@ -727,12 +727,24 @@ pub mod sm_ids {
     // Chat (G10)
     pub const THAT_PLAYER_IS_NOT_ONLINE: i16 = 145;
     pub const KEYBOARD_INPUT_SPAM_WARNING: i16 = 1078;
+    /// `Say2`'s olympiad gate — every channel, no GM exemption.
+    pub const YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD: i16 = 4172;
     // World chat (`handlers/chathandlers/ChatWorld`). The quota line's text
     // names 18:30 while this server resets at 06:30 UTC — that string is the
     // client's, not a claim the port makes; see `game_loop::chat::world_chat`.
     pub const YOU_HAVE_SPENT_YOUR_WORLD_CHAT_QUOTA_FOR_THE_DAY: i16 = 4239;
     pub const YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1: i16 = 4240;
     pub const YOU_HAVE_S1_SEC_UNTIL_YOU_ARE_ABLE_TO_USE_WORLD_CHAT: i16 = 4241;
+    // Block list (`RequestBlock` / `BlockList`). The friends-list, incorrect-
+    // target and message-refusal/acceptance lines this flow also sends are
+    // already declared above, with the friend and GM-silence features.
+    pub const YOU_HAVE_FAILED_TO_REGISTER_THE_USER_TO_YOUR_IGNORE_LIST: i16 = 615;
+    pub const S1_HAS_BEEN_ADDED_TO_YOUR_IGNORE_LIST: i16 = 617;
+    pub const S1_HAS_BEEN_REMOVED_FROM_YOUR_IGNORE_LIST: i16 = 618;
+    pub const C1_HAS_PLACED_YOU_ON_HIS_HER_IGNORE_LIST: i16 = 619;
+    pub const YOU_MAY_NOT_IMPOSE_A_BLOCK_ON_A_GM: i16 = 827;
+    pub const YOU_HAVE_BLOCKED_C1: i16 = 2057;
+    pub const C1_HAS_BLOCKED_YOU_YOU_CANNOT_SEND_MAIL_TO_C1: i16 = 1228;
     // Punishment / moderation (G31)
     pub const CHATTING_IS_CURRENTLY_PROHIBITED: i16 = 966;
     // Petitions (G31)

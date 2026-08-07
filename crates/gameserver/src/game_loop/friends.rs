@@ -136,6 +136,23 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
         );
         return;
     }
+    // Java `RequestFriendInvite` checks **both** lists, in this order and
+    // *before* the already-a-friend test, with deliberately different answers:
+    // being blocked *by* the target is a literal line that does not name them,
+    // while having blocked the target names them.
+    if super::block_list::is_blocked(world, friend, player) {
+        super::admin::send_message(world, client_id, "You are in target's block list.");
+        return;
+    }
+    if super::block_list::is_blocked(world, player, friend) {
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_HAVE_BLOCKED_C1,
+            &[SmParam::Text(name.clone())],
+        );
+        return;
+    }
     if world
         .objects
         .get_component::<Friends>(&player)

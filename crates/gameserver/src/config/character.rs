@@ -202,7 +202,12 @@ pub struct CharacterConfig {
     /// `StrictDelevelSkillRemoval`: drop the 9-level grace Java's
     /// `checkPlayerSkills` normally applies, so a skill is downgraded/removed
     /// the moment the character's level falls below its learn level (level-exact
-    /// matching, same rule Java uses for Expertise). Off = Java-faithful grace.
+    /// matching, same rule Java uses for Expertise).
+    ///
+    /// **Ships and defaults to `false`, i.e. the Java-faithful grace.** A port
+    /// extension with no upstream key, so the default deliberately sits on the
+    /// retail branch: an operator who has never heard of this knob gets the
+    /// reference behaviour, and turning it on is the explicit choice.
     pub strict_delevel_skill_removal: bool,
     /// `CharacterDataStoreInterval` (General.ini, minutes → game ticks): the
     /// period of the staggered per-player autosave flush (Java
@@ -403,7 +408,9 @@ impl Default for CharacterConfig {
             divine_inspiration_sp_book_needed: true,
             expertise_penalty: true,
             decrease_skill_level: true,
-            strict_delevel_skill_removal: true,
+            // The retail branch — see the field doc. Flipping this default is a
+            // behaviour change for every test world, not just a fallback tweak.
+            strict_delevel_skill_removal: false,
             character_data_store_interval_ticks: 15 * 600,
             run_spd_boost: 35.0,
             max_p_atk: 999_999.0,

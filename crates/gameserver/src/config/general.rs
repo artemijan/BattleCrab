@@ -71,9 +71,8 @@ pub struct GeneralConfig {
     /// **Only the world-chat branch consumes this today.** Java gates two
     /// places on it: `ChatWorld.handleChat` (ported) and `Say2`'s own guard
     /// over WHISPER/SHOUT/TRADE/HERO_VOICE, which this port has never had —
-    /// recorded as the `chat-jail` deferral in `docs/DEFERRALS.md`.
-    /// (Spelled without the marker syntax on purpose: the deferral census
-    /// counts every parseable tag, prose included.)
+    /// ported 2026-08-07 alongside the olympiad gate beside it, so both
+    /// call sites now consume this key.
     pub jail_disable_chat: bool,
 
     /// `AllowWater` (dist `True`): whether swimming can drown you. Java gates

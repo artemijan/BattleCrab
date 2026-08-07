@@ -49,10 +49,10 @@ matter.
 
 "Complete" means each milestone's gate was met and verified against the Java
 server on the same database and client. Narrow behaviours deliberately skipped
-inside shipped features are marked in the code and counted — **134 of them**,
-enumerated in [docs/DEFERRALS.md](docs/DEFERRALS.md) and held to the code by a
-test. Start at **[docs/PORTING_STATUS.md](docs/PORTING_STATUS.md)** for the full
-picture of what is ported, partial, and deliberately out of scope.
+inside shipped features are marked in the code and counted — **none remain** as
+of 2026-08-07, and a test fails the build if a new one appears without being
+recorded. Start at **[docs/PORTING_STATUS.md](docs/PORTING_STATUS.md)** for the
+full picture of what is ported, partial, and deliberately out of scope.
 
 ## Documentation
 
