@@ -558,10 +558,20 @@ pub enum SkillEffect {
     /// not modelled — `hasBlockActions()` treats both flags the same.
     /// SKIP(G19): every carrier on this dist lists the same ten ids
     /// (10279, 10517, 10025, 10776, 11770, 1904, 11264, 11093, 13314, 1912 —
-    /// all post-Interlude), and none of the ten has any route here: no skill
-    /// tree row, no item `<skills>` grant, no NPC template carries them
-    /// (verified 2026-08-06). Nobody can know a whitelisted skill, so nobody
-    /// can be wrongly blocked from casting one.
+    /// all post-Interlude), and none is reachable *by a player here*.
+    ///
+    /// **Re-verified 2026-08-07, and the earlier evidence was wrong.** It said
+    /// "no item `<skills>` grant"; in fact **13314 is granted by ten items** —
+    /// every Blessed Antharas' Earring variant (19463, 23637-8, 36241, 36409,
+    /// 37667, 37732, 47484-6). What actually holds is one step further out:
+    /// none of those ten items is obtainable, appearing in no NPC droplist, no
+    /// buylist and no multisell, and all carry post-Interlude ids. The other
+    /// nine skills have no skill-tree row, item grant or NPC template.
+    ///
+    /// So the conclusion stands — nobody can know a whitelisted skill, so
+    /// nobody can be wrongly blocked from casting one — but it rests on item
+    /// *reachability*, not on the absence of a grant. Re-check the droplists,
+    /// not the `<skills>` blocks, if this is ever revisited.
     BlockActions {
         conditional: bool,
     },

@@ -17,7 +17,7 @@
 //! Deliberately not ported, each with a `SKIP(census)` at its site carrying the
 //! evidence: chance multisells (one random product), enchanted
 //! (`enchantmentLevel`) ingredients, and `SpecialItemType` products. All three
-//! were censused across the dist's 101 lists and cannot be reached here; the
+//! were censused across the dist's 104 lists and cannot be reached here; the
 //! one *reachable* special case — the ten `-200` clan-reputation ingredients on
 //! the spawned Clan Traders' list — is implemented.
 //!
@@ -322,7 +322,7 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
             return;
         }
         // SKIP(census): chance multisell, where Java grants **one** product
-        // drawn by weight instead of all of them. Censused across all 101
+        // drawn by weight instead of all of them. Censused across all 104
         // lists: only two entries are non-degenerate (3426201, 3426202), both
         // `isChanceMultisell="true"`, both owned by NPC 34262 (the HappyHours
         // Sibi Manager) — which has no spawn row anywhere in the dist and no
@@ -355,8 +355,11 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         }
         if ing.enchant_level > 0 {
             // SKIP(census): enchanted **ingredients**. `enchantmentLevel`
-            // appears on 3 `<production>` rows in the whole dist and on no
+            // appears on 4 `<production>` rows in the whole dist and on no
             // `<ingredient>` at all, so this branch has no data behind it.
+            // (Re-censused 2026-08-07: the production count had drifted from
+            // the 3 originally recorded; the load-bearing half — zero
+            // ingredients — is unchanged.)
             // (Enchanted *products* are a separate concern and are carried.)
             warn!(
                 "Multisell: list {} has an unported enchanted ingredient {}.",
