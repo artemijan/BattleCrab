@@ -14,6 +14,7 @@
 //! so they stay `+0`. `Stat.RECIPE_DWARVEN/COMMON` (Expand Dwarven/Common
 //! Craft, G19 `EnlargeSlot`) *is* wired — see `learn_recipe`'s limit lookup.
 
+use super::helpers::player_of;
 use crate::data::recipe_data::RecipeList;
 use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
@@ -21,7 +22,6 @@ use crate::model::stats::Stat;
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids, status_update_type};
-use crate::session::ClientSession;
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
@@ -34,13 +34,6 @@ const SKILL_CREATE_COMMON: i32 = 1320;
 const STORE_TYPE_MANUFACTURE: u8 = 5;
 
 // --- small accessors -------------------------------------------------------
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
-    }
-}
 
 fn adena(world: &World, oid: i32) -> i64 {
     world

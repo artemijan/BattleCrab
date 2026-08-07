@@ -8,23 +8,16 @@
 //! scheduler + `HennaDuration` character variables are out of scope; dye
 //! `<skill>` grants (none on Interlude dyes) are likewise skipped.
 
+use super::helpers::{player_of, send_to_client as send};
 use crate::data::henna_data::HennaStatSums;
 use crate::model::Player;
 use crate::model::components::{BaseStats, CombatStats, HennaSlots, Speeds, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::stats::BaseStat;
 use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPreview, sm_ids};
-use crate::session::ClientSession;
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
-    }
-}
 
 fn adena(world: &World, oid: i32) -> i64 {
     world
@@ -32,12 +25,6 @@ fn adena(world: &World, oid: i32) -> i64 {
         .get_component::<Inventory>(&oid)
         .map(|i| i.adena())
         .unwrap_or(0)
-}
-
-fn send(world: &World, client_id: u32, packet: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
 }
 
 /// `ClassId.level()` — occupation tier (0 base, 1/2/3 for 1st/2nd/3rd class),

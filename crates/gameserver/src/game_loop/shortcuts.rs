@@ -5,6 +5,7 @@
 //! control point is registration, which is where the no-recurring-macros
 //! deviation lives (see `handle_request_make_macro`).
 
+use super::helpers::send_to_client as send;
 use crate::model::components::{Macros, Shortcuts};
 use crate::model::shortcut::{MacroType, MacroUpdateType, Shortcut, ShortcutType};
 use crate::network::client_packets as cp;
@@ -18,12 +19,6 @@ fn ingame_object_id(world: &World, client_id: u32) -> Option<i32> {
     match world.clients.get(&client_id) {
         Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
         _ => None,
-    }
-}
-
-fn send(world: &World, client_id: u32, body: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(body);
     }
 }
 

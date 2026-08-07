@@ -4,27 +4,12 @@
 
 use commons::network::PacketReader;
 
+use super::helpers::{player_of, send_to_player as send};
 use crate::model::components::{PendingTrade, StoreItem, Trade};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
-use crate::session::ClientSession;
 use crate::world::World;
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
-    }
-}
-
-fn send(world: &World, oid: i32, packet: Vec<u8>) {
-    if let Some(cid) = super::helpers::client_for_player(world, oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
-}
 
 fn busy(world: &World, oid: i32) -> bool {
     world.objects.has_component::<Trade>(&oid)

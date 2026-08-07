@@ -11,6 +11,7 @@
 //! membership is derived from the room registry rather than mirrored on the
 //! player (Java's `Player._matchingRoom`), so the two can never disagree.
 
+use super::helpers::send_to_player as send;
 use crate::model::Player;
 use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
 use crate::model::matching_room::{MatchingMemberType, RoomKind, RoomLevelFilter};
@@ -42,10 +43,6 @@ fn level_of(world: &World, object_id: i32) -> i32 {
 
 pub(crate) fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
     send(world, object_id, packet);
-}
-
-fn send(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {

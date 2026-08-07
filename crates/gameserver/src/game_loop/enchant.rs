@@ -21,23 +21,10 @@ use crate::data::item_data::EtcItemType;
 use crate::model::components::EnchantRequest;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, enchant_result};
-use crate::session::ClientSession;
 use crate::world::World;
 
+use super::helpers::{player_of, send_to_client as send};
 use super::items::finish_equip_change;
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
-    }
-}
-
-fn send(world: &World, client_id: u32, packet: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
-}
 
 /// Facts about an inventory item the enchant flow needs (item id + current
 /// enchant), or `None` if the object id isn't in the player's inventory.
