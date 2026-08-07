@@ -240,6 +240,54 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         }
     }
 
+    // Java `RequestBuyItem`'s weight and slot gates, in its position: after the
+    // price loop, before anything is charged.
+    //
+    // **The slot rule is Java's, quirk included** — one slot per *product line*
+    // the player holds none of (`getItemByItemId(id) == null`), with no
+    // stackability test and no multiplication by count. Buying ten
+    // non-stackable swords is therefore charged one slot, not ten. Reusing
+    // `weight::slots_needed` is the reasonable-looking mistake: it returns
+    // `count` for a non-stackable, a different rule serving different callers.
+    //
+    // Both checks are skipped outright for a GM (`!player.isGM() && …`), which
+    // is broader than `validate_weight`'s own diet-mode exemption.
+    let is_gm = world
+        .objects
+        .get_component::<crate::model::Player>(&player)
+        .is_some_and(|p| p.is_gm(&world.data));
+    if !is_gm {
+        let (mut weight, mut slots): (i64, i64) = (0, 0);
+        for line in &pkt.items {
+            let unit_weight = world
+                .data
+                .item_data
+                .get(line.item_id)
+                .map_or(0, |t| i64::from(t.weight));
+            weight = weight.saturating_add(line.count.saturating_mul(unit_weight));
+            let holds_none = world
+                .objects
+                .get_component::<Inventory>(&player)
+                .is_none_or(|i| i.count_of(line.item_id) == 0);
+            if holds_none {
+                slots += 1;
+            }
+        }
+        if weight < 0 || !super::weight::validate_weight(world, player, weight) {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT,
+                &[],
+            );
+            return;
+        }
+        if !super::weight::validate_capacity(world, player, slots) {
+            send_sm_and_action_failed(world, client_id, sm_ids::YOUR_INVENTORY_IS_FULL, &[]);
+            return;
+        }
+    }
+
     // Charge (Java `reduceAdena`) — refuse without touching anything on a
     // shortfall.
     let adena = world
