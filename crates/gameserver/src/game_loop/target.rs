@@ -801,8 +801,9 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
 /// Java shows the "text is missing" stub); plain `Folk`/`Npc` use
 /// `data/html/default/` falling back to `npcdefault.htm`. Page `value` picks
 /// `<id>.htm` (0) or `<id>-<value>.htm`. Java streams these through
-/// `HtmCache`; we read per interaction but apply the same normalization via
-/// [`read_htm`] (TODO: cache if profiling ever cares).
+/// `HtmCache`; this port reads per interaction and applies the same
+/// normalization via [`read_htm`] — a deliberate choice with identical output,
+/// documented in [`crate::data::htm_cache`], not a deferral.
 fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32, value: i32) -> Option<String> {
     let pom = if value == 0 {
         npc_id.to_string()
