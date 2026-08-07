@@ -589,13 +589,9 @@ pub(crate) fn handle_request_pledge_waiting_user_accept(
     let Some(_clan_id_echo) = r.read_i32() else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, _, _)) = clan_membership(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    if clan_id == 0 {
-        return;
-    }
     if accept != 1 {
         remove_player_application(world, clan_id, player_id);
         return;

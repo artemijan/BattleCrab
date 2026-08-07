@@ -133,14 +133,10 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
 /// come back (SM 607 below clan level 8, `NoMoreSkills.htm` at 8+); otherwise
 /// `ExAcquirableSkillListByClass(PLEDGE)`.
 pub(crate) fn show_pledge_skill_list(world: &World, client_id: u32, player_oid: i32) {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
+    let Some(clan_id) = clan_leader_of(world, player_oid) else {
         send_villagemaster_html(world, client_id, "NotClanLeader.htm");
         return;
-    }
+    };
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
@@ -198,10 +194,7 @@ pub(crate) fn handle_request_pledge_skill_info(
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
-        return;
-    };
-    if p.clan_id == 0 || !p.clan_leader {
+    if clan_leader_of(world, player).is_none() {
         return;
     }
     let Some(learn) = world
@@ -236,13 +229,9 @@ pub(crate) fn handle_learn_pledge_skill(
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some(clan_id) = clan_leader_of(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
-        return;
-    }
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
@@ -332,14 +321,9 @@ pub(crate) fn handle_request_pledge_power(world: &mut World, client_id: u32, bod
         0
     };
 
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, _, is_leader)) = clan_membership(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let is_leader = p.clan_leader;
-    if clan_id == 0 {
-        return;
-    }
     if action == 2 && is_leader {
         let privs = if rank == 9 {
             privs & RANK9_PRIVS_MASK
@@ -397,10 +381,7 @@ pub(crate) fn handle_request_pledge_power_grade_list(world: &World, client_id: u
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
-        return;
-    };
-    if p.clan_id == 0 {
+    if clan_membership(world, player).is_none() {
         return;
     }
     let ranks: Vec<i32> = (1..=9).collect();
@@ -518,14 +499,9 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
     let Some(name) = r.read_string() else { return };
     let Some(grade) = r.read_i32() else { return };
 
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
-    if clan_id == 0 {
-        return;
-    }
     let has_priv = world
         .clans
         .get(&clan_id)
@@ -758,14 +734,10 @@ pub(crate) fn handle_cancel_clan_leader_change(
     player_oid: i32,
     npc_oid: i32,
 ) {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
+    let Some(clan_id) = clan_leader_of(world, player_oid) else {
         send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
         return;
-    }
+    };
     let pending = world
         .clans
         .get(&clan_id)

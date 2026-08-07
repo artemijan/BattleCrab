@@ -29,14 +29,10 @@ fn create_sub_pledge(
     name: &str,
     leader_name: Option<&str>,
 ) {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
+    let Some(clan_id) = clan_leader_of(world, player_oid) else {
         send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
         return;
-    }
+    };
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
@@ -277,14 +273,10 @@ pub(crate) fn handle_rename_pledge(world: &mut World, client_id: u32, player_oid
         return;
     };
     let Some(new_name) = it.next() else { return };
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
+    let Some(clan_id) = clan_leader_of(world, player_oid) else {
         send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
         return;
-    }
+    };
     if !world
         .clans
         .get(&clan_id)
