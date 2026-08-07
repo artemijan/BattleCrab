@@ -15,9 +15,16 @@
 //! trailing `-->` as literal text in the dialog. Reading these files raw is
 //! therefore not "close enough" — it is visibly wrong.
 //!
-//! We keep the per-interaction disk read (no cache; see the TODO in
-//! `game_loop::target`) but route it through [`read_htm`] so the normalization
-//! is applied in exactly one place.
+//! **No cache, by choice.** Java streams these through `HtmCache`, which loads
+//! every file at boot; this port reads per interaction and routes it through
+//! [`read_htm`] so the normalization is applied in exactly one place. The
+//! rendered output is identical either way — the difference is a disk read on
+//! a dialog open, against a boot-time load of the whole `html/` tree — and
+//! reading per interaction has the small operational advantage that an edited
+//! `.htm` takes effect without a restart.
+//!
+//! Not a parity gap and not owed work. Revisit only if a profile shows dialog
+//! opens costing measurable time.
 
 /// Apply the `HtmCache.loadFile` text normalization: strip html comments, then
 /// tabs and newlines. Carriage returns are left alone, matching Java's
