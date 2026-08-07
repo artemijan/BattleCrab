@@ -172,6 +172,49 @@ pub(crate) async fn run(
                     .await,
                 );
             }
+            DbCommand::InsertBlock { owner, target } => {
+                // Java `BlockList.updateInDB(add)` — one row, one direction,
+                // `relation = 1`. Unlike a friendship, blocking is not mutual.
+                warn_err(
+                    character_friends::Entity::insert(character_friends::ActiveModel {
+                        char_id: Set(owner),
+                        friend_id: Set(target),
+                        relation: Set(crate::db::queries::BLOCK_RELATION),
+                        memo: NotSet,
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            character_friends::Column::CharId,
+                            character_friends::Column::FriendId,
+                        ])
+                        .do_nothing()
+                        .to_owned(),
+                    )
+                    .exec_without_returning(&db)
+                    .await,
+                );
+            }
+            DbCommand::DeleteBlock { owner, target } => {
+                warn_err(
+                    character_friends::Entity::delete_many()
+                        .filter(character_friends::Column::CharId.eq(owner))
+                        .filter(character_friends::Column::FriendId.eq(target))
+                        .filter(
+                            character_friends::Column::Relation
+                                .eq(crate::db::queries::BLOCK_RELATION),
+                        )
+                        .exec(&db)
+                        .await,
+                );
+            }
+            // NOTE: this one is deliberately **not** filtered by `relation`,
+            // matching Java's `RequestFriendDel`
+            // (`DELETE ... WHERE (charId=? AND friendId=?) OR (...)`). So
+            // removing a friendship also clears a block row for the same pair
+            // in either direction — a real upstream quirk, reachable when one
+            // side blocks and the other later befriends and unfriends. Ported
+            // as behaviour rather than intent; the block commands above are
+            // relation-scoped precisely so they cannot do the reverse.
             DbCommand::DeleteFriendPair { a, b } => {
                 warn_err(
                     character_friends::Entity::delete_many()

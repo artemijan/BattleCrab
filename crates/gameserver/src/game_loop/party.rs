@@ -476,8 +476,20 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
         );
         return;
     }
-    // (Cursed weapons / jail / olympiad / block-list / event guards skipped —
-    // systems absent.)
+    // Java `RequestJoinParty`: `BlockList.isBlocked(target, requestor)` — the
+    // *invitee's* list decides. The refusal names the target, so the requestor
+    // is told who is ignoring them.
+    if super::block_list::is_blocked(world, target, requestor) {
+        send_sm_to_player(
+            world,
+            requestor,
+            sm_ids::C1_HAS_PLACED_YOU_ON_HIS_HER_IGNORE_LIST,
+            &[SmParam::Text(player_name(world, target))],
+        );
+        return;
+    }
+    // (Cursed weapons / jail / olympiad / event guards skipped — systems
+    // absent.)
 
     // Java sends "C1 has been invited" before the create/add branches — a
     // later guard failing still leaves this on the requestor's screen.

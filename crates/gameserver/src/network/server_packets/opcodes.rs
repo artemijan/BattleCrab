@@ -107,6 +107,8 @@ pub const SAY2: u8 = 0x4A;
 pub const PETITION_VOTE: u8 = 0xFC;
 /// `Snoop` (G31) — a mirrored chat line to a GM eavesdropping via `//snoop`.
 pub const SNOOP: u8 = 0xDB;
+/// `BlockListPacket` — the ignore list, answering `RequestBlock`'s BLOCKLIST.
+pub const BLOCK_LIST: u8 = 0xD5;
 pub const ASK_JOIN_PARTY: u8 = 0x39;
 pub const JOIN_PARTY: u8 = 0x3A;
 pub const PARTY_SMALL_WINDOW_ALL: u8 = 0x4E;

@@ -137,7 +137,8 @@ pub struct CharData {
     pub shortcuts: Vec<crate::model::shortcut::Shortcut>,
     /// `character_macroses` rows, commands already decoded.
     pub macros: Vec<crate::model::shortcut::Macro>,
-    /// `character_friends` joined with each friend's character row.
+    /// `character_friends` joined with each friend's character row
+    /// (`relation = 0`).
     pub friends: Vec<FriendInfo>,
     /// `character_quests` rows grouped by quest name (Java
     /// `Quest.playerEnter`); only quests with a `<state>` row count.

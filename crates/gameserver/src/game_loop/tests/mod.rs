@@ -44,6 +44,7 @@ mod auto_play_tests;
 mod auto_potions_tests;
 mod baium_tests;
 mod basic_property_tests;
+mod block_list_tests;
 mod boats_tests;
 mod boss_respawn_tests;
 mod boss_zone_tests;

@@ -910,15 +910,52 @@ async fn load_shortcuts(
     out
 }
 
+/// `character_friends.relation` — the one table stores two lists. Java writes
+/// the friend rows with the column defaulted (`INSERT ... (charId, friendId)`)
+/// and the block rows with an explicit `1`.
+pub(crate) const FRIEND_RELATION: i32 = 0;
+pub(crate) const BLOCK_RELATION: i32 = 1;
+
+/// **Every** character's block list — Java `BlockList.loadList`, but read in
+/// one pass at boot rather than per player, because the port keeps them in one
+/// world-level map (see `World::block_lists`).
+///
+/// Java skips a row pointing at the owner (`friendId == objId`); kept, since a
+/// self-block would make a player deaf to their own broadcast.
+pub(crate) async fn load_all_block_lists(
+    db: &DatabaseConnection,
+) -> Vec<(i32, std::collections::HashSet<i32>)> {
+    let mut out: std::collections::HashMap<i32, std::collections::HashSet<i32>> =
+        std::collections::HashMap::new();
+    for row in character_friends::Entity::find()
+        .filter(character_friends::Column::Relation.eq(BLOCK_RELATION))
+        .all(db)
+        .await
+        .unwrap_or_default()
+    {
+        if row.char_id != row.friend_id {
+            out.entry(row.char_id).or_default().insert(row.friend_id);
+        }
+    }
+    out.into_iter().collect()
+}
+
 /// A character's `character_friends` rows joined with each friend's
 /// character row — the name/level/class snapshot Java reads through
-/// `CharInfoTable` on demand (`relation`/`memo` unused).
+/// `CharInfoTable` on demand (`memo` unused).
+///
+/// **`relation = 0` is load-bearing**, as in Java's
+/// `SELECT friendId FROM character_friends WHERE charId=? AND relation=0`. The
+/// same table stores the *block* list at `relation = 1`
+/// ([`load_block_list`]); without the filter every blocked character would
+/// come back as a friend.
 async fn load_friends(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::character::FriendInfo> {
     // The join is two reads instead of one: `character_friends` declares no
     // foreign key, so there is no relation to traverse — and a friend list is a
     // handful of rows.
     let ids: Vec<i32> = character_friends::Entity::find()
         .filter(character_friends::Column::CharId.eq(owner_id))
+        .filter(character_friends::Column::Relation.eq(FRIEND_RELATION))
         .all(db)
         .await
         .unwrap_or_default()

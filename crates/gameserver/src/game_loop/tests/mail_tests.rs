@@ -339,6 +339,7 @@ fn the_boot_load_installs_messages_attachments_and_the_name_table() {
         )],
         vec![(5, rows)],
         vec![("Alice".to_lowercase(), 9001)],
+        Vec::new(),
     );
 
     let m = world.mail.get(5).expect("message restored");

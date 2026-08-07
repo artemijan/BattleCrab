@@ -366,6 +366,20 @@ pub enum DbCommand {
         a: i32,
         b: i32,
     },
+    /// Fire-and-forget block insert (Java `BlockList.updateInDB`, add branch) —
+    /// **one** row in **one** direction at `relation = 1`. Blocking is not
+    /// mutual: the target is never told to block back, and their own list is
+    /// untouched.
+    InsertBlock {
+        owner: i32,
+        target: i32,
+    },
+    /// Fire-and-forget block delete (`BlockList.updateInDB`, remove branch).
+    /// Relation-scoped, so it can never take a friendship row with it.
+    DeleteBlock {
+        owner: i32,
+        target: i32,
+    },
     /// Fire-and-forget `Clan.store()` — the 13-column `clan_data` INSERT
     /// with everything but id/name/leader at Java's defaults.
     InsertClan {
@@ -1181,6 +1195,11 @@ pub enum DbEvent {
         messages: Vec<crate::model::mail::Message>,
         attachments: Vec<(i32, Vec<crate::character::ItemRow>)>,
         char_ids_by_name: Vec<(String, i32)>,
+        /// Every character's ignore list (Java `BlockList`). Rides this event
+        /// because it is wanted at the same moment and for the same reason as
+        /// the name table: mail must be filtered against an addressee who need
+        /// not be online.
+        block_lists: Vec<(i32, std::collections::HashSet<i32>)>,
     },
     /// The active punishments (Java `PunishmentManager.load`, G31), pushed
     /// unprompted at boot. Already-expired rows are filtered out here; `next_id`

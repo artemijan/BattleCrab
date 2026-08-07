@@ -22,6 +22,7 @@ mod basic_property;
 /// Bench-only wrappers over the private tick systems (`benches/tick.rs`).
 #[cfg(feature = "bench-api")]
 pub mod bench_api;
+mod block_list;
 pub(crate) mod boats;
 mod boss_respawn;
 mod boss_threat;
