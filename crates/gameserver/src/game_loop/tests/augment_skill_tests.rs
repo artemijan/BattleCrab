@@ -462,3 +462,49 @@ fn destroying_a_worn_augmented_item_takes_its_option_back() {
         "the option's skill must go with the destroyed item"
     );
 }
+
+/// A GM destroying gear off a player's back takes the augment options with it.
+///
+/// `//destroy` ran a bare `remove_item` — none of the destroy protocol — so the
+/// target kept the option's stats and granted skills. This drives the real
+/// admin command, so it covers the wiring, not just the helper.
+#[test]
+fn admin_destroy_takes_the_options_off_a_worn_item() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = augment_world();
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+    world.id_pool = 0x4200_0000..0x4200_0100;
+    world.data.options.insert_for_test(active_option(4001));
+
+    let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
+    let item_id = world
+        .objects
+        .get_component::<Inventory>(&PLAYER)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == item_oid)
+                .map(|i| i.item_id)
+        })
+        .expect("worn augmented weapon");
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        Some(1),
+        "granted while worn"
+    );
+
+    crate::game_loop::items::destroy_item_by_id(&mut world, PLAYER, item_id, 1);
+
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .is_some_and(|inv| inv.first_of_item(item_id).is_none()),
+        "the item is gone"
+    );
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        None,
+        "and so is the option it granted"
+    );
+}

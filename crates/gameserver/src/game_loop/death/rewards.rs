@@ -1008,6 +1008,10 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
         // on the ground (`ExUserInfoEquipSlot`, not `ItemList`, drives it).
         if dropped_equipped {
             crate::game_loop::items::refresh_equip_state(world, client_id, victim_oid);
+            // Gear leaving the paperdoll can flip the grade penalty, the weight
+            // penalty and any armor-conditioned passive — Java fires these off
+            // the same unequip listener.
+            crate::game_loop::items::refresh_after_paperdoll_change(world, victim_oid);
         }
     }
 }

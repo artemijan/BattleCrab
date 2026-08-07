@@ -323,11 +323,9 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
             heading: 0,
         });
 
-    // Take the weapon off the corpse. `remove_item` frees the paperdoll slot
-    // itself (Java `Inventory.removeItem`), so there is no unequip step here.
-    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&victim_oid) {
-        inv.remove_item(item_id, 1);
-    }
+    // Take the weapon off the corpse. The cursed weapon is worn, so this goes
+    // through the destroy protocol rather than a bare `remove_item`.
+    crate::game_loop::items::destroy_item_by_id(world, victim_oid, item_id, 1);
     // Reset the wielder (Java does this in both `dropIt` and its caller).
     if let Some(p) = world.objects.get_component_mut::<Player>(&victim_oid) {
         p.reputation = saved_rep;
@@ -546,10 +544,8 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
         if !holds {
             continue;
         }
-        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&object_id) {
-            inv.remove_item(item_id, 1);
-            removed = true;
-        }
+        crate::game_loop::items::destroy_item_by_id(world, object_id, item_id, 1);
+        removed = true;
     }
     if !removed {
         return;

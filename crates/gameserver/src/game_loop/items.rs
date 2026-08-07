@@ -807,10 +807,50 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
     refresh_equip_state(world, client_id, object_id);
 }
 
+/// Destroy `count` of `item_id` from `owner_oid`'s bag, running everything the
+/// removal implies when the instance was **worn**.
+///
+/// The whole `equipped_object_ids` protocol in one call. It used to be four
+/// hand-rolled steps at each destroy site — snapshot, remove, intersect,
+/// finish — and predictably most sites did one or two of them: of the eight
+/// paths that can destroy a worn item, exactly one had all four. Prefer this
+/// over calling `Inventory::remove_item` directly whenever the item could
+/// plausibly be equipped.
+///
+/// Returns the removal's `ItemChange`s so the caller can still build its own
+/// `InventoryUpdate`.
+pub(crate) fn destroy_item_by_id(
+    world: &mut World,
+    owner_oid: i32,
+    item_id: i32,
+    count: i64,
+) -> Vec<crate::model::inventory::ItemChange> {
+    use crate::model::inventory::Inventory;
+    let before = world
+        .objects
+        .get_component::<Inventory>(&owner_oid)
+        .map(|inv| inv.equipped_object_ids())
+        .unwrap_or_default();
+    let changes = world
+        .objects
+        .get_component_mut::<Inventory>(&owner_oid)
+        .map(|inv| inv.remove_item(item_id, count))
+        .unwrap_or_default();
+    let unequipped = unequipped_by_removal(&before, &changes);
+    if !unequipped.is_empty() {
+        // An offline owner has no client; the packet halves no-op on id 0 while
+        // the stat and option halves still run, which is what matters for a
+        // character whose inventory is being edited out from under them.
+        let client_id = crate::game_loop::helpers::client_for_player(world, owner_oid).unwrap_or(0);
+        finish_equipped_item_destroyed(world, client_id, owner_oid, &unequipped);
+    }
+    changes
+}
+
 /// The tail of [`finish_equip_change`]: the owner-wide penalties and passives
 /// a paperdoll change can flip. Each sends its own packets, and only when the
 /// value it owns actually moved.
-fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) {
+pub(crate) fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) {
     // Java `Inventory.equipItem`/`unEquipItemInBodySlot` fire
     // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
     // (or one just removed) changes the grade penalty. It sends its own
