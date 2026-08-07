@@ -144,6 +144,49 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // Java `Say2`: no chat at all while in a bout or sitting in the queue.
+    // Covers **every** channel, party and clan included, and has no GM escape
+    // hatch — a GM who registers is silenced like anyone else.
+    if super::olympiad::in_match(world, sender_oid) || world.olympiad.is_registered(sender_oid) {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD,
+        );
+        return;
+    }
+
+    // Java `Say2`'s jail gate, and note how it differs from the *other*
+    // `JailDisableChat` check in `world_chat` below — the two are not copies:
+    //
+    //   * this one covers **four channels only** (whisper, shout, trade, hero
+    //     voice). WORLD is absent, which is exactly why `ChatWorld` carries its
+    //     own check; ordinary, party and clan chat stay open to a prisoner on
+    //     both paths.
+    //   * it has **no `PlayerCondOverride.CHAT_CONDITIONS` escape**, where
+    //     `ChatWorld`'s does — so a GM with the override may use world chat
+    //     from jail but not a whisper.
+    //   * it answers with `sendMessage(String)`, a literal line, not a
+    //     `SystemMessage` — so the text is the server's rather than the
+    //     client's, and is reproduced verbatim here.
+    if world.cfg.general.jail_disable_chat
+        && matches!(
+            chat_type,
+            ChatType::Whisper | ChatType::Shout | ChatType::Trade | ChatType::HeroVoice
+        )
+        && world
+            .objects
+            .get_component::<Player>(&sender_oid)
+            .is_some_and(|p| p.jailed)
+    {
+        super::admin::send_message(
+            world,
+            client_id,
+            "You can not chat with players outside of the jail.",
+        );
+        return;
+    }
+
     // Petition consultation chat (Java `Say2` → `sendActivePetitionMessage`,
     // G31): route the line to both participants, don't broadcast it.
     if matches!(chat_type, ChatType::PetitionPlayer | ChatType::PetitionGm) {
@@ -550,10 +593,9 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         return;
     }
 
-    // TODO(chat-jail): Java gates two places on `JailDisableChat` — this one,
-    // ported here, and `Say2`'s own guard over WHISPER/SHOUT/TRADE/HERO_VOICE,
-    // which this port has never had. A jailed player is still silenced on
-    // those four channels upstream and is not here.
+    // The second of Java's two `JailDisableChat` gates — `Say2`'s is up in
+    // `handle_say2`, over a different channel set and *without* the
+    // `CHAT_CONDITIONS` escape this one has. See the note there.
     if world.cfg.general.jail_disable_chat && jailed && !may_override {
         send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
         return;

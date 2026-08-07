@@ -727,6 +727,8 @@ pub mod sm_ids {
     // Chat (G10)
     pub const THAT_PLAYER_IS_NOT_ONLINE: i16 = 145;
     pub const KEYBOARD_INPUT_SPAM_WARNING: i16 = 1078;
+    /// `Say2`'s olympiad gate — every channel, no GM exemption.
+    pub const YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD: i16 = 4172;
     // World chat (`handlers/chathandlers/ChatWorld`). The quota line's text
     // names 18:30 while this server resets at 06:30 UTC — that string is the
     // client's, not a claim the port makes; see `game_loop::chat::world_chat`.

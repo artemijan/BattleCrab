@@ -52,6 +52,7 @@ mod bypass_verb_case_tests;
 mod castle_treasury_tests;
 mod champion_tests;
 mod chase_parity_tests;
+mod chat_guard_tests;
 mod clan_hall_tests;
 mod clans_tests;
 mod combat_tests;
