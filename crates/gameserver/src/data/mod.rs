@@ -270,7 +270,7 @@ impl GameData {
         let soul_crystal_data = SoulCrystalData::load_from(file_path);
         let four_sepulchers = FourSepulchersData::load_from(file_path);
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
-        Self {
+        let data = Self {
             root: file_path.to_string(),
             experience: ExperienceData::load_from(file_path),
             player_templates: PlayerTemplateData::load_from(file_path),
@@ -328,7 +328,16 @@ impl GameData {
             combat_caps: CombatCaps::default(),
             // Overwritten from the parsed `GeneralConfig` at boot (`main.rs`).
             gm: GmSettings::default(),
-        }
+        };
+        // Deferred to here, not `SkillData::load_from`: separating a parser gap
+        // that touches a skill a player can learn from one that only touches
+        // later-chronicle datapack content needs the skill trees, and this is
+        // the first point at which they exist.
+        skill_data::parse::log_gaps(
+            data.skill_data.gaps(),
+            &data.skill_trees.all_learnable_skill_ids(),
+        );
+        data
     }
     pub fn load() -> Self {
         Self::load_from("")

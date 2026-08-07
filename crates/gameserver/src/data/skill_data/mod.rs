@@ -38,7 +38,7 @@ use crate::model::skill::{
 use crate::model::stats::{Stat, StatModifierType};
 
 mod build;
-mod parse;
+pub(crate) mod parse;
 
 pub(crate) use build::*;
 pub(crate) use parse::*;
@@ -348,8 +348,11 @@ impl SkillData {
             out.enchanted.len(),
             out.routes.len()
         );
+        // The gap report is deliberately *not* emitted here. Telling a gap that
+        // touches a learnable skill from one that only touches later-chronicle
+        // datapack content needs the skill trees, which are not parsed yet;
+        // `GameData::load` calls `parse::log_gaps` once they are.
         let gaps = out.gaps.into_inner();
-        log_gaps(&gaps);
         Self {
             skills: out.skills,
             enchanted: out.enchanted,

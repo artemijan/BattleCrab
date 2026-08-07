@@ -1368,10 +1368,32 @@ effects declared in an `<*Effects>` scope this port never builds
 `SkillConditionScope` blocks (`conditions`/`targetConditions`/
 `passiveConditions` — the latter two weren't even entered before); and
 `<targetType>`/`<affectScope>`/`<affectObject>`/`<operateType>` values that fell
-to the `Other` catch-all. `log_gaps` warns per category at boot, worst-first.
-`datapack_skill_coverage_census` intersects the record with the datapack's own
-reachability and asserts the exact learnable-source name list per category plus
-the totals.
+to the `Other` catch-all. `datapack_skill_coverage_census` intersects the record
+with the datapack's own reachability and asserts the exact learnable-source name
+list per category plus the totals.
+
+**`log_gaps` reworked 2026-08-07 to report *why*, not just how many.** It used
+to emit one `warn!` per category listing raw name counts, so a healthy boot
+printed six alarming lines about content no Interlude player can reach, with no
+way to tell that from real debt — the classic shape that trains an operator to
+ignore the log. It now runs from `GameData::load` (after the skill trees parse,
+which is what the split needs — the old site could only ever print raw totals,
+and its doc comment said so) and splits each category against
+`SkillTreeData::all_learnable_skill_ids`:
+
+- **Reachable** → `warn!`, naming the exact skill ids, because a player can hit
+  it today. On this dist that is precisely two, both recorded G34 decisions:
+  `SafeFallHeight` on **173 Acrobatics** and `conditions/OpSweeper` on
+  **42 Sweeper**.
+- **Off-chronicle** → `info!`, saying so: the dist's `skills/*.xml` is shared
+  with far later chronicles and carries Territory War / Gracia / Freya content
+  that no Interlude tree references, so ignoring it is a decision rather than an
+  oversight.
+
+The reachable set is pinned by
+`data::skill_tree::tests::only_the_two_recorded_gaps_are_reachable_from_a_skill_tree`,
+so a gap that *becomes* reachable fails a test instead of merely changing a
+number in a log line nobody reads.
 
 **Measured against the 758 learnable skill ids in `data/skillTrees/**`:**
 
