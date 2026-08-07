@@ -214,20 +214,14 @@ pub(super) fn admin_cw_goto(world: &mut World, client_id: u32, gm_object_id: i32
         );
         return;
     };
+    // Read the row's fields out before teleporting: the anchors are `world`
+    // data and the teleport needs `&mut world`.
     let cw = &world.cursed_weapons[idx];
-    // `_isActivated && _player != null` — go to the holder.
-    if cw.is_activated {
-        let holder = cw.player_id;
-        if let Some(pos) = world.objects.get_component::<Position>(&holder).copied() {
-            crate::game_loop::death::teleport_player(world, gm_object_id, pos.x, pos.y, pos.z);
-            return;
-        }
-    }
-    // `_isDropped && _item != null` — go to the ground item.
-    if cw.is_dropped && cw.dropped_item_oid != 0 {
-        let item = cw.dropped_item_oid;
-        if let Some(pos) = world.objects.get_component::<Position>(&item).copied() {
-            crate::game_loop::death::teleport_player(world, gm_object_id, pos.x, pos.y, pos.z);
+    let holder = cw.is_activated.then_some(cw.player_id);
+    let dropped = (cw.is_dropped && cw.dropped_item_oid != 0).then_some(cw.dropped_item_oid);
+    // `_isActivated && _player != null` — go to the holder, else the ground item.
+    for anchor in [holder, dropped].into_iter().flatten() {
+        if crate::game_loop::death::teleport_to_object(world, gm_object_id, anchor) {
             return;
         }
     }

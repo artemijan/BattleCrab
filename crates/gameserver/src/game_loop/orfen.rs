@@ -189,10 +189,9 @@ fn try_drag(world: &mut World, orfen_oid: i32, attacker_oid: i32) {
     if world.roll(DRAG_CHANCE) != 0 {
         return;
     }
-    let Some(to) = world.objects.get_component::<Position>(&orfen_oid).copied() else {
+    if !crate::game_loop::death::teleport_to_object(world, attacker_oid, orfen_oid) {
         return;
-    };
-    crate::game_loop::death::teleport_player(world, attacker_oid, to.x, to.y, to.z);
+    }
     cast_on(world, orfen_oid, attacker_oid, PARALYSIS);
 }
 

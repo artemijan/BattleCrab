@@ -317,6 +317,27 @@ fn siege_restart_location(
     }
 }
 
+/// Java's `Creature.teleToLocation(ILocational)` overload — send `subject` to
+/// wherever `anchor` currently stands.
+///
+/// "Teleport to another object" was open-coded at six sites, each re-reading
+/// `Position` and unpacking the same `x, y, z` triple by hand. The returned
+/// `bool` is what the cursed-weapon `//gocw` branches need: they try the holder,
+/// then the dropped item, and fall through to a "not in the World" message only
+/// if neither had a position — a plain no-op helper could not express that.
+///
+/// Note this reads the anchor's position *per call*. Callers that recall a whole
+/// group to one spot (party recall, `//recall_all`) deliberately read it once up
+/// front instead, so every member lands on the same coordinates even if the
+/// anchor were to move mid-loop.
+pub(crate) fn teleport_to_object(world: &mut World, subject: i32, anchor: i32) -> bool {
+    let Some(pos) = crate::game_loop::guard::position(world, anchor) else {
+        return false;
+    };
+    teleport_player(world, subject, pos.x, pos.y, pos.z);
+    true
+}
+
 /// `Creature.teleToLocation`: stop moving, vanish from the old neighborhood
 /// (`decayMe` → `DeleteObject`), push the new position, and wait for the
 /// client's `Appearing` before becoming visible again.

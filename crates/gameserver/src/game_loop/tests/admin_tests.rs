@@ -6548,3 +6548,70 @@ fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
         "only the passive survives //stopallbuffs"
     );
 }
+
+/// `//cw_goto` tries the holder first, then the dropped item, and only reports
+/// "isn't in the World" when neither has a position.
+///
+/// The fall-through is the whole behaviour: a cursed weapon can be flagged
+/// activated while its holder carries no position (offline, mid-teleport), and
+/// Java still checks the ground item before giving up. Pinned because the
+/// command has no other test and the branch order is easy to flatten.
+#[test]
+fn cw_goto_falls_through_from_the_holder_to_the_dropped_item() {
+    use crate::model::components::Position;
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = admin_world();
+    world.data.root = ROOT.to_string();
+    world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
+    world.cursed_weapons = world.data.cursed_weapons.weapons.clone();
+    let item_id = world.cursed_weapons[0].item_id;
+
+    let mut gm_rx = ingame_player_access(&mut world, 1, 9101, 100);
+    // Both anchors must be *registered* objects — components attached to an
+    // unknown object id are silently dropped by the store.
+    const HOLDER: i32 = 9102;
+    const GROUND_ITEM: i32 = 9103;
+    let _holder_rx = ingame_player_access(&mut world, 2, HOLDER, 0);
+    let _item_rx = ingame_player_access(&mut world, 3, GROUND_ITEM, 0);
+    // The holder is flagged but has NO position — the case that must fall through.
+    world.objects.remove_component::<Position>(&HOLDER);
+    if let Some(p) = world.objects.get_component_mut::<Position>(&GROUND_ITEM) {
+        p.x = 84_000;
+        p.y = 148_000;
+        p.z = -3400;
+    }
+    world.cursed_weapons[0].is_activated = true;
+    world.cursed_weapons[0].player_id = HOLDER;
+    world.cursed_weapons[0].is_dropped = true;
+    world.cursed_weapons[0].dropped_item_oid = GROUND_ITEM;
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin(&format!("cw_goto {item_id}")));
+
+    let at = world
+        .objects
+        .get_component::<Position>(&9101)
+        .copied()
+        .expect("gm position");
+    assert_eq!(
+        (at.x, at.y),
+        (84_000, 148_000),
+        "the GM landed on the dropped item after the position-less holder"
+    );
+
+    // With neither anchor placed, the command reports the weapon as absent.
+    world.cursed_weapons[0].is_dropped = false;
+    world.cursed_weapons[0].dropped_item_oid = 0;
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin(&format!("cw_goto {item_id}")));
+    let after = world
+        .objects
+        .get_component::<Position>(&9101)
+        .copied()
+        .expect("gm position");
+    assert_eq!((after.x, after.y), (at.x, at.y), "no anchor, no teleport");
+    assert!(
+        count_system_messages(&drain(&mut gm_rx)) >= 1,
+        "the \"isn't in the World\" line is sent"
+    );
+}

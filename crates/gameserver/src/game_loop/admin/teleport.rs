@@ -107,8 +107,7 @@ fn recall(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
         None => guard::player_target(world, object_id),
     }
     .or_msg("Usage: //recall <player name>")?;
-    let pos = guard::position(world, object_id).or_silent()?;
-    super::death::teleport_player(world, target, pos.x, pos.y, pos.z);
+    super::death::teleport_to_object(world, target, object_id);
     Ok(())
 }
 
@@ -127,8 +126,7 @@ pub(super) fn admin_teleto(world: &mut World, client_id: u32, object_id: i32) {
 
 fn teleto(world: &mut World, object_id: i32) -> Guard<()> {
     let target = guard::target(world, object_id).or_msg("Select a target first.")?;
-    let pos = guard::position(world, target).or_silent()?;
-    super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
+    super::death::teleport_to_object(world, object_id, target);
     Ok(())
 }
 
@@ -196,9 +194,10 @@ fn goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -
     .or_sm(sm_ids::INVALID_TARGET)?;
     if target == object_id {
         send_sm(world, client_id, sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
-    } else if let Some(pos) = guard::position(world, target) {
+    } else if super::death::teleport_to_object(world, object_id, target) {
+        // The confirmation stays gated on the teleport actually happening: a
+        // target with no position is silently skipped, exactly as before.
         let name = guard::player_name(world, target).unwrap_or_default();
-        super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
         send_message(
             world,
             client_id,
