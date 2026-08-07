@@ -2,11 +2,13 @@
 //! `AdminLevel` / `AdminEnchant` family that mutates a player's progression,
 //! integer fields, appearance, and equipment enchant levels.
 
+use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
+use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
-use super::{current_target, send_message, target_player};
+use super::{send_message, target_player};
 
 /// `AdminExpSp`'s `//add_exp_sp <exp> <sp>` — grant exp+sp to the **targeted
 /// player**, driving the level-up path. Faithful to Java `AdminExpSp`: a
@@ -14,14 +16,13 @@ use super::{current_target, send_message, target_player};
 /// the target is told "Admin is adding you …", and the exp/sp menu is refreshed
 /// afterwards (Java's trailing `addExpSp(activeChar)`, run for every invocation).
 pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    use crate::network::server_packets::sm_ids;
+    let result = add_exp_sp(world, client_id, object_id, args);
+    guard::finish(world, client_id, result);
+}
+
+fn add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
     // Java `adminAddExpSp`: the target must be a player, else INVALID_TARGET.
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
-        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
-        return;
-    };
+    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     // Exactly two numeric tokens, else the usage hint (Java: `countTokens() != 2`
     // or a parse failure returns false → "Usage" sysmessage).
     match (
@@ -31,11 +32,7 @@ pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32
     ) {
         // Java only applies + messages when at least one value is non-zero.
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
-            let name = world
-                .objects
-                .get_component::<Player>(&target)
-                .map(|p| p.name.clone())
-                .unwrap_or_default();
+            let name = guard::player_name(world, target).unwrap_or_default();
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
                 send_message(
                     world,
@@ -55,6 +52,7 @@ pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32
         _ => send_message(world, client_id, "Usage: //add_exp_sp exp sp"),
     }
     admin_add_exp_sp_menu(world, client_id, object_id);
+    Ok(())
 }
 
 /// `AdminExpSp`'s `//remove_exp_sp <exp> <sp>` — subtract exp+sp from the
@@ -66,24 +64,19 @@ pub(super) fn admin_remove_exp_sp(
     object_id: i32,
     args: &[&str],
 ) {
-    use crate::network::server_packets::sm_ids;
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
-        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
-        return;
-    };
+    let result = remove_exp_sp(world, client_id, object_id, args);
+    guard::finish(world, client_id, result);
+}
+
+fn remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
+    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     match (
         args.len(),
         args.first().and_then(|s| s.parse::<i64>().ok()),
         args.get(1).and_then(|s| s.parse::<i64>().ok()),
     ) {
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
-            let name = world
-                .objects
-                .get_component::<Player>(&target)
-                .map(|p| p.name.clone())
-                .unwrap_or_default();
+            let name = guard::player_name(world, target).unwrap_or_default();
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
                 send_message(
                     world,
@@ -102,6 +95,7 @@ pub(super) fn admin_remove_exp_sp(
         _ => send_message(world, client_id, "Usage: //remove_exp_sp exp sp"),
     }
     admin_add_exp_sp_menu(world, client_id, object_id);
+    Ok(())
 }
 
 /// `AdminExpSp`'s `addExpSp` (the `//add_exp_sp_to_character` command and the
@@ -110,18 +104,14 @@ pub(super) fn admin_remove_exp_sp(
 /// window up when its Add/Remove/Set-Level buttons fire. Java requires a player
 /// target, else `INVALID_TARGET`.
 pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
-        super::send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
-        return;
-    };
+    let result = add_exp_sp_menu(world, client_id, object_id);
+    guard::finish(world, client_id, result);
+}
+
+fn add_exp_sp_menu(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
+    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     let Some(p) = world.objects.get_component::<Player>(&target) else {
-        return;
+        return Ok(());
     };
     // Java fills `%class%` via `ClassListData` client-code; the port has no
     // client-code table, so use the numeric class id (as `//character_info` does).
@@ -133,6 +123,7 @@ pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id
         ("class", p.class_id.to_string()),
     ];
     super::menu::show_admin_html_replace(world, client_id, "expsp.htm", &r);
+    Ok(())
 }
 
 /// `AdminLevel`'s `//add_level <n>` / `//set_level <n>` — add levels to, or set
@@ -156,9 +147,7 @@ pub(super) fn admin_change_level(
         );
         return;
     };
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
+    let target = guard::player_target(world, object_id).unwrap_or(object_id);
     let Some(current) = world
         .objects
         .get_component::<Player>(&target)
@@ -253,9 +242,7 @@ pub(super) fn admin_vitality(
     mode: &str,
     args: &[&str],
 ) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+    let Some(target) = guard::player_target(world, object_id) else {
         send_message(world, client_id, "Target not found or not a player");
         return;
     };
@@ -398,9 +385,7 @@ pub(super) fn admin_set_enchant(
         send_message(world, client_id, "Usage: //set<slot> <0..127>");
         return;
     };
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
+    let target = guard::player_target(world, object_id).unwrap_or(object_id);
     let changed = world
         .objects
         .get_component_mut::<Inventory>(&target)

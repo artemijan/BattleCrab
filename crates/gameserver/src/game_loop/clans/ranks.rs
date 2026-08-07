@@ -416,11 +416,7 @@ fn clan_member_by_name(
     player: i32,
     name: &str,
 ) -> Option<(i32, crate::model::clan::ClanMember)> {
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .filter(|&c| c != 0)?;
+    let clan_id = crate::game_loop::guard::clan_of(world, player)?;
     let clan = world.clans.get(&clan_id)?;
     clan.members
         .iter()

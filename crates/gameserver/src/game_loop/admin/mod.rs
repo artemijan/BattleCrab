@@ -15,6 +15,7 @@ use serde_json::json;
 use tracing::warn;
 
 use crate::enums::AdminTeleportType;
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::TargetRef;
 use crate::model::inventory::PaperdollSlot;
@@ -909,9 +910,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_unban_menu" => moderation::admin_unban_menu(world, client_id, &args),
         "admin_force_peti" => {
             let text = args.join(" ");
-            match current_target(world, object_id)
-                .filter(|oid| world.objects.has_component::<Player>(oid))
-            {
+            match guard::player_target(world, object_id) {
                 _ if text.is_empty() => send_message(world, client_id, "Usage: //force_peti text"),
                 Some(target) => {
                     if !super::petition::force_petition(world, object_id, target, &text) {
@@ -970,9 +969,7 @@ fn show_effects_main_page(world: &mut World, client_id: u32, command: &str) {
 
 /// EditChar target = the current target if it's a player, else the GM.
 pub(super) fn target_player(world: &World, object_id: i32) -> i32 {
-    current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id)
+    guard::player_target(world, object_id).unwrap_or(object_id)
 }
 
 /// Java `target.getName()` for the GM-audit record, with Java's `"no-target"`

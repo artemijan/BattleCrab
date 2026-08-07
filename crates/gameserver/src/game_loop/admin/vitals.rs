@@ -2,6 +2,7 @@
 //! `//set_cp` EditChar vitals, and `AdminKill`. All operate on the current
 //! target (or the GM) and push the resulting `StatusUpdate`.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
 use crate::model::npc::Npc;
@@ -100,9 +101,7 @@ pub(super) fn admin_res(world: &mut World, client_id: u32, object_id: i32, args:
         );
         return;
     }
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
+    let target = guard::player_target(world, object_id).unwrap_or(object_id);
     res_creature(world, target);
 }
 

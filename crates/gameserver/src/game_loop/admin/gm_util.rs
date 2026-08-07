@@ -9,6 +9,7 @@
 //! path — they need chat-snoop, live-config, olympiad or punishment systems the
 //! server has not ported.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef, Position};
 use crate::model::npc::Npc;
@@ -362,8 +363,7 @@ pub(super) fn admin_kick_non_gm(world: &mut World, client_id: u32) {
 fn resolve_named_or_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
     match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
+        None => guard::player_target(world, object_id),
     }
 }
 
@@ -405,12 +405,7 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.clan_id)
-        .filter(|&c| c != 0)
-    else {
+    let Some(clan_id) = guard::clan_of(world, target) else {
         send_message(world, client_id, "Player is not in a clan.");
         recall_all(world, object_id, &[target]);
         return;
@@ -837,10 +832,8 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
     }
     match args.get(1).copied() {
         Some("give") => {
-            let clan_id = current_target(world, object_id)
-                .and_then(|oid| world.objects.get_component::<Player>(&oid))
-                .map(|p| p.clan_id)
-                .filter(|&c| c != 0);
+            let clan_id =
+                current_target(world, object_id).and_then(|oid| guard::clan_of(world, oid));
             let Some(clan_id) = clan_id else {
                 send_message(world, client_id, "Target a member of the receiving clan.");
                 return;

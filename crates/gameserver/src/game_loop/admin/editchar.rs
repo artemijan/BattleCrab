@@ -11,6 +11,7 @@
 //! (`//find_ip`, `//find_dualbox`, `//tracert`) live in [`super::moderation`]
 //! since G31.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{
     CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals,
@@ -106,9 +107,7 @@ pub(super) fn admin_character_info(
             }
         }
     } else {
-        match current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid))
-        {
+        match guard::player_target(world, object_id) {
             Some(t) => (t, false),
             None => {
                 send_sm(world, client_id, sm_ids::INVALID_TARGET);
@@ -388,9 +387,7 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
 /// `//edit_character` — the `charedit.htm` field-editor for the current target
 /// (Java `editCharacter`). Falls back to `INVALID_TARGET` with no player target.
 pub(super) fn admin_edit_character(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+    let Some(target) = guard::player_target(world, object_id) else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -451,9 +448,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
         send_message(world, client_id, "Usage: //changename <new_name>");
         return;
     };
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+    let Some(target) = guard::player_target(world, object_id) else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -477,9 +472,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
 /// `//set_pvp_flag` — toggle the target playable's PvP flag (Java
 /// `updatePvPFlag(abs(flag - 1))`).
 pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+    let Some(target) = guard::player_target(world, object_id) else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -496,9 +489,7 @@ pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i
 pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first().and_then(|n| find_online_player(world, n)) {
         Some(t) => t,
-        None => match current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid))
-        {
+        None => match guard::player_target(world, object_id) {
             Some(t) => t,
             None => {
                 send_sm(world, client_id, sm_ids::INVALID_TARGET);
@@ -700,9 +691,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
         send_message(world, client_id, "Usage: //rec number");
         return;
     };
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+    let Some(target) = guard::player_target(world, object_id) else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -919,10 +908,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
 fn quest_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
     args.first()
         .and_then(|name| super::find_online_player(world, name))
-        .or_else(|| {
-            current_target(world, object_id)
-                .filter(|oid| world.objects.has_component::<Player>(oid))
-        })
+        .or_else(|| guard::player_target(world, object_id))
         .or(Some(object_id).filter(|oid| world.objects.has_component::<Player>(oid)))
 }
 
