@@ -2,7 +2,8 @@
 
 use super::*;
 
-use crate::model::components::{Buffs, StatModifiers};
+use crate::game_loop::helpers::stat_mul;
+use crate::model::components::Buffs;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
 };
@@ -106,11 +107,7 @@ fn resist_buff_pumps_a_multiplier() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     land(&mut world, 9400, CASTER);
-    let mul = world
-        .objects
-        .get_component::<StatModifiers>(&CASTER)
-        .and_then(|m| m.mul.get(&Stat::ResistAbnormalDebuff).copied())
-        .unwrap_or(1.0);
+    let mul = stat_mul(&world, CASTER, Stat::ResistAbnormalDebuff);
     assert!((mul - 0.5).abs() < 1e-9, "-50 PER → x0.5, got {mul}");
 }
 

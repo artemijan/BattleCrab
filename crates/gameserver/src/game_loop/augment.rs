@@ -20,24 +20,12 @@ use commons::network::PacketReader;
 
 use super::helpers::send_sm_bare_to_client as send_sm;
 use super::helpers::{player_of, send_to_client as send};
+use crate::game_loop::helpers::item_id_of;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets as sp;
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
-
-/// The item id of an inventory instance by object id.
-fn item_id_of(world: &World, player: i32, object_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<Inventory>(&player)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == object_id)
-                .map(|it| it.item_id)
-        })
-}
 
 /// `Augment` bypass: `1` opens the make window, `2` the cancel window.
 pub(crate) fn open_window(world: &mut World, client_id: u32, make: bool) {

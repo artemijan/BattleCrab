@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player};
 
 /// `Attackable.calculateOverhitExp` — the bonus XP a killing `<overHit>` blow
 /// earns, and the "over-hit!" notice that goes with it.
@@ -25,11 +26,7 @@ pub(crate) fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, 
     }
     world.objects.remove_component::<Overhit>(&npc_oid);
     let percentage = ((oh.damage * 100.0) / max_hp).min(25.0);
-    if let Some(client_id) = client_for_player(world, attacker_oid)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(sm_ids::OVER_HIT, &[]));
-    }
+    send_sm_bare_to_player(world, attacker_oid, sm_ids::OVER_HIT);
     (percentage / 100.0) * exp
 }
 
@@ -126,11 +123,10 @@ pub(crate) fn add_exp_and_sp(
         p.sp = p.sp.saturating_add(sp.max(0));
         (p.level, p.exp)
     };
-    if (exp > 0 || sp > 0)
-        && let Some(client_id) = client_for_player(world, player_oid)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(
+    if exp > 0 || sp > 0 {
+        send_sm_to_player(
+            world,
+            player_oid,
             sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4,
             &[
                 SmParam::Long(exp),
@@ -138,7 +134,7 @@ pub(crate) fn add_exp_and_sp(
                 SmParam::Long(sp),
                 SmParam::Long((add_sp - base_sp).round() as i64),
             ],
-        ));
+        );
     }
 
     let new_level = level_for_exp(world, new_exp, max_level);

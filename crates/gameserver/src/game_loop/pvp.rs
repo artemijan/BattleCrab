@@ -13,6 +13,7 @@ use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
 use super::helpers::{broadcast_including_self, client_for_player};
+use crate::game_loop::helpers::send_sm_to_player;
 
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
 const RELATION_INSIEGE: i32 = 0x200;
@@ -750,16 +751,15 @@ pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i3
         return;
     }
     super::items::add_inventory_item(world, killer_oid, item_id, amount);
-    if message
-        && let Some(cid) = super::helpers::client_for_player(world, killer_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(crate::network::server_packets::system_message_with(
+    if message {
+        send_sm_to_player(
+            world,
+            killer_oid,
             crate::network::server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1,
             &[
                 crate::network::server_packets::SmParam::ItemName(item_id),
                 crate::network::server_packets::SmParam::Long(amount),
             ],
-        ));
+        );
     }
 }

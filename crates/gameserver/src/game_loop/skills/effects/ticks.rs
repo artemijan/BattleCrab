@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
 /// `power * getTicksMultiplier()` from `caster` to `target` for each of the
@@ -116,14 +117,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 // Java compares before spending and bails on `>`, so a tick that
                 // costs exactly the remaining MP still runs.
                 if drain > v.cur_mp {
-                    if let Some(client_id) = client_for_player(world, target_oid)
-                        && let Some(cs) = world.clients.get(&client_id)
-                    {
-                        cs.send(server_packets::system_message_with(
-                            server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
-                            &[],
-                        ));
-                    }
+                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
                     deactivate_toggle = true;
                     continue;
                 }
@@ -186,27 +180,13 @@ pub(crate) fn handle_dam_over_time_tick(
                 // to regenerate, so it retires itself once there is nothing left
                 // to heal — with its own message, distinct from running dry.
                 if v.cur_hp + 1.0 > v.max_hp as f64 && is_toggle {
-                    if let Some(client_id) = client_for_player(world, target_oid)
-                        && let Some(cs) = world.clients.get(&client_id)
-                    {
-                        cs.send(server_packets::system_message_with(
-                            server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED,
-                            &[],
-                        ));
-                    }
+                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED);
                     deactivate_toggle = true;
                     continue;
                 }
                 let drain = dot_tick_damage(*power, *ticks);
                 if drain > v.cur_mp && is_toggle {
-                    if let Some(client_id) = client_for_player(world, target_oid)
-                        && let Some(cs) = world.clients.get(&client_id)
-                    {
-                        cs.send(server_packets::system_message_with(
-                            server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
-                            &[],
-                        ));
-                    }
+                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
                     deactivate_toggle = true;
                     continue;
                 }
@@ -227,13 +207,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 let drain = dot_tick_damage(*power, *ticks);
                 if drain > v.cur_mp && is_toggle {
                     // Out of MP: the toggle switches itself off.
-                    if let Some(client_id) = client_for_player(world, target_oid)
-                        && let Some(cs) = world.clients.get(&client_id) {
-                            cs.send(server_packets::system_message_with(
-                                server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
-                                &[],
-                            ));
-                        }
+                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
                     deactivate_toggle = true;
                     continue;
                 }

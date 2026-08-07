@@ -1,4 +1,7 @@
 use super::*;
+use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::stat_add;
 
 /// `calcShldUse` applied to a **skill's** defence term (Java's
 /// `PhysicalAttack`/`EnergyAttack`/`calcBlowDamage` all share this shape).
@@ -240,15 +243,11 @@ pub(crate) fn calc_counter_attack(
     {
         return;
     }
-    let chance = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&target_oid)
-        .and_then(|m| {
-            m.add
-                .get(&crate::model::stats::Stat::VengeanceSkillPhysicalDamage)
-                .copied()
-        })
-        .unwrap_or(0.0);
+    let chance = stat_add(
+        world,
+        target_oid,
+        crate::model::stats::Stat::VengeanceSkillPhysicalDamage,
+    );
     if chance <= 0.0 || (world.roll(100) as f64) >= chance {
         return;
     }
@@ -275,22 +274,18 @@ pub(crate) fn calc_counter_attack(
         creature_name(world, attacker_oid),
         creature_name(world, target_oid),
     );
-    if let Some(cid) = client_for_player(world, target_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(
-            server_packets::sm_ids::YOU_COUNTERED_C1_S_ATTACK,
-            &[server_packets::SmParam::Text(attacker_name)],
-        ));
-    }
-    if let Some(cid) = client_for_player(world, attacker_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(
-            server_packets::sm_ids::C1_IS_PERFORMING_A_COUNTERATTACK,
-            &[server_packets::SmParam::Text(target_name)],
-        ));
-    }
+    send_sm_to_player(
+        world,
+        target_oid,
+        server_packets::sm_ids::YOU_COUNTERED_C1_S_ATTACK,
+        &[server_packets::SmParam::Text(attacker_name)],
+    );
+    send_sm_to_player(
+        world,
+        attacker_oid,
+        server_packets::sm_ids::C1_IS_PERFORMING_A_COUNTERATTACK,
+        &[server_packets::SmParam::Text(target_name)],
+    );
     crate::game_loop::combat::apply_physical_damage(
         world,
         target_oid,
@@ -498,11 +493,7 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
 /// are disjoint fields, so the template ref and the mutable component borrow
 /// coexist.
 pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
-    let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(world, target_oid) else {
         return;
     };
     let Some(t) = world.data.npc_data.get(npc_id) else {

@@ -14,6 +14,7 @@
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
 use super::helpers::send_sm_to_client as send_sm;
+use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Casting, Position, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -757,11 +758,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     let Some(pet) = super::servitor::pet_of(world, object_id) else {
         return; // Java: no pet → the whole branch is skipped
     };
-    let Some(pet_npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&pet)
-        .map(|n| n.npc_id)
-    else {
+    let Some(pet_npc_id) = npc_id_of(world, pet) else {
         return;
     };
     let Some(mount_type) = mount_type_of(world, pet_npc_id) else {

@@ -35,6 +35,7 @@
 use tracing::warn;
 
 use super::helpers::send_to_client as send;
+use crate::game_loop::helpers::item_id_of;
 use crate::model::Player;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, sm_ids};
@@ -444,16 +445,7 @@ fn summon_evolved(
 /// would floor the carried exp back down to it, losing the whole point of the
 /// evolution.
 fn level_for_exp(world: &World, player_oid: i32, collar_object_id: i32, exp: i64) -> i32 {
-    let Some(item_id) = world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == collar_object_id)
-                .map(|i| i.item_id)
-        })
-    else {
+    let Some(item_id) = item_id_of(world, player_oid, collar_object_id) else {
         return 1;
     };
     let Some(t) = world.data.pet_data.by_item_id(item_id) else {

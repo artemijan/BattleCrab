@@ -25,6 +25,7 @@ use crate::world::World;
 
 use super::death::ADENA_ID;
 use super::helpers::client_for_player;
+use crate::game_loop::helpers::npc_id_of;
 
 /// One compiled-in script (Java: a `Quest` subclass). Implementations are
 /// stateless — everything they touch goes through the [`QuestCtx`]. `id() >
@@ -490,11 +491,7 @@ impl<'w> QuestCtx<'w> {
         npc: i32,
         script: Arc<dyn QuestScript>,
     ) -> Self {
-        let npc_id = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc)
-            .map(|n| n.npc_id)
-            .unwrap_or(0);
+        let npc_id = npc_id_of(world, npc).unwrap_or(0);
         Self {
             world,
             client_id,
@@ -2316,11 +2313,7 @@ pub(crate) fn quest_link(
 /// message are dropped first, exactly as Java does — see
 /// [`talk_shows_no_quest`].
 fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
-    let npc_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-        .unwrap_or(0);
+    let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
     let registry = world.quests.clone();
     // Opted-in utility scripts (`bare_talk`, e.g. TeleportWithCharm) run
     // their `on_talk` from the bare quest-window route; a returned html
@@ -2400,11 +2393,7 @@ fn show_quest_choose_window(
     npc_oid: i32,
     quests: &[Arc<dyn QuestScript>],
 ) {
-    let npc_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-        .unwrap_or(0);
+    let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
     let registry = world.quests.clone();
     let mut started = String::new();
     let mut can_start = String::new();
@@ -2505,11 +2494,7 @@ fn show_quest_window(
         return;
     };
     world.objects.add_components(&player, LastFolkNpc(npc_oid));
-    let npc_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-        .unwrap_or(0);
+    let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
     let res = {
         let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
         let gate = if registry.is_start_npc(quest_name, npc_id) && ctx.is_created() {

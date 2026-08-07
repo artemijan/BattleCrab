@@ -9,6 +9,7 @@
 use super::*;
 
 use crate::data::option_data::{OptionEntry, OptionSkillType, OptionTrigger};
+use crate::game_loop::helpers::item_id_of;
 use crate::model::components::{Buffs, OptionSkills, OptionTriggers, SkillBook};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
 
@@ -421,16 +422,7 @@ fn destroying_a_worn_augmented_item_takes_its_option_back() {
     world.data.options.insert_for_test(active_option(4001));
 
     let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
-    let item_id = world
-        .objects
-        .get_component::<Inventory>(&PLAYER)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == item_oid)
-                .map(|i| i.item_id)
-        })
-        .expect("the augmented weapon is in the bag");
+    let item_id = item_id_of(&world, PLAYER, item_oid).expect("the augmented weapon is in the bag");
     assert_eq!(
         crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
         Some(1),
@@ -477,16 +469,7 @@ fn admin_destroy_takes_the_options_off_a_worn_item() {
     world.data.options.insert_for_test(active_option(4001));
 
     let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
-    let item_id = world
-        .objects
-        .get_component::<Inventory>(&PLAYER)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == item_oid)
-                .map(|i| i.item_id)
-        })
-        .expect("worn augmented weapon");
+    let item_id = item_id_of(&world, PLAYER, item_oid).expect("worn augmented weapon");
     assert_eq!(
         crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
         Some(1),
@@ -528,16 +511,7 @@ fn a_multisell_consuming_a_worn_ingredient_takes_its_option_back() {
     world.data.options.insert_for_test(active_option(4001));
 
     let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
-    let item_id = world
-        .objects
-        .get_component::<Inventory>(&PLAYER)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == item_oid)
-                .map(|i| i.item_id)
-        })
-        .expect("worn augmented weapon");
+    let item_id = item_id_of(&world, PLAYER, item_oid).expect("worn augmented weapon");
     assert_eq!(
         crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
         Some(1),

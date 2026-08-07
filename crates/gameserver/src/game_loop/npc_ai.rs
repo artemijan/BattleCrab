@@ -41,6 +41,7 @@ use crate::world::{World, regions_adjacent};
 
 use super::combat::{self, ATTACK_TIMEOUT_TICKS};
 use super::helpers::{broadcast_near_region_in, instance_of};
+use crate::game_loop::helpers::npc_id_of;
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;
@@ -684,11 +685,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
         // `onAggroRangeEnter` for the scripts that registered this monster
         // (the Primeval Isle Tyrannosaurus's curiosity pause).
         if !newly_seen.is_empty() {
-            let npc_id = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&npc_oid)
-                .map(|n| n.npc_id)
-                .unwrap_or(0);
+            let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
             for player_oid in newly_seen {
                 crate::game_loop::quests::notify_aggro_range_enter(
                     world, npc_oid, npc_id, player_oid,
@@ -1965,18 +1962,13 @@ fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
 /// `OnAttackableFactionCall` script event; the port seeds hate directly and
 /// dispatches the event's two listeners via [`on_faction_call_script`].
 fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
-    let Some((npc_id, help_range, collision)) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-        .and_then(|id| {
-            world
-                .data
-                .npc_data
-                .get(id)
-                .map(|t| (id, t.clan_help_range, t.collision_radius))
-        })
-    else {
+    let Some((npc_id, help_range, collision)) = npc_id_of(world, npc_oid).and_then(|id| {
+        world
+            .data
+            .npc_data
+            .get(id)
+            .map(|t| (id, t.clan_help_range, t.collision_radius))
+    }) else {
         return;
     };
     if help_range <= 0
@@ -2076,10 +2068,7 @@ pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: 
         return;
     }
 
-    let Some(help_range) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
+    let Some(help_range) = npc_id_of(world, npc_oid)
         .and_then(|id| world.data.npc_data.get(id))
         .filter(|t| !t.clans.is_empty())
         .map(|t| t.clan_help_range)
@@ -2124,10 +2113,7 @@ fn faction_recruits(
     honor_ignore_list: bool,
 ) -> Vec<i32> {
     let (Some(caller_id), Some(pos), Some(region)) = (
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&caller_oid)
-            .map(|n| n.npc_id),
+        npc_id_of(world, caller_oid),
         world
             .objects
             .get_component::<Position>(&caller_oid)
@@ -2180,11 +2166,7 @@ fn faction_recruits(
             continue;
         }
         // Same faction, and not on the recruit's ignore list.
-        let Some(other_id) = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&other)
-            .map(|n| n.npc_id)
-        else {
+        let Some(other_id) = npc_id_of(world, other) else {
             continue;
         };
         let (Some(mine), Some(theirs)) = (
@@ -2220,10 +2202,7 @@ fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, 
     const QA_HEAL: (i32, i32) = (4020, 1);
     const BLOW: (i32, i32) = (4067, 4);
 
-    let recruit_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&recruit_oid)
-        .map(|n| n.npc_id);
+    let recruit_id = npc_id_of(world, recruit_oid);
     let riba = crate::game_loop::orfen::RIBA_IREN;
     let Some(recruit_id) = recruit_id else { return };
     if !(recruit_id == NURSE || recruit_id == RAIKEL_LEOS || recruit_id == riba) {
@@ -2256,10 +2235,7 @@ fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, 
             }
         }
         id if id == riba => {
-            let caller_id = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&caller_oid)
-                .map(|n| n.npc_id);
+            let caller_id = npc_id_of(world, caller_oid);
             let chance = if caller_id == Some(crate::game_loop::orfen::ORFEN) {
                 9
             } else {

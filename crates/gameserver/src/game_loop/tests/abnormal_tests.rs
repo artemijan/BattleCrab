@@ -4,6 +4,7 @@
 use super::*;
 
 use crate::game_loop::abnormal;
+use crate::game_loop::helpers::stat_add;
 use crate::model::components::{Buffs, Casting, Movement};
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType, effect_flag,
@@ -3270,13 +3271,7 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
     sense.target_type = crate::model::skill::TargetType::Self_;
     world.data.skill_data.insert_for_test(sense);
 
-    let accuracy = |world: &World| {
-        world
-            .objects
-            .get_component::<crate::model::components::StatModifiers>(&CASTER)
-            .and_then(|m| m.add.get(&Stat::AccuracyCombat).copied())
-            .unwrap_or(0.0)
-    };
+    let accuracy = |world: &World| stat_add(world, CASTER, Stat::AccuracyCombat);
 
     land(&mut world, 294, CASTER);
     // The buff is up either way; only the clock decides.

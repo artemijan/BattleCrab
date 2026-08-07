@@ -2,6 +2,7 @@
 //! run machinery lives in [`crate::game_loop::four_sepulchers`].
 
 use crate::game_loop::four_sepulchers as fs;
+use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{AdminFlags, Position, RegionCell, Vitals};
 
@@ -359,11 +360,7 @@ pub(crate) fn handle_victim_flee(world: &mut crate::world::World, npc_oid: i32) 
     let dy = world.roll(801) - 400;
     crate::game_loop::npc_ai::move_npc_to(world, npc_oid, pos.x + dx, pos.y + dy, pos.z);
     let msg = VICTIM_MSG[world.roll(3) as usize];
-    if let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    {
+    if let Some(npc_id) = npc_id_of(world, npc_oid) {
         let pkt = crate::network::server_packets::npc_say(npc_oid, npc_id, msg);
         if let Some(region) = world
             .objects
@@ -388,12 +385,7 @@ pub(crate) fn handle_remove_petrify(world: &mut crate::world::World, npc_oid: i3
 }
 
 fn say(ctx: &mut QuestCtx, npc_oid: i32, npc_string_id: i32) {
-    let Some(npc_id) = ctx
-        .world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(ctx.world, npc_oid) else {
         return;
     };
     let pkt = crate::network::server_packets::npc_say(npc_oid, npc_id, npc_string_id);

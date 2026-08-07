@@ -43,6 +43,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::death::ADENA_ID;
+use crate::game_loop::helpers::npc_id_of;
 
 const MILLIS_PER_DAY: i64 = 86_400_000;
 const MILLIS_PER_HOUR: i64 = 3_600_000;
@@ -100,11 +101,7 @@ pub(crate) fn handle_manor_menu_select(
     else {
         return;
     };
-    let Some(npc_id) = world
-        .objects
-        .get_component::<Npc>(&npc_object_id)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(world, npc_object_id) else {
         return;
     };
     let Some(npc_castle) = chamberlain_castle_id(npc_id) else {

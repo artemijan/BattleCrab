@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::stat_mul;
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_player as send_sm, send_sm_to_player as send_sm_with,
 };
@@ -20,14 +21,7 @@ pub(crate) fn give_item(
     use server_packets::sm_ids;
 
     if item_id <= 0 || item_count <= 0 {
-        if let Some(client_id) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
-                &[],
-            ));
-        }
+        send_sm(world, target_oid, sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE);
         return;
     }
     // Java `Restoration`: `if (_itemEnchantmentLevel > 0) setEnchantLevel(...)`.
@@ -57,14 +51,7 @@ pub(crate) fn give_item_random(world: &mut World, target_oid: i32, groups: &[Res
         chance_from += group.chance;
     }
     let Some(items) = picked else {
-        if let Some(client_id) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
-                &[],
-            ));
-        }
+        send_sm(world, target_oid, sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE);
         return;
     };
     // Java `RestorationRandom`: roll `Rnd.get(minEnchant, maxEnchant)` (inclusive)
@@ -222,15 +209,11 @@ pub(crate) fn magic_success_input<'a>(
         skill_chance_penalty: penalty,
         // `target.getStat().getMul(MAGIC_SUCCESS_RES, 1)` — read off the
         // *target*, and 1.0 for anyone without Anti Magic / M. Def.
-        res_modifier: world
-            .objects
-            .get_component::<crate::model::components::StatModifiers>(&target_oid)
-            .and_then(|m| {
-                m.mul
-                    .get(&crate::model::stats::Stat::MagicSuccessRes)
-                    .copied()
-            })
-            .unwrap_or(1.0),
+        res_modifier: stat_mul(
+            world,
+            target_oid,
+            crate::model::stats::Stat::MagicSuccessRes,
+        ),
         magic_accuracy: world
             .objects
             .get_component::<CombatStats>(&caster_oid)

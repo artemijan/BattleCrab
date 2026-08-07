@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_to_player;
 
 /// The clan's member object-ids that are currently online (leader included).
 pub(crate) fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
@@ -443,14 +444,12 @@ pub(crate) fn force_new_leader(world: &mut World, clan_id: i32, new_leader: i32)
         .map(|p| p.name.clone())
         .unwrap_or_default();
     for oid in online_members(world, clan_id) {
-        if let Some(cid) = client_for_player(world, oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::CLAN_LEADER_PRIVILEGES_HAVE_BEEN_TRANSFERRED_TO_C1,
-                &[SmParam::Text(name.clone())],
-            ));
-        }
+        send_sm_to_player(
+            world,
+            oid,
+            sm_ids::CLAN_LEADER_PRIVILEGES_HAVE_BEEN_TRANSFERRED_TO_C1,
+            &[SmParam::Text(name.clone())],
+        );
     }
     true
 }

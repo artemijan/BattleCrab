@@ -19,6 +19,7 @@ use crate::model::components::{
 use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm};
+use crate::game_loop::helpers::npc_id_of;
 use crate::network::server_packets::sm_ids;
 
 /// Object ids of every in-game player (Java `World.getPlayers()`), name-sorted
@@ -829,11 +830,7 @@ pub(super) fn admin_summon_setlvl(
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
-    let npc_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&pet_oid)
-        .map(|n| n.npc_id)
-        .unwrap_or(0);
+    let npc_id = npc_id_of(world, pet_oid).unwrap_or(0);
     let Some((exp, max_fed)) = world.data.pet_data.get(npc_id).and_then(|t| {
         t.level_row(level)
             .map(|_| (t.exp_for_level(level), t.max_meal(level)))

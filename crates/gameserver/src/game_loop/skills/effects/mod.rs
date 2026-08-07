@@ -32,6 +32,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::instant;
+use crate::game_loop::helpers::send_sm_to_player;
 
 mod continuous;
 pub(crate) mod control;
@@ -116,22 +117,18 @@ fn skill_evasion_dodges(
         creature_name(world, caster_oid),
         creature_name(world, target_oid),
     );
-    if let Some(cid) = client_for_player(world, caster_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(crate::network::server_packets::system_message_with(
-            crate::network::server_packets::sm_ids::C1_DODGED_THE_ATTACK,
-            &[crate::network::server_packets::SmParam::Text(target_name)],
-        ));
-    }
-    if let Some(cid) = client_for_player(world, target_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(crate::network::server_packets::system_message_with(
-            crate::network::server_packets::sm_ids::YOU_HAVE_DODGED_C1_S_ATTACK,
-            &[crate::network::server_packets::SmParam::Text(caster_name)],
-        ));
-    }
+    send_sm_to_player(
+        world,
+        caster_oid,
+        crate::network::server_packets::sm_ids::C1_DODGED_THE_ATTACK,
+        &[crate::network::server_packets::SmParam::Text(target_name)],
+    );
+    send_sm_to_player(
+        world,
+        target_oid,
+        crate::network::server_packets::sm_ids::YOU_HAVE_DODGED_C1_S_ATTACK,
+        &[crate::network::server_packets::SmParam::Text(caster_name)],
+    );
     true
 }
 
@@ -829,14 +826,7 @@ pub(crate) fn apply_skill_effects(
                 if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
                     v.cur_hp += restored;
                 }
-                if let Some(cid) = client_for_player(world, caster_oid)
-                    && let Some(cs) = world.clients.get(&cid)
-                {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::S1_HP_HAS_BEEN_RESTORED,
-                        &[SmParam::Int(restored as i32)],
-                    ));
-                }
+                send_sm_to_player(world, caster_oid, sm_ids::S1_HP_HAS_BEEN_RESTORED, &[SmParam::Int(restored as i32)]);
                 broadcast_vitals(world, caster_oid);
             }
             SkillEffect::Heal { power } => instant::heal(world, &ctx, skill, *power),

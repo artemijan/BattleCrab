@@ -46,6 +46,7 @@
 //! resistance, with PvP chain-CC unaffected. Getting that backwards silently
 //! rewrites PvP, so it is asserted in `basic_property_tests`.
 
+use crate::game_loop::helpers::stat_add;
 use crate::model::components::BasicPropertyResists;
 use crate::model::skill::BasicProperty;
 use crate::world::World;
@@ -145,9 +146,5 @@ pub(crate) fn abnormal_resist(world: &World, object_id: i32, property: BasicProp
         BasicProperty::Physical => crate::model::stats::Stat::AbnormalResistPhysical,
         BasicProperty::Magic => crate::model::stats::Stat::AbnormalResistMagical,
     };
-    world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
-        .and_then(|m| m.add.get(&stat).copied())
-        .unwrap_or(0.0)
+    stat_add(world, object_id, stat)
 }

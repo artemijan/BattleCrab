@@ -19,6 +19,9 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::effects::apply_skill_effects;
+use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::stat_add;
 
 /// Reuse gate shared by `use_magic_on` and the `ItemSkills` item handler
 /// (Java `Player.isSkillDisabled`/`getSkillRemainingReuseTime`), keyed by the
@@ -125,14 +128,11 @@ pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) 
         && super::effects::calc_skill_mastery(world, object_id)
     {
         reuse_delay = 100;
-        if let Some(cid) = client_for_player(world, object_id)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                server_packets::sm_ids::A_SKILL_IS_READY_TO_BE_USED_AGAIN,
-                &[],
-            ));
-        }
+        send_sm_bare_to_player(
+            world,
+            object_id,
+            server_packets::sm_ids::A_SKILL_IS_READY_TO_BE_USED_AGAIN,
+        );
     }
     let until_tick = world.tick + ms_to_ticks(reuse_delay);
     // Players are given `Reuses` at load; **NPCs were not**, so this write was
@@ -1829,10 +1829,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // `Npc.onSkillSee` for each NPC that saw the cast, plus the support-aggro
     // rule that shares Java's scan.
     for witness in skill_see_witnesses {
-        let npc_id = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&witness)
-            .map(|n| n.npc_id);
+        let npc_id = npc_id_of(world, witness);
         if let Some(npc_id) = npc_id {
             crate::game_loop::quests::notify_skill_see(
                 world,
@@ -1969,11 +1966,7 @@ fn calc_buff_debuff_reflection(world: &mut World, target_oid: i32, skill: &Skill
     } else {
         Stat::ReflectSkillPhysic
     };
-    let chance = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&target_oid)
-        .and_then(|m| m.add.get(&stat).copied())
-        .unwrap_or(0.0);
+    let chance = stat_add(world, target_oid, stat);
     if chance <= 0.0 {
         return false;
     }
@@ -2111,10 +2104,7 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
     resume_action_after_cast(world, player_object_id, target, skill_id, skill_level);
     // `EVT_FINISH_CASTING` → script `onSpellFinished`, for NPC casters a
     // script registered (the Primeval Isle Tyrannosaurus's berserk chains).
-    let npc_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&player_object_id)
-        .map(|n| n.npc_id);
+    let npc_id = npc_id_of(world, player_object_id);
     if let Some(npc_id) = npc_id {
         crate::game_loop::quests::notify_spell_finished(
             world,
@@ -2321,14 +2311,11 @@ pub(crate) fn break_cast(world: &mut World, object_id: i32) {
         return;
     }
     abort_cast(world, object_id);
-    if let Some(client_id) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(
-            server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED,
-            &[],
-        ));
-    }
+    send_sm_bare_to_player(
+        world,
+        object_id,
+        server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED,
+    );
 }
 
 /// Java `Creature.getKnownSkill(id)` — the level at which this player knows a

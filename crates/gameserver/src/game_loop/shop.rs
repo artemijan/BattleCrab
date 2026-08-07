@@ -17,6 +17,7 @@ use crate::world::World;
 use super::castle::{handle_tax_payment, npc_tax_rate as merchant_tax_rate};
 use super::helpers::send_sm_and_action_failed;
 use super::target::can_interact;
+use crate::game_loop::helpers::npc_id_of;
 
 /// `MAX_ADENA` (Config.MAX_ADENA default 99 999 999 999).
 const MAX_ADENA: i64 = 99_999_999_999;
@@ -58,11 +59,7 @@ pub(crate) fn show_buy_window_taxed(
     list_id: i32,
     apply_castle_tax: bool,
 ) {
-    let npc_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-        .unwrap_or(0);
+    let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
     let Some(list) = world.data.buy_lists.get(list_id) else {
         warn!("Shop: buylist {list_id} not found.");
         if let Some(cs) = world.clients.get(&client_id) {
@@ -131,11 +128,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         }
         return;
     };
-    let merchant_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&merchant_oid)
-        .map(|n| n.npc_id)
-        .unwrap_or(0);
+    let merchant_id = npc_id_of(world, merchant_oid).unwrap_or(0);
 
     let Some(list) = world.data.buy_lists.get(pkt.list_id) else {
         let punish = world.cfg.general.default_punish;

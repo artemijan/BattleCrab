@@ -15,6 +15,7 @@ use crate::model::npc::Npc;
 use crate::world::World;
 
 use super::send_message;
+use crate::game_loop::helpers::npc_id_of;
 
 /// Resolve a spawn-menu "Id/Name" token to an npc id. All-digit tokens are npc
 /// ids (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps
@@ -281,7 +282,7 @@ pub(super) fn admin_list_spawns(
     // Live NPCs of this id (for `//list_positions` current-location reporting).
     let live: Vec<(i32, i32, i32)> = all_npc_ids(world)
         .into_iter()
-        .filter(|oid| world.objects.get_component::<Npc>(oid).map(|n| n.npc_id) == Some(npc_id))
+        .filter(|oid| npc_id_of(world, *oid) == Some(npc_id))
         .filter_map(|oid| {
             world
                 .objects

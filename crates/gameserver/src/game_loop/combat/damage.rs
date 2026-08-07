@@ -1,4 +1,7 @@
 use super::*;
+use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::stat_add;
+use crate::game_loop::helpers::stat_mul;
 
 /// Damage application shared by auto-attacks (and reusable by future physical
 /// skills): route to the right victim kind, waking NPC AI / breaking player
@@ -368,11 +371,7 @@ pub(crate) fn npc_receive_damage(
     };
 
     let hate_attack_mul = if auto_attack {
-        world
-            .objects
-            .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
-            .and_then(|m| m.mul.get(&crate::model::stats::Stat::HateAttack).copied())
-            .unwrap_or(1.0)
+        stat_mul(world, attacker_oid, crate::model::stats::Stat::HateAttack)
     } else {
         1.0
     };
@@ -425,11 +424,7 @@ pub(crate) fn npc_receive_damage(
     // Orfen's `onAttack`: the half-HP relocation and the mid-range drag. Both
     // react to a hit that has already landed, so they sit alongside the raid
     // curse below. No-op for every other NPC.
-    if let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    {
+    if let Some(npc_id) = npc_id_of(world, npc_oid) {
         if npc_id == crate::game_loop::core_boss::CORE {
             crate::game_loop::core_boss::on_core_attacked(world, npc_oid);
         }
@@ -495,11 +490,7 @@ pub(crate) fn npc_receive_damage(
             .map(|s| (s.owner_object_id, true))
     };
     if let Some((player_oid, is_summon)) = quest_attacker {
-        let npc_id = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
-            .map(|n| n.npc_id)
-            .unwrap_or(0);
+        let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
         let skill_id = world.quest_attack_skill;
         crate::game_loop::quests::notify_attack(
             world, player_oid, npc_oid, npc_id, skill_id, is_summon,
@@ -609,15 +600,11 @@ fn transfer_damage_to_servitor(
     attacker_oid: i32,
     damage: f64,
 ) -> f64 {
-    let percent = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&player_oid)
-        .and_then(|m| {
-            m.add
-                .get(&crate::model::stats::Stat::TransferDamageSummonPercent)
-                .copied()
-        })
-        .unwrap_or(0.0);
+    let percent = stat_add(
+        world,
+        player_oid,
+        crate::model::stats::Stat::TransferDamageSummonPercent,
+    );
     if percent <= 0.0 {
         return damage;
     }

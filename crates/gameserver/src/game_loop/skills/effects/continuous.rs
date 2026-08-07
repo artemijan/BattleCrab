@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::stat_mul;
 
 /// The continuous half of Java `Skill.applyEffects` — everything that turns a
 /// cast into one timed `ActiveBuff` on the target — split out from the instant
@@ -163,15 +164,11 @@ pub(crate) fn apply_continuous_effects(
         let target_level = creature_level(world, target_oid);
         // Java: `skill.isDebuff() ? target.getStat().getValue(RESIST_ABNORMAL_DEBUFF, 1) : 1`.
         let debuff_resist_mod = if skill.is_debuff {
-            world
-                .objects
-                .get_component::<crate::model::components::StatModifiers>(&target_oid)
-                .and_then(|m| {
-                    m.mul
-                        .get(&crate::model::stats::Stat::ResistAbnormalDebuff)
-                        .copied()
-                })
-                .unwrap_or(1.0)
+            stat_mul(
+                world,
+                target_oid,
+                crate::model::stats::Stat::ResistAbnormalDebuff,
+            )
         } else {
             1.0
         };

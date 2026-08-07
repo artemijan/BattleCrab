@@ -1,4 +1,6 @@
 use super::*;
+use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::stat_add;
 
 /// Port of `Creature.doAutoAttack` + `generateAttackTargetData`/`generateHit`
 /// for the melee single-hit case, shared by players and NPCs: roll the hit
@@ -203,14 +205,8 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         // Notify a shielding player their block landed (Interlude has only the
         // "succeeded" message; the perfect block reuses it) — per hit, like
         // Java's `calcShldUse`.
-        if shield != formulas::SHIELD_NONE
-            && let Some(cid) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::SHIELD_DEFENSE_SUCCEEDED,
-                &[],
-            ));
+        if shield != formulas::SHIELD_NONE {
+            send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
         }
         rolled.push((miss, crit, damage, ss, shield));
     }
@@ -363,15 +359,11 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
 /// Its two stat halves landed long before the sweep gate did, so until G34 S4
 /// the toggle was a pure bonus with no cost.
 fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: i32) -> Vec<i32> {
-    let max_targets = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
-        .and_then(|m| {
-            m.add
-                .get(&crate::model::stats::Stat::AttackCountMax)
-                .copied()
-        })
-        .unwrap_or(0.0) as i32
+    let max_targets = stat_add(
+        world,
+        attacker_oid,
+        crate::model::stats::Stat::AttackCountMax,
+    ) as i32
         + 1; // the base 1 target
     if max_targets <= 1 {
         return Vec::new();

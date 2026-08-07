@@ -1,7 +1,9 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
-use crate::model::components::Position;
+use crate::model::components::{Position, StatModifiers};
 use crate::model::inventory::Inventory;
+use crate::model::npc::Npc;
+use crate::model::stats::Stat;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -109,6 +111,54 @@ pub(crate) fn adena(world: &World, object_id: i32) -> i64 {
         .objects
         .get_component::<Inventory>(&object_id)
         .map_or(0, |inv| inv.adena())
+}
+
+/// The template id behind an object id, or `None` when there is no [`Npc`]
+/// there at all — a player, a dropped item, or an id whose npc has already
+/// despawned. Callers that want a sentinel spell it themselves (`.unwrap_or(0)`,
+/// `map_or`), since 0 is a legitimate template id in some tables.
+pub(crate) fn npc_id_of(world: &World, object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .map(|npc| npc.npc_id)
+}
+
+/// The item id of one inventory instance, found by its object id. `None` if the
+/// owner has no [`Inventory`] or is not holding that instance — the two cases
+/// callers treat alike, since both mean "not theirs to act on".
+pub(crate) fn item_id_of(world: &World, owner_object_id: i32, item_object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Inventory>(&owner_object_id)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|it| it.object_id == item_object_id)
+                .map(|it| it.item_id)
+        })
+}
+
+/// The additive modifier standing on `stat`, defaulting to the additive
+/// identity. Nothing with no [`StatModifiers`] has been buffed, so "absent"
+/// and "zero" are the same answer.
+pub(crate) fn stat_add(world: &World, object_id: i32, stat: Stat) -> f64 {
+    world
+        .objects
+        .get_component::<StatModifiers>(&object_id)
+        .and_then(|m| m.add.get(&stat).copied())
+        .unwrap_or(0.0)
+}
+
+/// The multiplicative modifier standing on `stat`, defaulting to the
+/// multiplicative identity — the [`stat_add`] counterpart, and the reason the
+/// two cannot share one function: 0.0 and 1.0 are not interchangeable defaults.
+pub(crate) fn stat_mul(world: &World, object_id: i32, stat: Stat) -> f64 {
+    world
+        .objects
+        .get_component::<StatModifiers>(&object_id)
+        .and_then(|m| m.mul.get(&stat).copied())
+        .unwrap_or(1.0)
 }
 
 /// Java `Player.sendInventoryUpdate`: an `InventoryUpdate` never travels alone —

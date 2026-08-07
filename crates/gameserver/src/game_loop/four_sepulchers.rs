@@ -9,6 +9,7 @@
 //! (`"FourSepulchers" + managerNpcId`) and rehydrated at boot, so the
 //! 60-minute re-entry gate survives a restart.
 
+use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -207,11 +208,7 @@ pub(crate) enum EnterOutcome {
 
 /// `tryEnter` — the whole admission ritual.
 pub(crate) fn try_enter(world: &mut World, manager_oid: i32, player: i32) -> EnterOutcome {
-    let manager_id = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&manager_oid)
-        .map(|n| n.npc_id)
-        .unwrap_or(0);
+    let manager_id = npc_id_of(world, manager_oid).unwrap_or(0);
     let Some(zone_id) = manager_zone(manager_id) else {
         return EnterOutcome::Full;
     };

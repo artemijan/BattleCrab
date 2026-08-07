@@ -17,6 +17,7 @@
 
 use commons::util::rnd;
 
+use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
 use crate::scheduler::ScheduledTask;
@@ -48,11 +49,7 @@ pub(crate) fn spawn_minion_group(world: &mut World, master_oid: i32, group: &str
     {
         return 0;
     }
-    let Some(master_npc_id) = world
-        .objects
-        .get_component::<Npc>(&master_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(master_npc_id) = npc_id_of(world, master_oid) else {
         return 0;
     };
     let Some(entries) = world.data.npc_data.get(master_npc_id).map(|t| {
@@ -277,11 +274,7 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
     else {
         return;
     };
-    let Some(minion_npc_id) = world
-        .objects
-        .get_component::<Npc>(&minion_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(minion_npc_id) = npc_id_of(world, minion_oid) else {
         return;
     };
 

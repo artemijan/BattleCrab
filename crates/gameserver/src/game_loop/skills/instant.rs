@@ -7,7 +7,7 @@
 //! equivalent because the match was the last statement in the effect loop.
 
 use crate::game_loop::helpers::client_for_player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, StatModifiers, Vitals};
+use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -20,6 +20,8 @@ use super::effects::{
     roll_magic_failure, send_sm, servitor_owner_of, skill_power_mul, skill_trait_mod, target_m_def,
     target_p_def,
 };
+use crate::game_loop::helpers::stat_mul;
+use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player};
 use crate::network::server_packets::{SmParam, sm_ids};
 
 /// The per-cast state the instant effects share, computed once by
@@ -136,14 +138,12 @@ pub(super) fn magical_attack_range(
             _ => (formulas::SHIELD_NONE, 0.0),
         }
     };
-    if shield != formulas::SHIELD_NONE
-        && let Some(cid) = crate::game_loop::helpers::client_for_player(world, target_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(crate::network::server_packets::system_message_with(
+    if shield != formulas::SHIELD_NONE {
+        send_sm_bare_to_player(
+            world,
+            target_oid,
             crate::network::server_packets::sm_ids::SHIELD_DEFENSE_SUCCEEDED,
-            &[],
-        ));
+        );
     }
     let (m_atk, caster_name) = {
         let m_atk = world
@@ -219,25 +219,16 @@ pub(super) fn magical_attack_mp(
     let gaussian = world.roll_gaussian();
     if !formulas::calc_magic_affected(m_atk, defence, gaussian) {
         // Java messages both sides and bails.
-        if let Some(cid) = client_for_player(world, caster_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOUR_ATTACK_HAS_FAILED,
-                &[],
-            ));
-        }
-        if let Some(cid) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::C1_RESISTED_C2_S_DRAIN,
-                &[
-                    SmParam::Text(caster_display_name(world, target_oid)),
-                    SmParam::Text(caster_display_name(world, caster_oid)),
-                ],
-            ));
-        }
+        send_sm_bare_to_player(world, caster_oid, sm_ids::YOUR_ATTACK_HAS_FAILED);
+        send_sm_to_player(
+            world,
+            target_oid,
+            sm_ids::C1_RESISTED_C2_S_DRAIN,
+            &[
+                SmParam::Text(caster_display_name(world, target_oid)),
+                SmParam::Text(caster_display_name(world, caster_oid)),
+            ],
+        );
         return;
     }
 
@@ -302,31 +293,24 @@ pub(super) fn magical_attack_mp(
         }
         drained
     };
-    if drain_crit
-        && let Some(cid) = client_for_player(world, caster_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
+    if drain_crit {
+        send_sm_bare_to_player(world, caster_oid, sm_ids::M_CRITICAL);
     }
-    if let Some(cid) = client_for_player(world, target_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(
-            sm_ids::S2_S_MP_HAS_BEEN_DRAINED_BY_C1,
-            &[
-                SmParam::Text(caster_display_name(world, caster_oid)),
-                SmParam::Int(drained as i32),
-            ],
-        ));
-    }
-    if let Some(cid) = client_for_player(world, caster_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::system_message_with(
-            sm_ids::YOUR_OPPONENT_S_MP_WAS_REDUCED_BY_S1,
-            &[SmParam::Int(drained as i32)],
-        ));
-    }
+    send_sm_to_player(
+        world,
+        target_oid,
+        sm_ids::S2_S_MP_HAS_BEEN_DRAINED_BY_C1,
+        &[
+            SmParam::Text(caster_display_name(world, caster_oid)),
+            SmParam::Int(drained as i32),
+        ],
+    );
+    send_sm_to_player(
+        world,
+        caster_oid,
+        sm_ids::YOUR_OPPONENT_S_MP_WAS_REDUCED_BY_S1,
+        &[SmParam::Int(drained as i32)],
+    );
     broadcast_vitals(world, target_oid);
 }
 
@@ -380,11 +364,7 @@ pub(super) fn blow(
             .unwrap_or(1.0);
         // `Stat.BLOW_RATE` (`FatalBlowRate` — Focus Death, Critical
         // Blow, Mortal Strike, Assassination), default 1.0.
-        let blow_rate_mod = world
-            .objects
-            .get_component::<StatModifiers>(&caster_oid)
-            .and_then(|m| m.mul.get(&crate::model::stats::Stat::BlowRate).copied())
-            .unwrap_or(1.0);
+        let blow_rate_mod = stat_mul(world, caster_oid, crate::model::stats::Stat::BlowRate);
         let name = caster_display_name(world, caster_oid);
         (p_atk, str_bonus, random_dmg, blow_rate_mod, name)
     };
@@ -571,14 +551,7 @@ pub(super) fn lethal(
             if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
                 v.cur_hp = 1.0;
             }
-            if let Some(client_id) = client_for_player(world, target_oid)
-                && let Some(cs) = world.clients.get(&client_id)
-            {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::LETHAL_STRIKE,
-                    &[],
-                ));
-            }
+            send_sm_bare_to_player(world, target_oid, sm_ids::LETHAL_STRIKE);
         } else if crate::game_loop::combat::is_npc_oid(target_oid)
             && let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid)
         {

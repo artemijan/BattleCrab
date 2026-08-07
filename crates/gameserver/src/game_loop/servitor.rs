@@ -11,6 +11,9 @@
 //! and the `SummonInfo` packet that shows it to *other* players are separate
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
+use crate::game_loop::helpers::item_id_of;
+use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
 use crate::world::World;
@@ -990,14 +993,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             .get_component::<crate::model::Player>(&owner_oid)
             .is_some_and(crate::model::Player::is_mounted)
     {
-        if let Some(cid) = client_for_player(world, owner_oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_ALREADY_HAVE_A_PET,
-                &[],
-            ));
-        }
+        send_sm_bare_to_player(world, owner_oid, sm_ids::YOU_ALREADY_HAVE_A_PET);
         return None;
     }
     // Java logs and bails when the holder is missing — the effect was reached
@@ -1008,15 +1004,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
         .and_then(|p| p.pending_pet_collar.take())?;
 
     // The collar must still be in the owner's inventory (Java re-checks).
-    let collar_item_id = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&owner_oid)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == collar_object_id)
-                .map(|i| i.item_id)
-        })?;
+    let collar_item_id = item_id_of(world, owner_oid, collar_object_id)?;
 
     let npc_id = world.data.pet_data.by_item_id(collar_item_id)?.npc_id;
 
@@ -1186,10 +1174,7 @@ pub(crate) fn is_uncontrollable(world: &World, pet_oid: i32) -> bool {
 }
 
 fn npc_template_id(world: &World, oid: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&oid)
-        .map(|n| n.npc_id)
+    npc_id_of(world, oid)
 }
 
 /// `effecthandlers/Feed.instant` for a pet: `setCurrentFed(fed + normal * rate)`.
