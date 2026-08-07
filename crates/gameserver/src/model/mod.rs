@@ -1450,10 +1450,42 @@ impl Player {
         // in `user_info`), so nothing here rounds; the `as i32`/`.trunc()`
         // casts below match Java's display exactly.
 
+        // Java `IStatFunction.calcWeaponBaseValue`: a transform's `<base>` block
+        // stands in for the equipped weapon — but only for the forms the weapon
+        // branch *excludes*. That `else if` fires when the player is
+        // untransformed **or** the form is `COMBAT`/`MODE_CHANGE`, and it
+        // overwrites whatever the transform contributed; so a COMBAT form keeps
+        // swinging its real weapon, and every other form (NON_COMBAT,
+        // RIDING_MODE, PURE_STAT, FLYING, CURSED) fights with the template's
+        // numbers instead. `None` here means "weapon rules apply as usual".
+        //
+        // Live on both transforms a player can actually enter on this dist —
+        // 105 (NON_COMBAT) and 20008 (RIDING_MODE); see the reachability census
+        // in `data::transform_data`.
+        let tf_base = (self.transform_id != 0)
+            .then(|| data.transforms.get(self.transform_id))
+            .flatten()
+            .filter(|tf| !tf.kind.weapon_overrides_base())
+            .and_then(|tf| tf.template(self.is_female).base.as_ref());
+        // Each field falls back to the *class* template value, never to the
+        // weapon's: Java's `getStats(stat, baseTemplateValue)` hands back the
+        // template default for any key the transform doesn't set.
+        let tf_or = |tf: Option<f64>, weapon: Option<f64>, class_base: f64| {
+            if tf_base.is_some() { tf } else { weapon }.unwrap_or(class_base)
+        };
+
         // PAttackFinalizer / MAttackFinalizer: the equipped weapon's pAtk/mAtk
         // replaces the naked base (`calcWeaponBaseValue`) before STR/level.
-        let p_atk_base = eq.weapon_p_atk.unwrap_or(t.base_p_atk as f64);
-        let m_atk_base = eq.weapon_m_atk.unwrap_or(t.base_m_atk as f64);
+        let p_atk_base = tf_or(
+            tf_base.and_then(|b| b.p_atk),
+            eq.weapon_p_atk,
+            t.base_p_atk as f64,
+        );
+        let m_atk_base = tf_or(
+            tf_base.and_then(|b| b.m_atk),
+            eq.weapon_m_atk,
+            t.base_m_atk as f64,
+        );
         let caps = &data.combat_caps;
         // Every max cap below goes through Java's `validateValue`, which skips
         // the ceiling for creatures with the MAX_STATS_VALUE cond override —
@@ -1497,7 +1529,14 @@ impl Player {
         );
 
         // P/MAttackSpeedFinalizer: weapon replaces base; `mul` floors at 0.7.
-        let p_atk_spd_base = eq.weapon_p_atk_spd.unwrap_or(t.base_p_atk_spd as f64);
+        // `<base attackSpeed=…>` feeds `Stat.PHYSICAL_ATTACK_SPEED` only —
+        // no transform block sets a magic attack speed, so `m_atk_spd` below
+        // keeps the class base under every form.
+        let p_atk_spd_base = tf_or(
+            tf_base.and_then(|b| b.attack_speed),
+            eq.weapon_p_atk_spd,
+            t.base_p_atk_spd as f64,
+        );
         combat.p_atk_spd =
             finalize_speed(mods, Stat::PhysicalAttackSpeed, p_atk_spd_base * dex_bonus)
                 .clamp(1.0, cap(caps.max_p_atk_speed)) as i32;
@@ -1509,7 +1548,14 @@ impl Player {
         .clamp(1.0, cap(caps.max_m_atk_speed)) as i32;
 
         // P/MCritRateFinalizer (in per-mille, ×10): weapon replaces base crit.
-        let crit_base = eq.weapon_crit.unwrap_or(t.base_crit_rate as f64);
+        // Only the *physical* rate goes through `calcWeaponBaseValue`; Java's
+        // `MCritRateFinalizer` uses `calcWeaponPlusBaseValue`, which a
+        // transform's `<base>` never contributes a MAGIC_CRITICAL_RATE key to.
+        let crit_base = tf_or(
+            tf_base.and_then(|b| b.crit_rate),
+            eq.weapon_crit,
+            t.base_crit_rate as f64,
+        );
         let m_crit_base = eq.weapon_m_crit.unwrap_or(t.base_m_crit_rate as f64);
         combat.crit_hit = finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0)
             .clamp(0.0, cap(caps.max_p_crit_rate));
@@ -1582,9 +1628,21 @@ impl Player {
         combat.atk_range = finalize(
             mods,
             Stat::PhysicalAttackRange,
-            (eq.weapon_atk_range.unwrap_or(t.base_atk_range)) as f64,
+            tf_or(
+                tf_base.and_then(|b| b.attack_range),
+                eq.weapon_atk_range.map(|r| r as f64),
+                t.base_atk_range as f64,
+            ),
         ) as i32;
-        combat.random_dmg = eq.weapon_random_dmg.unwrap_or(10);
+        // `RandomDamageFinalizer` is `calcWeaponBaseValue` too, so a
+        // transform's `randomDamage` replaces the weapon's spread the same way.
+        // The bare `10` is the class-template stand-in Java reads from the
+        // player template's own RANDOM_DAMAGE default.
+        combat.random_dmg = tf_or(
+            tf_base.and_then(|b| b.random_damage),
+            eq.weapon_random_dmg.map(|d| d as f64),
+            10.0,
+        ) as i32;
 
         // SpeedFinalizer: every player speed stat gets `Config.RUN_SPD_BOOST`
         // added in `getBaseSpeed` (35 on this dist — see `CombatCaps`).
