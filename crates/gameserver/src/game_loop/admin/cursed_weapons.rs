@@ -549,12 +549,9 @@ fn refresh_inventory(world: &World, client_id: u32, target: i32) {
 /// Send `pkt` to the subject's own client plus every player in visibility range
 /// (Java `broadcastPacket`).
 fn broadcast_to_visible(world: &World, subject: i32, pkt: &[u8]) {
-    if let Some(cid) = super::helpers::client_for_player(world, subject)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(pkt.to_vec());
-    }
-    for oid in super::creatures_in_range(world, subject, 1400, true, false) {
+    let targets = std::iter::once(subject)
+        .chain(super::creatures_in_range(world, subject, 1400, true, false));
+    for oid in targets {
         if let Some(cid) = super::helpers::client_for_player(world, oid)
             && let Some(cs) = world.clients.get(&cid)
         {
