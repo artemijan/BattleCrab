@@ -1313,10 +1313,6 @@ pub(crate) fn unregister(world: &mut World, object_id: i32) -> bool {
     false
 }
 
-fn send_sm(world: &World, object_id: i32, sm_id: i16) {
-    crate::game_loop::helpers::send_sm_to_player(world, object_id, sm_id, &[]);
-}
-
 /// Send a system message with a single integer argument (the countdown seconds).
 fn send_sm_int(world: &World, object_id: i32, sm_id: i16, value: i32) {
     if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
@@ -1343,6 +1339,7 @@ fn send_sm_c1(world: &World, object_id: i32, sm_id: i16, name: &str) {
 // `RequestOlympiadObserverEnd`/`RequestOlympiadMatchList` packets.
 // ---------------------------------------------------------------------------
 
+use super::helpers::send_sm_bare_to_player as send_sm;
 use crate::model::components::{OlympiadObserver, Position};
 
 /// The spectator stand — midway between the two arena spawns. (Java draws a

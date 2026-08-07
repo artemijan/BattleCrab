@@ -8,6 +8,7 @@
 //! scheduler + `HennaDuration` character variables are out of scope; dye
 //! `<skill>` grants (none on Interlude dyes) are likewise skipped.
 
+use super::helpers::adena;
 use super::helpers::{player_of, send_to_client as send};
 use crate::data::henna_data::HennaStatSums;
 use crate::model::Player;
@@ -18,14 +19,6 @@ use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPre
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
-
-fn adena(world: &World, oid: i32) -> i64 {
-    world
-        .objects
-        .get_component::<Inventory>(&oid)
-        .map(|i| i.adena())
-        .unwrap_or(0)
-}
 
 /// `ClassId.level()` — occupation tier (0 base, 1/2/3 for 1st/2nd/3rd class),
 /// mapped from the `*_CLASS_GROUP` category the class belongs to.

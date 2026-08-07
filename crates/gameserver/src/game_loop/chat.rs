@@ -18,6 +18,7 @@ use commons::audit;
 use serde_json::json;
 use tracing::warn;
 
+use super::helpers::send_sm_bare_to_client as send_sm;
 use crate::enums::ChatType;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
@@ -728,10 +729,6 @@ fn broadcast_snoop(
             cs.send(snoop.clone());
         }
     }
-}
-
-fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }
 
 // ---------------------------------------------------------------------------

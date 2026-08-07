@@ -16,7 +16,7 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::helpers::broadcast_to_others;
+use super::helpers::{broadcast_to_others, send_sm_to_player};
 
 /// `Player.REQUEST_TIMEOUT` (15 s) in ticks — the `_pendingInvitation`
 /// expiry and the friend-invite request timeout.
@@ -109,10 +109,6 @@ fn summon_views(
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
-
-fn send_sm_to_player(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 /// `Party.broadcastPacket` — every member, or all but `exclude`.

@@ -1,4 +1,7 @@
 use super::*;
+pub(crate) use crate::game_loop::helpers::{
+    send_sm_bare_to_player as send_sm, send_sm_to_player as send_sm_with,
+};
 
 /// `handlers/effecthandlers/Restoration.java` — instant single-item grant.
 /// Backs item-use skills wrapping a fixed pack/box reward (spiritshot packs,
@@ -145,11 +148,6 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
     }
 }
 
-/// Send a bare (no-argument) system message to `player_oid`, if online.
-pub(crate) fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
-    crate::game_loop::helpers::send_sm_to_player(world, player_oid, sm_id, &[]);
-}
-
 /// `Creature.broadcastSocialAction` — a playable's emote goes to everyone in
 /// range *including* itself (`broadcastPacket`), unlike the quest engine's
 /// self-only `sendPacket` variant.
@@ -159,16 +157,6 @@ pub(crate) fn broadcast_social_action(world: &mut World, oid: i32, action_id: i3
     };
     let pkt = server_packets::social_action(oid, action_id);
     crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
-}
-
-/// Send a system message with parameters to `player_oid`, if online.
-pub(crate) fn send_sm_with(
-    world: &World,
-    player_oid: i32,
-    sm_id: i16,
-    params: &[server_packets::SmParam],
-) {
-    crate::game_loop::helpers::send_sm_to_player(world, player_oid, sm_id, params);
 }
 
 /// Resolve `Formulas.calcMagicSuccess`' inputs for a cast. `penalty` is the

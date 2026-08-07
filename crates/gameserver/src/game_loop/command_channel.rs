@@ -37,10 +37,6 @@ fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
-fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
-}
-
 /// Java `Player.sendMessage` — the plain-text `$s1` system message.
 fn send_text(world: &World, object_id: i32, text: &str) {
     send_sm(
@@ -1110,6 +1106,7 @@ pub(crate) fn handle_request_ex_mpcc_partymaster_list(world: &mut World, client_
 // `ItemData.createItem("loot")`)
 // ---------------------------------------------------------------------------
 
+use super::helpers::send_sm_to_player as send_sm;
 use crate::model::components::RaidLootRights;
 
 /// `Attackable.reduceCurrentHp`'s loot-privilege block: the first command

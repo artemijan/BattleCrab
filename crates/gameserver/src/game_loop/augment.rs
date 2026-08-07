@@ -18,6 +18,7 @@
 
 use commons::network::PacketReader;
 
+use super::helpers::send_sm_bare_to_client as send_sm;
 use super::helpers::{player_of, send_to_client as send};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets as sp;
@@ -374,8 +375,4 @@ pub(crate) fn handle_confirm_cancel_item(world: &mut World, client_id: u32, body
         client_id,
         sp::ex_put_item_result_for_variation_cancel(target_obj, item_id, option1, option2, price),
     );
-}
-
-fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }

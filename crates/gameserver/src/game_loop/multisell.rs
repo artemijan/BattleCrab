@@ -26,6 +26,7 @@
 
 use tracing::warn;
 
+use super::helpers::send_sm_to_client as send_sm;
 use crate::data::multisell_data::{MultisellEntry, MultisellList, PAGE_SIZE};
 use crate::model::components::{ActiveMultisell, PreparedRow};
 use crate::model::inventory::{Inventory, ItemChange};
@@ -652,8 +653,4 @@ fn product_count(count: i64, multiplier: f64) -> i64 {
 /// `Math.multiplyExact` — `None` on overflow (Java throws → "quantity exceeded").
 fn mul(a: i64, b: i64) -> Option<i64> {
     a.checked_mul(b)
-}
-
-fn send_sm(world: &World, client_id: u32, message_id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, params);
 }

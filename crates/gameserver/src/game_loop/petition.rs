@@ -13,7 +13,7 @@ use crate::session::ClientSession;
 use crate::world::World;
 use commons::network::PacketReader;
 
-use super::helpers::client_for_player;
+use super::helpers::{client_for_player, send_sm_to_player as send_sm};
 
 /// Java `Petition`'s 255-char content cap.
 const MAX_CONTENT_LEN: usize = 255;
@@ -22,10 +22,6 @@ const MAX_CONTENT_LEN: usize = 255;
 
 fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
-
-fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 fn player_name(world: &World, object_id: i32) -> String {

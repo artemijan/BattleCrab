@@ -4,6 +4,7 @@
 
 use super::*;
 
+use crate::game_loop::helpers::adena;
 use crate::game_loop::lottery;
 use crate::model::inventory::Inventory;
 use crate::model::lottery::{DrawnRound, LotteryRow};
@@ -31,13 +32,6 @@ fn register_adena(world: &mut World) {
     t.name = "Adena".into();
     t.is_stackable = true;
     world.data.item_data.insert_for_test(t);
-}
-
-fn adena(world: &World, oid: i32) -> i64 {
-    world
-        .objects
-        .get_component::<Inventory>(&oid)
-        .map_or(0, |i| i.adena())
 }
 
 #[test]

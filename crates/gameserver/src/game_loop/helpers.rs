@@ -1,6 +1,7 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
 use crate::model::components::Position;
+use crate::model::inventory::Inventory;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -86,6 +87,28 @@ pub(crate) fn send_sm_to_player(
         player_object_id,
         server_packets::system_message_with(message_id, params),
     );
+}
+
+/// A **bare** `SystemMessage` — one that takes no substitution parameters — to
+/// a connected client. Most system messages are bare, so this saves the `&[]`
+/// at the call site; reach for [`send_sm_to_client`] when there are params.
+pub(crate) fn send_sm_bare_to_client(world: &World, client_id: u32, message_id: i16) {
+    send_sm_to_client(world, client_id, message_id, &[]);
+}
+
+/// A bare `SystemMessage` to a player by object id — the object-id counterpart
+/// of [`send_sm_bare_to_client`].
+pub(crate) fn send_sm_bare_to_player(world: &World, player_object_id: i32, message_id: i16) {
+    send_sm_to_player(world, player_object_id, message_id, &[]);
+}
+
+/// How much adena `object_id` is carrying — Java `Inventory.getAdena`. Zero for
+/// anything with no [`Inventory`] at all, which is what every caller wants.
+pub(crate) fn adena(world: &World, object_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .map_or(0, |inv| inv.adena())
 }
 
 /// Java `Player.sendInventoryUpdate`: an `InventoryUpdate` never travels alone —

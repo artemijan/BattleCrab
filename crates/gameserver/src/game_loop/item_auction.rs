@@ -7,7 +7,7 @@
 use commons::util::rnd;
 use tracing::info;
 
-use super::helpers::player_of;
+use super::helpers::{player_of, send_sm_bare_to_client as send_sm};
 use crate::db::DbCommand;
 use crate::model::inventory::Inventory;
 use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction};
@@ -869,10 +869,6 @@ fn npc_id_of(world: &World, npc_oid: i32) -> i32 {
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
         .map_or(0, |n| n.npc_id)
-}
-
-fn send_sm(world: &World, client_id: u32, sm_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, sm_id, &[]);
 }
 
 fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {

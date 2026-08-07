@@ -10,7 +10,7 @@
 //! `net::build_save_data`, the clan one via [`persist_clan_warehouse`] on every
 //! change.
 
-use super::helpers::player_of;
+use super::helpers::{adena, player_of, send_sm_bare_to_client as send_sm};
 use crate::model::Player;
 use crate::model::components::ActiveWarehouse;
 use crate::model::inventory::{Freight, Inventory, ItemInstance, Warehouse};
@@ -29,14 +29,6 @@ enum WhTarget {
     Private,
     Clan(i32),
     Freight,
-}
-
-fn adena(world: &World, player_oid: i32) -> i64 {
-    world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .map(|inv| inv.count_of(ADENA_ID))
-        .unwrap_or(0)
 }
 
 /// Resolve the active-warehouse target. A `Clan` selection with no (valid) clan
@@ -799,8 +791,4 @@ fn destination_slots(world: &World, recipient: i32, moving: &[(i32, i32, i64, i3
         }
     }
     slots
-}
-
-fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }

@@ -47,6 +47,9 @@ pub(crate) mod skills;
 mod sub_pledge;
 pub(crate) mod wars;
 
+pub(crate) use crate::game_loop::helpers::{
+    send_sm_bare_to_client as send_sm, send_sm_to_player as send_sm_with,
+};
 pub(crate) use alliance::*;
 pub(crate) use crests::*;
 pub(crate) use membership::*;
@@ -55,10 +58,6 @@ pub(crate) use recruit::*;
 pub(crate) use skills::*;
 pub(crate) use sub_pledge::*;
 pub(crate) use wars::*;
-
-pub(crate) fn send_sm(world: &World, client_id: u32, id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, id, &[]);
-}
 
 /// Wall-clock millis (Java `System.currentTimeMillis()`).
 pub(crate) fn now_millis() -> i64 {
@@ -590,10 +589,6 @@ pub(crate) const CLAN_DISSOLVE_DELAY_MS: i64 = 7 * 86_400_000;
 
 /// The game loop runs at 10 ticks/s — wall-clock millis to scheduler ticks.
 pub(crate) const MS_PER_TICK: i64 = 100;
-
-pub(crate) fn send_sm_with(world: &World, oid: i32, id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_player(world, oid, id, params);
-}
 
 pub(crate) fn send_to_member(world: &World, oid: i32, pkt: Vec<u8>) {
     if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {

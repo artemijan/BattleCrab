@@ -21,6 +21,7 @@
 //! G25's olympiad matches reuse this shape, which is why the audit put duels
 //! here rather than with the end-game milestones.
 
+use super::helpers::send_sm_to_player as send_sm;
 use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -893,8 +894,4 @@ fn player_name(world: &World, oid: i32) -> String {
 
 fn send_to(world: &World, oid: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, oid, packet);
-}
-
-fn send_sm(world: &World, oid: i32, id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_player(world, oid, id, params);
 }

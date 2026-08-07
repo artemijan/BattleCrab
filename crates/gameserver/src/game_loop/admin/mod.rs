@@ -94,6 +94,7 @@ use world_cmds::*;
 // `admin` became a folder these were plain `super::` siblings; re-importing them
 // here keeps every `super::helpers::…` / `super::death::…` call in the bodies
 // resolving (a child's `super` now points at this module).
+pub(super) use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::{death, helpers, net, party, quests, target, visibility};
 
 /// Java `AdminCommandHandler.useAdminCommand`. `full` is the whole command
@@ -1059,11 +1060,6 @@ pub(super) fn creatures_in_range(
         }
     }
     out
-}
-
-/// Send a bare `SystemMessage(id)` to one client.
-pub(super) fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }
 
 /// Java `Player.sendMessage(String)` — a bare `$s1` system message.

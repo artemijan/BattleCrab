@@ -10,17 +10,13 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, FriendEntry, SmParam, friend_status_mode, sm_ids};
 use crate::world::World;
 
-use super::helpers::client_for_player;
+use super::helpers::{client_for_player, send_sm_to_player as send_sm};
 use super::party::{
     REQUEST_TIMEOUT_TICKS, clear_linked_request, find_player_by_name, install_request,
 };
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
-
-fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 fn is_online(world: &World, object_id: i32) -> bool {

@@ -24,6 +24,7 @@
 //! `character_friends` stores friends at `relation = 0` and blocks at
 //! `relation = 1`.
 
+use super::helpers::send_sm_bare_to_client as send_sm;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets::{self, sm_ids};
@@ -268,12 +269,6 @@ fn client_of(world: &World, object_id: i32) -> Option<u32> {
         crate::session::ClientSession::InGame(s) if s.player_object_id() == object_id => Some(cid),
         _ => None,
     })
-}
-
-fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(message_id, &[]));
-    }
 }
 
 fn send_sm_str(world: &World, client_id: u32, message_id: i16, text: &str) {

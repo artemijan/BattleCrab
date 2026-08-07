@@ -8,6 +8,7 @@ use std::collections::HashMap;
 
 use commons::util::rnd;
 
+use super::helpers::send_sm_bare_to_client as send_sm;
 use crate::data::zone_data::ZoneKind;
 use crate::db::DbCommand;
 use crate::enums::ChatType;
@@ -738,10 +739,6 @@ fn finalize(world: &World, client_id: u32, npc_oid: i32, html: String) {
 /// Java `super.onBypassFeedback(player, "Chat 0")` — fall back to the default page.
 fn chat0(world: &mut World, client_id: u32, npc_oid: i32) {
     crate::game_loop::target::show_chat_window(world, client_id, npc_oid, 0);
-}
-
-fn send_sm(world: &World, client_id: u32, sm_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, sm_id, &[]);
 }
 
 fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {

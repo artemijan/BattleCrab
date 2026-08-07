@@ -24,6 +24,7 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
+use super::helpers::send_sm_bare_to_client as send_sm_to;
 use super::helpers::{client_for_player, ms_to_ticks};
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
@@ -1669,13 +1670,6 @@ pub(crate) fn remove_registration(world: &mut World, castle_id: i32, clan_id: i3
 // ---------------------------------------------------------------------------
 // Reachability — `RequestJoinSiege` (0xAD) and the `SiegeInfo` response
 // ---------------------------------------------------------------------------
-
-/// Send a SystemMessage to one client.
-fn send_sm_to(world: &World, client_id: u32, id: i16) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::system_message(id));
-    }
-}
 
 /// The SystemMessage for a refusal, or `None` when nothing is said.
 ///

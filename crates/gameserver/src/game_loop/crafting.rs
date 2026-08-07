@@ -14,7 +14,7 @@
 //! so they stay `+0`. `Stat.RECIPE_DWARVEN/COMMON` (Expand Dwarven/Common
 //! Craft, G19 `EnlargeSlot`) *is* wired — see `learn_recipe`'s limit lookup.
 
-use super::helpers::player_of;
+use super::helpers::{adena, player_of};
 use crate::data::recipe_data::RecipeList;
 use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
@@ -34,14 +34,6 @@ const SKILL_CREATE_COMMON: i32 = 1320;
 const STORE_TYPE_MANUFACTURE: u8 = 5;
 
 // --- small accessors -------------------------------------------------------
-
-fn adena(world: &World, oid: i32) -> i64 {
-    world
-        .objects
-        .get_component::<Inventory>(&oid)
-        .map(|i| i.adena())
-        .unwrap_or(0)
-}
 
 /// The player's level in the relevant create-item skill (0 if not known) — Java
 /// `getDwarvenCraft` / `getCommonCraft`.

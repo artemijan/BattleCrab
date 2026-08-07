@@ -6,6 +6,7 @@
 use commons::util::rnd;
 use tracing::info;
 
+use super::helpers::send_sm_bare_to_client as send_sm;
 use crate::db::DbCommand;
 use crate::enums::ChatType;
 use crate::model::components::LotoPicks;
@@ -678,10 +679,6 @@ fn send_html(world: &World, client_id: u32, npc_oid: i32, content: String) {
         cs.send(server_packets::npc_html_message(npc_oid, &content));
         cs.send(server_packets::action_failed());
     }
-}
-
-fn send_sm(world: &World, client_id: u32, sm_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, sm_id, &[]);
 }
 
 fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {

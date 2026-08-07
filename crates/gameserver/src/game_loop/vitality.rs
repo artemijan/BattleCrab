@@ -29,6 +29,7 @@ use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
+use super::helpers::send_sm_bare_to_player as send_sm;
 /// Java `Player.isLucky()` — the newbie skill that, under level 10, exempts a
 /// character from both the death exp penalty and vitality consumption. Shared
 /// with the death path rather than reimplemented: two copies of one predicate
@@ -231,10 +232,6 @@ pub(crate) fn kill_vitality_delta(
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
-
-fn send_sm(world: &World, object_id: i32, message_id: i16) {
-    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, &[]);
 }
 
 /// The `PartySmallWindowUpdate` vitality piggyback (Java adds the

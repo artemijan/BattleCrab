@@ -9,7 +9,7 @@
 //! and its title rides `ExPrivateStoreSetWholeMsg` instead of
 //! `PrivateStoreMsgSell`. Manufacture (workshop) stores belong to `crafting`.
 
-use super::helpers::player_of;
+use super::helpers::{adena, player_of, send_sm_bare_to_client as send_sm};
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
@@ -25,14 +25,6 @@ const STORE_TYPE_PACKAGE_SELL: u8 = 8;
 /// `RequestPrivateStoreBuy`).
 fn is_sell_store(store_type: u8) -> bool {
     store_type == STORE_TYPE_SELL || store_type == STORE_TYPE_PACKAGE_SELL
-}
-
-fn adena(world: &World, oid: i32) -> i64 {
-    world
-        .objects
-        .get_component::<Inventory>(&oid)
-        .map(|i| i.adena())
-        .unwrap_or(0)
 }
 
 fn instance(object_id: i32, item_id: i32, count: i64, enchant: i32) -> ItemInstance {
@@ -979,10 +971,6 @@ fn close_buy_store(world: &mut World, owner: i32) {
     super::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, ""));
     super::party::broadcast_user_info(world, owner);
     super::offline_trade::on_store_type_cleared(world, owner);
-}
-
-fn send_sm(world: &World, client_id: u32, message_id: i16) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, &[]);
 }
 
 /// Java `Player.canOpenPrivateStore` — the shared gate on every

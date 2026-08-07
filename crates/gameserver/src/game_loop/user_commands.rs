@@ -13,6 +13,7 @@
 //! (90) and `registerHandler` overwrites by id, so the war-list's third id is
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
+use super::helpers::send_sm_to_client as send_sm;
 use crate::model::components::{Casting, Position, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -470,10 +471,6 @@ fn leading_channel(world: &World, object_id: i32) -> Option<u32> {
         .get(&cc_id)
         .filter(|cc| cc.is_leader(object_id))
         .map(|_| cc_id)
-}
-
-fn send_sm(world: &World, client_id: u32, message_id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_client(world, client_id, message_id, params);
 }
 
 /// Port of `usercommandhandlers/SiegeStatus.java`: a noble clan leader whose

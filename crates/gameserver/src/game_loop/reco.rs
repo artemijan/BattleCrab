@@ -8,6 +8,7 @@
 
 use commons::network::PacketReader;
 
+use super::helpers::send_sm_to_player as send_sm;
 use crate::model::Player;
 use crate::model::components::TargetRef;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -27,10 +28,6 @@ fn clamp_reco(value: i32) -> i32 {
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
-
-fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);
 }
 
 /// Java `Player.updateUserInfo()` — a fresh `UserInfo` to the player themselves
