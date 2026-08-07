@@ -630,8 +630,13 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_EX_ESCAPE_SCENE => {
             super::admin::effects::handle_escape_scene(world, client_id);
         }
-        // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client
-        // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
+        // RequestUserBanInfo (IN_GAME): consumed silently, which is exactly
+        // what Java does — `ExClientPackets` registers it as
+        // `REQUEST_USER_BAN_INFO(0x138, null, IN_GAME)`, a **null** handler
+        // factory. Its answer `ExUserBanInfo` (0xFE 0x1D1) exists only as a
+        // `ServerPackets` enum entry: no such class is in the tree, so nothing
+        // upstream ever builds or sends one. There is nothing here to port
+        // (verified 2026-08-07).
         exop::REQUEST_USER_BAN_INFO => {}
         // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
         // after auth; Mobius registers a null handler, so consume it silently.
