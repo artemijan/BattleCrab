@@ -6443,3 +6443,47 @@ fn goto_char_reopens_the_page_except_on_an_unresolved_target() {
         "the self-target refusal still re-opens charmanage.htm"
     );
 }
+
+/// `//give_clan_skills` refuses in Java's order and with Java's two distinct
+/// messages: no player target → INVALID_TARGET, a clanless target →
+/// THE_TARGET_MUST_BE_A_CLAN_MEMBER. The two ids are the whole point of the
+/// guard — the refusal paths had no cover before, so a swapped id was silent.
+#[test]
+fn give_clan_skills_refuses_with_javas_two_distinct_messages() {
+    use crate::model::components::TargetRef;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7821, 100);
+    let _clanless_rx = ingame_player_access(&mut world, 2, 7822, 0);
+    drain(&mut gm_rx);
+
+    // Nothing targeted → INVALID_TARGET.
+    on_packet(&mut world, 1, build_admin("give_clan_skills"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        has_system_message(&pkts, server_packets::sm_ids::INVALID_TARGET),
+        "no target → INVALID_TARGET"
+    );
+    assert!(
+        !has_system_message(
+            &pkts,
+            server_packets::sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER
+        ),
+        "and NOT the clan-member message"
+    );
+
+    // A targeted player with no clan → THE_TARGET_MUST_BE_A_CLAN_MEMBER.
+    world.objects.add_components(&7821, TargetRef(Some(7822)));
+    on_packet(&mut world, 1, build_admin("give_clan_skills"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        has_system_message(
+            &pkts,
+            server_packets::sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER
+        ),
+        "clanless target → THE_TARGET_MUST_BE_A_CLAN_MEMBER"
+    );
+    assert!(
+        !has_system_message(&pkts, server_packets::sm_ids::INVALID_TARGET),
+        "and NOT INVALID_TARGET — a resolved player is a valid target"
+    );
+}
