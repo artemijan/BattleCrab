@@ -1884,7 +1884,9 @@ pub const ABNORMAL_VISUAL_EFFECTS: &[(&str, i16)] = &[
     ("SHAKE", 26),
     ("ULTIMATE_DEFENCE", 28),
     ("VP_UP", 29),
-    ("VP_KEEP", 29), // TODO: Unknown ClientID
+    // Java gives VP_KEEP the same 29 as VP_UP and flags that it does not know
+    // the real id; carried as shipped.
+    ("VP_KEEP", 29),
     ("REAL_TARGET", 30),
     ("DEATH_MARK", 31),
     ("TURN_FLEE", 32),
