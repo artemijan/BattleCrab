@@ -11,6 +11,10 @@ use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
 
 // NPCs
+/// Skill 5089 — the Warrior's Grave flourish `npc.broadcastPacket(new
+/// MagicSkillUse(npc, player, 5089, 1, 1000, 0))`. Same effect and same
+/// caller→target shape as the prequel's `PUZZLE_FLOURISH` in Q125.
+const GRAVE_FLOURISH: i32 = 5089;
 const SHILENS_STONE_STATUE: i32 = 32109;
 const MUSHIKA: i32 = 32114;
 const ASAMAH: i32 = 32115;
@@ -143,8 +147,11 @@ impl QuestScript for Q00126TheNameOfEvil2 {
                 }
                 Some(event.to_string())
             }
-            // Warrior's Grave: take the fragment (TODO cosmetic MagicSkillUse 5089).
-            "32122-2a.html" => Some(event.to_string()),
+            // Warrior's Grave: the flourish plays on the grave toward the player.
+            "32122-2a.html" => {
+                ctx.cast_visual_at(ctx.npc, ctx.player, GRAVE_FLOURISH, 1, 1000);
+                Some(event.to_string())
+            }
             "32122-2d.html" => {
                 ctx.take_items(GAZKH_FRAGMENT, -1);
                 Some(event.to_string())
@@ -242,10 +249,13 @@ impl QuestScript for Q00126TheNameOfEvil2 {
                 }
                 Some(event.to_string())
             }
-            // The grave yields the Bone Powder (TODO cosmetic MagicSkillUse 5089).
+            // The grave yields the Bone Powder, with the same flourish. Java's
+            // order is give → sound → flourish; kept, since the sound and the
+            // cast are both broadcast and a reader diffing the two will look.
             "32122-7.html" => {
                 ctx.give_items(BONE_POWDER, 1);
                 ctx.play_sound(quest_sounds::ELROKI_SONG_FULL);
+                ctx.cast_visual_at(ctx.npc, ctx.player, GRAVE_FLOURISH, 1, 1000);
                 Some(event.to_string())
             }
             // Shilen's Stone Statue reads the powder.
@@ -309,6 +319,18 @@ impl QuestScript for Q00126TheNameOfEvil2 {
             }
             _ => ctx.no_quest_html(),
         };
+        // Java broadcasts the flourish from each of the three Kaimu brothers
+        // the moment their `-2` page is served (three separate
+        // `npc.broadcastPacket(new MagicSkillUse(npc, player, 5089, 1, 1000, 0))`
+        // calls). Keyed on the **page** rather than the cond on purpose: each
+        // brother's page sits at a different cond here (2 / 5 / 8), so a
+        // cond-based check would silently miss two of the three.
+        if matches!(
+            html.as_str(),
+            "32119-2.html" | "32120-2.html" | "32121-2.html"
+        ) {
+            ctx.cast_visual_at(ctx.npc, ctx.player, GRAVE_FLOURISH, 1, 1000);
+        }
         Some(html)
     }
 }
