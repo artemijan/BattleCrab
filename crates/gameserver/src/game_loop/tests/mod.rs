@@ -355,13 +355,12 @@ fn character_create_body(name: &str, class_id: i32) -> Vec<u8> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn character_create_inserts_into_real_schema() {
     // Copy of the real database so we exercise its exact schema. The runtime DB
-    // is an untracked working-tree file, so a fresh checkout / git worktree
-    // won't have it — skip rather than fail there (it runs on main and CI).
-    let src = concat!(env!("CARGO_MANIFEST_DIR"), "/../../interlude_classic.db");
-    if !std::path::Path::new(src).exists() {
-        eprintln!("skipping character_create_inserts_into_real_schema: {src} not present");
+    // is an untracked working-tree file — see `real_db_path`, which finds the
+    // checkout's copy even from a worktree; only a fresh clone skips.
+    let Some(src) = real_db_path() else {
+        eprintln!("skipping character_create_inserts_into_real_schema: no interlude_classic.db");
         return;
-    }
+    };
     let dir = std::env::temp_dir().join(format!("l2r_create_{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let db_path = dir.join("c.db");
@@ -2419,4 +2418,19 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
     }
     drain(&mut rx);
     (world, rx)
+}
+
+/// Locate the untracked runtime database.
+///
+/// **Not a fixed `../../`**: from a git worktree that resolves to the
+/// worktree root, where the file does not exist, so these tests silently
+/// skipped in every worktree — which is this repo's normal workflow. Walking
+/// up the ancestors finds the real checkout's copy, so a worktree run gets the
+/// same coverage as `main`. Still `None` on a genuinely fresh clone, which is
+/// the case the skip exists for.
+pub(crate) fn real_db_path() -> Option<std::path::PathBuf> {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .map(|d| d.join("interlude_classic.db"))
+        .find(|p| p.exists())
 }
