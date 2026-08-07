@@ -105,6 +105,10 @@ pub struct NpcConfig {
     pub pet_hp_regen_multiplier: f64,
     pub pet_mp_regen_multiplier: f64,
     pub mp_regen_multiplier: f64,
+    /// `CpRegenMultiplier` (`Character.ini`) — players only, since only players
+    /// have CP. Java applies it in `RegenCPFinalizer` exactly as its HP/MP
+    /// siblings do; it was the one of the three this port never parsed.
+    pub cp_regen_multiplier: f64,
     /// `MinNPCLevelForMagicPenalty` (78) — the Gracia rule "when a character is
     /// 3+ levels below a level-78+ monster, that monster resists magic more
     /// often". Below this NPC level `Formulas.calcMagicSuccess` leaves its
@@ -166,6 +170,7 @@ impl Default for NpcConfig {
             pet_mp_regen_multiplier: 1.0,
             raid_hp_regen_multiplier: 1.0,
             raid_mp_regen_multiplier: 1.0,
+            cp_regen_multiplier: 1.0,
             hp_regen_multiplier: 1.0,
             mp_regen_multiplier: 1.0,
             vitality_consume_by_boss: 1125,
@@ -242,6 +247,7 @@ impl NpcConfig {
             raid_mp_regen_multiplier: p.get_int("RaidMpRegenMultiplier", 100) as f64 / 100.0,
             hp_regen_multiplier: c.get_int("HpRegenMultiplier", 100) as f64 / 100.0,
             mp_regen_multiplier: c.get_int("MpRegenMultiplier", 100) as f64 / 100.0,
+            cp_regen_multiplier: c.get_int("CpRegenMultiplier", 100) as f64 / 100.0,
             min_npc_level_for_magic_penalty: p.get_int(
                 "MinNPCLevelForMagicPenalty",
                 d.min_npc_level_for_magic_penalty,
