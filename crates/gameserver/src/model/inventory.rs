@@ -218,6 +218,16 @@ impl Inventory {
         &self.items
     }
 
+    /// Java `Inventory.getItemByItemId` — the first instance of `item_id`, or
+    /// `None` when the bag holds none.
+    ///
+    /// For a stackable this is *the* stack; for a non-stackable it is whichever
+    /// copy sorts first, which is what every caller wanted when it open-coded
+    /// `items().iter().find(|i| i.item_id == id)`.
+    pub fn first_of_item(&self, item_id: i32) -> Option<&ItemInstance> {
+        self.items.iter().find(|i| i.item_id == item_id)
+    }
+
     /// Serialize the whole inventory to `items` rows for a persistence flush
     /// (`PlayerSaveData`) — the inverse of [`from_rows`](Self::from_rows). An
     /// equipped instance gets `loc="PAPERDOLL"` with `loc_data` = its paperdoll
@@ -1257,6 +1267,34 @@ mod tests {
         let changed = inv.equip_item(&catalog, oid);
         assert!(changed.is_empty());
         assert_eq!(inv.paperdoll_slot_of(oid), None);
+    }
+
+    /// `remove_item` lifts a destroyed instance off the paperdoll by itself —
+    /// Java `Inventory.removeItem`'s "Unequip item if equiped".
+    ///
+    /// Call sites used to run `unequip_item` first, guarded by
+    /// `paperdoll_slot_of(..).is_some()`. Both halves were dead: the guard
+    /// repeated the lookup `unequip_item` does internally, and `unequip_item`
+    /// repeated the clearing `remove_item` does one line later — less
+    /// thoroughly, since it frees only the first matching slot while the
+    /// removal frees every slot the instance occupies. This pins the behaviour
+    /// those call sites now lean on.
+    #[test]
+    fn removing_an_item_frees_its_paperdoll_slot() {
+        let catalog = ItemData::from_templates(vec![weapon(1, item_data::SLOT_R_HAND)]);
+        let mut inv = Inventory::new();
+        let oid = inv.add_item(&catalog, 100, 1, 1);
+        inv.equip_item(&catalog, oid);
+        assert!(inv.paperdoll_slot_of(oid).is_some(), "equipped first");
+
+        inv.remove_item(1, 1);
+
+        assert_eq!(
+            inv.paperdoll_slot_of(oid),
+            None,
+            "the destroyed instance is off the paperdoll"
+        );
+        assert!(inv.first_of_item(1).is_none(), "and gone from the bag");
     }
 }
 

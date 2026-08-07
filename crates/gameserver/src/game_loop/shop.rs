@@ -411,12 +411,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         if let Some(adena) = world
             .objects
             .get_component::<Inventory>(&player)
-            .and_then(|inv| {
-                inv.items()
-                    .iter()
-                    .find(|it| it.item_id == ADENA_ID)
-                    .copied()
-            })
+            .and_then(|inv| inv.first_of_item(ADENA_ID).copied())
         {
             changes.push(crate::model::inventory::ItemChange::Modified(adena));
         }

@@ -83,12 +83,7 @@ fn add_inventory_item_inner(
         let existing_stack = world
             .objects
             .get_component::<crate::model::inventory::Inventory>(&player_oid)
-            .and_then(|inv| {
-                inv.items()
-                    .iter()
-                    .find(|i| i.item_id == item_id)
-                    .map(|i| i.object_id)
-            });
+            .and_then(|inv| inv.first_of_item(item_id).map(|i| i.object_id));
 
         if let Some(stack_oid) = existing_stack {
             // Memory-first: the stack grows in memory; the new count persists on
@@ -682,7 +677,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     // InventoryUpdate: the destroyed item + the crystal stack (as a modify).
     let mut changes = vec![removed];
     if let Some(inv) = world.objects.get_component::<Inventory>(&player_oid)
-        && let Some(stack) = inv.items().iter().find(|it| it.item_id == crystal_item)
+        && let Some(stack) = inv.first_of_item(crystal_item)
     {
         changes.push(crate::model::inventory::ItemChange::Modified(*stack));
     }
