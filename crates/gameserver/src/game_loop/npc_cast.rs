@@ -784,7 +784,7 @@ fn skill_target_reconsider(
     }
 
     // `insideCastRange ? castRange + collisionRadius : 2000` (Java's own
-    // "TODO need some forget range" constant).
+    // constant, which Java's own comment flags as needing a real forget range).
     let range = if inside_cast_range {
         skill.cast_range as f64 + collision_radius(world, npc_oid)
     } else {

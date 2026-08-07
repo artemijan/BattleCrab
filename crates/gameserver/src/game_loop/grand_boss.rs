@@ -21,7 +21,7 @@ pub const ALIVE: i32 = 0;
 pub const DEAD: i32 = 1;
 
 /// Zaken (29022). His entire Java script is the shared lifecycle plus the two
-/// stock roars — the file's own comments TODO the actual AI ("Skill cast?
+/// stock roars — the file's own comments leave the actual AI unwritten ("Skill cast?
 /// Day/Night spawn?") — so there is no `zaken` module; this constant and the
 /// roar hooks below are the whole boss.
 pub(crate) const ZAKEN: i32 = 29022;

@@ -1731,7 +1731,7 @@ fn share_with_servitor(world: &mut World, caster_oid: i32, target_oid: i32, skil
 /// **Only on a debuff that landed.** `onStart` is driven by
 /// `EffectList.add(info)`, which `Skill.applyEffects` reaches only when
 /// `addContinuousEffects` — i.e. `calcEffectSuccess` — was true. Java carries
-/// an inline `// TODO: M.Crit can occur even if this skill is resisted` at that
+/// an inline note that `M.Crit can occur even if this skill is resisted` at that
 /// very spot, but that is aspirational: the shipped code does not burst on a
 /// resist, and neither does this.
 ///

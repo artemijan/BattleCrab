@@ -25,7 +25,7 @@ pub fn validate_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -
     w.write_i32(y);
     w.write_i32(z);
     w.write_i32(heading);
-    w.write_u8(0xff); // Java: trailing byte, "TODO: Find me!"
+    w.write_u8(0xff); // Java writes this trailing byte and labels it "Find me!" — unknown upstream
     w.into_bytes()
 }
 

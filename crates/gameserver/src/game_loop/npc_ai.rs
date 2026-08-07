@@ -1915,7 +1915,7 @@ fn players_in_range_los(
 /// loop takes over from there.
 ///
 /// The 500 is Java's literal (`GUARD_ATTACK_RANGE` in spirit — the source has
-/// the bare constant with a "TODO Make sure how guards behave towards players"
+/// the bare constant with a "Make sure how guards behave towards players"
 /// note beside it), deliberately not the template `aggroRange`.
 const GUARD_AGGRO_RANGE: f64 = 500.0;
 

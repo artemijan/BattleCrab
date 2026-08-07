@@ -2779,7 +2779,7 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
 /// crit or no crit. The port used to apply the burst in the *instant* effect
 /// pass, before the land roll, so a resisted debuff still hit for `power * 10`.
 ///
-/// (Java carries an inline `// TODO: M.Crit can occur even if this skill is
+/// (Java carries an inline note that `M.Crit can occur even if this skill is
 /// resisted` at that exact spot. It is aspirational — the shipped code does
 /// not do it, and neither does this.)
 #[test]
@@ -3025,7 +3025,7 @@ mod hate_effects {
 
     /// **An aggro-shedding skill must not wake the mob it just calmed.** Java
     /// gates `callSkill`'s `EVT_ATTACKED` notify on
-    /// `!skill.hasEffectType(HATE)`; the port used to skip the gate (its TODO
+    /// `!skill.hasEffectType(HATE)`; the port used to skip the gate (the note
     /// claimed no HATE effect was modelled, which stopped being true when
     /// `DeleteHate`/`DeleteHateOfMe` landed). The result was Bluff and Forget
     /// re-aggroing the mob on the same cast that made it forget you.

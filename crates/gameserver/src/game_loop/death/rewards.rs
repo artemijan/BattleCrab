@@ -632,7 +632,7 @@ pub(crate) enum PremiumDropRate {
 ///
 /// **The herb and raid arms are empty in Java** — a premium killer gets no
 /// bonus at all on a herb or a raid drop unless the item is in the map. The
-/// two `// TODO: Premium herb chance? :)` comments upstream are Java's own,
+/// two `Premium herb chance? :)` musings upstream are Java's own,
 /// and returning 1.0 here is what the shipped code does.
 pub(crate) fn premium_drop_mult(
     world: &World,

@@ -70,7 +70,8 @@ pub fn ask_join_party(requestor_name: &str, loot_rule_id: i32) -> Vec<u8> {
 }
 
 /// `serverpackets/JoinParty` — the answer echoed to the requestor. The
-/// trailing int is Java's own `// TODO: Find me!`, written 0 there too.
+/// trailing int is a field Java labels "Find me!" and does not identify;
+/// written 0 there too.
 pub fn join_party(response: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::JOIN_PARTY);

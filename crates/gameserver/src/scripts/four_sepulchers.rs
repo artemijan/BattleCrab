@@ -26,7 +26,7 @@ fn charm_skill(npc_id: i32) -> Option<i32> {
     })
 }
 
-/// `CHARM_MSG` (Java carries two TODO-mismatched ids; ported as shipped).
+/// `CHARM_MSG` (Java carries two mismatched ids and flags them; ported as shipped).
 fn charm_msg(npc_id: i32) -> i32 {
     match npc_id {
         18196 | 18197 => 1010480, // P. Atk reduction device destroyed

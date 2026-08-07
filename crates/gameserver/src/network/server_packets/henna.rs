@@ -112,7 +112,7 @@ pub fn henna_item_draw_info(
         w.write_i32(current);
         w.write_i16(preview);
     }
-    w.write_i32(0); // TODO: Java "Find me!"
+    w.write_i32(0); // Java writes 0 here, labelled "Find me!" — unknown upstream
     w.into_bytes()
 }
 

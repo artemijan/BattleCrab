@@ -1959,7 +1959,8 @@ pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
     Some(owner)
 }
 
-/// Java `Pet.deathPenalty` (its own "TODO: Need Correct Penalty" and all).
+/// Java `Pet.deathPenalty`, whose own comment admits the penalty is a guess
+/// ("Need Correct Penalty") — ported as written.
 ///
 /// `percentLost = -0.07 × level + 6.5`, applied to the size of the pet's
 /// *current* level band — so the loss is a share of one level's worth of exp,

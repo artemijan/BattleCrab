@@ -26,7 +26,7 @@
 //! clan level 8+ and Knight's Epaulettes (item 9910/9911), and the file's own
 //! comment marks the tree "Confirmed CT2.5" — later-chronicle content that no
 //! Interlude clan can reach (documented at the `RequestAcquireSkillInfo`
-//! SUBPLEDGE arm rather than left as a TODO — it is a *verified skip*, not a
+//! SUBPLEDGE arm rather than deferred — it is a *verified skip*, not a
 //! gap).
 
 use tracing::info;

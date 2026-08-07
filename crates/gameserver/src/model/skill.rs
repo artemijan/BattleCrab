@@ -1182,7 +1182,7 @@ pub enum SkillEffect {
     /// secondary effect riding alongside `Backstab`/`FatalBlow`/
     /// `PhysicalAttack` on Backstab (30), Lethal Blow (344), Deadly Blow
     /// (263), Critical Blow (409), Lethal Shot (343), … — previously dropped
-    /// (the doc-comment TODO on [`SkillEffect::Blow`] above named it), so
+    /// (the doc comment on [`SkillEffect::Blow`] above names it), so
     /// those skills' damage landed but the bonus kill chance never rolled.
     /// `full_lethal`/`half_lethal` are already 0-100 percentages (unlike
     /// Java's `AttackTrait` effect, this constructor doesn't `/100` these).

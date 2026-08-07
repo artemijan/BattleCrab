@@ -29,7 +29,7 @@
 //!
 //! The retail boards are ported to the reference's own depth — which is
 //! shallower than their names suggest: `_bbsloc` renders the region list off
-//! the castles (its per-region detail is `// TODO: Implement.` in Java
+//! the castles (its per-region detail is left unimplemented in Java
 //! itself), `_maillist`/`_bbsmemo`/`_friendlist` serve their html shells
 //! (their writes are Java TODOs too), and the home page's `%region_count%`
 //! is 0 because Java's `getRegionCount` returns 0. The one board with real
@@ -156,7 +156,7 @@ pub(crate) fn handle_write_command(
     // `ClanBoard.writeCommunityBoardCommand` — "the only Write bypass that
     // comes to this handler is `Write Notice Set _ Content Content Content`":
     // arg1 = "Set", arg3 = the notice text. Every other write target
-    // (Topic/Post/Region/Mail/Memo) is `// TODO: Implement.` in Java itself,
+    // (Topic/Post/Region/Mail/Memo) is left unimplemented in Java itself,
     // so the not-implemented answer below IS the reference's behaviour.
     if url == "Notice" && args[0] == "Set" {
         let Some(object_id) = world.player_oid(client_id) else {
@@ -195,7 +195,7 @@ pub(crate) fn handle_write_command(
 
 /// `RegionBoard`: `_bbsloc` renders the nine regions off the castles — name
 /// fstring, owning clan + alliance, buy-tax. The per-region detail
-/// (`_bbsloc;id`) is `// TODO: Implement.` in Java itself, so a valid id gets
+/// (`_bbsloc;id`) is left unimplemented in Java itself, so a valid id gets
 /// Java's silent nothing (an invalid one, Java's warn).
 fn show_region_board(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     if let Some(id) = command.strip_prefix("_bbsloc;") {
@@ -502,7 +502,7 @@ fn show_home(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         // boards (see the module header's deferral).
         let favs = world.bbs_favorites.get(&object_id).map_or(0, |f| f.len());
         html = html.replace("%fav_count%", &favs.to_string());
-        // `getRegionCount` returns 0 in Java itself (`// TODO: Implement.`).
+        // `getRegionCount` returns 0 in Java itself (left unimplemented there).
         html = html.replace("%region_count%", "0");
         html = html.replace("%clan_count%", &world.clans.len().to_string());
     }
