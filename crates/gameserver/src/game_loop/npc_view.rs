@@ -23,6 +23,7 @@
 //!   `Util.sendCBHtml`, the chunked community-board channel that `DropList.htm`
 //!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
+use crate::game_loop::guard;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -144,7 +145,7 @@ pub(crate) fn handle_npc_view_bypass(world: &World, client_id: u32, object_id: i
     let Some(npc_object_id) = it
         .next()
         .and_then(|s| s.parse::<i32>().ok())
-        .or_else(|| current_target(world, object_id))
+        .or_else(|| guard::target(world, object_id))
         .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
     else {
         return;
@@ -261,13 +262,6 @@ fn attacker_name(world: &World, object_id: i32) -> Option<String> {
 fn read_view_htm(world: &World, file: &str) -> String {
     crate::data::htm_cache::read_htm(format!("{}data/html/mods/NpcView/{file}", world.data.root))
         .unwrap_or_else(|| format!("<html><body>{file}<br>%npc_name%</body></html>"))
-}
-
-fn current_target(world: &World, object_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::components::TargetRef>(&object_id)
-        .and_then(|t| t.0)
 }
 
 /// `NpcViewMod.getDropListButtons`: a "Show Drop" button when the NPC has any

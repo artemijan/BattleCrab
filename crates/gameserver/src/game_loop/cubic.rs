@@ -9,6 +9,7 @@
 //! put cubics ahead of agathions (166 skills, none of them learnable).
 
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
+use crate::game_loop::guard;
 use crate::model::components::{Position, Vitals};
 use crate::world::World;
 
@@ -296,9 +297,9 @@ fn try_action(
         CubicTargetType::BySkill => match skill.target_type.unwrap_or(CubicTargetType::Target) {
             CubicTargetType::Master => Some(owner_oid),
             CubicTargetType::Heal => heal_target(world, owner_oid, template),
-            _ => current_target(world, owner_oid),
+            _ => live_target(world, owner_oid),
         },
-        CubicTargetType::Target => current_target(world, owner_oid),
+        CubicTargetType::Target => live_target(world, owner_oid),
     };
     let Some(target) = target else { return false };
 
@@ -336,11 +337,14 @@ fn choose_skill(world: &mut World, template: &CubicTemplate) -> Option<CubicSkil
     None
 }
 
-fn current_target(world: &World, owner_oid: i32) -> Option<i32> {
-    let target = world
-        .objects
-        .get_component::<crate::model::components::TargetRef>(&owner_oid)?
-        .0?;
+/// The owner's target, but only while it is still alive.
+///
+/// Deliberately **not** [`crate::game_loop::guard::target`], which answers the
+/// raw selection: a cubic that fires at a corpse wastes its cast and its reuse.
+/// The name says `live_` so the next reader does not "collapse" it into the
+/// plain resolver the way the identical-looking copies elsewhere were.
+fn live_target(world: &World, owner_oid: i32) -> Option<i32> {
+    let target = guard::target(world, owner_oid)?;
     // A dead target is not worth a cast.
     if world
         .objects

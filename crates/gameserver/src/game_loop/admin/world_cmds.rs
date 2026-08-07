@@ -11,6 +11,7 @@
 
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::doors;
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{Position, ZoneFlags};
 use crate::model::door::Door;
@@ -18,7 +19,7 @@ use crate::network::server_packets;
 use crate::network::trade;
 use crate::world::World;
 
-use super::{current_target, send_message, send_sm};
+use super::{send_message, send_sm};
 
 /// `AdminDoorControl`'s `//open`/`//close [doorId]` and `//openall`/`//closeall`
 /// — toggle one door (by template id, or the targeted door) or every door.
@@ -52,7 +53,7 @@ pub(super) fn admin_door(
     }
     // No id → the targeted door.
     let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Door>(oid))
+        guard::target(world, object_id).filter(|oid| world.objects.has_component::<Door>(oid))
     else {
         send_message(world, client_id, "Incorrect target.");
         return;
@@ -132,9 +133,7 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
 /// `AdminClan`'s `//clan_info` — dump the targeted player's clan (name, leader,
 /// level, member count).
 pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+    let Some(target) = guard::player_target(world, object_id) else {
         super::send_sm(
             world,
             client_id,
@@ -147,12 +146,7 @@ pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32)
         .get_component::<Player>(&target)
         .map(|p| p.name.clone())
         .unwrap_or_default();
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.clan_id)
-        .filter(|&c| c != 0)
-    else {
+    let Some(clan_id) = guard::clan_of(world, target) else {
         // Java sends THE_TARGET_MUST_BE_A_CLAN_MEMBER; that sysstring id isn't
         // in the ported table yet, so fall back to INVALID_TARGET.
         super::send_sm(
@@ -219,7 +213,7 @@ pub(super) fn admin_geo_pos(world: &mut World, client_id: u32, object_id: i32, s
 }
 
 pub(super) fn admin_geo_can_see(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_sm(
             world,
             client_id,
@@ -284,7 +278,7 @@ pub(super) fn admin_path_find(world: &mut World, client_id: u32, object_id: i32)
         send_message(world, client_id, "PathFinding is disabled.");
         return;
     }
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_message(world, client_id, "No Target!");
         return;
     };

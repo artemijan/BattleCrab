@@ -13,6 +13,7 @@
 //! feeds the movement pipeline's geodata exemptions and the packet fly
 //! fields.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{Collision, Position};
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -20,7 +21,7 @@ use crate::model::skill::OperateType;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
-use super::{current_target, send_message, send_sm};
+use super::{send_message, send_sm};
 
 /// The fixed npc ids `AdminRide` mounts (Java `petRideId`), with their
 /// `MountType` ordinal (1 strider, 2 wyvern, 3 wolf).
@@ -51,7 +52,7 @@ impl Mount {
 /// Java `AdminRide.getRideTarget` — the current target if it's a *different*
 /// player, else the GM.
 fn ride_target(world: &World, object_id: i32) -> i32 {
-    current_target(world, object_id)
+    guard::target(world, object_id)
         .filter(|&oid| oid != object_id && world.objects.has_component::<Player>(&oid))
         .unwrap_or(object_id)
 }

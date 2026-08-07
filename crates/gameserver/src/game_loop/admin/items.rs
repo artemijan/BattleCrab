@@ -2,12 +2,13 @@
 //! `//give_item_to_all`, `//create_coin`, the `//itemcreate`/`//enchant` HTML
 //! menus, and `AdminDestroyItems`' inventory-wipe commands.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::{current_target, send_message};
+use super::send_message;
 
 /// `AdminCreateItem`'s `//create_item [id] [num]` — create `num` (default 1) of
 /// item `id` on the GM, then (always, exactly like Java) reopen
@@ -109,9 +110,7 @@ pub(super) fn admin_give_item_target(
         );
         return;
     }
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
+    let target = guard::player_target(world, object_id).unwrap_or(object_id);
     let Some(tcid) = super::helpers::client_for_player(world, target) else {
         return;
     };
@@ -360,9 +359,7 @@ pub(super) fn admin_delete_quest_item(
                 return;
             }
         },
-        None => current_target(world, gm_oid)
-            .filter(|oid| world.objects.has_component::<Player>(oid))
-            .unwrap_or(gm_oid),
+        None => guard::player_target(world, gm_oid).unwrap_or(gm_oid),
     };
     let held = world
         .objects

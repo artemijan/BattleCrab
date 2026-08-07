@@ -9,6 +9,7 @@
 //! combat-stat overrides, the `ExBasicActionList` swap, additional-item
 //! inventory blocks) is not applied yet — documented TODO.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{
     BaseStats, Collision, CombatStats, SkillBook, Speeds, StatModifiers,
@@ -16,7 +17,7 @@ use crate::model::components::{
 use crate::model::inventory::Inventory;
 use crate::world::World;
 
-use super::{current_target, send_message, send_sm};
+use super::{send_message, send_sm};
 
 /// `//transform <id>` — transform the ride target (target player or GM) into the
 /// given transform id.
@@ -147,7 +148,7 @@ pub(super) fn admin_dismount_or_untransform(world: &mut World, object_id: i32) {
 /// Java `AdminRide.getRideTarget` — the current target if it's a *different*
 /// player, else the GM. (Mirrors [`mounts::ride_target`].)
 fn ride_target(world: &World, object_id: i32) -> i32 {
-    current_target(world, object_id)
+    guard::target(world, object_id)
         .filter(|&oid| oid != object_id && world.objects.has_component::<Player>(&oid))
         .unwrap_or(object_id)
 }

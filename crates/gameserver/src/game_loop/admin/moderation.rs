@@ -3,20 +3,20 @@
 //! management (`//changelvl`, `//gm`), targeting (`//target`), and
 //! `//serverinfo`.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::{current_target, find_online_player, send_message};
+use super::{find_online_player, send_message};
 
 /// `AdminKick`'s `//kick <name>` (or the targeted player) — the clean logout
 /// teardown: persist, despawn, and drop the session (Java `Disconnection.of`).
 pub(super) fn admin_kick(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
+        None => guard::player_target(world, object_id),
     };
     let Some(target) = target else {
         send_message(world, client_id, "Usage: //kick <player name>");
@@ -28,9 +28,7 @@ pub(super) fn admin_kick(world: &mut World, client_id: u32, object_id: i32, args
 /// `AdminDisconnect`'s `//character_disconnect` — disconnect the targeted
 /// player.
 pub(super) fn admin_character_disconnect(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+    let Some(target) = guard::player_target(world, object_id) else {
         send_message(world, client_id, "Select a player first.");
         return;
     };
@@ -114,9 +112,7 @@ pub(super) fn admin_changelvl(world: &mut World, client_id: u32, object_id: i32,
                 );
                 return;
             };
-            let target = current_target(world, object_id)
-                .filter(|oid| world.objects.has_component::<Player>(oid))
-                .unwrap_or(object_id);
+            let target = guard::player_target(world, object_id).unwrap_or(object_id);
             (target, level)
         }
         [name, level_str] => {
@@ -634,8 +630,7 @@ pub(super) fn admin_find_dualbox(world: &mut World, client_id: u32, args: &[&str
 pub(super) fn admin_tracert(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
+        None => guard::player_target(world, object_id),
     };
     let Some(target) = target else {
         send_message(world, client_id, "Usage: //tracert <player name>");
@@ -658,8 +653,7 @@ pub(super) fn admin_tracert(world: &mut World, client_id: u32, object_id: i32, a
 pub(super) fn admin_snoop(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
+        None => guard::player_target(world, object_id),
     };
     let Some(target) = target else {
         send_message(world, client_id, "Usage: //snoop <player name>");
@@ -694,8 +688,7 @@ pub(super) fn admin_snoop(world: &mut World, client_id: u32, object_id: i32, arg
 pub(super) fn admin_hwid(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
+        None => guard::player_target(world, object_id),
     };
     let Some(target) = target else {
         send_message(world, client_id, "Select a player first.");
@@ -873,10 +866,7 @@ pub(super) fn admin_punishment(world: &mut World, client_id: u32, object_id: i32
             let target = args
                 .get(1)
                 .and_then(|name| find_online_player(world, name))
-                .or_else(|| {
-                    super::current_target(world, object_id)
-                        .filter(|oid| world.objects.has_component::<Player>(oid))
-                });
+                .or_else(|| guard::player_target(world, object_id));
             let Some(target) = target else {
                 send_message(world, client_id, "You must target player!");
                 return;

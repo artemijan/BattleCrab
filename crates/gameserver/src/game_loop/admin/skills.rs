@@ -7,7 +7,7 @@ use crate::model::components::{Buffs, SkillBook};
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
-use super::{current_target, send_message};
+use super::send_message;
 
 /// `AdminSkill`'s `//add_skill <id> [level]` — grant a skill to the targeted
 /// player (or self) and refresh their skill list. Passive stat effects apply on
@@ -300,7 +300,7 @@ pub(super) fn admin_cast(world: &mut World, client_id: u32, object_id: i32, args
         );
         return;
     };
-    let target = current_target(world, object_id).unwrap_or(object_id);
+    let target = guard::target(world, object_id).unwrap_or(object_id);
     send_message(
         world,
         client_id,
@@ -357,7 +357,7 @@ pub(super) fn admin_buff(world: &mut World, client_id: u32, object_id: i32, args
         );
         return;
     };
-    let target = current_target(world, object_id).unwrap_or(object_id);
+    let target = guard::target(world, object_id).unwrap_or(object_id);
     crate::game_loop::skills::effects::apply_skill_effects(world, object_id, target, &skill);
 }
 
@@ -402,7 +402,7 @@ fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], 
                 return;
             }
         },
-        None => current_target(world, object_id)
+        None => guard::target(world, object_id)
             .filter(|oid| {
                 world.objects.has_component::<Player>(oid)
                     || world.objects.has_component::<crate::model::npc::Npc>(oid)
@@ -573,7 +573,7 @@ pub(super) fn admin_stopbuff(world: &mut World, client_id: u32, object_id: i32, 
         send_message(world, client_id, "Usage: //stopbuff <skillId>");
         return;
     };
-    let target = current_target(world, object_id).unwrap_or(object_id);
+    let target = guard::target(world, object_id).unwrap_or(object_id);
     crate::game_loop::skills::effects::handle_buff_expire(world, target, skill_id);
     send_message(world, client_id, &format!("Removed buff {skill_id}."));
 }
@@ -582,7 +582,7 @@ pub(super) fn admin_stopbuff(world: &mut World, client_id: u32, object_id: i32, 
 /// the target (passive grade-penalty pumps are kept). Each removal reverts its
 /// stat contribution through the buff-expiry path.
 pub(super) fn admin_stopallbuffs(world: &mut World, client_id: u32, object_id: i32) {
-    let target = current_target(world, object_id).unwrap_or(object_id);
+    let target = guard::target(world, object_id).unwrap_or(object_id);
     let count = crate::game_loop::skills::effects::expire_active_buffs(world, target);
     send_message(world, client_id, &format!("Removed {count} buff(s)."));
 }

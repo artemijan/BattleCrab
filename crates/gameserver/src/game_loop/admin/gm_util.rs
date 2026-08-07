@@ -9,6 +9,7 @@
 //! path — they need chat-snoop, live-config, olympiad or punishment systems the
 //! server has not ported.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef, Position};
 use crate::model::npc::Npc;
@@ -16,7 +17,7 @@ use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::{current_target, find_online_player, send_message, send_sm};
+use super::{find_online_player, send_message, send_sm};
 
 /// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the GM
 /// list. There is no `//gmlist` consumer yet, so this messages + re-shows the GM
@@ -113,7 +114,7 @@ pub(super) fn admin_online(world: &mut World, client_id: u32) {
 
 /// `AdminTargetSay`'s `//targetsay <text>` — make the current target say `text`.
 pub(super) fn admin_targetsay(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -362,8 +363,7 @@ pub(super) fn admin_kick_non_gm(world: &mut World, client_id: u32) {
 fn resolve_named_or_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
     match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
+        None => guard::player_target(world, object_id),
     }
 }
 
@@ -405,12 +405,7 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.clan_id)
-        .filter(|&c| c != 0)
-    else {
+    let Some(clan_id) = guard::clan_of(world, target) else {
         send_message(world, client_id, "Player is not in a clan.");
         recall_all(world, object_id, &[target]);
         return;
@@ -530,7 +525,7 @@ pub(super) fn admin_bbs(world: &mut World, client_id: u32, object_id: i32) {
 /// `AdminBuffs`' `//viewblockedeffects` — list the abnormal slots currently
 /// blocked on the target by live `BlockAbnormalSlot` effects.
 pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id).or(Some(object_id)) else {
+    let Some(target) = guard::target(world, object_id).or(Some(object_id)) else {
         return;
     };
     let mut blocked: Vec<String> = Vec::new();
@@ -724,7 +719,7 @@ pub(super) fn admin_set_exception(
 /// quest-state editor — the two were aliased here, so this button used to open
 /// the player menu and answer `INVALID_TARGET` on an NPC.
 pub(super) fn admin_show_quests(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_message(world, client_id, "Get a target first.");
         return;
     };
@@ -837,10 +832,8 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
     }
     match args.get(1).copied() {
         Some("give") => {
-            let clan_id = current_target(world, object_id)
-                .and_then(|oid| world.objects.get_component::<Player>(&oid))
-                .map(|p| p.clan_id)
-                .filter(|&c| c != 0);
+            let clan_id =
+                guard::target(world, object_id).and_then(|oid| guard::clan_of(world, oid));
             let Some(clan_id) = clan_id else {
                 send_message(world, client_id, "Target a member of the receiving clan.");
                 return;
