@@ -201,19 +201,9 @@ pub(crate) fn break_fake_death_on_damage(world: &mut World, object_id: i32) {
     if crate::game_loop::abnormal::flags_of(world, object_id) & effect_flag::FAKE_DEATH == 0 {
         return;
     }
-    let skill_ids: Vec<i32> = world
-        .objects
-        .get_component::<Buffs>(&object_id)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| x.effect_flags & effect_flag::FAKE_DEATH != 0)
-                .map(|x| x.skill_id)
-                .collect()
-        })
-        .unwrap_or_default();
-    for skill_id in skill_ids {
-        handle_buff_expire(world, object_id, skill_id);
-    }
+    expire_buffs_where(world, object_id, |_, buff| {
+        buff.effect_flags & effect_flag::FAKE_DEATH != 0
+    });
 }
 
 /// Java `EffectList.stopEffectsOnDamage()` — drop every live buff whose skill
@@ -231,25 +221,13 @@ pub(crate) fn break_fake_death_on_damage(world: &mut World, object_id: i32) {
 /// the same reason — nothing to keep in sync, and buffs restored from the DB on
 /// relog behave identically to freshly-cast ones.
 pub(crate) fn stop_effects_on_damage(world: &mut World, object_id: i32) {
-    let skill_ids: Vec<i32> = world
-        .objects
-        .get_component::<Buffs>(&object_id)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| {
-                    world
-                        .data
-                        .skill_data
-                        .get(x.skill_id, x.skill_level)
-                        .is_some_and(|s| s.removed_on_damage)
-                })
-                .map(|x| x.skill_id)
-                .collect()
-        })
-        .unwrap_or_default();
-    for skill_id in skill_ids {
-        handle_buff_expire(world, object_id, skill_id);
-    }
+    expire_buffs_where(world, object_id, |world, buff| {
+        world
+            .data
+            .skill_data
+            .get(buff.skill_id, buff.skill_level)
+            .is_some_and(|s| s.removed_on_damage)
+    });
 }
 
 /// How far one fear shove throws the victim — Java `Fear.FEAR_RANGE`.

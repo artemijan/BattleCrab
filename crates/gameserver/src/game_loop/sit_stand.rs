@@ -206,39 +206,26 @@ pub(crate) fn stand_up(world: &mut World, object_id: i32) {
 /// The port has no effect-flag index over live buffs, so membership is decided
 /// the same way the tick does: by looking for the effect on the buff's skill.
 fn stop_relaxing(world: &mut World, object_id: i32) {
-    let relaxing: Vec<i32> = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&object_id)
-        .map(|b| {
-            b.0.iter()
-                .filter(|a| !a.passive)
-                .filter(|a| {
-                    world
-                        .data
-                        .skill_data
-                        .get(a.skill_id, a.skill_level)
-                        .is_some_and(|s| {
-                            s.effects.iter().any(|e| {
-                                // Java stops everything carrying
-                                // `EffectFlag.RELAXING`, which is `Relax` and
-                                // `ChameleonRest` — the latter also carries
-                                // SILENT_MOVE, but it is the RELAXING half that
-                                // standing up cancels.
-                                matches!(
-                                    e,
-                                    crate::model::skill::SkillEffect::Relax { .. }
-                                        | crate::model::skill::SkillEffect::ChameleonRest { .. }
-                                )
-                            })
-                        })
+    crate::game_loop::skills::effects::expire_buffs_where(world, object_id, |world, buff| {
+        !buff.passive
+            && world
+                .data
+                .skill_data
+                .get(buff.skill_id, buff.skill_level)
+                .is_some_and(|s| {
+                    s.effects.iter().any(|e| {
+                        // Java stops everything carrying `EffectFlag.RELAXING`,
+                        // which is `Relax` and `ChameleonRest` — the latter also
+                        // carries SILENT_MOVE, but it is the RELAXING half that
+                        // standing up cancels.
+                        matches!(
+                            e,
+                            crate::model::skill::SkillEffect::Relax { .. }
+                                | crate::model::skill::SkillEffect::ChameleonRest { .. }
+                        )
+                    })
                 })
-                .map(|a| a.skill_id)
-                .collect()
-        })
-        .unwrap_or_default();
-    for skill_id in relaxing {
-        crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill_id);
-    }
+    });
 }
 
 /// `SitDownTask` — the animation is over, actions unblock. The character stays

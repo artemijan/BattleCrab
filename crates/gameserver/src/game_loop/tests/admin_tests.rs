@@ -6487,3 +6487,64 @@ fn give_clan_skills_refuses_with_javas_two_distinct_messages() {
         "and NOT INVALID_TARGET — a resolved player is a valid target"
     );
 }
+
+/// `Creature.stopAllEffects()` keeps passives — the single invariant that three
+/// call sites (`//stopallbuffs`, `//areacancel`, the olympiad's pre-match
+/// strip) now share through `expire_active_buffs`.
+///
+/// Passives carry grade penalties and the clan/residence pumps, which Java
+/// never clears here. Dropping the filter passed the whole suite before this
+/// test existed, so it is pinned at the shared helper's most dangerous edge.
+#[test]
+fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7831, 100);
+    let entry = |skill_id: i32, passive: bool| crate::model::skill::ActiveBuff {
+        displayed: !passive,
+        skill_id,
+        skill_level: 1,
+        abnormal_type_client_id: 0,
+        abnormal_type: format!("T{skill_id}"),
+        abnormal_level: 1,
+        slot: crate::model::skill::BuffSlot::Buff,
+        expires_at_tick: world.tick + 1000,
+        passive,
+        effect_flags: 0,
+        abnormal_visuals: Vec::new(),
+        blocked_abnormals: Vec::new(),
+        effects: Vec::new(),
+    };
+    world.objects.add_components(
+        &7831,
+        crate::model::components::Buffs(vec![
+            entry(1204, false), // Wind Walk — timed
+            entry(1078, false), // Concentration — timed
+            entry(313, true),   // a passive, must survive
+        ]),
+    );
+    drain(&mut gm_rx);
+
+    // confirmDlg="true" in the datapack: the command only prompts, and the
+    // DlgAnswer is what actually runs it.
+    on_packet(&mut world, 1, build_admin("stopallbuffs"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+
+    let left: Vec<(i32, bool)> = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&7831)
+        .map(|b| b.0.iter().map(|x| (x.skill_id, x.passive)).collect())
+        .unwrap_or_default();
+    assert_eq!(
+        left,
+        vec![(313, true)],
+        "only the passive survives //stopallbuffs"
+    );
+}
