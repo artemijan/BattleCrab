@@ -9,6 +9,7 @@
 //! most-hated specials). Skipped as off-chronicle: the Deinonychus Mesozoic
 //! Stone taming reward (Gracia-era item 14828).
 
+use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::AggroList;
@@ -324,11 +325,7 @@ fn monster_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
 /// hunts it — the Presentation - Tyranno crew skill, then a running charge.
 fn trex_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
     const CREW_SKILL: i32 = 6172;
-    let prey_id = ctx
-        .world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&creature)
-        .map(|n| n.npc_id);
+    let prey_id = npc_id_of(ctx.world, creature);
     if !prey_id.is_some_and(|id| VEGETABLE.contains(&id)) {
         return;
     }
@@ -468,11 +465,7 @@ fn most_hated(ctx: &QuestCtx, oid: i32) -> Option<i32> {
 /// The Sprigant trap beat: cast the trap AoE and re-arm, forever (they are
 /// stationary plants; the beat dies with the NPC).
 pub(crate) fn handle_sprigant_trap(world: &mut crate::world::World, npc_oid: i32) {
-    let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(world, npc_oid) else {
         return;
     };
     let dead = world

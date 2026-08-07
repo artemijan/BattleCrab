@@ -32,6 +32,7 @@ use crate::world::World;
 use super::helpers::ms_to_ticks;
 use super::helpers::{broadcast_near_region_in, instance_of};
 use super::skills::cast::set_skill_reuse;
+use crate::game_loop::helpers::npc_id_of;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.
 const SHORT_RANGE: f64 = 150.0;
@@ -44,11 +45,7 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
         return false;
     }
 
-    let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(world, npc_oid) else {
         return false;
     };
     let Some(template) = world.data.npc_data.get(npc_id) else {
@@ -826,11 +823,7 @@ fn pick_random(_world: &World, candidates: &[i32]) -> Option<i32> {
 /// Living NPCs within `range` that share a faction with this one (the same
 /// `shares_clan_with` test the help-call uses), excluding the caller.
 fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
-    let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(world, npc_oid) else {
         return Vec::new();
     };
     let (Some(mine), Some(pos), Some(region)) = (

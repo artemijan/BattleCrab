@@ -2,7 +2,8 @@
 
 use super::*;
 
-use crate::model::components::{Buffs, PlayerVitals, StatModifiers};
+use crate::game_loop::helpers::stat_mul;
+use crate::model::components::{Buffs, PlayerVitals};
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
 };
@@ -304,11 +305,7 @@ fn heal_effect_scales_received_healing() {
     assert!(unmodified > 0.0, "baseline heal landed: {unmodified}");
 
     land(&mut world, 9520, CASTER);
-    let mul = world
-        .objects
-        .get_component::<StatModifiers>(&CASTER)
-        .and_then(|m| m.mul.get(&Stat::HealEffect).copied())
-        .unwrap_or(1.0);
+    let mul = stat_mul(&world, CASTER, Stat::HealEffect);
     assert!((mul - 0.5).abs() < 1e-9, "-50 PER → x0.5, got {mul}");
 
     let modified = heal_once(&mut world);

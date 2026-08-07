@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::stat_mul;
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_player as send_sm, send_sm_to_player as send_sm_with,
 };
@@ -208,15 +209,11 @@ pub(crate) fn magic_success_input<'a>(
         skill_chance_penalty: penalty,
         // `target.getStat().getMul(MAGIC_SUCCESS_RES, 1)` — read off the
         // *target*, and 1.0 for anyone without Anti Magic / M. Def.
-        res_modifier: world
-            .objects
-            .get_component::<crate::model::components::StatModifiers>(&target_oid)
-            .and_then(|m| {
-                m.mul
-                    .get(&crate::model::stats::Stat::MagicSuccessRes)
-                    .copied()
-            })
-            .unwrap_or(1.0),
+        res_modifier: stat_mul(
+            world,
+            target_oid,
+            crate::model::stats::Stat::MagicSuccessRes,
+        ),
         magic_accuracy: world
             .objects
             .get_component::<CombatStats>(&caster_oid)

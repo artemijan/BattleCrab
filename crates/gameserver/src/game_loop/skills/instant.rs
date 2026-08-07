@@ -7,7 +7,7 @@
 //! equivalent because the match was the last statement in the effect loop.
 
 use crate::game_loop::helpers::client_for_player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, StatModifiers, Vitals};
+use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -20,6 +20,7 @@ use super::effects::{
     roll_magic_failure, send_sm, servitor_owner_of, skill_power_mul, skill_trait_mod, target_m_def,
     target_p_def,
 };
+use crate::game_loop::helpers::stat_mul;
 use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player};
 use crate::network::server_packets::{SmParam, sm_ids};
 
@@ -363,11 +364,7 @@ pub(super) fn blow(
             .unwrap_or(1.0);
         // `Stat.BLOW_RATE` (`FatalBlowRate` — Focus Death, Critical
         // Blow, Mortal Strike, Assassination), default 1.0.
-        let blow_rate_mod = world
-            .objects
-            .get_component::<StatModifiers>(&caster_oid)
-            .and_then(|m| m.mul.get(&crate::model::stats::Stat::BlowRate).copied())
-            .unwrap_or(1.0);
+        let blow_rate_mod = stat_mul(world, caster_oid, crate::model::stats::Stat::BlowRate);
         let name = caster_display_name(world, caster_oid);
         (p_atk, str_bonus, random_dmg, blow_rate_mod, name)
     };

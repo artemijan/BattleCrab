@@ -18,6 +18,7 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm};
+use crate::game_loop::helpers::npc_id_of;
 
 /// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the GM
 /// list. There is no `//gmlist` consumer yet, so this messages + re-shows the GM
@@ -724,10 +725,7 @@ pub(super) fn admin_show_quests(world: &mut World, client_id: u32, object_id: i3
         return;
     };
     // Java's gate is `isCreature()` — an NPC or a player, not a door/item.
-    let npc_id = world
-        .objects
-        .get_component::<Npc>(&target)
-        .map(|n| n.npc_id);
+    let npc_id = npc_id_of(world, target);
     if npc_id.is_none() && !world.objects.has_component::<Player>(&target) {
         send_message(world, client_id, "Invalid Target.");
         return;

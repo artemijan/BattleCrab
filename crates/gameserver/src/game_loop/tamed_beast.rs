@@ -9,6 +9,7 @@
 //! minutes. A 5 s `CheckOwnerBuffs` beat keeps the tamer buffed from the
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
+use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -285,11 +286,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
 /// top-stage animal — still furious at the feeder (Java's
 /// `"polymorph Mad Cow"` timer in `FeedableBeasts`).
 pub(crate) fn handle_mad_cow_polymorph(world: &mut World, cow_oid: i32, feeder_oid: i32) {
-    let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&cow_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(world, cow_oid) else {
         return;
     };
     let Some(next_id) = crate::scripts::feedable_beasts::mad_cow_reverts_to(npc_id) else {

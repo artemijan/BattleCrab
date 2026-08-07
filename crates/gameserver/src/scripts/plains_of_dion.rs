@@ -2,6 +2,7 @@
 //! themselves; interrupt one and it calls every idle clansman in help range
 //! onto you, with the appropriate indignation.
 
+use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::model::npc::AggroList;
@@ -138,12 +139,7 @@ impl QuestScript for PlainsOfDion {
 /// `broadcastSay(NPC_GENERAL, id[, $s1])` — region-scoped like
 /// `broadcastPacket`.
 fn say(ctx: &mut QuestCtx, npc_oid: i32, npc_string_id: i32, param: Option<&str>) {
-    let Some(npc_id) = ctx
-        .world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(ctx.world, npc_oid) else {
         return;
     };
     let pkt = match param {

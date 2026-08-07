@@ -37,6 +37,7 @@ use crate::world::{World, regions_adjacent};
 use super::helpers::{
     broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
 };
+use crate::game_loop::helpers::npc_id_of;
 
 mod player_death;
 mod progression;
@@ -171,10 +172,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // path; here it's an ordinary call after rewards — same tick, no
     // component borrow held). Killer-only: party quest sharing is deferred.
     {
-        let npc_id = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
-            .map(|n| n.npc_id);
+        let npc_id = npc_id_of(world, npc_oid);
         if let Some(npc_id) = npc_id {
             // Quest kill credit also follows the acting player: a pet's kill
             // has to advance its owner's quest.

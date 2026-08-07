@@ -41,6 +41,7 @@ use super::helpers::{
     broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of, ms_to_ticks,
 };
 use super::skills::cast::break_cast;
+use crate::game_loop::helpers::stat_mul;
 
 mod attack;
 mod damage;
@@ -286,15 +287,8 @@ pub(crate) fn crit_damage_skill(
     target_oid: i32,
     magic: bool,
 ) -> f64 {
-    use crate::model::components::StatModifiers;
     use crate::model::stats::Stat;
-    let mul_of = |oid: i32, s: Stat| {
-        world
-            .objects
-            .get_component::<StatModifiers>(&oid)
-            .and_then(|m| m.mul.get(&s).copied())
-            .unwrap_or(1.0)
-    };
+    let mul_of = |oid: i32, s: Stat| stat_mul(world, oid, s);
     // `Formulas.calcCritDamage`: with a skill involved the *skill* crit stats
     // are read, not `CRITICAL_DAMAGE` — the magic pair for a magic skill, the
     // physical-skill pair otherwise. The physical branch used to be a flat

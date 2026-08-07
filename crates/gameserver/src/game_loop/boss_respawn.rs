@@ -18,6 +18,7 @@
 //! [`spawn_all`]: crate::model::npc::spawn_all
 
 use crate::db::{DbCommand, NpcRespawnRow};
+use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -167,10 +168,7 @@ pub(crate) fn is_db_saved(world: &World, spawn_ref: (usize, usize, usize)) -> bo
 /// while the server was running (scheduled at boot by [`resolve_boot`]).
 pub(crate) fn handle_boss_respawn(world: &mut World, spawn_ref: (usize, usize, usize)) {
     if let Some(oid) = crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
-        && let Some(npc_id) = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&oid)
-            .map(|n| n.npc_id)
+        && let Some(npc_id) = npc_id_of(world, oid)
     {
         persist_alive(world, npc_id, oid);
     }

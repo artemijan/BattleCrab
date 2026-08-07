@@ -9,6 +9,7 @@ use tracing::info;
 use super::helpers::send_sm_bare_to_client as send_sm;
 use crate::db::DbCommand;
 use crate::enums::ChatType;
+use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::LotoPicks;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::model::lottery::LotteryRow;
@@ -386,11 +387,7 @@ pub(crate) fn loto_bypass(
 /// the second buy window; 22 confirm-buy; 23 jackpot; 24 winning-numbers/claim
 /// list; 25 instructions; >25 claim a ticket by its item object id.
 fn show_loto_window(world: &mut World, client_id: u32, player: i32, npc_oid: i32, value: i32) {
-    let Some(npc_id) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(world, npc_oid) else {
         return;
     };
 

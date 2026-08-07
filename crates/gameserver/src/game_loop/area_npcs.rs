@@ -9,6 +9,7 @@
 //! merchants (`ai/others/Mammons/*`) are the same shape and live here too.
 
 use crate::enums::ChatType;
+use crate::game_loop::helpers::npc_id_of;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
@@ -238,10 +239,7 @@ pub(crate) fn arm_castle_mass_teleport(world: &mut World, npc_oid: i32, delay_ms
 /// castle's owner-restart territory into the inner castle, and reset the
 /// gatekeeper so it can be armed again.
 pub(crate) fn handle_castle_mass_teleport(world: &mut World, npc_oid: i32) {
-    let Some((npc_id, x, y, z)) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
+    let Some((npc_id, x, y, z)) = npc_id_of(world, npc_oid)
         .zip(
             world
                 .objects

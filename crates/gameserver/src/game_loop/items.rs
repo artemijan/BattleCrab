@@ -4,6 +4,7 @@
 use tracing::warn;
 
 use crate::data::item_data::ItemHandler;
+use crate::game_loop::helpers::item_id_of;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
@@ -284,15 +285,7 @@ fn cursed_weapon_blocks_equip(world: &World, object_id: i32, item_object_id: i32
     {
         return false;
     }
-    let Some((item_id, body_part)) = world
-        .objects
-        .get_component::<Inventory>(&object_id)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == item_object_id)
-                .map(|i| i.item_id)
-        })
+    let Some((item_id, body_part)) = item_id_of(world, object_id, item_object_id)
         .map(|id| (id, world.data.item_data.get(id).map_or(0, |t| t.body_part)))
     else {
         return false;
@@ -1033,15 +1026,7 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         ItemHandler::ItemSkills => use_item_skills(world, client_id, object_id, item_object_id),
         ItemHandler::Seed => use_seed_item(world, client_id, object_id, item_object_id),
         ItemHandler::SoulShots | ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot => {
-            let item_id = world
-                .objects
-                .get_component::<Inventory>(&object_id)
-                .and_then(|inv| {
-                    inv.items()
-                        .iter()
-                        .find(|i| i.object_id == item_object_id)
-                        .map(|i| i.item_id)
-                });
+            let item_id = item_id_of(world, object_id, item_object_id);
             if let Some(item_id) = item_id {
                 charge_shot(world, object_id, item_id, handler, false);
             }
@@ -1059,15 +1044,7 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         // A fishing shot used by hand charges immediately (the fishing engine
         // otherwise charges it on cast via `rechargeShots(fish=true)`).
         ItemHandler::FishShots => {
-            let item_id = world
-                .objects
-                .get_component::<Inventory>(&object_id)
-                .and_then(|inv| {
-                    inv.items()
-                        .iter()
-                        .find(|i| i.object_id == item_object_id)
-                        .map(|i| i.item_id)
-                });
+            let item_id = item_id_of(world, object_id, item_object_id);
             if let Some(item_id) = item_id {
                 charge_fish_shot(world, object_id, item_id);
             }
@@ -1535,15 +1512,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
     if !world.cfg.general.allow_manor {
         return;
     }
-    let item_id = world
-        .objects
-        .get_component::<Inventory>(&object_id)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == item_object_id)
-                .map(|i| i.item_id)
-        });
+    let item_id = item_id_of(world, object_id, item_object_id);
     let Some(item_id) = item_id else {
         return;
     };
@@ -1659,15 +1628,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     // Park the collar's object id the same way; the effect *takes* it, so an
     // unused one cannot linger into an unrelated cast.
     {
-        let is_collar = world
-            .objects
-            .get_component::<Inventory>(&object_id)
-            .and_then(|inv| {
-                inv.items()
-                    .iter()
-                    .find(|i| i.object_id == item_object_id)
-                    .map(|i| i.item_id)
-            })
+        let is_collar = item_id_of(world, object_id, item_object_id)
             .is_some_and(|item_id| world.data.pet_data.is_pet_collar(item_id));
         if let Some(p) = world
             .objects

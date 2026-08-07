@@ -7,6 +7,7 @@
 //! The sibling `BeastFarm.java` (Gracia spice revamp, NPCs 18874+) never
 //! spawns on this dist — dead content, not ported.
 
+use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::RegionCell;
 
@@ -320,12 +321,7 @@ fn bark_at(ctx: &mut QuestCtx, npc_oid: i32, npc_string_id: i32) {
 }
 
 fn say_impl(ctx: &mut QuestCtx, npc_oid: i32, npc_string_id: i32, with_name: bool) {
-    let Some(npc_id) = ctx
-        .world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map(|n| n.npc_id)
-    else {
+    let Some(npc_id) = npc_id_of(ctx.world, npc_oid) else {
         return;
     };
     let pkt = if with_name {
