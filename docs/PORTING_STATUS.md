@@ -16,7 +16,7 @@ behaviours deliberately skipped and marked at the exact site in the code with a
 | State | Meaning |
 |---|---|
 | ✅ **Ported** | Gate met and verified. Any remaining gaps are `TODO(<tag>)` markers in the source — there are currently none. |
-| ◐ **Partial by design** | Same, but the recorded gaps are numerous or user-visible enough to call out here. |
+| ◐ **Partial by design** | Same, but the recorded gaps are numerous or user-visible enough to call out here. **No row is in this state today** — both that were, G24 and G30, turned out to be describing work that had since landed. |
 | ⛔ **Out of scope** | Deliberately not ported. Reasons in [§ Out of scope](#out-of-scope). |
 
 **Three sources of truth, in order of reliability.** Prose about what remains is
@@ -100,7 +100,7 @@ grep -rhoE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ --include='*.rs' | so
 | G21 | NPC AI & world-content breadth | ✅ | 0 |
 | G22 | Quest & script breadth | ✅ | 0 |
 | G23 | Grand bosses & raid bosses (all 10) | ✅ | 0 |
-| G24 | Castles, sieges & clan halls | ◐ Sieges, castles and clan halls are live; **castle crests, castle functions and territory war are not** | 0 |
+| G24 | Castles, sieges & clan halls | ✅ Sieges, castles and clan halls are live, and so are the two things this row long claimed were missing: castle crests (`Castle.showNpcCrest`, `siege::set_show_npc_crest`) and the rentable castle functions (`World.castle_functions` + the chamberlain console). **Territory War is not ported and will not be** — it is off-chronicle for Interlude; see § Out of scope | 0 |
 | G24.5 | Boats | ✅ | 0 |
 | G25 | Olympiad & hero | ✅ | 0 |
 | G26 | Manor & Mammon | ✅ — **Seven Signs does not exist in this dist**; the Interlude Classic build drops the subsystem entirely (no Java class survives), so there was nothing to port | 0 |
@@ -108,7 +108,7 @@ grep -rhoE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ --include='*.rs' | so
 | G27 | Instances | ✅ Engine complete (Olympiad arenas, Frintezza's tomb) | 0 |
 | G28 | Events engine & cursed weapons | ✅ | 0 |
 | G29 | Summons, pets, servitors, cubics | ✅ | 0 |
-| G30 | Mail, community board & party matching | ◐ Board home/buffer/gatekeeper/premium land; the **forum boards** (`_bbstop`/post/region/notice) are not ported | 0 |
+| G30 | Mail, community board & party matching | ✅ Mail, party matching and the board all land, the retail forum boards included — ported **to the reference's own depth**, which is shallow: Java itself leaves the `_bbsloc` detail, the Mail/Memo/Friends writes and `getRegionCount` as `// TODO: Implement.`, so the port's silences on those are parity, not gaps | 0 |
 | G30.5 | Item auction | ✅ | 0 |
 | G31 | Moderation, accounts, petitions & HWID | ✅ | 0 |
 | G32 | Fishing | ✅ | 0 |
