@@ -165,32 +165,21 @@ fn stop_effects_on_death(world: &mut World, player_oid: i32) {
     // stop that one effect, keep the rest.
     let sparing = effect_flag::NOBLESS_BLESSING | effect_flag::RESURRECTION_SPECIAL;
     let blessed = crate::game_loop::abnormal::flags_of(world, player_oid) & sparing != 0;
-    let Some(buffs) = world.objects.get_component::<Buffs>(&player_oid) else {
-        return;
-    };
-    let to_stop: Vec<i32> = buffs
-        .0
-        .iter()
-        .filter(|b| !b.passive)
-        .filter(|b| {
-            if blessed {
+    crate::game_loop::skills::effects::expire_buffs_where(world, player_oid, |world, buff| {
+        !buff.passive
+            && if blessed {
                 // `stopEffects(EffectFlag.NOBLESS_BLESSING)` /
                 // `stopEffects(EffectFlag.RESURRECTION_SPECIAL)` — that effect
                 // and nothing else.
-                b.effect_flags & sparing != 0
+                buff.effect_flags & sparing != 0
             } else {
                 !world
                     .data
                     .skill_data
-                    .get(b.skill_id, b.skill_level)
+                    .get(buff.skill_id, buff.skill_level)
                     .is_some_and(|s| s.stay_after_death)
             }
-        })
-        .map(|b| b.skill_id)
-        .collect();
-    for skill_id in to_stop {
-        crate::game_loop::skills::effects::handle_buff_expire(world, player_oid, skill_id);
-    }
+    });
 }
 
 /// Java `Player.isLucky()` — `getLevel() <= 9 && isAffectedBySkill(194)`.

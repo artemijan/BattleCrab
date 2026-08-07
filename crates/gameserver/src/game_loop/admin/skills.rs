@@ -517,19 +517,7 @@ pub(super) fn admin_areacancel(world: &mut World, client_id: u32, object_id: i32
         return;
     };
     for oid in super::creatures_in_range(world, object_id, radius, true, false) {
-        let skill_ids: Vec<i32> = world
-            .objects
-            .get_component::<Buffs>(&oid)
-            .map(|b| {
-                b.0.iter()
-                    .filter(|x| !x.passive)
-                    .map(|x| x.skill_id)
-                    .collect()
-            })
-            .unwrap_or_default();
-        for skill_id in skill_ids {
-            crate::game_loop::skills::effects::handle_buff_expire(world, oid, skill_id);
-        }
+        crate::game_loop::skills::effects::expire_active_buffs(world, oid);
     }
     send_message(
         world,
@@ -595,19 +583,6 @@ pub(super) fn admin_stopbuff(world: &mut World, client_id: u32, object_id: i32, 
 /// stat contribution through the buff-expiry path.
 pub(super) fn admin_stopallbuffs(world: &mut World, client_id: u32, object_id: i32) {
     let target = current_target(world, object_id).unwrap_or(object_id);
-    let skill_ids: Vec<i32> = world
-        .objects
-        .get_component::<Buffs>(&target)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| !x.passive)
-                .map(|x| x.skill_id)
-                .collect()
-        })
-        .unwrap_or_default();
-    let count = skill_ids.len();
-    for skill_id in skill_ids {
-        crate::game_loop::skills::effects::handle_buff_expire(world, target, skill_id);
-    }
+    let count = crate::game_loop::skills::effects::expire_active_buffs(world, target);
     send_message(world, client_id, &format!("Removed {count} buff(s)."));
 }

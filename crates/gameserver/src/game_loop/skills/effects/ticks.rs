@@ -317,6 +317,51 @@ pub(crate) fn handle_dam_over_time_tick(
     }
 }
 
+/// Java `EffectList.stopEffects(Predicate)` — take off every buff the predicate
+/// selects, and return how many were removed.
+///
+/// Eight call sites had open-coded the same three steps: read `Buffs`, collect
+/// the matching `skill_id`s into a `Vec`, then loop [`handle_buff_expire`] over
+/// it. Only the predicate ever differed, and the `Vec` is not an incidental
+/// detail — it is what ends the immutable borrow of `Buffs` before the loop
+/// starts mutating the world, so open-coding it invites someone to "simplify"
+/// the collect away into a borrow error, or worse, to iterate a list that the
+/// expiry is concurrently editing.
+///
+/// The predicate takes `&World` because several callers decide from the skill
+/// table (`removed_on_damage`, `stay_after_death`, `operate_type`) rather than
+/// from the buff row alone.
+pub(crate) fn expire_buffs_where(
+    world: &mut World,
+    object_id: i32,
+    matches: impl Fn(&World, &crate::model::skill::ActiveBuff) -> bool,
+) -> usize {
+    let skill_ids: Vec<i32> = world
+        .objects
+        .get_component::<Buffs>(&object_id)
+        .map(|b| {
+            b.0.iter()
+                .filter(|buff| matches(world, buff))
+                .map(|buff| buff.skill_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    let count = skill_ids.len();
+    for skill_id in skill_ids {
+        handle_buff_expire(world, object_id, skill_id);
+    }
+    count
+}
+
+/// Java `Creature.stopAllEffects()` — drop every *timed* buff, keeping passives.
+///
+/// The passive filter is the whole point: passives carry grade penalties and
+/// clan/residence pumps that Java never clears here, so a caller that forgets
+/// it silently strips them.
+pub(crate) fn expire_active_buffs(world: &mut World, object_id: i32) -> usize {
+    expire_buffs_where(world, object_id, |_, buff| !buff.passive)
+}
+
 /// `BuffFinishTask`, fired when a buff's `abnormalTime` elapses
 /// (`ScheduledTask::BuffExpire`). A buff already gone (re-cast/replaced) is a
 /// no-op, matching the scheduler's dead-id contract.

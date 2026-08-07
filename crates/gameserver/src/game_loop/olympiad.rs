@@ -860,19 +860,7 @@ pub(crate) fn handle_countdown(world: &mut World, arena: usize, step: usize) {
 /// `AbstractOlympiadGame.removeBuffs`: drop every active (non-passive) buff so
 /// nobody enters the arena pre-buffed.
 pub(crate) fn strip_buffs(world: &mut World, object_id: i32) {
-    let skills: Vec<i32> = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&object_id)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| !x.passive)
-                .map(|x| x.skill_id)
-                .collect()
-        })
-        .unwrap_or_default();
-    for skill_id in skills {
-        crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill_id);
-    }
+    crate::game_loop::skills::effects::expire_active_buffs(world, object_id);
 }
 
 /// `OlympiadGameTask` poll: a fighter who died or vanished loses; both surviving

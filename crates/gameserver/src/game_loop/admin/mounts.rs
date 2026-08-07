@@ -14,7 +14,7 @@
 //! fields.
 
 use crate::model::Player;
-use crate::model::components::{Buffs, Collision, Position};
+use crate::model::components::{Collision, Position};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::OperateType;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -207,25 +207,15 @@ fn disarm_hands(world: &mut World, target: i32) -> bool {
 /// (mounted players can't keep toggles up; `Player.useMagic` blocks
 /// re-lighting them while mounted in Java).
 fn stop_all_toggles(world: &mut World, target: i32) {
-    let toggles: Vec<i32> = world
-        .objects
-        .get_component::<Buffs>(&target)
-        .map(|b| {
-            b.0.iter()
-                .map(|x| x.skill_id)
-                .filter(|&id| {
-                    world
-                        .data
-                        .skill_data
-                        .get(id, 1)
-                        .is_some_and(|s| s.operate_type == OperateType::Toggle)
-                })
-                .collect()
-        })
-        .unwrap_or_default();
-    for skill_id in toggles {
-        crate::game_loop::skills::effects::handle_buff_expire(world, target, skill_id);
-    }
+    // Level 1 (not the buff's own level) is what the original lookup used, and
+    // `operate_type` does not vary by level.
+    crate::game_loop::skills::effects::expire_buffs_where(world, target, |world, buff| {
+        world
+            .data
+            .skill_data
+            .get(buff.skill_id, 1)
+            .is_some_and(|s| s.operate_type == OperateType::Toggle)
+    });
 }
 
 /// Java `Player.dismount()` — refuse mid-air/over-water dismounts, then clear
