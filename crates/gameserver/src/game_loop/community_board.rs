@@ -27,11 +27,17 @@
 //!   - the `_bbsteleport` 3 s skill lock (`SkillsDisabled` + a timed
 //!     re-enable) and the retail home's favorite counter.
 //!
-//! TODO(G30): the retail **forum boards** (`_bbsloc`/`_bbsclan`/`_bbsmail`,
-//! the `RequestBBSwrite` Topic/Post/Region/Notice commands, and the home
-//! page's region/clan counters). Unreachable in production: this dist runs
-//! `CustomCommunityBoard = True`, whose navigation never links to them — an
-//! operator must flip the config off to even see the retail home.
+//! The retail boards are ported to the reference's own depth — which is
+//! shallower than their names suggest: `_bbsloc` renders the region list off
+//! the castles (its per-region detail is `// TODO: Implement.` in Java
+//! itself), `_maillist`/`_bbsmemo`/`_friendlist` serve their html shells
+//! (their writes are Java TODOs too), and the home page's `%region_count%`
+//! is 0 because Java's `getRegionCount` returns 0. The one board with real
+//! machinery is the clan board: the paginated clan list, the clan home page,
+//! and the clan notice (edit / enable / disable + the `Notice Set` write),
+//! stored in `clan_notices` and popped up to members at login while enabled.
+//! All of it unreachable in production — `CustomCommunityBoard = True` never
+//! links here — ported per the config-disabled rule.
 
 use tracing::warn;
 
@@ -118,6 +124,16 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
         "_bbsexcmultisell" => do_multisell(world, client_id, object_id, command, true),
         "_bbssell" => do_sell(world, client_id, object_id, command),
         "_bbsdelevel" => do_delevel(world, client_id, object_id),
+        "_bbsloc" => show_region_board(world, client_id, object_id, command),
+        "_bbsclan"
+        | "_bbsclan_clanlist"
+        | "_bbsclan_clanhome"
+        | "_bbsclan_clannotice_edit"
+        | "_bbsclan_clannotice_enable"
+        | "_bbsclan_clannotice_disable" => show_clan_board(world, client_id, object_id, command),
+        "_maillist" => show_shell(world, client_id, object_id, "mail.html", command),
+        "_bbsmemo" => show_shell(world, client_id, object_id, "memo.html", command),
+        "_friendlist" => show_shell(world, client_id, object_id, "friends_list.html", command),
         other => {
             warn!("CommunityBoard: unhandled/unported command [{other}] (full: [{command}]).");
         }
@@ -128,16 +144,319 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
 /// submit. Java maps `url` → a `_bbs*` write command (Topic/Region/Notice),
 /// all of which target the retail forum boards that are deferred here, so we
 /// answer Java's "not implemented yet" page for every `url`.
-pub(crate) fn handle_write_command(world: &mut World, client_id: u32, url: &str) {
+pub(crate) fn handle_write_command(
+    world: &mut World,
+    client_id: u32,
+    url: &str,
+    args: &[String; 5],
+) {
     if !world.cfg.community_board.enabled {
         return;
     }
-    // Topic/Post/Region/Notice all target the retail forum boards — the one
-    // remaining G30 deferral, see the module header.
+    // `ClanBoard.writeCommunityBoardCommand` — "the only Write bypass that
+    // comes to this handler is `Write Notice Set _ Content Content Content`":
+    // arg1 = "Set", arg3 = the notice text. Every other write target
+    // (Topic/Post/Region/Mail/Memo) is `// TODO: Implement.` in Java itself,
+    // so the not-implemented answer below IS the reference's behaviour.
+    if url == "Notice" && args[0] == "Set" {
+        let Some(object_id) = world.player_oid(client_id) else {
+            return;
+        };
+        let Some(clan_id) = clan_of(world, object_id) else {
+            return;
+        };
+        let is_leader = world
+            .clans
+            .get(&clan_id)
+            .is_some_and(|c| c.leader_id == object_id);
+        if is_leader {
+            let enabled = world
+                .clan_notices
+                .get(&clan_id)
+                .map(|(e, _)| *e)
+                .unwrap_or(false);
+            world
+                .clan_notices
+                .insert(clan_id, (enabled, args[2].clone()));
+            let _ = world.db.send(crate::db::DbCommand::SaveClanNotice {
+                clan_id,
+                enabled,
+                notice: args[2].clone(),
+            });
+            show_clan_board(world, client_id, object_id, "_bbsclan_clannotice_edit");
+        }
+        return;
+    }
     let html = format!(
         "<html><body><br><br><center>The command: {url} is not implemented yet.</center><br><br></body></html>"
     );
     send_cb_html(world, client_id, &html);
+}
+
+/// `RegionBoard`: `_bbsloc` renders the nine regions off the castles — name
+/// fstring, owning clan + alliance, buy-tax. The per-region detail
+/// (`_bbsloc;id`) is `// TODO: Implement.` in Java itself, so a valid id gets
+/// Java's silent nothing (an invalid one, Java's warn).
+fn show_region_board(world: &mut World, client_id: u32, object_id: i32, command: &str) {
+    if let Some(id) = command.strip_prefix("_bbsloc;") {
+        if id.parse::<u32>().is_err() {
+            warn!("CommunityBoard: player {object_id} sent an invalid region bypass [{command}].");
+        }
+        return;
+    }
+    world
+        .cb_last_bypass
+        .insert(object_id, ("Region".to_string(), command.to_string()));
+    // The region-name npcstring ids, castle 1..=9 (Java `REGIONS`).
+    const REGIONS: [i32; 9] = [1049, 1052, 1053, 1057, 1060, 1059, 1248, 1247, 1056];
+    let root = world.data.root.clone();
+    let Some(row_tpl) = read_html(&root, "data/html/CommunityBoard/region_list.html") else {
+        return;
+    };
+    let mut rows = String::new();
+    for (i, name) in REGIONS.iter().enumerate() {
+        let castle_id = i as i32 + 1;
+        let owner = crate::game_loop::siege::owner_clan_id_opt(world, castle_id)
+            .and_then(|id| world.clans.get(&id));
+        let (clan_name, ally_name) = owner
+            .map(|c| (c.name.clone(), c.ally_name.clone()))
+            .unwrap_or(("NPC".to_string(), String::new()));
+        let tax = crate::game_loop::castle::tax_percent(
+            world,
+            castle_id,
+            crate::model::castle::TaxType::Buy,
+        );
+        rows.push_str(
+            &row_tpl
+                .replace("%region_id%", &i.to_string())
+                .replace("%region_name%", &name.to_string())
+                .replace("%region_owning_clan%", &clan_name)
+                .replace("%region_owning_clan_alliance%", &ally_name)
+                .replace("%region_tax_rate%", &format!("{tax}%")),
+        );
+    }
+    let Some(html) = read_html(&root, "data/html/CommunityBoard/region.html") else {
+        return;
+    };
+    send_cb_html(world, client_id, &html.replace("%region_list%", &rows));
+}
+
+/// A retail board that is just an html shell in Java (`MailBoard`,
+/// `MemoBoard`, `FriendsBoard` — their writes are Java TODOs).
+fn show_shell(world: &mut World, client_id: u32, object_id: i32, file: &str, command: &str) {
+    world
+        .cb_last_bypass
+        .insert(object_id, ("Board".to_string(), command.to_string()));
+    let root = world.data.root.clone();
+    if let Some(html) = read_html(&root, &format!("data/html/CommunityBoard/{file}")) {
+        send_cb_html(world, client_id, &html);
+    }
+}
+
+/// `ClanBoard`: the clan list (7 per page), the clan home page, and the
+/// notice edit/enable/disable flow.
+fn show_clan_board(world: &mut World, client_id: u32, object_id: i32, command: &str) {
+    let my_clan = clan_of(world, object_id);
+    world
+        .cb_last_bypass
+        .insert(object_id, ("Clan".to_string(), command.to_string()));
+    let arg = command
+        .split(';')
+        .nth(1)
+        .and_then(|a| a.parse::<i32>().ok());
+    match first_token(command) {
+        "_bbsclan" => {
+            let eligible = my_clan
+                .and_then(|id| world.clans.get(&id))
+                .is_some_and(|c| c.level >= 2);
+            if eligible {
+                clan_home(world, client_id, object_id, my_clan.unwrap());
+            } else {
+                clan_list(world, client_id, object_id, 1);
+            }
+        }
+        "_bbsclan_clanlist" => clan_list(world, client_id, object_id, arg.unwrap_or(1)),
+        "_bbsclan_clanhome" => {
+            let target = arg.or(my_clan);
+            if let Some(id) = target {
+                clan_home(world, client_id, object_id, id);
+            }
+        }
+        "_bbsclan_clannotice_edit" => clan_notice_page(world, client_id, object_id),
+        "_bbsclan_clannotice_enable" | "_bbsclan_clannotice_disable" => {
+            let enable = command.starts_with("_bbsclan_clannotice_enable");
+            if let Some(clan_id) = my_clan {
+                let text = world
+                    .clan_notices
+                    .get(&clan_id)
+                    .map(|(_, t)| t.clone())
+                    .unwrap_or_default();
+                world.clan_notices.insert(clan_id, (enable, text.clone()));
+                let _ = world.db.send(crate::db::DbCommand::SaveClanNotice {
+                    clan_id,
+                    enabled: enable,
+                    notice: text,
+                });
+            }
+            clan_notice_page(world, client_id, object_id);
+        }
+        _ => {}
+    }
+}
+
+/// Java `ClanBoard.clanList` — 7 clans per page with the paging buttons.
+fn clan_list(world: &mut World, client_id: u32, _object_id: i32, page: i32) {
+    let page = page.max(1);
+    let mut clans: Vec<(i32, String, String, i32, usize)> = world
+        .clans
+        .values()
+        .map(|c| {
+            let leader = c
+                .members
+                .iter()
+                .find(|m| m.char_id == c.leader_id)
+                .map(|m| m.name.clone())
+                .unwrap_or_default();
+            (c.id, c.name.clone(), leader, c.level, c.members.len())
+        })
+        .collect();
+    clans.sort_by_key(|c| c.0);
+    let mut html = String::from(
+        "<html><body><br><br><center><table border=0 width=610><tr><td><a action=\"bypass _bbsclan_clanlist\">CLAN COMMUNITY</a></td></tr></table>\
+         <table border=0 cellspacing=0 cellpadding=2 bgcolor=5A5A5A width=610><tr>\
+         <td FIXWIDTH=200 align=center>CLAN NAME</td><td FIXWIDTH=200 align=center>CLAN LEADER</td>\
+         <td FIXWIDTH=100 align=center>CLAN LEVEL</td><td FIXWIDTH=100 align=center>CLAN MEMBERS</td></tr></table>",
+    );
+    // Java's window: rows `(page-1)*7 ..` and stop past `(page+1)*7` — its own
+    // quirky over-wide bound, kept.
+    for (i, (id, name, leader, level, members)) in clans.iter().enumerate() {
+        if i as i32 > (page + 1) * 7 {
+            break;
+        }
+        if (i as i32) < (page - 1) * 7 {
+            continue;
+        }
+        html.push_str(&format!(
+            "<table border=0 width=610><tr>\
+             <td FIXWIDTH=200 align=center><a action=\"bypass _bbsclan_clanhome;{id}\">{name}</a></td>\
+             <td FIXWIDTH=200 align=center>{leader}</td>\
+             <td FIXWIDTH=100 align=center>{level}</td>\
+             <td FIXWIDTH=100 align=center>{members}</td></tr></table>",
+        ));
+    }
+    if page > 1 {
+        html.push_str(&format!(
+            "<a action=\"bypass _bbsclan_clanlist;{}\">&lt; prev</a> ",
+            page - 1
+        ));
+    }
+    if (clans.len() as i32) > page * 7 {
+        html.push_str(&format!(
+            "<a action=\"bypass _bbsclan_clanlist;{}\">next &gt;</a>",
+            page + 1
+        ));
+    }
+    html.push_str("</center></body></html>");
+    send_cb_html(world, client_id, &html);
+}
+
+/// Java `ClanBoard.clanHome` — the clan info page (level ≥ 2, else back to
+/// the list with SM 1050).
+fn clan_home(world: &mut World, client_id: u32, object_id: i32, clan_id: i32) {
+    let Some((name, level, members, leader, ally)) = world.clans.get(&clan_id).map(|c| {
+        let leader = c
+            .members
+            .iter()
+            .find(|m| m.char_id == c.leader_id)
+            .map(|m| m.name.clone())
+            .unwrap_or_default();
+        (
+            c.name.clone(),
+            c.level,
+            c.members.len(),
+            leader,
+            c.ally_name.clone(),
+        )
+    }) else {
+        return;
+    };
+    if level < 2 {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::server_packets::system_message_with(
+                crate::network::server_packets::sm_ids::NO_CLAN_COMMUNITY_UNDER_LEVEL_2,
+                &[],
+            ));
+        }
+        return clan_list(world, client_id, object_id, 1);
+    }
+    let html = format!(
+        "<html><body><br><br><center>\
+         <table border=0 width=610><tr><td><a action=\"bypass _bbshome\">HOME</a> &gt; \
+         <a action=\"bypass _bbsclan_clanlist\">CLAN COMMUNITY</a></td></tr></table>\
+         <table border=0 width=610 bgcolor=434343><tr><td>\
+         <a action=\"bypass _bbsclan_clannotice_edit;{clan_id};cnotice\">[CLAN NOTICE]</a></td></tr></table>\
+         <table border=0 width=610>\
+         <tr><td FIXWIDTH=100>CLAN NAME</td><td FIXWIDTH=195>{name}</td></tr>\
+         <tr><td FIXWIDTH=100>CLAN LEVEL</td><td FIXWIDTH=195>{level}</td></tr>\
+         <tr><td FIXWIDTH=100>CLAN MEMBERS</td><td FIXWIDTH=195>{members}</td></tr>\
+         <tr><td FIXWIDTH=100>CLAN LEADER</td><td FIXWIDTH=195>{leader}</td></tr>\
+         <tr><td FIXWIDTH=100>ALLIANCE</td><td FIXWIDTH=195>{ally}</td></tr>\
+         </table></center></body></html>",
+    );
+    send_cb_html(world, client_id, &html);
+}
+
+/// Java `ClanBoard.clanNotice` — the leader's edit form (with the on/off
+/// toggle and the `Write Notice Set` MultiEdit) or the member's read view.
+fn clan_notice_page(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(clan_id) = clan_of(world, object_id) else {
+        return;
+    };
+    let is_leader = world
+        .clans
+        .get(&clan_id)
+        .is_some_and(|c| c.leader_id == object_id);
+    let (enabled, text) = world
+        .clan_notices
+        .get(&clan_id)
+        .cloned()
+        .unwrap_or((false, String::new()));
+    let mut html = String::from("<html><body><br><br><center>");
+    if is_leader {
+        let toggle = if enabled {
+            "Clan Notice Function: on / <a action=\"bypass _bbsclan_clannotice_disable\">off</a>"
+        } else {
+            "Clan Notice Function: <a action=\"bypass _bbsclan_clannotice_enable\">on</a> / off"
+        };
+        html.push_str(&format!(
+            "<table width=610><tr><td>The Clan Notice function allows the clan leader to send \
+             messages through a pop-up window to clan members at login.</td></tr>\
+             <tr><td>{toggle}</td></tr></table>\
+             <table width=610><tr><td>Edit Notice:</td></tr>\
+             <tr><td><MultiEdit var=\"Content\" width=610 height=100></td></tr></table>\
+             <button value=\"&$140;\" action=\"Write Notice Set _ Content Content Content\" \
+             back=\"l2ui_ch3.smallbutton2_down\" width=65 height=20 fore=\"l2ui_ch3.smallbutton2\">",
+        ));
+    } else {
+        html.push_str(
+            "<table><tr><td>You are not your clan's leader, and therefore cannot change the clan notice</td></tr></table>",
+        );
+        if enabled {
+            html.push_str(&format!(
+                "<table width=610><tr><td>The current clan notice:</td></tr><tr><td>{text}</td></tr></table>",
+            ));
+        }
+    }
+    html.push_str("</center></body></html>");
+    send_cb_html(world, client_id, &html);
+}
+
+fn clan_of(world: &World, object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| p.clan_id)
+        .filter(|&id| id != 0)
 }
 
 /// `//bbs` (AdminBBS) — the GM shortcut onto the board's home page.
@@ -183,8 +502,9 @@ fn show_home(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         // boards (see the module header's deferral).
         let favs = world.bbs_favorites.get(&object_id).map_or(0, |f| f.len());
         html = html.replace("%fav_count%", &favs.to_string());
+        // `getRegionCount` returns 0 in Java itself (`// TODO: Implement.`).
         html = html.replace("%region_count%", "0");
-        html = html.replace("%clan_count%", "0");
+        html = html.replace("%clan_count%", &world.clans.len().to_string());
     }
 
     send_cb_html(world, client_id, &html);

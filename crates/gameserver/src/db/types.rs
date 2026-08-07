@@ -405,6 +405,13 @@ pub enum DbCommand {
     },
     /// `ADD_CHAR_SUBCLASS` / `UPDATE_CHAR_SUBCLASS` — upsert one subclass slot.
     /// Keyed on `(charId, class_id)` like Java's primary key.
+    /// `Clan.storeNotice` — upsert one `clan_notices` row (the board's clan
+    /// notice edit / enable / disable).
+    SaveClanNotice {
+        clan_id: i32,
+        enabled: bool,
+        notice: String,
+    },
     /// `Player.modifySubClass`'s delete block: drop one slot's
     /// `character_subclasses` row (keyed by the old class id) and every
     /// per-index row — skills, hennas, shortcuts, skill reuses — for that
@@ -1116,6 +1123,8 @@ pub enum DbEvent {
         recruit_clans: Vec<crate::model::clan_entry::PledgeRecruitInfo>,
         recruit_waiting: Vec<crate::model::clan_entry::PledgeWaitingInfo>,
         recruit_applicants: Vec<crate::model::clan_entry::PledgeApplicantInfo>,
+        /// `clan_notices` rows as `clan_id → (enabled, notice)`.
+        notices: Vec<(i32, bool, String)>,
     },
     /// The whole `npc_respawns` table (Java `DBSpawnManager.load`), pushed
     /// unprompted at boot. See [`NpcRespawnRow`].

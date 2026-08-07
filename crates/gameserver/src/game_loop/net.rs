@@ -1252,7 +1252,12 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             recruit_clans,
             recruit_waiting,
             recruit_applicants,
+            notices,
         } => {
+            world.clan_notices = notices
+                .into_iter()
+                .map(|(id, enabled, text)| (id, (enabled, text)))
+                .collect();
             tracing::info!(
                 "GameLoop: loaded {} clans, {} clan wars, {} crests, {} recruiting clans, \
                  {} waiting players, {} applications.",

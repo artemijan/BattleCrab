@@ -688,6 +688,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // the player manually re-equipped it — the stat half included, not just the
     // G15.5 skill half this sits next to.
     super::options::apply_equipped_item_options(world, object_id);
+    // Java `EnterWorld`'s clan-notice popup: an enabled notice greets every
+    // member at login (`data/html/clanNotice.htm`).
+    show_clan_notice_at_login(world, client_id, object_id);
     // Java `restoreCharData`/`addSkill` also pumps armor-conditioned passives
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.
@@ -816,4 +819,38 @@ pub(crate) fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) 
         .login
         .link
         .send(LoginLinkCommand::PlayerAuthRequest { account, key });
+}
+
+/// Java `EnterWorld`'s `showClanNotice` block: a clan member whose clan has
+/// its notice enabled gets `clanNotice.htm` as a popup, newlines folded to
+/// `<br>` exactly as Java does.
+fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(clan_id) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| p.clan_id)
+        .filter(|&id| id != 0)
+    else {
+        return;
+    };
+    let Some((true, text)) = world.clan_notices.get(&clan_id).cloned() else {
+        return;
+    };
+    let clan_name = world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.name.clone())
+        .unwrap_or_default();
+    let Some(html) =
+        crate::data::htm_cache::read_htm(format!("{}data/html/clanNotice.htm", world.data.root))
+    else {
+        return;
+    };
+    let html = html.replace("%clan_name%", &clan_name).replace(
+        "%notice_text%",
+        &text.replace("\r\n", "<br>").replace('\n', "<br>"),
+    );
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::server_packets::npc_html_message(0, &html));
+    }
 }

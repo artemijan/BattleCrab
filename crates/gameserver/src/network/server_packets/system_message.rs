@@ -131,6 +131,9 @@ pub mod sm_ids {
     pub const YOU_HAVE_EQUIPPED_YOUR_S1: i16 = 49;
     /// `Equipped +$s1 $s2.` — the staged craft's per-grab line.
     pub const EQUIPPED_S1_S2: i16 = 368;
+    /// `There are no communities in my clan. Clan communities are allowed for
+    /// clans with skill levels of 2 and higher.`
+    pub const NO_CLAN_COMMUNITY_UNDER_LEVEL_2: i16 = 1050;
     // Shadow-item mana countdown (`Item.decreaseMana`) — the warnings a worn
     // shadow weapon prints as its charge runs out, then its farewell.
     /// `$s1's remaining Mana is now 10.`
