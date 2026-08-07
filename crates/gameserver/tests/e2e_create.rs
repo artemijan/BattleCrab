@@ -449,14 +449,20 @@ fn u16str(s: &str) -> Vec<u8> {
 // present, so a fresh checkout / CI runs it as a no-op.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn full_login_to_character_create() {
-    // The runtime DB is an untracked working-tree file; skip on a fresh checkout
-    // / git worktree that lacks it (runs on main and CI). Guard before the
-    // global cwd change so a skipped run leaves the process cwd untouched.
-    let src = concat!(env!("CARGO_MANIFEST_DIR"), "/../../interlude_classic.db");
-    if !std::path::Path::new(src).exists() {
-        eprintln!("skipping full_login_to_character_create: {src} not present");
+    // The runtime DB is an untracked working-tree file. A fixed `../../` finds
+    // it only from the main checkout — from a git worktree (this repo's normal
+    // workflow) it resolves to the worktree root and the test silently skipped.
+    // Walking up the ancestors finds the checkout's copy, so a worktree run
+    // gets the same coverage; only a fresh clone skips. Guard before the global
+    // cwd change so a skipped run leaves the process cwd untouched.
+    let Some(src) = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .map(|d| d.join("interlude_classic.db"))
+        .find(|p| p.exists())
+    else {
+        eprintln!("skipping full_login_to_character_create: no interlude_classic.db found");
         return;
-    }
+    };
     std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
 
     // Fresh characters DB copied from the real one.
