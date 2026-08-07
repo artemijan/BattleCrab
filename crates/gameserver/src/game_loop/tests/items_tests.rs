@@ -2494,6 +2494,89 @@ fn drop_and_pickup_ground_item() {
     );
 }
 
+/// An enchanted item keeps its `+N` across drop → pickup.
+///
+/// Java gets this for free: both sides move the same `Item` instance between
+/// containers. This port mints a fresh instance on the give path, so the level
+/// has to be carried across explicitly — and until it was, dropping a `+7`
+/// weapon and picking it straight back up silently returned it at `+0`.
+///
+/// The assertion is on the *enchant of the instance in the bag*, not merely on
+/// the item being back: the old behaviour returned the item too.
+#[test]
+fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9200, 0);
+    drain(&mut rx);
+
+    // Short Sword — non-stackable (a distinct instance) and genuinely
+    // dropable. The starter Squire's Sword is `is_dropable="false"`, so a drop
+    // of it is correctly refused and would make this test vacuous.
+    const SWORD: i32 = 1;
+    super::items::add_inventory_item(&mut world, 9200, SWORD, 1).expect("sword");
+    let sword_oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&9200)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == SWORD)
+        .unwrap()
+        .object_id;
+    world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&9200)
+        .unwrap()
+        .set_enchant_level(sword_oid, 7);
+
+    let ground_oid = world.next_npc_object_id;
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_DROP_ITEM);
+    w.write_i32(sword_oid);
+    w.write_i64(1);
+    w.write_i32(DROP_AT.0);
+    w.write_i32(DROP_AT.1);
+    w.write_i32(DROP_AT.2);
+    on_packet(&mut world, 1, w.into_bytes());
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::GroundItem>(&ground_oid)
+            .expect("ground item spawned")
+            .enchant,
+        7,
+        "the drop side records the enchant"
+    );
+
+    let mut a = PacketWriter::new();
+    a.write_u8(cop::ACTION);
+    a.write_i32(ground_oid);
+    a.write_i32(0);
+    a.write_i32(0);
+    a.write_i32(0);
+    a.write_u8(0);
+    on_packet(&mut world, 1, a.into_bytes());
+    advance_world(&mut world, 300);
+
+    let picked_enchant = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&9200)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == SWORD)
+        .expect("sword back in the bag")
+        .enchant_level;
+    assert_eq!(
+        picked_enchant, 7,
+        "and the pickup restores it — not a fresh +0 instance"
+    );
+}
+
 /// Where the drop tests aim: within `RequestDropItem`'s 150/50 box of the
 /// dummy character's `(1, 2, 3)`, the way a real client's cursor position is.
 const DROP_AT: (i32, i32, i32) = (61, 72, 13);

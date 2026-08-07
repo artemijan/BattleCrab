@@ -2189,11 +2189,40 @@ pub(crate) fn give_item_with_earned_message(
     item_id: i32,
     count: i64,
 ) {
+    give_item_with_earned_message_enchanted(world, client_id, player, item_id, count, 0);
+}
+
+/// As [`give_item_with_earned_message`], but stamping `enchant` on what it
+/// creates.
+///
+/// **Java never needs this.** An enchanted item keeps its `+N` across a drop
+/// and pickup there because both move the *same* `Item` instance between
+/// containers; this port mints a fresh instance on the give path, so the level
+/// has to be carried across explicitly. It must be stamped *before* the
+/// `InventoryUpdate` below is built, or the client is told about a `+0` item
+/// the server considers enchanted.
+pub(crate) fn give_item_with_earned_message_enchanted(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    item_id: i32,
+    count: i64,
+    enchant: i32,
+) {
     let Some(added) = super::items::add_inventory_item_tracked(world, player, item_id, count)
     else {
         warn!("quest give_items: object-id pool exhausted, dropping {item_id}×{count}");
         return;
     };
+    if enchant != 0
+        && let Some(inv) = world.objects.get_component_mut::<Inventory>(&player)
+    {
+        // Enchantable items are never stackable, so this is exactly one
+        // freshly-created instance.
+        for &(oid, _) in &added {
+            inv.set_enchant_level(oid, enchant);
+        }
+    }
     let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
         return;
     };

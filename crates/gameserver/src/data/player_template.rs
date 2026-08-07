@@ -77,9 +77,17 @@ pub struct PlayerTemplate {
     pub base_walk_spd: i32,
     pub base_swim_run_spd: i32,
     pub base_swim_walk_spd: i32,
-    /// Collision (male; TODO: female variant).
+    /// Collision box, **per gender** — the dist gives every class both a
+    /// `<collisionMale>` and a `<collisionFemale>`, and they differ (a female
+    /// Human Fighter is 7.5/22.8 against the male 9/23.5). Collision feeds cast
+    /// range, `position`'s height checks and `CharInfo`, so reading the male
+    /// box for both sexes is visible, not cosmetic.
+    ///
+    /// Use [`PlayerTemplate::collision`] rather than these directly.
     pub collision_radius: f64,
     pub collision_height: f64,
+    pub collision_radius_female: f64,
+    pub collision_height_female: f64,
     /// Random spawn points offered at creation.
     pub creation_points: Vec<(i32, i32, i32)>,
 }
@@ -87,6 +95,21 @@ pub struct PlayerTemplate {
 impl PlayerTemplate {
     pub fn race(&self) -> Option<Race> {
         creatable_race(self.class_id)
+    }
+
+    /// `(radius, height)` for the given sex — Java
+    /// `PlayerTemplate.getCollisionRadius()`/`getCollisionHeight()`, which
+    /// branch on `appearance.isFemale()`.
+    ///
+    /// Falls back to the male box when a template carries no
+    /// `<collisionFemale>`, so a datapack that omits it degrades to the old
+    /// behaviour rather than to a zero-size cylinder.
+    pub fn collision(&self, is_female: bool) -> (f64, f64) {
+        if is_female && self.collision_radius_female > 0.0 {
+            (self.collision_radius_female, self.collision_height_female)
+        } else {
+            (self.collision_radius, self.collision_height)
+        }
     }
 
     /// Level-1 max HP (used at creation).
@@ -237,9 +260,8 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 let name = e.name().as_ref().to_vec();
                 match name.as_slice() {
                     b"creationPoints" => in_creation_points = true,
-                    b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale" => {
-                        section = Some(name.clone())
-                    }
+                    b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale"
+                    | b"collisionFemale" => section = Some(name.clone()),
                     b"level" => {
                         cur_level = e
                             .attributes()
@@ -324,6 +346,14 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                         }
                         continue;
                     }
+                    Some(b"collisionFemale") => {
+                        match cur_tag.as_slice() {
+                            b"radius" => t.collision_radius_female = flt(),
+                            b"height" => t.collision_height_female = flt(),
+                            _ => {}
+                        }
+                        continue;
+                    }
                     _ => {}
                 }
                 match cur_tag.as_slice() {
@@ -347,7 +377,8 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
             Ok(Event::End(e)) => match e.name().as_ref() {
                 b"creationPoints" => in_creation_points = false,
                 b"level" => cur_level = 0,
-                b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale" => section = None,
+                b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale"
+                | b"collisionFemale" => section = None,
                 _ => {}
             },
             Ok(Event::Eof) => break,
@@ -360,4 +391,56 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
         return None;
     }
     Some(t)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    /// Every class ships **both** collision boxes and they differ, so reading
+    /// the male one for a female character is a visible error — collision feeds
+    /// cast range, the position height checks and `CharInfo`.
+    ///
+    /// Asserted across the whole dist rather than on one class: the failure
+    /// this guards against is a parser that silently drops `<collisionFemale>`,
+    /// which one hand-picked class could miss.
+    #[test]
+    fn every_class_has_a_distinct_female_collision_box() {
+        let data = PlayerTemplateData::load_from(DIST);
+        let ids = data.class_ids();
+        assert!(ids.len() > 30, "sanity: templates loaded ({})", ids.len());
+        let all: Vec<&PlayerTemplate> = ids.iter().filter_map(|id| data.get(*id)).collect();
+
+        let mut differing = 0;
+        for t in &all {
+            assert!(
+                t.collision_radius_female > 0.0 && t.collision_height_female > 0.0,
+                "class {} parsed no <collisionFemale>",
+                t.class_id
+            );
+            assert_eq!(
+                t.collision(false),
+                (t.collision_radius, t.collision_height),
+                "class {}: male lookup must give the male box",
+                t.class_id
+            );
+            assert_eq!(
+                t.collision(true),
+                (t.collision_radius_female, t.collision_height_female),
+                "class {}: female lookup must give the female box",
+                t.class_id
+            );
+            if t.collision(true) != t.collision(false) {
+                differing += 1;
+            }
+        }
+        assert_eq!(
+            differing,
+            all.len(),
+            "the two boxes differ for every class on this dist, so a test that \
+             passed while returning the male box for both would be vacuous"
+        );
+    }
 }

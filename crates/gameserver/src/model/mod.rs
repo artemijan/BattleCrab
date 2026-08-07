@@ -1106,10 +1106,10 @@ impl Player {
             swimming: false,
             swamp_multiplier: 1.0,
         };
-        let collision = Collision {
-            radius: t.collision_radius,
-            height: t.collision_height,
-        };
+        // Java `PlayerTemplate.getCollisionRadius()` picks the box by
+        // `appearance.isFemale()`; the two differ for every class on this dist.
+        let (radius, height) = t.collision(c.sex != 0);
+        let collision = Collision { radius, height };
         // Java `setAccessLevel` folds the tier's name/title color into the
         // appearance; a level-0 player keeps the client defaults (see
         // `Player::name_color`).

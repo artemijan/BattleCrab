@@ -353,6 +353,18 @@ impl Inventory {
         }
     }
 
+    /// Stamp an enchant level onto an instance already in the bag. No-op if the
+    /// object id is gone.
+    ///
+    /// Needed because the ordinary add path always creates at `+0`: a ground
+    /// pickup has to re-apply the level the dropped instance carried, which
+    /// Java gets for free by moving the instance instead of minting one.
+    pub fn set_enchant_level(&mut self, object_id: i32, level: i32) {
+        if let Some(it) = self.items.iter_mut().find(|i| i.object_id == object_id) {
+            it.enchant_level = level;
+        }
+    }
+
     /// Stamp a just-created item's Lucky-Lottery fields (Java `Item
     /// .setCustomType1`/`setEnchantLevel`/`setCustomType2` on a fresh 4442
     /// ticket): the round id and the two-word picked-number bitmask. No-op if the
