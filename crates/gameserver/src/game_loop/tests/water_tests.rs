@@ -342,3 +342,60 @@ fn the_breath_stat_extends_the_gauge() {
         "the first drown tick is the buffed gauge, not the 60 s base"
     );
 }
+
+/// The MOVEMENTS byte both `UserInfo` and `CharInfo` carry:
+/// `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`.
+///
+/// Both writers used to hardcode `0`, so a swimming player was never reported
+/// as being in water — the client had the swim *speeds* but not the state.
+///
+/// Asserted through `PlayerView::of_world`, because that is the seam the fix
+/// hangs on: `PlayerView::of` sees only the entity store and cannot answer a
+/// zone question, so a builder that skipped `of_world` would silently write 0
+/// again.
+#[test]
+fn the_movement_byte_reports_a_player_in_water() {
+    use crate::model::PlayerView;
+
+    let (mut world, ..) = cast_test_world();
+    insert_zone(&mut world, ZoneKind::Water, -1000, 1000, -1000, 1000);
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // Dry first: outside the zone the byte must stay 0.
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&3001)
+    {
+        p.x = 50_000;
+        p.y = 50_000;
+    }
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    assert!(
+        !PlayerView::of_world(&world, 3001).unwrap().in_water,
+        "out of the zone the movement byte is 0"
+    );
+
+    // Back into the water.
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&3001)
+    {
+        p.x = 0;
+        p.y = 0;
+    }
+    super::zones::revalidate_zone(&mut world, 3001, true);
+    assert!(
+        super::position::is_in_water(&world, 3001),
+        "fixture check: the player really is in water"
+    );
+    assert!(
+        PlayerView::of_world(&world, 3001).unwrap().in_water,
+        "and the movement byte now says so"
+    );
+
+    // `of` alone cannot know — the guard against a builder taking a shortcut.
+    assert!(
+        !PlayerView::of(&world.objects, 3001).unwrap().in_water,
+        "the entity-store-only builder cannot answer a zone question"
+    );
+}

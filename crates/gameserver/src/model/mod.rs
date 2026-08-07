@@ -829,6 +829,15 @@ pub struct PlayerView<'a> {
     /// INVENTORY_LIMIT block's trailing byte. Resolved by the caller because
     /// the level lives on `World.cursed_weapons`, not on the player.
     pub cursed_weapon_level: u8,
+    /// `insideZone(ZoneId.WATER)` — the first arm of the MOVEMENTS byte both
+    /// `UserInfo` and `CharInfo` write (`insideZone(WATER) ? 1 :
+    /// isFlyingMounted() ? 2 : 0`). Resolved by the caller for the same reason
+    /// as [`Self::cursed_weapon_level`]: it is a *zone* question, and zones
+    /// live on `World`, not on the entity.
+    ///
+    /// `false` from the entity-store-only [`Self::of`], which is why every
+    /// packet builder must go through [`Self::of_world`].
+    pub in_water: bool,
 }
 
 impl<'a> PlayerView<'a> {
@@ -847,6 +856,8 @@ impl<'a> PlayerView<'a> {
                 .get_component::<components::PvpState>(&object_id)
                 .map_or(0, |s| s.flag),
             in_matching_room: objects.has_component::<components::InMatchingRoom>(&object_id),
+            // Zones live on `World`; `of_world` fills this in.
+            in_water: false,
             mods: objects.get_component::<StatModifiers>(&object_id)?,
             skills: objects.get_component::<SkillBook>(&object_id)?,
             cursed_weapon_level: 0,
@@ -854,8 +865,8 @@ impl<'a> PlayerView<'a> {
     }
 
     /// [`Self::of`] plus the fields that need the world rather than the entity
-    /// store — currently the cursed-weapon stage, which lives on
-    /// `World.cursed_weapons`.
+    /// store: the cursed-weapon stage (`World.cursed_weapons`) and the
+    /// water-zone flag (`World.data.zone_data`).
     ///
     /// Every `UserInfo` builder goes through this; `of` alone would silently
     /// report an unwielded weapon.
@@ -870,6 +881,7 @@ impl<'a> PlayerView<'a> {
                 .map(|c| c.level() as u8)
                 .unwrap_or(0);
         }
+        v.in_water = crate::game_loop::position::is_in_water(world, object_id);
         Some(v)
     }
 }
@@ -888,6 +900,9 @@ impl PlayerData {
             inventory: &self.inventory,
             pvp_flag: 0,
             in_matching_room: false,
+            // No world yet at bundle-build time; the enter-world UserInfo goes
+            // through `of_world`.
+            in_water: false,
             mods: &self.stat_modifiers,
             skills: &self.skills,
             cursed_weapon_level: 0,

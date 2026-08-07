@@ -202,8 +202,8 @@ pub fn char_info(
     // Java: `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`, where
     // `isFlyingMounted()` is *transform*-based (Gracia sky mounts) — a wyvern
     // rider stays 0 even in Java (its flight renders via the mount npc id +
-    // the fly speeds above). Water: TODO with water zones.
-    w.write_u8(0);
+    // the fly speeds above), so the `2` arm is unreachable here.
+    w.write_u8(u8::from(v.in_water));
     w.write_i16(p.rec_have as i16); // recom have
     w.write_i32(if p.mount_npc_id == 0 {
         0
