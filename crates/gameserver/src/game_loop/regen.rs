@@ -25,6 +25,13 @@ pub(crate) fn run_regen_tick(world: &mut World) {
             _ => None,
         })
         .collect();
+    // Latched once per tick: the three `Character.ini` regen multipliers Java
+    // applies to every creature (`RegenHPFinalizer` line 61 and its siblings).
+    let cfg_mult = (
+        world.cfg.npc.hp_regen_multiplier,
+        world.cfg.npc.mp_regen_multiplier,
+        world.cfg.npc.cp_regen_multiplier,
+    );
     for (client_id, object_id) in targets {
         // Dead-or-full players skip the whole tick up front: the move-type
         // and clan-hall probes below (the latter a zone polygon query) are
@@ -77,6 +84,7 @@ pub(crate) fn run_regen_tick(world: &mut World) {
             &world.data,
             hall_hp_mult,
             hall_mp_mult,
+            cfg_mult,
         ) else {
             continue;
         };
@@ -217,9 +225,13 @@ pub(crate) fn move_type_of(world: &World, object_id: i32) -> MoveType {
     }
 }
 
-/// `RegenHPFinalizer`/`RegenMPFinalizer`/`RegenCPFinalizer`, config-multiplier
-/// terms omitted (`HpRegenMultiplier`/… default to 1.0 — see the `MAX_*`
-/// stat-cap TODO in `model/mod.rs`). Returns the `StatusUpdate` entries for
+/// `RegenHPFinalizer`/`RegenMPFinalizer`/`RegenCPFinalizer`, **including the
+/// `Hp`/`Mp`/`CpRegenMultiplier` config terms**. Java applies those to every
+/// creature — `baseValue *= isRaid ? RAID_… : HP_REGEN_MULTIPLIER` sits above
+/// the `isPlayer()` branch — and this path used to skip them for players while
+/// the NPC and pet paths beside it applied them. All three are 100 (×1.0) on
+/// this dist, so the omission was inert, which is exactly how it survived.
+/// Returns the `StatusUpdate` entries for
 /// whichever of HP/MP/CP actually changed, or `None` if all are already full.
 ///
 /// Each rate ends in Java's `Stat.defaultValue(creature, stat, baseValue)` —
@@ -243,6 +255,10 @@ pub(crate) fn regen_player(
     // clan member stands in their own hall (`RegenHPFinalizer`/`RegenMPFinalizer`).
     hall_hp_mult: f64,
     hall_mp_mult: f64,
+    // `Hp`/`Mp`/`CpRegenMultiplier` from `Character.ini`, as fractions. Passed
+    // in rather than read from `World` because this function takes only the
+    // components it touches; all three are ×1.0 on this dist.
+    cfg_mult: (f64, f64, f64),
 ) -> Option<Vec<(u8, i32)>> {
     // The dead don't regenerate (`CreatureStatus.stopHpMpRegeneration` on death).
     if vitals.dead {
@@ -281,7 +297,7 @@ pub(crate) fn regen_player(
     if vitals.cur_hp < vitals.max_hp as f64 {
         let regen = finalize(
             Stat::RegenerateHpRate,
-            t.base_hp_regen(p.level) * movement * level_mod * con_bonus * hall_hp_mult,
+            t.base_hp_regen(p.level) * cfg_mult.0 * movement * level_mod * con_bonus * hall_hp_mult,
         );
         vitals.cur_hp = (vitals.cur_hp + regen).min(vitals.max_hp as f64);
         updates.push((
@@ -292,7 +308,7 @@ pub(crate) fn regen_player(
     if vitals.cur_mp < vitals.max_mp as f64 {
         let regen = finalize(
             Stat::RegenerateMpRate,
-            t.base_mp_regen(p.level) * movement * level_mod * men_bonus * hall_mp_mult,
+            t.base_mp_regen(p.level) * cfg_mult.1 * movement * level_mod * men_bonus * hall_mp_mult,
         );
         vitals.cur_mp = (vitals.cur_mp + regen).min(vitals.max_mp as f64);
         updates.push((
@@ -303,7 +319,7 @@ pub(crate) fn regen_player(
     if pvitals.cur_cp < pvitals.max_cp as f64 {
         let regen = finalize(
             Stat::RegenerateCpRate,
-            t.base_cp_regen(p.level) * level_mod * con_bonus * movement,
+            t.base_cp_regen(p.level) * cfg_mult.2 * level_mod * con_bonus * movement,
         );
         pvitals.cur_cp = (pvitals.cur_cp + regen).min(pvitals.max_cp as f64);
         updates.push((

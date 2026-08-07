@@ -439,3 +439,39 @@ fn vital_force_passive_folds_into_by_move_type() {
         "and did not leak into the unconditional add map"
     );
 }
+
+/// `Config.HP_REGEN_MULTIPLIER` and its MP/CP siblings scale player regen.
+///
+/// Java applies these in `RegenHPFinalizer` at `baseValue *= isRaid ?
+/// RAID_HP_REGEN_MULTIPLIER : HP_REGEN_MULTIPLIER` — **above** the
+/// `isPlayer()` branch, so every creature gets them. This port applied them to
+/// NPCs and pets and skipped players, and `CpRegenMultiplier` was never parsed
+/// at all.
+///
+/// All three ship at 100 (×1.0), so the omission changed nothing on this dist
+/// and nothing failed — which is precisely why it went unnoticed. The test
+/// therefore retunes them, the way the only server that would ever notice does.
+#[test]
+fn the_config_regen_multipliers_scale_player_regen() {
+    let (mut world, _db, _l) = regen_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    set_moving(&mut world, PLAYER, false, false);
+
+    let base_hp = hp_gain_per_tick(&mut world);
+    let base_mp = mp_gain_per_tick(&mut world);
+    assert!(base_hp > 0.0 && base_mp > 0.0, "sanity: regen happens");
+
+    world.cfg.npc.hp_regen_multiplier = 3.0;
+    world.cfg.npc.mp_regen_multiplier = 0.5;
+
+    let scaled_hp = hp_gain_per_tick(&mut world);
+    let scaled_mp = mp_gain_per_tick(&mut world);
+    assert!(
+        (scaled_hp - base_hp * 3.0).abs() < 1e-6,
+        "HP regen scales by HpRegenMultiplier ({base_hp} → {scaled_hp})"
+    );
+    assert!(
+        (scaled_mp - base_mp * 0.5).abs() < 1e-6,
+        "MP regen scales by MpRegenMultiplier ({base_mp} → {scaled_mp})"
+    );
+}
