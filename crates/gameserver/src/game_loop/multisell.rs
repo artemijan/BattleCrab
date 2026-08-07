@@ -392,6 +392,21 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
     };
     let paired_item_id = carried.map(|it| it.item_id).unwrap_or(0);
 
+    // Java consumes ingredients through `destroyItem`, whose `Inventory.removeItem`
+    // override unequips whatever it takes out — dropping the item's bonuses,
+    // recalculating stats and pushing `ExUserInfoEquipSlot`. A *worn* instance
+    // really can be consumed here: the by-item-id branch below is Java's
+    // `destroyItemByItemId`, and its `getItemByItemId` returns the first match
+    // whether or not it is equipped. The listing only skips equipped instances
+    // when choosing which rows to *offer*; an equippable named as a second,
+    // non-paired ingredient never goes through that filter (1456 entries on
+    // this dist carry two or more non-adena ingredients).
+    let equipped_before = world
+        .objects
+        .get_component::<Inventory>(&player)
+        .map(|inv| inv.equipped_object_ids())
+        .unwrap_or_default();
+
     let mut changes: Vec<ItemChange> = Vec::new();
     let mut paired_taken = row.item_object_id == 0;
     for &(id, total) in &needed {
@@ -406,6 +421,9 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
             }
         }
     }
+    // One refresh for the whole exchange rather than one per ingredient line.
+    let unequipped = crate::game_loop::items::unequipped_by_removal(&equipped_before, &changes);
+    crate::game_loop::items::finish_equipped_item_destroyed(world, client_id, player, &unequipped);
 
     for product in &entry.products {
         let total = product_count(product.count, prod_mult) * pkt.amount;
