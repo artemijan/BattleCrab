@@ -859,6 +859,16 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
     super::death::set_level(world, player_oid, level);
     super::party::broadcast_user_info(world, player_oid);
 
+    // `ClanMaster`'s `ON_PLAYER_PROFESSION_CHANGE` listener, the last of that
+    // script's four. **Redundant on this port today, and ported anyway**: the
+    // buff it re-lights is not currently stripped by anything on this path
+    // (only the subclass-*cancel* flow calls `strip_buffs`), so it refreshes a
+    // buff that is already there. It is here so that the day something on the
+    // class-change path does clear effects — as Java's does — the aura comes
+    // back rather than silently vanishing for every clan member who changes
+    // profession.
+    super::clans::skills::reapply_clan_advent_on_profession_change(world, player_oid);
+
     // The class-change flash, to everyone nearby including the player.
     if let Some(pos) = world
         .objects

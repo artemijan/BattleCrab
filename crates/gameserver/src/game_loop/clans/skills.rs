@@ -46,10 +46,12 @@ pub(crate) fn remove_clan_advent(world: &mut World, object_id: i32) {
 
 /// Java `ClanMaster.onPlayerLogin`: the leader's login lights the Clan Advent
 /// aura on every online member; a plain member's login lights it on themselves
-/// only if the leader is already online. (Java's `ON_PLAYER_CLAN_JOIN` /
-/// `ON_PLAYER_PROFESSION_CHANGE` refreshers stay TODO — clan invites and the
-/// subclass system aren't ported, so the login/logout pair is the whole surface
-/// that can fire today.)
+/// only if the leader is already online.
+///
+/// All four of `ClanMaster`'s listeners are ported. The other three:
+/// `ON_PLAYER_CLAN_JOIN` and `ON_PLAYER_CLAN_LEFT` in
+/// [`membership`](super::membership), and `ON_PLAYER_PROFESSION_CHANGE`
+/// through [`reapply_clan_advent_on_profession_change`].
 pub(crate) fn apply_clan_advent_on_login(world: &mut World, clan_id: i32, object_id: i32) {
     let is_leader = world
         .clans
@@ -68,6 +70,28 @@ pub(crate) fn apply_clan_advent_on_login(world: &mut World, clan_id: i32, object
         if leader_online {
             apply_clan_advent(world, object_id);
         }
+    }
+}
+
+/// Java `ClanMaster.onProfessionChange` (`ON_PLAYER_PROFESSION_CHANGE`).
+///
+/// Gate is Java's: `isClanLeader() || clan.getLeader().isOnline()`. Note the
+/// leader qualifies with **no** online check of their own — they are plainly
+/// online to have changed profession at all. Clanless is a no-op.
+pub(crate) fn reapply_clan_advent_on_profession_change(world: &mut World, object_id: i32) {
+    let Some(clan_id) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| p.clan_id)
+        .filter(|&id| id != 0)
+    else {
+        return;
+    };
+    let Some(leader_id) = world.clans.get(&clan_id).map(|c| c.leader_id) else {
+        return;
+    };
+    if leader_id == object_id || client_for_player(world, leader_id).is_some() {
+        apply_clan_advent(world, object_id);
     }
 }
 
