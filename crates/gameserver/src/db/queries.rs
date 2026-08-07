@@ -1315,11 +1315,23 @@ pub(crate) async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::c
         .collect()
 }
 
+/// The whole `clan_notices` table (Java `Clan.restoreNotice`).
+pub(crate) async fn load_clan_notices(db: &DatabaseConnection) -> Vec<(i32, bool, String)> {
+    clan_notices::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|n| (n.clan_id, n.enabled.eq_ignore_ascii_case("true"), n.notice))
+        .collect()
+}
+
 pub(crate) async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::clan::Clan> {
     let clan_rows = clan_data::Entity::find().all(db).await.unwrap_or_default();
     let mut out = Vec::with_capacity(clan_rows.len());
     for row in &clan_rows {
         let clan_id = row.clan_id;
+
         let member_rows = characters::Entity::find()
             .filter(characters::Column::Clanid.eq(clan_id))
             .all(db)

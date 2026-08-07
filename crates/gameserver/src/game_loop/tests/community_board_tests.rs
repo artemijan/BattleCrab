@@ -1177,3 +1177,145 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
         server_packets::sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_REPUTATION
     ));
 }
+
+fn cb_test_clan(
+    id: i32,
+    name: &str,
+    leader: i32,
+    level: i32,
+    castle_id: i32,
+) -> crate::model::clan::Clan {
+    crate::model::clan::Clan {
+        id,
+        name: name.into(),
+        leader_id: leader,
+        level,
+        reputation_score: 0,
+        castle_id,
+        members: vec![crate::model::clan::ClanMember {
+            char_id: leader,
+            name: format!("P{leader}"),
+            level: 1,
+            class_id: 0,
+            sex: 0,
+            race: 0,
+            power_grade: 5,
+            title: String::new(),
+            pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
+        }],
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    }
+}
+
+/// The retail clan board (G30): the list shows the clans, the leader's notice
+/// flow enables and writes the notice (persisted through `SaveClanNotice`),
+/// and a member sees the read-only view.
+#[test]
+fn clan_board_lists_clans_and_edits_the_notice() {
+    let (mut world, mut db_rx, _l) = combat_test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7001, 0, 0, 0);
+    world
+        .clans
+        .insert(900, cb_test_clan(900, "Vanguard", 7001, 2, 0));
+    world
+        .objects
+        .get_component_mut::<Player>(&7001)
+        .unwrap()
+        .clan_id = 900;
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    // The list renders the clan with its home link.
+    handle_parse_command(&mut world, 1, "_bbsclan_clanlist");
+    let html = drain(&mut rx)
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .map(|p| cb_content(p))
+        .collect::<String>();
+    assert!(html.contains("Vanguard"), "the clan is listed: {html}");
+
+    // The leader enables the notice, then writes it.
+    handle_parse_command(&mut world, 1, "_bbsclan_clannotice_enable");
+    assert_eq!(
+        world.clan_notices.get(&900).map(|(e, _)| *e),
+        Some(true),
+        "notice enabled"
+    );
+    crate::game_loop::community_board::handle_write_command(
+        &mut world,
+        1,
+        "Notice",
+        &[
+            "Set".to_string(),
+            "_".to_string(),
+            "Raid at nine".to_string(),
+            String::new(),
+            String::new(),
+        ],
+    );
+    assert_eq!(
+        world.clan_notices.get(&900).map(|(_, t)| t.clone()),
+        Some("Raid at nine".to_string()),
+        "the notice text landed"
+    );
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, crate::db::DbCommand::SaveClanNotice { clan_id: 900, .. })),
+        "persisted"
+    );
+}
+
+/// The retail region board (G30): `_bbsloc` renders the nine regions off the
+/// castles — owner clan and buy tax included.
+#[test]
+fn region_board_renders_the_castles() {
+    let (mut world, _db, _l) = combat_test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7001, 0, 0, 0);
+    world.castles = (1..=9)
+        .map(|id| crate::model::castle::Castle {
+            id,
+            name: format!("C{id}"),
+            side: crate::model::castle::CastleSide::Neutral,
+            show_npc_crest: false,
+            ticket_buy_count: 0,
+            first_mid_victory: false,
+            time_registration_over: true,
+            siege_date: 0,
+            siege_time_registration_end: 0,
+            treasury: 0,
+        })
+        .collect();
+    world
+        .clans
+        .insert(901, cb_test_clan(901, "Wardens", 7002, 1, 3));
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsloc");
+    let html = drain(&mut rx)
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .map(|p| cb_content(p))
+        .collect::<String>();
+    assert!(html.contains("Wardens"), "the owner clan shows: {html}");
+    assert!(html.contains("NPC"), "unowned regions say NPC");
+    assert!(html.contains('%'), "the tax column renders");
+}

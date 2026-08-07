@@ -215,8 +215,13 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         // RequestBBSwrite (IN_GAME): a board write/submit.
         cop::REQUEST_BBS_WRITE => {
-            if let Some([url, ..]) = cp::read_bbs_write(body) {
-                super::community_board::handle_write_command(world, client_id, &url);
+            if let Some([url, a1, a2, a3, a4, a5]) = cp::read_bbs_write(body) {
+                super::community_board::handle_write_command(
+                    world,
+                    client_id,
+                    &url,
+                    &[a1, a2, a3, a4, a5],
+                );
             }
         }
         // SendBypassBuildCmd (IN_GAME): the `//command` GM bar → admin command

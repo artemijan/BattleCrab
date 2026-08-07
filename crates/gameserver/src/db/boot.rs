@@ -178,5 +178,6 @@ pub(crate) async fn send_boot_events(db: &DatabaseConnection, event_tx: &EventTx
         recruit_clans: load_recruit_clans(db).await,
         recruit_waiting: load_recruit_waiting(db).await,
         recruit_applicants: load_recruit_applicants(db).await,
+        notices: load_clan_notices(db).await,
     });
 }

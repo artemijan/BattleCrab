@@ -346,6 +346,11 @@ pub struct World {
     /// divergence is that Java still writes the (never-read) DB rows.
     pub castle_functions: HashMap<(i32, i32), crate::model::castle::CastleFunc>,
 
+    /// Clan notices (`clan_notices`, Java `Clan._notice`/`_noticeEnabled`),
+    /// keyed by clan id — the board's clan page edits them. Loaded at boot
+    /// beside the clans, saved through `DbCommand::SaveClanNotice`.
+    pub clan_notices: HashMap<i32, (bool, String)>,
+
     /// The `tick` the current clan-hall auction cycle closes (Java
     /// `ClanHallAuctionManager.getRemainingTime`); set when the weekly close is
     /// armed. Drives the auctioneer's countdown fields.
@@ -590,6 +595,7 @@ impl World {
             clan_hall_bids: HashMap::new(),
             clan_hall_functions: HashMap::new(),
             castle_functions: HashMap::new(),
+            clan_notices: HashMap::new(),
             auction_end_tick: 0,
             siege_guards: HashMap::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),

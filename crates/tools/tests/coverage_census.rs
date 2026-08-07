@@ -465,7 +465,7 @@ fn deferral_markers_match_the_recorded_inventory() {
     // against a shipped milestone's gate. Topic tags (lowercase) are the ones
     // that never had a milestone to hang off — they are gaps just the same,
     // and were invisible to this test until the scan widened past `TODO(G`.
-    let expected: &[(&str, usize)] = &[("G30", 1)];
+    let expected: &[(&str, usize)] = &[];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
         .iter()

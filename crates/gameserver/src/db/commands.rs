@@ -341,6 +341,29 @@ pub(crate) async fn run(
                     .await,
                 );
             }
+            DbCommand::SaveClanNotice {
+                clan_id,
+                enabled,
+                notice,
+            } => {
+                warn_err(
+                    clan_notices::Entity::insert(clan_notices::ActiveModel {
+                        clan_id: Set(clan_id),
+                        enabled: Set(if enabled { "true" } else { "false" }.to_string()),
+                        notice: Set(notice),
+                    })
+                    .on_conflict(
+                        OnConflict::column(clan_notices::Column::ClanId)
+                            .update_columns([
+                                clan_notices::Column::Enabled,
+                                clan_notices::Column::Notice,
+                            ])
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
+            }
             DbCommand::WipeSubclassSlot {
                 char_id,
                 class_index,
