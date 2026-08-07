@@ -4,12 +4,14 @@
 //! teleport HTML menus).
 
 use crate::enums::AdminTeleportType;
+use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell, Speeds};
+use crate::model::components::{RegionCell, Speeds};
 use crate::model::npc::Npc;
+use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
-use super::{current_target, find_online_player, send_message, send_sm};
+use super::{find_online_player, send_message, send_sm};
 
 /// `AdminGmSpeed` — scale the target player's (or self's) movement speed. Java
 /// adds `baseSpeed * boost` as a fixed value to each speed stat, i.e. total =
@@ -25,9 +27,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
         send_message(world, client_id, "//gmspeed [0...10]");
         return;
     };
-    let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-        .unwrap_or(object_id);
+    let target = guard::player_target(world, object_id).unwrap_or(object_id);
     if let Some(speeds) = world.objects.get_component_mut::<Speeds>(&target) {
         speeds.move_multiplier = 1.0 + boost;
     }
@@ -97,19 +97,19 @@ pub(super) fn admin_teleport_coords(
 /// `AdminTeleport`'s `//recall <name>` — bring an online player to the GM's
 /// location (or, with no name, the currently targeted player).
 pub(super) fn admin_recall(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let result = recall(world, object_id, args);
+    guard::finish(world, client_id, result);
+}
+
+fn recall(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
-    };
-    let Some(target) = target else {
-        send_message(world, client_id, "Usage: //recall <player name>");
-        return;
-    };
-    let Some(&pos) = world.objects.get_component::<Position>(&object_id) else {
-        return;
-    };
+        None => guard::player_target(world, object_id),
+    }
+    .or_msg("Usage: //recall <player name>")?;
+    let pos = guard::position(world, object_id).or_silent()?;
     super::death::teleport_player(world, target, pos.x, pos.y, pos.z);
+    Ok(())
 }
 
 /// `AdminTeleport`'s `//teleto` — send the GM to the current target's position.
@@ -121,14 +121,15 @@ pub(super) fn admin_recall(world: &mut World, client_id: u32, object_id: i32, ar
 /// documented behaviour of `AdminMenu.teleportToCharacter`) and routes the
 /// three mode words to [`admin_teleto_mode`] before ever getting here.
 pub(super) fn admin_teleto(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id) else {
-        send_message(world, client_id, "Select a target first.");
-        return;
-    };
-    let Some(&pos) = world.objects.get_component::<Position>(&target) else {
-        return;
-    };
+    let result = teleto(world, object_id);
+    guard::finish(world, client_id, result);
+}
+
+fn teleto(world: &mut World, object_id: i32) -> Guard<()> {
+    let target = guard::target(world, object_id).or_msg("Select a target first.")?;
+    let pos = guard::position(world, target).or_silent()?;
     super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
+    Ok(())
 }
 
 /// `AdminTeleport`'s click-to-move latches — the "Move:" row of
@@ -173,32 +174,30 @@ pub(super) fn admin_teleto_mode(
 /// `YOU_CANNOT_USE_THIS_ON_YOURSELF`, otherwise teleport + confirmation, and in
 /// the latter two cases the char-manage page is reopened (`showMainPage`).
 pub(super) fn admin_goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let result = goto_char(world, client_id, object_id, args);
+    // Java `showMainPage` runs on every path *except* the unresolved-target
+    // one, which returns straight out — and that is the only rejection this
+    // handler has, so `is_ok()` is the tail condition. The self-target message
+    // below is deliberately NOT a rejection: Java sends it and still re-opens
+    // the page, so it stays an ordinary send on the success path.
+    let reached_tail = result.is_ok();
+    guard::finish(world, client_id, result);
+    if reached_tail {
+        super::menu::show_admin_html(world, client_id, "charmanage.htm");
+    }
+}
+
+fn goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid)),
-    };
+        None => guard::player_target(world, object_id),
+    }
     // Java: `!target.isPlayer()` → INVALID_TARGET, and no main page.
-    let Some(target) = target else {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
-        return;
-    };
+    .or_sm(sm_ids::INVALID_TARGET)?;
     if target == object_id {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF,
-        );
-    } else if let Some(&pos) = world.objects.get_component::<Position>(&target) {
-        let name = world
-            .objects
-            .get_component::<Player>(&target)
-            .map(|p| p.name.clone())
-            .unwrap_or_default();
+        send_sm(world, client_id, sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
+    } else if let Some(pos) = guard::position(world, target) {
+        let name = guard::player_name(world, target).unwrap_or_default();
         super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
         send_message(
             world,
@@ -206,8 +205,7 @@ pub(super) fn admin_goto_char(world: &mut World, client_id: u32, object_id: i32,
             &format!("You're teleporting yourself to character {name}"),
         );
     }
-    // Java `showMainPage` — always back to `charmanage.htm`.
-    super::menu::show_admin_html(world, client_id, "charmanage.htm");
+    Ok(())
 }
 
 /// `AdminTeleport`'s directional `//gonorth|gosouth|goeast|gowest|goup|godown
@@ -226,7 +224,7 @@ pub(super) fn admin_go(
         .first()
         .and_then(|s| s.parse::<i32>().ok())
         .unwrap_or(150);
-    let Some(mut pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(mut pos) = guard::position(world, object_id) else {
         return;
     };
     match dir {
@@ -264,7 +262,7 @@ pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args
     ) else {
         return;
     };
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(cur) = guard::position(world, object_id) else {
         return;
     };
     crate::game_loop::position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
@@ -273,35 +271,18 @@ pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args
 /// `AdminTeleport`'s `//sendhome [name]` — teleport the targeted or named player
 /// to their town respawn point (Java `teleportHome`).
 pub(super) fn admin_sendhome(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let result = sendhome(world, object_id, args);
+    guard::finish(world, client_id, result);
+}
+
+fn sendhome(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
+    // The two lookups refuse with different messages, which is why the message
+    // belongs at the call site rather than inside the resolver.
     let target = match args.first() {
-        Some(name) => match find_online_player(world, name) {
-            Some(t) => t,
-            None => {
-                send_sm(
-                    world,
-                    client_id,
-                    crate::network::server_packets::sm_ids::THAT_PLAYER_IS_NOT_ONLINE,
-                );
-                return;
-            }
-        },
-        None => match current_target(world, object_id)
-            .filter(|oid| world.objects.has_component::<Player>(oid))
-        {
-            Some(t) => t,
-            None => {
-                send_sm(
-                    world,
-                    client_id,
-                    crate::network::server_packets::sm_ids::INVALID_TARGET,
-                );
-                return;
-            }
-        },
+        Some(name) => find_online_player(world, name).or_sm(sm_ids::THAT_PLAYER_IS_NOT_ONLINE)?,
+        None => guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?,
     };
-    let Some(pos) = world.objects.get_component::<Position>(&target).copied() else {
-        return;
-    };
+    let pos = guard::position(world, target).or_silent()?;
     let race = world
         .objects
         .get_component::<Player>(&target)
@@ -314,6 +295,7 @@ pub(super) fn admin_sendhome(world: &mut World, client_id: u32, object_id: i32, 
     {
         super::death::teleport_player(world, target, x, y, z);
     }
+    Ok(())
 }
 
 /// `AdminTeleport`'s `//teleport_character <x> <y> <z>` — teleport the currently
@@ -324,55 +306,43 @@ pub(super) fn admin_teleport_character(
     object_id: i32,
     args: &[&str],
 ) {
+    let result = teleport_character(world, object_id, args);
+    guard::finish(world, client_id, result);
+}
+
+fn teleport_character(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
     let (Some(x), Some(y), Some(z)) = (
         args.first().and_then(|s| s.parse::<i32>().ok()),
         args.get(1).and_then(|s| s.parse::<i32>().ok()),
         args.get(2).and_then(|s| s.parse::<i32>().ok()),
     ) else {
-        send_message(world, client_id, "Wrong or no Coordinates given.");
-        return;
+        return Err(Reject::Msg("Wrong or no Coordinates given.".to_string()));
     };
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
-        return;
-    };
+    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     super::death::teleport_player(world, target, x, y, z);
+    Ok(())
 }
 
 /// `AdminTeleport`'s `//recall_npc` — move the targeted NPC to the GM (Java
 /// re-creates the spawn at the GM; here it despawns the corpse-less NPC and
 /// spawns a fresh one of the same id at the GM's position).
 pub(super) fn admin_recall_npc(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
-    else {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
-        return;
-    };
+    let result = recall_npc(world, client_id, object_id);
+    guard::finish(world, client_id, result);
+}
+
+fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
+    let target = guard::npc_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     let npc_id = world
         .objects
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
-    let Some(region) = world
+    let region = world
         .objects
         .get_component::<RegionCell>(&target)
         .map(|r| r.0)
-    else {
-        return;
-    };
-    let Some(gm_pos) = world.objects.get_component::<Position>(&object_id).copied() else {
-        return;
-    };
+        .or_silent()?;
+    let gm_pos = guard::position(world, object_id).or_silent()?;
     super::death::despawn_npc(world, target, region);
     if let Some(spawned) =
         crate::model::npc::spawn_npc_at(world, npc_id, gm_pos.x, gm_pos.y, gm_pos.z, gm_pos.heading)
@@ -386,6 +356,7 @@ pub(super) fn admin_recall_npc(world: &mut World, client_id: u32, object_id: i32
             .unwrap_or_default();
         send_message(world, client_id, &format!("Recalled {name}."));
     }
+    Ok(())
 }
 
 /// `AdminTeleport`'s teleport HTML menus (`//show_moves`, `//show_moves_other`,

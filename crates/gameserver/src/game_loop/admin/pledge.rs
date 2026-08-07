@@ -5,11 +5,12 @@
 //! and hero buttons on the same panel stay unimplemented until their subsystems
 //! land (G21/G24/G25).
 
+use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
-use super::{current_target, send_message, send_sm};
+use super::send_message;
 
 /// Re-show the Game panel (`game_menu.htm`) — Java `AdminPledge.showMainPage`,
 /// run at the end of every branch.
@@ -22,35 +23,33 @@ fn show_main_page(world: &World, client_id: u32) {
 /// `args[1]` its parameter. Operates on the GM's current target (which must be a
 /// player) and finishes by re-showing the Game panel.
 pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
-    // Java: the target must be a player, else INVALID_TARGET + showMainPage.
-    let Some(target) = current_target(world, gm_object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+    let result = pledge_action(world, client_id, gm_object_id, args);
+    // Java's `showMainPage` tail runs after every branch — including the failed
+    // ones — but NOT when the handler threw, because the throw unwinds past it
+    // into `AdminCommandHandler`. That is the whole reason `Reject::Abort`
+    // exists, and the reason this tail lives here rather than in `guard`.
+    let reached_tail = !matches!(result, Err(Reject::Abort(_)));
+    guard::finish(world, client_id, result);
+    if reached_tail {
         show_main_page(world, client_id);
-        return;
-    };
+    }
+}
+
+/// The body of [`admin_pledge`]; every precondition bails through `?`.
+fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) -> Guard<()> {
+    // Java: the target must be a player, else INVALID_TARGET + showMainPage.
+    let target = guard::player_target(world, gm_object_id).or_sm(sm_ids::INVALID_TARGET)?;
 
     // Java requires BOTH an action and a parameter token for every sub-command —
     // including `info`/`dismiss`, whose Game-panel buttons carry no parameter, so
     // those buttons print "Missing parameters!" on retail too (the parameter is
     // then ignored by `info`). Kept faithful to `AdminPledge`.
     let (Some(action), Some(param)) = (args.first().copied(), args.get(1).copied()) else {
-        send_message(world, client_id, "Missing parameters!");
-        show_main_page(world, client_id);
-        return;
+        return Err(Reject::Msg("Missing parameters!".to_string()));
     };
 
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.clan_id)
-        .filter(|&c| c != 0);
-    let target_name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let clan_id = guard::clan_of(world, target);
+    let target_name = guard::player_name(world, target).unwrap_or_default();
 
     match action {
         "create" => {
@@ -87,22 +86,17 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
             }
         }
         "dismiss" => {
-            let Some(cid) = clan_id else {
-                send_message(world, client_id, "Target player has no clan!");
-                show_main_page(world, client_id);
-                return;
-            };
-            if !world.clans.get(&cid).is_some_and(|c| c.leader_id == target) {
-                // Java: "$s1 is not a clan leader." then showMainPage + return.
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::S1_IS_NOT_A_CLAN_LEADER,
-                        &[SmParam::Text(target_name.clone())],
-                    ));
-                }
-                show_main_page(world, client_id);
-                return;
-            }
+            let cid = clan_id.or_msg("Target player has no clan!")?;
+            // Java: "$s1 is not a clan leader." then showMainPage + return.
+            world
+                .clans
+                .get(&cid)
+                .is_some_and(|c| c.leader_id == target)
+                .then_some(())
+                .or_sm_with(
+                    sm_ids::S1_IS_NOT_A_CLAN_LEADER,
+                    vec![SmParam::Text(target_name.clone())],
+                )?;
             crate::game_loop::clans::destroy_clan(world, cid);
             // Java re-reads targetPlayer.getClan() after destroyClan.
             let still_in_clan = world
@@ -120,11 +114,7 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
             }
         }
         "info" => {
-            let Some(cid) = clan_id else {
-                send_message(world, client_id, "Target player has no clan!");
-                show_main_page(world, client_id);
-                return;
-            };
+            let cid = clan_id.or_msg("Target player has no clan!")?;
             if let Some(clan) = world.clans.get(&cid) {
                 let pkt = server_packets::gm_view_pledge_info(clan, &target_name, &world.objects);
                 if let Some(cs) = world.clients.get(&client_id) {
@@ -133,26 +123,15 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
             }
         }
         "setlevel" => {
-            let Some(cid) = clan_id else {
-                send_message(world, client_id, "Target player has no clan!");
-                show_main_page(world, client_id);
-                return;
-            };
+            let cid = clan_id.or_msg("Target player has no clan!")?;
             // Java calls Integer.parseInt(param) unguarded here (unlike `rep`'s
             // try/catch): a non-numeric param throws a NumberFormatException that
             // the AdminCommandHandler dispatcher catches — so there is no "Level
             // incorrect." message and no showMainPage. Emulate that abort.
-            let Ok(level) = param.parse::<i32>() else {
-                send_message(
-                    world,
-                    client_id,
-                    &format!(
-                        "Exception during execution of 'admin_pledge {}': invalid number.",
-                        args.join(" ")
-                    ),
-                );
-                return;
-            };
+            let level = param.parse::<i32>().ok().or_abort(format!(
+                "Exception during execution of 'admin_pledge {}': invalid number.",
+                args.join(" ")
+            ))?;
             // Java: valid range is [0, 12).
             if (0..12).contains(&level) {
                 crate::game_loop::clans::set_clan_level(world, cid, level);
@@ -171,19 +150,11 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
             }
         }
         "rep" => {
-            let Some(cid) = clan_id else {
-                send_message(world, client_id, "Target player has no clan!");
-                show_main_page(world, client_id);
-                return;
-            };
+            let cid = clan_id.or_msg("Target player has no clan!")?;
             if world.clans.get(&cid).is_some_and(|c| c.level < 5) {
-                send_message(
-                    world,
-                    client_id,
-                    "Only clans of level 5 or above may receive reputation points.",
-                );
-                show_main_page(world, client_id);
-                return;
+                return Err(Reject::Msg(
+                    "Only clans of level 5 or above may receive reputation points.".to_string(),
+                ));
             }
             match param.parse::<i32>() {
                 Ok(points) => {
@@ -217,7 +188,7 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
         // falls through to showMainPage.
         _ => {}
     }
-    show_main_page(world, client_id);
+    Ok(())
 }
 
 /// `AdminClan`'s `//clan_show_pending` — the "Pen. leaders" button: one row per
@@ -282,31 +253,28 @@ pub(super) fn admin_clan_changeleader(
     object_id: i32,
     args: &[&str],
 ) {
+    let result = clan_changeleader(world, client_id, object_id, args);
+    guard::finish(world, client_id, result);
+}
+
+fn clan_changeleader(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) -> Guard<()> {
     let target = args
         .first()
         .and_then(|name| super::find_online_player(world, name))
-        .or_else(|| {
-            super::current_target(world, object_id)
-                .filter(|oid| world.objects.has_component::<Player>(oid))
-        });
-    let Some(target) = target else {
-        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
-        return;
-    };
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.clan_id)
-        .filter(|&c| c != 0)
-    else {
-        super::send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
-        return;
-    };
+        .or_else(|| guard::player_target(world, object_id))
+        .or_sm(sm_ids::INVALID_TARGET)?;
+    let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
     if crate::game_loop::clans::force_new_leader(world, clan_id, target) {
-        super::send_message(world, client_id, "Clan leader changed.");
+        send_message(world, client_id, "Clan leader changed.");
     } else {
-        super::send_message(world, client_id, "That player already leads the clan.");
+        send_message(world, client_id, "That player already leads the clan.");
     }
+    Ok(())
 }
 
 /// `//add_clan_skill <id> <level>` — grant one pledge skill to the targeted
@@ -318,45 +286,35 @@ pub(super) fn admin_add_clan_skill(
     object_id: i32,
     args: &[&str],
 ) {
+    let result = add_clan_skill(world, client_id, object_id, args);
+    guard::finish(world, client_id, result);
+}
+
+fn add_clan_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
     let (Some(skill_id), Some(level)) = (
         args.first().and_then(|a| a.parse::<i32>().ok()),
         args.get(1).and_then(|a| a.parse::<i32>().ok()),
     ) else {
-        super::send_message(
-            world,
-            client_id,
-            "Usage: //add_clan_skill <skillId> <level>",
-        );
-        return;
+        return Err(Reject::Msg(
+            "Usage: //add_clan_skill <skillId> <level>".to_string(),
+        ));
     };
-    if world.data.skill_data.get(skill_id, level).is_none() {
-        super::send_message(world, client_id, "No such skill/level.");
-        return;
-    }
-    let Some(target) = super::current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
-        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
-        return;
-    };
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.clan_id)
-        .filter(|&c| c != 0)
-    else {
-        super::send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
-        return;
-    };
-    if world
+    world
+        .data
+        .skill_data
+        .get(skill_id, level)
+        .or_msg("No such skill/level.")?;
+    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+    // Java `AdminSkill` sends the same message for "no clan" and "not the
+    // leader", so both spellings of the check keep that one id.
+    world
         .clans
         .get(&clan_id)
-        .map(|c| c.leader_id != target)
-        .unwrap_or(true)
-    {
-        super::send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
-        return;
-    }
+        .is_some_and(|c| c.leader_id == target)
+        .then_some(())
+        .or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
     crate::game_loop::clans::admin_add_clan_skill(world, clan_id, skill_id, level);
-    super::send_message(world, client_id, "Clan skill added.");
+    send_message(world, client_id, "Clan skill added.");
+    Ok(())
 }
