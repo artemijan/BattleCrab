@@ -75,14 +75,9 @@ pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32,
     };
     let Some(data) = data else { return };
 
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
-    if clan_id == 0 {
-        return;
-    }
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
@@ -177,14 +172,9 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
     };
     let Some(data) = data else { return };
 
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
-    if clan_id == 0 {
-        return;
-    }
     if !(0..=2176).contains(&length) {
         send_sm_with(
             world,

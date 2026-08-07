@@ -134,13 +134,10 @@ pub(crate) fn handle_request_pledge_war_list(world: &World, client_id: u32, ex_b
     let mut r = PacketReader::new(ex_body);
     let _unk = r.read_i32();
     let tab = r.read_i32().unwrap_or(0);
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, _, _)) = clan_membership(world, player) else {
         return;
     };
-    if p.clan_id == 0 {
-        return;
-    }
-    send_war_list(world, client_id, p.clan_id, tab);
+    send_war_list(world, client_id, clan_id, tab);
 }
 
 /// `RequestStartPledgeWar` (0x03): declare war by clan name — the full Java
@@ -153,14 +150,9 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
-    if clan_id == 0 {
-        return;
-    }
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
@@ -352,14 +344,9 @@ pub(crate) fn handle_request_stop_pledge_war(world: &mut World, client_id: u32, 
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
-    if clan_id == 0 {
-        return;
-    }
     let Some(target) = world
         .clans
         .values()

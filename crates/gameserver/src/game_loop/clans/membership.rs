@@ -705,14 +705,10 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
 /// then stamp `dissolving_expiry_time`, hit the leader with a full death-XP
 /// penalty, and schedule the delayed removal.
 pub(crate) fn handle_dissolve_clan(world: &mut World, client_id: u32, player_oid: i32) {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
+    let Some(clan_id) = clan_leader_of(world, player_oid) else {
         send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
         return;
-    }
+    };
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
@@ -792,14 +788,10 @@ pub(crate) fn handle_dissolve_clan(world: &mut World, client_id: u32, player_oid
 /// `VillageMaster.recoverClan` (the `recover_clan` bypass): the leader cancels
 /// a pending dissolution — the stamp is zeroed, the scheduled removal no-ops.
 pub(crate) fn handle_recover_clan(world: &mut World, client_id: u32, player_oid: i32) {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
+    let Some(clan_id) = clan_leader_of(world, player_oid) else {
         send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
         return;
-    }
+    };
     let char_penalty = {
         let Some(c) = world.clans.get_mut(&clan_id) else {
             return;

@@ -67,18 +67,14 @@ fn broadcast_to_ally(world: &World, ally_id: i32, pkt: &[u8]) {
 /// the guard chain, then the clan becomes its own alliance's leader.
 pub(crate) fn handle_create_ally(world: &mut World, client_id: u32, player_oid: i32, args: &str) {
     let name = args.trim();
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
-        return;
-    };
-    let clan_id = p.clan_id;
-    if clan_id == 0 || !p.clan_leader {
+    let Some(clan_id) = clan_leader_of(world, player_oid) else {
         send_sm(
             world,
             client_id,
             sm_ids::ONLY_CLAN_LEADERS_MAY_CREATE_ALLIANCES,
         );
         return;
-    }
+    };
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };

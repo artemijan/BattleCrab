@@ -596,6 +596,26 @@ pub(crate) fn send_to_member(world: &World, oid: i32, pkt: Vec<u8>) {
     }
 }
 
+/// `oid`'s standing in their clan: the clan id, their privilege mask, and
+/// whether they lead it. `None` covers both "no `Player` there" and "in no
+/// clan" — the distinction every clan handler opens by erasing, since a
+/// clanless player and a vanished one get the same answer to "may I?".
+pub(crate) fn clan_membership(world: &World, player_oid: i32) -> Option<(i32, i32, bool)> {
+    world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .filter(|p| p.clan_id != 0)
+        .map(|p| (p.clan_id, p.clan_privs, p.clan_leader))
+}
+
+/// The clan `player_oid` *leads*, or `None` — which the clanless and the
+/// rank-and-file member share, because that is the only distinction the
+/// leader-only village-master bypasses draw.
+pub(crate) fn clan_leader_of(world: &World, player_oid: i32) -> Option<i32> {
+    clan_membership(world, player_oid)
+        .and_then(|(clan_id, _, is_leader)| is_leader.then_some(clan_id))
+}
+
 /// Whether `oid` holds `privilege` in their clan (leader always does — the
 /// clan's `has_privilege` folds that in).
 pub(crate) fn has_clan_privilege(world: &World, oid: i32, privilege: i32) -> bool {
