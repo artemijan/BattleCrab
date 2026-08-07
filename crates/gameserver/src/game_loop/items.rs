@@ -846,15 +846,25 @@ pub(crate) fn finish_equipped_item_destroyed(
     world: &mut World,
     client_id: u32,
     object_id: i32,
-    unequipped: &[i32],
+    unequipped: &[crate::model::inventory::ItemInstance],
 ) {
     if unequipped.is_empty() {
         return;
     }
-    // The ids are gone from the item list, so `apply_paperdoll_change` reads
-    // them as unequipped and takes the option-removal branch — what Java's
-    // `notifyUnequiped` listeners do for a destroyed worn item.
-    apply_paperdoll_change(world, client_id, object_id, unequipped);
+    // Takes the *instances*, not their ids, because the option ids have to be
+    // read off the snapshot: routing through `apply_paperdoll_change` here
+    // looked right — the item is absent, so it takes the "unequipped" branch —
+    // but that branch then looks the instance up in the bag to find its option
+    // ids, finds nothing, and silently removes no bonuses at all. A destroyed
+    // augmented weapon left its stats and granted skills on the wearer.
+    for it in unequipped {
+        super::options::remove_option_ids(
+            world,
+            object_id,
+            &[it.augment_option1, it.augment_option2],
+        );
+    }
+    refresh_equip_state(world, client_id, object_id);
     refresh_after_paperdoll_change(world, object_id);
 }
 
@@ -864,14 +874,16 @@ pub(crate) fn finish_equipped_item_destroyed(
 pub(crate) fn unequipped_by_removal(
     before: &[i32],
     changes: &[crate::model::inventory::ItemChange],
-) -> Vec<i32> {
+) -> Vec<crate::model::inventory::ItemInstance> {
     use crate::model::inventory::ItemChange;
     changes
         .iter()
         .filter_map(|c| match c {
             // Only a full removal clears a paperdoll slot; a partial
             // decrement leaves the instance — and its slot — in place.
-            ItemChange::Removed(it) if before.contains(&it.object_id) => Some(it.object_id),
+            // The whole instance travels on: it is the last record of the
+            // augment options that have to come off with it.
+            ItemChange::Removed(it) if before.contains(&it.object_id) => Some(*it),
             _ => None,
         })
         .collect()

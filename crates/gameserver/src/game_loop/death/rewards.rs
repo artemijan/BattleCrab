@@ -964,6 +964,14 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
             inv.unequip_item(obj_id);
             dropped_equipped = true;
         }
+        // Java's unequip listener drops the augment bonuses. It has to run here,
+        // while the instance is still in the bag: once the removal below takes
+        // it out there is nothing left to read its option ids from, and the
+        // wearer would keep an augmented weapon's stats and granted skills
+        // after scattering it on the ground.
+        if equipped {
+            crate::game_loop::options::remove_item_options(world, victim_oid, obj_id);
+        }
         if let Some(inv) = world
             .objects
             .get_component_mut::<crate::model::inventory::Inventory>(&victim_oid)

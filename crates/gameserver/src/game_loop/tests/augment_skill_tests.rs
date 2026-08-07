@@ -404,3 +404,61 @@ fn a_critical_proc_never_fires_from_a_cast() {
         assert!(!has_buff(&world, MOB_OID, PROC), "magic_type={magic_type}");
     }
 }
+
+/// Destroying a *worn* augmented item must take its options back with it.
+///
+/// This drives the documented destroy protocol exactly as `remove_item`'s doc
+/// comment prescribes — snapshot `equipped_object_ids`, remove, intersect via
+/// `unequipped_by_removal`, hand the result to `finish_equipped_item_destroyed`
+/// — so a failure here is a hole in the protocol itself, not in a call site
+/// that skipped it.
+#[test]
+fn destroying_a_worn_augmented_item_takes_its_option_back() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = augment_world();
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
+    world.id_pool = 0x4200_0000..0x4200_0100;
+    world.data.options.insert_for_test(active_option(4001));
+
+    let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
+    let item_id = world
+        .objects
+        .get_component::<Inventory>(&PLAYER)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == item_oid)
+                .map(|i| i.item_id)
+        })
+        .expect("the augmented weapon is in the bag");
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        Some(1),
+        "granted while worn"
+    );
+
+    // The destroy protocol, by the book.
+    let before = world
+        .objects
+        .get_component::<Inventory>(&PLAYER)
+        .map(|inv| inv.equipped_object_ids())
+        .unwrap_or_default();
+    let changes = world
+        .objects
+        .get_component_mut::<Inventory>(&PLAYER)
+        .map(|inv| inv.remove_item(item_id, 1))
+        .unwrap_or_default();
+    let unequipped = crate::game_loop::items::unequipped_by_removal(&before, &changes);
+    assert_eq!(
+        unequipped.iter().map(|i| i.object_id).collect::<Vec<_>>(),
+        vec![item_oid],
+        "the protocol correctly identifies the destroyed worn item"
+    );
+    crate::game_loop::items::finish_equipped_item_destroyed(&mut world, CID, PLAYER, &unequipped);
+
+    assert_eq!(
+        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        None,
+        "the option's skill must go with the destroyed item"
+    );
+}
