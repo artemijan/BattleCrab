@@ -22,6 +22,7 @@ fn etc_template(item_id: i32, name: &str) -> ItemTemplate {
         body_part: 0,
         weight: 0,
         is_stackable: true,
+        is_infinite: false,
         type1: 0,
         type2: 0,
         is_quest_item: false,

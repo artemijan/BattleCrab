@@ -30,6 +30,7 @@ fn link_world() -> (
             type2: 0,
             body_part: 0x0080, // R-hand
             is_stackable: false,
+            is_infinite: false,
             is_sellable: true,
             price: 100,
             ..Default::default()

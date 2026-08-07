@@ -218,21 +218,62 @@ fn equip_ammunition(world: &mut World, object_id: i32, kind: EtcItemType) -> Opt
     Some(found)
 }
 
-/// `Inventory.reduceArrowCount` — one arrow per shot; the stack disappears (and
-/// with it the equipped slot) when it runs out.
+/// `PlayerInventory.reduceArrowCount` — one arrow per shot.
+///
+/// Java splits on what the stack has left (`updateItemCountNoDbUpdate`), and
+/// the two halves cost very different things:
+///
+/// * **still arrows left** — decrement, refresh the weight, and send an
+///   `InventoryUpdate` naming the modified stack. No unequip, no stat
+///   recompute: the quiver stays in the left hand.
+/// * **that was the last one** — `destroyItem`, whose `Inventory.removeItem`
+///   unequips the empty quiver and runs the full paperdoll refresh. Once per
+///   stack, not once per shot.
+///
+/// An *infinite* quiver bails before the decrement entirely.
 fn consume_one(world: &mut World, object_id: i32, ammo_object_id: i32) {
-    let item_id = world
+    let Some((item_id, left)) = world
         .objects
         .get_component::<Inventory>(&object_id)
         .and_then(|inv| {
             inv.items()
                 .iter()
                 .find(|i| i.object_id == ammo_object_id)
-                .map(|i| i.item_id)
-        });
-    let Some(item_id) = item_id else { return };
-    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&object_id) {
-        inv.remove_item(item_id, 1);
+                .map(|i| (i.item_id, i.count))
+        })
+    else {
+        return;
+    };
+    // Java `arrows.getEtcItem().isInfinite()` — the quiver is never spent.
+    if world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_infinite)
+    {
+        return;
+    }
+
+    if left > 1 {
+        // The ordinary shot: decrement and tell the client, nothing more.
+        let changes = world
+            .objects
+            .get_component_mut::<Inventory>(&object_id)
+            .map(|inv| inv.remove_item(item_id, 1))
+            .unwrap_or_default();
+        if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
+            let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+            crate::game_loop::helpers::send_inventory_update(world, client_id, object_id, iu);
+        }
+        return;
+    }
+
+    // The last arrow: the quiver leaves the left hand, so this takes the
+    // destroy protocol (paperdoll, options, stats) like any other worn item.
+    let changes = crate::game_loop::items::destroy_item_by_id(world, object_id, item_id, 1);
+    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
+        let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+        crate::game_loop::helpers::send_inventory_update(world, client_id, object_id, iu);
     }
 }
 

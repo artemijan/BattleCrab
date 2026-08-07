@@ -11,6 +11,7 @@ const CID: u32 = 1;
 const BOW_ID: i32 = 8100;
 const ARROW_ID: i32 = 8101;
 const WRONG_GRADE_ARROW: i32 = 8102;
+const INFINITE_ARROW_ID: i32 = 8103;
 
 fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTemplate {
     ItemTemplate {
@@ -33,6 +34,7 @@ fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTem
         body_part,
         weight: 0,
         is_stackable: kind == ItemKind::Etc,
+        is_infinite: false,
         type1: 0,
         type2: 0,
         is_quest_item: false,
@@ -91,6 +93,18 @@ fn bow_world() -> (
     wrong.etc_item_type = EtcItemType::Arrow;
     wrong.crystal_type = CrystalType::B;
     world.data.item_data.insert_for_test(wrong);
+
+    // An infinite quiver (the dist ships 14: arrows 32249-32255, bolts
+    // 32256-32262), which must never be spent.
+    let mut endless = template(
+        INFINITE_ARROW_ID,
+        "Infinite Test Quiver",
+        ItemKind::Etc,
+        crate::data::item_data::SLOT_L_HAND,
+    );
+    endless.etc_item_type = EtcItemType::Arrow;
+    endless.is_infinite = true;
+    world.data.item_data.insert_for_test(endless);
 
     (world, db, l)
 }
@@ -292,5 +306,90 @@ fn melee_attacks_are_unaffected() {
     assert!(
         !world.objects.has_component::<RangedReload>(&ARCHER),
         "a melee swing arms no reload delay"
+    );
+}
+
+/// **An infinite quiver is never spent.** Java `reduceArrowCount` returns
+/// before the decrement on `getEtcItem().isInfinite()`. This dist ships 14 such
+/// items (arrows 32249-32255, bolts 32256-32262); the port had no `is_infinite`
+/// at all, so every shot ate one.
+#[test]
+fn an_infinite_quiver_is_never_consumed() {
+    let (mut world, _db, _l) = bow_world();
+    let mut out = ingame_caster(&mut world, CID, ARCHER, 0, 0);
+    arm_archer(&mut world, 1, INFINITE_ARROW_ID);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 300, 0, 0);
+    drain(&mut out);
+
+    for _ in 0..3 {
+        shoot(&mut world, NPC_OID);
+        world.objects.remove_component::<RangedReload>(&ARCHER);
+    }
+
+    assert_eq!(
+        arrow_count(&world, INFINITE_ARROW_ID),
+        1,
+        "the quiver still holds its single infinite entry"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&ARCHER)
+            .is_some_and(|inv| inv.paperdoll_object_id(PaperdollSlot::LHand) != 0),
+        "and stays equipped"
+    );
+}
+
+/// Every shot tells the client the stack shrank (Java's per-shot
+/// `InventoryUpdate` from `updateItemCountNoDbUpdate`), or the quiver counts
+/// down only when something else happens to resend the item list.
+#[test]
+fn each_shot_sends_the_client_an_inventory_update() {
+    let (mut world, _db, _l) = bow_world();
+    let mut out = ingame_caster(&mut world, CID, ARCHER, 0, 0);
+    arm_archer(&mut world, 10, ARROW_ID);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 300, 0, 0);
+    drain(&mut out);
+
+    shoot(&mut world, NPC_OID);
+
+    let pkts = drain(&mut out);
+    assert!(
+        pkts.iter().any(|p| p[0] == 0x21), // InventoryUpdate
+        "an InventoryUpdate follows the shot"
+    );
+}
+
+/// The **last** arrow frees the left hand: Java's `left == 0` branch destroys
+/// the stack, and `Inventory.removeItem` unequips the empty quiver.
+#[test]
+fn the_last_arrow_unequips_the_empty_quiver() {
+    let (mut world, _db, _l) = bow_world();
+    let mut out = ingame_caster(&mut world, CID, ARCHER, 0, 0);
+    arm_archer(&mut world, 1, ARROW_ID);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 300, 0, 0);
+    drain(&mut out);
+
+    shoot(&mut world, NPC_OID);
+
+    assert_eq!(arrow_count(&world, ARROW_ID), 0, "the last arrow is spent");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&ARCHER)
+            .map(|inv| inv.paperdoll_object_id(PaperdollSlot::LHand)),
+        Some(0),
+        "the empty quiver left the left hand"
+    );
+    // Freeing the slot is not enough, and asserting only that proves nothing:
+    // a bare `remove_item` clears the paperdoll too. What separates Java's
+    // destroy branch is that the client is *told* — `ExUserInfoEquipSlot`
+    // (0xFE:0x156) is the only packet carrying paperdoll ids, so without it the
+    // archer keeps rendering a quiver they no longer own.
+    let pkts = drain(&mut out);
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == 0xFE && p.len() >= 3 && i16::from_le_bytes([p[1], p[2]]) == 0x156),
+        "the emptied left hand is pushed to the client"
     );
 }
