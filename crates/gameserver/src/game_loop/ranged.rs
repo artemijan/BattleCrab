@@ -181,10 +181,7 @@ fn equipped_ammo(world: &World, object_id: i32, kind: EtcItemType) -> Option<i32
     if world.data.item_data.get(lhand_id).map(|t| t.etc_item_type) != Some(kind) {
         return None;
     }
-    inv.items()
-        .iter()
-        .find(|i| i.item_id == lhand_id)
-        .map(|i| i.object_id)
+    inv.first_of_item(lhand_id).map(|i| i.object_id)
 }
 
 /// Java `Inventory.findArrowForBow` / `findBoltForCrossBow` + the equip half of

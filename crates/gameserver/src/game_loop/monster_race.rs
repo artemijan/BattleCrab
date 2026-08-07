@@ -619,7 +619,7 @@ fn calculate_win(world: &mut World, client_id: u32, player: i32, command: &str) 
     }
     let mut changes: Vec<ItemChange> = removed.into_iter().collect();
     if let Some(inv) = world.objects.get_component::<Inventory>(&player)
-        && let Some(it) = inv.items().iter().find(|i| i.item_id == ADENA_ID)
+        && let Some(it) = inv.first_of_item(ADENA_ID)
     {
         changes.push(ItemChange::Modified(*it));
     }

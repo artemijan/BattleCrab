@@ -323,17 +323,9 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
             heading: 0,
         });
 
-    // Take the weapon off the corpse: unequip, then remove from the bag.
+    // Take the weapon off the corpse. `remove_item` frees the paperdoll slot
+    // itself (Java `Inventory.removeItem`), so there is no unequip step here.
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&victim_oid) {
-        if let Some(item_oid) = inv
-            .items()
-            .iter()
-            .find(|i| i.item_id == item_id)
-            .map(|i| i.object_id)
-            && inv.paperdoll_slot_of(item_oid).is_some()
-        {
-            inv.unequip_item(item_oid);
-        }
         inv.remove_item(item_id, 1);
     }
     // Reset the wielder (Java does this in both `dropIt` and its caller).
@@ -547,18 +539,14 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
     let item_ids: Vec<i32> = world.cursed_weapons.iter().map(|cw| cw.item_id).collect();
     let mut removed = false;
     for item_id in item_ids {
-        let Some(item_oid) = world
+        let holds = world
             .objects
             .get_component::<Inventory>(&object_id)
-            .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id))
-            .map(|i| i.object_id)
-        else {
+            .is_some_and(|inv| inv.first_of_item(item_id).is_some());
+        if !holds {
             continue;
-        };
+        }
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&object_id) {
-            if inv.paperdoll_slot_of(item_oid).is_some() {
-                inv.unequip_item(item_oid);
-            }
             inv.remove_item(item_id, 1);
             removed = true;
         }

@@ -72,8 +72,27 @@ pub(crate) fn apply_equipped_item_options(world: &mut World, player_oid: i32) {
 
 /// Java `VariationInstance.removeBonus` — drop both options of an item that was
 /// just unequipped (or whose augmentation was cancelled).
+///
+/// Reads the ids off the instance **in the bag**, so this only works while the
+/// item is still there. A destroyed item is already gone by the time anything
+/// can react to it — use [`remove_option_ids`] with ids captured beforehand.
 pub(crate) fn remove_item_options(world: &mut World, player_oid: i32, item_object_id: i32) {
-    for option_id in option_ids_of(world, player_oid, item_object_id) {
+    remove_option_ids(
+        world,
+        player_oid,
+        &option_ids_of(world, player_oid, item_object_id),
+    );
+}
+
+/// [`remove_item_options`] for an item that has already left the inventory:
+/// the option ids come from the caller's snapshot instead of a lookup.
+///
+/// Destroying a *worn* augmented item used to leak its bonuses permanently —
+/// the removal ran, took the "unequipped" branch, and then found no instance to
+/// read option ids from, so it removed nothing. Zeroes are ignored, so an
+/// unaugmented item's `[0, 0]` is a no-op.
+pub(crate) fn remove_option_ids(world: &mut World, player_oid: i32, option_ids: &[i32]) {
+    for &option_id in option_ids.iter().filter(|&&id| id != 0) {
         remove_option(world, player_oid, option_id);
     }
 }

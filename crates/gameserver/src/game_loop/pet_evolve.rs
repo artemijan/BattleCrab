@@ -285,9 +285,7 @@ fn do_restore(
         .objects
         .get_component::<Inventory>(&player_oid)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.item_id == take)
+            inv.first_of_item(take)
                 .map(|i| (i.object_id, i.enchant_level))
         })
     else {

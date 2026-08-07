@@ -1345,12 +1345,7 @@ impl<'w> QuestCtx<'w> {
         self.world
             .objects
             .get_component::<Inventory>(&self.player)
-            .and_then(|inv| {
-                inv.items()
-                    .iter()
-                    .find(|i| i.item_id == item_id)
-                    .map(|i| i.object_id)
-            })
+            .and_then(|inv| inv.first_of_item(item_id).map(|i| i.object_id))
     }
 
     /// `getItemByItemId(id).getEnchantLevel()` — the enchant level of the first
@@ -1360,12 +1355,7 @@ impl<'w> QuestCtx<'w> {
         self.world
             .objects
             .get_component::<Inventory>(&self.player)
-            .and_then(|inv| {
-                inv.items()
-                    .iter()
-                    .find(|i| i.item_id == item_id)
-                    .map(|i| i.enchant_level)
-            })
+            .and_then(|inv| inv.first_of_item(item_id).map(|i| i.enchant_level))
     }
 
     /// `startQuestTimer("DESPAWN…", delay, npc, null)` for a **spawned** NPC:
