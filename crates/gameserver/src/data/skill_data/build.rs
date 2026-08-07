@@ -1402,7 +1402,7 @@ pub(crate) fn build_skill(
                         // Java's `MAGIC_CRITICAL_DAMAGE_ADD` half is dropped: the
                         // magic branch of `calcCritDamage` reads only the
                         // multiplier, and `calcCritDamageAdd`'s magic result is
-                        // never applied (see `Formulas.calcMagicDam`'s own TODO).
+                        // never applied (`Formulas.calcMagicDam` says as much in its own comment).
                         "MagicCriticalDamage" => param("amount")
                             .filter(|_| modifier_mode == StatModifierType::Per)
                             .map(|amount| stat_mod(Stat::MagicCriticalDamage, amount))

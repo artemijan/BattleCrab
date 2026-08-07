@@ -145,7 +145,8 @@ pub(crate) fn handle_create_ally(world: &mut World, client_id: u32, player_oid: 
     }
     store_clan_ally(world, clan_id);
     refresh_ally_on_members(world, clan_id);
-    // Java: "TODO: Need correct message id" — a plain text line.
+    // Java notes it does not know the right message id here and sends a plain
+    // text line instead; ported as written.
     send_sm_with(
         world,
         player_oid,

@@ -172,7 +172,7 @@ const TOI_NPCS: &[i32] = &[
     30954, // Dimension Vortex 3
 ];
 
-/// Dimension stones (Java notes the `FIXME: 4401` mismatch and keeps these).
+/// Dimension stones (Java flags a `4401` mismatch and keeps these anyway).
 const GREEN_DIMENSION_STONE: i32 = 4404;
 const BLUE_DIMENSION_STONE: i32 = 4405;
 const RED_DIMENSION_STONE: i32 = 4406;

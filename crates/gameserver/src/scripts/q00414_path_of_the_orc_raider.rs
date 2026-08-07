@@ -49,8 +49,8 @@
 //! stranded — it consumes the map and teeth but hands out no reports, and the
 //! reports are the only path to the reward. Because the button doesn't exist,
 //! there is no such trap. Ported verbatim anyway (it costs nothing and keeps
-//! the diff against Java honest); the `TODO` marks it so nobody "restores" the
-//! button without also registering 31978.
+//! the diff against Java honest). This note is the record, so nobody
+//! "restores" the button without also registering 31978.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;

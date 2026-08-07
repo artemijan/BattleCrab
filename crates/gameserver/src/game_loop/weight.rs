@@ -1,7 +1,7 @@
 //! Carried weight — port of `Creature.getMaxLoad`, `Player.refreshOverloaded`
 //! and `Player.getInventoryLimit`/`isInventoryUnder80`.
 //!
-//! Three separate `TODO`s across this port were waiting on "no weight calc
+//! Three separate deferrals across this port were waiting on "no weight calc
 //! exists": `//diet`'s overload immunity, TvT's `isInventoryUnder80` +
 //! `getWeightPenalty()` registration gates, and the inventory-full refusals.
 //! They all read from here now.

@@ -643,7 +643,7 @@ pub(crate) fn handle_request_pledge_draft_list_search(
     };
     let Some(_class_id) = r.read_i32() else {
         return;
-    }; // read, TODO: role filter unhandled in Java too
+    }; // read but unused — the role filter is unhandled in Java too
     let Some(query) = r.read_string() else { return };
     let Some(sort) = r.read_i32() else { return };
     let Some(descending_raw) = r.read_i32() else {

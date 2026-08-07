@@ -230,7 +230,7 @@ fn restore_never_overheals() {
 }
 
 /// `isMpBlocked()` refuses the restore outright — the gate this slice closes
-/// the previous one's TODO on. Without it, MP-block would stop drains but not
+/// what the previous one left open. Without it, MP-block would stop drains but not
 /// heals, which is exactly backwards from Java.
 #[test]
 fn mp_block_refuses_a_restore() {

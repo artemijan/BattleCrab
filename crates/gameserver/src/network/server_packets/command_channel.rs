@@ -35,7 +35,7 @@ pub fn ex_close_mpcc() -> Vec<u8> {
 pub fn ex_ask_join_mpcc(requestor_name: &str) -> Vec<u8> {
     let mut w = ex(opcodes::EX_ASK_JOIN_MPCC);
     w.write_string(requestor_name);
-    w.write_i32(0); // unknown (Java TODO)
+    w.write_i32(0); // unknown field — Java writes 0 and does not know what it is either
     w.into_bytes()
 }
 

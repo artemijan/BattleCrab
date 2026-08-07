@@ -211,7 +211,7 @@ pub fn char_info(
         p.mount_npc_id + 1_000_000
     }); // mount npc id
     w.write_i32(p.class_id);
-    w.write_i32(0); // TODO: Find me! (Java unknown)
+    w.write_i32(0); // unknown field, labelled "Find me!" upstream — Java writes 0 too
     // Java: `isMounted() ? 0 : _enchantLevel` — no weapon glow on a mount.
     w.write_u8(if p.is_mounted() {
         0

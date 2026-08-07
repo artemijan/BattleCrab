@@ -277,7 +277,7 @@ fn spawn_next(ctx: &mut QuestCtx, growth: &Growth, food: i32) {
         );
         // SKIP(off-chronicle): Java's quest hooks here — 20 (Bring Up With
         // Love) and 655 (A Grand Plan for Taming Wild Beasts) — are both
-        // commented out in the reference (`// TODO: Q00020…` / `// Q00655…`),
+        // commented out in the reference (the `Q00020…` / `Q00655…` hooks),
         // and neither quest exists anywhere in this datapack. Dead code even
         // in Java; revive only if those quests ever ship here.
         if let (Some(beast), 0) = (beast, ctx.roll(20)) {

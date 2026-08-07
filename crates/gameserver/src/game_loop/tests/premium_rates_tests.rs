@@ -65,7 +65,7 @@ fn the_per_item_override_replaces_the_flat_rate() {
 
 /// **Java's herb and raid arms are empty** — a premium killer gets no bonus at
 /// all on a herb drop or a raid drop unless the item is in the map. (The two
-/// `// TODO: Premium herb chance? :)` comments are Java's own.)
+/// `Premium herb chance? :)` musings are Java's own.)
 #[test]
 fn herbs_and_raid_drops_get_no_premium_bonus() {
     let (mut world, _db, _l) = cast_test_world();
