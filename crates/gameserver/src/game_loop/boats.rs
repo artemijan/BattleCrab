@@ -20,6 +20,7 @@
 //! if a second boat ever shares a dock.
 
 use crate::enums::ChatType;
+use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
 use crate::model::components::{Position, RegionCell};
 use crate::network::server_packets as sp;
@@ -645,7 +646,7 @@ fn move_to_next(world: &mut World, boat_oid: i32) {
     broadcast_near_region(world, region_of(cur.x, cur.y), &departure);
 
     // Travel time: distance / speed (units per second → ms).
-    let dist = (((target.x - cur.x) as f64).powi(2) + ((target.y - cur.y) as f64).powi(2)).sqrt();
+    let dist = distance_2d_xy(target.x, target.y, cur.x, cur.y);
     let travel_ms = (dist / target.move_speed.max(1) as f64 * 1000.0).max(100.0) as u64;
     let fire_at = world.tick + travel_ms.div_ceil(100);
     world.scheduler.schedule(
@@ -736,7 +737,7 @@ pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i
     let Some(pp) = world.objects.get_component::<Position>(&player).copied() else {
         return;
     };
-    if dist3d(pp.x, pp.y, pp.z, bx, by, bz) > 1000.0 {
+    if dist3d_xyz(pp.x, pp.y, pp.z, bx, by, bz) > 1000.0 {
         return;
     }
     world.objects.add_components(
@@ -839,10 +840,6 @@ fn boat_state(world: &World, boat_oid: i32) -> Option<(i32, i32, i32, bool)> {
     let moving = world.objects.get_component::<Boat>(&boat_oid)?.moving;
     let p = world.objects.get_component::<Position>(&boat_oid)?;
     Some((p.x, p.y, p.z, moving))
-}
-
-fn dist3d(x1: i32, y1: i32, z1: i32, x2: i32, y2: i32, z2: i32) -> f64 {
-    (((x2 - x1) as f64).powi(2) + ((y2 - y1) as f64).powi(2) + ((z2 - z1) as f64).powi(2)).sqrt()
 }
 
 /// L2 heading (`0..65536`) from `(x1,y1)` toward `(x2,y2)`.

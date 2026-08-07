@@ -21,6 +21,7 @@ use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
+use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
 use crate::model::components::{Casting, Position, RegionCell, Vitals};
 use crate::model::npc::AggroList;
 use crate::model::skill::Skill;
@@ -697,34 +698,10 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     );
 }
 
-fn position_of(world: &World, oid: i32) -> Option<(i32, i32, i32)> {
-    world
-        .objects
-        .get_component::<Position>(&oid)
-        .map(|p| (p.x, p.y, p.z))
-}
-
 fn collision_radius(world: &World, oid: i32) -> f64 {
     super::combat::combatant(world, oid)
         .map(|c| c.collision_radius)
         .unwrap_or(0.0)
-}
-
-fn distance_2d(world: &World, a: i32, b: i32) -> Option<f64> {
-    let (ax, ay, _) = position_of(world, a)?;
-    let (bx, by, _) = position_of(world, b)?;
-    Some((((bx - ax) as f64).powi(2) + ((by - ay) as f64).powi(2)).sqrt())
-}
-
-/// `Util.calculateDistance(…, includeZAxis = true)` — what an NPC's cast-range
-/// gate measures.
-fn distance_3d(world: &World, a: i32, b: i32) -> Option<f64> {
-    let (ax, ay, az) = position_of(world, a)?;
-    let (bx, by, bz) = position_of(world, b)?;
-    Some(
-        (((bx - ax) as f64).powi(2) + ((by - ay) as f64).powi(2) + ((bz - az) as f64).powi(2))
-            .sqrt(),
-    )
 }
 
 fn hp_percent(world: &World, oid: i32) -> f64 {
@@ -885,8 +862,7 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
                     .objects
                     .get_component::<Position>(&other)
                     .is_some_and(|p| {
-                        let d = (((p.x - pos.x) as f64).powi(2) + ((p.y - pos.y) as f64).powi(2))
-                            .sqrt();
+                        let d = distance_2d_xy(p.x, p.y, pos.x, pos.y);
                         d <= range
                     })
                 && world

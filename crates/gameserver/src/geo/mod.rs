@@ -12,6 +12,7 @@
 //! out in the `.l2j` on-disk format. Not ported: fence checks (no fences
 //! exist on the Rust side).
 
+pub mod distance;
 pub mod doors;
 pub mod line;
 pub mod path;
