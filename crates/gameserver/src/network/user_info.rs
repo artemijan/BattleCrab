@@ -289,12 +289,13 @@ pub fn user_info(
 
     // MOVEMENTS
     w.write_i16(UserInfoType::Movements.block_length() as i16);
-    // Java: `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`. Note
-    // `isFlyingMounted()` is *transform*-based (Gracia sky mounts) — a wyvern
-    // rider is `isFlying()` but NOT `isFlyingMounted()`, so it stays 0 here
-    // even in Java (CharInfo's equivalent byte does show 2). Water: TODO with
-    // water zones.
-    w.write_u8(0);
+    // Java: `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`.
+    //
+    // The `2` arm stays unreachable on purpose: `isFlyingMounted()` is
+    // *transform*-based (Gracia sky mounts), and a wyvern rider is
+    // `isFlying()` but **not** `isFlyingMounted()`, so Java writes 0 for them
+    // here too — their flight renders from the mount npc id and the fly speeds.
+    w.write_u8(u8::from(v.in_water));
     w.write_u8(speeds.running as u8);
 
     // COLOR

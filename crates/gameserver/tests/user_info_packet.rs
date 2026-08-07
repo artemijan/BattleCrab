@@ -190,6 +190,7 @@ async fn user_info_test() {
         mods: &mods,
         skills: &skills,
         cursed_weapon_level: 0,
+        in_water: false,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let cfg = CharacterConfig::default();
