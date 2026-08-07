@@ -200,9 +200,12 @@ pub(crate) fn despawn_ground_item(world: &mut World, item_oid: i32, region: (i32
 
 /// `Player.doPickupItem`: pick a ground item up into `player_oid`'s inventory —
 /// the pickup animation to nearby, remove from the world, and add to inventory
-/// with the "you obtained" message + `InventoryUpdate`. (Enchant is not carried
-/// through the give path yet — stackable drops are enchant 0; enchanted gear
-/// pickup keeping its level is a TODO.)
+/// with the "you obtained" message + `InventoryUpdate`.
+///
+/// The **enchant level survives the round trip**. Java gets that for free —
+/// drop and pickup move one `Item` instance between containers — while this
+/// port mints a fresh instance on the give path, so `GroundItem::enchant` is
+/// passed across explicitly. Without it a dropped `+7` weapon came back `+0`.
 pub(crate) fn pickup_ground_item(
     world: &mut World,
     client_id: u32,
@@ -280,7 +283,9 @@ pub(crate) fn pickup_ground_item(
         &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z),
     );
     despawn_ground_item(world, item_oid, region);
-    super::quests::give_item_with_earned_message(world, client_id, player_oid, g.item_id, g.count);
+    super::quests::give_item_with_earned_message_enchanted(
+        world, client_id, player_oid, g.item_id, g.count, g.enchant,
+    );
     // Java `ON_PLAYER_ITEM_PICKUP` (the tutorial's Blue Gemstone listener).
     super::quests::notify_item_pickup(world, client_id, player_oid, g.item_id);
 }

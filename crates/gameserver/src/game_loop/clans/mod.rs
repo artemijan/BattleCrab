@@ -43,7 +43,7 @@ mod crests;
 mod membership;
 mod ranks;
 mod recruit;
-mod skills;
+pub(crate) mod skills;
 mod sub_pledge;
 pub(crate) mod wars;
 

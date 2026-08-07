@@ -667,6 +667,116 @@ fn clan_advent_aura_tracks_leader_online_state() {
     );
 }
 
+/// `ClanMaster.onProfessionChange` (`ON_PLAYER_PROFESSION_CHANGE`) — the last
+/// of that script's four listeners, and the only one that was unported.
+///
+/// **This exercises the helper directly rather than driving `set_class_id`.**
+/// Going through the class change would be vacuous here: nothing on that path
+/// strips buffs in this port, so the aura is still present afterwards whether
+/// or not the listener runs — a test written that way passes with the hook
+/// deleted. What is worth pinning is the *gate*, which is Java's
+/// `isClanLeader() || clan.getLeader().isOnline()`.
+#[test]
+fn the_profession_change_listener_honours_javas_leader_gate() {
+    use crate::model::clan::{Clan, ClanMember};
+
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(clan_advent_test_skill());
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    drain_db(&mut db_rx);
+
+    let clan_id = 0x3000_0002;
+    let cm = |id: i32| ClanMember {
+        char_id: id,
+        name: format!("P{id}"),
+        level: 1,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+        power_grade: 5,
+        title: String::new(),
+        pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
+    };
+    world.clans.insert(
+        clan_id,
+        Clan {
+            id: clan_id,
+            name: "ProfClan".into(),
+            leader_id: 3001,
+            level: 1,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![cm(3001), cm(3002)],
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        },
+    );
+    for oid in [3001, 3002] {
+        world
+            .objects
+            .get_component_mut::<Player>(&oid)
+            .unwrap()
+            .clan_id = clan_id;
+    }
+    let has_advent = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<Buffs>(&oid)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 19009))
+    };
+    let relight = |world: &mut World, oid: i32| {
+        crate::game_loop::clans::skills::reapply_clan_advent_on_profession_change(world, oid)
+    };
+
+    // Leader online → a member's profession change re-lights the aura.
+    assert!(!has_advent(&world, 3002), "starts without it");
+    relight(&mut world, 3002);
+    assert!(
+        has_advent(&world, 3002),
+        "re-lit while the leader is online"
+    );
+
+    // Leader offline → it does not.
+    crate::game_loop::clans::skills::remove_clan_advent(&mut world, 3002);
+    world.clients.remove(&1);
+    world.objects.despawn(&3001);
+    relight(&mut world, 3002);
+    assert!(
+        !has_advent(&world, 3002),
+        "no re-light for a member while the leader is offline"
+    );
+
+    // …but the leader themselves always qualifies, with no online check —
+    // they are plainly online to have changed profession at all.
+    let _c = ingame_player(&mut world, 3, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .clan_id = clan_id;
+    relight(&mut world, 3001);
+    assert!(has_advent(&world, 3001), "the leader re-lights their own");
+}
+
 /// `//give_clan_skills` (Java `adminGiveClanSkills`): the clan learns every
 /// pledge skill it qualifies for at its level; each applies to online members
 /// gated by social class, lands as a (passive, icon-less) stat buff, shows in
