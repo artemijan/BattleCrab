@@ -4,21 +4,26 @@
 //! plus or minus a random spread: Java's
 //! `(INTERVAL + getRandom(-RANDOM, RANDOM)) * 3600000L`. Baium ships an
 //! interval with no `Random` key, so the spread defaults to 0 rather than
-//! being assumed symmetric.
+//! being assumed symmetric — and Java's `Config` reads no `RandomOfBaiumSpawn`
+//! either, so the key is *expected* absent. The `Random` lookup therefore uses
+//! [`PropertiesParser::get_int_opt`], which stays quiet on an absent key: with
+//! plain `get_int` every boot logged a missing-property warning for a key that
+//! is correctly missing, which is exactly the noise that trains an operator to
+//! ignore the ones that matter.
 
 use commons::config::PropertiesParser;
 
 const GRAND_BOSS_CONFIG_FILE: &str = "config/GrandBoss.ini";
 
 /// One boss's respawn window, in hours.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RespawnWindow {
     pub interval_hours: i32,
     /// `± this many hours`. 0 for a boss with no `RandomOf…Spawn` key.
     pub random_hours: i32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GrandBossConfig {
     pub antharas: RespawnWindow,
     /// `AntharasWaitTime` — minutes between the first group entering the lair
@@ -38,7 +43,11 @@ pub struct GrandBossConfig {
 impl Default for GrandBossConfig {
     fn default() -> Self {
         // The dist's own values, so a test world matches production without
-        // reading the file.
+        // reading the file. Held to that claim by
+        // `grand_boss_tests::default_config_matches_the_shipped_ini`, which
+        // compares the whole struct against a real load — Baium's interval and
+        // Zaken's whole window had both drifted off the shipped values while
+        // this comment went on asserting they had not.
         Self {
             antharas: RespawnWindow {
                 interval_hours: 264,
@@ -51,7 +60,7 @@ impl Default for GrandBossConfig {
             },
             valakas_wait_minutes: 30,
             baium: RespawnWindow {
-                interval_hours: 121,
+                interval_hours: 168,
                 random_hours: 0,
             },
             core: RespawnWindow {
@@ -67,8 +76,8 @@ impl Default for GrandBossConfig {
                 random_hours: 17,
             },
             zaken: RespawnWindow {
-                interval_hours: 60,
-                random_hours: 20,
+                interval_hours: 168,
+                random_hours: 48,
             },
         }
     }
@@ -84,7 +93,9 @@ impl GrandBossConfig {
         let p = PropertiesParser::load_rel(base, GRAND_BOSS_CONFIG_FILE);
         let w = |name: &str, def: RespawnWindow| RespawnWindow {
             interval_hours: p.get_int(&format!("IntervalOf{name}Spawn"), def.interval_hours),
-            random_hours: p.get_int(&format!("RandomOf{name}Spawn"), def.random_hours),
+            random_hours: p
+                .get_int_opt(&format!("RandomOf{name}Spawn"))
+                .unwrap_or(def.random_hours),
         };
         Self {
             antharas: w("Antharas", d.antharas),

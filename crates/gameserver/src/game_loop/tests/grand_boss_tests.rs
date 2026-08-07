@@ -257,7 +257,13 @@ fn zaken_world() -> (
 }
 
 /// Zaken's full lifecycle on the generic machinery: boot spawns him on his
-/// deck, the kill arms his 60 h ± 20 h window, the timer brings him back.
+/// deck, the kill arms his 168 h ± 48 h window, the timer brings him back.
+///
+/// The bound tracked `GrandBossConfig::default()`, which had drifted to
+/// 60 h ± 20 h — neither Java's default nor the shipped `GrandBoss.ini`, both
+/// of which say 168/48. It is stated as the shipped numbers here rather than
+/// "whatever the default holds", so the two can only agree on purpose;
+/// `default_config_matches_the_shipped_ini` guards the other direction.
 #[test]
 fn zaken_lives_and_dies_on_the_generic_lifecycle() {
     let (mut world, _db, _l) = zaken_world();
@@ -278,8 +284,8 @@ fn zaken_lives_and_dies_on_the_generic_lifecycle() {
     assert_eq!(b.status, DEAD);
     let hours = (b.respawn_time - commons::util::now_millis()) as f64 / 3_600_000.0;
     assert!(
-        (40.0..=80.5).contains(&hours),
-        "respawn within 60 h ± 20 h ({hours:.1} h)"
+        (120.0..=216.5).contains(&hours),
+        "respawn within 168 h ± 48 h ({hours:.1} h)"
     );
 
     crate::game_loop::grand_boss::handle_grand_boss_respawn(&mut world, ZAKEN);
@@ -358,6 +364,28 @@ fn the_real_grand_boss_config_loads() {
     assert!(
         cfg.window_for(12077).is_none(),
         "an ordinary npc has no window"
+    );
+}
+
+/// `GrandBossConfig::default()` claims to hold "the dist's own values, so a
+/// test world matches production without reading the file". Nothing checked
+/// that, and two entries had drifted off it: Baium's interval read 121 against
+/// the shipped 168, and Zaken's whole window read 60/20 against the shipped
+/// 168/48 — so every test built on the default config respawned Zaken in a
+/// third of production's time.
+///
+/// Comparing the *whole* struct rather than a per-boss list means a boss added
+/// to one side and not the other fails here too.
+#[test]
+fn default_config_matches_the_shipped_ini() {
+    let from_file = crate::config::GrandBossConfig::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    assert_eq!(
+        crate::config::GrandBossConfig::default(),
+        from_file,
+        "GrandBossConfig::default() must equal a real load of dist/game/config/GrandBoss.ini"
     );
 }
 

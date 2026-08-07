@@ -131,6 +131,31 @@ impl PropertiesParser {
         self.get_parsed(key, default)
     }
 
+    /// Like [`get_int`](Self::get_int), but an **absent** key yields `None`
+    /// instead of a missing-property warning.
+    ///
+    /// For the handful of keys the reference server does not read either, so
+    /// their absence from the shipped `.ini` is the expected state rather than
+    /// config drift — `GrandBoss.ini`'s missing `RandomOfBaiumSpawn` is the
+    /// motivating case. Reach for this only when the *reference* omits the key
+    /// too; using it to quiet a key that genuinely should be present is how the
+    /// missing-property warning stops being worth reading.
+    ///
+    /// A present-but-unparseable value still warns, since that is drift.
+    pub fn get_int_opt(&self, key: &str) -> Option<i32> {
+        let raw = self.value(key)?;
+        match raw.parse() {
+            Ok(parsed) => Some(parsed),
+            Err(_) => {
+                warn!(
+                    "[{}] Invalid value specified for key: {key} specified value: {raw} — ignored",
+                    self.file_name
+                );
+                None
+            }
+        }
+    }
+
     fn get_parsed<T: std::str::FromStr + std::fmt::Display + Copy>(
         &self,
         key: &str,
