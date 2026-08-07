@@ -6615,3 +6615,193 @@ fn cw_goto_falls_through_from_the_holder_to_the_dropped_item() {
         "the \"isn't in the World\" line is sent"
     );
 }
+
+/// Every `ExBasicActionList` (0xFE 0x60 00) in `pkts`, decoded back to its id
+/// list, so a test can compare against the template it expects.
+fn basic_action_lists(pkts: &[Vec<u8>]) -> Vec<Vec<i32>> {
+    let mut out = Vec::new();
+    for p in pkts {
+        if p.len() < 7 || p[0] != 0xFE || p[1] != 0x60 || p[2] != 0x00 {
+            continue;
+        }
+        let rd = |o: usize| i32::from_le_bytes([p[o], p[o + 1], p[o + 2], p[o + 3]]);
+        let count = rd(3) as usize;
+        if p.len() < 7 + count * 4 {
+            continue;
+        }
+        out.push((0..count).map(|i| rd(7 + i * 4)).collect());
+    }
+    out
+}
+
+/// Java `Transform.onTransform` sends `ExBasicActionList(template.actions)`,
+/// and `onUntransform` sends `ExBasicActionList.STATIC_PACKET` — the client's
+/// action bar becomes the form's own and is restored on the way out. All 174
+/// templates on this dist carry an `<actions>` block, so the swap is the half
+/// of the transform data a GM can reach on every single one of them.
+#[test]
+fn admin_transform_swaps_and_restores_the_action_bar() {
+    let (mut world, ..) = admin_world();
+    world.data.transforms = crate::data::TransformData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    // The fixture world ships an *empty* ActionData, which would make the
+    // restore leg below compare an empty bar against an empty bar and pass
+    // while proving nothing. Load the real one.
+    world.data.action_data = crate::data::ActionData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+
+    // Transform 105 is one of the two forms a *player* can actually enter on
+    // this dist (the Rabbits event casts it), which is why it is the one worth
+    // pinning here rather than an admin-only id.
+    let expected = world
+        .data
+        .transforms
+        .get(105)
+        .expect("transform 105 loaded")
+        .template(false)
+        .actions
+        .clone();
+    assert!(
+        !expected.is_empty(),
+        "the dist template carries an <actions> block"
+    );
+    let default_bar = world.data.action_data.action_ids().to_vec();
+    assert_ne!(
+        expected, default_bar,
+        "the form's bar must differ from the default, or this test proves nothing"
+    );
+
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8931, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("transform 105"));
+    let bars = basic_action_lists(&drain(&mut gm_rx));
+    assert_eq!(
+        bars.last(),
+        Some(&expected),
+        "transforming swaps the action bar for the template's <actions>"
+    );
+
+    on_packet(&mut world, 1, build_admin("untransform"));
+    let bars = basic_action_lists(&drain(&mut gm_rx));
+    assert_eq!(
+        bars.last(),
+        Some(&default_bar),
+        "untransforming restores ExBasicActionList.STATIC_PACKET"
+    );
+}
+
+/// Java `IStatFunction.calcWeaponBaseValue`: the transform's `<base>` values
+/// replace the equipped weapon's for every form *except* `COMBAT` and
+/// `MODE_CHANGE`, which keep the weapon. Both forms a player can enter on this
+/// dist are on the transform-wins side of that line (105 = NON_COMBAT,
+/// 20008 = RIDING_MODE).
+#[test]
+fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
+    let (mut world, ..) = admin_world();
+    world.data.transforms = crate::data::TransformData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    // The fixture's single synthetic class template does not cover the test
+    // player's class, so `recalculate_stats` would fall back to
+    // `PlayerTemplate::default()` — every class base 0, which makes a ratio
+    // assertion meaningless. Load the real templates.
+    world.data.player_templates = crate::data::PlayerTemplateData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+
+    let non_combat = world.data.transforms.get(105).expect("105 loaded");
+    assert!(
+        !non_combat.kind.weapon_overrides_base(),
+        "105 is NON_COMBAT — the transform's base wins"
+    );
+    let tf_p_atk = non_combat
+        .template(false)
+        .base
+        .as_ref()
+        .and_then(|b| b.p_atk)
+        .expect("105 carries <base pAtk=…>");
+
+    // A COMBAT form is the control: Java hands the weapon branch back to it.
+    let combat = world.data.transforms.get(1).expect("1 loaded");
+    assert!(
+        combat.kind.weapon_overrides_base(),
+        "transform 1 is COMBAT — the weapon wins"
+    );
+
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8932, 100);
+    drain(&mut gm_rx);
+    let naked_p_atk = world
+        .objects
+        .get_component::<CombatStats>(&8932)
+        .unwrap()
+        .p_atk;
+    // The finalizer is `base * STR bonus * levelMod` and only `base` moves, so
+    // the expected total scales by exactly the ratio of the two bases. Deriving
+    // it from the class template keeps the assertion honest whichever way the
+    // numbers happen to fall.
+    let class_base_p_atk = {
+        let (class_id, base_class_id) = {
+            let p = world.objects.get_component::<Player>(&8932).unwrap();
+            (p.class_id, p.base_class_id)
+        };
+        // The same lookup `recalculate_stats` does, fallback included.
+        world
+            .data
+            .player_templates
+            .get(class_id)
+            .or_else(|| world.data.player_templates.get(base_class_id))
+            .expect("class template loaded")
+            .base_p_atk as f64
+    };
+    assert!(
+        class_base_p_atk > 0.0 && class_base_p_atk != tf_p_atk,
+        "the two bases must differ, or this test proves nothing \
+         (class {class_base_p_atk}, transform {tf_p_atk})"
+    );
+
+    on_packet(&mut world, 1, build_admin("transform 105"));
+    let transformed = world
+        .objects
+        .get_component::<CombatStats>(&8932)
+        .unwrap()
+        .p_atk;
+    let expected = naked_p_atk * tf_p_atk / class_base_p_atk;
+    assert!(
+        (transformed - expected).abs() < 1e-6,
+        "the NON_COMBAT form's <base pAtk={tf_p_atk}> displaces the class base \
+         {class_base_p_atk}: expected {expected}, got {transformed}"
+    );
+
+    on_packet(&mut world, 1, build_admin("untransform"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<CombatStats>(&8932)
+            .unwrap()
+            .p_atk,
+        naked_p_atk,
+        "reverting restores the untransformed base"
+    );
+
+    on_packet(&mut world, 1, build_admin("transform 1"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<CombatStats>(&8932)
+            .unwrap()
+            .p_atk,
+        naked_p_atk,
+        "a COMBAT form ignores <base> and keeps the weapon/class value"
+    );
+}

@@ -607,8 +607,16 @@ pub fn ex_rp_item_link(item: &ItemInstance, template: &ItemTemplate, equipped: b
 }
 
 /// `ExBasicActionList` (0x60) — the default action-bar ids from `ActionData`.
+/// Java's `ExBasicActionList.STATIC_PACKET`, which is also what a player gets
+/// back when a transform ends.
 pub fn ex_basic_action_list(data: &GameData) -> Vec<u8> {
-    let ids = data.action_data.action_ids();
+    ex_basic_action_list_ids(data.action_data.action_ids())
+}
+
+/// `ExBasicActionList` (0x60) over an explicit id list — a transform's
+/// `<actions>` block, sent by Java's `Transform.onTransform` in place of the
+/// default bar so the client offers only what that form can do.
+pub fn ex_basic_action_list_ids(ids: &[i32]) -> Vec<u8> {
     let mut w = ex(0x60);
     w.write_i32(ids.len() as i32);
     for &id in ids {

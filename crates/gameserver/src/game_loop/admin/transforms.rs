@@ -4,10 +4,16 @@
 //! A transform is durable state on the `Player` (`transform_id` +
 //! `transform_display_id`) that swaps the model (CharInfo display id + the
 //! self-view abnormal-visual packet), overrides run/walk speed and collision
-//! from the [`Transform`](crate::data::transform_data::Transform) template, and
-//! grants the template's transform skills. The deeper Java integration (base
-//! combat-stat overrides, the `ExBasicActionList` swap, additional-item
-//! inventory blocks) is not applied yet — documented TODO.
+//! from the [`Transform`](crate::data::transform_data::Transform) template,
+//! grants the template's transform skills, swaps the client's action bar for
+//! the template's `<actions>` (`ExBasicActionList`, restored to the default
+//! list on the way out), and applies the `<base>` combat overrides through
+//! `Player::recalculate_stats`.
+//!
+//! Still not applied, deliberately: the `<stats>`/`<defense>`/`<magicDefense>`/
+//! `<levels>` blocks and the additional-item inventory blocks. A reachability
+//! census found no template carrying any of them is enterable on this dist —
+//! the evidence lives in `data::transform_data`'s module header.
 
 use crate::game_loop::guard;
 use crate::model::Player;
@@ -186,6 +192,7 @@ pub(crate) fn apply_transform_state(world: &mut World, target: i32, transform_id
     let tmpl = tf.template(is_female);
     let (radius, height) = (tmpl.collision_radius, tmpl.collision_height);
     let skills = tmpl.skills.clone();
+    let actions = tmpl.actions.clone();
 
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.transform_id = transform_id;
@@ -200,6 +207,17 @@ pub(crate) fn apply_transform_state(world: &mut World, target: i32, transform_id
         for (id, level) in &skills {
             book.0.insert(*id, *level);
         }
+    }
+    // Java `Transform.onTransform`: `if (template.hasBasicActionList())` — swap
+    // the client's action bar for the transform's own `<actions>` list. An
+    // empty list means the template carried no block and Java sends nothing,
+    // leaving the previous bar alone.
+    if !actions.is_empty() {
+        crate::game_loop::helpers::send_to_player(
+            world,
+            target,
+            crate::network::enter_world::ex_basic_action_list_ids(&actions),
+        );
     }
     recompute_speeds(world, target);
 }
@@ -281,6 +299,13 @@ pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
             },
         );
     }
+    // Java `Transform.onUntransform`: `player.sendPacket(
+    // ExBasicActionList.STATIC_PACKET)` — unconditional, unlike the transform
+    // side's `hasBasicActionList()` guard. A form whose template carried no
+    // `<actions>` still restores the default bar on the way out, so a player
+    // can never be left holding a previous transform's action list.
+    let default_bar = crate::network::enter_world::ex_basic_action_list(&world.data);
+    crate::game_loop::helpers::send_to_player(world, target, default_bar);
     recompute_speeds(world, target);
     true
 }
