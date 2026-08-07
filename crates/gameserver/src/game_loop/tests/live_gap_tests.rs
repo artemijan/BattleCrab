@@ -105,8 +105,8 @@ fn clan_owning(id: i32, castle_id: i32) -> crate::model::clan::Clan {
 }
 
 fn pos_of(world: &World, oid: i32) -> (i32, i32) {
-    let p = world.objects.get_component::<Position>(&oid).unwrap();
-    (p.x, p.y)
+    let (x, y, _) = crate::game_loop::helpers::pos_of(world, oid).expect("object has a position");
+    (x, y)
 }
 
 /// Scroll of Escape: Clan Hall (2040) sends the owner to the hall's

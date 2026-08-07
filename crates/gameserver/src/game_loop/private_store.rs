@@ -9,11 +9,11 @@
 //! and its title rides `ExPrivateStoreSetWholeMsg` instead of
 //! `PrivateStoreMsgSell`. Manufacture (workshop) stores belong to `crafting`.
 
+use super::helpers::player_of;
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self as sp, StoreLine};
-use crate::session::ClientSession;
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
@@ -25,13 +25,6 @@ const STORE_TYPE_PACKAGE_SELL: u8 = 8;
 /// `RequestPrivateStoreBuy`).
 fn is_sell_store(store_type: u8) -> bool {
     store_type == STORE_TYPE_SELL || store_type == STORE_TYPE_PACKAGE_SELL
-}
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
-    }
 }
 
 fn adena(world: &World, oid: i32) -> i64 {

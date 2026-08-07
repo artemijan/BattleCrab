@@ -10,6 +10,7 @@
 //! `net::build_save_data`, the clan one via [`persist_clan_warehouse`] on every
 //! change.
 
+use super::helpers::player_of;
 use crate::model::Player;
 use crate::model::components::ActiveWarehouse;
 use crate::model::inventory::{Freight, Inventory, ItemInstance, Warehouse};
@@ -28,13 +29,6 @@ enum WhTarget {
     Private,
     Clan(i32),
     Freight,
-}
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
-    }
 }
 
 fn adena(world: &World, player_oid: i32) -> i64 {

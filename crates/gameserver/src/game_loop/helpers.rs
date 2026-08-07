@@ -1,5 +1,6 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
+use crate::model::components::Position;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -11,6 +12,27 @@ use crate::world::World;
 /// reverse index. This used to scan every connected session.
 pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<u32> {
     world.clients.client_of_player(player_object_id)
+}
+
+/// The object id of the player driven by `client_id`, or `None` when that
+/// session is not `InGame` (still logging in, in the lobby, or already gone).
+///
+/// The inverse of [`client_for_player`], and the first line of nearly every
+/// packet handler — Java reaches the same state through `GameClient.getPlayer()`.
+pub(crate) fn player_of(world: &World, client_id: u32) -> Option<i32> {
+    match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
+        _ => None,
+    }
+}
+
+/// The world coordinates of any object carrying a [`Position`], or `None` if
+/// it has despawned.
+pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
+    world
+        .objects
+        .get_component::<Position>(&object_id)
+        .map(|p| (p.x, p.y, p.z))
 }
 
 /// Send one packet to a connected client — Java `GameClient.sendPacket`.

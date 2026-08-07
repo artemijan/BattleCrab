@@ -8,7 +8,7 @@
 
 use super::*;
 
-use crate::model::components::{Position, Vitals};
+use crate::model::components::Vitals;
 use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
 
 const PLAYER: i32 = 3001;
@@ -65,8 +65,7 @@ fn engage(world: &mut World, oid: i32) {
 }
 
 fn pos_of(world: &World, oid: i32) -> (i32, i32, i32) {
-    let p = world.objects.get_component::<Position>(&oid).unwrap();
-    (p.x, p.y, p.z)
+    crate::game_loop::helpers::pos_of(world, oid).expect("spawned mob has a position")
 }
 
 fn hate_count(world: &World, oid: i32) -> usize {

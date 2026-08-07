@@ -7,6 +7,7 @@
 use commons::util::rnd;
 use tracing::info;
 
+use super::helpers::player_of;
 use crate::db::DbCommand;
 use crate::model::inventory::Inventory;
 use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction};
@@ -746,13 +747,6 @@ pub(crate) fn on_request_info(world: &mut World, client_id: u32, body: &[u8]) {
     if let Some(cur) = rt.current {
         let pkt = build_info_packet(world, true, cur, rt.next);
         send_pkt(world, client_id, pkt);
-    }
-}
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
     }
 }
 

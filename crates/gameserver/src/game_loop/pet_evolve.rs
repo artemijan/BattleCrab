@@ -34,6 +34,7 @@
 
 use tracing::warn;
 
+use super::helpers::send_to_client as send;
 use crate::model::Player;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, sm_ids};
@@ -63,12 +64,6 @@ const RESTORE: [(i32, i32, i32, i32); 5] = [
     (4, 10309, 4423, 55),  // Red Star Strider → Star Strider
     (5, 10310, 4424, 55),  // Red Twilight Strider → Twilight Strider
 ];
-
-fn send(world: &World, client_id: u32, packet: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
-}
 
 /// Serve one of the manager's refusal pages (`evolve_no.htm` /
 /// `restore_no.htm` / `exchange_no.htm`) — Java's answer to every failed

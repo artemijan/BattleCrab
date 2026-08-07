@@ -18,23 +18,12 @@
 
 use commons::network::PacketReader;
 
+use super::helpers::{player_of, send_to_client as send};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets as sp;
-use crate::session::ClientSession;
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
-
-fn player_of(world: &World, client_id: u32) -> Option<i32> {
-    match world.clients.get(&client_id) {
-        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
-        _ => None,
-    }
-}
-
-fn send(world: &World, client_id: u32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_client(world, client_id, packet);
-}
 
 /// The item id of an inventory instance by object id.
 fn item_id_of(world: &World, player: i32, object_id: i32) -> Option<i32> {

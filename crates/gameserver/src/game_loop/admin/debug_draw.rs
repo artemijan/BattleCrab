@@ -6,7 +6,8 @@
 //! anchor. Clearing re-sends each drawing's name with a single zero-length
 //! black line at z −16000, Java's erase idiom.
 
-use crate::model::components::{DebugDraw, Position, RegionCell};
+use crate::game_loop::helpers::{pos_of, send_to_client as send};
+use crate::model::components::{DebugDraw, RegionCell};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -33,12 +34,6 @@ fn erase(name: &str, x: i32, y: i32) -> Vec<u8> {
     )
 }
 
-fn send(world: &World, client_id: u32, pkt: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
-}
-
 fn state_mut(world: &mut World, object_id: i32) -> &mut DebugDraw {
     if !world.objects.has_component::<DebugDraw>(&object_id) {
         world
@@ -56,13 +51,6 @@ pub(crate) fn flags(world: &World, object_id: i32) -> (bool, bool, bool) {
         .objects
         .get_component::<DebugDraw>(&object_id)
         .map_or((false, false, false), |d| (d.doors, d.geo, d.movement))
-}
-
-fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
-    world
-        .objects
-        .get_component::<Position>(&object_id)
-        .map(|p| (p.x, p.y, p.z))
 }
 
 fn moved_over(a: (i32, i32, i32), b: (i32, i32, i32), dist: i64) -> bool {

@@ -19,6 +19,7 @@
 //! His threat table is the shared `boss_threat` one — Antharas keeps an
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
+use super::helpers::pos_of;
 use crate::model::components::{Immobilized, Position, Vitals};
 use crate::model::grand_boss::GrandBoss;
 use crate::scheduler::ScheduledTask;
@@ -480,13 +481,6 @@ fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
             }
         });
     found
-}
-
-fn pos_of(world: &World, oid: i32) -> Option<(i32, i32, i32)> {
-    world
-        .objects
-        .get_component::<Position>(&oid)
-        .map(|p| (p.x, p.y, p.z))
 }
 
 fn despawn(world: &mut World, oid: i32) {

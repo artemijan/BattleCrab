@@ -6,6 +6,7 @@
 //! Both parties to a message may be offline, so nothing here is memory-first:
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
+pub(crate) use super::helpers::send_to_player as send;
 use crate::model::Player;
 use crate::model::components::{Trade, ZoneFlags};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -150,10 +151,6 @@ pub(crate) fn delete_message(world: &mut World, message_id: i32) {
 // ---------------------------------------------------------------------------
 // Small helpers
 // ---------------------------------------------------------------------------
-
-pub(crate) fn send(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
 
 pub(crate) fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
     crate::game_loop::helpers::send_sm_to_player(world, object_id, message_id, params);

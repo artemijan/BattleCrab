@@ -18,6 +18,7 @@ use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
+use super::helpers::send_to_player as send;
 use super::helpers::{broadcast_near_region, client_for_player};
 
 // FishingEndReason (Java enum ordinals).
@@ -382,14 +383,6 @@ fn calculate_bait_location(world: &World, player: i32) -> Option<(i32, i32, i32)
         .find(|z| z.kind == crate::data::zone_data::ZoneKind::Water)
         .map(|z| z.territory.max_z)?;
     Some((bx, by, water_z))
-}
-
-fn send(world: &World, player: i32, pkt: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, player)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(pkt);
-    }
 }
 
 fn set_session(world: &mut World, player: i32, f: impl FnOnce(&mut FishingSession)) {
