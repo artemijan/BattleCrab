@@ -19,7 +19,7 @@ use crate::network::server_packets;
 use crate::network::trade;
 use crate::world::World;
 
-use super::{current_target, send_message, send_sm};
+use super::{send_message, send_sm};
 
 /// `AdminDoorControl`'s `//open`/`//close [doorId]` and `//openall`/`//closeall`
 /// — toggle one door (by template id, or the targeted door) or every door.
@@ -53,7 +53,7 @@ pub(super) fn admin_door(
     }
     // No id → the targeted door.
     let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Door>(oid))
+        guard::target(world, object_id).filter(|oid| world.objects.has_component::<Door>(oid))
     else {
         send_message(world, client_id, "Incorrect target.");
         return;
@@ -213,7 +213,7 @@ pub(super) fn admin_geo_pos(world: &mut World, client_id: u32, object_id: i32, s
 }
 
 pub(super) fn admin_geo_can_see(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_sm(
             world,
             client_id,
@@ -278,7 +278,7 @@ pub(super) fn admin_path_find(world: &mut World, client_id: u32, object_id: i32)
         send_message(world, client_id, "PathFinding is disabled.");
         return;
     }
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_message(world, client_id, "No Target!");
         return;
     };

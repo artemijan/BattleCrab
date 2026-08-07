@@ -9,7 +9,7 @@ use crate::model::npc::Npc;
 use crate::network::server_packets::{self, status_update_type as sut};
 use crate::world::World;
 
-use super::{current_target, find_online_player, send_message, send_sm, target_player};
+use super::{find_online_player, send_message, send_sm, target_player};
 
 /// `AdminHeal`'s `//heal [name|radius]` — port of `AdminHeal.handleHeal`. With no
 /// argument, heal the current target (or the GM if nothing is selected). A
@@ -18,7 +18,7 @@ use super::{current_target, find_online_player, send_message, send_sm, target_pl
 /// max for players) but does **not** revive — Java `setCurrentHpMp` leaves the
 /// death state untouched. A non-creature target replies `INVALID_TARGET`.
 pub(super) fn admin_heal(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let mut obj = current_target(world, object_id);
+    let mut obj = guard::target(world, object_id);
     if let Some(&arg) = args.first() {
         if let Some(named) = find_online_player(world, arg) {
             obj = Some(named);
@@ -120,7 +120,7 @@ pub(super) fn admin_res_monster(world: &mut World, client_id: u32, object_id: i3
         return;
     }
     let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
+        guard::target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
     else {
         send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
@@ -304,7 +304,7 @@ pub(super) fn admin_kill(
         );
         return;
     }
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };

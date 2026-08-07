@@ -4,18 +4,19 @@
 //! path: with no unclaimed-hero list (Olympiad crowning is unported, G25) the
 //! target can never claim — Java's own outcome on a server with no crowned hero.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::SkillBook;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
-use super::{current_target, send_message, send_sm};
+use super::{send_message, send_sm};
 
 /// Target = the current target if it's a player, else the GM (Java falls back to
 /// `activeChar`). `None` only when nothing is targeted at all (Java's
 /// `getTarget() == null` → INVALID_TARGET).
 fn hero_target(world: &World, gm_object_id: i32) -> Option<i32> {
-    let target = current_target(world, gm_object_id)?;
+    let target = guard::target(world, gm_object_id)?;
     Some(if world.objects.has_component::<Player>(&target) {
         target
     } else {

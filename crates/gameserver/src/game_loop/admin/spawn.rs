@@ -9,11 +9,12 @@
 //! has no entry in. The `respawn`/`permanent` argument is therefore accepted
 //! and ignored (documented deviation).
 
+use crate::game_loop::guard;
 use crate::model::components::{Position, RegionCell};
 use crate::model::npc::Npc;
 use crate::world::World;
 
-use super::{current_target, send_message};
+use super::send_message;
 
 /// Resolve a spawn-menu "Id/Name" token to an npc id. All-digit tokens are npc
 /// ids (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps
@@ -61,7 +62,7 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
     let count = args.get(1).and_then(|s| s.parse::<i32>().ok()).unwrap_or(1);
     // Anchor object = current target (any object) or the GM (Java
     // `target == null ? activeChar : target`); the message reports its id.
-    let anchor = current_target(world, object_id).unwrap_or(object_id);
+    let anchor = guard::target(world, object_id).unwrap_or(object_id);
     let Some(pos) = world
         .objects
         .get_component::<Position>(&anchor)
@@ -376,7 +377,7 @@ pub(super) fn admin_top_spawn_count(world: &mut World, client_id: u32, args: &[&
 /// position (Java prints spawn/AI internals; text summary here).
 pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
+        guard::target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
     else {
         super::send_sm(
             world,
@@ -768,7 +769,7 @@ pub(super) fn admin_summon(world: &mut World, client_id: u32, object_id: i32, ar
 
 /// `AdminDelete`'s `//delete` — despawn the targeted NPC.
 pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id) else {
+    let Some(target) = guard::target(world, object_id) else {
         send_message(world, client_id, "Select an NPC first.");
         return;
     };

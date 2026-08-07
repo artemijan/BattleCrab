@@ -18,7 +18,7 @@ use crate::model::components::{
 };
 use crate::world::World;
 
-use super::{current_target, find_online_player, send_message, send_sm};
+use super::{find_online_player, send_message, send_sm};
 use crate::network::server_packets::sm_ids;
 
 /// Object ids of every in-game player (Java `World.getPlayers()`), name-sorted
@@ -43,7 +43,7 @@ fn online_players(world: &World) -> Vec<i32> {
 /// carries its remaining lifetime instead), so targeting one is `INVALID_TARGET`
 /// exactly like targeting a player.
 pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i32) {
-    let pet = super::current_target(world, gm_object_id).filter(|oid| {
+    let pet = crate::game_loop::guard::target(world, gm_object_id).filter(|oid| {
         world
             .objects
             .has_component::<crate::model::components::PetOf>(oid)
@@ -562,7 +562,7 @@ pub(super) fn admin_setparam(
         }
         return;
     };
-    let target = current_target(world, object_id)
+    let target = guard::target(world, object_id)
         .filter(|oid| {
             world
                 .objects
@@ -720,7 +720,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
 
 /// The targeted summon's (npc_oid, owner_oid), if the target is one.
 fn targeted_summon(world: &World, object_id: i32) -> Option<(i32, i32)> {
-    let target = current_target(world, object_id)?;
+    let target = guard::target(world, object_id)?;
     let owner = world
         .objects
         .get_component::<crate::model::components::ServitorOf>(&target)?

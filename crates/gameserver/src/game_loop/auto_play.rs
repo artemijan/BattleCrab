@@ -6,6 +6,7 @@
 //! loop below drives the ordinary target/attack/pickup paths on the player's
 //! behalf. See `PLAN_G33_AUTO_PLAY.md`.
 
+use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, GroundItem, Position, RegionCell, Vitals};
 use crate::world::World;
@@ -191,7 +192,7 @@ fn run_for_player(world: &mut World, player_oid: i32) {
     };
 
     // A live, still-valid target means "keep going" — the pass ends here.
-    if let Some(target) = current_target(world, player_oid) {
+    if let Some(target) = guard::target(world, player_oid) {
         if target_still_valid(world, player_oid, target, s.next_target_mode) {
             keep_attacking(world, player_oid, target, &s);
             return;
@@ -397,7 +398,7 @@ fn leader_target(world: &World, player_oid: i32) -> Option<i32> {
     if leader == player_oid {
         return None;
     }
-    let target = current_target(world, leader)?;
+    let target = guard::target(world, leader)?;
     world
         .objects
         .has_component::<crate::model::npc::Npc>(&target)
@@ -458,13 +459,6 @@ fn target_still_valid(world: &World, player_oid: i32, target: i32, mode: i32) ->
 fn distance_2d(a: &Position, b: &Position) -> f64 {
     let (dx, dy) = ((a.x - b.x) as f64, (a.y - b.y) as f64);
     (dx * dx + dy * dy).sqrt()
-}
-
-fn current_target(world: &World, oid: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::components::TargetRef>(&oid)
-        .and_then(|t| t.0)
 }
 
 fn set_target(world: &mut World, player_oid: i32, target: i32) {

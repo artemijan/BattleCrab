@@ -462,7 +462,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         }
         out
     } else {
-        vec![super::current_target(world, object_id).unwrap_or(object_id)]
+        vec![crate::game_loop::guard::target(world, object_id).unwrap_or(object_id)]
     };
 
     let mut toggled_on = 0;
