@@ -98,10 +98,10 @@ additions, and a Classic/custom scope gate — see ROADMAP.md.
 > **Every row above is ✅ or an explicit scope-out — and that is not the whole
 > picture.** A milestone is marked complete when its *gate* is met; each one
 > also shipped a handful of narrow behaviours deliberately deferred and marked
-> at the site. There are **145** such `TODO(G<N>)` markers, inventoried in
-> [DEFERRALS.md](DEFERRALS.md) and asserted by
-> `deferral_markers_match_the_recorded_inventory`, so the number cannot drift
-> without someone deciding it should. Read that file alongside this table: the
+> at the site. There are **no** such `TODO(<tag>)` markers left as of
+> 2026-08-07 — the sweep that began at 180 closed the last of them — and
+> `deferral_markers_match_the_recorded_inventory` now asserts an empty list, so
+> the number cannot drift without someone deciding it should. Note that
 > ✅ marks say the gates were met, not that nothing is left.
 >
 > This exists because prose about "what remains" is the least reliable artefact
@@ -3861,9 +3861,9 @@ mail/community board/matching rooms/command channels.
   - Two of Java's branches are deliberately absent, both unreachable: its
     `isChatBanned()` branch (dead upstream — `Say2` returns first) and its
     faction-specific broadcast (`EnableFactionSystem = False`).
-  - Deferred and recorded: the `block-list` filter Java applies to this and
-    every other broadcast channel, and `Say2`'s own jail gate over the other
-    four channels (`chat-jail`). See `DEFERRALS.md`.
+  - Two gaps it opened were closed days later: the `block-list` filter Java
+    applies to this and every other broadcast channel, and `Say2`'s own jail
+    gate over the other four channels. See the block-list entry below.
 - **Party** (`model/party.rs` + `game_loop/party.rs`): `World.parties`
   id-keyed map + `PartyRef` component back-pointer; one `PendingRequest`
   component slot covers Java's request map + `_activeRequester` for party

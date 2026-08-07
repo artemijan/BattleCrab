@@ -134,9 +134,9 @@ Java side effect — that is how parity bugs like the missing
 `TargetUnselected`-on-visibility-drop happen.
 
 These markers are load-bearing, not litter: they are counted by
-`deferral_markers_match_the_recorded_inventory` and enumerated in
-[DEFERRALS.md](DEFERRALS.md). Adding a gap without recording it fails the build;
-so does closing one without updating the inventory.
+`deferral_markers_match_the_recorded_inventory`, whose expected list is
+**empty** as of 2026-08-07. Adding a gap without recording it there fails the
+build; so does closing one without taking it off.
 
 ### `PLAN_*.md` in a comment means a retired plan
 

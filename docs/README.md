@@ -13,7 +13,6 @@
 
 | Document | What it answers |
 |---|---|
-| [DEFERRALS.md](DEFERRALS.md) | Every deliberate gap, generated from the `TODO(G<N>)` markers and held to the code by a test. The authority on what is missing. |
 | [DATABASE.md](DATABASE.md) | Fresh installs, adopting a live database, adding a migration, regenerating entities. |
 | [LOGGING.md](LOGGING.md) | Diagnostics (droppable), audit records (never dropped) and metrics: why they are separate, where each file lands, how to query them, and every config key. |
 | [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) | The long-form analysis behind the threading model: Java's thread inventory and task managers, construct-by-construct mapping, the ECS component split. |
@@ -43,6 +42,9 @@ milestone and the `git show` incantation to read it. What actually landed is in
 
 Prose about what remains has drifted into fiction twice here, both times
 claiming work was outstanding that had already shipped. When a document and the
-code disagree, the code wins. `DEFERRALS.md` is the one status artefact
-generated from the code and enforced by a test — prefer it to any sentence
-written by hand, including the ones in this directory.
+code disagree, the code wins. The `TODO(<tag>)` markers in the source are the
+one status artefact enforced by a test
+(`deferral_markers_match_the_recorded_inventory`, currently expecting **none**)
+— prefer them to any sentence written by hand, including the ones in this
+directory. `DEFERRALS.md` used to inventory them and was deleted on 2026-08-07
+once the inventory emptied; `PORTING_STATUS.md` says how to read it out of git.
