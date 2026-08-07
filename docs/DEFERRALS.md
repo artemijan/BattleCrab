@@ -3,7 +3,7 @@
 Every milestone row in [PROGRESS.md](PROGRESS.md) is ✅ or an explicit
 scope-out. That is true, and it is also **not the whole picture**: a milestone
 is marked complete when its *gate* is met, and each one shipped with a handful
-of narrow behaviours deferred and marked at the site. There are **0** such
+of narrow behaviours deferred and marked at the site. There are **2** such
 markers — the sum of the inventory below, and of the expected list the
 `deferral_markers_match_the_recorded_inventory` test holds the code to. A reader
 looking only at the status table cannot see them.
@@ -79,6 +79,37 @@ also registering its NPCs would strand the player.
 
 | marker | count | files |
 |---|---:|---|
+| `block-list` | 1 | `game_loop/chat.rs` |
+| `chat-jail` | 1 | `game_loop/chat.rs` |
+
+### `block-list` — no player block list exists
+
+Java filters every broadcast chat channel with `activeChar.isNotBlocked(player)`
+— the **receiver's** list, i.e. `!blockList.isBlockAll() &&
+!blockList.isInBlockList(speaker)`. This port has no block list at all: no
+`BlockList` model, no `character_friends` ignore rows, no `/block`, `/unblock`
+or `blockall`, and no `RequestBlock` handler. So every online player hears
+every line on every broadcast channel.
+
+Marked at the world-chat broadcast because that is where the port newly takes
+on the obligation, but the gap is **not** specific to world chat — Shout, Trade
+and General have always broadcast unfiltered for the same reason. Closing it
+means porting the block list as a subsystem, at which point one filter serves
+all four channels.
+
+### `chat-jail` — `Say2`'s own jail gate
+
+`JailDisableChat` gates two places in Java. `ChatWorld.handleChat` is ported
+(a jailed speaker without `PlayerCondOverride.CHAT_CONDITIONS` gets
+`CHATTING_IS_CURRENTLY_PROHIBITED`). `Say2`'s own guard over **WHISPER, SHOUT,
+TRADE and HERO_VOICE** is not, and never has been — a jailed player is silenced
+on those four channels upstream and is not here.
+
+Note the asymmetry is Java's own: `Say2`'s list does not include WORLD, which
+is exactly why `ChatWorld` carries a second copy of the check. Porting the
+`Say2` half is a handful of lines against the existing `Player::jailed` flag;
+it is recorded rather than done because it is a separate behaviour from the
+world-chat port that surfaced it.
 
 ## Closed
 

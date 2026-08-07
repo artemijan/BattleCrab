@@ -163,6 +163,7 @@ mod vitality_tests;
 mod walker_tests;
 mod water_tests;
 mod weight_tests;
+mod world_chat_tests;
 mod wyvern_tests;
 mod zones_tests;
 
@@ -179,6 +180,15 @@ fn test_world() -> (
     // are `True` on the dist *and* default true in Java, so a test world that
     // left them off would silently exercise the disabled path (G30).
     world.cfg.general.allow_mail = true;
+    // Same trap for world chat, which additionally has *numbers*: the derived
+    // `Default` gives a disabled channel whose quota is 0, so turning only the
+    // flag on would refuse every line for a spent quota that was never granted.
+    // These are the dist's shipped values.
+    world.cfg.general.world_chat_enabled = true;
+    world.cfg.general.world_chat_min_level = 40;
+    world.cfg.general.world_chat_points_per_day = 10;
+    world.cfg.general.world_chat_interval_secs = 20;
+    world.cfg.general.jail_disable_chat = true;
     world.cfg.general.allow_attachments = true;
     // See `FloodProtectorsConfig::disabled`: fixtures drive a whole interaction
     // from a single game tick, which the shipped 1 s `Transaction` window would

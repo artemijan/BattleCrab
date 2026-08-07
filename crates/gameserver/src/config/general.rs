@@ -65,6 +65,16 @@ pub struct GeneralConfig {
     /// on. Java's own default is `false` too, so nothing changes unless an
     /// operator turns it on.
     pub jail_disable_transaction: bool,
+    /// `JailDisableChat` (dist `True`): a jailed character without
+    /// `PlayerCondOverride.CHAT_CONDITIONS` is refused chat.
+    ///
+    /// **Only the world-chat branch consumes this today.** Java gates two
+    /// places on it: `ChatWorld.handleChat` (ported) and `Say2`'s own guard
+    /// over WHISPER/SHOUT/TRADE/HERO_VOICE, which this port has never had —
+    /// recorded as the `chat-jail` deferral in `docs/DEFERRALS.md`.
+    /// (Spelled without the marker syntax on purpose: the deferral census
+    /// counts every parseable tag, prose included.)
+    pub jail_disable_chat: bool,
 
     /// `AllowWater` (dist `True`): whether swimming can drown you. Java gates
     /// only `Player.checkWaterState()` on it inside `revalidateZone` — the
@@ -147,6 +157,26 @@ pub struct GeneralConfig {
     /// disables the config phases.
     pub alt_item_auction_time_extends_on_bid: i64,
 
+    // --- World chat ---------------------------------------------------------
+    // `handlers/chathandlers/ChatWorld.java`. Enabled on this dist. See the
+    // chronicle caveat on [`crate::enums::ChatType::World`].
+    /// `WorldChatEnabled` (dist `True`): the master gate. With it off
+    /// `ChatWorld.handleChat` returns immediately — **silently**, with no
+    /// notice to the speaker — and the daily point reset is skipped too.
+    pub world_chat_enabled: bool,
+    /// `WorldChatMinLevel` (Java default 95, dist **40**): below this the
+    /// speaker is told `YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1` and the line is
+    /// dropped. Also zeroes the count `ExWorldChatCnt` reports.
+    pub world_chat_min_level: i32,
+    /// `WorldChatPointsPerDay` (dist 10): the daily quota, before the
+    /// `Stat.WORLD_CHAT_POINTS` add/mul Java folds in. No skill or item on this
+    /// dist grants that stat, so the config value is the whole quota here.
+    pub world_chat_points_per_day: i32,
+    /// `WorldChatInterval` (dist `20secs`) as **seconds**: the per-speaker
+    /// reuse window. `0` disables the window entirely — Java guards both the
+    /// check and the stamp with `getSeconds() > 0`.
+    pub world_chat_interval_secs: i64,
+
     // --- Audit-record gates ------------------------------------------------
     // Which categories the never-dropped audit sink (`commons::audit`) records.
     // All ship `False`: these are operator decisions about retention and disk,
@@ -219,6 +249,8 @@ impl GeneralConfig {
                 .collect(),
             jail_disable_transaction: p
                 .get_bool("JailDisableTransaction", d.jail_disable_transaction),
+            // Java's code default is `true`, not the derived `Default`'s false.
+            jail_disable_chat: p.get_bool("JailDisableChat", true),
             // Java's code default is `true` (not `d.allow_water`, which the
             // derived `Default` would make `false` — the opposite meaning).
             allow_water: p.get_bool("AllowWater", true),
@@ -248,6 +280,14 @@ impl GeneralConfig {
             alt_item_auction_time_extends_on_bid: p.get_int("AltItemAuctionTimeExtendsOnBid", 0)
                 as i64
                 * 1000,
+            // Java's code defaults, not `d.*`: the derived `Default` would make
+            // `world_chat_enabled` false, inverting the meaning (same trap as
+            // `allow_water` above). Note Java defaults the min level to 95
+            // while this dist ships 40 — the shipped value is the live one.
+            world_chat_enabled: p.get_bool("WorldChatEnabled", true),
+            world_chat_min_level: p.get_int("WorldChatMinLevel", 95),
+            world_chat_points_per_day: p.get_int("WorldChatPointsPerDay", 10),
+            world_chat_interval_secs: p.get_duration_secs("WorldChatInterval", 20),
             log_chat: p.get_bool("LogChat", d.log_chat),
             log_items: p.get_bool("LogItems", d.log_items),
             log_items_small_log: p.get_bool("LogItemsSmallLog", d.log_items_small_log),

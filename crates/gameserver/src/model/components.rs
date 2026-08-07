@@ -847,6 +847,14 @@ pub const VITALITY_ITEMS_USED: &str = "VITALITY_ITEMS_USED";
 /// `SPLIT_VAR`), replayed verbatim by `ExUISetting`.
 pub const UI_KEY_MAPPING: &str = "UI_KEY_MAPPING";
 
+/// `PlayerVariables.WORLD_CHAT_VARIABLE_NAME` — how many world-chat lines the
+/// character has spent today (Java `Player.getWorldChatUsed`/`setWorldChatUsed`).
+///
+/// Counts **up** toward the quota rather than down from it, which is why the
+/// daily reset writes `0` and not the per-day allowance: the allowance is
+/// config (`WorldChatPointsPerDay`) and can change under a stored value.
+pub const WORLD_CHAT_USED: &str = "WORLD_CHAT_USED";
+
 impl PlayerVariables {
     /// Java `AbstractVariables.getInt(key, default)` — a non-numeric or absent
     /// value yields the default.

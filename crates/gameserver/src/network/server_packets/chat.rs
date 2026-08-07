@@ -4,6 +4,27 @@ use commons::network::PacketWriter;
 
 use super::opcodes;
 
+fn ex(sub: i16) -> PacketWriter {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(sub);
+    w
+}
+
+/// Port of `serverpackets/ExWorldChatCnt` — how many world-chat lines the
+/// player has left today.
+///
+/// Java computes the number in the *constructor*, from the player it is handed:
+/// `level < WORLD_CHAT_MIN_LEVEL ? 0 : max(points - used, 0)`. Taking the
+/// already-resolved count as an argument keeps that arithmetic in one place
+/// (`game_loop::chat::world_chat_points_left`) instead of duplicating the
+/// level check at each of the three call sites.
+pub fn ex_world_chat_cnt(points_left: i32) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_WORLD_CHAT_CNT);
+    w.write_i32(points_left);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/CreatureSay` (the plain-text player branch):
 /// sender object id, chat channel, sender name, the NpcString id slot (-1 =
 /// literal text), the text — and, for player WHISPERs only, the trailing

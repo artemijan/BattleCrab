@@ -456,6 +456,18 @@ pub enum ChatType {
     Announcement = 10,
     /// Ferry announcements (`CreatureSay(ChatType.BOAT, ...)`) — server-sent only.
     Boat = 11,
+    /// `ChatType.WORLD` — the server-wide channel handled by
+    /// `handlers/chathandlers/ChatWorld.java`: a minimum level, a daily point
+    /// quota and a per-speaker reuse window, then a broadcast to every online
+    /// player. Enabled on this dist (`WorldChatEnabled = True`).
+    ///
+    /// **Chronicle caveat:** the client half is Grand-Crusade-era —
+    /// `ExWorldChatCnt` is ex-opcode `0x175`, and the Interlude client's chat
+    /// selector has no World entry — so a stock Interlude client is not
+    /// expected to reach this. Ported because the dist ships it enabled and
+    /// the server half is chronicle-agnostic; the reachable consumer today is
+    /// `BanChatChannels`, which names `WORLD` and could not parse without it.
+    World = 25,
 }
 
 impl ChatType {
@@ -480,6 +492,7 @@ impl ChatType {
             15 => Some(Self::PartyroomCommander),
             16 => Some(Self::PartyroomAll),
             17 => Some(Self::HeroVoice),
+            25 => Some(Self::World),
             _ => None,
         }
     }

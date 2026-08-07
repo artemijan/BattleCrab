@@ -127,6 +127,15 @@ fn parse_ban_channels(raw: &str) -> HashSet<ChatType> {
 }
 
 /// Java's `ChatType` constant names, which are what the ini spells.
+///
+/// **This must cover every name the shipped ini uses.** Java resolves them with
+/// `Enum.valueOf(ChatType.class, chatId)` under a `catch (NumberFormatException)`
+/// — which does *not* catch the `IllegalArgumentException` a bad name throws —
+/// so upstream an unknown channel aborts config loading outright. Warning and
+/// skipping is the gentler deviation, but it means a name missing from this map
+/// silently drops a channel from the ban list instead of failing loudly:
+/// `WORLD` was missing until the world-chat port, so a chat-banned player got
+/// no prohibition notice on it.
 fn chat_type_by_java_name(name: &str) -> Option<ChatType> {
     Some(match name {
         "GENERAL" => ChatType::General,
@@ -144,6 +153,7 @@ fn chat_type_by_java_name(name: &str) -> Option<ChatType> {
         "PARTYROOM_COMMANDER" => ChatType::PartyroomCommander,
         "PARTYROOM_ALL" => ChatType::PartyroomAll,
         "HERO_VOICE" => ChatType::HeroVoice,
+        "WORLD" => ChatType::World,
         _ => return None,
     })
 }
@@ -207,23 +217,43 @@ mod tests {
         assert_eq!(c.filter("good").as_deref(), Some("^_^"));
     }
 
-    /// The shipped list, including `WORLD` which Interlude has no variant for.
+    /// The whole shipped list resolves — `WORLD` included.
+    ///
+    /// This test used to assert the opposite, on the belief that "WORLD has no
+    /// Interlude variant". Java's `ChatType` has `WORLD(25)`, the channel has a
+    /// live handler in the datapack, and the dist ships it enabled; the missing
+    /// variant was the port's, not the chronicle's. The wrong claim survived
+    /// here because the assertion tested the port against itself — a *count*
+    /// derived from the same map that was dropping the name.
     #[test]
-    fn ban_channels_parse_and_skip_unknown_names() {
+    fn every_shipped_ban_channel_resolves() {
         let c = cfg(
             "BanChatChannels = GENERAL;SHOUT;WORLD;TRADE;HERO_VOICE;WHISPER\n",
             "",
         );
-        assert!(c.ban_chat_channels.contains(&ChatType::General));
-        assert!(c.ban_chat_channels.contains(&ChatType::Shout));
-        assert!(c.ban_chat_channels.contains(&ChatType::Trade));
-        assert!(c.ban_chat_channels.contains(&ChatType::HeroVoice));
-        assert!(c.ban_chat_channels.contains(&ChatType::Whisper));
-        assert_eq!(
-            c.ban_chat_channels.len(),
-            5,
-            "WORLD has no Interlude variant and is dropped, not fatal"
-        );
+        for ty in [
+            ChatType::General,
+            ChatType::Shout,
+            ChatType::World,
+            ChatType::Trade,
+            ChatType::HeroVoice,
+            ChatType::Whisper,
+        ] {
+            assert!(c.ban_chat_channels.contains(&ty), "missing {ty:?}");
+        }
+        assert_eq!(c.ban_chat_channels.len(), 6, "and nothing was dropped");
         assert!(!c.ban_chat_channels.contains(&ChatType::Party));
+    }
+
+    /// A name with no `ChatType` really is skipped rather than fatal — the
+    /// deviation from Java, which throws an uncaught `IllegalArgumentException`
+    /// out of `Enum.valueOf`. Kept as its own case so that behaviour stays
+    /// covered now that the shipped list no longer exercises it.
+    #[test]
+    fn an_unknown_channel_name_is_skipped_not_fatal() {
+        let c = cfg("BanChatChannels = GENERAL;NOT_A_CHANNEL;TRADE\n", "");
+        assert_eq!(c.ban_chat_channels.len(), 2);
+        assert!(c.ban_chat_channels.contains(&ChatType::General));
+        assert!(c.ban_chat_channels.contains(&ChatType::Trade));
     }
 }

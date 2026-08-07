@@ -727,6 +727,12 @@ pub mod sm_ids {
     // Chat (G10)
     pub const THAT_PLAYER_IS_NOT_ONLINE: i16 = 145;
     pub const KEYBOARD_INPUT_SPAM_WARNING: i16 = 1078;
+    // World chat (`handlers/chathandlers/ChatWorld`). The quota line's text
+    // names 18:30 while this server resets at 06:30 UTC — that string is the
+    // client's, not a claim the port makes; see `game_loop::chat::world_chat`.
+    pub const YOU_HAVE_SPENT_YOUR_WORLD_CHAT_QUOTA_FOR_THE_DAY: i16 = 4239;
+    pub const YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1: i16 = 4240;
+    pub const YOU_HAVE_S1_SEC_UNTIL_YOU_ARE_ABLE_TO_USE_WORLD_CHAT: i16 = 4241;
     // Punishment / moderation (G31)
     pub const CHATTING_IS_CURRENTLY_PROHIBITED: i16 = 966;
     // Petitions (G31)

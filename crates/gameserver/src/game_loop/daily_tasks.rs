@@ -53,6 +53,47 @@ pub(crate) fn run_reset(world: &mut World, weekly: bool) {
     }
     super::vitality::reset_vitality(world, weekly);
     super::reco::reset_recommends(world);
+    reset_world_chat_points(world);
+}
+
+/// Java `DailyTaskManager.resetWorldChatPoints`: zero every character's spent
+/// world-chat quota — the offline population through one unfiltered UPDATE,
+/// then the online one in memory, each with a fresh `ExWorldChatCnt`.
+///
+/// Gated on `WorldChatEnabled` as upstream, so with the channel off neither
+/// half runs and no stored counter is disturbed.
+///
+/// **The reset clock and the quota message disagree, in Java too.** The
+/// client's line reads "a new day starts every day at 18:30" while
+/// `DailyTaskManager` fires at 06:30. The string is the client's and the
+/// schedule is the server's; the port keeps both rather than "fixing" either.
+fn reset_world_chat_points(world: &mut World) {
+    if !world.cfg.general.world_chat_enabled {
+        return;
+    }
+
+    // Offline population (Java's single UPDATE).
+    let _ = world.db.send(crate::db::DbCommand::ResetWorldChatPoints);
+
+    // Online players: `setWorldChatUsed(0)` + `ExWorldChatCnt`. Java also calls
+    // `getVariables().storeMe()`; here the memory-first autosave carries the
+    // variable map with the rest of the character, so the in-memory write above
+    // is the whole persistence story.
+    let online: Vec<i32> = world.in_game_player_oids().collect();
+    for oid in online {
+        if let Some(v) = world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+        {
+            v.set_int(crate::model::components::WORLD_CHAT_USED, 0);
+        }
+        let left = super::chat::world_chat_points_left(world, oid);
+        super::helpers::send_to_player(
+            world,
+            oid,
+            crate::network::server_packets::ex_world_chat_cnt(left),
+        );
+    }
 }
 
 /// Java `DailyTaskManager.clanLeaderApply`: every clan carrying a pending

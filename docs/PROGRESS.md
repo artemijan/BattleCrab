@@ -3815,6 +3815,33 @@ mail/community board/matching rooms/command channels.
   `Say2.parseAndPublishItem` + `RequestExRqItemLink`/`ExRpItemLink`, see the
   entry at the end of this file. Chat bans/jail/olympiad/block-list/
   say-filter/voiced commands skipped with their systems.
+- **World chat** (`handlers/chathandlers/ChatWorld`, added 2026-08-07):
+  `ChatType::WORLD` (25) with the whole server-side channel — the level floor
+  (`WorldChatMinLevel`, 40 on this dist), the daily point quota
+  (`WorldChatPointsPerDay`, persisted as the `WORLD_CHAT_USED` player
+  variable), the per-speaker reuse window (`WorldChatInterval`, 20 s, held in
+  `World.world_chat_reuse` and swept lazily as Java's static map is), the
+  unfiltered broadcast to every online player, `ExWorldChatCnt` (ex `0x175`),
+  and `DailyTaskManager.resetWorldChatPoints` wired into the 06:30 daily
+  chain. Java's gate **order** is load-bearing and pinned by test: the level
+  check precedes the quota check.
+  - **Found because of a boot warning.** `BanChatChannels` names `WORLD` and
+    the port's `ChatType` stopped at 17, so the entry was dropped with a
+    warning every boot and a chat-banned player got no prohibition notice on
+    the channel. `Say2.java` has no `WORLD` branch — dispatch goes through
+    `ChatHandler`, and the handler lives in the **datapack**
+    (`dist/game/data/scripts/handlers/chathandlers/`), registered in
+    `MasterHandler`. A `java/`-only grep reads this as dead config.
+  - **Chronicle caveat:** `ExWorldChatCnt` is a Grand-Crusade opcode and the
+    Interlude client's chat selector has no World entry, so a stock client is
+    not expected to reach the channel. Ported because the dist ships it
+    *enabled* and the server half is chronicle-agnostic.
+  - Two of Java's branches are deliberately absent, both unreachable: its
+    `isChatBanned()` branch (dead upstream — `Say2` returns first) and its
+    faction-specific broadcast (`EnableFactionSystem = False`).
+  - Deferred and recorded: the `block-list` filter Java applies to this and
+    every other broadcast channel, and `Say2`'s own jail gate over the other
+    four channels (`chat-jail`). See `DEFERRALS.md`.
 - **Party** (`model/party.rs` + `game_loop/party.rs`): `World.parties`
   id-keyed map + `PartyRef` component back-pointer; one `PendingRequest`
   component slot covers Java's request map + `_activeRequester` for party

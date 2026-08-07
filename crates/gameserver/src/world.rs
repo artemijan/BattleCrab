@@ -182,6 +182,15 @@ pub struct World {
     /// id lets it die with that player's logout, as Java's flag does with the
     /// `Item` instance. See [`crate::game_loop::chat`].
     pub published_items: HashMap<i32, i32>,
+    /// World-chat reuse: speaker object id → the unix-millis instant at which
+    /// their next line is allowed (Java `ChatWorld`'s static `REUSE` map).
+    ///
+    /// **Deliberately not cleared on logout.** Java sweeps it only lazily
+    /// (`REUSE.values().removeIf(now::isAfter)` at the top of each call), so an
+    /// entry outlives its speaker's session and a relog inside the window is
+    /// still refused. Clearing it in `on_player_leave_world` would turn a
+    /// logout into a way to skip the cooldown.
+    pub world_chat_reuse: HashMap<i32, i64>,
     pub minions_placed: usize,
     /// Forge of the Gods: kills since the last 15 s `FogRefresh` reset — the
     /// escalation counter behind the Lavasaurus ambush tiers (Java's static
@@ -550,6 +559,7 @@ impl World {
             effect_zone_next_tick: HashMap::new(),
             item_mana_consuming: std::collections::HashMap::new(),
             published_items: HashMap::new(),
+            world_chat_reuse: HashMap::new(),
             minions_placed: 0,
             fog_kill_count: 0,
             mammon_spawns: HashMap::new(),
