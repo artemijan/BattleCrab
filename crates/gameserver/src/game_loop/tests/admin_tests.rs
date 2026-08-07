@@ -6318,3 +6318,128 @@ fn admin_instancedestroy_warns_the_players_inside() {
     assert!(warned, "the inhabitant saw the Game Master banner");
     assert!(world.instances.get(iid).is_none(), "the instance is gone");
 }
+
+/// Insert a minimal clan led by `leader_id` and enrol every `members` player.
+fn seed_clan(world: &mut World, clan_id: i32, leader_id: i32, members: &[i32]) {
+    world.clans.insert(
+        clan_id,
+        crate::model::clan::Clan {
+            id: clan_id,
+            name: "Tail".into(),
+            leader_id,
+            level: 3,
+            reputation_score: 0,
+            castle_id: 0,
+            members: Vec::new(),
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        },
+    );
+    for oid in members {
+        world
+            .objects
+            .get_component_mut::<Player>(oid)
+            .unwrap()
+            .clan_id = clan_id;
+    }
+}
+
+fn has_admin_html(pkts: &[Vec<u8>]) -> bool {
+    pkts.iter()
+        .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+}
+
+/// `AdminPledge` re-shows the Game panel after every branch **except** the one
+/// where `Integer.parseInt` throws past it into `AdminCommandHandler`. Both
+/// halves are asserted together: a bad level prints the exception line and
+/// leaves the panel closed, while a merely out-of-range level prints "Level
+/// incorrect." and still re-opens it. The pair is what keeps a refactor from
+/// quietly collapsing the two exits into one.
+#[test]
+fn pledge_setlevel_reopens_the_panel_except_when_the_parse_throws() {
+    use crate::model::components::TargetRef;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7801, 100);
+    let _member_rx = ingame_player_access(&mut world, 2, 7802, 0);
+    seed_clan(&mut world, 700, 7802, &[7802]);
+    world.objects.add_components(&7801, TargetRef(Some(7802)));
+    drain(&mut gm_rx);
+
+    // Non-numeric level → Java's NumberFormatException path: message, no panel.
+    on_packet(&mut world, 1, build_admin("pledge setlevel abc"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        count_system_messages(&pkts) >= 1,
+        "the exception line is printed"
+    );
+    assert!(
+        !has_admin_html(&pkts),
+        "the throw unwinds past showMainPage — no Game panel"
+    );
+
+    // Numeric but out of range → ordinary refusal: message AND the panel.
+    on_packet(&mut world, 1, build_admin("pledge setlevel 99"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        count_system_messages(&pkts) >= 1,
+        "\"Level incorrect.\" is printed"
+    );
+    assert!(
+        has_admin_html(&pkts),
+        "an ordinary refusal still re-opens the Game panel"
+    );
+    assert_eq!(
+        world.clans.get(&700).unwrap().level,
+        3,
+        "neither refusal changed the clan"
+    );
+}
+
+/// `AdminMenu.teleportToCharacter` reopens `charmanage.htm` on every path but
+/// the unresolved target, which returns straight out. The self-target case is
+/// the counterexample that stops the tail from being read as "on success only".
+#[test]
+fn goto_char_reopens_the_page_except_on_an_unresolved_target() {
+    use crate::model::components::TargetRef;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7811, 100);
+    drain(&mut gm_rx);
+
+    // Nothing targeted → INVALID_TARGET and no page.
+    on_packet(&mut world, 1, build_admin("goto_char_menu"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        has_system_message(&pkts, server_packets::sm_ids::INVALID_TARGET),
+        "INVALID_TARGET"
+    );
+    assert!(!has_admin_html(&pkts), "no char-manage page");
+
+    // Targeting yourself is refused by message, but the page still re-opens.
+    world.objects.add_components(&7811, TargetRef(Some(7811)));
+    on_packet(&mut world, 1, build_admin("goto_char_menu"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        has_system_message(
+            &pkts,
+            server_packets::sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF
+        ),
+        "YOU_CANNOT_USE_THIS_ON_YOURSELF"
+    );
+    assert!(
+        has_admin_html(&pkts),
+        "the self-target refusal still re-opens charmanage.htm"
+    );
+}

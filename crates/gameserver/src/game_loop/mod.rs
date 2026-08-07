@@ -61,6 +61,7 @@ pub(crate) mod game_time;
 pub(crate) mod global_vars;
 mod grand_boss;
 pub(crate) mod ground_items;
+pub(crate) mod guard;
 pub(crate) mod helpers;
 mod henna;
 pub(crate) mod instances;
