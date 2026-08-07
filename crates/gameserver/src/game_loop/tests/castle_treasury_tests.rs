@@ -719,3 +719,43 @@ fn the_crown_is_granted_once() {
         "only ever one"
     );
 }
+
+/// `RequestBuyItem`'s slot gate — the "same G5 deferral as `shop.rs`" that both
+/// the shop and multisell module docs used to describe as absent.
+///
+/// The refusal must land **before** the charge: a purchase that cannot be
+/// carried leaves the adena untouched, which is what separates a real gate from
+/// one that takes the money and drops the goods.
+#[test]
+fn a_purchase_that_does_not_fit_is_refused_before_charging() {
+    let (mut world, _db, _rx) = shop_world();
+
+    // Squeeze the bag shut: one free slot short of what the buy needs.
+    let used = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&3001)
+        .unwrap()
+        .non_quest_size(&world.data.item_data) as i32;
+    world.cfg.character.inventory_max_no_dwarf = used;
+
+    let before = adena_of(&world, 3001);
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 1)]));
+
+    assert_eq!(
+        count_of_item(&world, 3001, 41),
+        0,
+        "nothing delivered when the bag is full"
+    );
+    assert_eq!(
+        adena_of(&world, 3001),
+        before,
+        "and nothing charged — the gate runs before `reduceAdena`"
+    );
+
+    // One more slot and the identical purchase goes through, so the refusal
+    // above was the capacity gate and not some unrelated guard.
+    world.cfg.character.inventory_max_no_dwarf = used + 1;
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 1)]));
+    assert_eq!(count_of_item(&world, 3001, 41), 1, "fits now");
+    assert!(adena_of(&world, 3001) < before, "and was charged");
+}

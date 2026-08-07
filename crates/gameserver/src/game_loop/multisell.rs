@@ -14,13 +14,15 @@
 //! carries the paired item instance, so the exchange consumes *that* item and
 //! `maintainEnchantment` can carry its enchant onto the product.
 //!
-//! Still **not** ported (a `TODO` marks each at its site):
+//! Deliberately not ported, each with a `SKIP(census)` at its site carrying the
+//! evidence: chance multisells (one random product), enchanted
+//! (`enchantmentLevel`) ingredients, and `SpecialItemType` products. All three
+//! were censused across the dist's 101 lists and cannot be reached here; the
+//! one *reachable* special case — the ten `-200` clan-reputation ingredients on
+//! the spawned Clan Traders' list — is implemented.
 //!
-//! - chance multisells (one random product), enchanted (`enchantmentLevel`)
-//!   ingredients, and `SpecialItemType` (clan reputation / fame / raid / PC
-//!   café) ingredients & products.
-//! - the weight/slot capacity gates (no encumbrance enforcement exists — the
-//!   same G5 deferral as `shop.rs`).
+//! The weight/slot capacity gates **are** ported now (they were the "same G5
+//! deferral as `shop.rs`", and `shop.rs` has them too).
 
 use tracing::warn;
 
@@ -251,8 +253,15 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         return;
     }
 
-    // --- Validate products (templates exist, counts in range). No weight/slot
-    // gate (no encumbrance enforcement — see module docs). ---
+    // --- Validate products (templates exist, counts in range, room to carry).
+    //
+    // Java accumulates weight and slots *inside* this loop and checks after
+    // each product, so a list whose first product already overflows refuses
+    // before the later ones are even costed. The slot rule is
+    // `!isStackable() || getItemByItemId(id) == null` — one slot per product
+    // *entry*, never multiplied by count, and unlike `RequestBuyItem` there is
+    // **no GM exemption** here. ---
+    let (mut weight, mut slots): (i64, i64) = (0, 0);
     for product in &entry.products {
         if product.id < 0 {
             // SKIP(census): `SpecialItemType` **products** — a negative id in a
@@ -280,7 +289,37 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
             );
             return;
         };
-        let _ = count;
+        let template_weight = world
+            .data
+            .item_data
+            .get(product.id)
+            .map_or(0, |t| i64::from(t.weight));
+        let stackable = world
+            .data
+            .item_data
+            .get(product.id)
+            .is_some_and(|t| t.is_stackable);
+        let holds_none = world
+            .objects
+            .get_component::<Inventory>(&player)
+            .is_none_or(|i| i.count_of(product.id) == 0);
+        if !stackable || holds_none {
+            slots += 1;
+        }
+        weight = weight.saturating_add(count.saturating_mul(template_weight));
+        if !super::weight::validate_weight(world, player, weight) {
+            send_sm(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT,
+                &[],
+            );
+            return;
+        }
+        if slots > 0 && !super::weight::validate_capacity(world, player, slots) {
+            send_sm(world, client_id, sm_ids::YOUR_INVENTORY_IS_FULL, &[]);
+            return;
+        }
         // SKIP(census): chance multisell, where Java grants **one** product
         // drawn by weight instead of all of them. Censused across all 101
         // lists: only two entries are non-degenerate (3426201, 3426202), both
