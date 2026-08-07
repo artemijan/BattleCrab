@@ -1,6 +1,7 @@
 # Custom dist deviations
 
-Places where `dist/game/data` **intentionally differs** from retail / upstream
+Places where `dist/game` — the datapack under `data/`, and the `.ini` files
+under `config/` — **intentionally differs** from retail / upstream
 `L2J_Mobius_Classic_Interlude`, by operator decision rather than by porting
 accident.
 
@@ -133,3 +134,30 @@ change is dropped.
 - **Guarded by:** `game_loop::tests::tvt_tests::
   end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them` — the
   final assertion names Java's behaviour so the intent survives the assertion.
+
+## `StrictDelevelSkillRemoval` — a config key with no upstream equivalent
+
+- **Files:** `dist/game/config/Character.ini`
+- **Retail:** `Player.checkPlayerSkills` applies a **9-level grace**: a known
+  skill is only downgraded once the character drops below `learn level − 9`,
+  and only removed once even level 1 is out of range that way. There is no key
+  to change this — the behaviour is hard-coded, and the shipped
+  `DecreaseSkillOnDelevel` comment describes it ("If player level is lower than
+  skill learn level - 9…").
+- **Here:** `StrictDelevelSkillRemoval` (default **True**) drops the grace, so
+  a skill is downgraded or removed the moment the character falls below its
+  learn level — the level-exact rule already used for Expertise. Setting it to
+  `False` restores the upstream behaviour exactly. It is only consulted when
+  `DecreaseSkillOnDelevel` is on.
+- **Why it is listed here:** the key is read by
+  `config::character::CharacterConfig` and consumed by
+  `game_loop::death::progression::maybe_skill_remove_on_delevel`, but it is not
+  a port of anything — a reader comparing `Character.ini` against upstream will
+  find no counterpart, and the *default* is the non-retail branch. Until this
+  entry existed the divergence was recorded only in a Rust doc-comment, and the
+  ini did not ship the key at all, so every boot logged
+  `missing property for key: StrictDelevelSkillRemoval`.
+- **Guarded by:** `game_loop::tests::skills_tests::
+  delevel_downgrades_then_removes_skills` — it runs the same delevel under both
+  settings, and the non-strict case asserts the 9-level grace keeps a
+  `getLevel`-7 skill at level 1 where strict strips it.

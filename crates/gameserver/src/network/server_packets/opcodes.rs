@@ -175,6 +175,13 @@ pub const PARTY_ROOM_INFO: u8 = 0x9D;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;
+/// `ExWorldChatCnt` — the speaker's remaining world-chat quota for the day.
+///
+/// The highest sub-opcode the port sends, and a Grand-Crusade-era one: a stock
+/// Interlude client is not expected to decode it. Sent anyway because Java's
+/// `ChatWorld` and `DailyTaskManager` both do, and dropping a Java side effect
+/// silently is how parity gaps hide. See [`crate::enums::ChatType::World`].
+pub const EX_WORLD_CHAT_CNT: i16 = 0x175;
 /// Mail / post (G30). `EX_REPLY_WRITE_POST` is what Java's `ExNoticePostSent`
 /// writes — the id name is Java's, the packet is the sent-confirmation.
 pub const EX_NOTICE_POST_ARRIVED: i16 = 0xAA;

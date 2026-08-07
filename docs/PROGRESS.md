@@ -1368,10 +1368,32 @@ effects declared in an `<*Effects>` scope this port never builds
 `SkillConditionScope` blocks (`conditions`/`targetConditions`/
 `passiveConditions` — the latter two weren't even entered before); and
 `<targetType>`/`<affectScope>`/`<affectObject>`/`<operateType>` values that fell
-to the `Other` catch-all. `log_gaps` warns per category at boot, worst-first.
-`datapack_skill_coverage_census` intersects the record with the datapack's own
-reachability and asserts the exact learnable-source name list per category plus
-the totals.
+to the `Other` catch-all. `datapack_skill_coverage_census` intersects the record
+with the datapack's own reachability and asserts the exact learnable-source name
+list per category plus the totals.
+
+**`log_gaps` reworked 2026-08-07 to report *why*, not just how many.** It used
+to emit one `warn!` per category listing raw name counts, so a healthy boot
+printed six alarming lines about content no Interlude player can reach, with no
+way to tell that from real debt — the classic shape that trains an operator to
+ignore the log. It now runs from `GameData::load` (after the skill trees parse,
+which is what the split needs — the old site could only ever print raw totals,
+and its doc comment said so) and splits each category against
+`SkillTreeData::all_learnable_skill_ids`:
+
+- **Reachable** → `warn!`, naming the exact skill ids, because a player can hit
+  it today. On this dist that is precisely two, both recorded G34 decisions:
+  `SafeFallHeight` on **173 Acrobatics** and `conditions/OpSweeper` on
+  **42 Sweeper**.
+- **Off-chronicle** → `info!`, saying so: the dist's `skills/*.xml` is shared
+  with far later chronicles and carries Territory War / Gracia / Freya content
+  that no Interlude tree references, so ignoring it is a decision rather than an
+  oversight.
+
+The reachable set is pinned by
+`data::skill_tree::tests::only_the_two_recorded_gaps_are_reachable_from_a_skill_tree`,
+so a gap that *becomes* reachable fails a test instead of merely changing a
+number in a log line nobody reads.
 
 **Measured against the 758 learnable skill ids in `data/skillTrees/**`:**
 
@@ -3815,6 +3837,33 @@ mail/community board/matching rooms/command channels.
   `Say2.parseAndPublishItem` + `RequestExRqItemLink`/`ExRpItemLink`, see the
   entry at the end of this file. Chat bans/jail/olympiad/block-list/
   say-filter/voiced commands skipped with their systems.
+- **World chat** (`handlers/chathandlers/ChatWorld`, added 2026-08-07):
+  `ChatType::WORLD` (25) with the whole server-side channel — the level floor
+  (`WorldChatMinLevel`, 40 on this dist), the daily point quota
+  (`WorldChatPointsPerDay`, persisted as the `WORLD_CHAT_USED` player
+  variable), the per-speaker reuse window (`WorldChatInterval`, 20 s, held in
+  `World.world_chat_reuse` and swept lazily as Java's static map is), the
+  unfiltered broadcast to every online player, `ExWorldChatCnt` (ex `0x175`),
+  and `DailyTaskManager.resetWorldChatPoints` wired into the 06:30 daily
+  chain. Java's gate **order** is load-bearing and pinned by test: the level
+  check precedes the quota check.
+  - **Found because of a boot warning.** `BanChatChannels` names `WORLD` and
+    the port's `ChatType` stopped at 17, so the entry was dropped with a
+    warning every boot and a chat-banned player got no prohibition notice on
+    the channel. `Say2.java` has no `WORLD` branch — dispatch goes through
+    `ChatHandler`, and the handler lives in the **datapack**
+    (`dist/game/data/scripts/handlers/chathandlers/`), registered in
+    `MasterHandler`. A `java/`-only grep reads this as dead config.
+  - **Chronicle caveat:** `ExWorldChatCnt` is a Grand-Crusade opcode and the
+    Interlude client's chat selector has no World entry, so a stock client is
+    not expected to reach the channel. Ported because the dist ships it
+    *enabled* and the server half is chronicle-agnostic.
+  - Two of Java's branches are deliberately absent, both unreachable: its
+    `isChatBanned()` branch (dead upstream — `Say2` returns first) and its
+    faction-specific broadcast (`EnableFactionSystem = False`).
+  - Deferred and recorded: the `block-list` filter Java applies to this and
+    every other broadcast channel, and `Say2`'s own jail gate over the other
+    four channels (`chat-jail`). See `DEFERRALS.md`.
 - **Party** (`model/party.rs` + `game_loop/party.rs`): `World.parties`
   id-keyed map + `PartyRef` component back-pointer; one `PendingRequest`
   component slot covers Java's request map + `_activeRequester` for party

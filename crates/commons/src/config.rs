@@ -131,6 +131,67 @@ impl PropertiesParser {
         self.get_parsed(key, default)
     }
 
+    /// Java `PropertiesParser.getDuration` + `TimeUtil.parseDuration`, in
+    /// **seconds**: a `<integer><unit>` pattern such as `20secs`, falling back
+    /// to `default_secs` when the key is absent or the pattern is malformed.
+    ///
+    /// Units are Java's, case-insensitively: `sec(s)`, `min(s)`, `hour(s)`,
+    /// `day(s)`. Java also spells `week(s)`, `month(s)` and `year(s)` cases,
+    /// but they are dead: `Duration.of` rejects those estimated `ChronoUnit`s,
+    /// the throw is swallowed by `getDuration`'s `catch`, and the *default* is
+    /// what the caller gets — so accepting them here would be more permissive
+    /// than the reference, not less.
+    pub fn get_duration_secs(&self, key: &str, default_secs: i64) -> i64 {
+        let Some(raw) = self.value(key) else {
+            self.warn_missing(key, default_secs);
+            return default_secs;
+        };
+        let split = raw.find(|c: char| !c.is_ascii_digit()).unwrap_or(raw.len());
+        let unit_secs = match raw[split..].trim().to_ascii_lowercase().as_str() {
+            "sec" | "secs" => 1,
+            "min" | "mins" => 60,
+            "hour" | "hours" => 3_600,
+            "day" | "days" => 86_400,
+            _ => 0,
+        };
+        match (raw[..split].parse::<i64>(), unit_secs) {
+            (Ok(n), u) if u != 0 => n * u,
+            _ => {
+                warn!(
+                    "[{}] Invalid value specified for key: {key} specified value: {raw} \
+                     should be time pattern using default value: {default_secs}s",
+                    self.file_name
+                );
+                default_secs
+            }
+        }
+    }
+
+    /// Like [`get_int`](Self::get_int), but an **absent** key yields `None`
+    /// instead of a missing-property warning.
+    ///
+    /// For the handful of keys the reference server does not read either, so
+    /// their absence from the shipped `.ini` is the expected state rather than
+    /// config drift — `GrandBoss.ini`'s missing `RandomOfBaiumSpawn` is the
+    /// motivating case. Reach for this only when the *reference* omits the key
+    /// too; using it to quiet a key that genuinely should be present is how the
+    /// missing-property warning stops being worth reading.
+    ///
+    /// A present-but-unparseable value still warns, since that is drift.
+    pub fn get_int_opt(&self, key: &str) -> Option<i32> {
+        let raw = self.value(key)?;
+        match raw.parse() {
+            Ok(parsed) => Some(parsed),
+            Err(_) => {
+                warn!(
+                    "[{}] Invalid value specified for key: {key} specified value: {raw} — ignored",
+                    self.file_name
+                );
+                None
+            }
+        }
+    }
+
     fn get_parsed<T: std::str::FromStr + std::fmt::Display + Copy>(
         &self,
         key: &str,

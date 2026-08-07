@@ -1068,6 +1068,14 @@ pub enum DbCommand {
     /// rewritten from memory by the next autosave, so this only needs to fix
     /// the offline population.
     ResetRecommends,
+    /// Fire-and-forget daily world-chat quota reset (Java
+    /// `DailyTaskManager.resetWorldChatPoints`'s single UPDATE).
+    ///
+    /// Java's statement carries **no character filter** — it zeroes the
+    /// `WORLD_CHAT_USED` row of every character that has one, online included.
+    /// Harmless there and here: the online half runs straight after and writes
+    /// the same 0 into memory.
+    ResetWorldChatPoints,
     /// The offline-population vitality refill (Java `DailyTaskManager
     /// .resetVitalityDaily`/`resetVitalityWeekly`, G33): `weekly` sets the pool
     /// to max, otherwise adds `MAX/4`. Online players are refilled in memory on

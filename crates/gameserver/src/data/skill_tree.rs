@@ -196,6 +196,30 @@ impl SkillTreeData {
         &self.hero_skills
     }
 
+    /// Every skill id some tree here can put on a character: the class trees,
+    /// the common tree, and the hero and noble grants.
+    ///
+    /// Used by the boot-time skill-gap report to tell a parser gap that touches
+    /// a skill a player can actually hold from one that only touches datapack
+    /// content no Interlude tree references. **GM skills are excluded on
+    /// purpose** — they are handed to staff by config rather than learned, so
+    /// counting them would inflate "reachable" with skills no player holds.
+    ///
+    /// A boot-time approximation for a *log line*, not the parity gate:
+    /// `coverage_census::datapack_skill_coverage_census` scans the
+    /// `skillTrees/**` XML directly, deliberately not through these loaders, so
+    /// that it cannot measure the port against itself.
+    pub fn all_learnable_skill_ids(&self) -> std::collections::BTreeSet<i32> {
+        self.trees
+            .values()
+            .flatten()
+            .chain(self.common.iter())
+            .map(|l| l.skill_id)
+            .chain(self.hero_skills.iter().map(|&(id, _)| id))
+            .chain(self.noble_skills.iter().map(|&(id, _)| id))
+            .collect()
+    }
+
     /// Java `SkillTreeData.addSkills(gm, auraSkills)` — the whole tree, no
     /// conditions.
     pub fn gm_skills(&self, aura: bool) -> &[Skill] {
@@ -592,6 +616,58 @@ mod tests {
             auto_get: false,
             required_items: Vec::new(),
         }
+    }
+
+    /// The boot gap report claims that of everything the skill parser drops,
+    /// only a named handful sits on a skill a player can actually learn — the
+    /// rest is later-chronicle datapack content. That claim is the whole point
+    /// of the report, so it is asserted against the real dist rather than left
+    /// to the log to state.
+    ///
+    /// Both survivors are recorded G34 out-of-scope decisions:
+    /// **173 Acrobatics** (`SafeFallHeight` — this port has no fall damage, so
+    /// the stat would have no consumer) and **42 Sweeper** (`OpSweeper` —
+    /// enforced at *apply* time by `effects::sweep` with the right per-corpse
+    /// messages; gating the cast too would double them).
+    ///
+    /// A new name appearing here means a parser gap became reachable, which is
+    /// exactly the moment someone should look — the count alone would not say
+    /// which skill or why.
+    #[test]
+    fn only_the_two_recorded_gaps_are_reachable_from_a_skill_tree() {
+        const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let trees = SkillTreeData::load_from(DIST);
+        let skills = crate::data::SkillData::load_from(DIST);
+        let learnable = trees.all_learnable_skill_ids();
+        assert!(
+            learnable.len() > 500,
+            "sanity: the class trees should yield hundreds of ids, got {}",
+            learnable.len()
+        );
+
+        let mut reachable: Vec<String> = Vec::new();
+        for (label, map) in skills.gaps().categories() {
+            for (name, ids) in map {
+                let mut hit: Vec<i32> = ids
+                    .iter()
+                    .copied()
+                    .filter(|id| learnable.contains(id))
+                    .collect();
+                hit.sort_unstable();
+                if !hit.is_empty() {
+                    reachable.push(format!("{label}/{name} {hit:?}"));
+                }
+            }
+        }
+        reachable.sort();
+        assert_eq!(
+            reachable,
+            vec![
+                "condition/conditions/OpSweeper [42]".to_string(),
+                "effect/SafeFallHeight [173]".to_string(),
+            ],
+            "the set of parser gaps reachable from a skill tree changed"
+        );
     }
 
     #[test]

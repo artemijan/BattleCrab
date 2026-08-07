@@ -2185,6 +2185,21 @@ pub(crate) async fn run(
                         .await,
                 );
             }
+            DbCommand::ResetWorldChatPoints => {
+                // Java `resetWorldChatPoints`:
+                // `UPDATE character_variables SET val = 0 WHERE var = ?`,
+                // unfiltered by character exactly as upstream.
+                warn_err(
+                    character_variables::Entity::update_many()
+                        .col_expr(character_variables::Column::Val, "0".into())
+                        .filter(
+                            character_variables::Column::Var
+                                .eq(crate::model::components::WORLD_CHAT_USED),
+                        )
+                        .exec(&db)
+                        .await,
+                );
+            }
             DbCommand::ResetVitality { weekly } => {
                 // Java `resetVitalityDaily`/`resetVitalityWeekly` — both the
                 // `characters` and `character_subclasses` rows. `MAX/4` is added

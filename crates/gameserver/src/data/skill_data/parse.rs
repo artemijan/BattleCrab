@@ -402,45 +402,104 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
     }
 }
 
-/// Boot-time report of everything the skill parser dropped (PLAN_G34 §S0).
+/// Boot-time report of everything the skill parser dropped (G34 §S0).
 ///
-/// One `warn!` per category naming the worst offenders, so the log says out
-/// loud which parts of the datapack are inert instead of leaving it to be
-/// rediscovered one player report at a time. Counts are **raw skill ids**, not
-/// Interlude-reachable ones — deciding reachability needs the skill trees, NPC
-/// and item data, none of which are loaded yet at this point; the census test
-/// does that intersection.
-pub(crate) fn log_gaps(gaps: &SkillGaps) {
+/// The parser is **fail-open**: an unrecognised `<effect name>` / `<condition>`
+/// / `targetType` / … is silently ignored, so a skill can cast, animate, burn
+/// MP and enter reuse while doing nothing. This report exists so that is not
+/// rediscovered one player report at a time.
+///
+/// It reports *why* a gap is ignored rather than only how many there are, by
+/// splitting each category against the skill trees:
+///
+/// * **Reachable** — the name sits on a skill some tree can actually put on a
+///   character. That is real parity debt, so the line is a `warn!` naming the
+///   exact skill ids: someone can hit it in game today.
+/// * **Off-chronicle** — everything else, and it is the bulk. The dist's
+///   `skills/*.xml` is shared with far later chronicles and carries Territory
+///   War / Gracia / Freya content (`StatUp`, `SummonAgathion`, `ExpModify`, …)
+///   that no Interlude tree references. Ignoring those is a *decision*, so the
+///   line is an `info!` — porting them would grow the port without changing
+///   anything a player can reach.
+///
+/// The split needs the skill trees, which is why this runs from
+/// `GameData::load` once they are parsed rather than inside
+/// `SkillData::load_from` (where the old version could only ever print raw
+/// totals, and said so).
+///
+/// **This is a log line, not the gate.** The authority is
+/// `coverage_census::datapack_skill_coverage_census`, which does the same
+/// intersection against the raw XML — deliberately not through these loaders,
+/// so it cannot measure the port against itself — and holds a named
+/// `(skill_id, reason)` list rather than a count.
+pub fn log_gaps(gaps: &SkillGaps, learnable: &BTreeSet<i32>) {
+    /// Worst-first `Name(count)`, capped so one line stays readable.
+    fn summarise(mut top: Vec<(&str, usize)>, cap: usize) -> String {
+        top.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
+        let listed = top
+            .iter()
+            .take(cap)
+            .map(|(name, n)| format!("{name}({n})"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        match top.len().saturating_sub(cap) {
+            0 => listed,
+            rest => format!("{listed}, +{rest} more"),
+        }
+    }
+
     for (label, map) in gaps.categories() {
         if map.is_empty() {
             continue;
         }
-        let skills: BTreeSet<i32> = map.values().flatten().copied().collect();
-        // Worst-first, so the line leads with what is worth porting next.
-        let mut top: Vec<(&str, usize)> = map
+
+        // Split the names by whether any skill carrying them is learnable.
+        let (reachable, off_chronicle): (Vec<_>, Vec<_>) = map
             .iter()
-            .map(|(name, ids)| (name.as_str(), ids.len()))
-            .collect();
-        top.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
-        let listed = top
-            .iter()
-            .take(12)
-            .map(|(name, n)| format!("{name}({n})"))
-            .collect::<Vec<_>>()
-            .join(", ");
-        let rest = top.len().saturating_sub(12);
-        warn!(
-            "SkillData: {} unhandled <{}> name(s) across {} skill(s) — these parse but are \
-             not acted on (PLAN_G34_SKILL_PARITY.md): {}{}",
-            map.len(),
-            label,
-            skills.len(),
-            listed,
-            if rest > 0 {
-                format!(", +{rest} more")
-            } else {
-                String::new()
-            }
-        );
+            .partition(|(_, ids)| ids.iter().any(|id| learnable.contains(id)));
+
+        if !reachable.is_empty() {
+            let named = reachable
+                .iter()
+                .map(|(name, ids)| {
+                    let mut hit: Vec<i32> = ids
+                        .iter()
+                        .copied()
+                        .filter(|id| learnable.contains(id))
+                        .collect();
+                    hit.sort_unstable();
+                    let shown = hit.iter().map(i32::to_string).collect::<Vec<_>>().join("/");
+                    format!("{name} (skill {shown})")
+                })
+                .collect::<Vec<_>>()
+                .join("; ");
+            warn!(
+                "SkillData: <{label}> — {} name(s) unhandled on skills a player can actually \
+                 learn, so those skills are wrong in game: {named}. Each of these should be a \
+                 recorded decision in coverage_census::datapack_skill_coverage_census; one \
+                 that is not on that list is an unrecorded gap.",
+                reachable.len()
+            );
+        }
+
+        if !off_chronicle.is_empty() {
+            let skills: BTreeSet<i32> = off_chronicle
+                .iter()
+                .flat_map(|(_, ids)| ids.iter().copied())
+                .collect();
+            let top = off_chronicle
+                .iter()
+                .map(|(name, ids)| (name.as_str(), ids.len()))
+                .collect();
+            info!(
+                "SkillData: <{label}> — {} unhandled name(s) across {} skill(s), none reachable \
+                 from any skill tree. Ignored on purpose: the dist ships later chronicles' \
+                 skill data (Territory War / Gracia / Freya), which parses here but is not \
+                 Interlude content. {}",
+                off_chronicle.len(),
+                skills.len(),
+                summarise(top, 12),
+            );
+        }
     }
 }

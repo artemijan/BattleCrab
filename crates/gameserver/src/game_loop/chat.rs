@@ -1,8 +1,18 @@
 //! Port of `clientpackets/Say2` + the `handlers/chathandlers/*` scripts
-//! (General/Shout/Trade/Whisper/Party/Clan/Alliance), plus the shift-click
-//! item link pair `RequestExRqItemLink`/`ExRpItemLink`. Guards that need absent
-//! systems (chat bans, jail, olympiad, block list, say filter, voiced
-//! commands) are skipped — see PLAN_G10_SOCIAL.md §2/§4.
+//! (General/Shout/Trade/Whisper/Party/Clan/Alliance/World), plus the
+//! shift-click item link pair `RequestExRqItemLink`/`ExRpItemLink`.
+//!
+//! The `handlers/chathandlers/*` scripts live in the **datapack**
+//! (`dist/game/data/scripts/`), not under `java/`, and `Say2` reaches them
+//! through `ChatHandler` rather than a switch — so a `java/`-only grep for a
+//! channel name finds nothing and reads the channel as unimplemented. That is
+//! how world chat sat unported behind an enabled config for so long.
+//!
+//! Guards that need absent systems are skipped — the say filter and voiced
+//! commands landed with G33's `Custom/*.ini` audit and chat bans with G31, so
+//! what is left is the **block list** (no such subsystem) and `Say2`'s own
+//! jail gate over WHISPER/SHOUT/TRADE/HERO_VOICE. Both are recorded in
+//! `docs/DEFERRALS.md`; see PLAN_G10_SOCIAL.md §2/§4 for the original scope.
 
 use commons::audit;
 use serde_json::json;
@@ -447,6 +457,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         ChatType::Alliance => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE),
+        ChatType::World => world_chat(world, client_id, sender_oid, &sender_name, &pkt.text),
         // Server-sent only (ferry announcements / event announcements) or handled
         // before the match (petition consultation chat); a client never
         // legitimately originates these here, so drop them.
@@ -455,6 +466,164 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         | ChatType::PetitionPlayer
         | ChatType::PetitionGm
         | ChatType::HeroVoice => {}
+    }
+}
+
+/// `PlayerCondOverride.CHAT_CONDITIONS` — the GM escape hatch from the jail
+/// chat gate.
+const CHAT_CONDITIONS_ORDINAL: u8 = 8;
+
+/// The speaker's remaining world-chat allowance, i.e. what `ExWorldChatCnt`
+/// reports: Java's constructor arithmetic
+/// `level < WORLD_CHAT_MIN_LEVEL ? 0 : max(points - used, 0)`.
+///
+/// `points` is Java's `getWorldChatPoints()` — `WorldChatPointsPerDay` scaled
+/// by the `Stat.WORLD_CHAT_POINTS` add/mul. **No skill, item or effect on this
+/// dist grants that stat**, so the config value *is* the quota here and the
+/// stat is not modelled; grep the datapack before assuming that still holds if
+/// a later chronicle's data lands.
+pub(crate) fn world_chat_points_left(world: &World, player_oid: i32) -> i32 {
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+        return 0;
+    };
+    if p.level < world.cfg.general.world_chat_min_level {
+        return 0;
+    }
+    let used = world
+        .objects
+        .get_component::<crate::model::components::PlayerVariables>(&player_oid)
+        .map_or(0, |v| {
+            v.get_int(crate::model::components::WORLD_CHAT_USED, 0)
+        });
+    (world.cfg.general.world_chat_points_per_day - used).max(0)
+}
+
+/// Port of `handlers/chathandlers/ChatWorld` — the server-wide channel, gated
+/// by a minimum level, a daily point quota and a per-speaker reuse window.
+///
+/// The gate order is Java's, and it matters: the **level** check runs before
+/// the jail and quota checks, so an under-levelled character is told to level
+/// up rather than told their quota is spent.
+///
+/// Two of Java's branches are deliberately absent:
+///
+/// * Its `isChatBanned() && BAN_CHAT_CHANNELS.contains(type)` branch is **dead
+///   code upstream** — `Say2` returns unconditionally for a chat-banned
+///   speaker long before dispatching to any handler, which is exactly what
+///   this port does above. Porting it would be unreachable code that reads
+///   like a live rule.
+/// * Its `FACTION_SYSTEM_ENABLED && FACTION_SPECIFIC_CHAT` split (broadcast to
+///   good or evil players only) is unreachable on this dist:
+///   `Custom/FactionSystem.ini` ships `EnableFactionSystem = False`, so Java
+///   takes the `else` — every online player — which is what runs here.
+fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &str, text: &str) {
+    // Java returns *silently* when the system is off — no notice to the
+    // speaker, so the line simply vanishes.
+    if !world.cfg.general.world_chat_enabled {
+        return;
+    }
+
+    let now = commons::util::now_millis();
+    // Java `REUSE.values().removeIf(now::isAfter)`: drop entries whose instant
+    // is already in the past. Runs before the gates, as upstream, so a lapsed
+    // window is gone even when this call goes on to be refused for some other
+    // reason.
+    world.world_chat_reuse.retain(|_, until| *until >= now);
+
+    let Some(p) = world.objects.get_component::<Player>(&sender_oid) else {
+        return;
+    };
+    let (level, jailed, may_override) = (
+        p.level,
+        p.jailed,
+        p.can_override_cond(CHAT_CONDITIONS_ORDINAL),
+    );
+
+    let min_level = world.cfg.general.world_chat_min_level;
+    if level < min_level {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1,
+                &[commons::system_messages::SmParam::Int(min_level)],
+            ));
+        }
+        return;
+    }
+
+    // TODO(chat-jail): Java gates two places on `JailDisableChat` — this one,
+    // ported here, and `Say2`'s own guard over WHISPER/SHOUT/TRADE/HERO_VOICE,
+    // which this port has never had. A jailed player is still silenced on
+    // those four channels upstream and is not here.
+    if world.cfg.general.jail_disable_chat && jailed && !may_override {
+        send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
+        return;
+    }
+
+    let used = world
+        .objects
+        .get_component::<crate::model::components::PlayerVariables>(&sender_oid)
+        .map_or(0, |v| {
+            v.get_int(crate::model::components::WORLD_CHAT_USED, 0)
+        });
+    if used >= world.cfg.general.world_chat_points_per_day {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::YOU_HAVE_SPENT_YOUR_WORLD_CHAT_QUOTA_FOR_THE_DAY,
+        );
+        return;
+    }
+
+    // The reuse window. Java guards *both* the check and the later stamp with
+    // `getSeconds() > 0`, so an interval of 0 disables the window rather than
+    // making it instantaneous.
+    let interval_secs = world.cfg.general.world_chat_interval_secs;
+    if interval_secs > 0
+        && let Some(&until) = world.world_chat_reuse.get(&sender_oid)
+        && until > now
+    {
+        // Java `Duration.between(now, instant).getSeconds()` truncates, so a
+        // 19.4 s wait reports 19 — matched by the integer division here.
+        let remaining = ((until - now) / 1000) as i32;
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_HAVE_S1_SEC_UNTIL_YOU_ARE_ABLE_TO_USE_WORLD_CHAT,
+                &[commons::system_messages::SmParam::Int(remaining)],
+            ));
+        }
+        return;
+    }
+
+    // TODO(block-list): Java filters this broadcast with
+    // `activeChar.isNotBlocked(player)` — the *receiver's* block list, i.e.
+    // `!blockList.isBlockAll() && !blockList.isInBlockList(speaker)`. This port
+    // has no block list at all (no `BlockList`, no `/block`, no `blockall`), so
+    // every online player hears every world-chat line. The same filter is
+    // missing from the other broadcast channels for the same reason.
+    let say = server_packets::creature_say(sender_oid, ChatType::World, sender_name, text, None);
+    for cs in world.clients.values() {
+        if matches!(cs, ClientSession::InGame(_)) {
+            cs.send(say.clone());
+        }
+    }
+
+    // Spend the point, then tell the speaker what is left. Java writes the
+    // variable through `setWorldChatUsed`, which the memory-first autosave
+    // flushes with the rest of the character.
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVariables>(&sender_oid)
+    {
+        v.set_int(crate::model::components::WORLD_CHAT_USED, used + 1);
+    }
+    let left = world_chat_points_left(world, sender_oid);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::ex_world_chat_cnt(left));
+    }
+    if interval_secs > 0 {
+        world
+            .world_chat_reuse
+            .insert(sender_oid, now + interval_secs * 1000);
     }
 }
 
