@@ -636,6 +636,20 @@ pub(crate) fn remove_clan_member_for_academy(world: &mut World, clan_id: i32, me
     remove_clan_member(world, clan_id, member_oid, 0);
 }
 
+/// A clan's name, or `None` when no clan carries that id — a disbanded clan,
+/// or the sentinel `0` a clanless player reports.
+pub(crate) fn clan_name(world: &World, clan_id: i32) -> Option<String> {
+    world.clans.get(&clan_id).map(|c| c.name.clone())
+}
+
+/// A clan's name, empty when no clan carries that id.
+///
+/// The shape the message formatters want, mirroring
+/// [`crate::game_loop::helpers::player_name_or_empty`].
+pub(crate) fn clan_name_or_empty(world: &World, clan_id: i32) -> String {
+    clan_name(world, clan_id).unwrap_or_default()
+}
+
 /// `ClassId.level()` — occupation tier via the `*_CLASS_GROUP` categories
 /// (same mapping the henna/support-magic gates use).
 pub(crate) fn class_level(world: &World, class_id: i32) -> i32 {

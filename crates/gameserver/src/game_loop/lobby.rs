@@ -1,6 +1,7 @@
 //! Lobby / character-management handlers: the AuthLogin → EnterWorld stretch
 //! (character list, name check, create/delete/restore/select).
 
+use crate::game_loop::clans::clan_name_or_empty;
 use tracing::info;
 
 use crate::db::{self, NewCharacter};
@@ -837,11 +838,7 @@ fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) 
     let Some((true, text)) = world.clan_notices.get(&clan_id).cloned() else {
         return;
     };
-    let clan_name = world
-        .clans
-        .get(&clan_id)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let clan_name = clan_name_or_empty(world, clan_id);
     let Some(html) =
         crate::data::htm_cache::read_htm(format!("{}data/html/clanNotice.htm", world.data.root))
     else {

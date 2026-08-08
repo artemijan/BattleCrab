@@ -1,6 +1,7 @@
 //! Skill & buff commands — `AdminSkill`'s `//add_skill`/`//remove_skill` and
 //! `AdminBuffs`' `//buff`/`//getbuffs`/`//stopbuff`/`//stopallbuffs`.
 
+use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
 use crate::model::Player;
@@ -182,11 +183,7 @@ fn give_clan_skills(
         ));
     }
     let count = crate::game_loop::clans::give_clan_skills(world, clan_id, include_squad);
-    let clan_name = world
-        .clans
-        .get(&clan_id)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let clan_name = clan_name_or_empty(world, clan_id);
     send_message(
         world,
         client_id,

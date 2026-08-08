@@ -673,7 +673,8 @@ pub(crate) fn link_bypass(
     npc_oid: i32,
     command: &str,
 ) {
-    let instance_id = npc_id_of(world, npc_oid);
+    // No npc there ⇒ id 0, which never matches an auction instance below.
+    let instance_id = crate::game_loop::helpers::npc_id_of(world, npc_oid).unwrap_or(0);
     if world.item_auctions.instances.get(&instance_id).is_none() {
         return;
     }
@@ -862,13 +863,6 @@ fn broadcast_to_bidders(world: &World, auction_id: i32, sm_id: i16) {
             send_sm(world, cid, sm_id);
         }
     }
-}
-
-fn npc_id_of(world: &World, npc_oid: i32) -> i32 {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .map_or(0, |n| n.npc_id)
 }
 
 fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {

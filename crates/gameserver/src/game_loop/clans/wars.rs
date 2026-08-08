@@ -276,11 +276,7 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
                     sm_ids::CLAN_WAR_STARTED_WITH_CLAN_S1,
                     &[SmParam::Text(target_name.clone())],
                 );
-                let clan_name = world
-                    .clans
-                    .get(&clan_id)
-                    .map(|c| c.name.clone())
-                    .unwrap_or_default();
+                let clan_name = clan_name_or_empty(world, clan_id);
                 let started_b = server_packets::system_message_with(
                     sm_ids::CLAN_WAR_STARTED_WITH_CLAN_S1,
                     &[SmParam::Text(clan_name)],
@@ -316,11 +312,7 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
         },
     );
     world.clan_wars.push(war);
-    let clan_name = world
-        .clans
-        .get(&clan_id)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let clan_name = clan_name_or_empty(world, clan_id);
     let declared = server_packets::system_message_with(
         sm_ids::YOU_HAVE_DECLARED_A_CLAN_WAR_WITH_S1,
         &[SmParam::Text(target_name.clone())],
@@ -497,11 +489,7 @@ pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: 
 
     // `ClanWar.cancel(player, cancelor)`.
     add_clan_reputation(world, clan_id, -500);
-    let clan_name = world
-        .clans
-        .get(&clan_id)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let clan_name = clan_name_or_empty(world, clan_id);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::surrender_pledge_war(
             &clan_name,
@@ -560,16 +548,8 @@ pub(crate) fn handle_clan_war_timeout(world: &mut World, attacker: i32, attacked
     if war.state != ClanWarState::BloodDeclaration && war.state != ClanWarState::Declaration {
         return;
     }
-    let attacker_name = world
-        .clans
-        .get(&attacker)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
-    let attacked_name = world
-        .clans
-        .get(&attacked)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let attacker_name = clan_name_or_empty(world, attacker);
+    let attacked_name = clan_name_or_empty(world, attacked);
     let cancelled = server_packets::system_message_with(
         sm_ids::A_CLAN_WAR_DECLARED_BY_CLAN_S1_WAS_CANCELLED,
         &[SmParam::Text(attacker_name)],
@@ -677,16 +657,8 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
             add_clan_reputation(world, victim_clan, -REPUTATION_SCORE_PER_KILL);
             add_clan_reputation(world, killer_clan, REPUTATION_SCORE_PER_KILL);
         }
-        let killer_clan_name = world
-            .clans
-            .get(&killer_clan)
-            .map(|c| c.name.clone())
-            .unwrap_or_default();
-        let victim_clan_name = world
-            .clans
-            .get(&victim_clan)
-            .map(|c| c.name.clone())
-            .unwrap_or_default();
+        let killer_clan_name = clan_name_or_empty(world, killer_clan);
+        let victim_clan_name = clan_name_or_empty(world, victim_clan);
         let down = server_packets::system_message_with(
             sm_ids::BECAUSE_C1_KILLED_BY_S2_CLAN_REPUTATION_DECREASED_BY_1,
             &[
@@ -724,16 +696,8 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
             if let Some(w) = war_between_mut(world, killer_clan, victim_clan) {
                 w.state = ClanWarState::Mutual;
             }
-            let killer_clan_name = world
-                .clans
-                .get(&killer_clan)
-                .map(|c| c.name.clone())
-                .unwrap_or_default();
-            let victim_clan_name = world
-                .clans
-                .get(&victim_clan)
-                .map(|c| c.name.clone())
-                .unwrap_or_default();
+            let killer_clan_name = clan_name_or_empty(world, killer_clan);
+            let victim_clan_name = clan_name_or_empty(world, victim_clan);
             let started_k = server_packets::system_message_with(
                 sm_ids::CLAN_WAR_STARTED_WITH_CLAN_S1,
                 &[SmParam::Text(victim_clan_name)],
@@ -746,11 +710,7 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
             broadcast_to_clan(world, victim_clan, &started_v);
             broadcast_war_status(world, killer_clan, victim_clan);
         } else {
-            let victim_clan_name = world
-                .clans
-                .get(&victim_clan)
-                .map(|c| c.name.clone())
-                .unwrap_or_default();
+            let victim_clan_name = clan_name_or_empty(world, victim_clan);
             let progress = server_packets::system_message_with(
                 sm_ids::S1_MEMBER_KILLED_S2_MORE_KILLS_TO_START_WAR,
                 &[

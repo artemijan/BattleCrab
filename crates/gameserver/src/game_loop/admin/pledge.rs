@@ -5,6 +5,7 @@
 //! and hero buttons on the same panel stay unimplemented until their subsystems
 //! land (G21/G24/G25).
 
+use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
 use crate::model::Player;
@@ -136,11 +137,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
             // Java: valid range is [0, 12).
             if (0..12).contains(&level) {
                 crate::game_loop::clans::set_clan_level(world, cid, level);
-                let name = world
-                    .clans
-                    .get(&cid)
-                    .map(|c| c.name.clone())
-                    .unwrap_or_default();
+                let name = clan_name_or_empty(world, cid);
                 send_message(
                     world,
                     client_id,
@@ -162,11 +159,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
                     if let Some(score) =
                         crate::game_loop::clans::add_clan_reputation(world, cid, points)
                     {
-                        let name = world
-                            .clans
-                            .get(&cid)
-                            .map(|c| c.name.clone())
-                            .unwrap_or_default();
+                        let name = clan_name_or_empty(world, cid);
                         let (verb, dir) = if points > 0 {
                             ("add", "to")
                         } else {

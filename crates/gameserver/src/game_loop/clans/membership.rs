@@ -179,11 +179,7 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
         },
         crate::game_loop::party::REQUEST_TIMEOUT_TICKS,
     );
-    let clan_name = world
-        .clans
-        .get(&clan_id)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let clan_name = clan_name_or_empty(world, clan_id);
     send_to_member(
         world,
         target_oid,
