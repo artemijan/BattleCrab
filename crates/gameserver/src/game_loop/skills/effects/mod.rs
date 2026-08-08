@@ -648,7 +648,19 @@ pub(crate) fn apply_skill_effects(
                 } else {
                     damage
                 };
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
+                apply_skill_damage(
+                    world,
+                    caster_oid,
+                    target_oid,
+                    SkillHit {
+                        damage,
+                        crit,
+                        caster_name: &caster_name,
+                        over_hit: skill.over_hit,
+                        skill_id: skill.id,
+                        ..Default::default()
+                    },
+                );
             }
             // `PolearmSingleTarget` is a pure stat toggle: `onStart` sets
             // `PHYSICAL_POLEARM_TARGET_SINGLE` as a **fixed** 1 and `onExit`
@@ -1766,13 +1778,15 @@ fn dam_over_time_crit_burst(
                 world,
                 caster_oid,
                 target_oid,
-                damage,
-                true,
-                true,
-                &caster_name,
-                skill.over_hit,
-                false,
-                skill.id,
+                SkillHit {
+                    damage,
+                    crit: true,
+                    is_magic: true,
+                    caster_name: &caster_name,
+                    over_hit: skill.over_hit,
+                    skill_id: skill.id,
+                    ..Default::default()
+                },
             );
         }
     }

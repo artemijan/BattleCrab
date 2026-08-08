@@ -251,13 +251,14 @@ pub(crate) fn handle_dam_over_time_tick(
                 world,
                 caster_oid,
                 target_oid,
-                damage,
-                false,
-                skill.magic_type == 1,
-                &caster_name,
-                false,
-                true,
-                skill.id,
+                SkillHit {
+                    damage,
+                    is_magic: skill.magic_type == 1,
+                    caster_name: &caster_name,
+                    is_dot: true,
+                    skill_id: skill.id,
+                    ..Default::default()
+                },
             );
             // A `canKill` tick can kill outright — stop then.
             if is_dead(world, target_oid) {

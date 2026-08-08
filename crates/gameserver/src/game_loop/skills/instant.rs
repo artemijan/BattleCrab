@@ -15,7 +15,7 @@ use crate::network::server_packets;
 use crate::world::World;
 
 use super::effects::{
-    apply_skill_damage, attribute_mod, broadcast_social_action, broadcast_vitals,
+    SkillHit, apply_skill_damage, attribute_mod, broadcast_social_action, broadcast_vitals,
     calc_general_trait_bonus, caster_display_name, caster_level, confuse_chance_passes,
     creature_level, defence_after_shield, handle_buff_expire, max_recoverable, pvp_pve_bonus,
     roll_magic_failure, send_sm, servitor_owner_of, skill_power_mul, skill_trait_mod, target_m_def,
@@ -84,13 +84,15 @@ pub(super) fn magical_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, po
         world,
         caster_oid,
         target_oid,
-        damage,
-        mcrit,
-        true,
-        &caster_name,
-        skill.over_hit,
-        false,
-        skill.id,
+        SkillHit {
+            damage,
+            crit: mcrit,
+            is_magic: true,
+            caster_name: &caster_name,
+            over_hit: skill.over_hit,
+            skill_id: skill.id,
+            ..Default::default()
+        },
     );
 }
 
@@ -180,13 +182,15 @@ pub(super) fn magical_attack_range(
         world,
         caster_oid,
         target_oid,
-        damage,
-        mcrit,
-        true,
-        &caster_name,
-        skill.over_hit,
-        false,
-        skill.id,
+        SkillHit {
+            damage,
+            crit: mcrit,
+            is_magic: true,
+            caster_name: &caster_name,
+            over_hit: skill.over_hit,
+            skill_id: skill.id,
+            ..Default::default()
+        },
     );
 }
 
@@ -472,13 +476,14 @@ pub(super) fn blow(
         world,
         caster_oid,
         target_oid,
-        damage,
-        true,
-        false,
-        &caster_name,
-        skill.over_hit,
-        false,
-        skill.id,
+        SkillHit {
+            damage,
+            crit: true,
+            caster_name: &caster_name,
+            over_hit: skill.over_hit,
+            skill_id: skill.id,
+            ..Default::default()
+        },
     );
 }
 
@@ -704,13 +709,15 @@ pub(super) fn hp_drain(
         world,
         caster_oid,
         target_oid,
-        damage,
-        mcrit,
-        true,
-        &caster_name,
-        skill.over_hit,
-        false,
-        skill.id,
+        SkillHit {
+            damage,
+            crit: mcrit,
+            is_magic: true,
+            caster_name: &caster_name,
+            over_hit: skill.over_hit,
+            skill_id: skill.id,
+            ..Default::default()
+        },
     );
 }
 
@@ -892,13 +899,15 @@ pub(super) fn death_link(world: &mut World, ctx: &CastCtx, skill: &Skill, power:
         world,
         caster_oid,
         target_oid,
-        damage,
-        mcrit,
-        true,
-        &caster_name,
-        skill.over_hit,
-        false,
-        skill.id,
+        SkillHit {
+            damage,
+            crit: mcrit,
+            is_magic: true,
+            caster_name: &caster_name,
+            over_hit: skill.over_hit,
+            skill_id: skill.id,
+            ..Default::default()
+        },
     );
 }
 
@@ -1099,13 +1108,13 @@ pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, powe
             world,
             caster_oid,
             target_oid,
-            -amount,
-            false,
-            skill.magic_type == 1,
-            &caster_name,
-            false,
-            false,
-            skill.id,
+            SkillHit {
+                damage: -amount,
+                is_magic: skill.magic_type == 1,
+                caster_name: &caster_name,
+                skill_id: skill.id,
+                ..Default::default()
+            },
         );
         return;
     }
@@ -1273,13 +1282,14 @@ pub(super) fn energy_attack(
         world,
         caster_oid,
         target_oid,
-        damage,
-        crit,
-        false,
-        &caster_name,
-        skill.over_hit,
-        false,
-        skill.id,
+        SkillHit {
+            damage,
+            crit,
+            caster_name: &caster_name,
+            over_hit: skill.over_hit,
+            skill_id: skill.id,
+            ..Default::default()
+        },
     );
 }
 

@@ -1836,7 +1836,15 @@ fn counter_physical_skill_answers_melee_skills_only() {
     world.data.skill_data.insert_for_test(melee);
     let before = caster_hp(&world);
     crate::game_loop::skills::effects::apply_skill_damage(
-        &mut world, CASTER, NPC_OID, 1.0, false, false, "c", false, false, 9351,
+        &mut world,
+        CASTER,
+        NPC_OID,
+        crate::game_loop::skills::effects::SkillHit {
+            damage: 1.0,
+            caster_name: "c",
+            skill_id: 9351,
+            ..Default::default()
+        },
     );
     assert!(
         caster_hp(&world) < before,
@@ -1851,7 +1859,16 @@ fn counter_physical_skill_answers_melee_skills_only() {
     world.data.skill_data.insert_for_test(magic);
     let before = caster_hp(&world);
     crate::game_loop::skills::effects::apply_skill_damage(
-        &mut world, CASTER, NPC_OID, 1.0, false, true, "c", false, false, 9352,
+        &mut world,
+        CASTER,
+        NPC_OID,
+        crate::game_loop::skills::effects::SkillHit {
+            damage: 1.0,
+            is_magic: true,
+            caster_name: "c",
+            skill_id: 9352,
+            ..Default::default()
+        },
     );
     assert_eq!(
         caster_hp(&world),
@@ -1866,7 +1883,15 @@ fn counter_physical_skill_answers_melee_skills_only() {
     world.data.skill_data.insert_for_test(ranged);
     let before = caster_hp(&world);
     crate::game_loop::skills::effects::apply_skill_damage(
-        &mut world, CASTER, NPC_OID, 1.0, false, false, "c", false, false, 9353,
+        &mut world,
+        CASTER,
+        NPC_OID,
+        crate::game_loop::skills::effects::SkillHit {
+            damage: 1.0,
+            caster_name: "c",
+            skill_id: 9353,
+            ..Default::default()
+        },
     );
     assert_eq!(
         caster_hp(&world),
