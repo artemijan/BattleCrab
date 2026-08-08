@@ -38,6 +38,7 @@ mod admin_tests;
 mod affect_tests;
 mod antharas_tests;
 mod area_scripts_tests;
+mod armor_set_tests;
 mod attribute_tests;
 mod augment_skill_tests;
 mod auto_play_tests;
@@ -418,6 +419,7 @@ async fn character_create_inserts_into_real_schema() {
         residence_functions: crate::data::residence_function_data::ResidenceFunctionData::default(),
         teleporters: crate::data::TeleporterData::empty(),
         transforms: crate::data::TransformData::empty(),
+        armor_sets: crate::data::armor_set_data::ArmorSetData::empty(),
         enchant: crate::data::EnchantData::empty(),
         enchant_skill_groups: crate::data::EnchantSkillGroups::empty(),
         variations: crate::data::VariationData::empty(),

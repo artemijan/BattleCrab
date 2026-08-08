@@ -122,10 +122,13 @@ earlier commit (the `ItemStats` side-map + `EquippedBonuses` in
 `sDef`/`rShld` parse, block rate (× CON, ×1.3 for bows, back-arc gated), normal
 block adds shield def to pDef, perfect block → 1 dmg, "shield defense succeeded"
 SM. ✅ **`//setparam`/`//unsetparam`** — a `StatModifiers.fixed` override map the
-finalizers honor (and buff recomputes preserve). **Deferred:** `ArmorSetData`
-(set bonuses + `getArmorMinEnchant`) → **G19** (sets grant *skills*); the
-`SHOTS_BONUS` dynamic stat (matters only for the `reducedSoulshot` weapon perk,
-unused in the ported set). **G14 done.**
+finalizers honor (and buff recomputes preserve). ✅ **`ArmorSetData`** (set bonuses + `getArmorMinEnchant`) — this
+line deferred it to **G19**, G19 then closed on its effects-breadth gate without
+it, and the rider was only found on 2026-08-08 by the bare-marker triage. Landed
+that day: `data::armor_set_data` + `game_loop::armor_sets`. **A deferral aimed at
+a later milestone is not tracked by that milestone's gate** — record it at a site
+too. **Deferred:** the `SHOTS_BONUS` dynamic stat (matters only for the
+`reducedSoulshot` weapon perk, unused in the ported set). **G14 done.**
 
 ### G15 — Economy & item actions ✅ COMPLETE (gate verified 2026-07-31)
 🚧 **In progress.** ✅ `RequestDestroyItem` (0x60). ✅ **Ground items** — a

@@ -13,6 +13,7 @@ pub(crate) mod academy;
 pub(crate) mod admin;
 pub(crate) mod antharas;
 pub(crate) mod area_npcs;
+pub(crate) mod armor_sets;
 mod augment;
 pub(crate) mod auto_play;
 pub(crate) mod auto_potions;

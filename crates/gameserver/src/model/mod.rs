@@ -1085,13 +1085,18 @@ impl Player {
         }
         let henna = components::HennaSlots(henna_slots);
         let hs = data.hennas.stat_sums(&henna_slots);
+        // A complete worn armor set adds flat base stats exactly as a dye does
+        // (Java `BaseStatFinalizer`). Folded in here so the enter-world
+        // `UserInfo` already carries them; `compose_base_stats` is the same
+        // sum for every later recompute.
+        let sets = crate::game_loop::armor_sets::set_stat_sums_for(&data.armor_sets, &inventory);
         let base_stats = BaseStats {
-            str_: t.base_str + hs.str_,
-            dex: t.base_dex + hs.dex,
-            con: t.base_con + hs.con,
-            int_: t.base_int + hs.int_,
-            wit: t.base_wit + hs.wit,
-            men: t.base_men + hs.men,
+            str_: t.base_str + hs.str_ + sets.str_ as i32,
+            dex: t.base_dex + hs.dex + sets.dex as i32,
+            con: t.base_con + hs.con + sets.con as i32,
+            int_: t.base_int + hs.int_ + sets.int_ as i32,
+            wit: t.base_wit + hs.wit + sets.wit as i32,
+            men: t.base_men + hs.men + sets.men as i32,
         };
         let mut vitals = Vitals {
             max_hp: max_hp as i32,
@@ -1272,10 +1277,30 @@ impl Player {
         let skills = SkillBook(
             c.skills
                 .iter()
-                .filter(|&&(id, _, _)| !data.transforms.is_transform_skill(id))
+                // Armor-set skills are session-only for the same reason and
+                // are dropped here too; the worn set re-grants them a few lines
+                // below, so a character who logs in wearing one keeps the bonus
+                // while one who logged out and sold the set does not.
+                .filter(|&&(id, _, _)| {
+                    !data.transforms.is_transform_skill(id)
+                        && !data.armor_sets.is_armor_set_skill(id)
+                })
                 .map(|&(id, lvl, _)| (id, lvl))
                 .collect(),
         );
+        // Re-grant whatever the gear the character logged out wearing entitles
+        // them to. The rows themselves were just filtered out above, so this is
+        // the only thing that puts a set bonus back — without it a relog would
+        // silently drop every armor-set passive, which is precisely how the
+        // augment options regressed before they were re-derived here too.
+        let mut skills = skills;
+        for (id, level) in
+            crate::game_loop::armor_sets::granted_skills_for(&data.armor_sets, &inventory)
+        {
+            skills.0.insert(id, level);
+        }
+        let skills = skills;
+
         // The enchant sub-levels ride the same rows (PLAN_G19_SKILL_ENCHANT.md).
         let skill_enchants = components::SkillEnchants(
             c.skills
@@ -2181,6 +2206,51 @@ pub(crate) fn weapon_condition_passes(
 /// `ActiveBuff` (Java's `Player.addSkill` passive effects, re-evaluated at pump
 /// time). Skills whose effects are all gated out contribute nothing. Shared by
 /// `from_char` (enter-world) and `game_loop::passive_skills` (equip changes).
+/// `BaseStats` = the class template's six values **plus every flat bonus that
+/// stacks onto them**: worn hennas (Java `recalcHennaStats`) and complete armor
+/// sets (`BaseStatFinalizer`'s `getBaseStatValue`).
+///
+/// This exists because the composition had drifted into three hand-rolled
+/// copies — the login build, the henna redraw, and (once sets landed) the
+/// paperdoll change — and a term added to one is invisible to the others. Any
+/// new flat base-stat source belongs here and nowhere else.
+///
+/// `None` when the object has no `Player`, i.e. nothing to compose for.
+pub(crate) fn compose_base_stats(
+    world: &crate::world::World,
+    oid: i32,
+) -> Option<components::BaseStats> {
+    let (class_id, base_class_id) = world
+        .objects
+        .get_component::<Player>(&oid)
+        .map(|p| (p.class_id, p.base_class_id))?;
+    let t = world
+        .data
+        .player_templates
+        .get(class_id)
+        .or_else(|| world.data.player_templates.get(base_class_id))
+        .cloned()
+        .unwrap_or_default();
+    let slots = world
+        .objects
+        .get_component::<components::HennaSlots>(&oid)
+        .map(|h| h.0)
+        .unwrap_or_default();
+    let hs = world.data.hennas.stat_sums(&slots);
+    let sets = crate::game_loop::armor_sets::set_stat_sums(world, oid);
+    // Java sums the set bonus as a double into the finalizer's base value and
+    // the consumer truncates; every `<stat val>` on this dist is a whole
+    // number, so the cast is exact rather than lossy.
+    Some(components::BaseStats {
+        str_: t.base_str + hs.str_ + sets.str_ as i32,
+        dex: t.base_dex + hs.dex + sets.dex as i32,
+        con: t.base_con + hs.con + sets.con as i32,
+        int_: t.base_int + hs.int_ + sets.int_ as i32,
+        wit: t.base_wit + hs.wit + sets.wit as i32,
+        men: t.base_men + hs.men + sets.men as i32,
+    })
+}
+
 pub(crate) fn conditioned_passive_buffs(
     data: &GameData,
     skills: &SkillBook,
