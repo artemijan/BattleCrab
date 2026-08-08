@@ -394,7 +394,34 @@ unless noted.
 
 ---
 
-## Phase 6 — Boss-script commons
+## Phase 6 — Boss-script commons ✅ **done** (`46db5240`, `d82ed747`)
+
+| Helper | Copies | Home |
+|---|---|---|
+| `set_status` | 3 + 1 inline | `grand_boss` — the write half of the `status()` already there |
+| `find_alive` | **3**, not the 1 recorded | `grand_boss` |
+| `find_spawned` | 2 (`find_antharas`/`find_valakas`) | `grand_boss`; both keep their names as one-line wrappers |
+| `has_buff` | 3 | `abnormal`, **not** `grand_boss` |
+
+Three notes:
+
+- **`has_buff` is not a boss helper.** `auto_use` uses it too, and `abnormal`
+  is where the other "is this state up?" predicates live. Its doc marks the
+  distinction from the `effect_flag` predicates beside it: those ask whether
+  *some* buff imposes a state, this one asks about a named skill.
+- **`find_alive` and `find_spawned` stay separate.** `find_alive` walks every
+  object (so it needs `&mut World`) and filters corpses; `find_spawned` reads
+  the region index from `&World` and does not. Each doc points at the other.
+- **Baium wrote the status-and-persist pair inline**, with no local
+  `set_status`, so neither the inspection nor the first sweep saw it. Found by
+  grepping for the *operation* (`grand_bosses.get_mut` followed by
+  `.status =`) rather than for a function name — worth repeating for the
+  remaining phases.
+
+A clone scan filtered to the boss modules afterwards returns only a shared
+function-parameter list, no logic.
+
+### Original plan
 
 The grand-boss modules were ported one-file-per-boss and each grew its own copy
 of the same three helpers.
