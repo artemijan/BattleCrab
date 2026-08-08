@@ -2,9 +2,9 @@
 //! skill actually lands on, the friend/foe filter, and toggle on/off.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::game_loop::skills::affect::targets_affected;
-use crate::model::components::Buffs;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
 };
@@ -324,13 +324,6 @@ fn toggle_skill(id: i32, group: i32) -> Skill {
     s.is_debuff = false;
     s.toggle_group_id = group;
     s
-}
-
-fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
 }
 
 /// A toggle switches on when first used and **off** when used again — the
