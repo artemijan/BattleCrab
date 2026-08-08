@@ -19,9 +19,7 @@
 
 use crate::game_loop::bot_report;
 use crate::game_loop::helpers::client_for_player;
-use crate::model::components::{
-    BaseStats, Buffs, CombatStats, RegionCell, Speeds, StatModifiers, Vitals,
-};
+use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
 use crate::model::skill::{
@@ -32,6 +30,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::instant;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
 
 mod continuous;
@@ -779,10 +778,7 @@ pub(crate) fn apply_skill_effects(
                     .get_component::<crate::model::components::Position>(&target_oid)
                     .map(|p| p.heading)
                     .unwrap_or(0);
-                if let Some(region) = world
-                    .objects
-                    .get_component::<RegionCell>(&target_oid)
-                    .map(|r| r.0)
+                if let Some(region) = region_cell_of(world, target_oid)
                 {
                     for pkt in [
                         server_packets::start_rotation(target_oid, target_heading, 1, 65535),

@@ -8,10 +8,11 @@
 
 use crate::game_loop::guard;
 use crate::model::Player;
-use crate::model::components::{AutoPlaySettings, GroundItem, Position, RegionCell, Vitals};
+use crate::model::components::{AutoPlaySettings, GroundItem, Position, Vitals};
 use crate::world::World;
 
 use super::helpers::client_for_player;
+use crate::game_loop::helpers::region_cell_of;
 
 /// Java's pool runs every 300 ms; the loop ticks at 100 ms, so every 3 ticks.
 pub(crate) const TICK_PERIOD: u64 = 3;
@@ -286,10 +287,7 @@ fn try_pickup(world: &mut World, player_oid: i32) -> bool {
             .objects
             .get_component::<Position>(&player_oid)
             .copied(),
-        world
-            .objects
-            .get_component::<RegionCell>(&player_oid)
-            .map(|r| r.0),
+        region_cell_of(world, player_oid),
     ) else {
         return false;
     };
@@ -340,10 +338,7 @@ fn find_target(world: &World, player_oid: i32, s: &AutoPlaySettings) -> Option<i
         .objects
         .get_component::<Position>(&player_oid)
         .copied()?;
-    let region = world
-        .objects
-        .get_component::<RegionCell>(&player_oid)
-        .map(|r| r.0)?;
+    let region = region_cell_of(world, player_oid)?;
     // Characters mode ignores the short-range setting, as Java does.
     let range = if s.short_range && s.next_target_mode != 2 {
         SHORT_RANGE

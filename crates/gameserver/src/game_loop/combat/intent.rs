@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::region_cell_of;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
 /// `NpcAction`'s monster branch: clicking your already-selected monster
@@ -310,11 +311,7 @@ pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
                 .unwrap_or(1),
         )
     };
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&door_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, door_oid) {
         broadcast_near_region_in(
             world,
             region,

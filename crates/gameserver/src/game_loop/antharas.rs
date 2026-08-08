@@ -9,6 +9,7 @@
 //! walk with its `BOMBER`/invisible-NPC decorations, and the `onSpellFinished`
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
+use crate::game_loop::helpers::region_cell_of;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -877,11 +878,7 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
         }
         // Delete the adds, oust the players.
         for oid in lair_minions(world) {
-            if let Some(region) = world
-                .objects
-                .get_component::<crate::model::components::RegionCell>(&oid)
-                .map(|r| r.0)
-            {
+            if let Some(region) = region_cell_of(world, oid) {
                 crate::game_loop::death::despawn_npc(world, oid, region);
             }
         }
@@ -1013,11 +1010,7 @@ const CLEAR_ZONE_SECS: u64 = 900;
 pub(crate) fn on_antharas_killed(world: &mut World) {
     // `DESPAWN_MINIONS`: delete every Behemoth/Terasque left in the lair.
     for oid in lair_minions(world) {
-        if let Some(region) = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, oid) {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
     }
@@ -1045,11 +1038,7 @@ pub(crate) fn handle_clear_zone(world: &mut World) {
         teleport_out(world, player_oid);
     }
     for oid in npcs_in_lair(world) {
-        if let Some(region) = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, oid) {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
     }

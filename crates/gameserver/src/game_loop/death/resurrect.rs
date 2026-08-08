@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
@@ -477,11 +478,7 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
 
     // `broadcastPacket(CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL)` — everyone
     // present hears it, not just the earner.
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, npc_oid) {
         broadcast_near_region_in(
             world,
             region,

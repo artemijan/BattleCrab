@@ -19,6 +19,7 @@ use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm};
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 
 /// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the GM
 /// list. There is no `//gmlist` consumer yet, so this messages + re-shows the GM
@@ -191,11 +192,7 @@ pub(super) fn admin_html(world: &mut World, client_id: u32, args: &[&str]) {
 
 /// `AdminDebug`'s `//showdoors` — list the doors visible from the GM's region.
 pub(super) fn admin_showdoors(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, object_id) else {
         return;
     };
     let ids = world.doors_visible_from(region);

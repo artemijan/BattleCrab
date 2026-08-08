@@ -1,7 +1,7 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
 use crate::model::Player;
-use crate::model::components::{Position, StatModifiers};
+use crate::model::components::{Position, RegionCell, StatModifiers};
 use crate::model::inventory::Inventory;
 use crate::model::npc::Npc;
 use crate::model::stats::Stat;
@@ -37,6 +37,21 @@ pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
         .objects
         .get_component::<Position>(&object_id)
         .map(|p| (p.x, p.y, p.z))
+}
+
+/// The region cell an object is binned into, or `None` once it has left the
+/// world.
+///
+/// The key for [`broadcast_near_region`] and the visibility grids — almost
+/// every caller feeds the answer straight to one of those.
+///
+/// Distinct from [`crate::world::region_of`], which derives a region from raw
+/// coordinates; this reads the cell the object is actually registered in.
+pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)> {
+    world
+        .objects
+        .get_component::<RegionCell>(&object_id)
+        .map(|r| r.0)
 }
 
 /// A player's character name, or `None` once the object has left the world.
@@ -394,11 +409,7 @@ pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
     else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let pkt = crate::network::server_packets::npc_say(npc_oid, npc.npc_id, npc_string_id);
@@ -413,11 +424,7 @@ pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
     else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let pkt = crate::network::server_packets::npc_say_text(npc_oid, npc.npc_id, text);
@@ -512,11 +519,7 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
 /// fighting.
 pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec<i32> {
     use crate::model::components::Vitals;
-    let Some(origin) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&origin_object_id)
-        .map(|r| r.0)
-    else {
+    let Some(origin) = region_cell_of(world, origin_object_id) else {
         return Vec::new();
     };
     // Both halves come from the region indexes. This used to sweep every

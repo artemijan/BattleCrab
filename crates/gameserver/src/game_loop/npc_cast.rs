@@ -22,7 +22,7 @@ use commons::util::rnd;
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
 use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
-use crate::model::components::{Casting, Position, RegionCell, Vitals};
+use crate::model::components::{Casting, Position, Vitals};
 use crate::model::npc::AggroList;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -33,6 +33,7 @@ use super::helpers::ms_to_ticks;
 use super::helpers::{broadcast_near_region_in, instance_of};
 use super::skills::cast::set_skill_reuse;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.
 const SHORT_RANGE: f64 = 150.0;
@@ -637,11 +638,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 
     set_skill_reuse(world, npc_oid, skill);
 
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, npc_oid) {
         broadcast_near_region_in(
             world,
             region,
@@ -829,10 +826,7 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
     let (Some(mine), Some(pos), Some(region)) = (
         world.data.npc_data.get(npc_id),
         world.objects.get_component::<Position>(&npc_oid).copied(),
-        world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0),
+        region_cell_of(world, npc_oid),
     ) else {
         return Vec::new();
     };

@@ -7,7 +7,7 @@
 //! equivalent because the match was the last statement in the effect loop.
 
 use crate::game_loop::helpers::client_for_player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, Vitals};
+use crate::model::components::{BaseStats, Buffs, CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -20,6 +20,7 @@ use super::effects::{
     roll_magic_failure, send_sm, servitor_owner_of, skill_power_mul, skill_trait_mod, target_m_def,
     target_p_def,
 };
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_mul;
 use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player};
 use crate::network::server_packets::{SmParam, sm_ids};
@@ -1001,11 +1002,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         // `broadcastStatusUpdate` — refresh the HP bar for everyone
         // watching the mob; without this the server-side heal is
         // invisible to clients (the bar never moves).
-        if let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&target_oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, target_oid) {
             crate::game_loop::helpers::broadcast_near_region(
                 world,
                 region,
@@ -1131,11 +1128,7 @@ pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, powe
             vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
             (vitals.cur_hp as i32, vitals.max_hp)
         };
-        if let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&target_oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, target_oid) {
             crate::game_loop::helpers::broadcast_near_region(
                 world,
                 region,

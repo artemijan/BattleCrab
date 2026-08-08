@@ -5,12 +5,13 @@
 //! group's [`MobGroupState`] in `npc_ai::controllable_think`.
 
 use crate::game_loop::guard;
-use crate::model::components::{AdminFlags, Position, RegionCell};
+use crate::model::components::{AdminFlags, Position};
 use crate::model::mob_group::{Controllable, MobGroup, MobGroupState};
 use crate::model::npc::Npc;
 use crate::world::World;
 
 use super::send_message;
+use crate::game_loop::helpers::region_cell_of;
 
 /// `//mobmenu` — the mob-group admin HTML page.
 pub(super) fn admin_mobmenu(world: &mut World, client_id: u32) {
@@ -364,7 +365,7 @@ fn alive(world: &World, group: &MobGroup) -> usize {
 fn despawn_members(world: &mut World, group_id: i32) {
     for oid in members(world, group_id) {
         if world.objects.has_component::<Npc>(&oid)
-            && let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0)
+            && let Some(region) = region_cell_of(world, oid)
         {
             super::death::despawn_npc(world, oid, region);
         }

@@ -38,6 +38,7 @@ use super::helpers::{
     broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
 };
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 
 mod player_death;
 mod progression;
@@ -85,11 +86,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
             .unwrap_or(world.cfg.npc.default_corpse_time);
         (corpse_secs, max_hp)
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     // Scope the death packets to the corpse's instance (G27).
@@ -265,11 +262,7 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
         super::servitor::pet_decay(world, npc_oid);
     }
 
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     // Gather the respawn bookkeeping before despawn (components drop with
@@ -410,11 +403,7 @@ pub(crate) fn handle_npc_respawn(
 /// `visibility.rs`), and without the delete/re-add pair the client can keep a
 /// ghost of a same-region teleport.
 pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32, heading: i32) {
-    let Some(old_region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(old_region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let new_region = crate::world::region_of(x, y);
@@ -467,11 +456,7 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let Some(v) = crate::model::npc::NpcView::of(&world.objects, object_id) else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, object_id) else {
         return;
     };
     let Some(t) = v.npc.template(world) else {

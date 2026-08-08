@@ -94,6 +94,7 @@ use world_cmds::*;
 // `admin` became a folder these were plain `super::` siblings; re-importing them
 // here keeps every `super::helpers::…` / `super::death::…` call in the bodies
 // resolving (a child's `super` now points at this module).
+use crate::game_loop::helpers::region_cell_of;
 pub(super) use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::{death, helpers, net, party, quests, target, visibility};
 
@@ -1023,7 +1024,7 @@ pub(super) fn creatures_in_range(
     include_players: bool,
     include_npcs: bool,
 ) -> Vec<i32> {
-    use crate::model::components::{Position, RegionCell};
+    use crate::model::components::Position;
     let Some(&center) = world.objects.get_component::<Position>(&center_oid) else {
         return Vec::new();
     };
@@ -1046,12 +1047,7 @@ pub(super) fn creatures_in_range(
             }
         }
     }
-    if include_npcs
-        && let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&center_oid)
-            .map(|c| c.0)
-    {
+    if include_npcs && let Some(region) = region_cell_of(world, center_oid) {
         for oid in world.npcs_visible_from(region) {
             if world
                 .objects

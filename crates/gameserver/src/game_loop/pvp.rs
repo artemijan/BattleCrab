@@ -7,12 +7,13 @@
 //! exemptions land with Phase 2, when those zones are loaded.
 
 use crate::model::Player;
-use crate::model::components::{PvpState, RegionCell, ZoneFlags};
+use crate::model::components::{PvpState, ZoneFlags};
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
 use super::helpers::{broadcast_including_self, client_for_player};
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
 
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
@@ -417,11 +418,7 @@ fn relation_parts(world: &World, oid: i32) -> (i32, u8) {
 /// clears — the attackable state that neither `CharInfo` nor the pvp-flag path
 /// carries. Without it, a combatant entering the zone never appears attackable.
 pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
-    let Some(my_region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(my_region) = region_cell_of(world, object_id) else {
         return;
     };
     let my_client = client_for_player(world, object_id).and_then(|c| world.clients.get(&c));
@@ -434,11 +431,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         if viewer == object_id {
             continue;
         }
-        let Some(vr) = world
-            .objects
-            .get_component::<RegionCell>(&viewer)
-            .map(|r| r.0)
-        else {
+        let Some(vr) = region_cell_of(world, viewer) else {
             continue;
         };
         if !regions_adjacent(my_region, vr) {

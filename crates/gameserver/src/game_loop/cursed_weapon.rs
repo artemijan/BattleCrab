@@ -15,7 +15,7 @@
 //! `activate` gives the new wielder.
 
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell, SkillBook};
+use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
@@ -24,6 +24,7 @@ use crate::world::World;
 
 use super::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_millis};
 use super::ground_items::{DropSource, despawn_ground_item, spawn_ground_item};
+use crate::game_loop::helpers::region_cell_of;
 
 const TICKS_PER_SECOND: u64 = 10;
 const MILLIS_PER_MINUTE: i64 = 60_000;
@@ -640,11 +641,7 @@ pub(crate) fn handle_expiry(world: &mut World, item_id: i32) {
     if dropped {
         // Despawn the un-grabbed ground item; `end_of_life` then announces +
         // clears the DB row + resets state (its non-activated branch).
-        if let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&ground_oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, ground_oid) {
             despawn_ground_item(world, ground_oid, region);
         }
     }

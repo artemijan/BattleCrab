@@ -42,6 +42,7 @@ use crate::world::{World, regions_adjacent};
 use super::combat::{self, ATTACK_TIMEOUT_TICKS};
 use super::helpers::{broadcast_near_region_in, instance_of};
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;
@@ -167,11 +168,7 @@ fn random_animation_think(world: &mut World, npc_oid: i32) {
             if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
                 ai.last_social_tick = now;
             }
-            if let Some(region) = world
-                .objects
-                .get_component::<RegionCell>(&npc_oid)
-                .map(|r| r.0)
-            {
+            if let Some(region) = region_cell_of(world, npc_oid) {
                 broadcast_near_region_in(
                     world,
                     region,
@@ -235,11 +232,7 @@ pub(crate) fn on_npc_arrived(world: &mut World, npc_oid: i32) {
 /// player's 3×3 block covers it, which is the same test `npc_ai_tick` builds
 /// its active set from.
 fn region_active(world: &World, npc_oid: i32) -> bool {
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return false;
     };
     // Adjacency is symmetric, so "some player's 3×3 block covers me" is the
@@ -453,10 +446,7 @@ pub(crate) fn stop_npc(world: &mut World, npc_oid: i32) {
     world.objects.remove_component::<Movement>(&npc_oid);
     if let (Some(pos), Some(region)) = (
         world.objects.get_component::<Position>(&npc_oid).copied(),
-        world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0),
+        region_cell_of(world, npc_oid),
     ) {
         broadcast_near_region_in(
             world,
@@ -503,11 +493,7 @@ pub(crate) fn go_calm(world: &mut World, npc_oid: i32) {
 /// left the neighbourhood; without it a hated player stays "most hated"
 /// forever and the mob chases across the world.
 fn check_hate(world: &mut World, npc_oid: i32) {
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let Some(aggro) = world.objects.get_component::<AggroList>(&npc_oid) else {
@@ -634,11 +620,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
             t.map(|t| t.aggro_range).unwrap_or(0),
         )
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
 
@@ -925,11 +907,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         // the mob's own recent swings can still hold the stance.
         let in_combat = combat::has_attack_stance(world, npc_oid);
         let players_visible = {
-            let Some(region) = world
-                .objects
-                .get_component::<RegionCell>(&npc_oid)
-                .map(|r| r.0)
-            else {
+            let Some(region) = region_cell_of(world, npc_oid) else {
                 return;
             };
             // Index-derived (≤9 cells); like the sweep it replaced, unattended
@@ -1085,10 +1063,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         world.objects.remove_component::<Movement>(&npc_oid);
         let (Some(pos), Some(region)) = (
             world.objects.get_component::<Position>(&npc_oid).copied(),
-            world
-                .objects
-                .get_component::<RegionCell>(&npc_oid)
-                .map(|r| r.0),
+            region_cell_of(world, npc_oid),
         ) else {
             return;
         };
@@ -1146,11 +1121,7 @@ fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_oid: i32) -
     let collision = me.collision_radius;
     let combined = collision + target.collision_radius;
 
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return false;
     };
     let crowder = (-1..=1)
@@ -1440,10 +1411,7 @@ fn aggro_range_candidates(world: &mut World, npc_oid: i32) -> Vec<i32> {
     let range = template.aggro_range as f64;
     let (Some(pos), Some(region)) = (
         world.objects.get_component::<Position>(&npc_oid).copied(),
-        world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0),
+        region_cell_of(world, npc_oid),
     ) else {
         return Vec::new();
     };
@@ -1492,11 +1460,7 @@ pub(crate) fn set_running(world: &mut World, npc_oid: i32) {
     if !flipped {
         return;
     }
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     broadcast_near_region_in(
@@ -1524,11 +1488,7 @@ pub(crate) fn set_active(world: &mut World, npc_oid: i32) {
         speeds.running = false;
         was
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     if was_running {
@@ -1701,11 +1661,7 @@ fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Op
         let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else {
             return;
         };
-        let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0)
-        else {
+        let Some(region) = region_cell_of(world, npc_oid) else {
             return;
         };
         (speed, (pos.x, pos.y, pos.z), region)
@@ -2118,10 +2074,7 @@ fn faction_recruits(
             .objects
             .get_component::<Position>(&caller_oid)
             .copied(),
-        world
-            .objects
-            .get_component::<RegionCell>(&caller_oid)
-            .map(|r| r.0),
+        region_cell_of(world, caller_oid),
     ) else {
         return Vec::new();
     };

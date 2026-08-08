@@ -26,7 +26,7 @@ use crate::game_loop::common::maybe_distance_too_far;
 use crate::model::PlayerIntent;
 use crate::model::components::{
     AttackState, Casting, Collision, CombatStats, Following, Intent, MoveToPawnState, Movement,
-    PlayerVitals, Position, RegionCell, Speeds, Vitals,
+    PlayerVitals, Position, Speeds, Vitals,
 };
 use crate::model::formulas;
 use crate::model::movement::{self, MoveData, get_position};

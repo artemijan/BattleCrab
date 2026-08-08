@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::region_cell_of;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
@@ -447,10 +448,7 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
             .objects
             .get_component::<crate::model::components::Position>(&target_oid)
             .copied()
-            && let Some(region) = world
-                .objects
-                .get_component::<crate::model::components::RegionCell>(&target_oid)
-                .map(|r| r.0)
+            && let Some(region) = region_cell_of(world, target_oid)
         {
             crate::game_loop::helpers::broadcast_near_region(
                 world,

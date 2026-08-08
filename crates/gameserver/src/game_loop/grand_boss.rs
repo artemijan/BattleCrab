@@ -11,6 +11,7 @@
 use commons::util::now_millis;
 
 use crate::db::DbCommand;
+use crate::game_loop::helpers::region_cell_of;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -40,16 +41,12 @@ fn plays_stock_roars(boss_id: i32) -> bool {
 /// `npc.broadcastPacket(new PlaySound(1, sound, 1, oid, x, y, z))` — the roar,
 /// anchored to the boss and sent to everyone near its region.
 fn roar(world: &World, boss_oid: i32, sound: &str) {
-    use crate::model::components::{Position, RegionCell};
+    use crate::model::components::Position;
     let Some(pos) = world.objects.get_component::<Position>(&boss_oid) else {
         return;
     };
     let pkt = crate::network::server_packets::play_sound_at(sound, boss_oid, pos.x, pos.y, pos.z);
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&boss_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, boss_oid) {
         crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
     }
 }

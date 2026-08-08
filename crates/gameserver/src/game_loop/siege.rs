@@ -16,7 +16,7 @@
 
 use crate::db::DbCommand;
 use crate::model::Player;
-use crate::model::components::{AdvancedHeadquarter, Position, RegionCell};
+use crate::model::components::{AdvancedHeadquarter, Position};
 use crate::model::door::Door;
 use crate::model::siege::{SiegeClanType, SiegeSpawn};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -26,6 +26,7 @@ use crate::world::World;
 
 use super::helpers::send_sm_bare_to_client as send_sm_to;
 use super::helpers::{client_for_player, ms_to_ticks};
+use crate::game_loop::helpers::region_cell_of;
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
 const SIEGE_LENGTH_MIN: i32 = 120;
@@ -530,11 +531,7 @@ fn remove_flags_of_defenders(world: &mut World, castle_id: i32) {
         None => Vec::new(),
     };
     for (clan_id, flag_oid) in doomed {
-        if let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&flag_oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, flag_oid) {
             super::death::despawn_npc(world, flag_oid, region);
         }
         if let Some(siege) = world.sieges.get_mut(&castle_id) {
@@ -563,7 +560,7 @@ fn respawn_siege_towers(world: &mut World, castle_id: i32) {
         })
         .unwrap_or_default();
     for oid in towers {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = region_cell_of(world, oid) {
             super::death::despawn_npc(world, oid, region);
         }
         if let Some(siege) = world.sieges.get_mut(&castle_id) {
@@ -891,7 +888,7 @@ fn despawn_siege_npcs(world: &mut World, castle_id: i32) {
         .map(|s| std::mem::take(&mut s.spawned_npcs))
         .unwrap_or_default();
     for oid in oids {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = region_cell_of(world, oid) {
             super::death::despawn_npc(world, oid, region);
         }
     }

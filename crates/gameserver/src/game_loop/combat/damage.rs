@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_add;
 use crate::game_loop::helpers::stat_mul;
 
@@ -496,11 +497,7 @@ pub(crate) fn npc_receive_damage(
             world, player_oid, npc_oid, npc_id, skill_id, is_summon,
         );
     }
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
 
@@ -570,12 +567,7 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
         speeds.running = true;
         !was_running
     };
-    if became_running
-        && let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0)
-    {
+    if became_running && let Some(region) = region_cell_of(world, npc_oid) {
         broadcast_near_region_in(
             world,
             region,

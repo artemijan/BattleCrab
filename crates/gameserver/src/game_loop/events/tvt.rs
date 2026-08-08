@@ -18,9 +18,10 @@ use tracing::warn;
 
 use crate::enums::ChatType;
 use crate::game_loop::death::{despawn_npc, introduce_npc, teleport_player};
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::instances;
 use crate::model::Player;
-use crate::model::components::{FishingSession, RegionCell};
+use crate::model::components::FishingSession;
 use crate::model::event::TvtPhase;
 use crate::model::npc::spawn_npc_at;
 use crate::network::server_packets as sp;
@@ -1253,7 +1254,7 @@ fn despawn_manager(world: &mut World) {
     let Some(oid) = world.events.tvt.manager_oid.take() else {
         return;
     };
-    let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) else {
+    let Some(region) = region_cell_of(world, oid) else {
         return;
     };
     despawn_npc(world, oid, region);

@@ -13,6 +13,7 @@
 
 use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
@@ -648,11 +649,7 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
     else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&servitor_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, servitor_oid) else {
         return;
     };
     let Some(npc) = world

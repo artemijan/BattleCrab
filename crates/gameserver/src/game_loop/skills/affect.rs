@@ -36,6 +36,7 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::model::skill::{AffectObject, AffectScope, Skill, TargetType};
@@ -751,11 +752,7 @@ fn within_2d(a: &Position, b: &Position, range: i32) -> bool {
 /// Every creature (player or NPC) that could be swept up around `centre_oid` —
 /// the port's stand-in for `World.forEachVisibleObjectInRange`'s candidate set.
 fn candidates(world: &World, centre_oid: i32) -> Vec<i32> {
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&centre_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, centre_oid) else {
         return Vec::new();
     };
     let mut out = world.npcs_visible_from(region);

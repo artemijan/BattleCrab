@@ -492,6 +492,7 @@ pub(crate) fn is_store_owner(world: &World, oid: i32) -> bool {
 // checked when the store opens and again per sale — Java re-checks because the
 // owner can spend elsewhere while the store stands.
 
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{PrivateBuyStore, WantedItem};
 
 const STORE_TYPE_BUY: u8 = 3;
@@ -1020,11 +1021,7 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
         // Java sweeps `getVisibleObjectsInRange(this, Creature.class, 1000)`;
         // the port's equivalent neighbourhood is the 3×3 region block, the same
         // sweep the NPC AI uses for its own range queries.
-        let Some(region) = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&owner)
-            .map(|r| r.0)
-        else {
+        let Some(region) = region_cell_of(world, owner) else {
             return false;
         };
         let nearby_npcs: Vec<i32> = (-1..=1)

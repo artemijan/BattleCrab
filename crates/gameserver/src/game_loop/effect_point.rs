@@ -5,11 +5,12 @@
 //! `model/actor/instance/EffectPoint.java` (the fixed-rate `union_skill` cast
 //! task + the despawn schedule); both halves live here.
 
-use crate::model::components::{RegionCell, SummonerRef, Vitals};
+use crate::model::components::{SummonerRef, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::helpers::ms_to_ticks;
+use crate::game_loop::helpers::region_cell_of;
 
 /// The `SummonNpc` effect's `EffectPoint` branch: spawn the totem at the
 /// point, link it to its owner, title it with the owner's name, and arm the
@@ -173,11 +174,7 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
 /// `Npc.scheduleDespawn` firing: remove the totem from the world. The cast
 /// task dies with it (its next fire finds no living NPC).
 pub(crate) fn handle_effect_point_despawn(world: &mut World, npc_oid: i32) {
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     super::death::despawn_npc(world, npc_oid, region);

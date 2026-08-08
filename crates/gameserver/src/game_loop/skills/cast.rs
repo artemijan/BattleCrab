@@ -20,6 +20,7 @@ use crate::world::World;
 
 use super::effects::apply_skill_effects;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::stat_add;
 
@@ -554,11 +555,7 @@ pub(super) fn op_exist_npc_around(
     caster_oid: i32,
     cond: &crate::model::skill::OpExistNpcCondition,
 ) -> bool {
-    let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&caster_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, caster_oid) else {
         return false;
     };
     let Some(origin) = world
@@ -1767,10 +1764,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         .objects
         .get_component::<crate::model::components::Position>(&player_object_id)
         .copied();
-    let caster_region = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&player_object_id)
-        .map(|r| r.0);
+    let caster_region = region_cell_of(world, player_object_id);
     let skill_see_witnesses: Vec<i32> = match (caster_pos, caster_region) {
         (Some(pos), Some(region)) => world
             .npcs_visible_from(region)

@@ -12,7 +12,8 @@
 //! boot. The status field (on the golem's `grand_bosses` record) is DrChaos's
 //! own three-state ladder, distinct from the two-/four-state ones elsewhere.
 
-use crate::model::components::{DrChaosGolem, DrChaosState, Position, RegionCell, Vitals};
+use crate::game_loop::helpers::region_cell_of;
+use crate::model::components::{DrChaosGolem, DrChaosState, Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -220,11 +221,7 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
         }
         5 => {
             // Delete Dr. Chaos, spawn the golem with its intro.
-            if let Some(region) = world
-                .objects
-                .get_component::<RegionCell>(&dr_chaos_oid)
-                .map(|r| r.0)
-            {
+            if let Some(region) = region_cell_of(world, dr_chaos_oid) {
                 crate::game_loop::death::despawn_npc(world, dr_chaos_oid, region);
             }
             spawn_golem(world, GOLEM_SPAWN.0, GOLEM_SPAWN.1, GOLEM_SPAWN.2, false);
@@ -286,11 +283,7 @@ pub(crate) fn handle_golem_despawn(world: &mut World, golem_oid: i32) {
         return;
     };
     if world.tick.saturating_sub(g.last_attack_tick) >= GOLEM_IDLE_TICKS {
-        if let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&golem_oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, golem_oid) {
             crate::game_loop::death::despawn_npc(world, golem_oid, region);
         }
         set_status(world, NORMAL);
@@ -414,7 +407,7 @@ fn living_players_near(world: &World, oid: i32, range: f64) -> usize {
 }
 
 fn broadcast_near(world: &World, oid: i32, pkt: &[u8]) {
-    if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
+    if let Some(region) = region_cell_of(world, oid) {
         crate::game_loop::helpers::broadcast_near_region(world, region, pkt);
     }
 }

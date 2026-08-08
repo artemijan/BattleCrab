@@ -7,12 +7,13 @@
 //! black line at z −16000, Java's erase idiom.
 
 use crate::game_loop::helpers::{pos_of, send_to_client as send};
-use crate::model::components::{DebugDraw, RegionCell};
+use crate::model::components::DebugDraw;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::send_message;
+use crate::game_loop::helpers::region_cell_of;
 
 const GREEN: u32 = 0x00FF00;
 const RED: u32 = 0xFF0000;
@@ -70,11 +71,7 @@ fn draw_doors(world: &mut World, client_id: u32, object_id: i32) {
     let Some((px, py, pz)) = pos_of(world, object_id) else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, object_id) else {
         return;
     };
     let mut new_doors: Vec<(i32, Vec<u8>)> = Vec::new();

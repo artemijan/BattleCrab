@@ -10,12 +10,13 @@
 //! and ignored (documented deviation).
 
 use crate::game_loop::guard;
-use crate::model::components::{Position, RegionCell};
+use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
 
 use super::send_message;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 
 /// Resolve a spawn-menu "Id/Name" token to an npc id. All-digit tokens are npc
 /// ids (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps
@@ -454,10 +455,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         .max(0);
 
     let (Some(region), Some(gm_pos)) = (
-        world
-            .objects
-            .get_component::<RegionCell>(&object_id)
-            .map(|r| r.0),
+        region_cell_of(world, object_id),
         world.objects.get_component::<Position>(&object_id).copied(),
     ) else {
         return;
@@ -704,10 +702,7 @@ pub(super) fn admin_delete_npc_by_object_id(
         // not-an-NPC branch below (findObject(0) == null).
         send_message(world, client_id, "objectId is not set!");
     }
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&target_oid)
-        .map(|r| r.0)
+    let Some(region) = region_cell_of(world, target_oid)
         .filter(|_| world.objects.has_component::<Npc>(&target_oid))
     else {
         send_message(
@@ -781,11 +776,7 @@ pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
         send_message(world, client_id, "Target is not an NPC.");
         return;
     }
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&target)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, target) else {
         return;
     };
     super::death::despawn_npc(world, target, region);

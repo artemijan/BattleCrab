@@ -5,7 +5,8 @@
 //! minions that keep both of them up. Killing the Queen through a working nurse
 //! rotation is the actual fight.
 
-use crate::model::components::{AdminFlags, Position, RegionCell, Vitals};
+use crate::game_loop::helpers::region_cell_of;
+use crate::model::components::{AdminFlags, Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -72,11 +73,7 @@ pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
 /// mistress (the shared respawn timer is armed by `grand_boss`).
 pub(crate) fn on_queen_killed(world: &mut World) {
     if let Some(larva) = find_alive(world, LARVA) {
-        let region = world
-            .objects
-            .get_component::<RegionCell>(&larva)
-            .map(|r| r.0)
-            .unwrap_or((0, 0));
+        let region = region_cell_of(world, larva).unwrap_or((0, 0));
         crate::game_loop::death::despawn_npc(world, larva, region);
     }
 }

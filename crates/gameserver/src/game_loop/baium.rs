@@ -20,6 +20,7 @@
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
 use super::helpers::pos_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Immobilized, Position, Vitals};
 use crate::model::grand_boss::GrandBoss;
 use crate::scheduler::ScheduledTask;
@@ -484,11 +485,7 @@ fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
 }
 
 fn despawn(world: &mut World, oid: i32) {
-    let region = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&oid)
-        .map(|r| r.0)
-        .unwrap_or((0, 0));
+    let region = region_cell_of(world, oid).unwrap_or((0, 0));
     crate::game_loop::death::despawn_npc(world, oid, region);
 }
 

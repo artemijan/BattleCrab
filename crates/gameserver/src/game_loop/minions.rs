@@ -18,6 +18,7 @@
 use commons::util::rnd;
 
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
 use crate::scheduler::ScheduledTask;
@@ -337,11 +338,7 @@ pub(crate) fn on_master_die(world: &mut World, master_oid: i32) {
     }
 
     for oid in live_pack(world, master_oid) {
-        if let Some(region) = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, oid) {
             super::death::despawn_npc(world, oid, region);
         }
     }

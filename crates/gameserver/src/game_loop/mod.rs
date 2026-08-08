@@ -149,6 +149,7 @@ use crate::loginlink::CommandTx;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
+use crate::game_loop::helpers::region_cell_of;
 use net::handle_game_event;
 use regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};
 use skills::cast::{handle_cast_end, handle_skill_finish, handle_skill_launch};
@@ -767,11 +768,7 @@ fn apply_due_tasks(world: &mut World) {
                 core_boss::handle_despawn_minions(world);
             }
             ScheduledTask::DespawnNpc { npc_oid } => {
-                if let Some(region) = world
-                    .objects
-                    .get_component::<crate::model::components::RegionCell>(&npc_oid)
-                    .map(|r| r.0)
-                {
+                if let Some(region) = region_cell_of(world, npc_oid) {
                     death::despawn_npc(world, npc_oid, region);
                 }
             }

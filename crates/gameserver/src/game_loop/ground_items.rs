@@ -5,6 +5,7 @@
 //! region (`SpawnItem`, via `visibility`), and picked up by a click (`Action` →
 //! [`pickup_ground_item`]).
 
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -175,11 +176,7 @@ pub(crate) fn spawn_ground_item(
 /// `ItemsOnGroundManager` cleanup task: remove a ground item that has lain past
 /// its lifetime (no-op if it was already picked up).
 pub(crate) fn handle_ground_item_decay(world: &mut World, item_object_id: i32) {
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&item_object_id)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, item_object_id) else {
         return;
     };
     if !world.objects.has_component::<GroundItem>(&item_object_id) {
@@ -233,11 +230,7 @@ pub(crate) fn pickup_ground_item(
     let Some(pos) = world.objects.get_component::<Position>(&item_oid).copied() else {
         return;
     };
-    let region = world
-        .objects
-        .get_component::<RegionCell>(&item_oid)
-        .map(|r| r.0)
-        .unwrap_or_else(|| region_of(pos.x, pos.y));
+    let region = region_cell_of(world, item_oid).unwrap_or_else(|| region_of(pos.x, pos.y));
     // A cursed weapon lying on the ground curses whoever grabs it — route into
     // the cursed-weapon pickup path (its own get-item broadcast + despawn +
     // activation) instead of the plain give.
