@@ -312,15 +312,13 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // `_count == 0` falls into the big refusal below. Neither may reach the
     // inventory.
     if pkt.count < 0 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!(
                 "[RequestDropItem] count < 0! player {player_oid} tried to drop item oid {}",
                 pkt.object_id
             ),
-            punish,
         );
         return;
     }

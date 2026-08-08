@@ -431,15 +431,13 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     };
     // Java: `_count < 0` punishes; `_count == 0` is a plain refusal.
     if pkt.count < 0 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             object_id,
             &format!(
                 "[RequestDestroyItem] Player {object_id} tried to destroy item with oid {} but has count < 0!",
                 pkt.object_id
             ),
-            punish,
         );
         return;
     }
@@ -486,15 +484,13 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     // A non-stackable item can only be destroyed one at a time; asking for
     // more punishes (Java `handleIllegalPlayerAction`).
     if !is_stackable && pkt.count > 1 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             object_id,
             &format!(
                 "[RequestDestroyItem] Player {object_id} tried to destroy a non-stackable item with oid {} but has count > 1!",
                 pkt.object_id
             ),
-            punish,
         );
         return;
     }
@@ -573,15 +569,13 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     };
     // Java: `_count <= 0` is a punish ("[RequestCrystallizeItem] count <= 0!").
     if pkt.count <= 0 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!(
                 "[RequestCrystallizeItem] count <= 0! ban! oid: {} owner: {player_oid}",
                 pkt.object_id
             ),
-            punish,
         );
         return;
     }

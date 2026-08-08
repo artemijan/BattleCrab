@@ -106,13 +106,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // Java: `(_level < 1) || (_level > 1000) || (_id < 1)` — a malformed
     // request is a packet-manipulation signature and punishes.
     if pkt.skill_level < 1 || pkt.skill_level > 1000 || pkt.skill_id < 1 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
-            world,
-            object_id,
-            "Wrong Packet Data in Aquired Skill",
-            punish,
-        );
+        super::punishment::illegal_action(world, object_id, "Wrong Packet Data in Aquired Skill");
         return;
     }
     // Java's hack check: class skills must be learned in order. Learning a

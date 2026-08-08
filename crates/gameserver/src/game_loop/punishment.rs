@@ -558,6 +558,20 @@ pub(crate) fn enforce_jail_keep_in(world: &mut World, object_id: i32) {
 // `IllegalPlayerActionTask`, G35)
 // ---------------------------------------------------------------------------
 
+/// [`handle_illegal_player_action`] at the configured severity
+/// (`Config.DefaultPunish`) — what every packet-validation failure wants.
+///
+/// Reading the config here rather than at each call site removes the
+/// `let punish = world.cfg.general.default_punish;` line that used to precede
+/// all 35 of them. Reach for [`handle_illegal_player_action`] directly only to
+/// pass a severity that isn't the configured default — as
+/// `skills::handle_request_acquire_skill` does with
+/// [`IllegalActionPunishment::None`].
+pub(crate) fn illegal_action(world: &mut World, object_id: i32, message: &str) {
+    let punishment = world.cfg.general.default_punish;
+    handle_illegal_player_action(world, object_id, message, punishment);
+}
+
 /// Java `Util.handleIllegalPlayerAction`: warn the offender at once (and for
 /// `KICKBAN`, drop their character + account access levels immediately), then
 /// fire the audit/punish task 5 seconds later — Java's

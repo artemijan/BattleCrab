@@ -678,12 +678,10 @@ pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8
         return;
     };
     if m.receiver_id != player {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to receive not own post!"),
-            punish,
         );
         return;
     }
@@ -756,12 +754,10 @@ pub(crate) fn handle_sent_post(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     };
     if m.sender_id != player {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to read not own post!"),
-            punish,
         );
         return;
     }
@@ -845,12 +841,10 @@ fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: 
         if owner != player {
             // Java: "... tried to delete not own post!" — a punish, not a
             // silent refusal.
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player,
                 &format!("Player {player} tried to delete not own post!"),
-                punish,
             );
             return;
         }
@@ -1035,12 +1029,10 @@ pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[
         return;
     };
     if m.receiver_id != player {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to get not own attachment!"),
-            punish,
         );
         return;
     }
@@ -1163,12 +1155,10 @@ pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, b
         return;
     };
     if m.sender_id != player {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to cancel not own post!"),
-            punish,
         );
         return;
     }
@@ -1267,12 +1257,10 @@ pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, b
         return;
     };
     if m.receiver_id != player {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to reject not own attachment!"),
-            punish,
         );
         return;
     }

@@ -386,12 +386,10 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
             .get_component::<RecipeBook>(&oid)
             .is_some_and(|b| b.contains(line.recipe_id));
         if !known {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 oid,
                 &format!("Player {oid} tried to set recipe which he dont have."),
-                punish,
             );
             return;
         }
@@ -556,12 +554,10 @@ fn do_craft(
         .get_component::<RecipeBook>(&crafter)
         .is_some_and(|b| b.contains(recipe.id))
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             customer,
             &format!("Player {customer} sent a false recipe id."),
-            punish,
         );
         return;
     }

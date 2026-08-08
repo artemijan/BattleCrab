@@ -188,12 +188,10 @@ fn do_evolve(
         .get_component::<crate::model::components::Vitals>(&pet_oid)
         .is_some_and(|v| v.dead)
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!("Player {player_oid} tried to use death pet exploit!"),
-            punish,
         );
         return false;
     }

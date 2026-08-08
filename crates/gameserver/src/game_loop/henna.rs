@@ -222,12 +222,10 @@ pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
         // Java: a dye the class can't wear at all is an exploit attempt (the
         // client never offers it), on top of the cannot-draw notice.
         if !class_allowed {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 oid,
                 &format!("Exploit attempt: player {oid} tryed to add a forbidden henna."),
-                punish,
             );
         }
         return;

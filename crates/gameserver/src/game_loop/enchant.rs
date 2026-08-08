@@ -461,12 +461,10 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         .and_then(|inv| inv.remove_by_object_id(scroll_oid, 1))
         .is_some();
     if !removed {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to enchant with a scroll he doesn't have"),
-            punish,
         );
         err(world);
         return;
@@ -479,12 +477,10 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
             .and_then(|inv| inv.remove_by_object_id(support_oid, 1))
             .is_some();
         if !removed {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player,
                 &format!("Player {player} tried to enchant with a support item he doesn't have"),
-                punish,
             );
             err(world);
             return;

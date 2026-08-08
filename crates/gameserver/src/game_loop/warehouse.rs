@@ -203,12 +203,10 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
         .objects
         .has_component::<crate::model::components::EnchantRequest>(&player_oid)
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!("Player {player_oid} tried to use enchant Exploit!"),
-            punish,
         );
         return;
     }
@@ -318,12 +316,10 @@ pub(crate) fn handle_withdraw(world: &mut World, client_id: u32, body: &[u8]) {
         })
     });
     if !all_present {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!("Player {player_oid} tried to withdraw non-existent item from warehouse."),
-            punish,
         );
         return;
     }
@@ -602,12 +598,10 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
         .objects
         .has_component::<crate::model::components::EnchantRequest>(&player_oid)
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!("Player {player_oid} tried to use enchant exploit!"),
-            punish,
         );
         return;
     }

@@ -97,12 +97,10 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             .iter()
             .any(|c| pkt.text.starts_with(c))
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             sender_oid,
             &format!("Client Emulator Detect: player {sender_oid} using L2Walker."),
-            punish,
         );
         return;
     }

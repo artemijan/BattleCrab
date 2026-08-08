@@ -155,14 +155,12 @@ pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
             total = total.saturating_add(count.saturating_mul(*price));
             total > MAX_ADENA
         } {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 owner,
                 &format!(
                     "Player {owner} tried to set price more than {MAX_ADENA} adena in Private Store - Sell."
                 ),
-                punish,
             );
             return;
         }
@@ -283,14 +281,12 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
         .get_component::<PrivateStore>(&seller)
         .is_some_and(|s| s.packaged && s.items.len() > pkt.items.len());
     if package_short {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             buyer,
             &format!(
                 "[RequestPrivateStoreBuy] player {buyer} tried to buy less items than sold by package-sell, ban this player for bot usage!"
             ),
-            punish,
         );
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(sp::action_failed());
@@ -602,27 +598,23 @@ pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]
         // `(MAX_ADENA / count) < price` — the per-line overflow guard; either
         // overflow punishes (Java `handleIllegalPlayerAction`).
         if line.count > 0 && (MAX_ADENA / line.count) < line.price {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 owner,
                 &format!(
                     "Player {owner} tried to set price more than {MAX_ADENA} adena in Private Store - Buy."
                 ),
-                punish,
             );
             return;
         }
         total = total.saturating_add(line.count.saturating_mul(line.price));
         if total > MAX_ADENA {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 owner,
                 &format!(
                     "Player {owner} tried to set total price more than {MAX_ADENA} adena in Private Store - Buy."
                 ),
-                punish,
             );
             return;
         }
@@ -691,12 +683,10 @@ pub(crate) fn handle_set_msg(world: &mut World, client_id: u32, body: &[u8], buy
     // Java `MAX_MSG_LENGTH = 29` — an over-long title punishes.
     if title.chars().count() > 29 {
         let store = if buy { "buy" } else { "sell" };
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             owner,
             &format!("Player {owner} tried to overflow private store {store} message"),
-            punish,
         );
         return;
     }
@@ -725,12 +715,10 @@ pub(crate) fn handle_set_whole_msg(world: &mut World, client_id: u32, body: &[u8
         .unwrap_or_default();
     // Java's `MAX_MSG_LENGTH` overflow check punishes.
     if title.chars().count() > 29 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             owner,
             &format!("Player {owner} tried to overflow private store whole message"),
-            punish,
         );
         return;
     }

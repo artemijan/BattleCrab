@@ -999,14 +999,12 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
             .map_or(0, |sp| sp.price);
         total_price += price * cnt;
         if total_price > MAX_ADENA {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player_oid,
                 &format!(
                     "Player {player_oid} tried to purchase over {MAX_ADENA} adena worth of goods."
                 ),
-                punish,
             );
             return;
         }

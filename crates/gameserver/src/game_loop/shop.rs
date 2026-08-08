@@ -131,15 +131,13 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     let merchant_id = npc_id_of(world, merchant_oid).unwrap_or(0);
 
     let Some(list) = world.data.buy_lists.get(pkt.list_id) else {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!(
                 "Player {player} sent a false BuyList list_id {}",
                 pkt.list_id
             ),
-            punish,
         );
         return;
     };
@@ -157,15 +155,13 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     let mut sub_total: i64 = 0;
     for line in &pkt.items {
         let Some(product) = list.product(line.item_id) else {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player,
                 &format!(
                     "Player {player} sent a false BuyList list_id {} and item_id {}",
                     pkt.list_id, line.item_id
                 ),
-                punish,
             );
             return;
         };
@@ -175,14 +171,12 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             .get(line.item_id)
             .is_some_and(|t| t.is_stackable);
         if !stackable && line.count > 1 {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player,
                 &format!(
                     "Player {player} tried to purchase invalid quantity of items at the same time."
                 ),
-                punish,
             );
             send_sm_and_action_failed(
                 world,
@@ -203,14 +197,12 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             return;
         }
         if MAX_ADENA / line.count < product.price {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player,
                 &format!(
                     "Player {player} tried to purchase over {MAX_ADENA} adena worth of goods."
                 ),
-                punish,
             );
             return;
         }
@@ -220,14 +212,12 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             as i64;
         sub_total += line.count * price;
         if sub_total > MAX_ADENA {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player,
                 &format!(
                     "Player {player} tried to purchase over {MAX_ADENA} adena worth of goods."
                 ),
-                punish,
             );
             return;
         }
