@@ -14,15 +14,20 @@ use crate::world::World;
 use super::{find_online_player, send_message, send_sm};
 
 /// `AdminGmSpeed` — scale the target player's (or self's) movement speed. Java
-/// adds `baseSpeed * boost` as a fixed value to each speed stat, i.e. total =
-/// `baseSpeed * (1 + boost)`; the Rust move model already carries a
-/// `move_multiplier`, so `1 + boost` is the exact equivalent (boost 0 resets).
-/// Range 0..=10, matching Java's custom clamp.
+/// **The argument is an outright multiplier, not a boost**, despite Java naming
+/// it `runSpeedBoost`. It goes in through `addFixedValue`, and a fixed value is
+/// an *override*: `CreatureStat.getValue` returns it directly and never reaches
+/// the finalizer. So `//gmspeed 3` is `base * 3`, and `//gmspeed 1` is a no-op
+/// rather than double speed. This read `1 + boost` — off by one whole multiple
+/// of base speed at every setting except 0.
 ///
-/// TODO(admin-tail): Java also accepts an **NPC** target here; this only scales
-/// players.
+/// `0` removes the fixed value, i.e. back to the normally-finalized speed.
+/// Range 0..=10 is Java's own custom clamp ("real retail limit is unknown").
+///
+/// The target is any **Creature** — Java takes `target.isCreature()`, so an NPC
+/// can be sped up too; only a non-creature target falls back to the GM.
 pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(boost) = args
+    let Some(mult) = args
         .first()
         .and_then(|s| s.parse::<f64>().ok())
         .filter(|b| (0.0..=10.0).contains(b))
@@ -30,11 +35,38 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
         send_message(world, client_id, "//gmspeed [0...10]");
         return;
     };
-    let target = guard::player_target(world, object_id).unwrap_or(object_id);
+    // Java's `getTarget()` filtered by `isCreature()`; the port's creature
+    // targets are players and NPCs.
+    let target = guard::target(world, object_id)
+        .filter(|oid| {
+            world.objects.has_component::<Player>(oid)
+                || world.objects.has_component::<crate::model::npc::Npc>(oid)
+        })
+        .unwrap_or(object_id);
     if let Some(speeds) = world.objects.get_component_mut::<Speeds>(&target) {
-        speeds.move_multiplier = 1.0 + boost;
+        // `removeFixedValue` on 0, else the override.
+        speeds.move_multiplier = if mult > 0.0 { mult } else { 1.0 };
     }
-    super::party::broadcast_user_info(world, target);
+    let name = if let Some(p) = world.objects.get_component::<Player>(&target) {
+        p.name.clone()
+    } else {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&target)
+            .and_then(|n| n.template(world).map(|t| t.name.clone()))
+            .unwrap_or_default()
+    };
+    if world.objects.has_component::<Player>(&target) {
+        super::party::broadcast_user_info(world, target);
+    } else if let Some(pkt) = crate::game_loop::visibility::npc_info_bytes(world, target) {
+        // Java `broadcastInfo()` for a non-player creature.
+        crate::game_loop::helpers::broadcast_including_self(world, target, &pkt);
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("[{name}] speed is [{}0]% fast.", mult * 100.0),
+    );
 }
 
 /// `AdminTeleport`'s `//move_to <x> <y> <z>` (the main-menu "Teleport" button,
@@ -80,8 +112,9 @@ pub(super) fn admin_move_to(world: &mut World, client_id: u32, object_id: i32, a
 /// `AdminTeleport`'s coordinate form (`//teleport x y z`) — send the GM to an
 /// explicit location.
 ///
-/// TODO(admin-tail): the menu and target-teleport variants (`//teleportto`,
-/// the html picker) are not wired.
+/// The sibling variants live next door: [`admin_teleportto`] takes a player
+/// name, [`admin_teleto`] uses the current target, and [`admin_move_to`] is the
+/// html picker's button.
 pub(super) fn admin_teleport_coords(
     world: &mut World,
     client_id: u32,
@@ -134,6 +167,55 @@ fn teleto(world: &mut World, object_id: i32) -> Guard<()> {
     let target = guard::target(world, object_id).or_msg("Select a target first.")?;
     super::death::teleport_to_object(world, object_id, target);
     Ok(())
+}
+
+/// `AdminTeleport`'s `//teleportto <name>` — send the GM to a **named** player,
+/// where [`admin_teleto`] goes to the current target.
+///
+/// Java's `teleportToCharacter` guards in order: a missing or non-player target
+/// answers `INVALID_TARGET`, and targeting *yourself* answers
+/// `YOU_CANNOT_USE_THIS_ON_YOURSELF` — note Java sends that second one **to the
+/// target**, which for the self case is the same person, so it reads correctly
+/// either way. A successful jump clears the GM's AI intention first and then
+/// confirms by name.
+pub(super) fn admin_teleportto(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let name = args.join(" ");
+    // Java's guard is `startsWith("admin_teleportto ")` — *with* the trailing
+    // space — so a bare `//teleportto` misses it and falls through the if-chain
+    // into the next arm, `startsWith("admin_teleport")`, whose tokenizer then
+    // fails on the missing coordinates. Following the fallthrough rather than
+    // returning quietly keeps that "Wrong coordinates!" reply.
+    if name.trim().is_empty() {
+        admin_teleport_coords(world, client_id, object_id, args);
+        return;
+    }
+    let Some(target) = find_online_player(world, name.trim()) else {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::INVALID_TARGET,
+        );
+        return;
+    };
+    if target == object_id {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF,
+        );
+        return;
+    }
+    let target_name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    super::death::teleport_to_object(world, object_id, target);
+    send_message(
+        world,
+        client_id,
+        &format!("You have teleported to character {target_name}."),
+    );
 }
 
 /// `AdminTeleport`'s click-to-move latches — the "Move:" row of

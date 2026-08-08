@@ -473,7 +473,9 @@ fn deferral_markers_match_the_recorded_inventory() {
     // and each was confirmed against the datapack before being written down.
     // `armor-sets` was the one that mattered and is now closed — `ArmorSetData`
     // is ported (`data::armor_set_data` + `game_loop::armor_sets`).
-    let expected: &[(&str, usize)] = &[("admin-tail", 5)];
+    // Empty again as of 2026-08-08: every gap the bare-marker triage recorded
+    // has been closed. A new `TODO(<tag>)` fails this test until it is listed.
+    let expected: &[(&str, usize)] = &[];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
         .iter()

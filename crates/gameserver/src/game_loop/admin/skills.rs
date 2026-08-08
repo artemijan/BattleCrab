@@ -12,8 +12,10 @@ use super::send_message;
 /// `AdminSkill`'s `//add_skill <id> [level]` — grant a skill to the targeted
 /// player (or self) and refresh their skill list.
 ///
-/// TODO(admin-tail): passive stat effects only apply on the next
-/// recompute/relog — Java recomputes immediately on grant.
+/// (A marker here claimed passives only applied on the next recompute. They
+/// have applied immediately since the `refresh_conditioned_passives` call
+/// below — the marker was describing the code as it was before its own
+/// function body.)
 pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
         send_message(world, client_id, "Usage: //add_skill <id> [level]");
@@ -41,11 +43,33 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
     // relog, which makes testing one look like the skill is broken.
     super::super::passive_skills::refresh_conditioned_passives(world, target);
     refresh_skill_list(world, target);
+    // Java tells both sides by name, and refreshes the *admin's* skill list too
+    // (`activeChar.sendSkillList()`) — harmless when the GM granted to someone
+    // else, load-bearing when they granted to themselves through a target.
+    let skill_name = world
+        .data
+        .skill_data
+        .get(skill_id, level)
+        .map(|s| s.name.clone())
+        .unwrap_or_default();
+    if let Some(tc) = crate::game_loop::helpers::client_for_player(world, target) {
+        send_message(
+            world,
+            tc,
+            &format!("Admin gave you the skill {skill_name}."),
+        );
+    }
+    let target_name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
     send_message(
         world,
         client_id,
-        &format!("Added skill {skill_id} (level {level})."),
+        &format!("You gave the skill {skill_name} to {target_name}."),
     );
+    refresh_skill_list(world, object_id);
     show_char_skills(world, client_id, target);
 }
 
@@ -315,15 +339,95 @@ pub(super) fn admin_cast(world: &mut World, client_id: u32, object_id: i32, args
 /// `//skill_index <n>`, `//remove_skills [page]`) — open the corresponding
 /// admin HTML page.
 pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str, args: &[&str]) {
+    if command == "admin_remove_skills" {
+        let page = args
+            .first()
+            .and_then(|s| s.parse::<usize>().ok())
+            .unwrap_or(0);
+        remove_skills_page(world, client_id, page);
+        return;
+    }
     let path = match command {
         "admin_skill_list" | "admin_show_skills" => "skills.htm".to_string(),
         "admin_skill_index" => format!("skills/{}.htm", args.first().copied().unwrap_or("1")),
-        // TODO(admin-tail): `//remove_skills` is a *generated* per-character
-        // skill list in Java; we fall back to the static skills page, so the GM
-        // cannot actually pick a skill to remove from it.
+        // `//remove_skills [page]` is a *generated* per-character list, not a
+        // file — handled before this match.
         _ => "skills.htm".to_string(),
     };
     super::menu::show_admin_html(world, client_id, &path);
+}
+
+/// Java `AdminSkill.removeSkillsPage` — the per-character, paginated skill list
+/// a GM clicks a skill out of. It is built in code rather than from a file
+/// because every row is a `bypass -h admin_remove_skill <id>` for a skill that
+/// particular character happens to know.
+///
+/// Java's paging is off-by-one in a way worth keeping: `maxPages` counts pages
+/// from 0, the links are written `P1..Pn` but pass `x` (0-based), and a `page`
+/// past the end is clamped to `maxPages` — which is one *past* the last valid
+/// index, so the highest link yields an empty table rather than the last page.
+/// Reproduced as-is; a GM clicking the last link sees what they see upstream.
+///
+/// The GM's target must be a player (`THAT_IS_AN_INCORRECT_TARGET` otherwise —
+/// a different message from the `INVALID_TARGET` the sibling pages use).
+fn remove_skills_page(world: &mut World, client_id: u32, page: usize) {
+    let gm = world.player_oid(client_id).unwrap_or(0);
+    let Some(target) = guard::player_target(world, gm) else {
+        super::send_sm(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET);
+        return;
+    };
+    let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
+        super::send_sm(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET);
+        return;
+    };
+    // Java iterates `getAllSkills()`, whose order is the skill map's. Sort so a
+    // GM sees a stable list between refreshes rather than hash order.
+    let mut skills: Vec<(i32, i32)> = world
+        .objects
+        .get_component::<SkillBook>(&target)
+        .map(|b| b.0.iter().map(|(&id, &lvl)| (id, lvl)).collect())
+        .unwrap_or_default();
+    skills.sort_unstable();
+
+    const PER_PAGE: usize = 30;
+    let mut max_pages = skills.len() / PER_PAGE;
+    if skills.len() > (PER_PAGE * max_pages) {
+        max_pages += 1;
+    }
+    let page = page.min(max_pages);
+    let start = (PER_PAGE * page).min(skills.len());
+    let end = (start + PER_PAGE).min(skills.len());
+
+    let mut html = String::with_capacity(600 + (end - start) * 120);
+    html.push_str(
+        "<html><body><table width=260><tr><td width=40><button value=\"Main\" action=\"bypass admin_admin\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td><td width=180><center>Character Selection Menu</center></td><td width=40><button value=\"Back\" action=\"bypass -h admin_show_skills\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr></table><br><br><center>Editing <font color=\"LEVEL\">",
+    );
+    html.push_str(&p.name);
+    html.push_str("</font></center><br><table width=270><tr><td>Lv: ");
+    html.push_str(&p.level.to_string());
+    html.push(' ');
+    html.push_str(&p.class_id.to_string());
+    html.push_str("</td></tr></table><br><table width=270><tr><td>Note: Dont forget that modifying players skills can</td></tr><tr><td>ruin the game...</td></tr></table><br><center>Click on the skill you wish to remove:</center><br><center><table width=270><tr>");
+    for x in 0..max_pages {
+        html.push_str(&format!(
+            "<td><a action=\"bypass -h admin_remove_skills {x}\">P{}</a></td>",
+            x + 1
+        ));
+    }
+    html.push_str("</tr></table></center><br><table width=270><tr><td width=80>Name:</td><td width=60>Level:</td><td width=40>Id:</td></tr>");
+    for &(id, lvl) in &skills[start..end] {
+        let name = world
+            .data
+            .skill_data
+            .get(id, lvl)
+            .map(|s| s.name.clone())
+            .unwrap_or_default();
+        html.push_str(&format!(
+            "<tr><td width=80><a action=\"bypass -h admin_remove_skill {id}\">{name}</a></td><td width=60>{lvl}</td><td width=40>{id}</td></tr>"
+        ));
+    }
+    html.push_str("</table><br><center><table>Remove skill by ID :<tr><td>Id: </td><td><edit var=\"id_to_remove\" width=110></td></tr></table></center><center><button value=\"Remove skill\" action=\"bypass -h admin_remove_skill $id_to_remove\" width=110 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center><br><center><button value=\"Back\" action=\"bypass -h admin_current_player\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>");
+    super::menu::send_admin_html_content(world, client_id, &html);
 }
 
 /// Resend a player's `SkillList` after a skill-book change.
