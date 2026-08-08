@@ -1,6 +1,7 @@
 .idea
 dist/client/system
 .claude
+.mcp.json
 .worktrees
 target/
 tools/vector-dump/out/
