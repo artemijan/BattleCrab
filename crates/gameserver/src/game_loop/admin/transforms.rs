@@ -236,6 +236,33 @@ pub(crate) fn remove_transform(world: &mut World, target: i32) {
 /// (`game_loop::skills::effects::handle_buff_expire`), which folds the
 /// broadcast into the generic buff-removal `UserInfo` it already sends rather
 /// than sending a second one.
+/// Put the player's own collision box back, from their class template — the
+/// undo half of the transform/mount collision override.
+///
+/// Falls back to the base class's template when a subclass has none, and does
+/// nothing at all when neither is loaded.
+pub(super) fn restore_class_collision(world: &mut World, target: i32) {
+    let (class_id, base_class_id) = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| (p.class_id, p.base_class_id))
+        .unwrap_or((0, 0));
+    if let Some(t) = world
+        .data
+        .player_templates
+        .get(class_id)
+        .or_else(|| world.data.player_templates.get(base_class_id))
+    {
+        world.objects.add_components(
+            &target,
+            Collision {
+                radius: t.collision_radius,
+                height: t.collision_height,
+            },
+        );
+    }
+}
+
 pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
     let transform_id = world
         .objects
@@ -271,26 +298,7 @@ pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
         p.transform_id = 0;
         p.transform_display_id = 0;
     }
-    // Restore the class-template collision.
-    let (class_id, base_class_id) = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| (p.class_id, p.base_class_id))
-        .unwrap_or((0, 0));
-    if let Some(t) = world
-        .data
-        .player_templates
-        .get(class_id)
-        .or_else(|| world.data.player_templates.get(base_class_id))
-    {
-        world.objects.add_components(
-            &target,
-            Collision {
-                radius: t.collision_radius,
-                height: t.collision_height,
-            },
-        );
-    }
+    restore_class_collision(world, target);
     // Java `Transform.onUntransform`: `player.sendPacket(
     // ExBasicActionList.STATIC_PACKET)` — unconditional, unlike the transform
     // side's `hasBasicActionList()` guard. A form whose template carried no
