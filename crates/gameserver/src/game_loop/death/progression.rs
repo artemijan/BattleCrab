@@ -533,30 +533,12 @@ fn recompute_passives_after_skill_change(
         .iter()
         .filter_map(|&(id, action)| action.is_none().then_some(id))
         .collect();
-    if !removed.is_empty()
-        && let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-            world.objects.get_many_mut::<(
-                &Player,
-                &BaseStats,
-                &mut StatModifiers,
-                &Inventory,
-                &mut Buffs,
-                &mut Speeds,
-                &mut CombatStats,
-            )>(&player_oid)
-    {
-        for skill_id in &removed {
-            player.remove_buff(
-                &world.data,
-                base,
-                &mut mods,
-                inventory,
-                &mut buffs,
-                &mut speeds,
-                &mut combat,
-                *skill_id,
-            );
-        }
+    if !removed.is_empty() {
+        crate::game_loop::stat_ctx::with_stat_ctx(world, player_oid, |ctx| {
+            for &skill_id in &removed {
+                ctx.remove(skill_id);
+            }
+        });
     }
     // Re-fold conditioned passives from the corrected book (handles downgrades),
     // component-only — no send.

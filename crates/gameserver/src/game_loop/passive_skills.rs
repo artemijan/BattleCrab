@@ -14,8 +14,7 @@
 //! the conditions as a robe is worn or removed — mirroring [`super::expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
-use crate::model::Player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, SkillBook, Speeds, StatModifiers};
+use crate::model::components::{Buffs, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::model::skill::StatModifierEffect;
 use crate::world::World;
@@ -85,42 +84,16 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     // --- apply phase: drop the managed passive buffs, re-add those that apply.
     // `remove_buff`/`apply_buff` rebuild the modifier maps from the remaining
     // buffs, composing with the expertise penalty buffs (distinct skill ids). ---
-    let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&object_id)
-    else {
+    let swapped = crate::game_loop::stat_ctx::with_stat_ctx(world, object_id, |ctx| {
+        for &skill_id in &managed_ids {
+            ctx.remove(skill_id);
+        }
+        for buff in desired {
+            ctx.apply(buff);
+        }
+    });
+    if swapped.is_none() {
         return false;
-    };
-    for &skill_id in &managed_ids {
-        player.remove_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            skill_id,
-        );
-    }
-    for buff in desired {
-        player.apply_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            buff,
-        );
     }
     // Max HP/MP/CP live on a separate path from `recalculate_stats` (they are
     // cached on `Vitals`/`PlayerVitals` rather than derived per read), so a

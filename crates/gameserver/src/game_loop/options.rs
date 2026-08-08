@@ -23,10 +23,8 @@
 //! [`crate::model::components::OptionSkills`] /
 //! [`crate::model::components::OptionTriggers`].
 
-use crate::model::Player;
-use crate::model::components::{
-    BaseStats, Buffs, CombatStats, OptionSkills, OptionTriggers, Speeds, StatModifiers,
-};
+use crate::game_loop::stat_ctx::with_stat_ctx;
+use crate::model::components::{OptionSkills, OptionTriggers};
 use crate::model::inventory::Inventory;
 use crate::model::skill::{ActiveBuff, BuffSlot, StatModifierEffect};
 use crate::world::World;
@@ -142,28 +140,7 @@ fn apply_option(world: &mut World, player_oid: i32, option_id: i32) {
         blocked_abnormals: Vec::new(),
         effects,
     };
-    if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &mut Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&player_oid)
-    {
-        target.apply_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            buff,
-        );
-    }
+    with_stat_ctx(world, player_oid, |ctx| ctx.apply(buff));
     // MaxHp/MaxMp/MaxCp options don't reach `recalculate_stats`, which is why
     // the buff paths all follow up with this.
     super::skills::effects::recompute_max_vitals(world, player_oid);
@@ -173,28 +150,7 @@ fn apply_option(world: &mut World, player_oid: i32, option_id: i32) {
 fn remove_option(world: &mut World, player_oid: i32, option_id: i32) {
     remove_option_skills(world, player_oid, option_id);
     let skill_id = option_buff_id(option_id);
-    if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &mut Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&player_oid)
-    {
-        target.remove_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            skill_id,
-        );
-    }
+    with_stat_ctx(world, player_oid, |ctx| ctx.remove(skill_id));
     super::skills::effects::recompute_max_vitals(world, player_oid);
 }
 

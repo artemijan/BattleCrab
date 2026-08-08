@@ -9,10 +9,7 @@
 //! to the client in `EtcStatusUpdate` so it can draw the penalty icons.
 
 use crate::data::item_data::ItemKind;
-use crate::model::Player;
-use crate::model::components::{
-    BaseStats, Buffs, CombatStats, ExpertisePenalty, SkillBook, Speeds, StatModifiers,
-};
+use crate::model::components::{ExpertisePenalty, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::model::skill::{ActiveBuff, StatModifierEffect};
 use crate::world::World;
@@ -73,65 +70,21 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
     // --- apply phase: swap the penalty buffs, recompute stats. Scoped so the
     // entity-store borrow ends before the component/packet work below. ---
     {
-        let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-            world.objects.get_many_mut::<(
-                &Player,
-                &BaseStats,
-                &mut StatModifiers,
-                &crate::model::inventory::Inventory,
-                &mut Buffs,
-                &mut Speeds,
-                &mut CombatStats,
-            )>(&object_id)
-        else {
+        let applied = crate::game_loop::stat_ctx::with_stat_ctx(world, object_id, |ctx| {
+            // `remove` rebuilds the modifier maps from the *remaining* buffs,
+            // so removing then re-adding at the new level leaves no stale
+            // penalty modifiers (a no-op when the penalty wasn't present).
+            ctx.remove(WEAPON_GRADE_PENALTY);
+            ctx.remove(ARMOR_GRADE_PENALTY);
+            if let Some((level, effects)) = weapon_effects {
+                ctx.apply(passive_penalty_buff(WEAPON_GRADE_PENALTY, level, effects));
+            }
+            if let Some((level, effects)) = armor_effects {
+                ctx.apply(passive_penalty_buff(ARMOR_GRADE_PENALTY, level, effects));
+            }
+        });
+        if applied.is_none() {
             return;
-        };
-        // `remove_buff` rebuilds the modifier maps from the *remaining* buffs,
-        // so removing then re-adding at the new level leaves no stale penalty
-        // modifiers (a no-op when the penalty wasn't present).
-        player.remove_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            WEAPON_GRADE_PENALTY,
-        );
-        player.remove_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            ARMOR_GRADE_PENALTY,
-        );
-        if let Some((level, effects)) = weapon_effects {
-            player.apply_buff(
-                &world.data,
-                base,
-                &mut mods,
-                inventory,
-                &mut buffs,
-                &mut speeds,
-                &mut combat,
-                passive_penalty_buff(WEAPON_GRADE_PENALTY, level, effects),
-            );
-        }
-        if let Some((level, effects)) = armor_effects {
-            player.apply_buff(
-                &world.data,
-                base,
-                &mut mods,
-                inventory,
-                &mut buffs,
-                &mut speeds,
-                &mut combat,
-                passive_penalty_buff(ARMOR_GRADE_PENALTY, level, effects),
-            );
         }
     }
 

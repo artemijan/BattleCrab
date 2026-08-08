@@ -176,30 +176,7 @@ fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32,
 /// fold the effects into the member's stat maps, then rebroadcast UserInfo (no
 /// AbnormalStatusUpdate — passive buffs carry no icon).
 fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
-    use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers};
-    use crate::model::inventory::Inventory;
-    if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &mut Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&oid)
-    {
-        target.apply_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            buff,
-        );
-    }
+    crate::game_loop::stat_ctx::with_stat_ctx(world, oid, |ctx| ctx.apply(buff));
     // Clan skills like Clan Health / Clan Mind carry MaxHp/MaxMp modifiers that
     // `recalculate_stats` doesn't consume — fold them into the vitals too.
     crate::game_loop::skills::effects::recompute_max_vitals(world, oid);

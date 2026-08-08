@@ -639,28 +639,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     if was_fake_dead {
         stop_fake_death(world, player_object_id);
     }
-    if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &mut crate::model::Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &crate::model::inventory::Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&player_object_id)
-    {
-        player.remove_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            skill_id,
-        );
-    }
+    crate::game_loop::stat_ctx::with_stat_ctx(world, player_object_id, |ctx| ctx.remove(skill_id));
     // Reverting a MaxHp/MaxMp/MaxCp buff shrinks the bar (and clamps current).
     recompute_max_vitals(world, player_object_id);
     let now = world.tick;

@@ -117,6 +117,7 @@ mod sit_stand;
 mod skill_enchant;
 pub(crate) mod skills;
 pub(crate) mod spawn_scripts;
+pub(crate) mod stat_ctx;
 pub(crate) mod subclass;
 pub(crate) mod support_magic;
 pub(crate) mod tamed_beast;

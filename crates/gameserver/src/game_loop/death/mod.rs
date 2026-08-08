@@ -24,11 +24,10 @@
 use crate::data::npc_data::{DropHolder, NpcTemplate};
 use crate::model::Player;
 use crate::model::components::{
-    BaseStats, Buffs, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook,
-    Speeds, StatModifiers, Vitals,
+    BaseStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook, Speeds,
+    StatModifiers, Vitals,
 };
 use crate::model::formulas;
-use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
