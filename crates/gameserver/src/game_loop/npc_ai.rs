@@ -26,6 +26,7 @@
 //! `OnAttackableFactionCall` script event's two listeners on this dist —
 //! Queen Ant's nurses and Orfen's minions — via `on_faction_call_script`.
 
+use crate::game_loop::helpers::is_dead;
 use std::collections::HashSet;
 
 use commons::util::rnd;
@@ -249,11 +250,7 @@ fn think(world: &mut World, npc_oid: i32) {
     else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&npc_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, npc_oid) {
         return;
     }
     // A stunned/asleep/paralyzed mob does nothing at all — Java's `isDisabled()`
@@ -1328,11 +1325,7 @@ fn raid_target_chaos(world: &mut World, npc_oid: i32) -> bool {
 /// load-bearing: a mob that *can* move is allowed to chase a target it cannot
 /// currently see, which is what lets it walk around a corner after you.
 fn check_target(world: &World, npc_oid: i32, target_oid: i32) -> bool {
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target_oid) {
         return false;
     }
     if movement_disabled(world, npc_oid) {
@@ -2093,11 +2086,7 @@ fn faction_recruits(
         let Some(opos) = world.objects.get_component::<Position>(&other).copied() else {
             continue;
         };
-        if world
-            .objects
-            .get_component::<Vitals>(&other)
-            .is_none_or(|v| v.dead)
-        {
+        if is_dead(world, other) {
             continue;
         }
         // 3D range around the *caller* (`forEachVisibleObjectInRange`), plus

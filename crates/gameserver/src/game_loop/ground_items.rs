@@ -5,6 +5,7 @@
 //! region (`SpawnItem`, via `visibility`), and picked up by a click (`Action` →
 //! [`pickup_ground_item`]).
 
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;
@@ -304,11 +305,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         return;
     };
     // `(player == null) || player.isDead()`.
-    if world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&player_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, player_oid) {
         return;
     }
     // Java's `_count < 0` branch punishes (`handleIllegalPlayerAction`);

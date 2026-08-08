@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
@@ -145,11 +146,7 @@ pub(crate) fn target_level(world: &World, oid: i32) -> i32 {
 pub(crate) fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) {
     use server_packets::{SmParam, sm_ids};
     // `effected.isDead() || effected.isDoor() || effected.isMpBlocked()`.
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target_oid) {
         return;
     }
     if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
@@ -734,10 +731,7 @@ pub(crate) fn check_summon_target_status(
     let text = || vec![SmParam::Text(name.clone())];
 
     // `isAlikeDead()` — dead, or faking it.
-    if world
-        .objects
-        .get_component::<Vitals>(&member)
-        .is_none_or(|v| v.dead)
+    if is_dead(world, member)
         || crate::game_loop::abnormal::flags_of(world, member)
             & crate::model::skill::effect_flag::FAKE_DEATH
             != 0

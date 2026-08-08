@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
@@ -26,11 +27,7 @@ pub(crate) fn handle_dam_over_time_tick(
         return;
     }
     // Dead target → stop (Java `onActionTime`: `isDead()` bails).
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target_oid) {
         return;
     }
     let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
@@ -263,11 +260,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 skill.id,
             );
             // A `canKill` tick can kill outright — stop then.
-            if world
-                .objects
-                .get_component::<Vitals>(&target_oid)
-                .is_none_or(|v| v.dead)
-            {
+            if is_dead(world, target_oid) {
                 return;
             }
         }

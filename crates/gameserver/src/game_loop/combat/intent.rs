@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
@@ -19,11 +20,7 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         return;
     };
 
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -375,10 +372,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return;
     };
 
-    let dead = world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, object_id);
     if dead || world.objects.has_component::<Casting>(&object_id) {
         return; // casting pauses the loop (Java: CAST intention), death ends it via do_die.
     }
@@ -843,12 +837,7 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-        || world.objects.has_component::<Casting>(&object_id)
-    {
+    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
         return;
     }
     // `checkTargetLost`: a dead or vanished target drops the intention. A
@@ -937,12 +926,7 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-        || world.objects.has_component::<Casting>(&object_id)
-    {
+    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
         return;
     }
     // Target gone → drop the intention (Java `checkTargetLost`).
@@ -1036,12 +1020,7 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     // `Player.doPickupItem`'s `isAlikeDead()` guard plus thinkPickUp's own
     // `isAllSkillsDisabled() || isCastingNow()` bail (which does *not* drop the
     // intention — the walk resumes once the cast ends).
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-        || world.objects.has_component::<Casting>(&object_id)
-    {
+    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
         return;
     }
     // `checkTargetLost` — someone else got there first, or it decayed.

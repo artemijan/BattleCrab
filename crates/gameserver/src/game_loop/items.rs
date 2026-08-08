@@ -1,6 +1,7 @@
 //! Gear equip/unequip handlers (`UseItem`, `RequestUnEquipItem`) and the
 //! `EtcItem` "use" dispatch (`ExtractableItems` for pack/box items).
 
+use crate::game_loop::helpers::is_dead;
 use tracing::warn;
 
 use crate::data::item_data::ItemHandler;
@@ -1224,11 +1225,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         return;
     };
     // `!player.isDead()` — a dead player can't toggle shots.
-    if world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         return;
     }
     // The item must be in the inventory, and be a player shot we handle.

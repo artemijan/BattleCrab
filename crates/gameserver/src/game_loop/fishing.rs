@@ -11,8 +11,9 @@
 //! water point, which no zone can express; cosmetic only.
 
 use crate::data::item_data::WeaponType;
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
-use crate::model::components::{FishingSession, Position, Vitals};
+use crate::model::components::{FishingSession, Position};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
@@ -86,10 +87,7 @@ pub(crate) fn fishing_available(world: &World, player: i32) -> bool {
 /// Java `Fishing.canFish` (slice-1 subset): alive, a real fishing rod equipped,
 /// a known bait hooked, and the player's level within the bait's range.
 fn can_fish(world: &World, player: i32) -> bool {
-    let dead = world
-        .objects
-        .get_component::<Vitals>(&player)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, player);
     if dead {
         return false;
     }

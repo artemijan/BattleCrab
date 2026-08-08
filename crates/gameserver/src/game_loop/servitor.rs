@@ -11,6 +11,7 @@
 //! and the `SummonInfo` packet that shows it to *other* players are separate
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
@@ -509,11 +510,7 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         return;
     };
     // Java's shared guard: dead or control-blocked players issue no actions.
-    if world
-        .objects
-        .get_component::<Vitals>(&owner_oid)
-        .is_none_or(|v| v.dead)
-        || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
+    if is_dead(world, owner_oid) || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
     {
         return;
     }
@@ -723,11 +720,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
         return;
     };
     // Dead or already gone → the chain ends (Java cancels the task).
-    if world
-        .objects
-        .get_component::<Vitals>(&servitor_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, servitor_oid) {
         return;
     }
     let owner = link.owner_object_id;
@@ -1202,11 +1195,7 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
     else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&pet_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, pet_oid) {
         return;
     }
     let Some(owner) = world
@@ -1605,11 +1594,7 @@ pub(crate) fn split_exp_with_pet(
     // A dead pet earns nothing (Java `if (!pet.isDead())`), but note the
     // owner's ratio is still reduced — Java adjusts it outside that guard, so
     // the exp is lost rather than returned to the player. Faithful.
-    if world
-        .objects
-        .get_component::<Vitals>(&pet_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, pet_oid) {
         return (1.0, 0.0, 0.0);
     }
     if !within(world, owner_oid, pet_oid, PET_EXP_RANGE) {

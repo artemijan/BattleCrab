@@ -15,6 +15,7 @@
 //!   deliberately not "tidied".
 //! - **Either is attacked** → [`on_assist`] spreads aggro across the pack.
 
+use crate::game_loop::helpers::is_dead;
 use commons::util::rnd;
 
 use crate::game_loop::helpers::npc_id_of;
@@ -43,11 +44,7 @@ pub(crate) fn spawn_minions(world: &mut World, master_oid: i32) -> usize {
 
 /// `spawnMinions(npc, "<group>")` — top up one named `<minions>` group.
 pub(crate) fn spawn_minion_group(world: &mut World, master_oid: i32, group: &str) -> usize {
-    if world
-        .objects
-        .get_component::<Vitals>(&master_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, master_oid) {
         return 0;
     }
     let Some(master_npc_id) = npc_id_of(world, master_oid) else {
@@ -87,11 +84,7 @@ pub(crate) fn spawn_minion_group(world: &mut World, master_oid: i32, group: &str
 /// on-attack "call for help" scripts (Timak Orc Troop Leader) summon one at a
 /// time instead of topping a whole group up.
 pub(crate) fn add_minion(world: &mut World, master_oid: i32, npc_id: i32) -> bool {
-    if world
-        .objects
-        .get_component::<Vitals>(&master_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, master_oid) {
         return false;
     }
     spawn_one_minion(world, master_oid, npc_id)
@@ -280,11 +273,7 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
     };
 
     // A dead (or vanished) leader doesn't rebuild its pack.
-    if world
-        .objects
-        .get_component::<Vitals>(&master_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, master_oid) {
         return;
     }
     let master_is_raid = world

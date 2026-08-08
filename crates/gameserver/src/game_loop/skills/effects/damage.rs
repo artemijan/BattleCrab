@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::stat_add;
@@ -236,11 +237,7 @@ pub(crate) fn calc_counter_attack(
     if skill.magic_type == 1 || skill.cast_range > MELEE_ATTACK_RANGE {
         return;
     }
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target_oid) {
         return;
     }
     let chance = stat_add(

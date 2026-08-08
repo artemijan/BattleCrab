@@ -9,6 +9,7 @@
 //! most-hated specials). Skipped as off-chronicle: the Deinonychus Mesozoic
 //! Stone taming reward (Gracia-era item 14828).
 
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, Vitals};
@@ -468,10 +469,7 @@ pub(crate) fn handle_sprigant_trap(world: &mut crate::world::World, npc_oid: i32
     let Some(npc_id) = npc_id_of(world, npc_oid) else {
         return;
     };
-    let dead = world
-        .objects
-        .get_component::<Vitals>(&npc_oid)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, npc_oid);
     if dead {
         return;
     }

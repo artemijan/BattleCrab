@@ -39,6 +39,7 @@
 //! All of it unreachable in production — `CustomCommunityBoard = True` never
 //! links here — ported per the config-disabled rule.
 
+use crate::game_loop::helpers::is_dead;
 use tracing::warn;
 
 use crate::model::Player;
@@ -578,10 +579,7 @@ fn do_teleport(world: &mut World, client_id: u32, object_id: i32, command: &str)
         world.tick + 30,
         crate::scheduler::ScheduledTask::SkillsReenable { object_id },
     );
-    let dead = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, object_id);
     if !dead {
         super::death::teleport_player(world, object_id, x, y, z);
     }

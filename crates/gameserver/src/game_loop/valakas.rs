@@ -14,6 +14,7 @@
 //! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) and the
 //! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
+use crate::game_loop::helpers::is_dead;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -402,13 +403,6 @@ fn within(world: &World, valakas_oid: i32, oid: i32, range: f64) -> bool {
         return false;
     };
     a.distance_2d(&b) <= range
-}
-
-fn is_dead(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .is_none_or(|v| v.dead)
 }
 
 fn in_lair_zone(world: &World, oid: i32) -> bool {

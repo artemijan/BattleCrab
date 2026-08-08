@@ -18,6 +18,7 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
@@ -998,13 +999,6 @@ fn position_of(world: &World, object_id: i32) -> (i32, i32, i32) {
         .get_component::<crate::model::components::Position>(&object_id)
         .map(|p| (p.x, p.y, p.z))
         .unwrap_or((0, 0, 0))
-}
-
-fn is_dead(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_some_and(|v| v.dead)
 }
 
 /// `OlympiadGameNormal.createListOfParticipants`: draw two distinct **online**

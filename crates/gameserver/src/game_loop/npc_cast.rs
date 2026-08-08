@@ -17,6 +17,7 @@
 //! ported, but no NPC on this dist carries a resurrect skill in its
 //! `<skillList>`.
 
+use crate::game_loop::helpers::is_dead;
 use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
@@ -512,13 +513,6 @@ pub(crate) fn resolve_npc_cast_target(
 /// compares `calculateDistance2D(target) > skill.getCastRange()` directly).
 fn within_cast_range(world: &World, npc_oid: i32, target_oid: i32, skill: &Skill) -> bool {
     distance_2d(world, npc_oid, target_oid).is_some_and(|d| d <= skill.cast_range as f64)
-}
-
-fn is_dead(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .is_some_and(|v| v.dead)
 }
 
 /// `creature.isInsideZone(ZoneId.PEACE)` for an NPC. NPCs carry no `ZoneFlags`

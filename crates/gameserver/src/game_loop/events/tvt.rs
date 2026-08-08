@@ -13,6 +13,7 @@
 //! (`on_player_logout`), and the freeze applies `Immobilized` +
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
+use crate::game_loop::helpers::is_dead;
 use commons::util::rnd;
 use tracing::warn;
 
@@ -498,13 +499,6 @@ fn team_of(world: &World, player: i32) -> u8 {
         .objects
         .get_component::<Player>(&player)
         .map_or(TEAM_NONE, |p| p.team)
-}
-
-fn is_dead(world: &World, player: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&player)
-        .is_some_and(|v| v.dead)
 }
 
 /// Java `broadcastScoreMessage()` — the running "Blue: X - Red: Y" tally in the

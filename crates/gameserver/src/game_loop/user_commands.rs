@@ -14,8 +14,9 @@
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
 use super::helpers::send_sm_to_client as send_sm;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
-use crate::model::components::{Casting, Position, Vitals};
+use crate::model::components::{Casting, Position};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::session::ClientSession;
@@ -137,12 +138,7 @@ fn loc(world: &World, client_id: u32, object_id: i32) {
 /// flag, `isMovementDisabled` beyond death.
 fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
     // `isCastingNow || isAlikeDead` → refuse silently (Java returns false).
-    if world.objects.has_component::<Casting>(&object_id)
-        || world
-            .objects
-            .get_component::<Vitals>(&object_id)
-            .is_none_or(|v| v.dead)
-    {
+    if world.objects.has_component::<Casting>(&object_id) || is_dead(world, object_id) {
         return;
     }
     let (is_gm, interval) = {
@@ -771,12 +767,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
             cs.send(server_packets::system_message_with(sm, &[]));
         }
     };
-    let dead = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Vitals>(&oid)
-            .is_none_or(|v| v.dead)
-    };
+    let dead = |world: &World, oid: i32| is_dead(world, oid);
     if dead(world, object_id) {
         refuse(world, sm_ids::A_STRIDER_CANNOT_BE_RIDDEN_WHEN_DEAD);
         return;

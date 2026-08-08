@@ -34,6 +34,7 @@
 //! remainder from being forgotten.
 
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::model::components::{OlympiadObserver, PartyRef, Vitals, ZoneFlags};
@@ -455,13 +456,6 @@ fn is_player(world: &World, object_id: i32) -> bool {
 
 fn is_gm(world: &World, object_id: i32) -> bool {
     player(world, object_id).is_some_and(|p| p.is_gm(&world.data))
-}
-
-fn is_dead(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
 }
 
 fn in_zone(world: &World, object_id: i32, kind: ZoneKind) -> bool {

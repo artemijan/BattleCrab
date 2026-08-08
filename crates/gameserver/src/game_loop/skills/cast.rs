@@ -3,6 +3,7 @@
 //! end), plus cast aborts.
 
 use crate::game_loop::common::maybe_distance_too_far;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::{
     broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action,
     send_sm_and_action_failed,
@@ -668,11 +669,7 @@ pub(crate) fn use_magic_on(
     use server_packets::sm_ids;
 
     // The dead can't cast (`checkUseConditions` → `isDead`).
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }

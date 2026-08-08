@@ -36,9 +36,10 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell, Vitals};
+use crate::model::components::{Position, RegionCell};
 use crate::model::skill::{AffectObject, AffectScope, Skill, TargetType};
 use crate::world::{World, regions_adjacent};
 
@@ -763,14 +764,6 @@ fn candidates(world: &World, centre_oid: i32) -> Vec<i32> {
             .is_some_and(|r| regions_adjacent(region, r.0))
     }));
     out
-}
-
-fn is_dead(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| v.dead)
-        .unwrap_or(true)
 }
 
 /// Java's dead-target exemption: only the corpse target types (`NPC_BODY`,

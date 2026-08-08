@@ -1,7 +1,7 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell, StatModifiers};
+use crate::model::components::{RegionCell, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::npc::Npc;
 use crate::model::stats::Stat;
@@ -32,11 +32,27 @@ pub(crate) fn player_of(world: &World, client_id: u32) -> Option<i32> {
 
 /// The world coordinates of any object carrying a [`Position`], or `None` if
 /// it has despawned.
+///
+/// Delegates to the geo layer's own accessor so there is exactly one
+/// implementation; `crate::geo` cannot depend on `game_loop`, so the
+/// definition has to live down there.
 pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
+    crate::geo::distance::position_of(world, object_id)
+}
+
+/// Whether a creature counts as dead — **`true` when it has no [`Vitals`] at
+/// all**.
+///
+/// [`Vitals`] is attached once at NPC spawn and player load and is never
+/// removed on its own, so "no Vitals" means the object has left the world or
+/// was never a creature (a dropped item, a door). Every caller is a
+/// "may I still act on this target?" guard, and for those, an object that
+/// isn't there must answer the same way a corpse does.
+pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .get_component::<Position>(&object_id)
-        .map(|p| (p.x, p.y, p.z))
+        .get_component::<Vitals>(&object_id)
+        .is_none_or(|v| v.dead)
 }
 
 /// The region cell an object is binned into, or `None` once it has left the

@@ -7,6 +7,7 @@
 //! equivalent because the match was the last statement in the effect loop.
 
 use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::is_dead;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
@@ -904,10 +905,7 @@ pub(super) fn death_link(world: &mut World, ctx: &CastCtx, skill: &Skill, power:
 pub(super) fn cp_heal_percent(world: &mut World, ctx: &CastCtx, power: f64) {
     let CastCtx { target_oid, .. } = *ctx;
     use crate::model::components::PlayerVitals;
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
+    if is_dead(world, target_oid)
         || world
             .objects
             .has_component::<crate::model::door::Door>(&target_oid)

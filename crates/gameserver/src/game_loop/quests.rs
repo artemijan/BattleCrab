@@ -10,6 +10,7 @@
 //! then build a [`QuestCtx`] around `&mut World` and hand that to the
 //! script. Scripts are stateless; all state flows through the ctx.
 
+use crate::game_loop::helpers::is_dead;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -2782,11 +2783,7 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
             if crate::game_loop::helpers::instance_of(world, oid) != instance {
                 return false;
             }
-            if world
-                .objects
-                .get_component::<crate::model::components::Vitals>(&oid)
-                .is_none_or(|v| v.dead)
-            {
+            if is_dead(world, oid) {
                 return false;
             }
             world
