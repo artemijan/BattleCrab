@@ -188,7 +188,34 @@ the two `(0,0,0)` callers handle `None` explicitly.
 
 ---
 
-## Phase 3 — Party / command-channel group API
+## Phase 3 — Party / command-channel group API ✅ **done** (`2e497509`)
+
+Shipped as three functions in `game_loop::party`, as planned — the three solo
+readings are three different game rules and stay distinct:
+
+| | |
+|---|---|
+| `party_members` → `Option<Vec<i32>>` | the honest lookup |
+| `group_or_self` → `Vec<i32>` | flavour A, solo = a party of one |
+| `leader_and_members` → `Option<(i32, Vec<i32>)>` | the raid-entry shape |
+
+Flavours B (`.unwrap_or_default()`) and C (`else { return; }`) fall out of the
+`Option` at each call site, which is the point.
+
+**The CC-aware promotion in the original plan turned out to be fiction.**
+`antharas::group_of`'s doc comment described the command channel outranking the
+party in full detail, but the body never touched `command_channels` and was
+byte-identical to `sailren::group_of`, which documents itself as party-only. So
+Antharas's entry gate has never honoured the CC. Recorded as
+`TODO(antharas-cc)` — registered in the census inventory and written up under
+*Deferred TODOs* in `PROGRESS.md` — rather than fixed in passing: honouring the
+channel means deciding what a 200-player CC does to the lair cap.
+
+Worth noting how it stayed hidden: the claim lived in prose, and the repo's
+marker census only sees `TODO(G<N>)` tags. A doc comment that promises
+behaviour the body does not implement is invisible to it by construction.
+
+### Original plan
 
 The idiom that started this audit. 26 non-test sites write out
 `PartyRef → world.parties → members.clone()`, with **three incompatible solo
