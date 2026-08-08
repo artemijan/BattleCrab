@@ -384,7 +384,7 @@ pub(crate) fn sendinfo_relation_changed(
     subject_oid: i32,
     viewer_oid: i32,
 ) -> Vec<u8> {
-    let base = super::party::relation_changed_base(world, subject_oid);
+    let base = super::party::relation_to(world, subject_oid, viewer_oid);
     let siege = siege_relation_bits(world, subject_oid, viewer_oid);
     let war = super::clans::war_relation_bits(world, subject_oid, viewer_oid);
     let reputation = world
@@ -400,18 +400,15 @@ pub(crate) fn sendinfo_relation_changed(
     )
 }
 
-fn relation_parts(world: &World, oid: i32) -> (i32, i32, u8) {
+/// The two viewer-**independent** halves of a `RelationChanged` — reputation
+/// and pvp flag. The relation bitmask itself is not here: it depends on who is
+/// looking (`party::relation_to`), so hoisting it out of a per-viewer loop is
+/// what made every onlooker see a player's party membership.
+fn relation_parts(world: &World, oid: i32) -> (i32, u8) {
     let Some(p) = world.objects.get_component::<Player>(&oid) else {
-        return (0, 0, 0);
+        return (0, 0);
     };
-    // RelationChanged uses `Player.getRelation`'s bitmask (leader = 0x80), not
-    // `UserInfo.calculateRelation`'s (leader = 0x40) — the former is what carries
-    // the on-head clan-leader crown.
-    (
-        super::party::relation_changed_base(world, oid),
-        p.reputation,
-        flag_of(world, oid),
-    )
+    (p.reputation, flag_of(world, oid))
 }
 
 /// Java `Player.broadcastRelationChanged`, for the siege case: refresh how
@@ -428,7 +425,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         return;
     };
     let my_client = client_for_player(world, object_id).and_then(|c| world.clients.get(&c));
-    let (my_relation, my_rep, my_flag) = relation_parts(world, object_id);
+    let (my_rep, my_flag) = relation_parts(world, object_id);
     for cs in world.clients.values() {
         let ClientSession::InGame(s) = cs else {
             continue;
@@ -450,7 +447,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         // How `object_id` relates to (and is attackable by) this viewer.
         cs.send(server_packets::relation_changed(
             object_id,
-            my_relation
+            super::party::relation_to(world, object_id, viewer)
                 | siege_relation_bits(world, object_id, viewer)
                 | super::clans::war_relation_bits(world, object_id, viewer),
             is_player_auto_attackable(world, viewer, object_id),
@@ -459,10 +456,10 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         ));
         // The reverse, so `object_id`'s own client sees the viewer too.
         if let Some(mc) = my_client {
-            let (v_rel, v_rep, v_flag) = relation_parts(world, viewer);
+            let (v_rep, v_flag) = relation_parts(world, viewer);
             mc.send(server_packets::relation_changed(
                 viewer,
-                v_rel
+                super::party::relation_to(world, viewer, object_id)
                     | siege_relation_bits(world, viewer, object_id)
                     | super::clans::war_relation_bits(world, viewer, object_id),
                 is_player_auto_attackable(world, object_id, viewer),
@@ -527,13 +524,39 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
     // (Java `broadcastRelationChanged` sends `getRelation`), not 0 — otherwise a
     // flag change would strip a clan leader's on-head crown. `auto_attackable` is
     // the viewer-independent core (flagged or PK).
+    //
+    // Java's `broadcastRelationChanged` recomputes `getRelation(player)` **inside**
+    // its visible-player loop, so this cannot be one packet shared by everyone:
+    // the party and clan-mate bits differ per onlooker. It used to be, which told
+    // every bystander that the flagged player was in a party.
     let auto_attackable = value > 0 || reputation < 0;
-    let relation = super::party::relation_changed_base(world, object_id);
-    super::helpers::broadcast_to_others(
-        world,
-        object_id,
-        &server_packets::relation_changed(object_id, relation, auto_attackable, reputation, value),
-    );
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&object_id)
+        .map(|r| r.0)
+    else {
+        return;
+    };
+    let viewers: Vec<i32> = world
+        .players_visible_from(region)
+        .filter(|&v| v != object_id)
+        .collect();
+    for viewer in viewers {
+        let Some(client_id) = client_for_player(world, viewer) else {
+            continue;
+        };
+        super::helpers::send_to_client(
+            world,
+            client_id,
+            server_packets::relation_changed(
+                object_id,
+                super::party::relation_to(world, object_id, viewer),
+                auto_attackable,
+                reputation,
+                value,
+            ),
+        );
+    }
 }
 
 /// Java `PvpFlagTaskManager.run` (1 s cadence): expire flags whose time ran

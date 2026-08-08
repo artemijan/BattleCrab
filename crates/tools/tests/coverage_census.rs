@@ -477,7 +477,6 @@ fn deferral_markers_match_the_recorded_inventory() {
         ("admin-tail", 5),
         ("enchant-guard", 1),
         ("frintezza-cam", 1),
-        ("relation-bits", 1),
     ];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
