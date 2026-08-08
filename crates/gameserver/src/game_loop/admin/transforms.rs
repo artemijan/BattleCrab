@@ -15,7 +15,7 @@
 //! census found no template carrying any of them is enterable on this dist —
 //! the evidence lives in `data::transform_data`'s module header.
 
-use crate::game_loop::guard;
+use super::mounts::ride_target;
 use crate::model::Player;
 use crate::model::components::{
     BaseStats, Collision, CombatStats, SkillBook, Speeds, StatModifiers,
@@ -149,14 +149,6 @@ pub(super) fn admin_dismount_or_untransform(world: &mut World, object_id: i32) {
     } else {
         super::mounts::dismount(world, target);
     }
-}
-
-/// Java `AdminRide.getRideTarget` — the current target if it's a *different*
-/// player, else the GM. (Mirrors [`mounts::ride_target`].)
-fn ride_target(world: &World, object_id: i32) -> i32 {
-    guard::target(world, object_id)
-        .filter(|&oid| oid != object_id && world.objects.has_component::<Player>(&oid))
-        .unwrap_or(object_id)
 }
 
 /// Apply a transform: set the display state, override collision, grant the

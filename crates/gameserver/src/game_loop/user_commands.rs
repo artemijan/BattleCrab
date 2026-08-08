@@ -14,6 +14,7 @@
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
 use super::helpers::send_sm_to_client as send_sm;
+use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Casting, Position};
@@ -689,21 +690,6 @@ fn olympiad_stat(world: &World, client_id: u32, object_id: i32) {
             world.olympiad.remaining_weekly_matches(object_id),
         )],
     );
-}
-
-/// `ClassId.level()` — how many transfers this class is past, via the
-/// `*_CLASS_GROUP` categories (the same mapping the henna/clan gates use).
-fn class_level(world: &World, class_id: i32) -> i32 {
-    let c = &world.data.categories;
-    if c.contains("FOURTH_CLASS_GROUP", class_id) {
-        3
-    } else if c.contains("THIRD_CLASS_GROUP", class_id) {
-        2
-    } else if c.contains("SECOND_CLASS_GROUP", class_id) {
-        1
-    } else {
-        0
-    }
 }
 
 /// Port of `usercommandhandlers/MyBirthday.java` — the character's creation date

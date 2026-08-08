@@ -59,6 +59,25 @@ pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
     }
 }
 
+/// `ClassId.level()` — the occupation tier a class sits at: 0 for a base
+/// class, 1/2/3 after the first/second/third transfer.
+///
+/// Read off the `*_CLASS_GROUP` categories rather than the class id itself,
+/// the same mapping the henna slots, the clan-membership gate and the
+/// `/dismount`-style user commands all need.
+pub(crate) fn class_level(world: &World, class_id: i32) -> i32 {
+    let c = &world.data.categories;
+    if c.contains("FOURTH_CLASS_GROUP", class_id) {
+        3
+    } else if c.contains("THIRD_CLASS_GROUP", class_id) {
+        2
+    } else if c.contains("SECOND_CLASS_GROUP", class_id) {
+        1
+    } else {
+        0
+    }
+}
+
 /// Whether a creature counts as dead — **`true` when it has no [`Vitals`] at
 /// all**.
 ///

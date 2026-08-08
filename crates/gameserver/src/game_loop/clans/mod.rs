@@ -25,6 +25,7 @@
 //! - `recruit` — the clan-entry board: recruit list, waiting list, draft
 //!   list and applications.
 
+pub(crate) use crate::game_loop::helpers::class_level;
 use commons::network::PacketReader;
 use tracing::warn;
 
@@ -648,19 +649,4 @@ pub(crate) fn clan_name(world: &World, clan_id: i32) -> Option<String> {
 /// [`crate::game_loop::helpers::player_name_or_empty`].
 pub(crate) fn clan_name_or_empty(world: &World, clan_id: i32) -> String {
     clan_name(world, clan_id).unwrap_or_default()
-}
-
-/// `ClassId.level()` — occupation tier via the `*_CLASS_GROUP` categories
-/// (same mapping the henna/support-magic gates use).
-pub(crate) fn class_level(world: &World, class_id: i32) -> i32 {
-    let c = &world.data.categories;
-    if c.contains("FOURTH_CLASS_GROUP", class_id) {
-        3
-    } else if c.contains("THIRD_CLASS_GROUP", class_id) {
-        2
-    } else if c.contains("SECOND_CLASS_GROUP", class_id) {
-        1
-    } else {
-        0
-    }
 }

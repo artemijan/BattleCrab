@@ -50,8 +50,9 @@ impl Mount {
 }
 
 /// Java `AdminRide.getRideTarget` — the current target if it's a *different*
-/// player, else the GM.
-fn ride_target(world: &World, object_id: i32) -> i32 {
+/// player, else the GM. Shared with [`super::transforms`], whose `//transform`
+/// commands pick their subject the same way.
+pub(super) fn ride_target(world: &World, object_id: i32) -> i32 {
     guard::target(world, object_id)
         .filter(|&oid| oid != object_id && world.objects.has_component::<Player>(&oid))
         .unwrap_or(object_id)
