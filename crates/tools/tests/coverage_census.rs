@@ -476,7 +476,6 @@ fn deferral_markers_match_the_recorded_inventory() {
     let expected: &[(&str, usize)] = &[
         ("admin-tail", 5),
         ("enchant-guard", 1),
-        ("enchant-random", 1),
         ("frintezza-cam", 1),
         ("relation-bits", 1),
     ];

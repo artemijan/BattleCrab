@@ -5303,3 +5303,122 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
         "refreshes are answered again once the window has settled"
     );
 }
+
+/// `randomEnchantMin`/`Max` on the **scroll** — the success step is a roll over
+/// an inclusive range, not a flat `+1`.
+///
+/// Java `RequestEnchantItem`'s SUCCESS arm is
+/// `Rnd.get(randomEnchantMin, randomEnchantMax)` capped at `maxEnchant`. The
+/// port had this on the support side only and hard-coded the scroll side to
+/// `+1`, which is correct for every scroll that omits the attributes (Java
+/// defaults min to 1 and max to min) and wrong for the 20 that carry them.
+///
+/// Driven with 33808 "Giant's Scroll: Enchant Weapon (B-grade)" — `min 1 max 3`
+/// — because it is the one a player can actually obtain here: Q375 Whisper of
+/// Dreams Part 2 rewards it, and this port ships that quest.
+#[test]
+fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
+    use crate::model::inventory::Inventory;
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const SCROLL: i32 = 33808; // Giant's Scroll: Enchant Weapon (B-grade)
+    const SWORD: i32 = 78; // Great Sword — B-grade weapon
+    const PLAYER: i32 = 9801;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.enchant = crate::data::EnchantData::load_from(DIST);
+    world.id_pool = 0x4100_0000..0x4100_0200;
+
+    // The range really is in the dist, and really is a range — a scroll whose
+    // min == max would make every assertion below pass for the wrong reason.
+    let tpl = world.data.enchant.scroll(SCROLL).expect("33808 loaded");
+    assert_eq!((tpl.random_min, tpl.random_max), (1, 3));
+
+    let mut rx = ingame_player_access(&mut world, 1, PLAYER, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, PLAYER, SCROLL, 5).unwrap();
+    super::items::add_inventory_item(&mut world, PLAYER, SWORD, 1).unwrap();
+    let find = |w: &World, item: i32| {
+        w.objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .items()
+            .iter()
+            .find(|it| it.item_id == item)
+            .map(|it| it.object_id)
+            .unwrap()
+    };
+    let scroll_oid = find(&world, SCROLL);
+    let sword_oid = find(&world, SWORD);
+    let level = |w: &World| {
+        w.objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .items()
+            .iter()
+            .find(|it| it.object_id == sword_oid)
+            .map(|it| it.enchant_level)
+            .unwrap()
+    };
+
+    let arm = |world: &mut World| {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::USE_ITEM);
+        w.write_i32(scroll_oid);
+        w.write_i32(0);
+        on_packet(world, 1, w.into_bytes());
+        let mut w = PacketWriter::new();
+        w.write_i32(scroll_oid);
+        w.write_i32(sword_oid);
+        on_packet(
+            world,
+            1,
+            ex_packet(
+                cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
+                &w.into_bytes(),
+            ),
+        );
+        let mut w = PacketWriter::new();
+        w.write_i32(sword_oid);
+        on_packet(
+            world,
+            1,
+            ex_packet(
+                cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
+                &w.into_bytes(),
+            ),
+        );
+    };
+    let do_enchant = |world: &mut World| {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::REQUEST_ENCHANT_ITEM);
+        w.write_i32(sword_oid);
+        w.write_i32(0);
+        on_packet(world, 1, w.into_bytes());
+    };
+
+    // Roll order per attempt: the success check (`roll_f64`) consumes one
+    // forced value, then the step roll consumes the next. `roll(3)` returns an
+    // index in 0..3, so the step is `min + index`.
+    arm(&mut world);
+    world.forced_rolls.push_back(0); // success
+    world.forced_rolls.push_back(2); // index 2 → step 1 + 2 = 3
+    do_enchant(&mut world);
+    assert_eq!(level(&world), 3, "the top of the range is +3, not +1");
+
+    arm(&mut world);
+    world.forced_rolls.push_back(0); // success
+    world.forced_rolls.push_back(0); // index 0 → step 1
+    do_enchant(&mut world);
+    assert_eq!(level(&world), 4, "the bottom of the range is +1");
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .count_of(SCROLL),
+        3,
+        "one scroll per attempt"
+    );
+}
