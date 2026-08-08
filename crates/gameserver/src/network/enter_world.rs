@@ -803,41 +803,13 @@ mod tests {
 
     fn earring(id: i32) -> ItemTemplate {
         ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
             item_id: id,
             name: format!("earring{id}"),
             kind: ItemKind::Armor,
             body_part: item_data::SLOT_L_EAR | item_data::SLOT_R_EAR,
-            weight: 0,
             is_stackable: false,
-            is_infinite: false,
-            type1: 0,
-            type2: 0,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..ItemTemplate::for_test()
         }
     }
 

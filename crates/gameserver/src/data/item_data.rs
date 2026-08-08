@@ -824,6 +824,31 @@ pub struct ItemTemplate {
     pub default_action: ActionType,
 }
 
+#[cfg(test)]
+impl ItemTemplate {
+    /// A blank template carrying **Java's** field defaults, for test fixtures.
+    ///
+    /// The derived `Default` is a zero-fill, which disagrees with Java in four
+    /// places. Every hand-written fixture in the tree used to correct them by
+    /// spelling out all ~35 fields; build on this instead and list only what
+    /// the test is actually about.
+    ///
+    /// | field | derived `Default` | Java |
+    /// |---|---|---|
+    /// | `time` / `duration` | `0` | `-1` (permanent) |
+    /// | `attack_radius` | `0` | `40` (single-target melee reach) |
+    /// | `is_sellable` | `false` | `true` |
+    pub(crate) fn for_test() -> Self {
+        Self {
+            time: -1,
+            duration: -1,
+            attack_radius: 40,
+            is_sellable: true,
+            ..Default::default()
+        }
+    }
+}
+
 impl ItemTemplate {
     /// `ItemTemplate.isEquipable`: has a body part and isn't an `EtcItem`.
     pub fn is_equipable(&self) -> bool {
@@ -1656,5 +1681,47 @@ mod tests {
 
         // Stackable/etc items with no <stats> have no side-map entry.
         assert!(data.item_stats(ADENA_ID).is_none());
+    }
+}
+
+#[cfg(test)]
+mod for_test_is_faithful {
+    use super::*;
+
+    /// Every field the fixture reduction dropped, asserted against what
+    /// `for_test()` actually produces. If this drifts, the reduced fixtures
+    /// silently change meaning.
+    #[test]
+    fn dropped_fields_match_the_base() {
+        let t = ItemTemplate::for_test();
+        assert_eq!(t.trade_flags, TradeFlags::default());
+        assert_eq!(t.time, -1);
+        assert_eq!(t.duration, -1);
+        assert!(!t.immediate_effect);
+        assert!(!t.ex_immediate_effect);
+        assert_eq!(t.default_action, ActionType::Other);
+        assert_eq!(t.weight, 0);
+        assert!(!t.is_infinite);
+        assert_eq!(t.type1, 0);
+        assert_eq!(t.type2, 0);
+        assert!(t.is_sellable);
+        assert!(!t.is_freightable);
+        assert_eq!(t.price, 0);
+        assert_eq!(t.handler, ItemHandler::None);
+        assert_eq!(t.crystal_type, CrystalType::None);
+        assert_eq!(t.crystal_count, 0);
+        assert_eq!(t.attack_radius, 40);
+        assert_eq!(t.attack_angle, 0);
+        assert_eq!(t.mp_consume, 0);
+        assert_eq!(t.reduced_mp_consume, 0);
+        assert_eq!(t.reduced_mp_consume_chance, 0);
+        assert!(t.capsuled_items.is_empty());
+        assert_eq!(t.extractable_count_min, 0);
+        assert_eq!(t.extractable_count_max, 0);
+        assert!(t.item_skills.is_empty());
+        assert_eq!(t.etc_item_type, EtcItemType::Other);
+        assert!(!t.enchant_enabled);
+        assert_eq!(t.enchant_limit, 0);
+        assert!(!t.is_magic_weapon);
     }
 }
