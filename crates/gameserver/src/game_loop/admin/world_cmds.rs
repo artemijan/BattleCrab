@@ -134,7 +134,7 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
 /// level, member count).
 pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::player_target(world, object_id) else {
-        super::send_sm(
+        send_sm(
             world,
             client_id,
             crate::network::server_packets::sm_ids::INVALID_TARGET,
@@ -149,7 +149,7 @@ pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32)
     let Some(clan_id) = guard::clan_of(world, target) else {
         // Java sends THE_TARGET_MUST_BE_A_CLAN_MEMBER; that sysstring id isn't
         // in the ported table yet, so fall back to INVALID_TARGET.
-        super::send_sm(
+        send_sm(
             world,
             client_id,
             crate::network::server_packets::sm_ids::INVALID_TARGET,

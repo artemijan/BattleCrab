@@ -232,7 +232,7 @@ pub(super) fn admin_clan_force_pending(world: &mut World, client_id: u32, args: 
         return;
     };
     super::super::clans::force_new_leader(world, clan_id, new_leader);
-    super::send_message(world, client_id, "Task have been forcely executed.");
+    send_message(world, client_id, "Task have been forcely executed.");
 }
 
 // ---------------------------------------------------------------------------

@@ -817,7 +817,7 @@ pub(crate) fn use_magic_on(
             );
             broadcast_including_self(world, object_id, &pkt);
         }
-        super::effects::apply_skill_effects(world, object_id, object_id, &skill);
+        apply_skill_effects(world, object_id, object_id, &skill);
         set_skill_reuse(world, object_id, &skill);
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
