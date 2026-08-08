@@ -1,0 +1,332 @@
+# Deduplication plan
+
+Derived from RustRover's **Duplicated code fragment** inspection run over
+`crates/{commons,dashboard_api,gameserver}` (464 non-test, non-generated files),
+cross-checked against a type-2 clone scan that pairs the anchors RustRover
+reports individually.
+
+> RustRover reports *where* a duplicate is, never *what it duplicates*. Every
+> pairing below was established by reading both sides. Line numbers are against
+> `b6153ddb`.
+
+**Estimated net removal: 1,500–2,000 lines.** Phases are independent; each is a
+separate commit that must leave `cargo test` green.
+
+---
+
+## Ground rules
+
+1. One phase per commit. `cargo check --all-targets && cargo test` between each.
+2. **Behaviour-preserving phases (1, 4–8) never change an edge case.** If a
+   phase turns out to need a semantic decision, it moves to phase 2/3.
+3. Phase 2 is the only phase that changes behaviour. It lands last among the
+   early phases so a bisect can separate "moved code" from "changed answer".
+4. Never widen visibility further than needed: `pub(crate)` in
+   `game_loop::helpers`, not `pub`.
+
+---
+
+## Phase 1 — The accessor layer (mechanical, no behaviour change)
+
+The root cause of most findings: 2,478 `get_component::<…>` call sites and no
+accessor layer, so modules either inline the chain or write a private helper.
+`game_loop/helpers.rs` already *is* this layer (`pos_of`, `npc_id_of`, `adena`,
+`instance_of`) — it just isn't discoverable, so it gets reinvented.
+
+### 1a. `player_name` — 11 identical private copies
+
+All eleven are byte-identical modulo the parameter name and whether `Player` is
+imported or path-qualified (`party_room.rs` spells it `.map_or_else(String::new,
+…)`, same semantics).
+
+| File | Line | Local name |
+|---|---|---|
+| `game_loop/crafting.rs` | 1183 | `name_of` |
+| `game_loop/party_room.rs` | 48 | `name_of` |
+| `game_loop/duel.rs` | 887 | `player_name` |
+| `game_loop/clans/mod.rs` | 638 | `player_name` (already `pub(crate)`) |
+| `game_loop/command_channel.rs` | 50 | `name_of` |
+| `game_loop/sell_buffs.rs` | 549 | `name_of` |
+| `game_loop/party.rs` | 310 | `player_name` |
+| `game_loop/olympiad.rs` | 1352 | `player_name` |
+| `game_loop/admin/points.rs` | 380 | `name_of` |
+| `game_loop/four_sepulchers.rs` | 572 | `player_name` |
+| `game_loop/petition.rs` | 27 | `player_name` |
+| `game_loop/guard.rs` | 158 | `player_name` → `Option<String>` |
+
+**Action.** Keep `guard.rs`'s shape as the canonical one — it loses nothing and
+lets each caller state its own fallback:
+
+```rust
+// game_loop/helpers.rs
+pub(crate) fn player_name(world: &World, oid: i32) -> Option<String> {
+    world.objects.get_component::<Player>(&oid).map(|p| p.name.clone())
+}
+```
+
+Delete all eleven; callers wanting the old `String` write
+`.unwrap_or_default()`. ~39 further sites inline the same chain and can be
+migrated opportunistically — do **not** hunt them all in this commit.
+
+### 1b. `region_of` — ~63 inline sites, no helper anywhere
+
+```rust
+let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) else { return; };
+```
+
+Confirmed anchors: `antharas.rs:1048`, `core_boss.rs:181`, `dr_chaos.rs:223,289`,
+`grand_boss.rs:48`, `siege.rs:533,566,894`, `private_store.rs:1023`,
+`skills/cast.rs:557`, `instances.rs:120`, `servitor.rs:651`, `pvp.rs:423,440`,
+`ground_items.rs:178`, `effect_point.rs:176`, `npc_ai.rs:238,506,637,928`.
+
+**Action.** Add `helpers::region_of(world, oid) -> Option<(i32, i32)>`. Pure
+addition, zero risk — the best place to start.
+
+### 1c. `clan_name` — ~18 inline sites, 7 of them in `clans/wars.rs`
+
+```rust
+let clan_name = world.clans.get(&clan_id).map(|c| c.name.clone()).unwrap_or_default();
+```
+
+**Action.** `clans::clan_name(world, clan_id) -> Option<String>`.
+
+### 1d. `npc_id_of` — one copy of an existing helper
+
+`item_auction.rs:867` reimplements `helpers::npc_id_of`. Delete and import.
+
+**Phase 1 exit check:** `rg -c 'fn (player_name|name_of|region_of|clan_name)\('`
+returns one hit each.
+
+---
+
+## Phase 2 — Semantic reconciliation ⚠️ behaviour-affecting
+
+Three helper families exist in **mutually contradictory versions**. These are
+latent bugs, not style issues. Each needs a decision before the merge.
+
+### 2a. `is_dead` — 6 copies, split 3/3 on missing `Vitals`
+
+```
+missing Vitals ⇒ ALIVE          missing Vitals ⇒ DEAD
+events/tvt.rs:502               skills/conditions.rs:460
+npc_cast.rs:516                 valakas.rs:407
+olympiad.rs:1002                skills/affect.rs:771  (.map().unwrap_or(true))
+```
+
+Plus ~36 inline `get_component::<Vitals>(&oid).is_none_or(|v| v.dead)` sites.
+
+**Recommendation:** missing `Vitals` ⇒ **dead** (`is_none_or`). An object that
+reaches these call sites without `Vitals` has been despawned, and every one of
+these is a "may I act on this target?" guard where failing closed is correct.
+
+**Before flipping**, read the three `is_some_and` sites — `tvt.rs` decides round
+scoring, `npc_cast.rs` gates AI casting, `olympiad.rs` decides match outcome. If
+any of them depends on the current permissive answer, that is a real bug and
+should be its own commit with a test.
+
+### 2b. `clan_of` — 4 copies, two incompatible return contracts
+
+```
+Option<i32>, 0 filtered out      i32, 0 passed through
+community_board.rs:454           pvp.rs:368
+guard.rs:149                     admin/castle.rs:253
+```
+
+Callers of the bare-`i32` version can compare two clanless players and conclude
+they are clanmates.
+
+**Recommendation:** keep the `Option` form — it makes "clanless" unrepresentable
+as a clan id. Convert the two bare callers with an explicit `.unwrap_or(0)` at
+the call site. **Audit `pvp.rs` for the clanless-vs-clanless comparison** before
+converting; that is where the bug would bite.
+
+### 2c. `position_of` — 5 copies, 2 coerce a missing position to the origin
+
+```
+Option<(i32,i32,i32)>            (i32,i32,i32), else (0,0,0)
+helpers.rs:34  (canonical)       instances.rs:336
+geo/distance.rs:4                olympiad.rs:994
+npc_ai.rs:432
+```
+
+A missing position becoming the map origin produces a teleport to nowhere rather
+than an error.
+
+**Recommendation:** delete all four, route through `helpers::pos_of`, and make
+the two `(0,0,0)` callers handle `None` explicitly.
+
+---
+
+## Phase 3 — Party / command-channel group API
+
+The idiom that started this audit. 26 non-test sites write out
+`PartyRef → world.parties → members.clone()`, with **three incompatible solo
+fallbacks**:
+
+| Flavour | Meaning | Sites |
+|---|---|---|
+| A `unwrap_or_else(\|\| vec![oid])` | solo = party of one | `skills/effects/triggers.rs:197,305`; `admin/instance.rs:250` |
+| B `unwrap_or_default()` | solo = nobody | `duel.rs:393`; `quests.rs:1719`; `four_sepulchers.rs:443` |
+| C `else { return; }` | solo aborts caller | `skills/effects/control.rs:520,678` |
+
+Two more add the command-channel layer: `antharas.rs:434` (`group_of`, CC wins
+over party) and `death/resurrect.rs:501`. `sailren.rs:119` and `cubic.rs:365`
+reimplement the party half again.
+
+**Action.** Three named helpers in `game_loop/party.rs` — not one:
+
+```rust
+pub(crate) fn party_members(world: &World, oid: i32) -> Option<Vec<i32>>;
+pub(crate) fn group_or_self(world: &World, oid: i32) -> Vec<i32>;   // flavour A
+```
+
+…and promote `antharas::group_of` to `command_channel` for the CC-aware case.
+Flavours B and C then fall out of the `Option` at each call site, which keeps the
+difference deliberate instead of accidental. **Do not collapse A/B/C into one
+helper** — they are three different game rules.
+
+---
+
+## Phase 4 — Parameter bundling
+
+Not copy-paste so much as signatures long enough that the call becomes a block.
+
+### 4a. `StatCtx` — 8 sites of a 10–22 line `get_many_mut`
+
+```rust
+if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
+    world.objects.get_many_mut::<( … 7 components … )>(&oid)
+```
+
+`passive_skills.rs:88`, `clans/skills.rs:181`, `death/progression.rs:537`,
+`options.rs:145,176`, `expertise.rs:76`, `skills/effects/continuous.rs:369`,
+`skills/effects/ticks.rs:648`.
+
+The same six `&mut` accumulators are then threaded positionally into
+`add_buff`/`remove_buff` at 14 further sites (`weight.rs:204,216`,
+`options.rs:157,188`, `expertise.rs:93,103,114,126`, `passive_skills.rs:103,115`,
+`death/progression.rs:549`, `skills/effects/ticks.rs:659`).
+
+**Action.** Bundle into one `StatCtx<'_>` borrow struct and take `&mut StatCtx`
+in `add_buff`/`remove_buff`. Collapses both families at once — the single
+highest-leverage change in the plan.
+
+### 4b. `ItemTemplate: Default` — a 17-line literal, 10 times
+
+`network/enter_world.rs:824`, `model/inventory.rs:1177,1214,1264`, plus six in
+`game_loop/tests/mod.rs` and `data/skill_data/tests.rs`.
+
+**Action.** Derive/impl `Default`, reduce every site to the 2–3 fields it sets.
+Highest line-count win per unit of risk, and it makes all ten immune to the next
+field added to the struct.
+
+### 4c. `apply_skill_damage` params — 7 sites in `skills/instant.rs`
+
+Lines 81, 177, 469, 701, 889, 1103, 1281. All eleven arguments identical except
+`damage` and `mcrit`.
+
+**Action.** A small params struct with `..Default::default()` so what actually
+varies is readable at a glance.
+
+---
+
+## Phase 5 — Large block extraction
+
+Ranked by lines removed. Each is a local `fn` extraction inside its own file
+unless noted.
+
+| Lines | Sites | What |
+|---|---|---|
+| 35 + 30 | `skills/instant.rs:988`, `:1123` | NPC-vs-player heal branch; identical but for a comment |
+| 28 × 2 | `skills/instant.rs:1048`, `:1162` | `client_for_player` → status-update block |
+| 22 × 2 | `clans/skills.rs:181`, `options.rs:145` | (folded into phase 4a) |
+| 17 × 2 | `siege.rs:618`, `:1066` | `for oid in targets` broadcast loop |
+| 16 × 2 | `db/commands.rs:1537`, `db/queries.rs:1902` | `items::Entity::insert(items::ActiveModel {…})` — extract to `db::queries` |
+| 16 × 2 | `clans/alliance.rs:181`, `clans/membership.rs:748` | `if let Some(pos) = world` |
+| 16 × 2 | `death/progression.rs:141`, `:176` | level-change broadcast |
+| 16 × 2 | `expertise.rs:226`, `clans/skills.rs:156` | `ActiveBuff { … }` construction |
+| 15 × 2 | `clans/alliance.rs:408`, `clans/membership.rs:157` | membership guard |
+| 15 × 2 | `death/restart.rs:182`, `:231` | `let restored = { … }` |
+| 14 × 2 | `admin/mounts.rs:323`, `admin/transforms.rs:288` | ride/transform target resolve |
+| 14 × 2 | `valakas.rs:530`, `:670` | `special_camera` cinematic |
+| 14 + 9 | `henna.rs:23`, `clans/mod.rs:650` | `ClassId.level()` occupation tier — move to `enums` |
+| 13 × 2 | `party.rs:1342`, `:1399` | `in_range` member filter |
+| 11 × 5 | `combat/intent.rs:435,886,968,1080`, `skills/cast.rs:1162` | `has_component::<Movement>` stop-move block |
+| 10–11 × 5 | `doors.rs:74,95,127`, `castle.rs:440,475` | `door_regions.values().flatten().find(…)` — one `find_door` helper |
+| 7–10 × 24 | `db/commands.rs` (68, 269, 504, 523, 544, 553, 562, 571, 714, 1044, 1056, 1136, 1202, 1218, 1231, 1259, 1271, 1283, 1295, 1475, 1484, 1517, 1557, 1706, 1757) | `warn_err(…)` wrapper — **replace with a macro**, ~170 lines → ~30 |
+| 8 × 35 | `private_store.rs`, `mail.rs`, `servitor.rs`, `manor.rs`, `trade.rs`, `shop.rs`, `ground_items.rs` | illegal-action punish preamble — fold `world.cfg.general.default_punish` into `punishment::illegal_action()` |
+
+---
+
+## Phase 6 — Boss-script commons
+
+The grand-boss modules were ported one-file-per-boss and each grew its own copy
+of the same three helpers.
+
+| Helper | Copies |
+|---|---|
+| `set_status` (6 ln) | `antharas.rs:905`, `dr_chaos.rs:44`, `valakas.rs:773` |
+| `has_buff` (6 ln) | `antharas.rs:792`, `valakas.rs:425`, `auto_use.rs:451` |
+| `npc_regions…find(…)` (6 ln) | `antharas.rs:914`, `valakas.rs:782` |
+| `find_alive` (11 ln) | `baium.rs:474` (pairs with the `find` idiom above) |
+
+**Action.** A `game_loop/grand_boss.rs` commons section (the module already
+exists). Keep per-boss constants where they are — only the mechanics move.
+
+---
+
+## Phase 7 — Module twins
+
+Pairs of files that are near-copies. Lower priority: each needs a judgement call
+about whether the shared shape is real or coincidental.
+
+- `admin/mounts.rs` ↔ `admin/transforms.rs` — 7, 11 and 14-line clones
+- `clans/alliance.rs` ↔ `clans/membership.rs` — 7, 15 and 16-line clones
+- `auto_potions.rs` ↔ `auto_use.rs` — `carried` (13/11 ln), `has_buff`, `item_skills`
+- `combat/attack.rs` ↔ `combat/intent.rs` — `two_handed` (12 ln)
+- `db/commands.rs` ↔ `db/queries.rs` — insert/on-conflict blocks
+- `lottery.rs` ↔ `monster_race.rs` — ticket lookup + client send
+
+---
+
+## Phase 8 — Optional: `Path prefix not necessary`
+
+Not duplication, but RustRover flags it several hundred times: `crate::model::Player`
+written out where `Player` is already imported. Densest in `death/restart.rs`
+(19), `death/rewards.rs` (15), `admin/mod.rs` (60+), `skills/effects/mod.rs` (13).
+
+Phase 1 removes many of these incidentally. Do the rest as one mechanical sweep
+**after** phase 1, or not at all — it is pure noise reduction and will conflict
+with every other phase if done first.
+
+---
+
+## Excluded as intentional
+
+- `commons/src/system_messages/generated.rs` — ~4,100 `MessageInfo` repeats and
+  190 near-identical `SystemMessage::new` constructors. Machine-generated; the
+  repetition belongs to the generator.
+- `gameserver/src/scripts/*.rs` — quest scripts share a `QuestCtx` shape by
+  construction. Real hot spots exist (`q00260` vs `q00263` are 31 lines
+  identical; `q00125`/`q00126` repeat a 12-line block six times) but a faithful
+  one-file-per-quest port is a deliberate structure.
+- `models/src/entity/**` — SeaORM derive boilerplate, 95 files.
+- `network/server_packets/**` — `w.write_i32(…)` runs reflect the wire format.
+
+---
+
+## Reproducing the scan
+
+RustRover, per batch of ~25 files:
+
+```
+mcp__rustrover__lint_files(files=[…], min_severity="warning")
+```
+
+Filter for `"description": "Duplicated code fragment"`. Note it reports each
+anchor independently with no pairing — use the type-2 scanner at
+`~/dev/l2/_tooling/rust_clone_detect.py` to recover which sites pair with which:
+
+```
+WIN=5 MIN_COUNT=3 SKIP=generated.rs,/tests/,_tests.rs,/scripts/ python3 rust_clone_detect.py
+```
