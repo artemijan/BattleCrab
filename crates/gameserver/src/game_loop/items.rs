@@ -318,11 +318,7 @@ pub(crate) fn use_equipable_item(
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         let Some(template) = catalog.get(item.item_id) else {
@@ -449,9 +445,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         .objects
         .get_component::<Inventory>(&object_id)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == pkt.object_id)
+            inv.by_object_id(pkt.object_id)
                 .map(|it| (it.item_id, it.count))
         })
         .map(|(id, cnt)| {
@@ -584,9 +578,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
         .objects
         .get_component::<Inventory>(&player_oid)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == pkt.object_id)
+            inv.by_object_id(pkt.object_id)
                 // Java's first guard: `itemToRemove.isShadowItem() ||
                 // isTimeLimitedItem()` → plain `ActionFailed`, no message.
                 // Without it a coupon-bought shadow weapon could be melted
@@ -1007,11 +999,7 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         world
@@ -1599,11 +1587,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         let Some(template) = world.data.item_data.get(item.item_id) else {
@@ -1766,11 +1750,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         let Some(template) = world.data.item_data.get(item.item_id) else {

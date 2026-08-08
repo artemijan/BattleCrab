@@ -167,7 +167,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inv.items().iter().find(|i| i.object_id == item_object_id) else {
+        let Some(item) = inv.by_object_id(item_object_id) else {
             return;
         };
         item.item_id

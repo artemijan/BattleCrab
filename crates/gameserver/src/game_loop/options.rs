@@ -101,9 +101,7 @@ fn option_ids_of(world: &World, player_oid: i32, item_object_id: i32) -> Vec<i32
         .objects
         .get_component::<Inventory>(&player_oid)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == item_object_id)
+            inv.by_object_id(item_object_id)
                 .map(|it| (it.augment_option1, it.augment_option2))
         })
         .map(|(a, b)| [a, b].into_iter().filter(|&id| id != 0).collect())

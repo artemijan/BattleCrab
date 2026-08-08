@@ -425,6 +425,27 @@ pub(crate) fn stance_tick(world: &mut World) {
     }
 }
 
+/// Whether the actor's right hand holds a two-handed weapon
+/// (`SLOT_LR_HAND`) — the flag `Formulas.calculateTimeToHit` needs, since a
+/// two-hander lands its blow at a different point in the swing.
+///
+/// `false` for an empty hand and for anything with no inventory at all, both
+/// of which swing barehanded.
+pub(crate) fn wields_two_handed(world: &World, attacker_oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
+        .is_some_and(|inv| {
+            let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
+            rhand != 0
+                && world
+                    .data
+                    .item_data
+                    .get(rhand)
+                    .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
+        })
+}
+
 /// Port of `AttackStanceTaskManager.hasAttackStanceTask` — the actor is in
 /// combat stance (sword drawn), i.e. within 15 s of its last swing/hit. This is
 /// the state `Player.canLogout` uses to refuse a restart/logout while fighting.

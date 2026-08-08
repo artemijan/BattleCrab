@@ -121,7 +121,7 @@ pub fn inventory_update(
     w.write_u8(0x21);
     w.write_i16(changed_object_ids.len() as i16);
     for &object_id in changed_object_ids {
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else {
+        let Some(item) = inventory.by_object_id(object_id) else {
             continue;
         };
         let Some(template) = data.item_data.get(item.item_id) else {
@@ -156,7 +156,7 @@ pub fn inventory_update_added(
     w.write_u8(0x21);
     w.write_i16(added.len() as i16);
     for &(object_id, is_new) in added {
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else {
+        let Some(item) = inventory.by_object_id(object_id) else {
             continue;
         };
         let Some(template) = data.item_data.get(item.item_id) else {

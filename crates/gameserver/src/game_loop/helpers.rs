@@ -214,6 +214,24 @@ pub(crate) fn npc_id_of(world: &World, object_id: i32) -> Option<i32> {
         .map(|npc| npc.npc_id)
 }
 
+/// The object id of a **usable** instance of `item_id` the player is carrying,
+/// or `None` when they have none.
+///
+/// "Usable" is the `count > 0` filter: a stack that has been spent down to
+/// zero is still in the bag until the next inventory flush, and the auto-use
+/// scans must not keep firing at it.
+pub(crate) fn carried_item(world: &World, player_oid: i32, item_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.item_id == item_id && i.count > 0)
+                .map(|i| i.object_id)
+        })
+}
+
 /// The item id of one inventory instance, found by its object id. `None` if the
 /// owner has no [`Inventory`] or is not holding that instance — the two cases
 /// callers treat alike, since both mean "not theirs to act on".
@@ -221,12 +239,7 @@ pub(crate) fn item_id_of(world: &World, owner_object_id: i32, item_object_id: i3
     world
         .objects
         .get_component::<Inventory>(&owner_object_id)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == item_object_id)
-                .map(|it| it.item_id)
-        })
+        .and_then(|inv| inv.by_object_id(item_object_id).map(|it| it.item_id))
 }
 
 /// The additive modifier standing on `stat`, defaulting to the additive

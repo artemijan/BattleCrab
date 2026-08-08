@@ -1869,9 +1869,7 @@ fn levelling_stamps_the_pets_level_onto_its_collar() {
         .objects
         .get_component::<crate::model::inventory::Inventory>(&OWNER)
         .unwrap()
-        .items()
-        .iter()
-        .find(|i| i.object_id == collar)
+        .by_object_id(collar)
         .unwrap()
         .enchant_level;
     assert_eq!(enchant, 2, "the collar reads +2 once the pet hits level 2");

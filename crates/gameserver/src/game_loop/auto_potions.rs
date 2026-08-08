@@ -16,7 +16,6 @@
 
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
-use crate::model::inventory::Inventory;
 use crate::world::World;
 
 use super::helpers::client_for_player;
@@ -109,7 +108,9 @@ fn run_for_player(world: &mut World, player_oid: i32, cfg: &crate::config::AutoP
         // Java walks the id list and sets `success` on the first one the player
         // *carries*, drinking only if the pool is actually low.
         for &item_id in &pool.item_ids {
-            let Some(item_object_id) = carried(world, player_oid, item_id) else {
+            let Some(item_object_id) =
+                crate::game_loop::helpers::carried_item(world, player_oid, item_id)
+            else {
                 continue;
             };
             carries_any = true;
@@ -129,18 +130,6 @@ fn run_for_player(world: &mut World, player_oid: i32, cfg: &crate::config::AutoP
 
 /// The object id of the first instance of `item_id` the player carries, if any
 /// (Java `getInventory().getItemByItemId`).
-fn carried(world: &World, player_oid: i32, item_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.item_id == item_id && i.count > 0)
-                .map(|i| i.object_id)
-        })
-}
-
 fn message(world: &World, client_id: u32, text: &str) {
     crate::game_loop::admin::send_message(world, client_id, text);
 }

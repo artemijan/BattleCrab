@@ -228,6 +228,17 @@ impl Inventory {
         self.items.iter().find(|i| i.item_id == item_id)
     }
 
+    /// Java `Inventory.getItemByObjectId` — one specific instance in this bag,
+    /// or `None` when it isn't here.
+    ///
+    /// The object-id counterpart of [`first_of_item`](Self::first_of_item), and
+    /// the shape every packet handler needs: the client names the instance it
+    /// acted on, and "not in this inventory" is the same refusal as "no such
+    /// item".
+    pub fn by_object_id(&self, object_id: i32) -> Option<&ItemInstance> {
+        self.items.iter().find(|i| i.object_id == object_id)
+    }
+
     /// Serialize the whole inventory to `items` rows for a persistence flush
     /// (`PlayerSaveData`) — the inverse of [`from_rows`](Self::from_rows). An
     /// equipped instance gets `loc="PAPERDOLL"` with `loc_data` = its paperdoll

@@ -630,12 +630,7 @@ fn move_to_attachments(
     let enchant = world
         .objects
         .get_component::<Inventory>(&player)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == object_id)
-                .map(|it| it.enchant_level)
-        })
+        .and_then(|inv| inv.by_object_id(object_id).map(|it| it.enchant_level))
         .unwrap_or(0);
     // A partial stack leaves the original id with the sender.
     let dst_oid = if moved < have {

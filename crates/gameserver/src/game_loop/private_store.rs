@@ -170,7 +170,7 @@ pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
         let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
             return;
         };
-        let Some(inst) = inv.items().iter().find(|it| it.object_id == obj_id) else {
+        let Some(inst) = inv.by_object_id(obj_id) else {
             continue;
         };
         // Can't sell equipped/quest/untradable items, or more than held.

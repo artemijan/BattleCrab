@@ -160,9 +160,7 @@ pub(crate) fn decrease_mana(
         .objects
         .get_component::<Inventory>(&player_oid)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == item_oid)
+            inv.by_object_id(item_oid)
                 .map(|it| (it.item_id, it.mana_left))
         })
     else {

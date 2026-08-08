@@ -1351,12 +1351,7 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     let Some((item_id, held)) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&owner)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == object_id)
-                .map(|i| (i.item_id, i.count))
-        })
+        .and_then(|inv| inv.by_object_id(object_id).map(|i| (i.item_id, i.count)))
     else {
         return;
     };
@@ -1423,12 +1418,7 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
     let Some((item_id, held)) = world
         .objects
         .get_component::<crate::model::inventory::PetInventory>(&owner)
-        .and_then(|pi| {
-            pi.0.items()
-                .iter()
-                .find(|i| i.object_id == object_id)
-                .map(|i| (i.item_id, i.count))
-        })
+        .and_then(|pi| pi.0.by_object_id(object_id).map(|i| (i.item_id, i.count)))
     else {
         return;
     };
@@ -1458,9 +1448,7 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
         .get_component_mut::<crate::model::inventory::Inventory>(&owner)
         .map(|inv| {
             let oid = inv.add_item(&data.item_data, next_oid, item_id, count);
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == oid)
+            inv.by_object_id(oid)
                 .cloned()
                 .map(crate::model::inventory::ItemChange::Modified)
                 .into_iter()
@@ -1490,12 +1478,7 @@ pub(crate) fn handle_pet_use_item(world: &mut World, client_id: u32, body: &[u8]
     let Some(item_id) = world
         .objects
         .get_component::<crate::model::inventory::PetInventory>(&owner)
-        .and_then(|pi| {
-            pi.0.items()
-                .iter()
-                .find(|i| i.object_id == object_id)
-                .map(|i| i.item_id)
-        })
+        .and_then(|pi| pi.0.by_object_id(object_id).map(|i| i.item_id))
     else {
         return;
     };

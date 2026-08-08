@@ -244,18 +244,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // Land the damage at `timeToHit`, like a creature swing (Java `doAttack`
     // schedules `onHitTimeNotDual`); the shared `AttackHit` task carries the
     // door branch, and the seq guard drops it if the swing is aborted.
-    let two_handed = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
-        .is_some_and(|inv| {
-            let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
-            rhand != 0
-                && world
-                    .data
-                    .item_data
-                    .get(rhand)
-                    .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
-        });
+    let two_handed = super::wields_two_handed(world, attacker_oid);
     let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
     world.scheduler.schedule(
         now + ms_to_ticks(time_to_hit),

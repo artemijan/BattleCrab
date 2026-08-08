@@ -329,9 +329,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         .objects
         .get_component::<Inventory>(&player_oid)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == pkt.object_id)
+            inv.by_object_id(pkt.object_id)
                 .map(|it| (it.item_id, it.count, it.enchant_level))
         })
         .map(|(id, cnt, ench)| {

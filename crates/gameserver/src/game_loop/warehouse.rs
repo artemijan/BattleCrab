@@ -222,7 +222,7 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
             let Some((item_id, stackable)) = world
                 .objects
                 .get_component::<Inventory>(&player_oid)
-                .and_then(|inv| inv.items().iter().find(|i| i.object_id == obj_id))
+                .and_then(|inv| inv.by_object_id(obj_id))
                 .and_then(|i| {
                     world
                         .data
@@ -352,9 +352,7 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
             container_ref(world, player_oid, tgt)
         };
         src.and_then(|c| {
-            c.items()
-                .iter()
-                .find(|it| it.object_id == obj_id)
+            c.by_object_id(obj_id)
                 .map(|it| (it.item_id, it.count, it.enchant_level, it.mana_left))
         })
     };

@@ -47,7 +47,7 @@ fn item_facts(world: &World, player: i32, object_id: i32) -> Option<(i32, i32)> 
     world
         .objects
         .get_component::<Inventory>(&player)
-        .and_then(|inv| inv.items().iter().find(|it| it.object_id == object_id))
+        .and_then(|inv| inv.by_object_id(object_id))
         .map(|it| (it.item_id, it.enchant_level))
 }
 

@@ -3696,9 +3696,7 @@ fn enchant_scroll_success_and_failure() {
         w.objects
             .get_component::<Inventory>(&9800)
             .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.object_id == sword_oid)
+            .by_object_id(sword_oid)
             .map(|it| it.enchant_level)
     };
     assert_eq!(level(&world), Some(1), "success: +0 → +1");
@@ -3865,12 +3863,7 @@ fn enchant_support_item_bonus_and_consume() {
     on_packet(&mut world, 1, enchant);
 
     let inv = world.objects.get_component::<Inventory>(&9850).unwrap();
-    let level = inv
-        .items()
-        .iter()
-        .find(|it| it.object_id == sword)
-        .unwrap()
-        .enchant_level;
+    let level = inv.by_object_id(sword).unwrap().enchant_level;
     assert_eq!(level, 4, "support bonus carried the +3 → +4 enchant");
     assert_eq!(inv.count_of(12362), 0, "support consumed");
     assert_eq!(inv.count_of(955), 0, "scroll consumed");
@@ -5360,9 +5353,7 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
         w.objects
             .get_component::<Inventory>(&PLAYER)
             .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.object_id == sword_oid)
+            .by_object_id(sword_oid)
             .map(|it| it.enchant_level)
             .unwrap()
     };
@@ -5476,9 +5467,7 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
         w.objects
             .get_component::<Inventory>(&PLAYER)
             .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.object_id == sword_oid)
+            .by_object_id(sword_oid)
             .map(|it| it.enchant_level)
             .unwrap()
     };

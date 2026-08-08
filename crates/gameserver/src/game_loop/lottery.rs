@@ -514,7 +514,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32) -> Option<()> {
         .unwrap();
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
         inv.set_lotto_fields(ticket_oid, round, enchant, type2);
-        if let Some(it) = inv.items().iter().find(|i| i.object_id == ticket_oid) {
+        if let Some(it) = inv.by_object_id(ticket_oid) {
             changes.push(ItemChange::Modified(*it));
         }
     }
@@ -616,7 +616,7 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
     if prize > 0
         && let Some(oids) = super::items::add_inventory_item(world, player, ADENA_ID, prize)
         && let Some(inv) = world.objects.get_component::<Inventory>(&player)
-        && let Some(it) = inv.items().iter().find(|i| i.object_id == oids[0])
+        && let Some(it) = inv.by_object_id(oids[0])
     {
         changes.push(ItemChange::Modified(*it));
     }

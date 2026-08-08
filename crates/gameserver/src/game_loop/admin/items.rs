@@ -262,7 +262,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     let players: Vec<i32> = world.in_game_player_oids().collect();
     let owned = players.into_iter().find_map(|oid| {
         let inv = world.objects.get_component::<Inventory>(&oid)?;
-        let stack = inv.items().iter().find(|it| it.object_id == item_oid)?;
+        let stack = inv.by_object_id(item_oid)?;
         Some((oid, stack.count))
     });
     let Some((owner, stack_count)) = owned else {

@@ -858,7 +858,7 @@ fn find_published_item(world: &World, object_id: i32) -> Option<(ItemInstance, b
         let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
             continue;
         };
-        if let Some(item) = inv.items().iter().find(|i| i.object_id == object_id) {
+        if let Some(item) = inv.by_object_id(object_id) {
             let equipped = inv.paperdoll_slot_of(object_id).is_some();
             return Some((*item, equipped));
         }

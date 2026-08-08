@@ -80,7 +80,9 @@ fn run_for_player(world: &mut World, player_oid: i32) {
 fn use_supply_items(world: &mut World, player_oid: i32) {
     let ids = setting_list(world, player_oid, |s| &s.supply_items);
     for item_id in ids {
-        let Some(item_object_id) = carried(world, player_oid, item_id) else {
+        let Some(item_object_id) =
+            crate::game_loop::helpers::carried_item(world, player_oid, item_id)
+        else {
             forget_item(world, player_oid, item_id);
             continue;
         };
@@ -121,7 +123,8 @@ fn use_potion(world: &mut World, player_oid: i32) {
     if item_id <= 0 {
         return;
     }
-    let Some(item_object_id) = carried(world, player_oid, item_id) else {
+    let Some(item_object_id) = crate::game_loop::helpers::carried_item(world, player_oid, item_id)
+    else {
         // `setAutoPotionItem(0)` — the slot empties itself.
         let mut s = settings(world, player_oid);
         s.potion_item = 0;
@@ -409,18 +412,6 @@ fn forget_skill(world: &mut World, player_oid: i32, skill_id: i32, buff: bool) {
         s.skills.retain(|&x| x != skill_id);
     }
     store(world, player_oid, s);
-}
-
-fn carried(world: &World, player_oid: i32, item_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.item_id == item_id && i.count > 0)
-                .map(|i| i.object_id)
-        })
 }
 
 fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {

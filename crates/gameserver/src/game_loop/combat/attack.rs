@@ -53,18 +53,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
     // Two-handed timing needs the weapon's body part — item kinds are parsed
     // (G5), so check the equipped right hand for SLOT_LR_HAND.
-    let two_handed = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
-        .is_some_and(|inv| {
-            let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
-            rhand != 0
-                && world
-                    .data
-                    .item_data
-                    .get(rhand)
-                    .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
-        });
+    let two_handed = super::wields_two_handed(world, attacker_oid);
     let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
 
     // Face the target (Java `setHeading(calculateHeadingFrom(...))`).
