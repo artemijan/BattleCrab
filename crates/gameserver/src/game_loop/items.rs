@@ -854,6 +854,11 @@ pub(crate) fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) 
     // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
     // robe is worn or removed. Resends its own UserInfo when the set changed.
     crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
+    // Java `Inventory.ArmorSetListener` — the same paperdoll listener chain.
+    // Runs last because it re-pumps the conditioned passives itself once the
+    // granted set actually moved, and re-composes `BaseStats` for a `<stats>`
+    // set completing or breaking.
+    crate::game_loop::armor_sets::refresh_armor_sets(world, object_id);
 }
 
 /// The unequip Java runs for free when a *worn* item leaves the bag:

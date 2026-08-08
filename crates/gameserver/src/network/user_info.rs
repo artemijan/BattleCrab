@@ -6,7 +6,8 @@
 //! inventory limits are real; the one block still written as its empty default
 //! is the **elemental** attack/defence attribute, which no Interlude item or
 //! skill sets. The armor-set min-enchant byte is likewise 0 — see the note at
-//! the ENCHANTLEVEL block, which is a genuine gap rather than a dead field.
+//! the ENCHANTLEVEL block, which now carries the worn armor sets' enchant
+//! floor (`game_loop::armor_sets`).
 
 use commons::network::PacketWriter;
 
@@ -143,23 +144,16 @@ pub fn user_info(
     w.write_i64(p.exp);
     w.write_f64(p.exp_percent(data));
 
-    // ENCHANTLEVEL — weapon enchant (R-hand). The armor min-enchant byte stays
-    // 0 because `ArmorSetData` is unported *in its entirety* — not just this
-    // byte. Java's `getArmorMinEnchant` is the paperdoll cache's max *set*
-    // enchant, which is 0 with no recognized set.
-    //
-    // TODO(armor-sets): the whole system. `ROADMAP.md` defers `ArmorSetData`
-    // (set bonuses + `getArmorMinEnchant`) to **G19 "sets grant skills"**, and
-    // G19 closed ✅ without it — the gate was met on the effects breadth, and
-    // this rider went with it unnoticed. It is reachable, not off-chronicle:
-    // of the 317 sets in `data/stats/armorsets`, **37** have every required
-    // piece obtainable on this dist, and **19** of those grant a skill gated on
-    // `minimumEnchant` (the classic +6 set bonuses — e.g. pieces 58/59 → skill
-    // 3612, 352/2378 → 3611). A player wearing a full +6 set today gets the
-    // item stats and none of the set bonus.
+    // ENCHANTLEVEL — weapon enchant (R-hand) then Java's `getArmorMinEnchant()`:
+    // the best enchant *floor* across the worn armor sets. The name reads
+    // backwards — it is a max over each set's minimum piece — and it is what
+    // draws the +6 set glow.
     w.write_i16(UserInfoType::EnchantLevel.block_length() as i16);
     w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8);
-    w.write_u8(0);
+    w.write_u8(
+        crate::game_loop::armor_sets::max_set_enchant_for(&data.armor_sets, inventory)
+            .clamp(0, u8::MAX as i32) as u8,
+    );
 
     // APPAREANCE (sic)
     w.write_i16(UserInfoType::Appearance.block_length() as i16);

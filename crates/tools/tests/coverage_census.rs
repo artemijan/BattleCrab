@@ -471,11 +471,10 @@ fn deferral_markers_match_the_recorded_inventory() {
     // and that is a correction rather than a regression. These six gaps were all
     // sitting in the tree as untagged prose — invisible here by construction —
     // and each was confirmed against the datapack before being written down.
-    // `armor-sets` is the one that matters: ROADMAP defers `ArmorSetData` to
-    // G19, and G19 closed ✅ without it.
+    // `armor-sets` was the one that mattered and is now closed — `ArmorSetData`
+    // is ported (`data::armor_set_data` + `game_loop::armor_sets`).
     let expected: &[(&str, usize)] = &[
         ("admin-tail", 5),
-        ("armor-sets", 1),
         ("enchant-guard", 1),
         ("enchant-random", 1),
         ("frintezza-cam", 1),

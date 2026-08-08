@@ -1407,7 +1407,7 @@ pub struct ClientPos {
 /// STR/DEX/CON/INT/WIT/MEN (player-only for now — NPC base stats stay on the
 /// template until something buffs them). Inputs to the stat finalizers and
 /// the regen bonuses.
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BaseStats {
     pub str_: i32,
     pub dex: i32,

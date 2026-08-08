@@ -92,6 +92,11 @@ pub struct CharInfoState {
     pub clan_reputation: i32,
     /// Java `getFishing().getBaitLocation()`, `Some` only while fishing.
     pub fishing_bait: Option<(i32, i32, i32)>,
+    /// Java `getInventory().getArmorMinEnchant()` — the worn armor sets' best
+    /// enchant floor, which is what draws the +6 set glow on other players.
+    /// Passed in rather than derived here because the packet builder has no
+    /// `GameData` to reach `ArmorSetData` through.
+    pub armor_min_enchant: u8,
 }
 
 /// Port of `serverpackets/CharInfo` — how this player appears on *other*
@@ -142,7 +147,7 @@ pub fn char_info(
         w.write_i32(augment.map_or(0, |a| a.0));
         w.write_i32(augment.map_or(0, |a| a.1));
     }
-    w.write_u8(0); // armor min enchant
+    w.write_u8(state.armor_min_enchant);
     for slot in CHAR_INFO_PAPERDOLL_ORDER_VISUAL_ID {
         let visual_id = inventory.paperdoll_visual_id(slot);
         w.write_i32(visual_id);

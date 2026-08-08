@@ -263,7 +263,10 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
                 // sit in the live book while transformed but are session-only
                 // (Java `_transformSkills`, never written by `storeSkills`) —
                 // a flush mid-transform must not turn them into learned rows.
-                .filter(|(id, _)| !world.data.transforms.is_transform_skill(**id))
+                .filter(|(id, _)| {
+                    !world.data.transforms.is_transform_skill(**id)
+                        && !world.data.armor_sets.is_armor_set_skill(**id)
+                })
                 // The GM convenience kits are the same shape: granted at
                 // enter-world with Java's `addSkill(skill, false)`, so they
                 // must not survive as learned rows — otherwise turning
@@ -366,7 +369,10 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     // Same session-only filter as the active book above, for banked subclass
     // books (a transform active at subclass-swap time would bank its skills).
     for book in skills_by_index.values_mut() {
-        book.retain(|&(id, _, _)| !world.data.transforms.is_transform_skill(id));
+        book.retain(|&(id, _, _)| {
+            !world.data.transforms.is_transform_skill(id)
+                && !world.data.armor_sets.is_armor_set_skill(id)
+        });
     }
     // The banked maps are a **login-time** snapshot, refreshed only when a
     // subclass swap banks the outgoing slot (`subclass::do_switch`) — so the

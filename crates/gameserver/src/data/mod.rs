@@ -4,6 +4,7 @@
 
 pub mod action_data;
 pub mod admin_data;
+pub mod armor_set_data;
 pub mod buy_list_data;
 pub mod castle_siege_guards;
 pub mod castle_zone_data;
@@ -231,6 +232,7 @@ pub struct GameData {
     /// Gatekeeper teleport lists (G15.5), see [`TeleporterData`].
     pub teleporters: TeleporterData,
     pub transforms: TransformData,
+    pub armor_sets: armor_set_data::ArmorSetData,
     /// Enchant chance engine (rate groups + branded scrolls), see [`EnchantData`].
     pub enchant: EnchantData,
     /// Skill-enchant cost table — see [`EnchantSkillGroups`].
@@ -319,6 +321,7 @@ impl GameData {
             ),
             teleporters: TeleporterData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
+            armor_sets: armor_set_data::ArmorSetData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
             enchant_skill_groups: EnchantSkillGroups::load_from(file_path),
             variations: VariationData::load_from(file_path),
@@ -394,6 +397,7 @@ impl GameData {
             residence_functions: residence_function_data::ResidenceFunctionData::default(),
             teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),
+            armor_sets: armor_set_data::ArmorSetData::empty(),
             enchant: EnchantData::empty(),
             enchant_skill_groups: EnchantSkillGroups::empty(),
             variations: VariationData::empty(),
