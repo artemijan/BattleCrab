@@ -14,6 +14,44 @@ separate commit that must leave `cargo test` green.
 
 ---
 
+## Status — all eight phases complete
+
+Actual: **−1,400 lines net**, inside the estimate. Commit shas below are from
+the final rebase and will move if this branch is rebased again.
+
+What the estimate got wrong, and why it is worth knowing:
+
+- **Three families were larger than the inspection reported** — `class_level`
+  had 3 copies not 2, `find_alive` 3 not 1, and the `by_object_id` idiom 39
+  sites the inspection never grouped at all. RustRover reports *anchors*, not
+  clusters; checking a helper's callers found what the tool could not.
+- **Two "clones" were false positives** — `warn_err` and the `db` items-insert
+  pair share a sea-orm column list, which is the table's shape rather than
+  duplicated logic. Both dropped, with reasons recorded in their phases.
+- **One phase added lines** (4c, ~+70) and was still worth doing: a transposed
+  argument is now a compile error.
+- **One doc comment described behaviour that did not exist**
+  (`antharas::group_of`, phase 3) — recorded as `TODO(antharas-cc)` rather than
+  quietly implemented.
+
+Still open, carried from phase 2: **28 inline `is_some_and(|v| v.dead)`
+chains** across 23 files. These are the permissive spelling of the dead check
+and each needs the same per-site audit the six `is_dead` helpers got; flipping
+them unexamined is exactly the silent semantic change phase 2 existed to avoid.
+
+### Re-running the analysis
+
+The RustRover MCP indexes the **main checkout**, so anchors from a run while
+work sits unmerged in a worktree describe `main`, not the tree being edited.
+Verify with the standalone scanner pointed at the worktree instead —
+`~/dev/l2/_tooling/rust_clone_detect.py`, editing its `ROOT`.
+
+And prefer grepping for the *operation* over the helper name: baium's copy of
+`set_status` was inline with no function to find, and only a search for
+`grand_bosses.get_mut` followed by `.status =` turned it up.
+
+---
+
 ## Ground rules
 
 1. One phase per commit. `cargo check --all-targets && cargo test` between each.
@@ -481,7 +519,24 @@ about whether the shared shape is real or coincidental.
 
 ---
 
-## Phase 8 — Optional: `Path prefix not necessary`
+## Phase 8 — `Path prefix not necessary` ✅ **done** (`e036d95c`, `e31b5981`)
+
+**143 sites across 53 files**, not the "several hundred" the inspection
+reports. The rule used here is deliberately narrower: a path is shortened only
+when the *same file* has a top-level `use` naming that exact path. Aliased
+imports, `use super::*` globs and parent-module imports are left alone — none
+of them proves the short name resolves to the same item, and the inspection's
+larger count is mostly those.
+
+Most of these had been split across three lines by rustfmt, so the diff removes
+about twice as many lines as it adds.
+
+`cargo doc --no-deps` was run alongside check/clippy/test: intra-doc links
+resolve names the same way as code, so a bad shortening would break them
+silently rather than failing the build. The three link warnings it reports are
+pre-existing and in files this did not touch.
+
+### Original note
 
 Not duplication, but RustRover flags it several hundred times: `crate::model::Player`
 written out where `Player` is already imported. Densest in `death/restart.rs`
