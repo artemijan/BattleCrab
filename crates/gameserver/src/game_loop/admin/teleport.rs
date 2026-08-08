@@ -17,7 +17,10 @@ use super::{find_online_player, send_message, send_sm};
 /// adds `baseSpeed * boost` as a fixed value to each speed stat, i.e. total =
 /// `baseSpeed * (1 + boost)`; the Rust move model already carries a
 /// `move_multiplier`, so `1 + boost` is the exact equivalent (boost 0 resets).
-/// Range 0..=10, matching Java's custom clamp. NPC targets are TODO.
+/// Range 0..=10, matching Java's custom clamp.
+///
+/// TODO(admin-tail): Java also accepts an **NPC** target here; this only scales
+/// players.
 pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(boost) = args
         .first()
@@ -75,7 +78,10 @@ pub(super) fn admin_move_to(world: &mut World, client_id: u32, object_id: i32, a
 }
 
 /// `AdminTeleport`'s coordinate form (`//teleport x y z`) — send the GM to an
-/// explicit location. The menu/target-teleport variants are TODO.
+/// explicit location.
+///
+/// TODO(admin-tail): the menu and target-teleport variants (`//teleportto`,
+/// the html picker) are not wired.
 pub(super) fn admin_teleport_coords(
     world: &mut World,
     client_id: u32,

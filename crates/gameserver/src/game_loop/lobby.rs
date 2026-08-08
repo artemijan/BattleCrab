@@ -529,7 +529,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
 
     // The enter-world packet burst (EnterWorld.runImpl). Inventory real as
     // of G5, skills G6, shortcuts/macros G9.6, friends G10, quest lists
-    // G11; henna/mail still empty (TODOs in `enter_world`).
+    // G11, henna G16, mail G30 — the henna block goes out below and the
+    // unread-mail notice rides `mail::on_enter_world` at the end of the burst.
     session.send(user_info(
         &view,
         data,

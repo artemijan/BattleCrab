@@ -159,7 +159,11 @@ fn set_monsters_count(world: &mut World, instance_id: i32, spawned: usize) {
 // and social beats, and the hand-back that starts the fight — as a
 // `ScheduledTask::FrintezzaIntro` step machine. The exhaustive dummy-anchored
 // `SpecialCamera` choreography (~20 shots) is abbreviated to the establishing
-// beats; the remaining cosmetics are a TODO.
+// beats.
+//
+// TODO(frintezza-cam): the remaining shots. Purely cosmetic — the fight, the
+// spawns and the hand-back are all faithful — but reachable by anyone who
+// clears the tomb, so it is a real difference a player would see.
 // ---------------------------------------------------------------------------
 
 const FRINTEZZA: i32 = 29045;

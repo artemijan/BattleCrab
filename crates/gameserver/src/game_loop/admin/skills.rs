@@ -10,8 +10,10 @@ use crate::world::World;
 use super::send_message;
 
 /// `AdminSkill`'s `//add_skill <id> [level]` — grant a skill to the targeted
-/// player (or self) and refresh their skill list. Passive stat effects apply on
-/// the next recompute/relog (the full immediate-passive path is TODO).
+/// player (or self) and refresh their skill list.
+///
+/// TODO(admin-tail): passive stat effects only apply on the next
+/// recompute/relog — Java recomputes immediately on grant.
 pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
         send_message(world, client_id, "Usage: //add_skill <id> [level]");
@@ -316,8 +318,9 @@ pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str,
     let path = match command {
         "admin_skill_list" | "admin_show_skills" => "skills.htm".to_string(),
         "admin_skill_index" => format!("skills/{}.htm", args.first().copied().unwrap_or("1")),
-        // `//remove_skills` is a generated char-skill list in Java; we fall back
-        // to the static skills page (the per-char generated page is TODO).
+        // TODO(admin-tail): `//remove_skills` is a *generated* per-character
+        // skill list in Java; we fall back to the static skills page, so the GM
+        // cannot actually pick a skill to remove from it.
         _ => "skills.htm".to_string(),
     };
     super::menu::show_admin_html(world, client_id, &path);

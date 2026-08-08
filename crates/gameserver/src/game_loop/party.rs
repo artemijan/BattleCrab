@@ -164,8 +164,17 @@ pub(crate) fn calculate_relation(world: &World, player: &Player) -> i32 {
 /// (which is `UserInfo`'s): here clan member is `0x40` and the clan-leader bit
 /// (the one that draws the on-head crown) is `0x80`. Only the target-independent
 /// bits the port models are produced; the siege enemy/ally bits are folded in
-/// per-viewer by the caller, and clan-mate (`0x100`)/ally/party-index encoding
-/// are TODO (they need the viewer and a fuller party model).
+/// per-viewer by the caller.
+///
+/// Clan-mate (`0x100`) and ally genuinely belong to the caller — Java decides
+/// both against the *viewer's* clan, so a target-independent base cannot carry
+/// them. The party-index encoding is a different story and the "fuller party
+/// model" this comment used to blame no longer applies: `World.parties` has the
+/// ordered member list Java's `PARTY1..4` bits are derived from.
+///
+/// TODO(relation-bits): the `PARTY1..4` slot encoding (`Player.getRelation`,
+/// the `0x1`-`0x8` block) — the client draws each member's party number from
+/// it, so every party member currently shows an unnumbered relation.
 pub(crate) fn relation_changed_base(world: &World, oid: i32) -> i32 {
     let Some(p) = world.objects.get_component::<Player>(&oid) else {
         return 0;

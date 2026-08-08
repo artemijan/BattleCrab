@@ -2,8 +2,11 @@
 //! the client everything about its own character. We send **all 23
 //! `UserInfoType` blocks** (Java `new UserInfo(player)`), so the mask is
 //! `[0xFF, 0xFF, 0xFE]` (reversed bit order, see `masks`) and the packet is
-//! self-consistent. Values not yet modeled (clan, elementals, inventory
-//! limits) are written as their empty defaults — see per-block TODOs.
+//! self-consistent. Clan (id, both crests, pledge type/class) and the
+//! inventory limits are real; the one block still written as its empty default
+//! is the **elemental** attack/defence attribute, which no Interlude item or
+//! skill sets. The armor-set min-enchant byte is likewise 0 — see the note at
+//! the ENCHANTLEVEL block, which is a genuine gap rather than a dead field.
 
 use commons::network::PacketWriter;
 
@@ -141,8 +144,19 @@ pub fn user_info(
     w.write_f64(p.exp_percent(data));
 
     // ENCHANTLEVEL — weapon enchant (R-hand). The armor min-enchant byte stays
-    // 0 until ArmorSetData is ported: Java's `getArmorMinEnchant` is the
-    // paperdoll cache's max *set* enchant, which is 0 with no recognized set.
+    // 0 because `ArmorSetData` is unported *in its entirety* — not just this
+    // byte. Java's `getArmorMinEnchant` is the paperdoll cache's max *set*
+    // enchant, which is 0 with no recognized set.
+    //
+    // TODO(armor-sets): the whole system. `ROADMAP.md` defers `ArmorSetData`
+    // (set bonuses + `getArmorMinEnchant`) to **G19 "sets grant skills"**, and
+    // G19 closed ✅ without it — the gate was met on the effects breadth, and
+    // this rider went with it unnoticed. It is reachable, not off-chronicle:
+    // of the 317 sets in `data/stats/armorsets`, **37** have every required
+    // piece obtainable on this dist, and **19** of those grant a skill gated on
+    // `minimumEnchant` (the classic +6 set bonuses — e.g. pieces 58/59 → skill
+    // 3612, 352/2378 → 3611). A player wearing a full +6 set today gets the
+    // item stats and none of the set bonus.
     w.write_i16(UserInfoType::EnchantLevel.block_length() as i16);
     w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8);
     w.write_u8(0);
