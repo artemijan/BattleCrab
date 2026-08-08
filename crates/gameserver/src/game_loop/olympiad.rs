@@ -18,6 +18,7 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
 use crate::model::olympiad::{
@@ -1349,14 +1350,6 @@ fn arena_match(world: &World, arena: i32) -> Option<&OlympiadMatch> {
         .find(|m| m.arena as i32 == arena)
 }
 
-fn player_name(world: &World, oid: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
-}
-
 /// Java `OlyManager` `watchmatch` / `RequestOlympiadMatchList`: send the list of
 /// ongoing matches a spectator can jump between.
 pub(crate) fn send_match_list(world: &World, client_id: u32) {
@@ -1368,8 +1361,8 @@ pub(crate) fn send_match_list(world: &World, client_id: u32) {
             arena: m.arena as i32,
             // A match in the live list is under way (post-countdown).
             running: true,
-            player_a: player_name(world, m.player_a),
-            player_b: player_name(world, m.player_b),
+            player_a: player_name_or_empty(world, m.player_a),
+            player_b: player_name_or_empty(world, m.player_b),
         })
         .collect();
     if let Some(cs) = world.clients.get(&client_id) {

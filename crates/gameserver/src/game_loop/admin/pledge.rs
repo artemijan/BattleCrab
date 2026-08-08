@@ -6,6 +6,7 @@
 //! land (G21/G24/G25).
 
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
+use crate::game_loop::helpers;
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
@@ -49,7 +50,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
     };
 
     let clan_id = guard::clan_of(world, target);
-    let target_name = guard::player_name(world, target).unwrap_or_default();
+    let target_name = helpers::player_name_or_empty(world, target);
 
     match action {
         "create" => {

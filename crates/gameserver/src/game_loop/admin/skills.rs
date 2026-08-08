@@ -2,6 +2,7 @@
 //! `AdminBuffs`' `//buff`/`//getbuffs`/`//stopbuff`/`//stopallbuffs`.
 
 use crate::game_loop::guard::{self, Guard, OrReject};
+use crate::game_loop::helpers;
 use crate::model::Player;
 use crate::model::components::{Buffs, SkillBook};
 use crate::network::server_packets::sm_ids;
@@ -133,7 +134,7 @@ fn give_all_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<(
     let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     super::death::reward_skills(world, target);
     refresh_skill_list(world, target);
-    let name = guard::player_name(world, target).unwrap_or_default();
+    let name = helpers::player_name_or_empty(world, target);
     send_message(
         world,
         client_id,
@@ -166,7 +167,7 @@ fn give_clan_skills(
     use crate::network::server_packets::SmParam;
     let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
-    let target_name = guard::player_name(world, target).unwrap_or_default();
+    let target_name = helpers::player_name_or_empty(world, target);
     // Java warns when the target isn't the leader but grants to the clan anyway.
     if world
         .clans
@@ -217,7 +218,7 @@ fn remove_all_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard
     // them, so they re-apply on relog.
     crate::game_loop::clans::remove_clan_skills_from_member(world, target);
     refresh_skill_list(world, target);
-    let name = guard::player_name(world, target).unwrap_or_default();
+    let name = helpers::player_name_or_empty(world, target);
     send_message(
         world,
         client_id,
@@ -255,7 +256,7 @@ fn get_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         }
     }
     refresh_skill_list(world, object_id);
-    let name = guard::player_name(world, target).unwrap_or_default();
+    let name = helpers::player_name_or_empty(world, target);
     send_message(
         world,
         client_id,
@@ -664,7 +665,7 @@ fn removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str])
             cs.send(packet);
         }
     }
-    let name = guard::player_name(world, target).unwrap_or_default();
+    let name = helpers::player_name_or_empty(world, target);
     send_message(
         world,
         client_id,

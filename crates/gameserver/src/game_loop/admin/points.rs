@@ -10,6 +10,7 @@ use crate::network::server_packets;
 use crate::world::World;
 
 use super::{menu::show_admin_html_replace, send_message, target_player};
+use crate::game_loop::helpers::player_name_or_empty;
 
 /// `Config.PC_CAFE_MAX_POINTS` — the stored-value ceiling, read from
 /// `config/Custom/PremiumSystem.ini` alongside the rest of the PC-café block.
@@ -38,7 +39,7 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
             send_message(world, client_id, "Invalid Value!");
             return;
         };
-        let name = name_of(world, target);
+        let name = player_name_or_empty(world, target);
         let cur = points_of(world, target);
         match action {
             "set" => {
@@ -192,7 +193,7 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
             send_message(world, client_id, "Invalid Value!");
             return;
         };
-        let name = name_of(world, target);
+        let name = player_name_or_empty(world, target);
         let cur = prime_of(world, target);
         match action {
             "set" => {
@@ -314,7 +315,7 @@ fn reward_online_prime(world: &mut World, gm_oid: i32, value: i32, range: i32) -
 fn show_primepoints_menu(world: &World, client_id: u32, object_id: i32) {
     let target = target_player(world, object_id);
     let points = format_adena(prime_of(world, target));
-    let name = name_of(world, target);
+    let name = player_name_or_empty(world, target);
     show_admin_html_replace(
         world,
         client_id,
@@ -353,7 +354,7 @@ fn set_prime(world: &mut World, target: i32, value: i32) {
 fn show_pccafe_menu(world: &World, client_id: u32, object_id: i32) {
     let target = target_player(world, object_id);
     let points = format_adena(points_of(world, target));
-    let name = name_of(world, target);
+    let name = player_name_or_empty(world, target);
     show_admin_html_replace(
         world,
         client_id,
@@ -375,14 +376,6 @@ fn set_points(world: &mut World, target: i32, value: i32) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.pccafe_points = capped;
     }
-}
-
-fn name_of(world: &World, target: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 /// Java `target.sendMessage(...)` — a system message to the target player (the

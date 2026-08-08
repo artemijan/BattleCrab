@@ -12,6 +12,7 @@
 //! player (Java's `Player._matchingRoom`), so the two can never disagree.
 
 use super::helpers::{send_sm_to_player as send_sm, send_to_player as send};
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
 use crate::model::matching_room::{MatchingMemberType, RoomKind, RoomLevelFilter};
@@ -43,13 +44,6 @@ fn level_of(world: &World, object_id: i32) -> i32 {
 
 pub(crate) fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
     send(world, object_id, packet);
-}
-
-fn name_of(world: &World, object_id: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map_or_else(String::new, |p| p.name.clone())
 }
 
 /// `PartyMatchingRoom.getMemberType` — a member is a `PARTY_MEMBER` only when
@@ -236,7 +230,7 @@ fn send_room_list(world: &World, player: i32, filter: RoomLevelFilter, location:
                 min_level: room.min_level,
                 max_level: room.max_level,
                 max_members: room.max_members,
-                leader_name: name_of(world, room.leader),
+                leader_name: player_name_or_empty(world, room.leader),
                 members: room
                     .all_members()
                     .into_iter()
@@ -446,7 +440,7 @@ fn add_member_party(world: &mut World, room_id: i32, player: i32) -> bool {
     broadcast_user_info(world, player);
 
     // Everyone already in the room learns about the newcomer...
-    let name = name_of(world, player);
+    let name = player_name_or_empty(world, player);
     let others: Vec<i32> = world
         .matching_rooms
         .get(room_id)
@@ -492,7 +486,7 @@ fn remove_member_party(world: &mut World, room_id: i32, player: i32, kicked: boo
     world.matching_rooms.add_to_waiting_list(player);
 
     if !room_deleted {
-        let name = name_of(world, player);
+        let name = player_name_or_empty(world, player);
         let members: Vec<i32> = world
             .matching_rooms
             .get(room_id)
@@ -723,7 +717,7 @@ pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body
         RequestKind::PartyRoomInvite { room_id },
         super::party::REQUEST_TIMEOUT_TICKS,
     );
-    let inviter = name_of(world, player);
+    let inviter = player_name_or_empty(world, player);
     let title = world
         .matching_rooms
         .get(room_id)

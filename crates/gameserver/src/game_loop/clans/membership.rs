@@ -165,7 +165,7 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
             world,
             player,
             sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
-            &[SmParam::Text(player_name(world, target_oid))],
+            &[SmParam::Text(player_name_or_empty(world, target_oid))],
         );
         return;
     }
@@ -189,7 +189,7 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
         target_oid,
         server_packets::ask_join_pledge(
             player,
-            &player_name(world, player),
+            &player_name_or_empty(world, player),
             pledge_type,
             &clan_name,
         ),
@@ -230,13 +230,13 @@ pub(crate) fn handle_request_answer_join_pledge(world: &mut World, client_id: u3
             world,
             player,
             sm_ids::YOU_DIDN_T_RESPOND_TO_S1_S_INVITATION_JOINING_HAS_BEEN_CANCELLED,
-            &[SmParam::Text(player_name(world, requestor))],
+            &[SmParam::Text(player_name_or_empty(world, requestor))],
         );
         send_sm_with(
             world,
             requestor,
             sm_ids::S1_DID_NOT_RESPOND_INVITATION_TO_THE_CLAN_HAS_BEEN_CANCELLED,
-            &[SmParam::Text(player_name(world, player))],
+            &[SmParam::Text(player_name_or_empty(world, player))],
         );
         return;
     }
@@ -346,7 +346,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     send_sm_with(world, player_oid, sm_ids::ENTERED_THE_CLAN, &[]);
     let joined = server_packets::system_message_with(
         sm_ids::S1_HAS_JOINED_THE_CLAN,
-        &[SmParam::Text(player_name(world, player_oid))],
+        &[SmParam::Text(player_name_or_empty(world, player_oid))],
     );
     broadcast_to_clan(world, clan_id, &joined);
 
@@ -555,7 +555,7 @@ pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32
         return;
     }
 
-    let name = player_name(world, player);
+    let name = player_name_or_empty(world, player);
     remove_clan_member(world, clan_id, player, now_millis() + CLAN_JOIN_PENALTY_MS);
 
     let withdrew = server_packets::system_message_with(
@@ -621,7 +621,7 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
         );
         return;
     }
-    if player_name(world, player).eq_ignore_ascii_case(&target_name) {
+    if player_name_or_empty(world, player).eq_ignore_ascii_case(&target_name) {
         send_sm_with(world, player, sm_ids::YOU_CANNOT_DISMISS_YOURSELF, &[]);
         return;
     }

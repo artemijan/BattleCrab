@@ -175,7 +175,7 @@ fn create_sub_pledge(
     let info =
         server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("checked above"));
     let leader_display_name = if leader_id != 0 {
-        player_name(world, leader_id)
+        player_name_or_empty(world, leader_id)
     } else {
         String::new()
     };

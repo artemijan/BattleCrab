@@ -10,6 +10,7 @@
 //! 60-minute re-entry gate survives a restart.
 
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -232,10 +233,10 @@ pub(crate) fn try_enter(world: &mut World, manager_oid: i32, player: i32) -> Ent
     let members = party.members.clone();
     for &mem in &members {
         if !quest_started_or_completed(world, mem, "Q00620_FourGoblets") {
-            return EnterOutcome::NoQuest(player_name(world, mem));
+            return EnterOutcome::NoQuest(player_name_or_empty(world, mem));
         }
         if item_count(world, mem, ENTRANCE_PASS) < 1 {
-            return EnterOutcome::NoPass(player_name(world, mem));
+            return EnterOutcome::NoPass(player_name_or_empty(world, mem));
         }
     }
     let sepulcher = manager_sepulcher(manager_id);
@@ -567,14 +568,6 @@ pub(crate) fn disable_charm_zone(world: &mut World, killer: i32, charm_skill: i3
             break;
         }
     }
-}
-
-fn player_name(world: &World, player: i32) -> String {
-    world
-        .objects
-        .get_component::<crate::model::Player>(&player)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 fn item_count(world: &World, player: i32, item_id: i32) -> i64 {

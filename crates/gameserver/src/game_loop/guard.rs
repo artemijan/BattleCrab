@@ -154,14 +154,6 @@ pub(crate) fn clan_of(world: &World, player_object_id: i32) -> Option<i32> {
         .filter(|&clan_id| clan_id != 0)
 }
 
-/// A player's character name.
-pub(crate) fn player_name(world: &World, player_object_id: i32) -> Option<String> {
-    world
-        .objects
-        .get_component::<Player>(&player_object_id)
-        .map(|p| p.name.clone())
-}
-
 /// An object's position.
 pub(crate) fn position(world: &World, object_id: i32) -> Option<Position> {
     world.objects.get_component::<Position>(&object_id).copied()

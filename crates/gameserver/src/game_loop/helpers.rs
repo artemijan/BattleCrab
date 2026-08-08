@@ -1,5 +1,6 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
+use crate::model::Player;
 use crate::model::components::{Position, StatModifiers};
 use crate::model::inventory::Inventory;
 use crate::model::npc::Npc;
@@ -36,6 +37,26 @@ pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
         .objects
         .get_component::<Position>(&object_id)
         .map(|p| (p.x, p.y, p.z))
+}
+
+/// A player's character name, or `None` once the object has left the world.
+///
+/// Prefer this whenever the caller can say something useful about a missing
+/// player; reach for [`player_name_or_empty`] only where Java would have
+/// formatted a `null` name into the message anyway.
+pub(crate) fn player_name(world: &World, object_id: i32) -> Option<String> {
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.name.clone())
+}
+
+/// A player's character name, empty when the object has left the world.
+///
+/// The shape every message-formatting call site wants — `SmParam::Text` and
+/// friends take a `String`, and an absent player formats as blank.
+pub(crate) fn player_name_or_empty(world: &World, object_id: i32) -> String {
+    player_name(world, object_id).unwrap_or_default()
 }
 
 /// Send one packet to a connected client — Java `GameClient.sendPacket`.

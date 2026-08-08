@@ -5,6 +5,7 @@
 
 use crate::enums::AdminTeleportType;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
+use crate::game_loop::helpers;
 use crate::model::Player;
 use crate::model::components::{RegionCell, Speeds};
 use crate::model::npc::Npc;
@@ -285,7 +286,7 @@ fn goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -
     } else if super::death::teleport_to_object(world, object_id, target) {
         // The confirmation stays gated on the teleport actually happening: a
         // target with no position is silently skipped, exactly as before.
-        let name = guard::player_name(world, target).unwrap_or_default();
+        let name = helpers::player_name_or_empty(world, target);
         send_message(
             world,
             client_id,

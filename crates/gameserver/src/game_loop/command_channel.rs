@@ -24,6 +24,7 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::party::{REQUEST_TIMEOUT_TICKS, broadcast_to_party, install_request};
+use crate::game_loop::helpers::player_name_or_empty;
 
 /// `RequestExAskJoinMPCC.askJoinMPCC`'s right-to-form constants: clan level
 /// ≥ 5 for a clan leader, the Strategy Guide item (not consumed), or pledge
@@ -45,14 +46,6 @@ fn send_text(world: &World, object_id: i32, text: &str) {
         sm_ids::S1_TEXT,
         &[SmParam::Text(text.to_string())],
     );
-}
-
-fn name_of(world: &World, object_id: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 pub(crate) fn party_id_of(world: &World, object_id: i32) -> Option<u32> {
@@ -197,7 +190,7 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
             requestor,
             &format!(
                 "{} doesn't have party and cannot be invited to Command Channel.",
-                name_of(world, target)
+                player_name_or_empty(world, target)
             ),
         );
         return;
@@ -207,7 +200,7 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
             world,
             requestor,
             sm_ids::C1_S_PARTY_IS_ALREADY_A_MEMBER_OF_THE_COMMAND_CHANNEL,
-            &[SmParam::PlayerName(name_of(world, target))],
+            &[SmParam::PlayerName(player_name_or_empty(world, target))],
         );
         return;
     }
@@ -236,7 +229,10 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
             world,
             requestor,
             sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
-            &[SmParam::PlayerName(name_of(world, target_leader))],
+            &[SmParam::PlayerName(player_name_or_empty(
+                world,
+                target_leader,
+            ))],
         );
         return;
     }
@@ -248,7 +244,7 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
         RequestKind::CommandChannelInvite,
         REQUEST_TIMEOUT_TICKS,
     );
-    let requestor_name = name_of(world, requestor);
+    let requestor_name = player_name_or_empty(world, requestor);
     send_sm(
         world,
         target_leader,
@@ -265,7 +261,7 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
         requestor,
         &format!(
             "You invited {} to your Command Channel.",
-            name_of(world, target_leader)
+            player_name_or_empty(world, target_leader)
         ),
     );
 }
@@ -301,7 +297,7 @@ pub(crate) fn add_party_to_channel(world: &mut World, cc_id: u32, party_id: u32)
         .get(&party_id)
         .map(|p| {
             (
-                name_of(world, p.leader()),
+                player_name_or_empty(world, p.leader()),
                 p.leader(),
                 p.members.len() as i32,
             )
@@ -448,7 +444,7 @@ pub(crate) fn remove_party_from_channel(world: &mut World, cc_id: u32, party_id:
         .get(&party_id)
         .map(|p| {
             (
-                name_of(world, p.leader()),
+                player_name_or_empty(world, p.leader()),
                 p.leader(),
                 p.members.len() as i32,
             )
@@ -502,7 +498,7 @@ pub(crate) fn handle_request_ex_oust_from_mpcc(world: &mut World, client_id: u32
     let ousted_leader_name = world
         .parties
         .get(&target_party)
-        .map(|p| name_of(world, p.leader()))
+        .map(|p| player_name_or_empty(world, p.leader()))
         .unwrap_or_default();
 
     remove_party_from_channel(world, cc_id, target_party);
@@ -641,7 +637,7 @@ pub(crate) fn on_party_leader_changed(
         world,
         cc_id,
         sm_ids::COMMAND_CHANNEL_AUTHORITY_HAS_BEEN_TRANSFERRED_TO_C1,
-        &[SmParam::PlayerName(name_of(world, new_leader))],
+        &[SmParam::PlayerName(player_name_or_empty(world, new_leader))],
     );
 }
 
@@ -793,7 +789,7 @@ pub(crate) fn cc_room_add_member(world: &mut World, room_id: i32, player: i32) -
     super::party_room::set_in_room_flag(world, player, true);
     super::party::broadcast_user_info(world, player);
 
-    let name = name_of(world, player);
+    let name = player_name_or_empty(world, player);
     let (class_id, level) = world
         .objects
         .get_component::<Player>(&player)
@@ -948,7 +944,7 @@ pub(crate) fn handle_request_ex_list_mpcc_waiting(world: &mut World, client_id: 
                 max_level: room.max_level,
                 location: super::party_room::location_of(world, room.leader),
                 max_members: room.max_members,
-                leader_name: name_of(world, room.leader),
+                leader_name: player_name_or_empty(world, room.leader),
             })
         })
         .collect();
@@ -1090,7 +1086,7 @@ pub(crate) fn handle_request_ex_mpcc_partymaster_list(world: &mut World, client_
         else {
             continue;
         };
-        let name = name_of(world, leader);
+        let name = player_name_or_empty(world, leader);
         if !names.contains(&name) {
             names.push(name);
         }

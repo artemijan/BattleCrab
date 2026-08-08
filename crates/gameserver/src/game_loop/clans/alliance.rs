@@ -416,7 +416,7 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
             world,
             player,
             sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
-            &[SmParam::Text(player_name(world, target_oid))],
+            &[SmParam::Text(player_name_or_empty(world, target_oid))],
         );
         return;
     }
@@ -438,12 +438,12 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
             sm_ids::S1_LEADER_S2_HAS_REQUESTED_AN_ALLIANCE,
             &[
                 SmParam::Text(ally_name),
-                SmParam::Text(player_name(world, player)),
+                SmParam::Text(player_name_or_empty(world, player)),
             ],
         ));
         cs.send(server_packets::ask_join_ally(
             player,
-            &player_name(world, player),
+            &player_name_or_empty(world, player),
         ));
     }
 }

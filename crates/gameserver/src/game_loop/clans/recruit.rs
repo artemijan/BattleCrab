@@ -614,7 +614,7 @@ pub(crate) fn handle_request_pledge_waiting_user_accept(
                 world,
                 player,
                 sm_ids::C1_CANNOT_JOIN_THE_CLAN_ONE_DAY_HAS_NOT_PASSED_SINCE_LEAVING,
-                &[SmParam::Text(player_name(world, player_id))],
+                &[SmParam::Text(player_name_or_empty(world, player_id))],
             );
         }
         return;

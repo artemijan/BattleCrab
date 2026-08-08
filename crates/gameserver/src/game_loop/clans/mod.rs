@@ -47,6 +47,7 @@ pub(crate) mod skills;
 mod sub_pledge;
 pub(crate) mod wars;
 
+pub(crate) use crate::game_loop::helpers::player_name_or_empty;
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_client as send_sm, send_sm_to_player as send_sm_with,
 };
@@ -633,14 +634,6 @@ pub(crate) fn has_clan_privilege(world: &World, oid: i32, privilege: i32) -> boo
 /// once, which is half of what the academy is worth to them.
 pub(crate) fn remove_clan_member_for_academy(world: &mut World, clan_id: i32, member_oid: i32) {
     remove_clan_member(world, clan_id, member_oid, 0);
-}
-
-pub(crate) fn player_name(world: &World, oid: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 /// `ClassId.level()` — occupation tier via the `*_CLASS_GROUP` categories
