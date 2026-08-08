@@ -1355,6 +1355,24 @@ pub(crate) fn same_party(world: &World, a: i32, b: i32) -> bool {
 /// a Sweeper loot item. Solo (or a party rule that doesn't spread spoil) → the
 /// sweeper. `*_INCLUDING_SPOIL` rules pick a random / by-turn member in loot
 /// range of the corpse, falling back to the sweeper when none qualifies.
+/// The party members standing within `range` (2D) of a corpse — Java's
+/// `getPartyMembersInRange` check that gates both spoil and drop distribution.
+fn members_within(world: &World, members: &[i32], corpse: (i32, i32), range: f64) -> Vec<i32> {
+    members
+        .iter()
+        .copied()
+        .filter(|&m| {
+            world
+                .objects
+                .get_component::<Position>(&m)
+                .is_some_and(|p| {
+                    let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
+                    (dx * dx + dy * dy).sqrt() <= range
+                })
+        })
+        .collect()
+}
+
 pub(crate) fn spoil_looter(world: &mut World, sweeper: i32, corpse: (i32, i32)) -> i32 {
     let Some(party_id) = world
         .objects
@@ -1374,19 +1392,7 @@ pub(crate) fn spoil_looter(world: &mut World, sweeper: i32, corpse: (i32, i32)) 
         return sweeper;
     }
     let range = world.cfg.character.alt_party_range as f64;
-    let in_range: Vec<i32> = members
-        .iter()
-        .copied()
-        .filter(|&m| {
-            world
-                .objects
-                .get_component::<Position>(&m)
-                .is_some_and(|p| {
-                    let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
-                    (dx * dx + dy * dy).sqrt() <= range
-                })
-        })
-        .collect();
+    let in_range = members_within(world, &members, corpse, range);
     if in_range.is_empty() {
         return sweeper;
     }
@@ -1431,19 +1437,7 @@ pub(crate) fn distribute_item(
         super::death::give_item(world, killer, item_id, count);
         return;
     };
-    let in_range: Vec<i32> = members
-        .iter()
-        .copied()
-        .filter(|&m| {
-            world
-                .objects
-                .get_component::<Position>(&m)
-                .is_some_and(|p| {
-                    let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
-                    (dx * dx + dy * dy).sqrt() <= range
-                })
-        })
-        .collect();
+    let in_range = members_within(world, &members, corpse, range);
 
     if item_id == ADENA_ID {
         // `distributeAdena` — an even split over the in-range members.

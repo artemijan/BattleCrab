@@ -176,22 +176,7 @@ fn penalty_effects(
 /// A grade-penalty `ActiveBuff`: `passive` (hidden from `AbnormalStatusUpdate`,
 /// never scheduled to expire) and permanent while the gear stays equipped.
 fn passive_penalty_buff(skill_id: i32, level: i32, effects: Vec<StatModifierEffect>) -> ActiveBuff {
-    ActiveBuff {
-        displayed: true,
-        skill_id,
-        skill_level: level,
-        abnormal_type_client_id: -1,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
-        slot: crate::model::skill::BuffSlot::Uncapped,
-        expires_at_tick: u64::MAX,
-        passive: true,
-        // Synthetic buff (passive/clan/expertise pump): no abnormal state.
-        effect_flags: 0,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects,
-    }
+    ActiveBuff::passive_pump(skill_id, level, effects)
 }
 
 #[cfg(test)]

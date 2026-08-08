@@ -514,6 +514,28 @@ pub(crate) fn begin_cinematic(world: &mut World, valakas_oid: i32) {
     }
 }
 
+/// Broadcast one cinematic camera keyframe to the lair.
+///
+/// The eleven `SpecialCamera` parameters live as an array in the CINEMATIC and
+/// DEATH_CINEMATIC tables, so both step handlers just spread one row.
+fn broadcast_camera(world: &mut World, valakas_oid: i32, a: [i32; 11]) {
+    let pkt = crate::network::server_packets::special_camera(
+        valakas_oid,
+        a[0],
+        a[1],
+        a[2],
+        a[3],
+        a[4],
+        a[5],
+        a[6],
+        a[7],
+        a[8],
+        a[9],
+        a[10],
+    );
+    broadcast_to_lair(world, &pkt);
+}
+
 /// One cinematic beat.
 pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u8) {
     let Some((_, camera)) = CINEMATIC.get(step as usize).copied() else {
@@ -521,21 +543,7 @@ pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u
     };
     match camera {
         Some(a) => {
-            let pkt = crate::network::server_packets::special_camera(
-                valakas_oid,
-                a[0],
-                a[1],
-                a[2],
-                a[3],
-                a[4],
-                a[5],
-                a[6],
-                a[7],
-                a[8],
-                a[9],
-                a[10],
-            );
-            broadcast_to_lair(world, &pkt);
+            broadcast_camera(world, valakas_oid, a);
         }
         None => {
             // The last beat: the fight is on, and entry locks behind it. Arm
@@ -661,21 +669,7 @@ pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, s
     let Some((_, a)) = DEATH_CINEMATIC.get(step as usize).copied() else {
         return;
     };
-    let pkt = crate::network::server_packets::special_camera(
-        valakas_oid,
-        a[0],
-        a[1],
-        a[2],
-        a[3],
-        a[4],
-        a[5],
-        a[6],
-        a[7],
-        a[8],
-        a[9],
-        a[10],
-    );
-    broadcast_to_lair(world, &pkt);
+    broadcast_camera(world, valakas_oid, a);
 
     if step as usize == DEATH_CINEMATIC.len() - 1 {
         for (x, y, z) in TELEPORT_CUBE_LOCATIONS {

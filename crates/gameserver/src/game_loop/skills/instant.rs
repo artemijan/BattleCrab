@@ -1298,6 +1298,24 @@ pub(super) fn hp(world: &mut World, ctx: &CastCtx, amount: f64, percent: bool) {
     }
 }
 
+/// The `(skill_id, skill_level)` of every buff currently up on a target.
+///
+/// Snapshotted into a Vec because both dispel paths re-enter `world.data` to
+/// decide what to strip, which they cannot do while the `Buffs` borrow is live.
+fn buffs_on(world: &World, target_oid: i32) -> Vec<(i32, i32)> {
+    world
+        .objects
+        .get_component::<Buffs>(&target_oid)
+        .map(|buffs| {
+            buffs
+                .0
+                .iter()
+                .map(|b| (b.skill_id, b.skill_level))
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
 pub(super) fn dispel_by_slot(
     world: &mut World,
     ctx: &CastCtx,
@@ -1315,17 +1333,7 @@ pub(super) fn dispel_by_slot(
     // for both player and NPC targets; the DoT tick chain (e.g.
     // Poison) self-terminates once its buff is gone. Buff snapshot is
     // collected first to avoid overlapping borrows of `world`.
-    let candidates: Vec<(i32, i32)> = world
-        .objects
-        .get_component::<Buffs>(&target_oid)
-        .map(|buffs| {
-            buffs
-                .0
-                .iter()
-                .map(|b| (b.skill_id, b.skill_level))
-                .collect()
-        })
-        .unwrap_or_default();
+    let candidates = buffs_on(world, target_oid);
     let to_dispel: Vec<i32> = candidates
         .into_iter()
         .filter(|&(sid, slvl)| {
@@ -1389,17 +1397,7 @@ pub(super) fn dispel_by_slot_probability(
     // `ResistDispelBuff`: Java reads that stat only in
     // `Formulas.calcCancelSuccess` (the `Cancel` skill family,
     // unported), never in the Bane handler.
-    let candidates: Vec<(i32, i32)> = world
-        .objects
-        .get_component::<Buffs>(&target_oid)
-        .map(|buffs| {
-            buffs
-                .0
-                .iter()
-                .map(|b| (b.skill_id, b.skill_level))
-                .collect()
-        })
-        .unwrap_or_default();
+    let candidates = buffs_on(world, target_oid);
     let mut to_dispel: Vec<i32> = Vec::new();
     for (sid, slvl) in candidates {
         let matches = world

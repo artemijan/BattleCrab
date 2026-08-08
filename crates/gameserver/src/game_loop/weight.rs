@@ -365,21 +365,7 @@ fn penalty_effects(world: &World, level: i32) -> Option<(i32, Vec<StatModifierEf
 /// The 4270 passive, shaped like the grade-penalty buffs: hidden from
 /// `AbnormalStatusUpdate` and never scheduled to expire.
 fn passive_weight_buff(level: i32, effects: Vec<StatModifierEffect>) -> ActiveBuff {
-    ActiveBuff {
-        displayed: true,
-        skill_id: WEIGHT_PENALTY_SKILL,
-        skill_level: level,
-        abnormal_type_client_id: -1,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
-        slot: crate::model::skill::BuffSlot::Uncapped,
-        expires_at_tick: u64::MAX,
-        passive: true,
-        effect_flags: 0,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects,
-    }
+    ActiveBuff::passive_pump(WEIGHT_PENALTY_SKILL, level, effects)
 }
 
 /// Java `PlayerInventory.validateWeight(long)` — would the player still be
