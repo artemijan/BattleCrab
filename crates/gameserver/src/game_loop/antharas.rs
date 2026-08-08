@@ -762,7 +762,7 @@ pub(crate) fn on_antharas_damage(
         .get_component::<crate::model::Player>(&attacker_oid)
         .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
     if on_strider
-        && !has_buff(world, attacker_oid, ANTI_STRIDER)
+        && !crate::game_loop::abnormal::has_buff(world, attacker_oid, ANTI_STRIDER)
         && let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned()
         && crate::game_loop::npc_cast::check_use_conditions_pub(world, antharas_oid, &skill)
     {
@@ -789,13 +789,6 @@ fn in_lair_zone(world: &World, oid: i32) -> bool {
         .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
 }
 
-fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
-}
-
 // ---------------------------------------------------------------------------
 // SET_REGEN — the escalating self-heal
 // ---------------------------------------------------------------------------
@@ -813,7 +806,7 @@ pub(crate) fn handle_set_regen(world: &mut World, antharas_oid: i32) {
     {
         let skill_id = REGEN_SKILLS[regen_band(cur, max)];
         // Java `!isAffectedBySkill`, and don't stomp an in-progress cast.
-        if !has_buff(world, antharas_oid, skill_id)
+        if !crate::game_loop::abnormal::has_buff(world, antharas_oid, skill_id)
             && !world
                 .objects
                 .has_component::<crate::model::components::Casting>(&antharas_oid)
@@ -884,7 +877,7 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
         for player_oid in players_in_lair_oids(world) {
             teleport_out(world, player_oid);
         }
-        set_status(world, DORMANT); // Java's ALIVE (0) — resting, re-enterable
+        crate::game_loop::grand_boss::set_status(world, ANTHARAS, DORMANT); // Java's ALIVE (0) — resting, re-enterable
         return; // don't re-arm — the fight is abandoned
     }
     world.scheduler.schedule(
@@ -898,21 +891,9 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
 // `teleportOut`), reached through `scripts::antharas_heart`.
 // ---------------------------------------------------------------------------
 
-fn set_status(world: &mut World, status: i32) {
-    if let Some(b) = world.grand_bosses.get_mut(&ANTHARAS) {
-        b.status = status;
-    }
-    crate::game_loop::grand_boss::persist(world, ANTHARAS);
-}
-
 /// The live Antharas NPC, if one stands in the world.
 pub(crate) fn find_antharas(world: &World) -> Option<i32> {
-    world.npc_regions.values().flatten().copied().find(|oid| {
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(oid)
-            .is_some_and(|n| n.npc_id == ANTHARAS)
-    })
+    crate::game_loop::grand_boss::find_spawned(world, ANTHARAS)
 }
 
 /// The Heart of Warding's `enter` bypass: run the ladder, teleport the
@@ -941,7 +922,7 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
             // during the window must not restart it (Java's
             // `if (getStatus() != WAITING)`).
             if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(WAITING) {
-                set_status(world, WAITING);
+                crate::game_loop::grand_boss::set_status(world, ANTHARAS, WAITING);
                 let wait_secs = world.cfg.grand_boss.antharas_wait_minutes.max(1) as u64 * 60;
                 world.scheduler.schedule(
                     world.tick + wait_secs * TICKS_PER_SECOND,
@@ -972,7 +953,7 @@ pub(crate) fn handle_spawn_timer(world: &mut World) {
         FIGHT_POINT.2,
         FIGHT_POINT.3,
     );
-    set_status(world, IN_FIGHT);
+    crate::game_loop::grand_boss::set_status(world, ANTHARAS, IN_FIGHT);
     broadcast_to_lair(world, &crate::network::server_packets::play_sound("BS02_A"));
     begin_cinematic(world, oid);
 }

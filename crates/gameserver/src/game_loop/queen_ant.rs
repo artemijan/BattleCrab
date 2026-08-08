@@ -72,7 +72,7 @@ pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
 /// Java `onKill(QUEEN)` tail: the immortal larva is finally removed with its
 /// mistress (the shared respawn timer is armed by `grand_boss`).
 pub(crate) fn on_queen_killed(world: &mut World) {
-    if let Some(larva) = find_alive(world, LARVA) {
+    if let Some(larva) = crate::game_loop::grand_boss::find_alive(world, LARVA) {
         let region = region_cell_of(world, larva).unwrap_or((0, 0));
         crate::game_loop::death::despawn_npc(world, larva, region);
     }
@@ -141,7 +141,7 @@ pub(crate) fn handle_heal_tick(world: &mut World, queen_oid: i32) {
         return;
     }
 
-    let larva = find_alive(world, LARVA);
+    let larva = crate::game_loop::grand_boss::find_alive(world, LARVA);
     let larva_needs = larva.is_some_and(|oid| wounded(world, oid));
     let queen_needs = wounded(world, queen_oid);
 
@@ -171,19 +171,6 @@ fn wounded(world: &World, oid: i32) -> bool {
         .objects
         .get_component::<Vitals>(&oid)
         .is_some_and(|v| !v.dead && v.cur_hp < v.max_hp as f64)
-}
-
-/// The first living NPC of `npc_id` — the larva is unique, so "first" is "the".
-fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
-    let mut found = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-            if n.npc_id == npc_id && !v.dead {
-                found = Some(n.object_id);
-            }
-        });
-    found
 }
 
 /// Living nurse minions of this Queen.

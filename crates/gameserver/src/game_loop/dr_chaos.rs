@@ -42,13 +42,6 @@ const DESPAWN_CHECK_TICKS: u64 = 60 * TICKS_PER_SECOND;
 /// The paranoia proximity radius (`getVisibleObjectsInRange(npc, …, 500)`).
 const PARANOIA_RANGE: f64 = 500.0;
 
-fn set_status(world: &mut World, status: i32) {
-    if let Some(b) = world.grand_bosses.get_mut(&CHAOS_GOLEM) {
-        b.status = status;
-    }
-    crate::game_loop::grand_boss::persist(world, CHAOS_GOLEM);
-}
-
 fn status(world: &World) -> Option<i32> {
     world.grand_bosses.get(&CHAOS_GOLEM).map(|b| b.status)
 }
@@ -163,7 +156,7 @@ fn become_angry(world: &mut World, dr_chaos_oid: i32) {
     if status(world) != Some(NORMAL) {
         return;
     }
-    set_status(world, CRAZY);
+    crate::game_loop::grand_boss::set_status(world, CHAOS_GOLEM, CRAZY);
     world
         .objects
         .remove_component::<DrChaosState>(&dr_chaos_oid);
@@ -286,7 +279,7 @@ pub(crate) fn handle_golem_despawn(world: &mut World, golem_oid: i32) {
         if let Some(region) = region_cell_of(world, golem_oid) {
             crate::game_loop::death::despawn_npc(world, golem_oid, region);
         }
-        set_status(world, NORMAL);
+        crate::game_loop::grand_boss::set_status(world, CHAOS_GOLEM, NORMAL);
         spawn_dr_chaos(world);
     } else {
         world.scheduler.schedule(
@@ -322,7 +315,7 @@ pub(crate) fn on_golem_killed(world: &mut World, golem_oid: i32) {
     // `(36 + Rnd.get(-24, 24))` hours — a 12..=60 h window.
     let hours = 36 + (world.roll(49) - 24);
     let respawn_millis = hours.max(1) as i64 * MILLIS_PER_HOUR;
-    set_status(world, DEAD);
+    crate::game_loop::grand_boss::set_status(world, CHAOS_GOLEM, DEAD);
     if let Some(b) = world.grand_bosses.get_mut(&CHAOS_GOLEM) {
         b.respawn_time = commons::util::now_millis() + respawn_millis;
         b.current_hp = 0.0;
@@ -344,7 +337,7 @@ pub(crate) fn handle_reset(world: &mut World) {
 }
 
 fn do_reset(world: &mut World) {
-    set_status(world, NORMAL);
+    crate::game_loop::grand_boss::set_status(world, CHAOS_GOLEM, NORMAL);
     if let Some(b) = world.grand_bosses.get_mut(&CHAOS_GOLEM) {
         b.respawn_time = 0;
     }

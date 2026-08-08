@@ -206,22 +206,10 @@ pub(crate) fn on_riba_iren_attacked(world: &mut World, minion_oid: i32) {
     if !below_half {
         return;
     }
-    let Some(orfen_oid) = find_alive(world, ORFEN) else {
+    let Some(orfen_oid) = crate::game_loop::grand_boss::find_alive(world, ORFEN) else {
         return;
     };
     cast_on(world, minion_oid, orfen_oid, ORFEN_HEAL);
-}
-
-fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
-    let mut found = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-            if n.npc_id == npc_id && !v.dead {
-                found = Some(n.object_id);
-            }
-        });
-    found
 }
 
 fn distance_2d(world: &World, a: i32, b: i32) -> Option<f64> {

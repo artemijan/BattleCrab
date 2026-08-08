@@ -87,7 +87,7 @@ fn use_supply_items(world: &mut World, player_oid: i32) {
         // `isAffectedBySkill(skill)` — don't re-apply a shot/buff already up.
         if item_skills(world, item_id)
             .iter()
-            .any(|&(sid, _)| has_buff(world, player_oid, sid))
+            .any(|&(sid, _)| crate::game_loop::abnormal::has_buff(world, player_oid, sid))
         {
             continue;
         }
@@ -140,7 +140,7 @@ fn cast_buffs(world: &mut World, player_oid: i32) {
             forget_skill(world, player_oid, skill_id, true);
             continue;
         }
-        if has_buff(world, player_oid, skill_id) {
+        if crate::game_loop::abnormal::has_buff(world, player_oid, skill_id) {
             continue;
         }
         if busy_casting(world, player_oid) {
@@ -446,13 +446,6 @@ fn known_level(world: &World, player_oid: i32, skill_id: i32) -> Option<i32> {
         .objects
         .get_component::<SkillBook>(&player_oid)
         .and_then(|b| b.0.get(&skill_id).copied())
-}
-
-fn has_buff(world: &World, player_oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&player_oid)
-        .is_some_and(|b| b.0.iter().any(|e| e.skill_id == skill_id))
 }
 
 fn busy_casting(world: &World, player_oid: i32) -> bool {

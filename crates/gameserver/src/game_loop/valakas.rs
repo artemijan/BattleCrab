@@ -345,7 +345,10 @@ fn choose_skill(world: &mut World, valakas_oid: i32) -> i32 {
     let hp_ratio = (cur / max) * 100.0;
 
     // Lava Skin has priority: below 75% HP, a 1-in-150 roll, not already active.
-    if hp_ratio < 75.0 && world.roll(150) == 0 && !has_buff(world, valakas_oid, LAVA_SKIN) {
+    if hp_ratio < 75.0
+        && world.roll(150) == 0
+        && !crate::game_loop::abnormal::has_buff(world, valakas_oid, LAVA_SKIN)
+    {
         return LAVA_SKIN;
     }
     // Surrounded (≥20 players within 1200) → a mass spell.
@@ -414,13 +417,6 @@ fn in_lair_zone(world: &World, oid: i32) -> bool {
         .zone_data
         .by_id(BOSS_ZONE_ID)
         .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
-}
-
-fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
 }
 
 // ---------------------------------------------------------------------------
@@ -758,21 +754,9 @@ const LAIR_EXIT: (i32, i32, i32) = (150_037, -57_720, -2_976);
 
 const TICKS_PER_SECOND_ENTRY: u64 = 10;
 
-fn set_status(world: &mut World, status: i32) {
-    if let Some(b) = world.grand_bosses.get_mut(&VALAKAS) {
-        b.status = status;
-    }
-    crate::game_loop::grand_boss::persist(world, VALAKAS);
-}
-
 /// The live Valakas NPC, if one stands in the world.
 pub(crate) fn find_valakas(world: &World) -> Option<i32> {
-    world.npc_regions.values().flatten().copied().find(|oid| {
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(oid)
-            .is_some_and(|n| n.npc_id == VALAKAS)
-    })
+    crate::game_loop::grand_boss::find_spawned(world, VALAKAS)
 }
 
 /// Watcher Klein's `on_talk` — the crowding message by lifetime entry count
@@ -824,7 +808,7 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
     // The FIRST entry (DORMANT) starts the 30-minute window; a later entrant
     // during WAITING must not re-arm it (Java only arms on `status == 0`).
     if crate::game_loop::grand_boss::status(world, VALAKAS) == Some(DORMANT) {
-        set_status(world, WAITING);
+        crate::game_loop::grand_boss::set_status(world, VALAKAS, WAITING);
         let wait_secs = world.cfg.grand_boss.valakas_wait_minutes.max(1) as u64 * 60;
         world.scheduler.schedule(
             world.tick + wait_secs * TICKS_PER_SECOND_ENTRY,

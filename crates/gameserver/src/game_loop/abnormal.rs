@@ -56,6 +56,19 @@ pub(crate) fn is_buff_blocked(world: &World, object_id: i32) -> bool {
     flags_of(world, object_id) & effect_flag::BUFF_BLOCK != 0
 }
 
+/// Java `Creature.getEffectList().isAffectedBySkill(id)` — whether a specific
+/// skill's buff is currently up, by skill id and ignoring its level.
+///
+/// The `effect_flag` predicates above ask "is *some* buff imposing this state";
+/// this asks about one named skill, which is what the auto-use scan and the
+/// boss self-buff ladders need.
+pub(crate) fn has_buff(world: &World, object_id: i32, skill_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&object_id)
+        .is_some_and(|b| b.0.iter().any(|e| e.skill_id == skill_id))
+}
+
 /// Java `Formulas.calcShldUse`'s `degreeside`: 360° instead of the usual 120°
 /// frontal arc, so a back attack can be shield-blocked too (Aegis).
 pub(crate) fn shields_from_all_angles(world: &World, object_id: i32) -> bool {

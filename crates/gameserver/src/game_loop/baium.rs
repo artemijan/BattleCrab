@@ -336,7 +336,7 @@ pub(crate) fn handle_cinematic_step(world: &mut World, step: u8) {
     let Some(beat) = BEATS.get(step as usize) else {
         return;
     };
-    let Some(baium) = find_alive(world, BAIUM) else {
+    let Some(baium) = crate::game_loop::grand_boss::find_alive(world, BAIUM) else {
         return; // Baium gone (aborted / killed) — drop the chain
     };
     let waker = world
@@ -423,7 +423,7 @@ fn inside_baium_zone(world: &World, oid: i32) -> bool {
 /// boss zone*, else grabs the nearest in-zone player in reach (3D), else
 /// regroups on Baium. When Baium falls they despawn.
 pub(crate) fn handle_select_target(world: &mut World) {
-    let Some(baium) = find_alive(world, BAIUM) else {
+    let Some(baium) = crate::game_loop::grand_boss::find_alive(world, BAIUM) else {
         // Baium is dead — the archangels leave with him (Java's `deleteMe`).
         for angel in archangels(world) {
             despawn(world, angel);
@@ -470,18 +470,6 @@ fn archangels(world: &mut World) -> Vec<i32> {
             }
         });
     out
-}
-
-fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
-    let mut found = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-            if n.npc_id == npc_id && !v.dead {
-                found = Some(n.object_id);
-            }
-        });
-    found
 }
 
 fn despawn(world: &mut World, oid: i32) {
@@ -776,7 +764,7 @@ pub(crate) fn handle_clear_zone(world: &mut World) {
 ///
 /// If Baium is already gone (killed, or a prior reset) the beat simply stops.
 pub(crate) fn handle_check_attack(world: &mut World) {
-    let Some(baium) = find_alive(world, BAIUM) else {
+    let Some(baium) = crate::game_loop::grand_boss::find_alive(world, BAIUM) else {
         return; // Baium gone — nothing to watch
     };
     let idle = world
