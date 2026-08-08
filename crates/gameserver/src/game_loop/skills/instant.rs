@@ -951,6 +951,77 @@ pub(super) fn cp_heal_percent(world: &mut World, ctx: &CastCtx, power: f64) {
     }
 }
 
+/// Heal an NPC: clamp against its own max, then refresh the HP bar for
+/// everyone watching (Java `broadcastStatusUpdate`). Without the broadcast the
+/// server-side heal is invisible — the bar never moves.
+///
+/// No system messages: there is nobody to send them to. A dead or already-gone
+/// target is a no-op, which is why every caller returns straight after.
+fn heal_npc(world: &mut World, target_oid: i32, amount: f64) {
+    let hp = {
+        let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else {
+            return;
+        };
+        if vitals.dead {
+            return;
+        }
+        vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
+        (vitals.cur_hp as i32, vitals.max_hp)
+    };
+    let Some(region) = region_cell_of(world, target_oid) else {
+        return;
+    };
+    crate::game_loop::helpers::broadcast_near_region(
+        world,
+        region,
+        &server_packets::status_update(
+            target_oid,
+            &[
+                (server_packets::status_update_type::MAX_HP, hp.1),
+                (server_packets::status_update_type::CUR_HP, hp.0),
+            ],
+        ),
+    );
+}
+
+/// Java `Heal`'s message tail: tell the healed player how much landed and who
+/// did it, refresh their HP bar, and push the new vitals to their party.
+///
+/// A self-heal reports the shorter `S1_HP_HAS_BEEN_RESTORED`. Offline targets
+/// fall through silently.
+fn notify_heal(world: &mut World, caster_oid: i32, target_oid: i32, healed: f64) {
+    let caster_name = caster_display_name(world, caster_oid);
+    let Some(client_id) = client_for_player(world, target_oid) else {
+        return;
+    };
+    if let Some(cs) = world.clients.get(&client_id) {
+        if target_oid != caster_oid {
+            cs.send(server_packets::system_message_with(
+                sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
+                &[
+                    SmParam::PlayerName(caster_name),
+                    SmParam::Int(healed as i32),
+                ],
+            ));
+        } else {
+            cs.send(server_packets::system_message_with(
+                sm_ids::S1_HP_HAS_BEEN_RESTORED,
+                &[SmParam::Int(healed as i32)],
+            ));
+        }
+        let cur_hp = world
+            .objects
+            .get_component::<Vitals>(&target_oid)
+            .map(|v| v.cur_hp as i32)
+            .unwrap_or(0);
+        cs.send(server_packets::status_update(
+            target_oid,
+            &[(server_packets::status_update_type::CUR_HP, cur_hp)],
+        ));
+    }
+    crate::game_loop::party::notify_party_vitals(world, target_oid);
+}
+
 pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) {
     let CastCtx {
         caster_oid,
@@ -994,34 +1065,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
             .unwrap_or(0.0);
     }
     if crate::game_loop::combat::is_npc_oid(target_oid) {
-        // Healing an NPC: clamp and update, no system messages
-        // (nobody to send them to).
-        let hp = {
-            let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else {
-                return;
-            };
-            if vitals.dead {
-                return;
-            }
-            vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
-            (vitals.cur_hp as i32, vitals.max_hp)
-        };
-        // `broadcastStatusUpdate` — refresh the HP bar for everyone
-        // watching the mob; without this the server-side heal is
-        // invisible to clients (the bar never moves).
-        if let Some(region) = region_cell_of(world, target_oid) {
-            crate::game_loop::helpers::broadcast_near_region(
-                world,
-                region,
-                &server_packets::status_update(
-                    target_oid,
-                    &[
-                        (server_packets::status_update_type::MAX_HP, hp.1),
-                        (server_packets::status_update_type::CUR_HP, hp.0),
-                    ],
-                ),
-            );
-        }
+        heal_npc(world, target_oid, amount);
         return;
     }
     // `Heal.java`: `min(amount, max(0, getMaxRecoverableHp() -
@@ -1048,35 +1092,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         vitals.cur_hp += amount;
         amount
     };
-    let caster_name = caster_display_name(world, caster_oid);
-    if let Some(client_id) = client_for_player(world, target_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            if target_oid != caster_oid {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
-                    &[
-                        SmParam::PlayerName(caster_name),
-                        SmParam::Int(healed as i32),
-                    ],
-                ));
-            } else {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S1_HP_HAS_BEEN_RESTORED,
-                    &[SmParam::Int(healed as i32)],
-                ));
-            }
-            let cur_hp = world
-                .objects
-                .get_component::<Vitals>(&target_oid)
-                .map(|v| v.cur_hp as i32)
-                .unwrap_or(0);
-            cs.send(server_packets::status_update(
-                target_oid,
-                &[(server_packets::status_update_type::CUR_HP, cur_hp)],
-            ));
-        }
-        crate::game_loop::party::notify_party_vitals(world, target_oid);
-    }
+    notify_heal(world, caster_oid, target_oid, healed);
 }
 
 pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) {
@@ -1125,29 +1141,7 @@ pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, powe
         return;
     }
     if crate::game_loop::combat::is_npc_oid(target_oid) {
-        let hp = {
-            let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else {
-                return;
-            };
-            if vitals.dead {
-                return;
-            }
-            vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
-            (vitals.cur_hp as i32, vitals.max_hp)
-        };
-        if let Some(region) = region_cell_of(world, target_oid) {
-            crate::game_loop::helpers::broadcast_near_region(
-                world,
-                region,
-                &server_packets::status_update(
-                    target_oid,
-                    &[
-                        (server_packets::status_update_type::MAX_HP, hp.1),
-                        (server_packets::status_update_type::CUR_HP, hp.0),
-                    ],
-                ),
-            );
-        }
+        heal_npc(world, target_oid, amount);
         return;
     }
     let healed = {
@@ -1158,35 +1152,7 @@ pub(super) fn heal_percent(world: &mut World, ctx: &CastCtx, skill: &Skill, powe
         vitals.cur_hp += amount;
         amount
     };
-    let caster_name = caster_display_name(world, caster_oid);
-    if let Some(client_id) = client_for_player(world, target_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            if target_oid != caster_oid {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
-                    &[
-                        SmParam::PlayerName(caster_name),
-                        SmParam::Int(healed as i32),
-                    ],
-                ));
-            } else {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S1_HP_HAS_BEEN_RESTORED,
-                    &[SmParam::Int(healed as i32)],
-                ));
-            }
-            let cur_hp = world
-                .objects
-                .get_component::<Vitals>(&target_oid)
-                .map(|v| v.cur_hp as i32)
-                .unwrap_or(0);
-            cs.send(server_packets::status_update(
-                target_oid,
-                &[(server_packets::status_update_type::CUR_HP, cur_hp)],
-            ));
-        }
-        crate::game_loop::party::notify_party_vitals(world, target_oid);
-    }
+    notify_heal(world, caster_oid, target_oid, healed);
 }
 
 pub(super) fn energy_attack(
