@@ -199,6 +199,17 @@ pub struct EnchantRequest {
     /// `_isProcessing` — set once `RequestEnchantItem` starts, to reject
     /// re-entrant packets mid-roll.
     pub processing: bool,
+    /// Java `AbstractRequest._timestamp` — the tick of the **last window
+    /// interaction** (add scroll / put target / put or remove support).
+    /// `None` means the window was opened and never touched, which Java treats
+    /// as cheating outright. Read only by the anti-autoenchant guard in
+    /// `game_loop::enchant`.
+    ///
+    /// An `Option` rather than Java's `0` sentinel on purpose: Java compares
+    /// wall-clock milliseconds, which are never 0, but **tick 0 is a real
+    /// tick** — a server's first 100 ms would have read as "never stamped" and
+    /// punished an honest player.
+    pub stamped_tick: Option<u64>,
 }
 
 /// The world-region cell this object is registered in (Java

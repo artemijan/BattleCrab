@@ -3687,6 +3687,9 @@ fn enchant_scroll_success_and_failure() {
         w.write_i32(0);
         w.into_bytes()
     };
+    // Java's anti-autoenchant guard punishes an Enchant pressed within 2 s of
+    // the last window interaction, so the window has to age before the press.
+    world.tick += 20;
     world.forced_rolls.push_back(0); // roll_f64 = 0.0 < 100
     on_packet(&mut world, 1, do_enchant(sword_oid));
     let level = |w: &World| {
@@ -3732,6 +3735,7 @@ fn enchant_scroll_success_and_failure() {
             &put_target,
         ),
     );
+    world.tick += 20;
     world.forced_rolls.push_back(900_000); // roll_f64 = 90.0 > 66.67 → fail
     on_packet(&mut world, 1, do_enchant(sword_oid));
     let inv = world.objects.get_component::<Inventory>(&9800).unwrap();
@@ -3848,6 +3852,8 @@ fn enchant_support_item_bonus_and_consume() {
     );
 
     // Roll 80%: bare chance 66.67 would fail, but +20 support → 86.67 succeeds.
+    // Age the window past Java's 2 s anti-autoenchant guard first.
+    world.tick += 20;
     world.forced_rolls.push_back(800_000);
     let enchant = {
         let mut w = PacketWriter::new();
@@ -5401,12 +5407,16 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
     // forced value, then the step roll consumes the next. `roll(3)` returns an
     // index in 0..3, so the step is `min + index`.
     arm(&mut world);
+    // Java's anti-autoenchant guard punishes an Enchant pressed within 2 s of
+    // the last window interaction, so the window has to age before the press.
+    world.tick += 20;
     world.forced_rolls.push_back(0); // success
     world.forced_rolls.push_back(2); // index 2 → step 1 + 2 = 3
     do_enchant(&mut world);
     assert_eq!(level(&world), 3, "the top of the range is +3, not +1");
 
     arm(&mut world);
+    world.tick += 20;
     world.forced_rolls.push_back(0); // success
     world.forced_rolls.push_back(0); // index 0 → step 1
     do_enchant(&mut world);
@@ -5421,4 +5431,139 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
         3,
         "one scroll per attempt"
     );
+}
+
+/// Java's anti-autoenchant guard: pressing Enchant within 2 s of the last
+/// window interaction is treated as a bot — punished, and the attempt consumes
+/// nothing.
+///
+/// The heuristic is coarse and deliberately so: `RequestEnchantItem` compares
+/// against `AbstractRequest._timestamp`, which the four `RequestEx*Enchant*`
+/// packets stamp on their success path, so it measures "time since the player
+/// last touched the window" rather than anything about the enchant itself.
+#[test]
+fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
+    use crate::model::components::EnchantRequest;
+    use crate::model::inventory::Inventory;
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const PLAYER: i32 = 9805;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.enchant = crate::data::EnchantData::load_from(DIST);
+    world.id_pool = 0x4200_0000..0x4200_0200;
+    // Start well clear of tick 0 so "stamped at tick 0" and "never stamped"
+    // cannot be confused — the bug this test caught in the first place.
+    world.tick = 500;
+
+    let mut rx = ingame_player_access(&mut world, 1, PLAYER, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, PLAYER, 955, 3).unwrap();
+    super::items::add_inventory_item(&mut world, PLAYER, 69, 1).unwrap();
+    let find = |w: &World, item: i32| {
+        w.objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .items()
+            .iter()
+            .find(|it| it.item_id == item)
+            .map(|it| it.object_id)
+            .unwrap()
+    };
+    let scroll_oid = find(&world, 955);
+    let sword_oid = find(&world, 69);
+    let level = |w: &World| {
+        w.objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .items()
+            .iter()
+            .find(|it| it.object_id == sword_oid)
+            .map(|it| it.enchant_level)
+            .unwrap()
+    };
+    let scrolls_left = |w: &World| {
+        w.objects
+            .get_component::<Inventory>(&PLAYER)
+            .unwrap()
+            .count_of(955)
+    };
+
+    let arm = |world: &mut World| {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::USE_ITEM);
+        w.write_i32(scroll_oid);
+        w.write_i32(0);
+        on_packet(world, 1, w.into_bytes());
+        let mut w = PacketWriter::new();
+        w.write_i32(scroll_oid);
+        w.write_i32(sword_oid);
+        on_packet(
+            world,
+            1,
+            ex_packet(
+                cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
+                &w.into_bytes(),
+            ),
+        );
+        let mut w = PacketWriter::new();
+        w.write_i32(sword_oid);
+        on_packet(
+            world,
+            1,
+            ex_packet(
+                cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
+                &w.into_bytes(),
+            ),
+        );
+    };
+    let press = |world: &mut World| {
+        let mut w = PacketWriter::new();
+        w.write_u8(cop::REQUEST_ENCHANT_ITEM);
+        w.write_i32(sword_oid);
+        w.write_i32(0);
+        on_packet(world, 1, w.into_bytes());
+    };
+
+    // Straight from arming the window to pressing Enchant: 0 ticks elapsed.
+    arm(&mut world);
+    drain(&mut rx);
+    world.forced_rolls.push_back(0); // would be a guaranteed success
+    press(&mut world);
+
+    assert_eq!(level(&world), 0, "the enchant never happened");
+    assert_eq!(scrolls_left(&world), 3, "and cost no scroll");
+    assert!(
+        !world.objects.has_component::<EnchantRequest>(&PLAYER),
+        "Java drops the request on this branch, unlike a plain validation error"
+    );
+    assert!(
+        !drain(&mut rx).is_empty(),
+        "the punishment's warning line goes out"
+    );
+    // The forced roll was never reached — the guard returns before the roll.
+    assert_eq!(
+        world.forced_rolls.len(),
+        1,
+        "the guard bails before the success roll is drawn"
+    );
+    world.forced_rolls.clear();
+
+    // One tick short of the window is still a bot. This is what pins the
+    // threshold at 2 s rather than "some delay": with only the 0-tick and
+    // 20-tick cases below, a guard that fired at 100 ms would pass too.
+    arm(&mut world);
+    world.tick += 19;
+    press(&mut world);
+    assert_eq!(level(&world), 0, "19 ticks (1.9 s) is inside the window");
+    assert_eq!(scrolls_left(&world), 3, "still no scroll spent");
+
+    // Wait the window out and the identical sequence succeeds, which is what
+    // makes the assertions above about the guard rather than about the setup.
+    arm(&mut world);
+    world.tick += 20;
+    world.forced_rolls.push_back(0);
+    press(&mut world);
+    assert_eq!(level(&world), 1, "past the 2 s window it enchants normally");
+    assert_eq!(scrolls_left(&world), 2, "and now a scroll is consumed");
 }

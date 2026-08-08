@@ -20,8 +20,10 @@
 //! defaults (min 1, max = min) make those a plain `+1`, which is why the
 //! hard-coded `+1` looked right for so long.
 //!
+//! The 2-second anti-autoenchant guard is in `handle_enchant`, between the
+//! validation and the destroys, where Java puts it.
+//!
 //! Genuinely absent:
-//! - TODO(enchant-guard): the 2-second anti-autoenchant timestamp guard.
 //! - The milestone announce/firework: no `announce` attribute exists anywhere in
 //!   `EnchantItemData.xml` on this dist, so there is nothing to drive it.
 //!
@@ -66,6 +68,9 @@ pub(crate) fn open(world: &mut World, client_id: u32, player: i32, scroll_object
             item_oid: 0,
             support_oid: 0,
             processing: false,
+            // Java `AbstractRequest._timestamp` starts at 0 and only the four
+            // window packets move it; opening the window is not an interaction.
+            stamped_tick: None,
         },
     );
     send(world, client_id, sp::choose_inventory_item(scroll_item_id));
@@ -104,9 +109,11 @@ pub(crate) fn handle_add_scroll(world: &mut World, client_id: u32, body: &[u8]) 
         return;
     }
 
+    let tick = world.tick;
     if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
         q.scroll_oid = scroll_oid;
         q.item_oid = item_oid;
+        q.stamped_tick = Some(tick);
     }
     send(
         world,
@@ -140,8 +147,10 @@ pub(crate) fn handle_put_target(world: &mut World, client_id: u32, body: &[u8]) 
         send(world, client_id, sp::ex_put_enchant_target_item_result(0));
         return;
     }
+    let tick = world.tick;
     if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
         q.item_oid = item_oid;
+        q.stamped_tick = Some(tick);
     }
     send(
         world,
@@ -185,9 +194,11 @@ pub(crate) fn handle_put_support(world: &mut World, client_id: u32, body: &[u8])
         send(world, client_id, sp::ex_put_enchant_support_item_result(0));
         return;
     }
+    let tick = world.tick;
     if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
         q.item_oid = item_oid;
         q.support_oid = support_oid;
+        q.stamped_tick = Some(tick);
     }
     send(
         world,
@@ -201,8 +212,10 @@ pub(crate) fn handle_remove_support(world: &mut World, client_id: u32) {
     let Some(player) = player_of(world, client_id) else {
         return;
     };
+    let tick = world.tick;
     if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
         q.support_oid = 0;
+        q.stamped_tick = Some(tick);
     }
     send(
         world,
@@ -394,6 +407,51 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
             Some(sup)
         }
     };
+
+    // Java's "fast auto-enchant cheat check", between the validation above and
+    // the destroys below:
+    //
+    //     if ((request.getTimestamp() == 0)
+    //         || ((System.currentTimeMillis() - request.getTimestamp()) < 2000))
+    //
+    // `_timestamp` is the moment of the **last window interaction** — the four
+    // `RequestEx*Enchant*` packets each stamp it on their success path. A human
+    // necessarily spends a moment picking the scroll and target; a script does
+    // not.
+    //
+    // Java's first leg (`getTimestamp() == 0`) is **dead** in both engines and
+    // kept only as a belt: the target item is resolved a few lines above, and
+    // every packet that can set it also stamps, so a request that reaches here
+    // has always been stamped. `None` is still not folded into "too fast",
+    // because the two mean different things if that ever stops holding.
+    //
+    // Java measures wall-clock ms. This measures ticks (100 ms each, so 2 s is
+    // 20 of them), which is the same threshold with a coarser grain and — the
+    // reason to prefer it — no dependence on the host clock, so the test is not
+    // one of this suite's wall-clock flakes.
+    const AUTOENCHANT_MIN_TICKS: u64 = 20;
+    let stamped = world
+        .objects
+        .get_component::<EnchantRequest>(&player)
+        .and_then(|q| q.stamped_tick);
+    if stamped.is_none_or(|t| world.tick.saturating_sub(t) < AUTOENCHANT_MIN_TICKS) {
+        let punish = world.cfg.general.default_punish;
+        super::punishment::handle_illegal_player_action(
+            world,
+            player,
+            &format!("Player {player} use autoenchant program "),
+            punish,
+        );
+        // Java drops the request here, unlike the plain validation failures
+        // above which leave the window open.
+        world.objects.remove_component::<EnchantRequest>(&player);
+        send(
+            world,
+            client_id,
+            enchant_result(sp::enchant_result::ERROR, 0, 0, 0),
+        );
+        return;
+    }
 
     // Consume one scroll (Java destroyItem). If it's gone, error out — and
     // punish: the client can't press Enchant without the scroll in the bag.
