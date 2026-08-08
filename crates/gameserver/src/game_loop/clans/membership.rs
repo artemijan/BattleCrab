@@ -154,19 +154,7 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
     }
     // Java `player.getRequest().setRequest(target, this)` — busy targets answer
     // "on another task" (the shared transaction-slot behavior).
-    if world
-        .objects
-        .has_component::<crate::model::components::PendingRequest>(&player)
-        || world
-            .objects
-            .has_component::<crate::model::components::PendingRequest>(&target_oid)
-    {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
-            &[SmParam::Text(player_name_or_empty(world, target_oid))],
-        );
+    if refuse_if_busy(world, player, target_oid) {
         return;
     }
     crate::game_loop::party::install_request(
@@ -741,15 +729,7 @@ pub(crate) fn handle_dissolve_clan(world: &mut World, client_id: u32, player_oid
         );
         return;
     }
-    if let Some(pos) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&player_oid)
-        && world
-            .data
-            .zone_data
-            .siege_castle_at(pos.x, pos.y, pos.z)
-            .is_some()
-    {
+    if in_siege_zone(world, player_oid) {
         send_sm(
             world,
             client_id,

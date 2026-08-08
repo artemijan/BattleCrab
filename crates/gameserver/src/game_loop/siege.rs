@@ -579,6 +579,32 @@ fn respawn_siege_towers(world: &mut World, castle_id: i32) {
     spawn_siege_npcs(world, castle_id, &spawns);
 }
 
+/// Send each player home to their own race's town respawn — Java
+/// `Siege.teleportPlayer(…, TeleportWhereType.TOWN)`, used both when a side is
+/// unregistered mid-siege and when the zone is cleared at the end.
+///
+/// Anyone who has left the world in the meantime is skipped, and a race with
+/// no respawn entry falls back to Human as the port does elsewhere.
+fn teleport_to_town(world: &mut World, targets: Vec<i32>) {
+    for oid in targets {
+        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+            continue;
+        };
+        let race = world
+            .objects
+            .get_component::<Player>(&oid)
+            .and_then(|p| crate::enums::Race::from_ordinal(p.race))
+            .unwrap_or(crate::enums::Race::Human);
+        if let Some((x, y, z)) = world
+            .data
+            .map_region
+            .town_respawn(pos.x, pos.y, pos.z, race, 0)
+        {
+            super::death::teleport_player(world, oid, x, y, z);
+        }
+    }
+}
+
 /// A control or flame tower, by template type.
 fn is_siege_tower(world: &World, npc_oid: i32) -> bool {
     world
@@ -612,23 +638,7 @@ fn teleport_side_out(world: &mut World, castle_id: i32, side: SiegeClanType) {
                 .is_some_and(|p| clans.contains(&p.clan_id) && !p.is_gm(&world.data))
         })
         .collect();
-    for oid in targets {
-        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
-            continue;
-        };
-        let race = world
-            .objects
-            .get_component::<Player>(&oid)
-            .and_then(|p| crate::enums::Race::from_ordinal(p.race))
-            .unwrap_or(crate::enums::Race::Human);
-        if let Some((x, y, z)) = world
-            .data
-            .map_region
-            .town_respawn(pos.x, pos.y, pos.z, race, 0)
-        {
-            super::death::teleport_player(world, oid, x, y, z);
-        }
-    }
+    teleport_to_town(world, targets);
 }
 
 #[cfg(test)]
@@ -1060,23 +1070,7 @@ fn teleport_non_owners(world: &mut World, castle_id: i32) {
         })
         .collect();
 
-    for oid in targets {
-        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
-            continue;
-        };
-        let race = world
-            .objects
-            .get_component::<Player>(&oid)
-            .and_then(|p| crate::enums::Race::from_ordinal(p.race))
-            .unwrap_or(crate::enums::Race::Human);
-        if let Some((x, y, z)) = world
-            .data
-            .map_region
-            .town_respawn(pos.x, pos.y, pos.z, race, 0)
-        {
-            super::death::teleport_player(world, oid, x, y, z);
-        }
-    }
+    teleport_to_town(world, targets);
 }
 
 /// Java `Castle.oustAllPlayers()` → `getTeleZone().oustAllPlayers()`: every

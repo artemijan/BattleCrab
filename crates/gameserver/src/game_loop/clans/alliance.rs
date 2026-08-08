@@ -178,15 +178,7 @@ pub(crate) fn handle_dissolve_ally(world: &mut World, client_id: u32, player_oid
         );
         return;
     }
-    if let Some(pos) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&player_oid)
-        && world
-            .data
-            .zone_data
-            .siege_castle_at(pos.x, pos.y, pos.z)
-            .is_some()
-    {
+    if in_siege_zone(world, player_oid) {
         send_sm(
             world,
             client_id,
@@ -405,19 +397,7 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
     if !check_ally_join_condition(world, player, target_oid) {
         return;
     }
-    if world
-        .objects
-        .has_component::<crate::model::components::PendingRequest>(&player)
-        || world
-            .objects
-            .has_component::<crate::model::components::PendingRequest>(&target_oid)
-    {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
-            &[SmParam::Text(player_name_or_empty(world, target_oid))],
-        );
+    if refuse_if_busy(world, player, target_oid) {
         return;
     }
     let ally_id = world.clans.get(&clan_id).map(|c| c.ally_id).unwrap_or(0);

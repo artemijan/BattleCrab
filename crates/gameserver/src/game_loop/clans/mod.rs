@@ -637,6 +637,42 @@ pub(crate) fn remove_clan_member_for_academy(world: &mut World, clan_id: i32, me
     remove_clan_member(world, clan_id, member_oid, 0);
 }
 
+/// Whether `player_oid` is standing inside *some* castle's siege zone.
+///
+/// The gate Java puts in front of dissolving a clan or an alliance. Note it
+/// asks about the zone, not about a running siege — unlike
+/// [`crate::game_loop::pvp::active_siege_castle`], which additionally requires
+/// `in_progress`. Preserved as the ported code had it.
+pub(crate) fn in_siege_zone(world: &World, player_oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Position>(&player_oid)
+        .and_then(|pos| world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z))
+        .is_some()
+}
+
+/// Java `Player.isProcessingRequest()` on both sides of an invite: refuse when
+/// either already has a request window open, and tell the inviter who is busy.
+///
+/// `true` means the caller should stop.
+pub(crate) fn refuse_if_busy(world: &World, player: i32, target_oid: i32) -> bool {
+    let busy = world
+        .objects
+        .has_component::<crate::model::components::PendingRequest>(&player)
+        || world
+            .objects
+            .has_component::<crate::model::components::PendingRequest>(&target_oid);
+    if busy {
+        send_sm_with(
+            world,
+            player,
+            sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
+            &[SmParam::Text(player_name_or_empty(world, target_oid))],
+        );
+    }
+    busy
+}
+
 /// A clan's name, or `None` when no clan carries that id — a disbanded clan,
 /// or the sentinel `0` a clanless player reports.
 pub(crate) fn clan_name(world: &World, clan_id: i32) -> Option<String> {
