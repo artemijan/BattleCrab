@@ -1420,8 +1420,9 @@ impl Player {
     /// ways, matching the Java finalizers (see [`EquippedBonuses`]): the
     /// weapon's pAtk/mAtk/atk-speed/crit *replace* the naked class base before
     /// the STR/level multipliers; armor/jewel pDef/mDef/accuracy/evasion are
-    /// *summed* on top. maxHp/maxMp gear bonuses are still TODO (computed on a
-    /// separate path — see `calc_max_hp`).
+    /// *summed* on top. maxHp/maxMp gear bonuses are **not** missing: they are
+    /// computed on a separate path, `calc_max_hp`/`calc_max_mp`, which folds the
+    /// same `equipped_stat_sum` for `Stat::MaxHp`/`MaxMp`.
     pub fn recalculate_stats(
         &self,
         data: &GameData,

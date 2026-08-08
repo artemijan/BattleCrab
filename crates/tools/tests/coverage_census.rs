@@ -467,7 +467,20 @@ fn deferral_markers_match_the_recorded_inventory() {
     // against a shipped milestone's gate. Topic tags (lowercase) are the ones
     // that never had a milestone to hang off — they are gaps just the same,
     // and were invisible to this test until the scan widened past `TODO(G`.
-    let expected: &[(&str, usize)] = &[];
+    // 2026-08-08, the bare-marker triage: the inventory is **no longer empty**,
+    // and that is a correction rather than a regression. These six gaps were all
+    // sitting in the tree as untagged prose — invisible here by construction —
+    // and each was confirmed against the datapack before being written down.
+    // `armor-sets` is the one that matters: ROADMAP defers `ArmorSetData` to
+    // G19, and G19 closed ✅ without it.
+    let expected: &[(&str, usize)] = &[
+        ("admin-tail", 5),
+        ("armor-sets", 1),
+        ("enchant-guard", 1),
+        ("enchant-random", 1),
+        ("frintezza-cam", 1),
+        ("relation-bits", 1),
+    ];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
         .iter()

@@ -10,10 +10,24 @@
 //! the outcome (`+1` on success, or safe-retain / blessed-reset / destroy +
 //! crystallize on failure).
 //!
-//! Scope: the no-support path. Support items (`RequestExTryToPutEnchantSupportItem`,
-//! `randomEnchant` ranges, support bonus rate), the 2-second anti-autoenchant
-//! timestamp guard, the milestone announce/firework, and on-enchant armor
-//! skills are not modelled (documented TODOs).
+//! Scope: support items **are** modelled — `RequestExTryToPutEnchantSupportItem`
+//! / `RequestExRemoveEnchantSupportItem`, `is_support_valid`, the consume, and
+//! the `bonusRate` fold into the final chance all live below. (This header said
+//! otherwise for a long time; it was describing the no-support first cut.)
+//!
+//! Genuinely absent, and two of the three are reachable on this dist:
+//! - TODO(enchant-random): `randomEnchantMin`/`Max` — a scroll enchants by a
+//!   random amount in a range instead of `+1`. 20 scrolls carry it and **5 are
+//!   obtainable**, one of them through a quest this port ships: Q375 Whisper of
+//!   Dreams Part 2 rewards 33808 (`targetGrade="B"`, min 1 max 3), so a player
+//!   who earns it today gets a flat +1 where retail rolls +1..+3.
+//! - TODO(enchant-guard): the 2-second anti-autoenchant timestamp guard.
+//! - The milestone announce/firework: no `announce` attribute exists anywhere in
+//!   `EnchantItemData.xml` on this dist, so there is nothing to drive it.
+//!
+//! On-enchant armor skills are **not** an enchant gap: they belong to
+//! `ArmorSetData`, which is unported in its entirety — see the note in
+//! `network::user_info` at the ENCHANTLEVEL block.
 
 use commons::network::PacketReader;
 

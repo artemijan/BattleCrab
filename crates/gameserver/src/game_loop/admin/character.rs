@@ -285,9 +285,12 @@ pub(super) fn admin_vitality(
 
 /// `AdminEditChar`'s `//setclass <id>` — change the target player's (or self's)
 /// class. Reuses `set_level` at the current level to recompute vitals/stats and
-/// grant the new class's skills, then rebroadcasts. The old class's skills are
-/// not pruned yet (Java's full class-transfer cleanup is TODO). With no
-/// argument, opens the `setclass/` class-picker menu (Java's catch branch).
+/// grant the new class's skills, then rebroadcasts. With no argument, opens the
+/// `setclass/` class-picker menu (Java's catch branch).
+///
+/// TODO(admin-tail): the old class's skills are not pruned — Java's
+/// class-transfer cleanup removes what the new class cannot learn, so a
+/// `//setclass`-ed character keeps every skill of every class it passed through.
 pub(super) fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     // Java: no (parseable) argument throws StringIndexOutOfBoundsException and
     // opens the class-picker menu instead of printing a usage line.
