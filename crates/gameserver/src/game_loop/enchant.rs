@@ -7,27 +7,26 @@
 //! sends `ChooseInventoryItem` → client picks scroll+item
 //! ([`handle_add_scroll`]) → picks the target ([`handle_put_target`]) → hits
 //! enchant ([`handle_enchant`]), which destroys the scroll, rolls, and applies
-//! the outcome (`+1` on success, or safe-retain / blessed-reset / destroy +
-//! crystallize on failure).
+//! the outcome (a rolled step on success, or safe-retain / blessed-reset /
+//! destroy + crystallize on failure).
 //!
 //! Scope: support items **are** modelled — `RequestExTryToPutEnchantSupportItem`
 //! / `RequestExRemoveEnchantSupportItem`, `is_support_valid`, the consume, and
 //! the `bonusRate` fold into the final chance all live below. (This header said
 //! otherwise for a long time; it was describing the no-support first cut.)
 //!
-//! Genuinely absent, and two of the three are reachable on this dist:
-//! - TODO(enchant-random): `randomEnchantMin`/`Max` — a scroll enchants by a
-//!   random amount in a range instead of `+1`. 20 scrolls carry it and **5 are
-//!   obtainable**, one of them through a quest this port ships: Q375 Whisper of
-//!   Dreams Part 2 rewards 33808 (`targetGrade="B"`, min 1 max 3), so a player
-//!   who earns it today gets a flat +1 where retail rolls +1..+3.
+//! The success **step** is likewise `randomEnchantMin`/`Max` on both sides now
+//! — see [`roll_enchant_step`]. Most scrolls omit the attributes and Java's
+//! defaults (min 1, max = min) make those a plain `+1`, which is why the
+//! hard-coded `+1` looked right for so long.
+//!
+//! Genuinely absent:
 //! - TODO(enchant-guard): the 2-second anti-autoenchant timestamp guard.
 //! - The milestone announce/firework: no `announce` attribute exists anywhere in
 //!   `EnchantItemData.xml` on this dist, so there is nothing to drive it.
 //!
-//! On-enchant armor skills are **not** an enchant gap: they belong to
-//! `ArmorSetData`, which is unported in its entirety — see the note in
-//! `network::user_info` at the ENCHANTLEVEL block.
+//! On-enchant armor skills were never an enchant gap: they belong to
+//! `ArmorSetData` (`game_loop::armor_sets`).
 
 use commons::network::PacketReader;
 
@@ -479,19 +478,20 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     }
 
     if success {
-        // Success step: a support widens it (its `randomEnchant` range, capped
-        // at the support's max), else the scroll's default +1.
-        let (cap, step) = match &support {
-            Some(s) => {
-                let step = if s.random_max > s.random_min {
-                    s.random_min + world.roll(s.random_max - s.random_min + 1)
-                } else {
-                    s.random_min
-                };
-                (s.max_enchant, step)
-            }
-            None => (scroll.max_enchant, 1),
+        // Success step. Java `RequestEnchantItem`'s SUCCESS arm rolls
+        // `Rnd.get(randomEnchantMin, randomEnchantMax)` — inclusive both ends —
+        // and caps at that template's `maxEnchant`. **The support, when present,
+        // supplies both the range and the cap**; the scroll supplies them
+        // otherwise. The port had the support half and hard-coded the scroll
+        // half to `+1`, which is right for every scroll that omits the
+        // attributes (min defaults to 1, max to min) and wrong for the 20 that
+        // carry them — of which 5 are obtainable here, one through a quest this
+        // port ships: Q375 rewards 33808, `randomEnchantMin=1 max=3`.
+        let (cap, min, max) = match &support {
+            Some(s) => (s.max_enchant, s.random_min, s.random_max),
+            None => (scroll.max_enchant, scroll.random_min, scroll.random_max),
         };
+        let step = roll_enchant_step(world, min, max);
         apply_success(
             world,
             client_id,
@@ -526,6 +526,17 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
 /// default 1; a support widens it) capped at `cap`, then refresh. The guard on
 /// `chance_no_bonus > 0` matches Java (a 0%-group enchant can't step up).
 #[allow(clippy::too_many_arguments)]
+/// Java `Rnd.get(origin, bound)` over an enchant template's random range:
+/// **inclusive at both ends**, and `origin` itself when `origin >= bound`
+/// (Java returns early rather than calling `nextInt` with an empty span).
+fn roll_enchant_step(world: &mut World, min: i32, max: i32) -> i32 {
+    if max > min {
+        min + world.roll(max - min + 1)
+    } else {
+        min
+    }
+}
+
 fn apply_success(
     world: &mut World,
     client_id: u32,

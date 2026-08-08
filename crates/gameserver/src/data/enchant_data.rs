@@ -123,6 +123,12 @@ pub struct EnchantScroll {
     pub bonus_rate: f64,
     /// `scrollGroupId` (default 0).
     pub scroll_group_id: i32,
+    /// `randomEnchantMin`/`Max` — the success **step**, rolled inclusively.
+    /// Java `AbstractEnchantItem`: min defaults to 1 and max defaults to *min*,
+    /// so a scroll with neither attribute is a plain `+1` and the 20 rows that
+    /// do carry them are the only ones that behave differently.
+    pub random_min: i32,
+    pub random_max: i32,
     /// `<item id=…>` whitelist; empty = the scroll works on any matching item.
     pub item_ids: HashSet<i32>,
 }
@@ -181,6 +187,14 @@ impl EnchantData {
     }
 
     /// A branded scroll's definition, if `item_id` is one.
+    /// Every scroll id in the file — for censuses and range invariants.
+    #[cfg(test)]
+    pub fn scroll_ids(&self) -> Vec<i32> {
+        let mut v: Vec<i32> = self.scrolls.keys().copied().collect();
+        v.sort_unstable();
+        v
+    }
+
     pub fn scroll(&self, item_id: i32) -> Option<&EnchantScroll> {
         self.scrolls.get(&item_id)
     }
@@ -501,6 +515,9 @@ fn build_support(e: &quick_xml::events::BytesStart) -> Option<EnchantSupport> {
 /// (shared by the self-closing and child-bearing forms).
 fn build_scroll(e: &quick_xml::events::BytesStart) -> Option<EnchantScroll> {
     let id = attr(e, "id").and_then(|s| s.parse().ok())?;
+    let min = attr(e, "randomEnchantMin")
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1);
     Some(EnchantScroll {
         id,
         target_grade: CrystalType::from_name(attr(e, "targetGrade").as_deref()),
@@ -519,6 +536,10 @@ fn build_scroll(e: &quick_xml::events::BytesStart) -> Option<EnchantScroll> {
         scroll_group_id: attr(e, "scrollGroupId")
             .and_then(|s| s.parse().ok())
             .unwrap_or(0),
+        random_min: min,
+        random_max: attr(e, "randomEnchantMax")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(min),
         item_ids: HashSet::new(),
     })
 }
@@ -673,5 +694,69 @@ mod tests {
         let circlet = d.scroll(48211).expect("scroll 48211");
         assert!(circlet.item_ids.contains(&48202));
         assert_eq!(circlet.max_enchant, 5);
+    }
+}
+
+#[cfg(test)]
+mod random_range_tests {
+    use super::*;
+
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    /// The dist's own ranges, and the invariant every scroll must satisfy.
+    ///
+    /// Note what this canNOT show: `randomEnchantMax`'s default. Java's is
+    /// `_randomEnchantMin`, but **every** row in this file that omits `max`
+    /// also leaves `min` at its default of 1, so `unwrap_or(min)` and
+    /// `unwrap_or(1)` are indistinguishable here — sabotaging the default to 1
+    /// leaves this test green. [`max_defaults_to_min_not_to_one`] pins it
+    /// against a synthetic element instead, which is the only way to see it.
+    #[test]
+    fn the_dist_random_ranges_are_sane() {
+        let data = EnchantData::load_from(DIST);
+
+        // No attributes at all — an ordinary Scroll: Enchant Weapon (D).
+        let plain = data.scroll(955).expect("955 loaded");
+        assert_eq!(
+            (plain.random_min, plain.random_max),
+            (1, 1),
+            "a scroll with neither attribute is a flat +1"
+        );
+
+        // Both attributes — the Giant's Scroll a player can earn from Q375.
+        let ranged = data.scroll(33808).expect("33808 loaded");
+        assert_eq!((ranged.random_min, ranged.random_max), (1, 3));
+
+        // A non-positive span would make the step roll's `max - min + 1` zero
+        // or negative, which `World::roll` would clamp rather than reject.
+        for id in data.scroll_ids() {
+            let s = data.scroll(id).unwrap();
+            assert!(
+                s.random_min >= 1 && s.random_max >= s.random_min,
+                "scroll {id} has range {}..{}",
+                s.random_min,
+                s.random_max
+            );
+        }
+    }
+
+    /// Java `AbstractEnchantItem`: `_randomEnchantMax = set.getInt(
+    /// "randomEnchantMax", _randomEnchantMin)` — the fallback is **min**, not 1
+    /// and not the 127 `maxEnchant` uses. No row on this dist can tell the two
+    /// apart (see above), so this drives the builders directly: a scroll with
+    /// `min=2` and no `max` must be a flat +2, and would silently become a
+    /// 1..2 roll under the wrong default.
+    #[test]
+    fn max_defaults_to_min_not_to_one() {
+        use quick_xml::events::BytesStart;
+
+        let e = BytesStart::from_content(r#"enchant id="1" randomEnchantMin="2""#, "enchant".len());
+        let s = build_scroll(&e).expect("builds");
+        assert_eq!((s.random_min, s.random_max), (2, 2));
+
+        // And the support side, which shares the rule.
+        let e = BytesStart::from_content(r#"support id="2" randomEnchantMin="4""#, "support".len());
+        let s = build_support(&e).expect("builds");
+        assert_eq!((s.random_min, s.random_max), (4, 4));
     }
 }
