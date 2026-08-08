@@ -216,7 +216,7 @@ fn send_npc_info(world: &World, session: &ClientSession, npc_id: i32) {
 
 /// One `NpcInfo` payload as refcountable `Bytes` — build once, send to any
 /// number of observers.
-fn npc_info_bytes(world: &World, npc_id: i32) -> Option<bytes::Bytes> {
+pub(crate) fn npc_info_bytes(world: &World, npc_id: i32) -> Option<bytes::Bytes> {
     let v = crate::model::npc::NpcView::of(&world.objects, npc_id)?;
     let t = v.npc.template(world)?;
     let visuals = super::abnormal::visual_effects(world, npc_id);

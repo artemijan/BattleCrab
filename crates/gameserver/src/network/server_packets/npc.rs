@@ -608,10 +608,13 @@ pub fn pet_item_list(
 /// sites transcribe the Java argument list literally rather than silently
 /// shifting every following parameter by one.
 ///
-/// (Java also ships an 11-arg overload that forwards `duration` and `range` into
-/// each other's slots, so a caller's *range* is written as the duration. No
-/// boss script uses it — all 26 call sites take the 12-arg form — so the port
-/// does not reproduce the swap.)
+/// Java also ships an 11-arg overload that forwards `duration` and `range` into
+/// each other's slots, so a caller's *range* is what gets written as the
+/// duration. **The datapack uses it 38 times** — this doc used to claim nothing
+/// did — and every one of them is `LastImperialTomb`. The swap is applied there,
+/// at `game_loop::frintezza::camera_packet`, rather than here, so this function
+/// stays the canonical 12-arg order that Antharas, Valakas and Dr. Chaos (all
+/// 12-arg upstream, 36 sites) transcribe directly.
 #[allow(clippy::too_many_arguments)]
 pub fn special_camera(
     object_id: i32,

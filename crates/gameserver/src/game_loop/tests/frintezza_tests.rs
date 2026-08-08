@@ -26,6 +26,8 @@ fn seed_frintezza_rooms(world: &mut World, room_size: usize) {
     // cube) so their spawns resolve.
     for id in [
         HALL_ALARM, TRASH, 29045, 29046, 29047, 29048, 29049, 29050, 29051, 29061,
+        // 29052/29053 are the invisible camera dummies the cinematic anchors on.
+        29052, 29053,
     ] {
         if world.data.npc_data.get(id).is_none() {
             let mut t = crate::data::npc_data::default_template(id);
@@ -266,9 +268,11 @@ fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
             .unwrap_or(false)
     };
 
-    // Step 1 spawns Frintezza and freezes the party for the cinematic.
-    frintezza::handle_intro_step(&mut world, iid, 0);
-    frintezza::handle_intro_step(&mut world, iid, 1);
+    // The steps mirror Java's `FRINTEZZA_INTRO_START`/`_1`..`_20` one for one.
+    // `_2` is the beat that freezes the party and raises Frintezza.
+    for step in 0..=2 {
+        frintezza::handle_intro_step(&mut world, iid, step);
+    }
     assert!(paralyzed(&world), "players are frozen during the cinematic");
     let frintezza_oid = world.instances.get_var(iid, "frintezza") as i32;
     assert!(
@@ -280,8 +284,8 @@ fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
         "Frintezza is on the field"
     );
 
-    // Run the rest: Scarlet, the portraits, and the hand-back.
-    for step in 2..=5 {
+    // Run the rest: the camera work, Scarlet, the portraits, the hand-back.
+    for step in 3..=20 {
         frintezza::handle_intro_step(&mut world, iid, step);
     }
     let scarlet = world.instances.get_var(iid, "activeScarlet") as i32;
@@ -315,7 +319,7 @@ fn arena_with_scarlet(
     let rx = ingame_player(world, 1, 100, 1000, 1000, 0);
     frintezza::try_enter(world, 100);
     let iid = instance_of(world, 100);
-    for step in 0..=5 {
+    for step in 0..=20 {
         frintezza::handle_intro_step(world, iid, step);
     }
     let scarlet1 = world.instances.get_var(iid, "activeScarlet") as i32;
@@ -636,4 +640,116 @@ fn a_room_advances_only_once_every_mob_is_dead() {
     // The third clears the room → advance.
     frintezza::on_monster_killed(&mut world, 100, 0, TRASH);
     assert_eq!(world.instances.status(iid), 2, "room cleared → advance");
+}
+
+/// Every `SpecialCamera` in a drained batch, as
+/// `(target_oid, force, angle1, angle2, time, duration)` — the six fields the
+/// choreography is actually written in terms of.
+fn cameras(pkts: &[Vec<u8>]) -> Vec<(i32, i32, i32, i32, i32, i32)> {
+    // Opcode plus the eleven ints the wire carries.
+    const CAMERA_LEN: usize = 1 + 11 * 4;
+    pkts.iter()
+        .filter(|p| p[0] == 0xD6 && p.len() >= CAMERA_LEN)
+        .map(|p| {
+            let rd = |i: usize| i32::from_le_bytes(p[1 + i * 4..5 + i * 4].try_into().unwrap());
+            (rd(0), rd(1), rd(2), rd(3), rd(4), rd(5))
+        })
+        .collect()
+}
+
+/// **The heart of the cinematic.** Java's intro fires 34 `SpecialCamera` shots
+/// off five invisible dummy actors; the port used to send two and skip the
+/// dummies entirely, so the camera sat on Frintezza throughout.
+///
+/// The assertion that matters is the **duration**: every shot in this script
+/// uses Java's 11-argument `SpecialCamera` overload, which forwards `duration`
+/// and `range` into each other's slots — so the argument the script writes as
+/// *range* is the one that reaches the wire. Transcribing the literals into the
+/// canonical 12-arg order instead would put a 0 there and the client would cut
+/// each shot instantly.
+#[test]
+fn the_intro_plays_its_full_camera_choreography_off_the_dummies() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_frintezza(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+    frintezza::try_enter(&mut world, 100);
+    let iid = instance_of(&world, 100);
+
+    for step in 0..=2 {
+        frintezza::handle_intro_step(&mut world, iid, step);
+    }
+    // The camera anchors exist. Without them the shots have nothing to hang off.
+    for key in [
+        "frintezzaDummy",
+        "overheadDummy",
+        "portraitDummy1",
+        "portraitDummy3",
+        "scarletDummy",
+    ] {
+        assert_ne!(
+            world.instances.get_var(iid, key),
+            0,
+            "{key} was spawned for the cinematic"
+        );
+    }
+    let overhead = world.instances.get_var(iid, "overheadDummy") as i32;
+
+    // INTRO_2's own two shots, both anchored on the overhead dummy. The second
+    // is the swap's witness: written `(…, 6500, 7000, 0, …)`, it must reach the
+    // wire as time 6500 / duration 7000, not duration 0.
+    let shots = cameras(&drain(&mut rx));
+    assert!(
+        shots.contains(&(overhead, 0, 75, -89, 0, 100)),
+        "the snap-in shot, duration 100 (its `range` argument): {shots:?}"
+    );
+    assert!(
+        shots.contains(&(overhead, 300, 90, -10, 6500, 7000)),
+        "the 7 s hold — a 0 here means the 11-arg swap was missed: {shots:?}"
+    );
+
+    // Run the rest, counting per step against Java's own tally. Written out
+    // rather than as a total so a shot moving between beats is caught too.
+    // `_8` is two because `sendPacketX` sends one of its pair to each player,
+    // twice; `_6`, `_7`, `_19` and `_20` carry no camera at all.
+    let expected: [(u8, usize); 18] = [
+        (3, 1),
+        (4, 1),
+        (5, 2),
+        (6, 0),
+        (7, 0),
+        (8, 2),
+        (9, 2),
+        (10, 1),
+        (11, 1),
+        (12, 1),
+        (13, 1),
+        (14, 1),
+        (15, 2),
+        (16, 1),
+        (17, 1),
+        (18, 1),
+        (19, 0),
+        (20, 0),
+    ];
+    for (step, want) in expected {
+        frintezza::handle_intro_step(&mut world, iid, step);
+        let got = cameras(&drain(&mut rx)).len();
+        assert_eq!(got, want, "INTRO_{step} fires {want} camera shot(s)");
+    }
+
+    // The dummies are cleaned up as their last shot lands — Java deletes each
+    // one explicitly, and a leftover invisible NPC would linger in the arena.
+    for key in [
+        "frintezzaDummy",
+        "portraitDummy1",
+        "portraitDummy3",
+        "overheadDummy",
+        "scarletDummy",
+    ] {
+        assert_eq!(
+            world.instances.get_var(iid, key),
+            0,
+            "{key} was deleted once its shots were done"
+        );
+    }
 }
