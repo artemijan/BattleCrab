@@ -50,6 +50,7 @@ pub mod static_object_data;
 pub mod teleporter_data;
 pub mod transform_data;
 pub mod variation_data;
+pub mod xml;
 pub mod xp_lost;
 pub mod zone_data;
 

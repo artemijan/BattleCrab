@@ -5,6 +5,7 @@
 //! plumbing, thrones need castles — both G14+). The `texture`/`map_x/y`
 //! attributes only feed that click behavior, so they are not stored.
 
+use crate::data::xml::attr_str;
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -47,12 +48,7 @@ impl StaticObjectData {
                 if e.name().as_ref() != b"object" {
                     continue;
                 }
-                let attr = |key: &[u8]| {
-                    e.attributes()
-                        .flatten()
-                        .find(|a| a.key.as_ref() == key)
-                        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-                };
+                let attr = |key: &[u8]| attr_str(&e, key);
                 let get_i32 = |key: &[u8]| attr(key).and_then(|v| v.parse::<i32>().ok());
                 let (Some(id), Some(x), Some(y), Some(z)) =
                     (get_i32(b"id"), get_i32(b"x"), get_i32(b"y"), get_i32(b"z"))

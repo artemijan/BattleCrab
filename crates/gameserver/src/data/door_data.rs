@@ -11,6 +11,7 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml::attr_i32;
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -207,13 +208,6 @@ fn absorb_attrs(e: &quick_xml::events::BytesStart, out: &mut HashMap<String, Str
             String::from_utf8_lossy(&a.value).into_owned(),
         );
     }
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .and_then(|a| String::from_utf8_lossy(&a.value).parse().ok())
 }
 
 #[cfg(test)]

@@ -23,6 +23,7 @@ use tracing::info;
 use crate::enums::Race;
 
 use super::spawn_data::{Territory, ZoneForm};
+use crate::data::xml::attr_str;
 
 pub const MAPREGION_DIR: &str = "data/mapregion";
 /// `data/zones/respawn.xml` — the `RespawnZone` polygons consulted before the
@@ -215,12 +216,7 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
             Event::Eof => break,
             _ => continue,
         };
-        let attr = |key: &[u8]| -> Option<String> {
-            e.attributes()
-                .flatten()
-                .find(|a| a.key.as_ref() == key)
-                .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-        };
+        let attr = |key: &[u8]| attr_str(&e, key);
         match e.name().as_ref() {
             b"region" => {
                 cur = Some(MapRegion {
@@ -306,12 +302,7 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
             Event::Eof => break,
             _ => continue,
         };
-        let attr = |key: &[u8]| -> Option<String> {
-            e.attributes()
-                .flatten()
-                .find(|a| a.key.as_ref() == key)
-                .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-        };
+        let attr = |key: &[u8]| attr_str(&e, key);
         match e.name().as_ref() {
             b"zone" => {
                 cur = Some(Pending {

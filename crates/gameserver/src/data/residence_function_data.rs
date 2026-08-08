@@ -5,6 +5,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml::attr_str as attr;
+use crate::data::xml::{attr_i32, attr_i64};
 use quick_xml::events::Event;
 
 /// One purchasable level of a function.
@@ -110,21 +112,6 @@ impl ResidenceFunctionData {
         }
         Self { by_id }
     }
-}
-
-fn attr(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr(e, key).and_then(|v| v.parse().ok())
-}
-
-fn attr_i64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i64> {
-    attr(e, key).and_then(|v| v.parse().ok())
 }
 
 /// `StatSet.getDuration` for the forms this file uses: `<n>days`.

@@ -42,6 +42,8 @@ pub(crate) mod parse;
 
 pub(crate) use build::*;
 pub(crate) use parse::*;
+// `build` used to define these; the submodules still reach them by this path.
+pub(crate) use crate::data::xml::{attr_f64, attr_i32, attr_i64, attr_str};
 
 pub const SKILLS_DIR: &str = "data/stats/skills";
 

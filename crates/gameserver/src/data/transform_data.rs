@@ -36,6 +36,7 @@
 
 use std::collections::{HashMap, HashSet};
 
+use crate::data::xml::attr_strict as attr;
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -235,13 +236,6 @@ impl TransformData {
     pub fn is_transform_skill(&self, id: i32) -> bool {
         self.skill_ids.contains(&id)
     }
-}
-
-fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key.as_bytes())
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
 }
 
 /// Parse one `<transform>` file. Returns `None` if the id is missing.

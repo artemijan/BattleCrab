@@ -23,6 +23,7 @@
 
 use std::collections::{HashMap, HashSet};
 
+use crate::data::xml::{attr_i32, attr_i64, attr_str};
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -585,21 +586,6 @@ fn parse_hero_tree(path: &str) -> Vec<Skill> {
         }
     }
     out
-}
-
-fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|s| s.parse().ok())
-}
-
-fn attr_i64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i64> {
-    attr_str(e, key).and_then(|s| s.parse().ok())
 }
 
 #[cfg(test)]

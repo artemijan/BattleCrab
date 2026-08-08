@@ -14,6 +14,7 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
+use crate::data::xml::attr_str;
 use crate::model::stats::BaseStat;
 
 const HENNA_FILE: &str = "data/stats/hennaList.xml";
@@ -149,12 +150,7 @@ impl HennaData {
             };
             match event {
                 Event::Start(e) | Event::Empty(e) => {
-                    let attr = |key: &[u8]| -> Option<String> {
-                        e.attributes()
-                            .flatten()
-                            .find(|a| a.key.as_ref() == key)
-                            .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-                    };
+                    let attr = |key: &[u8]| attr_str(&e, key);
                     let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i64>().ok());
                     match e.name().as_ref() {
                         b"henna" => {

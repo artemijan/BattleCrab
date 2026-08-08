@@ -6,6 +6,7 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml::attr_str;
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -84,12 +85,7 @@ fn parse_str(content: &str, out: &mut HashMap<i32, EnchantSkillCost>) {
         };
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let attr = |key: &[u8]| {
-                    e.attributes()
-                        .flatten()
-                        .find(|a| a.key.as_ref() == key)
-                        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-                };
+                let attr = |key: &[u8]| attr_str(&e, key);
                 match e.name().as_ref() {
                     b"enchant" => {
                         let level = attr(b"level").and_then(|v| v.parse().ok()).unwrap_or(0);

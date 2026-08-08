@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 use commons::config::PropertiesParser;
 
+use crate::data::xml::attr_str;
 use crate::model::siege::SiegeSpawn;
 
 const SIEGE_CONFIG_FILE: &str = "config/Siege.ini";
@@ -110,12 +111,7 @@ pub fn load_siege_schedule(file_path: &str) -> HashMap<i32, SiegeScheduleEntry> 
             Ok(quick_xml::events::Event::Empty(e)) | Ok(quick_xml::events::Event::Start(e))
                 if e.name().as_ref() == b"schedule" =>
             {
-                let attr = |k: &[u8]| {
-                    e.attributes()
-                        .flatten()
-                        .find(|a| a.key.as_ref() == k)
-                        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-                };
+                let attr = |k: &[u8]| attr_str(&e, k);
                 let (Some(castle_id), Some(day), Some(hour)) = (
                     attr(b"castleId").and_then(|v| v.parse::<i32>().ok()),
                     attr(b"day").and_then(|v| weekday_from_name(&v)),

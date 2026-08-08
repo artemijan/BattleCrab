@@ -1743,22 +1743,3 @@ pub(crate) fn build_skill(
         }
     }
 }
-
-pub(crate) fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-pub(crate) fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|s| s.parse().ok())
-}
-
-pub(crate) fn attr_i64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i64> {
-    attr_str(e, key).and_then(|s| s.parse().ok())
-}
-
-pub(crate) fn attr_f64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<f64> {
-    attr_str(e, key).and_then(|s| s.parse().ok())
-}

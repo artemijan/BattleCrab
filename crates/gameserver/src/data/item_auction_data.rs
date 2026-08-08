@@ -5,6 +5,7 @@
 //! commented out, so it loads empty; the engine exists so an operator can add
 //! auctions (`AltItemAuctionEnabled` is already `True`).
 
+use crate::data::xml::attr_i32_trimmed as attr_i32;
 use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
 use tracing::info;
@@ -172,17 +173,6 @@ fn parse_item(e: &BytesStart) -> Option<AuctionItem> {
         item_count: attr_i32(e, b"itemCount").unwrap_or(1) as i64,
         enchant_level: 0,
     })
-}
-
-fn attr_str(e: &BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-fn attr_i32(e: &BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|v| v.trim().parse().ok())
 }
 
 #[cfg(test)]

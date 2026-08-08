@@ -10,6 +10,7 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
+use crate::data::xml::{attr_i32, attr_str};
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, ShortcutType};
 
 pub const INITIAL_SHORTCUTS_FILE: &str = "data/stats/initialShortcuts.xml";
@@ -223,17 +224,6 @@ fn macro_type_of(s: &str) -> MacroType {
         "DELAY" => MacroType::Delay,
         _ => MacroType::None,
     }
-}
-
-fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
 #[cfg(test)]

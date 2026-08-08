@@ -12,6 +12,7 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
+use crate::data::xml::{attr_f64, attr_i32, attr_i64, attr_str};
 use crate::model::stats::Stat;
 
 pub const ITEMS_DIR: &str = "data/stats/items";
@@ -1450,25 +1451,6 @@ fn stat_from_xml(name: &str) -> Option<Stat> {
         "maxMp" => Stat::MaxMp,
         _ => return None,
     })
-}
-
-fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|v| v.parse().ok())
-}
-
-fn attr_i64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i64> {
-    attr_str(e, key).and_then(|v| v.parse().ok())
-}
-
-fn attr_f64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<f64> {
-    attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
 #[cfg(test)]

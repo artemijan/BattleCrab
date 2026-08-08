@@ -8,6 +8,7 @@
 //! (consumed by AI scripts only, G11). `dbSave` raid persistence
 //! (`DBSpawnManager`) is ported — see [`crate::game_loop::boss_respawn`].
 
+use crate::data::xml::{attr_i32, attr_str};
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -460,17 +461,6 @@ fn finish_territory(
     } else if let Some(s) = spawn.as_mut() {
         s.territories.push(territory);
     }
-}
-
-fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
 #[cfg(test)]

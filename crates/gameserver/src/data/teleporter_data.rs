@@ -11,6 +11,7 @@ use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ADENA_ID;
+use crate::data::xml::attr_str;
 
 pub const TELEPORTERS_DIR: &str = "data/teleporters";
 
@@ -179,12 +180,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
         };
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let attr = |key: &[u8]| -> Option<String> {
-                    e.attributes()
-                        .flatten()
-                        .find(|a| a.key.as_ref() == key)
-                        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-                };
+                let attr = |key: &[u8]| attr_str(&e, key);
                 match e.name().as_ref() {
                     b"npcs" => in_npcs = true,
                     b"npc" if in_npcs => {

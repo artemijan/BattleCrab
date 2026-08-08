@@ -22,6 +22,7 @@ use quick_xml::events::Event;
 use tracing::info;
 
 use super::spawn_data::{Territory, ZoneForm};
+use crate::data::xml::{attr_i32, attr_str};
 
 /// Java `ZoneManager.SHIFT_BY` (15) — zone-grid cells are one map tile, not
 /// the 2048-unit visibility cells (`World::REGION_SHIFT` = 11).
@@ -820,17 +821,6 @@ fn build_form(shape: &str, xs: Vec<i32>, ys: Vec<i32>, rad: Option<i32>) -> Opti
         _ if xs.len() >= 3 => Some(ZoneForm::NPoly { xs, ys }),
         _ => None,
     }
-}
-
-fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
 #[cfg(test)]

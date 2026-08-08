@@ -35,6 +35,7 @@ use quick_xml::events::Event;
 use tracing::info;
 
 use super::item_data::{CrystalType, ItemTemplate, slot_mask};
+use crate::data::xml::attr_strict as attr;
 
 pub const GROUPS_FILE: &str = "data/EnchantItemGroups.xml";
 pub const ITEMS_FILE: &str = "data/EnchantItemData.xml";
@@ -520,13 +521,6 @@ fn build_scroll(e: &quick_xml::events::BytesStart) -> Option<EnchantScroll> {
             .unwrap_or(0),
         item_ids: HashSet::new(),
     })
-}
-
-fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key.as_bytes())
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
 }
 
 /// `"0-2"` → `(0, 2)`, `"30-65535"` → `(30, 65535)`, `"5"` → `(5, 5)`.

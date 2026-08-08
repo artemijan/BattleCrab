@@ -6,6 +6,7 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
+use crate::data::xml::attr_strict as attr;
 use crate::model::cursed_weapon::CursedWeapon;
 
 const CURSED_WEAPONS_XML: &str = "data/CursedWeapons.xml";
@@ -34,13 +35,6 @@ impl CursedWeaponData {
             weapons: Vec::new(),
         }
     }
-}
-
-fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key.as_bytes())
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
 }
 
 /// `val="..."` on a child element, parsed to i32.

@@ -23,6 +23,7 @@ use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ItemData;
+use crate::data::xml::attr_str;
 
 pub const MULTISELL_DIR: &str = "data/multisell";
 /// `MultisellData.PAGE_SIZE` — the client shows this many entries per page and
@@ -209,12 +210,7 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
     while let Ok(event) = reader.read_event() {
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let attr = |key: &[u8]| {
-                    e.attributes()
-                        .flatten()
-                        .find(|a| a.key.as_ref() == key)
-                        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-                };
+                let attr = |key: &[u8]| attr_str(&e, key);
                 match e.name().as_ref() {
                     b"list" => {
                         let b = |k: &[u8]| {

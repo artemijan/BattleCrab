@@ -22,6 +22,7 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml::attr_strict as attr;
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -341,13 +342,6 @@ impl VariationData {
             }
         }
     }
-}
-
-fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key.as_bytes())
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
 }
 
 fn parse_i32(s: String) -> Option<i32> {
