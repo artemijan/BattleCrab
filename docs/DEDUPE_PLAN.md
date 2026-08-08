@@ -218,7 +218,24 @@ helper** — they are three different game rules.
 
 ---
 
-## Phase 4 — Parameter bundling
+## Phase 4 — Parameter bundling ✅ **done** (`ee4250be`, `9a07ea71`, `b7b149bb`)
+
+- **4a** shipped as `game_loop::stat_ctx::with_stat_ctx`, a **closure-scoped**
+  borrow rather than a struct the caller holds: half the eight sites make
+  several buff calls against one lookup, so a per-call helper would have turned
+  one component lookup into N in the stat-recalc path. −244/+44.
+- **4b** — `ItemTemplate` already derived `Default`; the fixtures predated it
+  and couldn't use it because the derive is a zero-fill that disagrees with
+  Java in four places. Added a `#[cfg(test)] for_test()` base carrying those
+  corrections. All 14 sites are test fixtures, not the "4 non-test + 6 test"
+  this plan originally claimed. −388/+81.
+- **4c** — **costs ~70 lines rather than saving them.** The bools genuinely
+  vary across the ten call sites, so the win is that a transposed argument is
+  now a compile error, not a smaller diff.
+
+The original plan follows.
+
+### Original plan
 
 Not copy-paste so much as signatures long enough that the call becomes a block.
 
