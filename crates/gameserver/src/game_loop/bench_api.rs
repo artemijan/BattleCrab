@@ -7,6 +7,7 @@
 //! chain the test fixtures use. Feature-gated so nothing here exists in a
 //! normal build; none of it is API.
 
+use crate::game_loop::guard::position;
 use std::sync::Arc;
 
 use crate::character::CharData;
@@ -132,7 +133,7 @@ pub fn monster_positions(world: &mut World, max: usize, stride: usize) -> Vec<(i
 /// `Creature.moveToLocation` tail (heading, speed-derived duration,
 /// MoveToLocation broadcast).
 pub fn begin_move(world: &mut World, client_id: u32, object_id: i32, dest: (i32, i32, i32)) {
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(cur) = position(world, object_id) else {
         return;
     };
     super::position::start_move(world, client_id, object_id, cur, dest, None);

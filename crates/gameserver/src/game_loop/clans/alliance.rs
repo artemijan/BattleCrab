@@ -205,12 +205,38 @@ pub(crate) fn handle_dissolve_ally(world: &mut World, client_id: u32, player_oid
         store_clan_ally(world, cid);
         refresh_ally_on_members(world, cid);
     }
+    leave_alliance(
+        world,
+        clan_id,
+        now_millis(),
+        ALLY_PENALTY_TYPE_DISSOLVE_ALLY,
+    );
+}
+
+/// Drop a clan out of its alliance under a re-join penalty — Java
+/// `setAllyId(0)` + `setAllyName(null)` + `changeAllyCrest(0, …)` +
+/// `setAllyPenaltyExpiryTime`, followed by the persist and the member refresh
+/// that every one of these paths does.
+///
+/// `at` is passed in rather than read here because the expel path stamps the
+/// *expelling* and the *expelled* clan with one timestamp; re-reading the clock
+/// would drift them apart.
+///
+/// Java's `changeAllyCrest` second argument differs across the callers
+/// (`false` on dissolve, `true` on leave/expel) — it selects whether the crest
+/// is only dropped from the DB or also re-broadcast, and this port does the
+/// same thing either way.
+///
+/// Not used by the loop in `dissolve_alliance` that frees the *other* member
+/// clans: those carry no penalty and keep their cached ally crest, which is a
+/// difference preserved from the ported code rather than chosen.
+fn leave_alliance(world: &mut World, clan_id: i32, at: i64, penalty_type: i32) {
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.ally_id = 0;
         c.ally_name.clear();
-        c.ally_crest_id = 0; // `changeAllyCrest(0, false)`
-        c.ally_penalty_expiry_time = now_millis() + ALLY_PENALTY_MS;
-        c.ally_penalty_type = ALLY_PENALTY_TYPE_DISSOLVE_ALLY;
+        c.ally_crest_id = 0;
+        c.ally_penalty_expiry_time = at + ALLY_PENALTY_MS;
+        c.ally_penalty_type = penalty_type;
     }
     store_clan_ally(world, clan_id);
     refresh_ally_on_members(world, clan_id);
@@ -547,15 +573,7 @@ pub(crate) fn handle_ally_leave(world: &mut World, client_id: u32) {
         send_sm_with(world, player, sm_ids::ALLIANCE_LEADERS_CANNOT_WITHDRAW, &[]);
         return;
     }
-    if let Some(c) = world.clans.get_mut(&clan_id) {
-        c.ally_id = 0;
-        c.ally_name.clear();
-        c.ally_crest_id = 0; // `changeAllyCrest(0, true)`
-        c.ally_penalty_expiry_time = now_millis() + ALLY_PENALTY_MS;
-        c.ally_penalty_type = ALLY_PENALTY_TYPE_CLAN_LEAVED;
-    }
-    store_clan_ally(world, clan_id);
-    refresh_ally_on_members(world, clan_id);
+    leave_alliance(world, clan_id, now_millis(), ALLY_PENALTY_TYPE_CLAN_LEAVED);
     send_sm_with(
         world,
         player,
@@ -632,15 +650,7 @@ pub(crate) fn handle_ally_dismiss(world: &mut World, client_id: u32, body: &[u8]
         c.ally_penalty_type = ALLY_PENALTY_TYPE_DISMISS_CLAN;
     }
     store_clan_ally(world, clan_id);
-    if let Some(c) = world.clans.get_mut(&target_id) {
-        c.ally_id = 0;
-        c.ally_name.clear();
-        c.ally_crest_id = 0; // `changeAllyCrest(0, true)`
-        c.ally_penalty_expiry_time = now + ALLY_PENALTY_MS;
-        c.ally_penalty_type = ALLY_PENALTY_TYPE_CLAN_DISMISSED;
-    }
-    store_clan_ally(world, target_id);
-    refresh_ally_on_members(world, target_id);
+    leave_alliance(world, target_id, now, ALLY_PENALTY_TYPE_CLAN_DISMISSED);
     send_sm_with(
         world,
         player,

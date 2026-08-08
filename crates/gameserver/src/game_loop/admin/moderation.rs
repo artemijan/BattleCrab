@@ -4,6 +4,7 @@
 //! `//serverinfo`.
 
 use crate::game_loop::guard;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
@@ -636,11 +637,7 @@ pub(super) fn admin_tracert(world: &mut World, client_id: u32, object_id: i32, a
         send_message(world, client_id, "Usage: //tracert <player name>");
         return;
     };
-    let name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, target);
     match player_ip(world, target) {
         Some(ip) => send_message(world, client_id, &format!("{name} — IP {ip}")),
         None => send_message(world, client_id, "Client is null."),
@@ -669,11 +666,7 @@ pub(super) fn admin_snoop(world: &mut World, client_id: u32, object_id: i32, arg
     {
         t.snoop_listeners.push(object_id);
     }
-    let name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, target);
     if let Some(gm) = world.objects.get_component_mut::<Player>(&object_id)
         && !gm.snooped.contains(&target)
     {

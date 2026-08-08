@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::stat_add;
@@ -377,11 +378,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
     if radius <= 0 || angle <= 0 {
         return Vec::new();
     }
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&attacker_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, attacker_oid) else {
         return Vec::new();
     };
     let Some(region) = region_cell_of(world, attacker_oid) else {
@@ -410,7 +407,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
         if !attackable {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else {
+        let Some(pos) = position(world, candidate) else {
             continue;
         };
         let (dx, dy) = ((pos.x - origin.x) as f64, (pos.y - origin.y) as f64);

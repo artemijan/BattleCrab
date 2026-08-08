@@ -20,6 +20,7 @@
 //! if a second boat ever shares a dock.
 
 use crate::enums::ChatType;
+use crate::game_loop::guard::position;
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
 use crate::model::components::{Position, RegionCell};
@@ -618,7 +619,7 @@ pub(crate) fn handle_depart(world: &mut World, boat_oid: i32) {
 fn move_to_next(world: &mut World, boat_oid: i32) {
     let Some((target, cur)) = ({
         let boat = world.objects.get_component::<Boat>(&boat_oid);
-        let pos = world.objects.get_component::<Position>(&boat_oid).copied();
+        let pos = position(world, boat_oid);
         boat.map(|b| b.target()).zip(pos)
     }) else {
         return;
@@ -731,7 +732,7 @@ pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i
     if moving {
         return;
     }
-    let Some(pp) = world.objects.get_component::<Position>(&player).copied() else {
+    let Some(pp) = position(world, player) else {
         return;
     };
     if dist3d_xyz(pp.x, pp.y, pp.z, bx, by, bz) > 1000.0 {

@@ -18,7 +18,9 @@
 //!   bonus, MP cost and reuse time.
 
 use crate::game_loop::bot_report;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
@@ -1611,11 +1613,7 @@ fn escape_to(world: &mut World, player_oid: i32, dest: crate::model::skill::Esca
     else {
         return;
     };
-    let Some(pos) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&player_oid)
-        .copied()
-    else {
+    let Some(pos) = position(world, player_oid) else {
         return;
     };
     let pick = if world.cfg.character.random_respawn_in_town {
@@ -1765,11 +1763,7 @@ fn dam_over_time_crit_burst(
             }
         }
         if damage > 0.0 {
-            let caster_name = world
-                .objects
-                .get_component::<crate::model::Player>(&caster_oid)
-                .map(|p| p.name.clone())
-                .unwrap_or_default();
+            let caster_name = player_name_or_empty(world, caster_oid);
             apply_skill_damage(
                 world,
                 caster_oid,

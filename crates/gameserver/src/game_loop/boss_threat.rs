@@ -25,6 +25,7 @@
 //! Antharas's turn came, so the machinery lives here and each boss keeps just
 //! its own skill ladder.
 
+use crate::game_loop::guard::position;
 use crate::world::World;
 
 /// `getRandom(3000)` — the jitter added to every stored threat value.
@@ -195,10 +196,7 @@ fn prune_threat(world: &mut World, boss_oid: i32) {
     else {
         return;
     };
-    let boss_pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&boss_oid)
-        .copied();
+    let boss_pos = position(world, boss_oid);
     let mut cleared = [false; 3];
     for (i, (oid, _)) in t.slots.iter().enumerate() {
         if *oid == 0 {

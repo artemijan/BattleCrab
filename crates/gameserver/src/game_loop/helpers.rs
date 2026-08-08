@@ -1,7 +1,8 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
+use crate::game_loop::guard::position;
 use crate::model::Player;
-use crate::model::components::{Movement, Position, RegionCell, StatModifiers, Vitals};
+use crate::model::components::{Movement, RegionCell, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::npc::Npc;
 use crate::model::stats::Stat;
@@ -50,7 +51,7 @@ pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
         return;
     }
     world.objects.remove_component::<Movement>(&object_id);
-    if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+    if let Some(pos) = position(world, object_id) {
         broadcast_including_self(
             world,
             object_id,
@@ -513,7 +514,7 @@ pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[
 /// click. No-op while still busy (casting or mid-swing) or dead — the slot
 /// stays for the later stop.
 pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
-    use crate::model::components::{AttackState, Casting, Position, QueuedAction, Vitals};
+    use crate::model::components::{AttackState, Casting, QueuedAction, Vitals};
     let Some(&action) = world.objects.get_component::<QueuedAction>(&object_id) else {
         return;
     };
@@ -535,7 +536,7 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
     };
     match action {
         QueuedAction::Move { x, y, z } => {
-            let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+            let Some(cur) = position(world, object_id) else {
                 return;
             };
             crate::game_loop::position::intention_move_to(

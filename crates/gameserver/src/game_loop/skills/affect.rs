@@ -37,6 +37,7 @@
 //! largest is 2000, comfortably inside a region block).
 
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
@@ -182,19 +183,12 @@ fn sweep_radius(
     }
     // Both handlers pass `target` as the reference object.
     let centre_oid = target_oid;
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&centre_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, centre_oid) else {
         return out;
     };
     // LOS is measured from the *target* in both Java handlers, even for
     // PointBlank (`canSeeTarget(target, c)`).
-    let los_from = world
-        .objects
-        .get_component::<Position>(&target_oid)
-        .copied();
+    let los_from = position(world, target_oid);
 
     // `affected` counts the primary target: Java's Range handler runs the
     // filter over the origin object first and increments there. PointBlank
@@ -229,7 +223,7 @@ fn sweep_radius(
         {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else {
+        let Some(pos) = position(world, candidate) else {
             continue;
         };
         if !within(&origin, &pos, range) {
@@ -263,11 +257,7 @@ fn sweep_group(
     group: Group,
 ) -> Vec<i32> {
     let mut out = vec![target_oid];
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&target_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, target_oid) else {
         return out;
     };
     let range = skill.affect_range;
@@ -306,7 +296,7 @@ fn sweep_group(
         if is_dead(world, member) {
             continue; // Java: `p.isDead()` drops the member
         }
-        let Some(pos) = world.objects.get_component::<Position>(&member).copied() else {
+        let Some(pos) = position(world, member) else {
             continue;
         };
         if range > 0 && !within(&origin, &pos, range) {
@@ -338,11 +328,7 @@ fn sweep_dead_group(
     limit: i32,
     group: Group,
 ) -> Vec<i32> {
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&target_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, target_oid) else {
         return Vec::new();
     };
     let range = skill.affect_range;
@@ -397,7 +383,7 @@ fn sweep_dead_group(
         if !is_dead(world, oid) || !same_group(oid) {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+        let Some(pos) = position(world, oid) else {
             continue;
         };
         // Java measures from the *origin playable* (the caster, for a SELF
@@ -439,11 +425,7 @@ fn sweep_ground(world: &World, caster_oid: i32, skill: &Skill, limit: i32) -> Ve
     };
     // LOS runs `canSeeTarget(target, c)` and the target sentinel is the
     // caster, so it is measured from the caster's own position.
-    let Some(caster_pos) = world
-        .objects
-        .get_component::<Position>(&caster_oid)
-        .copied()
-    else {
+    let Some(caster_pos) = position(world, caster_oid) else {
         return Vec::new();
     };
 
@@ -459,7 +441,7 @@ fn sweep_ground(world: &World, caster_oid: i32, skill: &Skill, limit: i32) -> Ve
         if is_dead(world, candidate) && !corpse_skill(skill) {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else {
+        let Some(pos) = position(world, candidate) else {
             continue;
         };
         if !within(&centre, &pos, skill.affect_range) {
@@ -513,11 +495,7 @@ fn sweep_fan(
     limit: i32,
 ) -> Vec<i32> {
     let pb = skill.affect_scope == AffectScope::FanPointBlank;
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&caster_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, caster_oid) else {
         return Vec::new();
     };
     let heading_deg = heading_to_degree(origin.heading);
@@ -542,7 +520,7 @@ fn sweep_fan(
         if is_dead(world, candidate) && (pb || !corpse_skill(skill)) {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else {
+        let Some(pos) = position(world, candidate) else {
             continue;
         };
         if candidate != caster_oid && !within(&origin, &pos, radius) {
@@ -589,11 +567,7 @@ fn sweep_square(
     limit: i32,
 ) -> Vec<i32> {
     let pb = skill.affect_scope == AffectScope::SquarePointBlank;
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&caster_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, caster_oid) else {
         return Vec::new();
     };
     let length = skill.fan_range[2];
@@ -621,7 +595,7 @@ fn sweep_square(
         if is_dead(world, candidate) && (pb || !corpse_skill(skill)) {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else {
+        let Some(pos) = position(world, candidate) else {
             continue;
         };
         if candidate != caster_oid && !within(&origin, &pos, radius) {
@@ -666,11 +640,7 @@ fn sweep_ring(
     skill: &Skill,
     limit: i32,
 ) -> Vec<i32> {
-    let Some(centre) = world
-        .objects
-        .get_component::<Position>(&target_oid)
-        .copied()
-    else {
+    let Some(centre) = position(world, target_oid) else {
         return Vec::new();
     };
     let range = skill.affect_range;
@@ -688,7 +658,7 @@ fn sweep_ring(
         if is_dead(world, candidate) {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else {
+        let Some(pos) = position(world, candidate) else {
             continue;
         };
         if !within(&centre, &pos, range) {

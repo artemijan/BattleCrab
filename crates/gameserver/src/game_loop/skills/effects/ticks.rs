@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
@@ -35,11 +36,7 @@ pub(crate) fn handle_dam_over_time_tick(
     };
     // Effector name for the damage message (`Player.sendDamageMessage`); empty
     // for an NPC effector (no client to message — the base no-op).
-    let caster_name = world
-        .objects
-        .get_component::<crate::model::Player>(&caster_oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let caster_name = player_name_or_empty(world, caster_oid);
 
     let mut interval = 0;
     // Set when a tick returns Java's `false` for a *toggle*, which cancels it

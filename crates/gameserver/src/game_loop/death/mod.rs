@@ -22,6 +22,7 @@
 //!   revive, and raid points.
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
+use crate::game_loop::guard::position;
 use crate::model::Player;
 use crate::model::components::{
     BaseStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook, Speeds,
@@ -185,7 +186,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // the StatusUpdate/Die below). A mob killed mid-chase otherwise keeps
     // sliding toward its last `MoveToPawn` destination client-side, since the
     // client never learns the movement ended.
-    if let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() {
+    if let Some(pos) = position(world, npc_oid) {
         broadcast_near_region_in(
             world,
             region,
@@ -276,7 +277,7 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // A `dbSave` boss's row is written from its *spawn* position, which the
     // despawn below drops along with the entity — so read it first.
     let db_saved = super::boss_respawn::is_db_saved(world, npc.spawn_ref);
-    let corpse_pos = world.objects.get_component::<Position>(&npc_oid).copied();
+    let corpse_pos = position(world, npc_oid);
     despawn_npc(world, npc_oid, region);
 
     // `Spawn.decreaseCount`: respawn only when the spawn line asked for it
@@ -345,10 +346,7 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
         }
         if let (Some(client_id), Some(pos)) = (
             client_for_player(world, watcher_oid),
-            world
-                .objects
-                .get_component::<Position>(&watcher_oid)
-                .copied(),
+            position(world, watcher_oid),
         ) && let Some(cs) = world.clients.get(&client_id)
         {
             cs.send(server_packets::target_unselected(

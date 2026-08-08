@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
 
 /// The clan's member object-ids that are currently online (leader included).
@@ -400,11 +401,7 @@ pub(crate) fn force_new_leader(world: &mut World, clan_id: i32, new_leader: i32)
             crate::game_loop::party::broadcast_user_info(world, oid);
         }
     }
-    let name = world
-        .objects
-        .get_component::<Player>(&new_leader)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, new_leader);
     for oid in online_members(world, clan_id) {
         send_sm_to_player(
             world,

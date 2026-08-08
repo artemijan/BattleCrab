@@ -7,6 +7,7 @@
 //! behalf. See `PLAN_G33_AUTO_PLAY.md`.
 
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, GroundItem, Position, Vitals};
 use crate::world::World;
@@ -249,13 +250,7 @@ fn keep_attacking(world: &mut World, player_oid: i32, target: i32, s: &AutoPlayS
 /// Java's reposition: a point one collision-diameter beyond the target, so the
 /// player walks *through* whatever it is stuck on.
 fn nudge(world: &mut World, player_oid: i32, target: i32) {
-    let (Some(p), Some(t)) = (
-        world
-            .objects
-            .get_component::<Position>(&player_oid)
-            .copied(),
-        world.objects.get_component::<Position>(&target).copied(),
-    ) else {
+    let (Some(p), Some(t)) = (position(world, player_oid), position(world, target)) else {
         return;
     };
     let radius = world
@@ -283,10 +278,7 @@ fn move_to(world: &mut World, player_oid: i32, from: Position, dest: (i32, i32, 
 /// pass was spent.
 fn try_pickup(world: &mut World, player_oid: i32) -> bool {
     let (Some(pos), Some(region)) = (
-        world
-            .objects
-            .get_component::<Position>(&player_oid)
-            .copied(),
+        position(world, player_oid),
         region_cell_of(world, player_oid),
     ) else {
         return false;
@@ -334,10 +326,7 @@ fn find_target(world: &World, player_oid: i32, s: &AutoPlaySettings) -> Option<i
     {
         return Some(leader_target);
     }
-    let pos = world
-        .objects
-        .get_component::<Position>(&player_oid)
-        .copied()?;
+    let pos = position(world, player_oid)?;
     let region = region_cell_of(world, player_oid)?;
     // Characters mode ignores the short-range setting, as Java does.
     let range = if s.short_range && s.next_target_mode != 2 {
@@ -356,7 +345,7 @@ fn find_target(world: &World, player_oid: i32, s: &AutoPlaySettings) -> Option<i
         if !mode_allows(world, player_oid, other, s.next_target_mode) {
             continue;
         }
-        let Some(opos) = world.objects.get_component::<Position>(&other).copied() else {
+        let Some(opos) = position(world, other) else {
             continue;
         };
         if (pos.z - opos.z).abs() >= MAX_Z_DIFF {

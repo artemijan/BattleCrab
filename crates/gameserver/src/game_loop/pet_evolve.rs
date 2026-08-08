@@ -32,6 +32,7 @@
 //! pet manager would accept it, and leaving it out would be a silent gap if the
 //! NPC is ever spawned.
 
+use crate::game_loop::guard::position;
 use tracing::warn;
 
 use super::helpers::send_to_client as send;
@@ -228,10 +229,7 @@ fn do_evolve(
         .get_component::<crate::model::components::PlayerPets>(&player_oid)
         .and_then(|p| p.0.get(&collar_object_id).map(|r| r.name.clone()))
         .unwrap_or_default();
-    let old_pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&pet_oid)
-        .copied();
+    let old_pos = position(world, pet_oid);
 
     // `unSummon` then `destroyControlItem(player, true)`: the old collar and
     // its saved row both go, or the evolved pet would inherit the old one's
@@ -418,11 +416,7 @@ fn summon_evolved(
 
     // `MagicSkillUse(npc, 2046, …)` is cast **by the manager**, plus the
     // summoning system message.
-    if let Some(npc_pos) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&npc_object_id)
-        .copied()
-    {
+    if let Some(npc_pos) = position(world, npc_object_id) {
         let anim = server_packets::magic_skill_use_raw(
             (npc_object_id, npc_pos.x, npc_pos.y, npc_pos.z),
             (npc_object_id, npc_pos.x, npc_pos.y, npc_pos.z),

@@ -10,6 +10,7 @@
 
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::model::components::{Position, Vitals};
 use crate::world::World;
@@ -189,7 +190,7 @@ fn spawn_cubic_caster(world: &mut World, owner_oid: i32, template: &CubicTemplat
     world.objects.add_components(&oid, Vitals::hp_full(1, 1));
     // Position is read for range/aggro bookkeeping; the cubic floats at its
     // owner, and follows them because it is re-read at cast time.
-    if let Some(pos) = world.objects.get_component::<Position>(&owner_oid).copied() {
+    if let Some(pos) = position(world, owner_oid) {
         world.objects.add_components(&oid, pos);
     }
     Some(oid)
@@ -427,12 +428,12 @@ fn cast(world: &mut World, owner_oid: i32, caster_oid: i32, target: i32, cubic_s
     else {
         return;
     };
-    let target_pos = world.objects.get_component::<Position>(&target).copied();
+    let target_pos = position(world, target);
     if let (Some(caster), Some(pos), Some(tp)) = (
         world
             .objects
             .get_component::<crate::model::Player>(&owner_oid),
-        world.objects.get_component::<Position>(&owner_oid).copied(),
+        position(world, owner_oid),
         target_pos,
     ) {
         let pkt = crate::network::server_packets::magic_skill_use(
@@ -449,7 +450,7 @@ fn cast(world: &mut World, owner_oid: i32, caster_oid: i32, target: i32, cubic_s
     }
     // The cubic floats with its owner — keep its position current so range and
     // aggro bookkeeping resolve from where the owner actually is.
-    if let Some(pos) = world.objects.get_component::<Position>(&owner_oid).copied()
+    if let Some(pos) = position(world, owner_oid)
         && let Some(p) = world.objects.get_component_mut::<Position>(&caster_oid)
     {
         *p = pos;

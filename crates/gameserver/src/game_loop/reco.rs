@@ -6,6 +6,7 @@
 //! and are persisted in `character_reco_bonus` by the memory-first autosave; see
 //! `db::load_reco_bonus` / `store_player_tx` / `create_character`.
 
+use crate::game_loop::helpers::player_name_or_empty;
 use commons::network::PacketReader;
 
 use super::helpers::send_sm_to_player as send_sm;
@@ -143,11 +144,7 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
     };
 
     // "You have recommended $c1. You have $s2 recommendations left."
-    let target_name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let target_name = player_name_or_empty(world, target);
     send_sm(
         world,
         player,
@@ -158,11 +155,7 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
         ],
     );
     // "You have been recommended by $c1." to the target.
-    let player_name = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let player_name = player_name_or_empty(world, player);
     send_sm(
         world,
         target,

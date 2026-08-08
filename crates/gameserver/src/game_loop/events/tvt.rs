@@ -13,7 +13,9 @@
 //! (`on_player_logout`), and the freeze applies `Immobilized` +
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::player_name_or_empty;
 use commons::util::rnd;
 use tracing::warn;
 
@@ -714,11 +716,7 @@ pub(crate) fn inactivity_tick(world: &mut World, player: i32, warning: bool, seq
     }
     // Kick: strip the participant, oust them from the arena, and either forfeit
     // the match (their team is now empty) or announce the kick.
-    let name = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, player);
     set_team(world, player, 0);
     crate::game_loop::instances::exit(world, player);
     world.events.tvt.player_list.retain(|&p| p != player);
@@ -1158,11 +1156,7 @@ fn set_invul(world: &mut World, player: i32, value: bool) {
 
 /// The winner's firework flourish (Java `broadcastPacket(new MagicSkillUse(...))`).
 fn firework(world: &World, player: i32) {
-    let Some(pos) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&player)
-        .copied()
-    else {
+    let Some(pos) = position(world, player) else {
         return;
     };
     let src = (player, pos.x, pos.y, pos.z);

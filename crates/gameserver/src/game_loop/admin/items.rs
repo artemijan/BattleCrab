@@ -3,7 +3,7 @@
 //! menus, and `AdminDestroyItems`' inventory-wipe commands.
 
 use crate::game_loop::guard;
-use crate::model::Player;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::session::ClientSession;
 use crate::world::World;
@@ -67,11 +67,7 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
             cs.send(adena);
         }
     }
-    let target_name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let target_name = player_name_or_empty(world, target);
     send_message(
         world,
         gm_client,
@@ -297,11 +293,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
         super::helpers::send_inventory_update(world, owner_cid, owner, packet);
     }
     if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
-        let name = world
-            .objects
-            .get_component::<Player>(&owner)
-            .map(|p| p.name.clone())
-            .unwrap_or_default();
+        let name = player_name_or_empty(world, owner);
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(pkt);
@@ -366,11 +358,7 @@ pub(super) fn admin_delete_quest_item(
         .get_component::<Inventory>(&target)
         .map(|inv| inv.count_of(item_id))
         .unwrap_or(0);
-    let name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, target);
     if held <= 0 {
         send_message(
             world,

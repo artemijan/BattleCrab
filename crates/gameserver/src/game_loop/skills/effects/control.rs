@@ -1,5 +1,7 @@
 use super::*;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
@@ -283,7 +285,6 @@ pub(crate) fn fear_can_start(world: &World, target_oid: i32) -> bool {
 /// Java's `toRadians(atan2-in-degrees)` round-trip collapses to the raw
 /// `atan2`, so the first case is computed directly in radians here.
 pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i32) {
-    use crate::model::components::Position;
     // `Creature.moveToLocation`'s own bail — a rooted or stunned victim can't
     // be driven anywhere, though the fear's timer keeps running.
     if crate::game_loop::abnormal::is_movement_disabled(world, effected)
@@ -291,11 +292,10 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
     {
         return;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&effected).copied() else {
+    let Some(pos) = position(world, effected) else {
         return;
     };
-    let radians = match effector.and_then(|e| world.objects.get_component::<Position>(&e).copied())
-    {
+    let radians = match effector.and_then(|e| position(world, e)) {
         Some(src) => ((pos.y - src.y) as f64).atan2((pos.x - src.x) as f64),
         // `Util.convertHeadingToDegree`: heading / 182.044444444, in degrees.
         None => (pos.heading as f64 / 182.044_444_444).to_radians(),
@@ -441,10 +441,7 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
         world
             .objects
             .remove_component::<crate::model::components::Movement>(&target_oid);
-        if let Some(pos) = world
-            .objects
-            .get_component::<crate::model::components::Position>(&target_oid)
-            .copied()
+        if let Some(pos) = position(world, target_oid)
             && let Some(region) = region_cell_of(world, target_oid)
         {
             crate::game_loop::helpers::broadcast_near_region(
@@ -514,11 +511,7 @@ pub(crate) fn rebalance_party_hp(world: &mut World, caster_oid: i32, skill: &Ski
         // No party: Java's `if (party != null)` guard skips the whole effect.
         return;
     };
-    let Some(origin) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&caster_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, caster_oid) else {
         return;
     };
     let range = skill.affect_range;
@@ -646,11 +639,7 @@ pub(crate) fn creature_name(world: &World, oid: i32) -> String {
             .map(|t| t.name.clone())
             .unwrap_or_default()
     } else {
-        world
-            .objects
-            .get_component::<crate::model::Player>(&oid)
-            .map(|p| p.name.clone())
-            .unwrap_or_default()
+        player_name_or_empty(world, oid)
     }
 }
 
@@ -667,11 +656,7 @@ pub(crate) fn call_party(world: &mut World, caster_oid: i32) {
         // `if (party == null) return` — solo, the cast is simply wasted.
         return;
     };
-    let Some(dest) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&caster_oid)
-        .copied()
-    else {
+    let Some(dest) = position(world, caster_oid) else {
         return;
     };
 
@@ -711,11 +696,7 @@ pub(crate) fn check_summon_target_status(
 ) -> Option<(i16, Vec<server_packets::SmParam>)> {
     use server_packets::{SmParam, sm_ids};
 
-    let name = world
-        .objects
-        .get_component::<crate::model::Player>(&member)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, member);
     let pc = || vec![SmParam::PlayerName(name.clone())];
     // `addString`, not `addPcName` — see the doc comment.
     let text = || vec![SmParam::Text(name.clone())];
@@ -879,11 +860,7 @@ pub(crate) fn call_pc_player(
         .get_component::<crate::model::components::Position>(&caster_oid)
         .map(|p| (p.x, p.y, p.z))
         .unwrap_or((0, 0, 0));
-    let name = world
-        .objects
-        .get_component::<crate::model::Player>(&caster_oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, caster_oid);
     if let Some(p) = world
         .objects
         .get_component_mut::<crate::model::Player>(&target_oid)
@@ -964,16 +941,7 @@ pub(crate) fn accept_summon_request(
 /// pipeline has already run that geodata check by the time an effect applies,
 /// so it is not repeated here.
 pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid: i32) {
-    let (Some(from), Some(to)) = (
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&caster_oid)
-            .copied(),
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&target_oid)
-            .copied(),
-    ) else {
+    let (Some(from), Some(to)) = (position(world, caster_oid), position(world, target_oid)) else {
         return;
     };
 
@@ -1056,18 +1024,10 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
     {
         return;
     }
-    let Some(dest) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&caster_oid)
-        .copied()
-    else {
+    let Some(dest) = position(world, caster_oid) else {
         return;
     };
-    let Some(from) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&target_oid)
-        .copied()
-    else {
+    let Some(from) = position(world, target_oid) else {
         return;
     };
 

@@ -14,6 +14,7 @@
 //! left is cosmetic: the exhaustive dummy-anchored `SpecialCamera` choreography
 //! is abbreviated throughout.
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
@@ -119,7 +120,7 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_oid: i32
     // Java `if (getRandom(100) < 5) npc.dropItem(killer, DEWDROP, 1)` — the crawl
     // trash sometimes yields a Dewdrop of Destruction (used on the portraits).
     if world.roll(100) < 5
-        && let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied()
+        && let Some(pos) = position(world, npc_oid)
     {
         crate::game_loop::ground_items::spawn_ground_item(
             world,
@@ -528,7 +529,7 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
                 0,
             );
             if f != 0
-                && let Some(p) = world.objects.get_component::<Position>(&f).copied()
+                && let Some(p) = position(world, f)
             {
                 let src = (f, p.x, p.y, p.z);
                 instances::broadcast_to_instance(
@@ -612,13 +613,8 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
             );
             if overhead != 0
                 && scarlet_dummy != 0
-                && let (Some(sp), Some(tp)) = (
-                    world
-                        .objects
-                        .get_component::<Position>(&scarlet_dummy)
-                        .copied(),
-                    world.objects.get_component::<Position>(&overhead).copied(),
-                )
+                && let (Some(sp), Some(tp)) =
+                    (position(world, scarlet_dummy), position(world, overhead))
             {
                 instances::broadcast_to_instance(
                     world,
@@ -1100,7 +1096,7 @@ fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
         STEP_FIRST_MORPH => {
             let scarlet = var_oid(world, instance_id, "activeScarlet");
             if scarlet != 0
-                && let Some(p) = world.objects.get_component::<Position>(&scarlet).copied()
+                && let Some(p) = position(world, scarlet)
             {
                 let src = (scarlet, p.x, p.y, p.z);
                 instances::broadcast_to_instance(
@@ -1245,7 +1241,7 @@ fn play_song(world: &mut World, instance_id: i32) {
         &server_packets::ex_show_screen_message(SONG_NAMES[n], 2, 4000),
     );
     if frintezza != 0 {
-        if let Some(p) = world.objects.get_component::<Position>(&frintezza).copied() {
+        if let Some(p) = position(world, frintezza) {
             let src = (frintezza, p.x, p.y, p.z);
             instances::broadcast_to_instance(
                 world,
@@ -1470,7 +1466,7 @@ fn pick_target_in_range(
     scarlet: i32,
     range: f64,
 ) -> Option<i32> {
-    let origin = world.objects.get_component::<Position>(&scarlet).copied()?;
+    let origin = position(world, scarlet)?;
     let candidates: Vec<i32> = instance_members(world, instance_id)
         .into_iter()
         .filter(|&m| {

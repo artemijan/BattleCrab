@@ -3,6 +3,7 @@
 //! targeted player.
 
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets;
@@ -437,11 +438,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
 
     // Target set: everyone in radius, else the target, else self.
     let targets: Vec<i32> = if radius > 0 {
-        let Some(origin) = world
-            .objects
-            .get_component::<crate::model::components::Position>(&object_id)
-            .copied()
-        else {
+        let Some(origin) = position(world, object_id) else {
             return;
         };
         let mut out = Vec::new();

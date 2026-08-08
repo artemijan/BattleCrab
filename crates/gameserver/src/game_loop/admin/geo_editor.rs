@@ -14,11 +14,11 @@
 //! mmap'd read-only, unlike Java's mutable block objects); `//geosave` folds
 //! them back into the on-disk format — see [`crate::geo::region::Region::write_to`].
 
+use crate::game_loop::guard::position;
 use std::path::Path;
 
 use crate::game_loop::community_board::send_cb_html;
 use crate::geo;
-use crate::model::components::Position;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -62,10 +62,6 @@ const BLOCKED_BG: &str = "L2UI_CH3.minibar_arrow";
 
 fn read_admin_htm(world: &World, name: &str) -> Option<String> {
     crate::data::htm_cache::read_htm(format!("{}data/html/admin/{name}", world.data.root))
-}
-
-fn position(world: &World, object_id: i32) -> Option<Position> {
-    world.objects.get_component::<Position>(&object_id).copied()
 }
 
 /// `//geoedit` — the 19×19 cell grid (Java's `geoRadius = 9`), each button a

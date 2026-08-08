@@ -12,6 +12,8 @@
 //! since G31.
 
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{
     CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals,
@@ -122,16 +124,12 @@ pub(super) fn admin_character_info(
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
         return;
     };
-    let pos = world
-        .objects
-        .get_component::<Position>(&target)
-        .copied()
-        .unwrap_or(Position {
-            x: 0,
-            y: 0,
-            z: 0,
-            heading: 0,
-        });
+    let pos = position(world, target).unwrap_or(Position {
+        x: 0,
+        y: 0,
+        z: 0,
+        heading: 0,
+    });
     let vit = world
         .objects
         .get_component::<Vitals>(&target)
@@ -498,11 +496,7 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
             }
         },
     };
-    let target_name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let target_name = player_name_or_empty(world, target);
     let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&target).copied() else {
         // Java: not-in-party still opens the window (empty party table).
         super::menu::show_admin_html_replace(
@@ -766,11 +760,7 @@ pub(super) fn admin_summon_info(world: &mut World, client_id: u32, object_id: i3
         .map_or((0, 0, 0, 0), |v| {
             (v.cur_hp as i32, v.max_hp, v.cur_mp as i32, v.max_mp)
         });
-    let owner_name = world
-        .objects
-        .get_component::<Player>(&owner)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let owner_name = player_name_or_empty(world, owner);
     let (level, exp) = pet.map_or((npc_level, 0), |p| (p.level, p.exp));
     let (class, inv, food) = if let Some(p) = pet {
         (
@@ -921,11 +911,7 @@ pub(super) fn admin_charquestmenu(
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, target);
     let mut rows = String::new();
     if let Some(q) = world
         .objects

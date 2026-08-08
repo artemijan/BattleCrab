@@ -16,6 +16,7 @@
 
 use crate::db::DbCommand;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::guard::position;
 use crate::model::Player;
 use crate::model::components::{AdvancedHeadquarter, Position};
 use crate::model::door::Door;
@@ -582,7 +583,7 @@ fn respawn_siege_towers(world: &mut World, castle_id: i32) {
 /// no respawn entry falls back to Human as the port does elsewhere.
 fn teleport_to_town(world: &mut World, targets: Vec<i32>) {
     for oid in targets {
-        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+        let Some(pos) = position(world, oid) else {
             continue;
         };
         let race = world
@@ -703,7 +704,7 @@ pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
     if !is_ct {
         return;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else {
+    let Some(pos) = position(world, npc_oid) else {
         return;
     };
     let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else {
@@ -991,11 +992,7 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
 /// `Castle.setOwner` → `Siege.midVictory`): an attacker clan member touching the
 /// artifact during an active siege takes the castle. No-op otherwise.
 pub(crate) fn try_capture_artifact(world: &mut World, player_oid: i32, artifact_oid: i32) {
-    let Some(pos) = world
-        .objects
-        .get_component::<Position>(&artifact_oid)
-        .copied()
-    else {
+    let Some(pos) = position(world, artifact_oid) else {
         return;
     };
     let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else {

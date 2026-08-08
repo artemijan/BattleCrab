@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stop_movement;
@@ -194,7 +195,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     let Some(attacker) = combatant(world, attacker_oid) else {
         return;
     };
-    let Some(dpos) = world.objects.get_component::<Position>(&door_oid).copied() else {
+    let Some(dpos) = position(world, door_oid) else {
         return;
     };
 
@@ -707,16 +708,12 @@ fn chase_pawn(
         let Some(speeds) = world.objects.get_component::<Speeds>(&object_id) else {
             return;
         };
-        let pos = world
-            .objects
-            .get_component::<Position>(&object_id)
-            .copied()
-            .unwrap_or(Position {
-                x: 0,
-                y: 0,
-                z: 0,
-                heading: 0,
-            });
+        let pos = position(world, object_id).unwrap_or(Position {
+            x: 0,
+            y: 0,
+            z: 0,
+            heading: 0,
+        });
         (speeds.move_speed(), (pos.x, pos.y, pos.z))
     };
     if speed <= 0.0 {
@@ -988,10 +985,7 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     }
     // `checkTargetLost` — someone else got there first, or it decayed.
     let (Some(item_pos), true) = (
-        world
-            .objects
-            .get_component::<Position>(&item_object_id)
-            .copied(),
+        position(world, item_object_id),
         world
             .objects
             .has_component::<crate::model::components::GroundItem>(&item_object_id),

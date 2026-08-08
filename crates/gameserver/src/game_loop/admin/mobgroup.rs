@@ -5,6 +5,7 @@
 //! group's [`MobGroupState`] in `npc_ai::controllable_think`.
 
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
 use crate::model::components::{AdminFlags, Position};
 use crate::model::mob_group::{Controllable, MobGroup, MobGroupState};
 use crate::model::npc::Npc;
@@ -124,7 +125,7 @@ pub(super) fn admin_mobgroup_spawn(
     ) {
         (Some(x), Some(y), Some(z)) => (x, y, z, 0),
         _ => {
-            let Some(p) = world.objects.get_component::<Position>(&object_id).copied() else {
+            let Some(p) = position(world, object_id) else {
                 return;
             };
             (p.x, p.y, p.z, p.heading)
@@ -199,7 +200,7 @@ pub(super) fn admin_mobgroup_teleport(
     let Some(group_id) = group_arg(world, client_id, args) else {
         return;
     };
-    let Some(gm) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(gm) = position(world, object_id) else {
         return;
     };
     for oid in members(world, group_id) {
