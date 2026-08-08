@@ -3285,6 +3285,37 @@ pub struct ActiveBuff {
     pub effects: Vec<StatModifierEffect>,
 }
 
+impl ActiveBuff {
+    /// A synthetic **passive stat pump**: displayed, but with no abnormal state
+    /// of its own, `Uncapped`, and never scheduled to expire.
+    ///
+    /// The shape the grade-penalty, weight-penalty, clan-skill and
+    /// passive-skill folds all want — they are stat contributions wearing a
+    /// buff's clothes so that `remove_buff` can take them off again, not
+    /// abnormals the client should stack or display an icon for.
+    ///
+    /// Augment options build a *similar* buff by hand in `game_loop::options`
+    /// with `expires_at_tick: 0` and an empty abnormal type; that difference is
+    /// untested, so it is deliberately not folded in here.
+    pub fn passive_pump(skill_id: i32, skill_level: i32, effects: Vec<StatModifierEffect>) -> Self {
+        Self {
+            displayed: true,
+            skill_id,
+            skill_level,
+            abnormal_type_client_id: -1,
+            abnormal_type: "NONE".to_string(),
+            abnormal_level: 0,
+            slot: BuffSlot::Uncapped,
+            expires_at_tick: u64::MAX,
+            passive: true,
+            effect_flags: 0,
+            blocked_abnormals: Vec::new(),
+            abnormal_visuals: Vec::new(),
+            effects,
+        }
+    }
+}
+
 // The debuff landing-chance formula is unit-tested in `formulas.rs`
 // (`effect_land_rate_clamps_and_special_cases`); the caster-facing chance line
 // and the resist roll have end-to-end tests in `game_loop::tests::skills_tests`

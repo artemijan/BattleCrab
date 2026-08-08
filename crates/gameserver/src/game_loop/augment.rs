@@ -47,7 +47,7 @@ fn resolve_fee(
     mineral_id: i32,
 ) -> Option<&crate::data::variation_data::VariationFee> {
     let inv = world.objects.get_component::<Inventory>(&player)?;
-    let target = inv.items().iter().find(|it| it.object_id == target_obj)?;
+    let target = inv.by_object_id(target_obj)?;
     if target.is_augmented() {
         return None;
     }
@@ -126,7 +126,7 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
         let Some(inv) = world.objects.get_component::<Inventory>(&player) else {
             return;
         };
-        let Some(target) = inv.items().iter().find(|it| it.object_id == target_obj) else {
+        let Some(target) = inv.by_object_id(target_obj) else {
             fail(world);
             return;
         };

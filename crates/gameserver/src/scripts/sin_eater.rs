@@ -8,6 +8,7 @@
 //! `ON_CREATURE_DEATH` / `onSummonTalk`; this port has no summon-event
 //! registry, so each site calls in directly.
 
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::npc::Npc;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -109,11 +110,7 @@ fn is_sin_eater(world: &World, pet_oid: i32) -> bool {
 
 /// `summon.broadcastPacket(new NpcSay(objectId, NPC_GENERAL, id, string))`.
 fn say(world: &World, pet_oid: i32, npc_string_id: i32) {
-    let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&pet_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, pet_oid) else {
         return;
     };
     let pkt = server_packets::npc_say(pet_oid, SIN_EATER, npc_string_id);

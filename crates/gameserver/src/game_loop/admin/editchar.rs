@@ -904,7 +904,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
 /// Resolve `[name]`-or-target to a player for the quest commands.
 fn quest_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
     args.first()
-        .and_then(|name| super::find_online_player(world, name))
+        .and_then(|name| find_online_player(world, name))
         .or_else(|| guard::player_target(world, object_id))
         .or(Some(object_id).filter(|oid| world.objects.has_component::<Player>(oid)))
 }
@@ -973,7 +973,7 @@ pub(super) fn admin_setcharquest(world: &mut World, client_id: u32, args: &[&str
         );
         return;
     };
-    let Some(target) = super::find_online_player(world, name) else {
+    let Some(target) = find_online_player(world, name) else {
         send_message(world, client_id, &format!("Player '{name}' is not online."));
         return;
     };

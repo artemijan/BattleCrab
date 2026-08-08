@@ -175,7 +175,7 @@ fn create_sub_pledge(
     let info =
         server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("checked above"));
     let leader_display_name = if leader_id != 0 {
-        player_name(world, leader_id)
+        player_name_or_empty(world, leader_id)
     } else {
         String::new()
     };
@@ -186,11 +186,7 @@ fn create_sub_pledge(
         send_to_member(world, oid, created.clone());
     }
 
-    let clan_name = world
-        .clans
-        .get(&clan_id)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let clan_name = clan_name_or_empty(world, clan_id);
     let sm = if requested_type == SUBUNIT_ACADEMY {
         server_packets::system_message_with(
             sm_ids::CONGRATULATIONS_THE_S1_S_CLAN_ACADEMY_HAS_BEEN_CREATED,

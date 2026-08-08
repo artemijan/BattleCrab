@@ -1,4 +1,7 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::stop_movement;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
 /// `NpcAction`'s monster branch: clicking your already-selected monster
@@ -18,11 +21,7 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         return;
     };
 
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -245,18 +244,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // Land the damage at `timeToHit`, like a creature swing (Java `doAttack`
     // schedules `onHitTimeNotDual`); the shared `AttackHit` task carries the
     // door branch, and the seq guard drops it if the swing is aborted.
-    let two_handed = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
-        .is_some_and(|inv| {
-            let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
-            rhand != 0
-                && world
-                    .data
-                    .item_data
-                    .get(rhand)
-                    .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
-        });
+    let two_handed = super::wields_two_handed(world, attacker_oid);
     let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
     world.scheduler.schedule(
         now + ms_to_ticks(time_to_hit),
@@ -310,11 +298,7 @@ pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
                 .unwrap_or(1),
         )
     };
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&door_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, door_oid) {
         broadcast_near_region_in(
             world,
             region,
@@ -378,10 +362,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return;
     };
 
-    let dead = world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, object_id);
     if dead || world.objects.has_component::<Casting>(&object_id) {
         return; // casting pauses the loop (Java: CAST intention), death ends it via do_die.
     }
@@ -432,16 +413,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return;
     }
     // In reach: stop the chase and swing.
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     // A siege door takes damage through the gate path (no miss/crit/shield/AI);
     // everything else goes through the shared creature swing.
     if world
@@ -846,12 +818,7 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-        || world.objects.has_component::<Casting>(&object_id)
-    {
+    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
         return;
     }
     // `checkTargetLost`: a dead or vanished target drops the intention. A
@@ -883,16 +850,7 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     // Arrived: consume the intention, stop the chase leg (`clientStopMoving`
     // in `thinkCast`), and cast.
     world.objects.remove_component::<Intent>(&object_id);
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     let Some(client_id) = client_for_player(world, object_id) else {
         return;
     };
@@ -940,12 +898,7 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-        || world.objects.has_component::<Casting>(&object_id)
-    {
+    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
         return;
     }
     // Target gone → drop the intention (Java `checkTargetLost`).
@@ -965,16 +918,7 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     }
     // Arrived: stop the chase leg and re-run the interact click.
     world.objects.remove_component::<Intent>(&object_id);
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     let Some(client_id) = client_for_player(world, object_id) else {
         return;
     };
@@ -1039,12 +983,7 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     // `Player.doPickupItem`'s `isAlikeDead()` guard plus thinkPickUp's own
     // `isAllSkillsDisabled() || isCastingNow()` bail (which does *not* drop the
     // intention — the walk resumes once the cast ends).
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-        || world.objects.has_component::<Casting>(&object_id)
-    {
+    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
         return;
     }
     // `checkTargetLost` — someone else got there first, or it decayed.
@@ -1077,16 +1016,7 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     // Arrived: `setIntention(AI_INTENTION_IDLE)` then `doPickupItem`, which
     // itself sends the `StopMove` that ends the walk client-side.
     world.objects.remove_component::<Intent>(&object_id);
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     let Some(client_id) = client_for_player(world, object_id) else {
         return;
     };

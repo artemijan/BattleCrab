@@ -17,6 +17,7 @@
 //! A seller too low on MP is refused with a message rather than the cast
 //! silently failing.
 
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::world::World;
@@ -446,7 +447,7 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
         .get_component::<crate::model::components::Vitals>(&seller_oid)
         .map_or(0.0, |v| v.cur_mp);
     if seller_mp < mp_cost {
-        let seller_name = name_of(world, seller_oid);
+        let seller_name = player_name_or_empty(world, seller_oid);
         message(
             world,
             client_id,
@@ -544,14 +545,6 @@ fn skill_name(world: &World, skill_id: i32, level: i32) -> String {
         .get(skill_id, level)
         .map(|s| s.name.clone())
         .unwrap_or_else(|| format!("Skill {skill_id}"))
-}
-
-fn name_of(world: &World, player_oid: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&player_oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 /// `Util.checkIfInRange(Npc.INTERACTION_DISTANCE, …, true)` — 3D.

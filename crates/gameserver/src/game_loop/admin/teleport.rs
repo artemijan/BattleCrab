@@ -5,13 +5,15 @@
 
 use crate::enums::AdminTeleportType;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
+use crate::game_loop::helpers;
 use crate::model::Player;
-use crate::model::components::{RegionCell, Speeds};
+use crate::model::components::Speeds;
 use crate::model::npc::Npc;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm};
+use crate::game_loop::helpers::region_cell_of;
 
 /// `AdminGmSpeed` — scale the target player's (or self's) movement speed. Java
 /// **The argument is an outright multiplier, not a boost**, despite Java naming
@@ -39,8 +41,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
     // targets are players and NPCs.
     let target = guard::target(world, object_id)
         .filter(|oid| {
-            world.objects.has_component::<Player>(oid)
-                || world.objects.has_component::<crate::model::npc::Npc>(oid)
+            world.objects.has_component::<Player>(oid) || world.objects.has_component::<Npc>(oid)
         })
         .unwrap_or(object_id);
     if let Some(speeds) = world.objects.get_component_mut::<Speeds>(&target) {
@@ -52,7 +53,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
     } else {
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&target)
+            .get_component::<Npc>(&target)
             .and_then(|n| n.template(world).map(|t| t.name.clone()))
             .unwrap_or_default()
     };
@@ -285,7 +286,7 @@ fn goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -
     } else if super::death::teleport_to_object(world, object_id, target) {
         // The confirmation stays gated on the teleport actually happening: a
         // target with no position is silently skipped, exactly as before.
-        let name = guard::player_name(world, target).unwrap_or_default();
+        let name = helpers::player_name_or_empty(world, target);
         send_message(
             world,
             client_id,
@@ -424,11 +425,7 @@ fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         .objects
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
-    let region = world
-        .objects
-        .get_component::<RegionCell>(&target)
-        .map(|r| r.0)
-        .or_silent()?;
+    let region = region_cell_of(world, target).or_silent()?;
     let gm_pos = guard::position(world, object_id).or_silent()?;
     super::death::despawn_npc(world, target, region);
     if let Some(spawned) =

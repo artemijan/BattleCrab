@@ -186,9 +186,7 @@ pub(crate) fn handle_add_item(world: &mut World, client_id: u32, body: &[u8]) {
             .and_then(|inv| {
                 (inv.paperdoll_slot_of(pkt.object_id).is_none())
                     .then(|| {
-                        inv.items()
-                            .iter()
-                            .find(|it| it.object_id == pkt.object_id)
+                        inv.by_object_id(pkt.object_id)
                             .map(|it| (it.item_id, it.count, it.enchant_level))
                     })
                     .flatten()
@@ -329,12 +327,7 @@ fn transfer_side(world: &mut World, from: i32, to: i32) {
         let held = world
             .objects
             .get_component::<Inventory>(&from)
-            .and_then(|inv| {
-                inv.items()
-                    .iter()
-                    .find(|it| it.object_id == line.object_id)
-                    .map(|it| it.count)
-            })
+            .and_then(|inv| inv.by_object_id(line.object_id).map(|it| it.count))
             .unwrap_or(0);
         let n = line.count.min(held);
         if n <= 0 {

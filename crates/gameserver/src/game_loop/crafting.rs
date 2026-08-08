@@ -16,6 +16,7 @@
 
 use super::helpers::{adena, player_of};
 use crate::data::recipe_data::RecipeList;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
@@ -166,7 +167,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inv.items().iter().find(|i| i.object_id == item_object_id) else {
+        let Some(item) = inv.by_object_id(item_object_id) else {
             return;
         };
         item.item_id
@@ -385,12 +386,10 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
             .get_component::<RecipeBook>(&oid)
             .is_some_and(|b| b.contains(line.recipe_id));
         if !known {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 oid,
                 &format!("Player {oid} tried to set recipe which he dont have."),
-                punish,
             );
             return;
         }
@@ -555,12 +554,10 @@ fn do_craft(
         .get_component::<RecipeBook>(&crafter)
         .is_some_and(|b| b.contains(recipe.id))
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             customer,
             &format!("Player {customer} sent a false recipe id."),
-            punish,
         );
         return;
     }
@@ -946,7 +943,7 @@ fn settle_and_reward(
             sp::system_message_with(
                 sm_ids::YOU_FAILED_TO_CREATE_S2_FOR_C1_AT_THE_PRICE_OF_S3_ADENA,
                 &[
-                    SmParam::PlayerName(name_of(world, customer)),
+                    SmParam::PlayerName(player_name_or_empty(world, customer)),
                     SmParam::ItemName(recipe.item_id),
                     SmParam::Long(price),
                 ],
@@ -956,7 +953,7 @@ fn settle_and_reward(
             world,
             sm_ids::C1_HAS_FAILED_TO_CREATE_S2_AT_THE_PRICE_OF_S3_ADENA,
             &[
-                SmParam::PlayerName(name_of(world, crafter)),
+                SmParam::PlayerName(player_name_or_empty(world, crafter)),
                 SmParam::ItemName(recipe.item_id),
                 SmParam::Long(price),
             ],
@@ -1042,8 +1039,8 @@ fn reward(
 
     // Cross-player profit/receipt messages (manufacture only).
     if crafter != customer {
-        let crafter_name = name_of(world, crafter);
-        let customer_name = name_of(world, customer);
+        let crafter_name = player_name_or_empty(world, crafter);
+        let customer_name = player_name_or_empty(world, customer);
         if count == 1 {
             send_to_player(
                 world,
@@ -1178,14 +1175,6 @@ fn refresh_inventory(world: &World, oid: i32) {
     if let Some(inv) = world.objects.get_component::<Inventory>(&oid) {
         send_to_player(world, oid, ew::item_list(inv, &world.data, false));
     }
-}
-
-fn name_of(world: &World, oid: i32) -> String {
-    world
-        .objects
-        .get_component::<crate::model::Player>(&oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 /// The seller's active manufacture list `(recipe_id, cost)`, filtered to the

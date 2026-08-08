@@ -545,10 +545,7 @@ fn restore_one(world: &mut World, row: crate::db::OfflineTraderRow, store_type: 
                 .iter()
                 .filter_map(|&(object_id_of_line, count, price)| {
                     let inv = world.objects.get_component::<Inventory>(&object_id)?;
-                    let it = inv
-                        .items()
-                        .iter()
-                        .find(|i| i.object_id == object_id_of_line)?;
+                    let it = inv.by_object_id(object_id_of_line)?;
                     Some(StoreItem {
                         object_id: it.object_id,
                         item_id: it.item_id,

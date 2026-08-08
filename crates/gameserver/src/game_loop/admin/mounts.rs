@@ -50,8 +50,9 @@ impl Mount {
 }
 
 /// Java `AdminRide.getRideTarget` — the current target if it's a *different*
-/// player, else the GM.
-fn ride_target(world: &World, object_id: i32) -> i32 {
+/// player, else the GM. Shared with [`super::transforms`], whose `//transform`
+/// commands pick their subject the same way.
+pub(super) fn ride_target(world: &World, object_id: i32) -> i32 {
     guard::target(world, object_id)
         .filter(|&oid| oid != object_id && world.objects.has_component::<Player>(&oid))
         .unwrap_or(object_id)
@@ -314,26 +315,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     {
         cs.send(server_packets::setup_gauge_range(target, GAUGE_GREEN, 0, 0));
     }
-    // Restore the class-template collision (same shape as untransform).
-    let (class_id, base_class_id) = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| (p.class_id, p.base_class_id))
-        .unwrap_or((0, 0));
-    if let Some(t) = world
-        .data
-        .player_templates
-        .get(class_id)
-        .or_else(|| world.data.player_templates.get(base_class_id))
-    {
-        world.objects.add_components(
-            &target,
-            Collision {
-                radius: t.collision_radius,
-                height: t.collision_height,
-            },
-        );
-    }
+    super::transforms::restore_class_collision(world, target);
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, false);
     super::party::broadcast_user_info(world, target);

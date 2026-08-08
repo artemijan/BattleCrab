@@ -9,6 +9,7 @@
 //! `%minutes%` come from `World.auction_end_tick` (the weekly-close countdown).
 
 use crate::game_loop::clan_hall_auction::{self, BidOutcome, bid_count, highest_bid};
+use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::clan_hall::{ClanHallGrade, ClanHallType};
@@ -213,11 +214,7 @@ pub(crate) fn render_bidder_list(world: &World, hall_id: i32) -> Option<String> 
 
     let mut rows = String::new();
     for (clan_id, b) in list {
-        let name = world
-            .clans
-            .get(&clan_id)
-            .map(|c| c.name.clone())
-            .unwrap_or_default();
+        let name = clan_name_or_empty(world, clan_id);
         rows.push_str(&format!(
             "<tr><td width=100>{name}</td><td width=100>{amount}</td>\
              <td width=70>{time}</td></tr>",
@@ -244,11 +241,7 @@ fn owner_names(world: &World, owner_id: i32) -> (String, String) {
     if owner_id == 0 {
         return (String::new(), String::new());
     }
-    let name = world
-        .clans
-        .get(&owner_id)
-        .map(|c| c.name.clone())
-        .unwrap_or_default();
+    let name = clan_name_or_empty(world, owner_id);
     let leader = world
         .clans
         .get(&owner_id)

@@ -13,14 +13,16 @@
 //! (`on_player_logout`), and the freeze applies `Immobilized` +
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
+use crate::game_loop::helpers::is_dead;
 use commons::util::rnd;
 use tracing::warn;
 
 use crate::enums::ChatType;
 use crate::game_loop::death::{despawn_npc, introduce_npc, teleport_player};
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::instances;
 use crate::model::Player;
-use crate::model::components::{FishingSession, RegionCell};
+use crate::model::components::FishingSession;
 use crate::model::event::TvtPhase;
 use crate::model::npc::spawn_npc_at;
 use crate::network::server_packets as sp;
@@ -497,13 +499,6 @@ fn team_of(world: &World, player: i32) -> u8 {
         .objects
         .get_component::<Player>(&player)
         .map_or(TEAM_NONE, |p| p.team)
-}
-
-fn is_dead(world: &World, player: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&player)
-        .is_some_and(|v| v.dead)
 }
 
 /// Java `broadcastScoreMessage()` — the running "Blue: X - Red: Y" tally in the
@@ -984,7 +979,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
     }
     let (flying, transformed) = world
         .objects
-        .get_component::<crate::model::Player>(&player)
+        .get_component::<Player>(&player)
         .map_or((false, false), |p| (p.is_flying(), p.transform_id != 0));
     if flying {
         send_player_message(
@@ -1253,7 +1248,7 @@ fn despawn_manager(world: &mut World) {
     let Some(oid) = world.events.tvt.manager_oid.take() else {
         return;
     };
-    let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) else {
+    let Some(region) = region_cell_of(world, oid) else {
         return;
     };
     despawn_npc(world, oid, region);

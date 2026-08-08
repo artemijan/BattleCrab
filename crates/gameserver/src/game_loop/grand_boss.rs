@@ -11,6 +11,7 @@
 use commons::util::now_millis;
 
 use crate::db::DbCommand;
+use crate::game_loop::helpers::region_cell_of;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -40,16 +41,12 @@ fn plays_stock_roars(boss_id: i32) -> bool {
 /// `npc.broadcastPacket(new PlaySound(1, sound, 1, oid, x, y, z))` — the roar,
 /// anchored to the boss and sent to everyone near its region.
 fn roar(world: &World, boss_oid: i32, sound: &str) {
-    use crate::model::components::{Position, RegionCell};
+    use crate::model::components::Position;
     let Some(pos) = world.objects.get_component::<Position>(&boss_oid) else {
         return;
     };
     let pkt = crate::network::server_packets::play_sound_at(sound, boss_oid, pos.x, pos.y, pos.z);
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&boss_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, boss_oid) {
         crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
     }
 }
@@ -94,6 +91,52 @@ const MILLIS_PER_HOUR: i64 = 3_600_000;
 /// `GrandBossManager.getStatus`.
 pub(crate) fn status(world: &World, boss_id: i32) -> Option<i32> {
     world.grand_bosses.get(&boss_id).map(|b| b.status)
+}
+
+/// `GrandBossManager.setStatus` — move a boss's state machine and write it
+/// through, so a restart mid-fight resumes where the encounter left off.
+///
+/// A no-op for a boss id with no row, matching the read half above.
+pub(crate) fn set_status(world: &mut World, boss_id: i32, status: i32) {
+    if let Some(b) = world.grand_bosses.get_mut(&boss_id) {
+        b.status = status;
+    }
+    persist(world, boss_id);
+}
+
+/// The object id of a **living** NPC with this template id, if one stands in
+/// the world.
+///
+/// Walks every object rather than the region index, so it needs `&mut World`
+/// but sees NPCs the caller has no position for. The boss scripts use it to
+/// find their own minions and ladder mobs.
+///
+/// Use [`find_spawned`] when a dead-but-not-yet-despawned corpse should still
+/// count, or when only `&World` is available.
+pub(crate) fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
+    let mut found = None;
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &crate::model::components::Vitals)>(|(n, v)| {
+            if n.npc_id == npc_id && !v.dead {
+                found = Some(n.object_id);
+            }
+        });
+    found
+}
+
+/// The object id of an NPC with this template id, **alive or dead**, via the
+/// region index.
+///
+/// The `&World` counterpart of [`find_alive`]: cheaper, but it only sees NPCs
+/// that are registered in a region, and it does not filter corpses.
+pub(crate) fn find_spawned(world: &World, npc_id: i32) -> Option<i32> {
+    world.npc_regions.values().flatten().copied().find(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(oid)
+            .is_some_and(|n| n.npc_id == npc_id)
+    })
 }
 
 /// A grand boss died: mark it dead, roll the respawn window, persist, and arm

@@ -25,6 +25,7 @@
 //! - `recruit` — the clan-entry board: recruit list, waiting list, draft
 //!   list and applications.
 
+pub(crate) use crate::game_loop::helpers::class_level;
 use commons::network::PacketReader;
 use tracing::warn;
 
@@ -47,6 +48,7 @@ pub(crate) mod skills;
 mod sub_pledge;
 pub(crate) mod wars;
 
+pub(crate) use crate::game_loop::helpers::player_name_or_empty;
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_client as send_sm, send_sm_to_player as send_sm_with,
 };
@@ -635,25 +637,52 @@ pub(crate) fn remove_clan_member_for_academy(world: &mut World, clan_id: i32, me
     remove_clan_member(world, clan_id, member_oid, 0);
 }
 
-pub(crate) fn player_name(world: &World, oid: i32) -> String {
+/// Whether `player_oid` is standing inside *some* castle's siege zone.
+///
+/// The gate Java puts in front of dissolving a clan or an alliance. Note it
+/// asks about the zone, not about a running siege — unlike
+/// [`crate::game_loop::pvp::active_siege_castle`], which additionally requires
+/// `in_progress`. Preserved as the ported code had it.
+pub(crate) fn in_siege_zone(world: &World, player_oid: i32) -> bool {
     world
         .objects
-        .get_component::<Player>(&oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
+        .get_component::<crate::model::components::Position>(&player_oid)
+        .and_then(|pos| world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z))
+        .is_some()
 }
 
-/// `ClassId.level()` — occupation tier via the `*_CLASS_GROUP` categories
-/// (same mapping the henna/support-magic gates use).
-pub(crate) fn class_level(world: &World, class_id: i32) -> i32 {
-    let c = &world.data.categories;
-    if c.contains("FOURTH_CLASS_GROUP", class_id) {
-        3
-    } else if c.contains("THIRD_CLASS_GROUP", class_id) {
-        2
-    } else if c.contains("SECOND_CLASS_GROUP", class_id) {
-        1
-    } else {
-        0
+/// Java `Player.isProcessingRequest()` on both sides of an invite: refuse when
+/// either already has a request window open, and tell the inviter who is busy.
+///
+/// `true` means the caller should stop.
+pub(crate) fn refuse_if_busy(world: &World, player: i32, target_oid: i32) -> bool {
+    let busy = world
+        .objects
+        .has_component::<crate::model::components::PendingRequest>(&player)
+        || world
+            .objects
+            .has_component::<crate::model::components::PendingRequest>(&target_oid);
+    if busy {
+        send_sm_with(
+            world,
+            player,
+            sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
+            &[SmParam::Text(player_name_or_empty(world, target_oid))],
+        );
     }
+    busy
+}
+
+/// A clan's name, or `None` when no clan carries that id — a disbanded clan,
+/// or the sentinel `0` a clanless player reports.
+pub(crate) fn clan_name(world: &World, clan_id: i32) -> Option<String> {
+    world.clans.get(&clan_id).map(|c| c.name.clone())
+}
+
+/// A clan's name, empty when no clan carries that id.
+///
+/// The shape the message formatters want, mirroring
+/// [`player_name_or_empty`].
+pub(crate) fn clan_name_or_empty(world: &World, clan_id: i32) -> String {
+    clan_name(world, clan_id).unwrap_or_default()
 }

@@ -365,31 +365,11 @@ pub(crate) fn apply_continuous_effects(
         return true;
     }
     {
+        // A target missing any of the seven components can't hold a buff, which
+        // is the same "didn't land" answer a refusal gives.
         let landed =
-            if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-                world.objects.get_many_mut::<(
-                    &mut crate::model::Player,
-                    &BaseStats,
-                    &mut StatModifiers,
-                    &crate::model::inventory::Inventory,
-                    &mut Buffs,
-                    &mut Speeds,
-                    &mut CombatStats,
-                )>(&target_oid)
-            {
-                target.apply_buff(
-                    &world.data,
-                    base,
-                    &mut mods,
-                    inventory,
-                    &mut buffs,
-                    &mut speeds,
-                    &mut combat,
-                    buff,
-                )
-            } else {
-                false
-            };
+            crate::game_loop::stat_ctx::with_stat_ctx(world, target_oid, |ctx| ctx.apply(buff))
+                .unwrap_or(false);
         // A refused buff (a same-type buff of equal/higher level is already up)
         // changes nothing — don't schedule its expiry (a stale `BuffExpire` on a
         // shared skill id would drop the surviving buff early) or rebroadcast.

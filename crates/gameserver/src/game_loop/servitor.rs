@@ -11,8 +11,10 @@
 //! and the `SummonInfo` packet that shows it to *other* players are separate
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
@@ -508,11 +510,7 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         return;
     };
     // Java's shared guard: dead or control-blocked players issue no actions.
-    if world
-        .objects
-        .get_component::<Vitals>(&owner_oid)
-        .is_none_or(|v| v.dead)
-        || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
+    if is_dead(world, owner_oid) || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
     {
         return;
     }
@@ -551,7 +549,7 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
             const MOUNT_WYVERN: u8 = 2;
             let over_no_landing = world
                 .objects
-                .get_component::<crate::model::components::Position>(&owner_oid)
+                .get_component::<Position>(&owner_oid)
                 .is_some_and(|p| world.data.zone_data.in_no_landing_zone(p.x, p.y, p.z));
             if over_no_landing
                 && world
@@ -648,11 +646,7 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
     else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&servitor_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, servitor_oid) else {
         return;
     };
     let Some(npc) = world
@@ -726,11 +720,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
         return;
     };
     // Dead or already gone → the chain ends (Java cancels the task).
-    if world
-        .objects
-        .get_component::<Vitals>(&servitor_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, servitor_oid) {
         return;
     }
     let owner = link.owner_object_id;
@@ -1205,11 +1195,7 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
     else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&pet_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, pet_oid) {
         return;
     }
     let Some(owner) = world
@@ -1365,12 +1351,7 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     let Some((item_id, held)) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&owner)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == object_id)
-                .map(|i| (i.item_id, i.count))
-        })
+        .and_then(|inv| inv.by_object_id(object_id).map(|i| (i.item_id, i.count)))
     else {
         return;
     };
@@ -1396,14 +1377,12 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     }
     // Java: asking for more than the stack holds punishes.
     if amount > held {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             owner,
             &format!(
                 "RequestGiveItemToPet: player {owner} tried to give item with oid {object_id} to pet but has invalid count {amount} item count: {held}"
             ),
-            punish,
         );
         return;
     }
@@ -1439,25 +1418,18 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
     let Some((item_id, held)) = world
         .objects
         .get_component::<crate::model::inventory::PetInventory>(&owner)
-        .and_then(|pi| {
-            pi.0.items()
-                .iter()
-                .find(|i| i.object_id == object_id)
-                .map(|i| (i.item_id, i.count))
-        })
+        .and_then(|pi| pi.0.by_object_id(object_id).map(|i| (i.item_id, i.count)))
     else {
         return;
     };
     // Java: asking for more than the stack holds punishes.
     if amount > held {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             owner,
             &format!(
                 "RequestGetItemFromPet: player {owner} tried to get item with oid {object_id} from pet but has invalid count {amount} item count: {held}"
             ),
-            punish,
         );
         return;
     }
@@ -1476,9 +1448,7 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
         .get_component_mut::<crate::model::inventory::Inventory>(&owner)
         .map(|inv| {
             let oid = inv.add_item(&data.item_data, next_oid, item_id, count);
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == oid)
+            inv.by_object_id(oid)
                 .cloned()
                 .map(crate::model::inventory::ItemChange::Modified)
                 .into_iter()
@@ -1508,12 +1478,7 @@ pub(crate) fn handle_pet_use_item(world: &mut World, client_id: u32, body: &[u8]
     let Some(item_id) = world
         .objects
         .get_component::<crate::model::inventory::PetInventory>(&owner)
-        .and_then(|pi| {
-            pi.0.items()
-                .iter()
-                .find(|i| i.object_id == object_id)
-                .map(|i| i.item_id)
-        })
+        .and_then(|pi| pi.0.by_object_id(object_id).map(|i| i.item_id))
     else {
         return;
     };
@@ -1608,11 +1573,7 @@ pub(crate) fn split_exp_with_pet(
     // A dead pet earns nothing (Java `if (!pet.isDead())`), but note the
     // owner's ratio is still reduced — Java adjusts it outside that guard, so
     // the exp is lost rather than returned to the player. Faithful.
-    if world
-        .objects
-        .get_component::<Vitals>(&pet_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, pet_oid) {
         return (1.0, 0.0, 0.0);
     }
     if !within(world, owner_oid, pet_oid, PET_EXP_RANGE) {

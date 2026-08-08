@@ -1,4 +1,6 @@
 use super::*;
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
@@ -59,11 +61,7 @@ fn siege_resurrect_refusal(world: &World, corpse_oid: i32, skill_id: i32) -> Opt
     if !siege.in_progress {
         return None;
     }
-    let clan_id = world
-        .objects
-        .get_component::<crate::model::Player>(&corpse_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, corpse_oid);
     // Java keeps this branch separate from the fallthrough below, but both send
     // the same generic line — it is redundant upstream too, and kept only
     // because the shape mirrors the reference. No test can tell them apart.
@@ -477,11 +475,7 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
 
     // `broadcastPacket(CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL)` — everyone
     // present hears it, not just the earner.
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, npc_oid) {
         broadcast_near_region_in(
             world,
             region,

@@ -2,6 +2,8 @@
 //! `REGEN_TICK_PERIOD` ticks from the game loop.
 
 use crate::data::GameData;
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{BaseStats, PlayerVitals, StatModifiers, Vitals};
 use crate::model::stats::{BaseStat, MoveType, Stat};
@@ -107,11 +109,7 @@ pub(crate) fn clan_hall_regen_mult(world: &World, object_id: i32) -> (f64, f64) 
     else {
         return (1.0, 1.0);
     };
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, object_id);
     if clan_id == 0 {
         return (1.0, 1.0);
     }
@@ -143,11 +141,7 @@ pub(crate) fn castle_regen_mult(world: &World, object_id: i32) -> (f64, f64) {
     else {
         return (1.0, 1.0);
     };
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, object_id);
     if clan_id == 0 {
         return (1.0, 1.0);
     }
@@ -424,12 +418,7 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
 
         // `broadcastStatusUpdate` — refresh the HP bar for anyone targeting it.
         // Only on an actual HP change, so a full-HP/low-MP mob doesn't spam.
-        if changed
-            && let Some(region) = world
-                .objects
-                .get_component::<crate::model::components::RegionCell>(&oid)
-                .map(|r| r.0)
-        {
+        if changed && let Some(region) = region_cell_of(world, oid) {
             super::helpers::broadcast_near_region(
                 world,
                 region,

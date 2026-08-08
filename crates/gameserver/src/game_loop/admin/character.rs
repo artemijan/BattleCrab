@@ -3,6 +3,7 @@
 //! integer fields, appearance, and equipment enchant levels.
 
 use crate::game_loop::guard::{self, Guard, OrReject};
+use crate::game_loop::helpers;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::sm_ids;
@@ -32,7 +33,7 @@ fn add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) 
     ) {
         // Java only applies + messages when at least one value is non-zero.
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
-            let name = guard::player_name(world, target).unwrap_or_default();
+            let name = helpers::player_name_or_empty(world, target);
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
                 send_message(
                     world,
@@ -76,7 +77,7 @@ fn remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str
         args.get(1).and_then(|s| s.parse::<i64>().ok()),
     ) {
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
-            let name = guard::player_name(world, target).unwrap_or_default();
+            let name = helpers::player_name_or_empty(world, target);
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
                 send_message(
                     world,

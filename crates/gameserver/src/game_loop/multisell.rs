@@ -424,12 +424,7 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         world
             .objects
             .get_component::<Inventory>(&player)
-            .and_then(|inv| {
-                inv.items()
-                    .iter()
-                    .find(|it| it.object_id == row.item_object_id)
-                    .copied()
-            })
+            .and_then(|inv| inv.by_object_id(row.item_object_id).copied())
     } else {
         None
     };

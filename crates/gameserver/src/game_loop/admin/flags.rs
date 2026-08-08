@@ -499,7 +499,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
                 .map_or(0, |p| p.transform_display_id);
             let hidden = world
                 .objects
-                .get_component::<crate::model::components::AdminFlags>(target)
+                .get_component::<AdminFlags>(target)
                 .is_some_and(|f| f.hidden);
             if let Some(cs) = world.clients.get(&cid) {
                 cs.send(

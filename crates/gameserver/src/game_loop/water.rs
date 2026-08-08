@@ -16,6 +16,7 @@
 //! local is the zone predicate (see [`super::position::is_in_water`]).
 
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
 use crate::model::components::{Vitals, WaterTask};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -92,11 +93,7 @@ pub(crate) fn start_water_task(world: &mut World, object_id: i32) {
     if world.objects.has_component::<WaterTask>(&object_id) {
         return;
     }
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         return;
     }
     let breath = breath_ms(world, object_id);

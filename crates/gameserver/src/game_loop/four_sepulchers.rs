@@ -10,6 +10,7 @@
 //! 60-minute re-entry gate survives a restart.
 
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -173,7 +174,7 @@ pub(crate) fn sepulcher_of(world: &World, player: i32) -> i32 {
 
 fn any_player_inside(world: &mut World, zone_id: i32) -> bool {
     let mut found = false;
-    let crate::world::World { objects, data, .. } = world;
+    let World { objects, data, .. } = world;
     objects.for_each_mut::<(&crate::model::Player, &Position)>(|(_, pos)| {
         if !found
             && data
@@ -232,10 +233,10 @@ pub(crate) fn try_enter(world: &mut World, manager_oid: i32, player: i32) -> Ent
     let members = party.members.clone();
     for &mem in &members {
         if !quest_started_or_completed(world, mem, "Q00620_FourGoblets") {
-            return EnterOutcome::NoQuest(player_name(world, mem));
+            return EnterOutcome::NoQuest(player_name_or_empty(world, mem));
         }
         if item_count(world, mem, ENTRANCE_PASS) < 1 {
-            return EnterOutcome::NoPass(player_name(world, mem));
+            return EnterOutcome::NoPass(player_name_or_empty(world, mem));
         }
     }
     let sepulcher = manager_sepulcher(manager_id);
@@ -438,13 +439,8 @@ pub(crate) fn on_boss_killed(world: &mut World, boss_oid: i32, killer: i32) {
     let idx = FsState::idx(sepulcher);
     world.four_sepulchers.progress[idx] += 1;
 
-    let members: Vec<i32> = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&killer)
-        .map(|r| r.0)
-        .and_then(|pid| world.parties.get(&pid))
-        .map(|p| p.members.clone())
-        .unwrap_or_default();
+    let members: Vec<i32> =
+        crate::game_loop::party::party_members(world, killer).unwrap_or_default();
     let killer_pos = world.objects.get_component::<Position>(&killer).copied();
     for mem in members {
         let near = match (
@@ -472,7 +468,7 @@ pub(crate) fn handle_oust(world: &mut World, sepulcher: i32) {
     let zone_id = ZONES[FsState::idx(sepulcher)];
     let mut inside: Vec<i32> = Vec::new();
     {
-        let crate::world::World { objects, data, .. } = world;
+        let World { objects, data, .. } = world;
         objects.for_each_mut::<(&crate::model::Player, &Position)>(|(p, pos)| {
             if data
                 .zone_data
@@ -506,7 +502,7 @@ fn manager_exit(sepulcher: i32) -> (i32, i32, i32) {
 fn clear_hall(world: &mut World, zone_id: i32, _include_players: bool) {
     let mut goners: Vec<(i32, (i32, i32))> = Vec::new();
     {
-        let crate::world::World { objects, data, .. } = world;
+        let World { objects, data, .. } = world;
         objects.for_each_mut::<(&crate::model::npc::Npc, &Position, &RegionCell)>(|(n, pos, r)| {
             let inside = data
                 .zone_data
@@ -567,14 +563,6 @@ pub(crate) fn disable_charm_zone(world: &mut World, killer: i32, charm_skill: i3
             break;
         }
     }
-}
-
-fn player_name(world: &World, player: i32) -> String {
-    world
-        .objects
-        .get_component::<crate::model::Player>(&player)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 fn item_count(world: &World, player: i32, item_id: i32) -> i64 {

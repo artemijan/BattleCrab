@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::clan_of_or_zero;
 
 use crate::model::clan::CL_MANAGE_RANKS;
 
@@ -461,13 +462,7 @@ pub(crate) fn handle_request_pledge_waiting_applied(world: &World, client_id: u3
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .unwrap_or(0)
-        != 0
-    {
+    if clan_of_or_zero(world, player) != 0 {
         return;
     }
     let clan_id = clan_id_for_player_application(world, player);
@@ -507,13 +502,7 @@ pub(crate) fn handle_request_pledge_waiting_list(world: &World, client_id: u32, 
     let Some(clan_id) = PacketReader::new(ex_body).read_i32() else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .unwrap_or(0)
-        != clan_id
-    {
+    if clan_of_or_zero(world, player) != clan_id {
         return;
     }
     send_waiting_list(world, client_id, clan_id);
@@ -545,13 +534,7 @@ pub(crate) fn handle_request_pledge_waiting_user(world: &World, client_id: u32, 
     let Some(player_id) = r.read_i32() else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .unwrap_or(0)
-        != clan_id
-    {
+    if clan_of_or_zero(world, player) != clan_id {
         return;
     }
     match world
@@ -614,7 +597,7 @@ pub(crate) fn handle_request_pledge_waiting_user_accept(
                 world,
                 player,
                 sm_ids::C1_CANNOT_JOIN_THE_CLAN_ONE_DAY_HAS_NOT_PASSED_SINCE_LEAVING,
-                &[SmParam::Text(player_name(world, player_id))],
+                &[SmParam::Text(player_name_or_empty(world, player_id))],
             );
         }
         return;

@@ -10,6 +10,7 @@
 //! then build a [`QuestCtx`] around `&mut World` and hand that to the
 //! script. Scripts are stateless; all state flows through the ctx.
 
+use crate::game_loop::helpers::is_dead;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -1713,13 +1714,8 @@ impl<'w> QuestCtx<'w> {
                 })
         };
         let killer = self.player;
-        let members: Vec<i32> = self
-            .world
-            .objects
-            .get_component::<crate::model::components::PartyRef>(&killer)
-            .and_then(|r| self.world.parties.get(&r.0))
-            .map(|p| p.members.clone())
-            .unwrap_or_default();
+        let members: Vec<i32> =
+            crate::game_loop::party::party_members(self.world, killer).unwrap_or_default();
         let in_range = |world: &World, oid: i32, npc: i32| {
             if npc == 0 {
                 return true;
@@ -1849,7 +1845,7 @@ impl<'w> QuestCtx<'w> {
     pub fn equipped_weapon_id(&self) -> i32 {
         self.world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&self.player)
+            .get_component::<Inventory>(&self.player)
             .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
             .unwrap_or(0)
     }
@@ -2782,11 +2778,7 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
             if crate::game_loop::helpers::instance_of(world, oid) != instance {
                 return false;
             }
-            if world
-                .objects
-                .get_component::<crate::model::components::Vitals>(&oid)
-                .is_none_or(|v| v.dead)
-            {
+            if is_dead(world, oid) {
                 return false;
             }
             world

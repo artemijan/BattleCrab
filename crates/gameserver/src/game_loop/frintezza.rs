@@ -14,6 +14,8 @@
 //! left is cosmetic: the exhaustive dummy-anchored `SpecialCamera` choreography
 //! is abbreviated throughout.
 
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;
 use crate::model::components::{AdminFlags, Movement, Position};
@@ -1070,11 +1072,7 @@ pub(crate) fn handle_finish_step(world: &mut World, instance_id: i32, step: u8) 
                     0,
                     0,
                 );
-                let region = world
-                    .objects
-                    .get_component::<crate::model::components::RegionCell>(&frintezza)
-                    .map(|r| r.0)
-                    .unwrap_or((0, 0));
+                let region = region_cell_of(world, frintezza).unwrap_or((0, 0));
                 crate::game_loop::death::despawn_npc(world, frintezza, region);
             }
             schedule_finish(world, instance_id, 2, 16_000);
@@ -1129,11 +1127,7 @@ fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
                 .map(|p| (p.x, p.y, p.z, p.heading))
                 .unwrap_or(SCARLET_POS);
             if scarlet1 != 0 {
-                let region = world
-                    .objects
-                    .get_component::<crate::model::components::RegionCell>(&scarlet1)
-                    .map(|r| r.0)
-                    .unwrap_or((0, 0));
+                let region = region_cell_of(world, scarlet1).unwrap_or((0, 0));
                 crate::game_loop::death::despawn_npc(world, scarlet1, region);
             }
             if let Some(scarlet2) = spawn_frozen(world, instance_id, SCARLET2, x, y, z, h, true) {
@@ -1384,10 +1378,7 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
         return; // the fight ended — stop ticking
     }
     let scarlet = var_oid(world, instance_id, "activeScarlet");
-    let dead = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&scarlet)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, scarlet);
     if scarlet == 0 || dead {
         world.instances.set_var(instance_id, "scarletAi", 0);
         return;

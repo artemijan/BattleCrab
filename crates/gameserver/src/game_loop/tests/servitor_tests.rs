@@ -853,10 +853,7 @@ fn a_collar_summons_its_pet() {
 
     let pet = summon_pet(&mut world, OWNER).expect("summoned");
 
-    let link = world
-        .objects
-        .get_component::<crate::model::components::PetOf>(&pet)
-        .unwrap();
+    let link = world.objects.get_component::<PetOf>(&pet).unwrap();
     assert_eq!(
         link.collar_object_id, collar,
         "bound to this collar, not the item type"
@@ -1186,7 +1183,7 @@ fn a_pet_survives_an_unsummon_round_trip() {
         .fed = 60;
 
     // Owner logs out: state is captured, then the pet leaves the world.
-    crate::game_loop::servitor::on_owner_leave_world(&mut world, OWNER);
+    on_owner_leave_world(&mut world, OWNER);
     assert!(
         pet_of(&world, OWNER).is_none(),
         "the pet is gone with its owner"
@@ -1869,9 +1866,7 @@ fn levelling_stamps_the_pets_level_onto_its_collar() {
         .objects
         .get_component::<crate::model::inventory::Inventory>(&OWNER)
         .unwrap()
-        .items()
-        .iter()
-        .find(|i| i.object_id == collar)
+        .by_object_id(collar)
         .unwrap()
         .enchant_level;
     assert_eq!(enchant, 2, "the collar reads +2 once the pet hits level 2");
@@ -4397,10 +4392,7 @@ fn add_great_wolf(world: &mut World) {
 
 /// Put a summoned wolf at `level`/`exp` so the evolve gates can be exercised.
 fn set_pet_level(world: &mut World, pet: i32, level: i32, exp: i64) {
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet)
-    {
+    if let Some(p) = world.objects.get_component_mut::<PetOf>(&pet) {
         p.level = level;
         p.exp = exp;
     }
@@ -4421,10 +4413,7 @@ fn a_qualifying_pet_evolves_and_keeps_its_experience() {
     let pet = summon_pet(&mut world, OWNER).expect("summoned");
     set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL, 1_250_000);
     // A name to carry across.
-    if let Some(pets) = world
-        .objects
-        .get_component_mut::<crate::model::components::PlayerPets>(&OWNER)
-    {
+    if let Some(pets) = world.objects.get_component_mut::<PlayerPets>(&OWNER) {
         pets.0.insert(
             collar,
             crate::db::PetRow {
@@ -4464,10 +4453,7 @@ fn a_qualifying_pet_evolves_and_keeps_its_experience() {
         "the collar records the pet's level — which is what a later restore reads"
     );
     let new_pet = pet_of(&world, OWNER).expect("the evolved pet is out");
-    let link = world
-        .objects
-        .get_component::<crate::model::components::PetOf>(&new_pet)
-        .unwrap();
+    let link = world.objects.get_component::<PetOf>(&new_pet).unwrap();
     assert_eq!(link.exp, 1_250_000, "the experience came across");
     assert_eq!(
         link.level, 56,
@@ -4484,7 +4470,7 @@ fn a_qualifying_pet_evolves_and_keeps_its_experience() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerPets>(&OWNER)
+            .get_component::<PlayerPets>(&OWNER)
             .unwrap()
             .0
             .get(&new_collar.object_id)
@@ -4535,10 +4521,7 @@ fn evolving_floors_the_experience_at_the_new_species_curve() {
     pet_evolve::handle_evolve(&mut world, CID, OWNER, NPC_OID + 30, "evolve 1");
 
     let new_pet = pet_of(&world, OWNER).expect("evolved");
-    let link = world
-        .objects
-        .get_component::<crate::model::components::PetOf>(&new_pet)
-        .unwrap();
+    let link = world.objects.get_component::<PetOf>(&new_pet).unwrap();
     assert_eq!(link.exp, 1_000_000, "floored at the new curve's level 55");
     assert_eq!(link.level, 55, "so it lands at 55, not at level 1");
 }
@@ -4742,11 +4725,7 @@ fn restore_reads_the_level_off_the_collar_enchant() {
     assert_eq!(inv.count_of(GREAT_WOLF_COLLAR), 1, "the base one is given");
     let pet = pet_of(&world, OWNER).expect("and the pet is summoned");
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::components::PetOf>(&pet)
-            .unwrap()
-            .level,
+        world.objects.get_component::<PetOf>(&pet).unwrap().level,
         56,
         "at the level the collar's enchant recorded, not the minimum"
     );
@@ -5066,10 +5045,7 @@ fn fullfood_fills_a_pet_and_refuses_a_servitor() {
 
     // Drain the bar, then target the pet and fill it.
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::components::PetOf>(&pet)
-            .unwrap();
+        let p = world.objects.get_component_mut::<PetOf>(&pet).unwrap();
         p.fed = 1;
     }
     // `use_admin_command` returns silently for a non-GM (Java `if (!isGM())`),
@@ -5089,10 +5065,7 @@ fn fullfood_fills_a_pet_and_refuses_a_servitor() {
         .add_components(&OWNER, crate::model::components::TargetRef(Some(pet)));
     crate::game_loop::admin::use_admin_command(&mut world, CID, "admin_fullfood", false);
 
-    let p = world
-        .objects
-        .get_component::<crate::model::components::PetOf>(&pet)
-        .unwrap();
+    let p = world.objects.get_component::<PetOf>(&pet).unwrap();
     assert_eq!(p.fed, p.max_fed, "the bar is filled to max");
 
     // A servitor is not a pet: the command must not touch it.
@@ -5102,9 +5075,7 @@ fn fullfood_fills_a_pet_and_refuses_a_servitor() {
         .add_components(&OWNER, crate::model::components::TargetRef(Some(servitor)));
     crate::game_loop::admin::use_admin_command(&mut world, CID, "admin_fullfood", false);
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::PetOf>(&servitor),
+        !world.objects.has_component::<PetOf>(&servitor),
         "a servitor never grows a food bar from //fullfood"
     );
 }
@@ -5137,7 +5108,7 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
 
     // Before: the servitor obeys an attack order.
     assert!(
-        crate::game_loop::servitor::servitor_attack(&mut world, OWNER, FOE),
+        servitor_attack(&mut world, OWNER, FOE),
         "an unbetrayed servitor takes orders"
     );
 
@@ -5316,11 +5287,7 @@ fn dismount_stores_the_drained_feed_on_the_collar_row() {
         .categories
         .insert_for_test("WOLF_GROUP", &[WOLF_NPC]);
     let pet = summon_pet(&mut world, OWNER).expect("summoned");
-    world
-        .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet)
-        .unwrap()
-        .fed = 100;
+    world.objects.get_component_mut::<PetOf>(&pet).unwrap().fed = 100;
 
     crate::game_loop::user_commands::mount(&mut world, CID, OWNER);
     {
@@ -5351,12 +5318,7 @@ fn dismount_stores_the_drained_feed_on_the_collar_row() {
     assert!(!p.is_mounted());
     assert_eq!(p.mount_collar_object_id, 0, "the link cleared");
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::components::PlayerPets>(&OWNER)
-            .unwrap()
-            .0[&collar]
-            .fed,
+        world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0[&collar].fed,
         37,
         "the drained gauge went back onto the pets row"
     );

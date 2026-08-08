@@ -19,9 +19,7 @@
 
 use crate::game_loop::bot_report;
 use crate::game_loop::helpers::client_for_player;
-use crate::model::components::{
-    BaseStats, Buffs, CombatStats, RegionCell, Speeds, StatModifiers, Vitals,
-};
+use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
 use crate::model::skill::{
@@ -32,6 +30,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::instant;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
 
 mod continuous;
@@ -70,7 +69,7 @@ pub(crate) fn skill_power_mul(world: &World, caster_oid: i32, magic: bool) -> f6
     };
     world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&caster_oid)
+        .get_component::<StatModifiers>(&caster_oid)
         .map(|m| {
             (1.0 + m.add.get(&stat).copied().unwrap_or(0.0))
                 * m.mul.get(&stat).copied().unwrap_or(1.0)
@@ -107,7 +106,7 @@ fn skill_evasion_dodges(
 ) -> bool {
     let chance = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&target_oid)
+        .get_component::<StatModifiers>(&target_oid)
         .and_then(|m| m.skill_evasion.get(&skill.magic_type).copied())
         .unwrap_or(0.0);
     if chance <= 0.0 || (world.roll(100) as f64) >= chance {
@@ -142,10 +141,7 @@ fn skill_evasion_dodges(
 /// `1f` and which this dist does not populate, so it is left out.
 pub(crate) fn calc_skill_mastery(world: &mut World, caster_oid: i32) -> bool {
     use crate::model::stats::{BaseStat, Stat};
-    let Some(mods) = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&caster_oid)
-    else {
+    let Some(mods) = world.objects.get_component::<StatModifiers>(&caster_oid) else {
         return false;
     };
     let Some(ordinal) = mods.add.get(&Stat::SkillMastery).copied() else {
@@ -202,7 +198,7 @@ pub(crate) fn max_recoverable(
 ) -> f64 {
     world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .get_component::<StatModifiers>(&object_id)
         .map(|m| crate::model::finalize(m, stat, base))
         .unwrap_or(base)
 }
@@ -649,7 +645,19 @@ pub(crate) fn apply_skill_effects(
                 } else {
                     damage
                 };
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
+                apply_skill_damage(
+                    world,
+                    caster_oid,
+                    target_oid,
+                    SkillHit {
+                        damage,
+                        crit,
+                        caster_name: &caster_name,
+                        over_hit: skill.over_hit,
+                        skill_id: skill.id,
+                        ..Default::default()
+                    },
+                );
             }
             // `PolearmSingleTarget` is a pure stat toggle: `onStart` sets
             // `PHYSICAL_POLEARM_TARGET_SINGLE` as a **fixed** 1 and `onExit`
@@ -779,10 +787,7 @@ pub(crate) fn apply_skill_effects(
                     .get_component::<crate::model::components::Position>(&target_oid)
                     .map(|p| p.heading)
                     .unwrap_or(0);
-                if let Some(region) = world
-                    .objects
-                    .get_component::<RegionCell>(&target_oid)
-                    .map(|r| r.0)
+                if let Some(region) = region_cell_of(world, target_oid)
                 {
                     for pkt in [
                         server_packets::start_rotation(target_oid, target_heading, 1, 65535),
@@ -883,7 +888,7 @@ pub(crate) fn apply_skill_effects(
                         .has_component::<crate::model::Player>(&target_oid);
                 let dead = world
                     .objects
-                    .get_component::<crate::model::components::Vitals>(&target_oid)
+                    .get_component::<Vitals>(&target_oid)
                     .is_some_and(|v| v.dead);
                 if both_players && !dead {
                     crate::game_loop::death::add_exp_and_sp(
@@ -964,7 +969,7 @@ pub(crate) fn apply_skill_effects(
                         .unwrap_or(0);
                     if store_type != 0 {
                         send_sm(world, caster_oid, sm_ids::ITEM_CREATION_IS_NOT_POSSIBLE_WHILE_ENGAGED_IN_A_TRADE);
-                    } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, caster_oid) {
+                    } else if let Some(cid) = client_for_player(world, caster_oid) {
                         crate::game_loop::crafting::request_book_open(world, cid, *dwarven);
                     }
                 }
@@ -1271,7 +1276,7 @@ pub(crate) fn apply_skill_effects(
                 // Insert-then-merge instead.
                 let mut mods = world
                     .objects
-                    .get_component::<crate::model::components::StatModifiers>(&target_oid)
+                    .get_component::<StatModifiers>(&target_oid)
                     .cloned()
                     .unwrap_or_default();
                 *mods.skill_evasion.entry(*magic_type).or_insert(0.0) += *amount;
@@ -1570,8 +1575,7 @@ fn set_skill(world: &mut World, player_oid: i32, skill_id: i32, skill_level: i32
     // A granted passive has to start contributing now, not at the next login.
     crate::game_loop::passive_skills::recompute_conditioned_passives(world, player_oid);
     if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid)
-        && let Some(cs) = crate::game_loop::helpers::client_for_player(world, player_oid)
-            .and_then(|c| world.clients.get(&c))
+        && let Some(cs) = client_for_player(world, player_oid).and_then(|c| world.clients.get(&c))
     {
         cs.send(pkt);
     }
@@ -1770,13 +1774,15 @@ fn dam_over_time_crit_burst(
                 world,
                 caster_oid,
                 target_oid,
-                damage,
-                true,
-                true,
-                &caster_name,
-                skill.over_hit,
-                false,
-                skill.id,
+                SkillHit {
+                    damage,
+                    crit: true,
+                    is_magic: true,
+                    caster_name: &caster_name,
+                    over_hit: skill.over_hit,
+                    skill_id: skill.id,
+                    ..Default::default()
+                },
             );
         }
     }

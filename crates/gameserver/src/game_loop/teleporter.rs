@@ -17,11 +17,12 @@
 //! - The Mon/Tue window is evaluated in **UTC**, like the port's other
 //!   wall-clock work (`daily_tasks`), where Java uses server-local time.
 
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::is_dead;
 use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::teleporter_data::{TeleportHolder, TeleportLocation};
-use crate::model::components::Vitals;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 
@@ -393,10 +394,7 @@ pub(crate) fn do_teleport(
     }
 
     // `!player.isAlikeDead()` → teleport.
-    let dead = world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, object_id);
     if !dead {
         super::death::teleport_player(world, object_id, loc.x, loc.y, loc.z);
     }
@@ -462,10 +460,7 @@ pub(crate) fn castle_landing_page(
     player_object_id: i32,
 ) -> Option<String> {
     let castle_id = npc_castle_id(world, npc_object_id)?;
-    let clan_id = world
-        .objects
-        .get_component::<crate::model::Player>(&player_object_id)
-        .map_or(0, |p| p.clan_id);
+    let clan_id = clan_of_or_zero(world, player_object_id);
     if clan_id != 0 && super::siege::owner_clan_id_opt(world, castle_id) == Some(clan_id) {
         return None; // the owner sees the gatekeeper's own page
     }

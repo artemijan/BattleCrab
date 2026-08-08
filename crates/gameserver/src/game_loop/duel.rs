@@ -22,6 +22,7 @@
 //! here rather than with the end-game milestones.
 
 use super::helpers::send_sm_to_player as send_sm;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -211,7 +212,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     }
     if let Err(reason) = can_duel(world, target) {
         // Java forwards the *target's* refusal reason to the challenger.
-        let target_name = player_name(world, target);
+        let target_name = player_name_or_empty(world, target);
         send_sm(
             world,
             challenger,
@@ -221,7 +222,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
         return;
     }
     if distance(world, challenger, target) > DUEL_REQUEST_RANGE {
-        let target_name = player_name(world, target);
+        let target_name = player_name_or_empty(world, target);
         send_sm(
             world,
             challenger,
@@ -239,7 +240,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
             party: false,
         },
     );
-    let challenger_name = player_name(world, challenger);
+    let challenger_name = player_name_or_empty(world, challenger);
     send_to(
         world,
         target,
@@ -249,7 +250,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
         world,
         challenger,
         sm_ids::C1_HAS_BEEN_CHALLENGED_TO_A_DUEL,
-        &[SmParam::PlayerName(player_name(world, target))],
+        &[SmParam::PlayerName(player_name_or_empty(world, target))],
     );
 }
 
@@ -279,7 +280,7 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
             world,
             challenger,
             sm_ids::C1_HAS_DECLINED_YOUR_CHALLENGE_TO_A_DUEL,
-            &[SmParam::PlayerName(player_name(world, responder))],
+            &[SmParam::PlayerName(player_name_or_empty(world, responder))],
         );
         return;
     }
@@ -372,7 +373,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
             party: true,
         },
     );
-    let challenger_name = player_name(world, challenger);
+    let challenger_name = player_name_or_empty(world, challenger);
     send_to(
         world,
         leader_b,
@@ -382,18 +383,13 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
         world,
         challenger,
         sm_ids::C1_HAS_BEEN_CHALLENGED_TO_A_DUEL,
-        &[SmParam::PlayerName(player_name(world, leader_b))],
+        &[SmParam::PlayerName(player_name_or_empty(world, leader_b))],
     );
 }
 
 /// The player's party roster, leader first — empty when partyless.
 fn party_members_of(world: &World, oid: i32) -> Vec<i32> {
-    world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&oid)
-        .and_then(|r| world.parties.get(&r.0))
-        .map(|p| p.members.clone())
-        .unwrap_or_default()
+    crate::game_loop::party::party_members(world, oid).unwrap_or_default()
 }
 
 /// `RequestDuelSurrender` — give up; the opponent wins.
@@ -730,7 +726,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
             } else {
                 sm_ids::C1_HAS_WON_THE_DUEL
             };
-            let wname = player_name(world, winner);
+            let wname = player_name_or_empty(world, winner);
             for &oid in &everyone {
                 send_sm(world, oid, sm, &[SmParam::PlayerName(wname.clone())]);
             }
@@ -882,14 +878,6 @@ fn distance(world: &World, a: i32, b: i32) -> f64 {
     };
     let (dx, dy) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64);
     (dx * dx + dy * dy).sqrt()
-}
-
-fn player_name(world: &World, oid: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 fn send_to(world: &World, oid: i32, packet: Vec<u8>) {

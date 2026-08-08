@@ -1,4 +1,6 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::region_cell_of;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
@@ -144,11 +146,7 @@ pub(crate) fn target_level(world: &World, oid: i32) -> i32 {
 pub(crate) fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) {
     use server_packets::{SmParam, sm_ids};
     // `effected.isDead() || effected.isDoor() || effected.isMpBlocked()`.
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target_oid) {
         return;
     }
     if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
@@ -447,10 +445,7 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
             .objects
             .get_component::<crate::model::components::Position>(&target_oid)
             .copied()
-            && let Some(region) = world
-                .objects
-                .get_component::<crate::model::components::RegionCell>(&target_oid)
-                .map(|r| r.0)
+            && let Some(region) = region_cell_of(world, target_oid)
         {
             crate::game_loop::helpers::broadcast_near_region(
                 world,
@@ -515,12 +510,7 @@ pub(crate) fn rebalance_party_hp(world: &mut World, caster_oid: i32, skill: &Ski
     {
         return;
     }
-    let Some(members) = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&caster_oid)
-        .and_then(|r| world.parties.get(&r.0))
-        .map(|p| p.members.clone())
-    else {
+    let Some(members) = crate::game_loop::party::party_members(world, caster_oid) else {
         // No party: Java's `if (party != null)` guard skips the whole effect.
         return;
     };
@@ -673,12 +663,7 @@ pub(crate) fn creature_name(world: &World, oid: i32) -> String {
 /// Each member is gated by [`check_summon_target_status`], whose refusals are
 /// **messaged to the caster**, not the member.
 pub(crate) fn call_party(world: &mut World, caster_oid: i32) {
-    let Some(members) = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&caster_oid)
-        .and_then(|r| world.parties.get(&r.0))
-        .map(|p| p.members.clone())
-    else {
+    let Some(members) = crate::game_loop::party::party_members(world, caster_oid) else {
         // `if (party == null) return` — solo, the cast is simply wasted.
         return;
     };
@@ -736,10 +721,7 @@ pub(crate) fn check_summon_target_status(
     let text = || vec![SmParam::Text(name.clone())];
 
     // `isAlikeDead()` — dead, or faking it.
-    if world
-        .objects
-        .get_component::<Vitals>(&member)
-        .is_none_or(|v| v.dead)
+    if is_dead(world, member)
         || crate::game_loop::abnormal::flags_of(world, member)
             & crate::model::skill::effect_flag::FAKE_DEATH
             != 0

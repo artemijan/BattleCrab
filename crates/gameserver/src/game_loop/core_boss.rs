@@ -18,6 +18,7 @@
 //! list would hand Core six times the adds and a completely different fight.
 //! Ported as it behaves, pinned by a test.
 
+use crate::game_loop::helpers::region_cell_of;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -178,11 +179,7 @@ pub(crate) fn handle_despawn_minions(world: &mut World) {
         }
     });
     for oid in doomed {
-        if let Some(region) = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, oid) {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
     }

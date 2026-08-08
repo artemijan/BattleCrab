@@ -12,6 +12,7 @@ use crate::session::ClientSession;
 use crate::world::{World, region_of, regions_adjacent};
 
 use super::helpers::client_for_player;
+use crate::game_loop::helpers::region_cell_of;
 
 /// `CreatureAI.describeStateToPlayer`, players-only: right after a `CharInfo`
 /// introduces `p`, tell the observer about in-flight state — currently just an
@@ -248,9 +249,7 @@ pub(crate) fn npc_clan_block(world: &World, npc_oid: i32) -> Option<[i32; 5]> {
     }
     // Positional (`zones_at`), not `ZoneFlags` — the flag component is
     // maintained by the player zone tick and never exists on an NPC.
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&npc_oid)?;
+    let pos = world.objects.get_component::<Position>(&npc_oid)?;
     let in_peace = world
         .data
         .zone_data
@@ -271,10 +270,7 @@ pub(crate) fn npc_clan_block(world: &World, npc_oid: i32) -> Option<[i32; 5]> {
 
 /// The region cell a player is registered in (`None` once they're gone).
 fn player_region(world: &World, object_id: i32) -> Option<(i32, i32)> {
-    world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
+    region_cell_of(world, object_id)
 }
 
 /// Java `World.addVisibleObject` for a player spawning in (`EnterWorld` →
@@ -431,10 +427,7 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
         .get_component::<TargetRef>(&object_id)
         .copied()
     {
-        let target_region = world
-            .objects
-            .get_component::<RegionCell>(&target)
-            .map(|r| r.0);
+        let target_region = region_cell_of(world, target);
         if target_region.is_some_and(|r| !regions_adjacent(new, r)) {
             super::target::drop_target_notify(world, object_id);
         }

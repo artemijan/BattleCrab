@@ -11,6 +11,7 @@
 use super::helpers::adena;
 use super::helpers::{player_of, send_to_client as send};
 use crate::data::henna_data::HennaStatSums;
+use crate::game_loop::helpers::class_level;
 use crate::model::Player;
 use crate::model::components::{BaseStats, CombatStats, HennaSlots, Speeds, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
@@ -19,21 +20,6 @@ use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPre
 use crate::world::World;
 
 const ADENA_ID: i32 = 57;
-
-/// `ClassId.level()` — occupation tier (0 base, 1/2/3 for 1st/2nd/3rd class),
-/// mapped from the `*_CLASS_GROUP` category the class belongs to.
-fn class_level(world: &World, class_id: i32) -> i32 {
-    let c = &world.data.categories;
-    if c.contains("FOURTH_CLASS_GROUP", class_id) {
-        3
-    } else if c.contains("THIRD_CLASS_GROUP", class_id) {
-        2
-    } else if c.contains("SECOND_CLASS_GROUP", class_id) {
-        1
-    } else {
-        0
-    }
-}
 
 /// `Player.getHennaEmptySlots`: 2 slots at class level 1, 3 at level ≥ 2, 0 at
 /// base class — minus the worn dyes.
@@ -236,12 +222,10 @@ pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
         // Java: a dye the class can't wear at all is an exploit attempt (the
         // client never offers it), on top of the cannot-draw notice.
         if !class_allowed {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 oid,
                 &format!("Exploit attempt: player {oid} tryed to add a forbidden henna."),
-                punish,
             );
         }
         return;

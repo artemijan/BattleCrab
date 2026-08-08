@@ -473,9 +473,15 @@ fn deferral_markers_match_the_recorded_inventory() {
     // and each was confirmed against the datapack before being written down.
     // `armor-sets` was the one that mattered and is now closed — `ArmorSetData`
     // is ported (`data::armor_set_data` + `game_loop::armor_sets`).
-    // Empty again as of 2026-08-08: every gap the bare-marker triage recorded
-    // has been closed. A new `TODO(<tag>)` fails this test until it is listed.
-    let expected: &[(&str, usize)] = &[];
+    // Every gap the bare-marker triage recorded has since been closed, so the
+    // only entry left is one deduplication turned up. A new `TODO(<tag>)` fails
+    // this test until it is listed.
+    //
+    // `antharas-cc` was found by deduplication, not by a sweep: the entry gate's
+    // doc claimed the command channel outranked the party, while the body it
+    // documented only ever read `PartyRef` — byte-identical to sailren's
+    // honestly-party-only twin. The claim was prose, so nothing here saw it.
+    let expected: &[(&str, usize)] = &[("antharas-cc", 1)];
     let actual: Vec<(String, usize)> = counts.into_iter().collect();
     let expected: Vec<(String, usize)> = expected
         .iter()

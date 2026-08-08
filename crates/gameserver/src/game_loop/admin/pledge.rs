@@ -5,7 +5,9 @@
 //! and hero buttons on the same panel stay unimplemented until their subsystems
 //! land (G21/G24/G25).
 
+use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
+use crate::game_loop::helpers;
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
@@ -49,7 +51,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
     };
 
     let clan_id = guard::clan_of(world, target);
-    let target_name = guard::player_name(world, target).unwrap_or_default();
+    let target_name = helpers::player_name_or_empty(world, target);
 
     match action {
         "create" => {
@@ -135,11 +137,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
             // Java: valid range is [0, 12).
             if (0..12).contains(&level) {
                 crate::game_loop::clans::set_clan_level(world, cid, level);
-                let name = world
-                    .clans
-                    .get(&cid)
-                    .map(|c| c.name.clone())
-                    .unwrap_or_default();
+                let name = clan_name_or_empty(world, cid);
                 send_message(
                     world,
                     client_id,
@@ -161,11 +159,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
                     if let Some(score) =
                         crate::game_loop::clans::add_clan_reputation(world, cid, points)
                     {
-                        let name = world
-                            .clans
-                            .get(&cid)
-                            .map(|c| c.name.clone())
-                            .unwrap_or_default();
+                        let name = clan_name_or_empty(world, cid);
                         let (verb, dir) = if points > 0 {
                             ("add", "to")
                         } else {
@@ -238,7 +232,7 @@ pub(super) fn admin_clan_force_pending(world: &mut World, client_id: u32, args: 
         return;
     };
     super::super::clans::force_new_leader(world, clan_id, new_leader);
-    super::send_message(world, client_id, "Task have been forcely executed.");
+    send_message(world, client_id, "Task have been forcely executed.");
 }
 
 // ---------------------------------------------------------------------------

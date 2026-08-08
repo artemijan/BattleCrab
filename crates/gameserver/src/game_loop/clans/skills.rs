@@ -153,22 +153,7 @@ fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32,
     if effects.is_empty() {
         return; // known for the skill list, but nothing to fold into stats
     }
-    let buff = ActiveBuff {
-        displayed: true,
-        skill_id,
-        skill_level: level,
-        abnormal_type_client_id: -1,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
-        slot: crate::model::skill::BuffSlot::Uncapped,
-        expires_at_tick: u64::MAX,
-        passive: true,
-        // Synthetic buff (passive/clan/expertise pump): no abnormal state.
-        effect_flags: 0,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects,
-    };
+    let buff = ActiveBuff::passive_pump(skill_id, level, effects);
     apply_permanent_passive_buff(world, member_oid, buff);
 }
 
@@ -176,30 +161,7 @@ fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32,
 /// fold the effects into the member's stat maps, then rebroadcast UserInfo (no
 /// AbnormalStatusUpdate — passive buffs carry no icon).
 fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
-    use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers};
-    use crate::model::inventory::Inventory;
-    if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &mut Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&oid)
-    {
-        target.apply_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            buff,
-        );
-    }
+    crate::game_loop::stat_ctx::with_stat_ctx(world, oid, |ctx| ctx.apply(buff));
     // Clan skills like Clan Health / Clan Mind carry MaxHp/MaxMp modifiers that
     // `recalculate_stats` doesn't consume — fold them into the vitals too.
     crate::game_loop::skills::effects::recompute_max_vitals(world, oid);

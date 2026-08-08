@@ -737,10 +737,7 @@ pub(crate) fn spawn_minion_npc_at(
 /// Rolls on the global `rnd` stream (like the enchant glow beside it), not
 /// `World::roll`, so it cannot shift the forced-roll sequences combat tests
 /// depend on.
-pub(crate) fn roll_champion(
-    cfg: &crate::config::ChampionConfig,
-    t: &crate::data::npc_data::NpcTemplate,
-) -> bool {
+pub(crate) fn roll_champion(cfg: &crate::config::ChampionConfig, t: &NpcTemplate) -> bool {
     if !cfg.enable
         || !t.is_monster()
         || t.is_quest_monster()

@@ -228,6 +228,17 @@ impl Inventory {
         self.items.iter().find(|i| i.item_id == item_id)
     }
 
+    /// Java `Inventory.getItemByObjectId` — one specific instance in this bag,
+    /// or `None` when it isn't here.
+    ///
+    /// The object-id counterpart of [`first_of_item`](Self::first_of_item), and
+    /// the shape every packet handler needs: the client names the instance it
+    /// acted on, and "not in this inventory" is the same refusal as "no such
+    /// item".
+    pub fn by_object_id(&self, object_id: i32) -> Option<&ItemInstance> {
+        self.items.iter().find(|i| i.object_id == object_id)
+    }
+
     /// Serialize the whole inventory to `items` rows for a persistence flush
     /// (`PlayerSaveData`) — the inverse of [`from_rows`](Self::from_rows). An
     /// equipped instance gets `loc="PAPERDOLL"` with `loc_data` = its paperdoll
@@ -237,7 +248,7 @@ impl Inventory {
     /// client's saved arrangement (`RequestSaveInventoryOrder` →
     /// [`apply_inventory_order`](Self::apply_inventory_order)) survives relog —
     /// `load_items` restores with `ORDER BY loc_data`.
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut inv_order = 0i32;
         self.items
             .iter()
@@ -251,7 +262,7 @@ impl Inventory {
                             ("INVENTORY".to_string(), order)
                         }
                     };
-                crate::character::ItemRow {
+                ItemRow {
                     object_id: i.object_id,
                     item_id: i.item_id,
                     count: i.count,
@@ -925,81 +936,25 @@ mod tests {
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
         ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
             item_id: id,
             name: format!("armor{id}"),
             kind: ItemKind::Armor,
-            crystal_type: item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
             body_part,
-            weight: 0,
             is_stackable: false,
-            is_infinite: false,
-            type1: 0,
-            type2: 0,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: item_data::ItemHandler::None,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            ..ItemTemplate::for_test()
         }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
         ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
             item_id: id,
             name: format!("weapon{id}"),
             kind: ItemKind::Weapon,
-            crystal_type: item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
             body_part,
-            weight: 0,
             is_stackable: false,
-            is_infinite: false,
-            type1: 0,
-            type2: 0,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: item_data::ItemHandler::None,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            ..ItemTemplate::for_test()
         }
     }
 
@@ -1156,78 +1111,22 @@ mod tests {
     fn quest_items_are_excluded_from_the_ordinary_capacity_count() {
         let catalog = ItemData::from_templates(vec![
             ItemTemplate {
-                trade_flags: Default::default(),
-                time: -1,
-                duration: -1,
-                immediate_effect: false,
-                ex_immediate_effect: false,
-                default_action: crate::data::item_data::ActionType::Other,
                 item_id: 1,
                 name: "quest_item".into(),
                 kind: ItemKind::Etc,
                 body_part: item_data::SLOT_NONE,
-                weight: 0,
                 is_stackable: false,
-                is_infinite: false,
-                type1: 0,
-                type2: 0,
                 is_quest_item: true,
-                is_sellable: true,
-                is_freightable: false,
-                price: 0,
-                handler: item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None,
-                crystal_count: 0,
-                attack_radius: 40,
-                attack_angle: 0,
-                mp_consume: 0,
-                reduced_mp_consume: 0,
-                reduced_mp_consume_chance: 0,
-                capsuled_items: Vec::new(),
-                extractable_count_min: 0,
-                extractable_count_max: 0,
-                item_skills: Vec::new(),
-                etc_item_type: crate::data::item_data::EtcItemType::Other,
-                enchant_enabled: false,
-                enchant_limit: 0,
-                is_magic_weapon: false,
+                ..ItemTemplate::for_test()
             },
             ItemTemplate {
-                trade_flags: Default::default(),
-                time: -1,
-                duration: -1,
-                immediate_effect: false,
-                ex_immediate_effect: false,
-                default_action: crate::data::item_data::ActionType::Other,
                 item_id: 2,
                 name: "ordinary_item".into(),
                 kind: ItemKind::Etc,
                 body_part: item_data::SLOT_NONE,
-                weight: 0,
                 is_stackable: false,
-                is_infinite: false,
-                type1: 0,
-                type2: 0,
                 is_quest_item: false,
-                is_sellable: true,
-                is_freightable: false,
-                price: 0,
-                handler: item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None,
-                crystal_count: 0,
-                attack_radius: 40,
-                attack_angle: 0,
-                mp_consume: 0,
-                reduced_mp_consume: 0,
-                reduced_mp_consume_chance: 0,
-                capsuled_items: Vec::new(),
-                extractable_count_min: 0,
-                extractable_count_max: 0,
-                item_skills: Vec::new(),
-                etc_item_type: crate::data::item_data::EtcItemType::Other,
-                enchant_enabled: false,
-                enchant_limit: 0,
-                is_magic_weapon: false,
+                ..ItemTemplate::for_test()
             },
         ]);
         let mut inv = Inventory::new();
@@ -1243,41 +1142,13 @@ mod tests {
     #[test]
     fn etc_items_are_never_equipped() {
         let catalog = ItemData::from_templates(vec![ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
             item_id: 57,
             name: "Adena".into(),
             kind: ItemKind::Etc,
             body_part: item_data::SLOT_NONE,
-            weight: 0,
             is_stackable: true,
-            is_infinite: false,
-            type1: 0,
-            type2: 0,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..ItemTemplate::for_test()
         }]);
         let mut inv = Inventory::new();
         let oid = inv.add_item(&catalog, 1, 57, 100);
@@ -1325,13 +1196,13 @@ pub struct Warehouse(pub Inventory);
 impl Warehouse {
     /// Build from the character's `WAREHOUSE`-location item rows (non-paperdoll,
     /// so they land in the flat list).
-    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+    pub fn from_rows(rows: &[ItemRow]) -> Self {
         Self(Inventory::from_rows(rows))
     }
 
     /// Serialize to `items` rows with `loc="WAREHOUSE"` (nothing is equipped in a
     /// warehouse, so [`Inventory::to_rows`] yields `INVENTORY`; remap the loc).
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             r.loc = "WAREHOUSE".to_string();
@@ -1342,7 +1213,7 @@ impl Warehouse {
 
     /// Serialize to `items` rows with `loc="CLANWH"` — the clan warehouse's
     /// persistence location (`owner_id` = clan id, bound by the DB layer).
-    pub fn to_rows_clan(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows_clan(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             r.loc = "CLANWH".to_string();
@@ -1374,7 +1245,7 @@ impl PetInventory {
     /// Build from the character's `PET`/`PET_EQUIP` rows. `PET_EQUIP` is
     /// renamed back to `PAPERDOLL` so the shared loader restores the pet's
     /// worn slots the same way it restores a player's.
-    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+    pub fn from_rows(rows: &[ItemRow]) -> Self {
         let rows: Vec<_> = rows
             .iter()
             .cloned()
@@ -1395,7 +1266,7 @@ impl PetInventory {
     /// `Inventory::to_rows` already marks equipped rows `PAPERDOLL` with the
     /// slot in `loc_data`; remapping the name preserves the slot, so a pet's
     /// armour comes back **on** rather than in its bag.
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             if r.loc == "PAPERDOLL" {
@@ -1418,12 +1289,12 @@ pub struct Freight(pub Inventory);
 
 impl Freight {
     /// Build from the character's `FREIGHT`-location item rows.
-    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+    pub fn from_rows(rows: &[ItemRow]) -> Self {
         Self(Inventory::from_rows(rows))
     }
 
     /// Serialize to `items` rows with `loc="FREIGHT"`.
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             r.loc = "FREIGHT".to_string();

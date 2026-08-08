@@ -203,12 +203,10 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
         .objects
         .has_component::<crate::model::components::EnchantRequest>(&player_oid)
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!("Player {player_oid} tried to use enchant Exploit!"),
-            punish,
         );
         return;
     }
@@ -224,7 +222,7 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
             let Some((item_id, stackable)) = world
                 .objects
                 .get_component::<Inventory>(&player_oid)
-                .and_then(|inv| inv.items().iter().find(|i| i.object_id == obj_id))
+                .and_then(|inv| inv.by_object_id(obj_id))
                 .and_then(|i| {
                     world
                         .data
@@ -277,7 +275,7 @@ fn warehouse_limit(world: &World, player_oid: i32, tgt: WhTarget) -> i32 {
             let (race, mods) = (
                 world
                     .objects
-                    .get_component::<crate::model::Player>(&player_oid)
+                    .get_component::<Player>(&player_oid)
                     .map_or(0, |p| p.race),
                 world
                     .objects
@@ -318,12 +316,10 @@ pub(crate) fn handle_withdraw(world: &mut World, client_id: u32, body: &[u8]) {
         })
     });
     if !all_present {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!("Player {player_oid} tried to withdraw non-existent item from warehouse."),
-            punish,
         );
         return;
     }
@@ -356,9 +352,7 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
             container_ref(world, player_oid, tgt)
         };
         src.and_then(|c| {
-            c.items()
-                .iter()
-                .find(|it| it.object_id == obj_id)
+            c.by_object_id(obj_id)
                 .map(|it| (it.item_id, it.count, it.enchant_level, it.mana_left))
         })
     };
@@ -602,12 +596,10 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
         .objects
         .has_component::<crate::model::components::EnchantRequest>(&player_oid)
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!("Player {player_oid} tried to use enchant exploit!"),
-            punish,
         );
         return;
     }

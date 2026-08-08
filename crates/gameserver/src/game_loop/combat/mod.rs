@@ -26,7 +26,7 @@ use crate::game_loop::common::maybe_distance_too_far;
 use crate::model::PlayerIntent;
 use crate::model::components::{
     AttackState, Casting, Collision, CombatStats, Following, Intent, MoveToPawnState, Movement,
-    PlayerVitals, Position, RegionCell, Speeds, Vitals,
+    PlayerVitals, Position, Speeds, Vitals,
 };
 use crate::model::formulas;
 use crate::model::movement::{self, MoveData, get_position};
@@ -423,6 +423,27 @@ pub(crate) fn stance_tick(world: &mut World) {
             &server_packets::auto_attack_stop(object_id),
         );
     }
+}
+
+/// Whether the actor's right hand holds a two-handed weapon
+/// (`SLOT_LR_HAND`) — the flag `Formulas.calculateTimeToHit` needs, since a
+/// two-hander lands its blow at a different point in the swing.
+///
+/// `false` for an empty hand and for anything with no inventory at all, both
+/// of which swing barehanded.
+pub(crate) fn wields_two_handed(world: &World, attacker_oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
+        .is_some_and(|inv| {
+            let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
+            rhand != 0
+                && world
+                    .data
+                    .item_data
+                    .get(rhand)
+                    .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
+        })
 }
 
 /// Port of `AttackStanceTaskManager.hasAttackStanceTask` — the actor is in

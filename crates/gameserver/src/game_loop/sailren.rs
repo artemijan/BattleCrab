@@ -56,7 +56,7 @@ const ENGAGE_HATE: f64 = 999.0;
 /// mob is alive — the marker doubles as the `IN_FIGHT` status, so no global
 /// state is needed.
 pub(crate) fn entry_refusal(world: &mut World, leader_oid: i32) -> Option<&'static str> {
-    let Some((leader, _)) = group_of(world, leader_oid) else {
+    let Some((leader, _)) = crate::game_loop::party::leader_and_members(world, leader_oid) else {
         return Some("32109-01.html"); // not in a party
     };
     if fight_active(world) {
@@ -75,7 +75,7 @@ pub(crate) fn entry_refusal(world: &mut World, leader_oid: i32) -> Option<&'stat
 /// each member within 1000, then `SPAWN_VELOCIRAPTOR` 60 s out). The Gazkh is
 /// taken by the caller (it needs the inventory-aware `QuestCtx`).
 pub(crate) fn enter_party(world: &mut World, leader_oid: i32) {
-    let Some((_, members)) = group_of(world, leader_oid) else {
+    let Some((_, members)) = crate::game_loop::party::leader_and_members(world, leader_oid) else {
         return;
     };
     // Gather the near members *before* teleporting anyone — teleporting the
@@ -110,16 +110,6 @@ fn fight_active(world: &mut World) -> bool {
             }
         });
     active
-}
-
-/// The player's party as `(leader, members)`, or `None` when solo.
-fn group_of(world: &World, player_oid: i32) -> Option<(i32, Vec<i32>)> {
-    let party_id = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&player_oid)?
-        .0;
-    let party = world.parties.get(&party_id)?;
-    Some((party.leader(), party.members.clone()))
 }
 
 fn near_leader(world: &World, leader: i32, member: i32) -> bool {

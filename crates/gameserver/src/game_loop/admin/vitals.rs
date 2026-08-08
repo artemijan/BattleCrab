@@ -10,6 +10,7 @@ use crate::network::server_packets::{self, status_update_type as sut};
 use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm, target_player};
+use crate::game_loop::helpers::region_cell_of;
 
 /// `AdminHeal`'s `//heal [name|radius]` — port of `AdminHeal.handleHeal`. With no
 /// argument, heal the current target (or the GM if nothing is selected). A
@@ -69,11 +70,7 @@ pub(crate) fn heal_creature(world: &mut World, target: i32) {
             cs.send(packet);
         }
         super::party::notify_party_vitals(world, target);
-    } else if let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&target)
-        .map(|r| r.0)
-    {
+    } else if let Some(region) = region_cell_of(world, target) {
         super::helpers::broadcast_near_region(world, region, &packet);
     }
 }
@@ -144,10 +141,7 @@ fn res_creature(world: &mut World, target: i32) {
         super::death::do_revive(world, target);
         full_restore(world, target);
     } else if world.objects.has_component::<Npc>(&target)
-        && let Some(region) = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&target)
-            .map(|r| r.0)
+        && let Some(region) = region_cell_of(world, target)
     {
         let max_hp = {
             let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else {

@@ -10,6 +10,7 @@
 
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
 use crate::game_loop::guard;
+use crate::game_loop::helpers::is_dead;
 use crate::model::components::{Position, Vitals};
 use crate::world::World;
 
@@ -228,11 +229,7 @@ pub(crate) fn handle_cubic_action(world: &mut World, owner_oid: i32, cubic_id: i
         return; // deactivated — the chain ends.
     };
     // Owner gone or dead → stop, the same contract the servitor ticks use.
-    if world
-        .objects
-        .get_component::<Vitals>(&owner_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, owner_oid) {
         remove_cubic(world, owner_oid, cubic_id);
         return;
     }
@@ -346,11 +343,7 @@ fn choose_skill(world: &mut World, template: &CubicTemplate) -> Option<CubicSkil
 fn live_target(world: &World, owner_oid: i32) -> Option<i32> {
     let target = guard::target(world, owner_oid)?;
     // A dead target is not worth a cast.
-    if world
-        .objects
-        .get_component::<Vitals>(&target)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target) {
         return None;
     }
     Some(target)

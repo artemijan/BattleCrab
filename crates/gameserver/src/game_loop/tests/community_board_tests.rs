@@ -191,7 +191,7 @@ fn teleport_action_moves_player_and_hides_board() {
 fn give_test_item(world: &mut World, player: i32, item_id: i32, count: i64) {
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&player)
+        .get_component_mut::<Inventory>(&player)
         .unwrap()
         .add_item(&data.item_data, 8_200_000 + item_id, item_id, count);
 }

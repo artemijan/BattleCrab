@@ -36,8 +36,11 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell, Vitals};
+use crate::model::components::{Position, RegionCell};
 use crate::model::skill::{AffectObject, AffectScope, Skill, TargetType};
 use crate::world::{World, regions_adjacent};
 
@@ -273,19 +276,9 @@ fn sweep_group(
         // `Alliance` is only reachable from the DEAD_* sweep, which never
         // calls this helper.
         Group::Alliance => vec![target_oid],
-        Group::Party => world
-            .objects
-            .get_component::<crate::model::components::PartyRef>(&target_oid)
-            .and_then(|r| world.parties.get(&r.0))
-            .map(|p| p.members.clone())
-            // Java: an unpartied target is still "their own party of one".
-            .unwrap_or_else(|| vec![target_oid]),
+        Group::Party => crate::game_loop::party::group_or_self(world, target_oid),
         Group::Clan => {
-            let clan_id = world
-                .objects
-                .get_component::<Player>(&target_oid)
-                .map(|p| p.clan_id)
-                .unwrap_or(0);
+            let clan_id = clan_of_or_zero(world, target_oid);
             if clan_id <= 0 {
                 vec![target_oid]
             } else {
@@ -360,13 +353,7 @@ fn sweep_dead_group(
         }
         match group {
             Group::Clan => {
-                let clan_of = |o: i32| {
-                    world
-                        .objects
-                        .get_component::<Player>(&o)
-                        .map(|p| p.clan_id)
-                        .unwrap_or(0)
-                };
+                let clan_of = |o: i32| clan_of_or_zero(world, o);
                 let c = clan_of(target_oid);
                 c != 0 && clan_of(oid) == c
             }
@@ -751,11 +738,7 @@ fn within_2d(a: &Position, b: &Position, range: i32) -> bool {
 /// Every creature (player or NPC) that could be swept up around `centre_oid` —
 /// the port's stand-in for `World.forEachVisibleObjectInRange`'s candidate set.
 fn candidates(world: &World, centre_oid: i32) -> Vec<i32> {
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&centre_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, centre_oid) else {
         return Vec::new();
     };
     let mut out = world.npcs_visible_from(region);
@@ -766,14 +749,6 @@ fn candidates(world: &World, centre_oid: i32) -> Vec<i32> {
             .is_some_and(|r| regions_adjacent(region, r.0))
     }));
     out
-}
-
-fn is_dead(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| v.dead)
-        .unwrap_or(true)
 }
 
 /// Java's dead-target exemption: only the corpse target types (`NPC_BODY`,
@@ -872,16 +847,8 @@ fn same_party(world: &World, a: i32, b: i32) -> bool {
 }
 
 fn same_clan(world: &World, a: i32, b: i32) -> bool {
-    let ca = world
-        .objects
-        .get_component::<Player>(&a)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
-    let cb = world
-        .objects
-        .get_component::<Player>(&b)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let ca = clan_of_or_zero(world, a);
+    let cb = clan_of_or_zero(world, b);
     ca > 0 && ca == cb
 }
 

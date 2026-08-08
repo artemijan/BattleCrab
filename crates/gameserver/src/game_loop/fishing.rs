@@ -11,8 +11,9 @@
 //! water point, which no zone can express; cosmetic only.
 
 use crate::data::item_data::WeaponType;
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
-use crate::model::components::{FishingSession, Position, RegionCell, Vitals};
+use crate::model::components::{FishingSession, Position};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
@@ -20,6 +21,7 @@ use crate::world::World;
 
 use super::helpers::send_to_player as send;
 use super::helpers::{broadcast_near_region, client_for_player};
+use crate::game_loop::helpers::region_cell_of;
 
 // FishingEndReason (Java enum ordinals).
 const REASON_WIN: u8 = 0;
@@ -85,10 +87,7 @@ pub(crate) fn fishing_available(world: &World, player: i32) -> bool {
 /// Java `Fishing.canFish` (slice-1 subset): alive, a real fishing rod equipped,
 /// a known bait hooked, and the player's level within the bait's range.
 fn can_fish(world: &World, player: i32) -> bool {
-    let dead = world
-        .objects
-        .get_component::<Vitals>(&player)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, player);
     if dead {
         return false;
     }
@@ -147,10 +146,7 @@ fn cast_line(world: &mut World, player: i32) {
 
     // Java `castLine`: the cast fails ("you can't fish here") unless the player
     // stands in a FishingZone *and* the bob lands on a WaterZone.
-    let region = world
-        .objects
-        .get_component::<RegionCell>(&player)
-        .map(|r| r.0);
+    let region = region_cell_of(world, player);
     let Some((bx, by, bz)) = calculate_bait_location(world, player) else {
         // Java's branch splits on `_isFishing`: a *fresh* cast in a bad spot is
         // told why, a re-cast mid-session only gets `ActionFailed` (its commented
@@ -346,11 +342,7 @@ pub(crate) fn stop_fishing(world: &mut World, player: i32, reason: u8) {
 
 fn broadcast_end(world: &World, player: i32, reason: u8) {
     let pkt = sp::ex_fishing_end(player, reason);
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&player)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, player) {
         broadcast_near_region(world, region, &pkt);
     }
 }

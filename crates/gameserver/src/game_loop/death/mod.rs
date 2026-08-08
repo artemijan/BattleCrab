@@ -24,11 +24,10 @@
 use crate::data::npc_data::{DropHolder, NpcTemplate};
 use crate::model::Player;
 use crate::model::components::{
-    BaseStats, Buffs, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook,
-    Speeds, StatModifiers, Vitals,
+    BaseStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook, Speeds,
+    StatModifiers, Vitals,
 };
 use crate::model::formulas;
-use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
@@ -38,6 +37,7 @@ use super::helpers::{
     broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
 };
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 
 mod player_death;
 mod progression;
@@ -85,11 +85,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
             .unwrap_or(world.cfg.npc.default_corpse_time);
         (corpse_secs, max_hp)
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     // Scope the death packets to the corpse's instance (G27).
@@ -265,11 +261,7 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
         super::servitor::pet_decay(world, npc_oid);
     }
 
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     // Gather the respawn bookkeeping before despawn (components drop with
@@ -339,7 +331,7 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     let mut watchers: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
+        .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
             if t.0 == Some(npc_oid) {
                 watchers.push(p.object_id);
             }
@@ -410,11 +402,7 @@ pub(crate) fn handle_npc_respawn(
 /// `visibility.rs`), and without the delete/re-add pair the client can keep a
 /// ghost of a same-region teleport.
 pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32, heading: i32) {
-    let Some(old_region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(old_region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let new_region = crate::world::region_of(x, y);
@@ -424,7 +412,7 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
     let mut holders: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
+        .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
             if t.0 == Some(npc_oid) {
                 holders.push(p.object_id);
             }
@@ -438,10 +426,7 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
         instance_of(world, npc_oid),
         &server_packets::delete_object(npc_oid),
     );
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&npc_oid)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&npc_oid) {
         p.x = x;
         p.y = y;
         p.z = z;
@@ -467,11 +452,7 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let Some(v) = crate::model::npc::NpcView::of(&world.objects, object_id) else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, object_id) else {
         return;
     };
     let Some(t) = v.npc.template(world) else {

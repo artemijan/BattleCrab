@@ -15,7 +15,8 @@
 //! - **Waiting** — once the delay elapses, advance to the next node and walk.
 
 use crate::data::route_data::RepeatStyle;
-use crate::model::components::{Movement, Vitals};
+use crate::game_loop::helpers::is_dead;
+use crate::model::components::Movement;
 use crate::world::World;
 use commons::util::rnd;
 
@@ -68,11 +69,7 @@ pub(crate) fn walker_tick(world: &mut World) {
 
     for (oid, mut state) in walkers {
         // `WalkingManager.onDeath` cancels the route permanently.
-        if world
-            .objects
-            .get_component::<Vitals>(&oid)
-            .is_none_or(|v| v.dead)
-        {
+        if is_dead(world, oid) {
             world.objects.remove_component::<WalkState>(&oid);
             continue;
         }

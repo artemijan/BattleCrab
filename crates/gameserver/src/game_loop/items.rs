@@ -1,6 +1,7 @@
 //! Gear equip/unequip handlers (`UseItem`, `RequestUnEquipItem`) and the
 //! `EtcItem` "use" dispatch (`ExtractableItems` for pack/box items).
 
+use crate::game_loop::helpers::is_dead;
 use tracing::warn;
 
 use crate::data::item_data::ItemHandler;
@@ -83,7 +84,7 @@ fn add_inventory_item_inner(
     if stackable {
         let existing_stack = world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&player_oid)
+            .get_component::<Inventory>(&player_oid)
             .and_then(|inv| inv.first_of_item(item_id).map(|i| i.object_id));
 
         if let Some(stack_oid) = existing_stack {
@@ -91,15 +92,13 @@ fn add_inventory_item_inner(
             // the next flush, not here.
             let inv = world
                 .objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
+                .get_component_mut::<Inventory>(&player_oid)
                 .expect("checked");
             inv.add_item(&world.data.item_data, stack_oid, item_id, count);
             return Some(vec![(stack_oid, false)]);
         }
         let new_oid = world.alloc_object_id()?;
-        let inv = world
-            .objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        let inv = world.objects.get_component_mut::<Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, count);
         return Some(vec![(new_oid, true)]);
     }
@@ -107,9 +106,7 @@ fn add_inventory_item_inner(
     let mut created = Vec::with_capacity(count.max(1) as usize);
     for _ in 0..count.max(1) {
         let new_oid = world.alloc_object_id()?;
-        let inv = world
-            .objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        let inv = world.objects.get_component_mut::<Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, 1);
         created.push((new_oid, true));
     }
@@ -317,11 +314,7 @@ pub(crate) fn use_equipable_item(
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         let Some(template) = catalog.get(item.item_id) else {
@@ -346,10 +339,7 @@ pub(crate) fn use_equipable_item(
     }
 
     let catalog = &world.data.item_data;
-    let Some(inventory) = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
 
@@ -377,7 +367,7 @@ pub(crate) fn use_equipable_item(
     if !was_equipped
         && world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_object_id).is_some())
     {
         super::item_mana::on_item_equipped(world, object_id, item_object_id);
@@ -406,10 +396,7 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     {
         return;
     }
-    let Some(inventory) = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
     let changed = inventory.unequip_slot(body_part);
@@ -430,15 +417,13 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     };
     // Java: `_count < 0` punishes; `_count == 0` is a plain refusal.
     if pkt.count < 0 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             object_id,
             &format!(
                 "[RequestDestroyItem] Player {object_id} tried to destroy item with oid {} but has count < 0!",
                 pkt.object_id
             ),
-            punish,
         );
         return;
     }
@@ -450,9 +435,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         .objects
         .get_component::<Inventory>(&object_id)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == pkt.object_id)
+            inv.by_object_id(pkt.object_id)
                 .map(|it| (it.item_id, it.count))
         })
         .map(|(id, cnt)| {
@@ -485,15 +468,13 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     // A non-stackable item can only be destroyed one at a time; asking for
     // more punishes (Java `handleIllegalPlayerAction`).
     if !is_stackable && pkt.count > 1 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             object_id,
             &format!(
                 "[RequestDestroyItem] Player {object_id} tried to destroy a non-stackable item with oid {} but has count > 1!",
                 pkt.object_id
             ),
-            punish,
         );
         return;
     }
@@ -572,15 +553,13 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     };
     // Java: `_count <= 0` is a punish ("[RequestCrystallizeItem] count <= 0!").
     if pkt.count <= 0 {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player_oid,
             &format!(
                 "[RequestCrystallizeItem] count <= 0! ban! oid: {} owner: {player_oid}",
                 pkt.object_id
             ),
-            punish,
         );
         return;
     }
@@ -589,9 +568,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
         .objects
         .get_component::<Inventory>(&player_oid)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == pkt.object_id)
+            inv.by_object_id(pkt.object_id)
                 // Java's first guard: `itemToRemove.isShadowItem() ||
                 // isTimeLimitedItem()` → plain `ActionFailed`, no message.
                 // Without it a coupon-bought shadow weapon could be melted
@@ -749,10 +726,7 @@ pub(crate) fn finish_equip_change(
     }
     apply_paperdoll_change(world, client_id, object_id, changed);
 
-    let Some(inventory) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
     let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
@@ -785,7 +759,7 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
     for &item_oid in changed {
         let equipped = world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some());
         if equipped {
             super::options::apply_item_options(world, object_id, item_oid);
@@ -955,7 +929,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
             &crate::model::Player,
             &crate::model::components::BaseStats,
             &crate::model::components::StatModifiers,
-            &crate::model::inventory::Inventory,
+            &Inventory,
             &mut crate::model::components::Vitals,
             &mut crate::model::components::Speeds,
             &mut crate::model::components::CombatStats,
@@ -981,10 +955,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }
 
-    let Some(inventory) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
     if let Some(cs) = world.clients.get(&client_id) {
@@ -1012,11 +983,7 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         world
@@ -1224,11 +1191,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         return;
     };
     // `!player.isDead()` — a dead player can't toggle shots.
-    if world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         return;
     }
     // The item must be in the inventory, and be a player shot we handle.
@@ -1608,11 +1571,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         let Some(template) = world.data.item_data.get(item.item_id) else {
@@ -1775,11 +1734,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory
-            .items()
-            .iter()
-            .find(|i| i.object_id == item_object_id)
-        else {
+        let Some(item) = inventory.by_object_id(item_object_id) else {
             return;
         };
         let Some(template) = world.data.item_data.get(item.item_id) else {

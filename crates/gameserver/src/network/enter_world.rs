@@ -121,7 +121,7 @@ pub fn inventory_update(
     w.write_u8(0x21);
     w.write_i16(changed_object_ids.len() as i16);
     for &object_id in changed_object_ids {
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else {
+        let Some(item) = inventory.by_object_id(object_id) else {
             continue;
         };
         let Some(template) = data.item_data.get(item.item_id) else {
@@ -156,7 +156,7 @@ pub fn inventory_update_added(
     w.write_u8(0x21);
     w.write_i16(added.len() as i16);
     for &(object_id, is_new) in added {
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else {
+        let Some(item) = inventory.by_object_id(object_id) else {
             continue;
         };
         let Some(template) = data.item_data.get(item.item_id) else {
@@ -803,41 +803,13 @@ mod tests {
 
     fn earring(id: i32) -> ItemTemplate {
         ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
             item_id: id,
             name: format!("earring{id}"),
             kind: ItemKind::Armor,
             body_part: item_data::SLOT_L_EAR | item_data::SLOT_R_EAR,
-            weight: 0,
             is_stackable: false,
-            is_infinite: false,
-            type1: 0,
-            type2: 0,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..ItemTemplate::for_test()
         }
     }
 
@@ -1068,7 +1040,7 @@ mod tests {
             let mut t = earring(9000);
             t.body_part = body_part;
             t.type2 = exp_type2;
-            let item = crate::model::inventory::ItemInstance {
+            let item = ItemInstance {
                 object_id: 5000,
                 item_id: 9000,
                 count: 1,

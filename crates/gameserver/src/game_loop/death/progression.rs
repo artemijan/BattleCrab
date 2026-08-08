@@ -138,22 +138,7 @@ pub(crate) fn add_exp_and_sp(
     }
 
     let new_level = level_for_exp(world, new_exp, max_level);
-    if new_level != old_level {
-        set_level(world, player_oid, new_level);
-    } else if let Some(client_id) = client_for_player(world, player_oid) {
-        // Exp bar refresh (`player.updateUserInfo()`).
-        if let (Some(v), Some(cs)) = (
-            crate::model::PlayerView::of_world(world, player_oid),
-            world.clients.get(&client_id),
-        ) {
-            cs.send(crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                crate::game_loop::party::calculate_relation(world, v.p),
-            ));
-        }
-    }
+    apply_level_change(world, player_oid, old_level, new_level);
 }
 
 /// Java `Player.removeExpAndSp` — subtract exp/sp (each floored at 0) and
@@ -173,21 +158,32 @@ pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp
         (p.level, p.exp)
     };
     let new_level = level_for_exp(world, new_exp, max_level);
+    apply_level_change(world, player_oid, old_level, new_level);
+}
+
+/// Land an exp change: relevel if the threshold moved, otherwise just refresh
+/// the exp bar (Java `player.updateUserInfo()`).
+///
+/// `set_level` already broadcasts, so the `UserInfo` send is only needed on the
+/// no-level-change path.
+fn apply_level_change(world: &mut World, player_oid: i32, old_level: i32, new_level: i32) {
     if new_level != old_level {
         set_level(world, player_oid, new_level);
-    } else if let Some(client_id) = client_for_player(world, player_oid) {
-        // Exp bar refresh (`player.updateUserInfo()`), no level change.
-        if let (Some(v), Some(cs)) = (
-            crate::model::PlayerView::of_world(world, player_oid),
-            world.clients.get(&client_id),
-        ) {
-            cs.send(crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                crate::game_loop::party::calculate_relation(world, v.p),
-            ));
-        }
+        return;
+    }
+    let Some(client_id) = client_for_player(world, player_oid) else {
+        return;
+    };
+    if let (Some(v), Some(cs)) = (
+        crate::model::PlayerView::of_world(world, player_oid),
+        world.clients.get(&client_id),
+    ) {
+        cs.send(crate::network::user_info::user_info(
+            &v,
+            &world.data,
+            &world.cfg.character,
+            crate::game_loop::party::calculate_relation(world, v.p),
+        ));
     }
 }
 
@@ -533,30 +529,12 @@ fn recompute_passives_after_skill_change(
         .iter()
         .filter_map(|&(id, action)| action.is_none().then_some(id))
         .collect();
-    if !removed.is_empty()
-        && let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-            world.objects.get_many_mut::<(
-                &Player,
-                &BaseStats,
-                &mut StatModifiers,
-                &Inventory,
-                &mut Buffs,
-                &mut Speeds,
-                &mut CombatStats,
-            )>(&player_oid)
-    {
-        for skill_id in &removed {
-            player.remove_buff(
-                &world.data,
-                base,
-                &mut mods,
-                inventory,
-                &mut buffs,
-                &mut speeds,
-                &mut combat,
-                *skill_id,
-            );
-        }
+    if !removed.is_empty() {
+        crate::game_loop::stat_ctx::with_stat_ctx(world, player_oid, |ctx| {
+            for &skill_id in &removed {
+                ctx.remove(skill_id);
+            }
+        });
     }
     // Re-fold conditioned passives from the corrected book (handles downgrades),
     // component-only — no send.

@@ -15,9 +15,11 @@
 //!   deliberately not "tidied".
 //! - **Either is attacked** → [`on_assist`] spreads aggro across the pack.
 
+use crate::game_loop::helpers::is_dead;
 use commons::util::rnd;
 
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
 use crate::scheduler::ScheduledTask;
@@ -42,11 +44,7 @@ pub(crate) fn spawn_minions(world: &mut World, master_oid: i32) -> usize {
 
 /// `spawnMinions(npc, "<group>")` — top up one named `<minions>` group.
 pub(crate) fn spawn_minion_group(world: &mut World, master_oid: i32, group: &str) -> usize {
-    if world
-        .objects
-        .get_component::<Vitals>(&master_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, master_oid) {
         return 0;
     }
     let Some(master_npc_id) = npc_id_of(world, master_oid) else {
@@ -86,11 +84,7 @@ pub(crate) fn spawn_minion_group(world: &mut World, master_oid: i32, group: &str
 /// on-attack "call for help" scripts (Timak Orc Troop Leader) summon one at a
 /// time instead of topping a whole group up.
 pub(crate) fn add_minion(world: &mut World, master_oid: i32, npc_id: i32) -> bool {
-    if world
-        .objects
-        .get_component::<Vitals>(&master_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, master_oid) {
         return false;
     }
     spawn_one_minion(world, master_oid, npc_id)
@@ -247,7 +241,7 @@ fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid
         &crate::model::components::Buffs,
         &mut crate::model::components::CombatStats,
         &mut crate::model::components::Speeds,
-        &mut crate::model::components::Vitals,
+        &mut Vitals,
     )>(&minion_oid)
     {
         crate::model::recompute_npc_stats_from_buffs(
@@ -279,11 +273,7 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
     };
 
     // A dead (or vanished) leader doesn't rebuild its pack.
-    if world
-        .objects
-        .get_component::<Vitals>(&master_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, master_oid) {
         return;
     }
     let master_is_raid = world
@@ -337,11 +327,7 @@ pub(crate) fn on_master_die(world: &mut World, master_oid: i32) {
     }
 
     for oid in live_pack(world, master_oid) {
-        if let Some(region) = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, oid) {
             super::death::despawn_npc(world, oid, region);
         }
     }
@@ -447,7 +433,7 @@ pub(crate) fn is_raid_minion(world: &World, npc_oid: i32) -> bool {
     };
     world
         .objects
-        .get_component::<crate::model::npc::Npc>(&master)
+        .get_component::<Npc>(&master)
         .and_then(|n| world.data.npc_data.get(n.npc_id))
         .is_some_and(|t| t.is_raid())
 }

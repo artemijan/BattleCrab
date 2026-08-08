@@ -1111,41 +1111,15 @@ fn combat_test_world() -> (
         .data
         .item_data
         .insert_for_test(crate::data::item_data::ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
             item_id: 57,
             name: "Adena".into(),
             kind: crate::data::item_data::ItemKind::Etc,
             body_part: 0,
-            weight: 0,
             is_stackable: true,
-            is_infinite: false,
             type1: 4,
             type2: 5,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..crate::data::item_data::ItemTemplate::for_test()
         });
     let mut t = crate::data::npc_data::default_template(40001);
     t.type_name = "Monster".into();
@@ -1442,10 +1416,7 @@ fn friend_answer_body(response: i32) -> Vec<u8> {
 
 fn seed_friendship(world: &mut World, a: i32, b: i32) {
     let info = |world: &World, oid: i32| {
-        let p = world
-            .objects
-            .get_component::<crate::model::Player>(&oid)
-            .unwrap();
+        let p = world.objects.get_component::<Player>(&oid).unwrap();
         FriendInfo {
             char_id: oid,
             name: p.name.clone(),
@@ -1512,41 +1483,15 @@ fn quest_test_world() -> (
             .data
             .item_data
             .insert_for_test(crate::data::item_data::ItemTemplate {
-                trade_flags: Default::default(),
-                time: -1,
-                duration: -1,
-                immediate_effect: false,
-                ex_immediate_effect: false,
-                default_action: crate::data::item_data::ActionType::Other,
                 item_id,
                 name: name.into(),
                 kind: crate::data::item_data::ItemKind::Etc,
                 body_part: 0,
-                weight: 0,
                 is_stackable,
-                is_infinite: false,
                 type1: 4,
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
-                is_sellable: true,
-                is_freightable: false,
-                price: 0,
-                handler: crate::data::item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None,
-                crystal_count: 0,
-                attack_radius: 40,
-                attack_angle: 0,
-                mp_consume: 0,
-                reduced_mp_consume: 0,
-                reduced_mp_consume_chance: 0,
-                capsuled_items: Vec::new(),
-                extractable_count_min: 0,
-                extractable_count_max: 0,
-                item_skills: Vec::new(),
-                etc_item_type: crate::data::item_data::EtcItemType::Other,
-                enchant_enabled: false,
-                enchant_limit: 0,
-                is_magic_weapon: false,
+                ..crate::data::item_data::ItemTemplate::for_test()
             });
     }
     for npc_id in [20120i32, 20517] {
@@ -1924,41 +1869,15 @@ fn shop_world() -> (
         .data
         .item_data
         .insert_for_test(crate::data::item_data::ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
             item_id: 1061,
             name: "Greater Healing Potion".into(),
             kind: crate::data::item_data::ItemKind::Etc,
             body_part: 0,
-            weight: 0,
             is_stackable: true,
-            is_infinite: false,
             type1: 4,
             type2: 5,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..crate::data::item_data::ItemTemplate::for_test()
         });
     world
         .data
@@ -2014,41 +1933,15 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
             .data
             .item_data
             .insert_for_test(crate::data::item_data::ItemTemplate {
-                trade_flags: Default::default(),
-                time: -1,
-                duration: -1,
-                immediate_effect: false,
-                ex_immediate_effect: false,
-                default_action: crate::data::item_data::ActionType::Other,
                 item_id,
                 name: name.into(),
                 kind: crate::data::item_data::ItemKind::Etc,
                 body_part: 0,
-                weight: 0,
                 is_stackable: true,
-                is_infinite: false,
                 type1: 4,
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
-                is_sellable: true,
-                is_freightable: false,
-                price: 0,
-                handler: crate::data::item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None,
-                crystal_count: 0,
-                attack_radius: 40,
-                attack_angle: 0,
-                mp_consume: 0,
-                reduced_mp_consume: 0,
-                reduced_mp_consume_chance: 0,
-                capsuled_items: Vec::new(),
-                extractable_count_min: 0,
-                extractable_count_max: 0,
-                item_skills: Vec::new(),
-                etc_item_type: crate::data::item_data::EtcItemType::Other,
-                enchant_enabled: false,
-                enchant_limit: 0,
-                is_magic_weapon: false,
+                ..crate::data::item_data::ItemTemplate::for_test()
             });
     }
 }
@@ -2066,41 +1959,17 @@ fn add_shot_item(
         .data
         .item_data
         .insert_for_test(crate::data::item_data::ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
             default_action,
             item_id,
             name: name.into(),
             kind: crate::data::item_data::ItemKind::Etc,
             body_part: 0,
-            weight: 0,
             is_stackable: true,
-            is_infinite: false,
             type1: 4,
             type2: 5,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
             handler,
-            crystal_type: crate::data::item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..crate::data::item_data::ItemTemplate::for_test()
         });
 }
 
@@ -2127,41 +1996,16 @@ fn shot_template(
     skill_id: i32,
 ) -> crate::data::item_data::ItemTemplate {
     crate::data::item_data::ItemTemplate {
-        trade_flags: Default::default(),
-        time: -1,
-        duration: -1,
-        immediate_effect: false,
-        ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
         item_id,
         name: format!("shot{item_id}"),
         kind: crate::data::item_data::ItemKind::Etc,
         crystal_type: grade,
-        crystal_count: 0,
-        attack_radius: 40,
-        attack_angle: 0,
-        mp_consume: 0,
-        reduced_mp_consume: 0,
-        reduced_mp_consume_chance: 0,
         body_part: crate::data::item_data::SLOT_NONE,
-        weight: 0,
         is_stackable: true,
-        is_infinite: false,
-        type1: 0,
-        type2: 0,
         is_quest_item: false,
-        is_sellable: true,
-        is_freightable: false,
-        price: 0,
         handler,
-        capsuled_items: Vec::new(),
-        extractable_count_min: 0,
-        extractable_count_max: 0,
         item_skills: vec![(skill_id, 1)],
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
-        enchant_enabled: false,
-        enchant_limit: 0,
-        is_magic_weapon: false,
+        ..crate::data::item_data::ItemTemplate::for_test()
     }
 }
 
@@ -2177,41 +2021,14 @@ fn shot_weapon(
         .data
         .item_data
         .insert_for_test(crate::data::item_data::ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
             item_id,
             name: format!("weapon{item_id}"),
             kind: crate::data::item_data::ItemKind::Weapon,
             crystal_type: grade,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
             body_part: crate::data::item_data::SLOT_R_HAND,
-            weight: 0,
             is_stackable: false,
-            is_infinite: false,
-            type1: 0,
-            type2: 0,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..crate::data::item_data::ItemTemplate::for_test()
         });
     world
         .data
@@ -2360,41 +2177,15 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
         .data
         .item_data
         .insert_for_test(crate::data::item_data::ItemTemplate {
-            trade_flags: Default::default(),
-            time: -1,
-            duration: -1,
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
             item_id: 57,
             name: "Adena".into(),
             kind: crate::data::item_data::ItemKind::Etc,
             body_part: 0,
-            weight: 0,
             is_stackable: true,
-            is_infinite: false,
             type1: 4,
             type2: 5,
             is_quest_item: false,
-            is_sellable: true,
-            is_freightable: false,
-            price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
-            crystal_count: 0,
-            attack_radius: 40,
-            attack_angle: 0,
-            mp_consume: 0,
-            reduced_mp_consume: 0,
-            reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
-            enchant_enabled: false,
-            enchant_limit: 0,
-            is_magic_weapon: false,
+            ..crate::data::item_data::ItemTemplate::for_test()
         });
     world.data.teleporters.insert_for_test(
         30001,

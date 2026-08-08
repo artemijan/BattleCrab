@@ -14,6 +14,7 @@
 //! 2026-08-07 sweep. See PLAN_G10_SOCIAL.md §2/§4 for the original scope, and
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
+use crate::game_loop::guard::clan_of_or_zero;
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -97,12 +98,10 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             .iter()
             .any(|c| pkt.text.starts_with(c))
     {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             sender_oid,
             &format!("Client Emulator Detect: player {sender_oid} using L2Walker."),
-            punish,
         );
         return;
     }
@@ -114,7 +113,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     if matches!(chat_type, ChatType::Trade | ChatType::Shout)
         && world
             .objects
-            .get_component::<crate::model::Player>(&sender_oid)
+            .get_component::<Player>(&sender_oid)
             .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
     {
         send_sm(
@@ -498,11 +497,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         }
         ChatType::Clan => {
             // ChatClan — `clan.broadcastToOnlineMembers` (speaker included).
-            let clan_id = world
-                .objects
-                .get_component::<crate::model::Player>(&sender_oid)
-                .map(|p| p.clan_id)
-                .unwrap_or(0);
+            let clan_id = clan_of_or_zero(world, sender_oid);
             if clan_id != 0 && world.clans.contains_key(&clan_id) {
                 let say = server_packets::creature_say(
                     sender_oid,
@@ -860,7 +855,7 @@ fn find_published_item(world: &World, object_id: i32) -> Option<(ItemInstance, b
         let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
             continue;
         };
-        if let Some(item) = inv.items().iter().find(|i| i.object_id == object_id) {
+        if let Some(item) = inv.by_object_id(object_id) {
             let equipped = inv.paperdoll_slot_of(object_id).is_some();
             return Some((*item, equipped));
         }
@@ -914,7 +909,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
     let count_of = |world: &World, item_id: i32| {
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&player_oid)
+            .get_component::<Inventory>(&player_oid)
             .map_or(0, |inv| inv.count_of(item_id))
     };
     match command {

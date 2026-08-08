@@ -21,7 +21,8 @@
 //! the port's single-threaded game loop cannot interleave two swaps.
 
 use crate::config::flood_protector::FloodAction;
-use crate::model::components::{Position, RegionCell, SkillBook};
+use crate::game_loop::helpers::region_cell_of;
+use crate::model::components::{Position, SkillBook};
 use crate::model::{Player, SubClass};
 use crate::world::World;
 
@@ -884,10 +885,7 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
         .objects
         .get_component::<Position>(&player_oid)
         .copied()
-        && let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&player_oid)
-            .map(|r| r.0)
+        && let Some(region) = region_cell_of(world, player_oid)
     {
         super::helpers::broadcast_near_region(
             world,

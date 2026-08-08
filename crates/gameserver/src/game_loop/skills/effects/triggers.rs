@@ -192,12 +192,7 @@ pub(crate) fn fire_magic_type_triggers(
         // cast's* target, not the bearer — so the default `TARGET` lands on
         // whoever was just hit, and `MY_PARTY` on the caster's party.
         let targets = if on_party {
-            world
-                .objects
-                .get_component::<crate::model::components::PartyRef>(&caster_oid)
-                .and_then(|r| world.parties.get(&r.0))
-                .map(|p| p.members.clone())
-                .unwrap_or_else(|| vec![caster_oid])
+            crate::game_loop::party::group_or_self(world, caster_oid)
         } else {
             vec![cast_target_oid]
         };
@@ -300,12 +295,7 @@ pub(crate) fn fire_attack_triggers(
         if on_party {
             // Java's PARTY target handler treats an unpartied caster as a
             // party of one, which is also what `skills::affect` does.
-            targets = world
-                .objects
-                .get_component::<crate::model::components::PartyRef>(&attacker_oid)
-                .and_then(|r| world.parties.get(&r.0))
-                .map(|p| p.members.clone())
-                .unwrap_or_else(|| vec![attacker_oid]);
+            targets = crate::game_loop::party::group_or_self(world, attacker_oid);
         }
         for t in targets {
             // Java's refresh guard: `if (buffInfo == null || buffInfo.getSkill()

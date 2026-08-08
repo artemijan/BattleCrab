@@ -942,11 +942,7 @@ struct EquippedBonuses {
 }
 
 impl EquippedBonuses {
-    fn from_inventory(
-        inventory: &Inventory,
-        data: &GameData,
-        t: &crate::data::player_template::PlayerTemplate,
-    ) -> Self {
+    fn from_inventory(inventory: &Inventory, data: &GameData, t: &PlayerTemplate) -> Self {
         use crate::model::inventory::PaperdollSlot;
         let mut eq = EquippedBonuses::default();
 
@@ -2293,22 +2289,7 @@ pub(crate) fn conditioned_passive_buffs(
         if applicable.is_empty() {
             continue;
         }
-        out.push(ActiveBuff {
-            displayed: true,
-            skill_id,
-            skill_level: level,
-            abnormal_type_client_id: -1,
-            abnormal_type: "NONE".to_string(),
-            abnormal_level: 0,
-            slot: BuffSlot::Uncapped,
-            expires_at_tick: u64::MAX,
-            passive: true,
-            // Synthetic buff (passive/clan/expertise pump): no abnormal state.
-            effect_flags: 0,
-            blocked_abnormals: Vec::new(),
-            abnormal_visuals: Vec::new(),
-            effects: applicable,
-        });
+        out.push(ActiveBuff::passive_pump(skill_id, level, applicable));
     }
     out
 }

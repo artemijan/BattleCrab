@@ -20,6 +20,7 @@
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
 use super::helpers::pos_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Immobilized, Position, Vitals};
 use crate::model::grand_boss::GrandBoss;
 use crate::scheduler::ScheduledTask;
@@ -167,10 +168,7 @@ pub(crate) fn spawn_from_record(world: &mut World, boss: &GrandBoss) {
     // ALIVE or WAITING → the sleeping statue. Fold WAITING down to ALIVE so the
     // stored state matches what we actually spawned.
     if boss.status == WAITING {
-        if let Some(b) = world.grand_bosses.get_mut(&BAIUM) {
-            b.status = ALIVE;
-        }
-        crate::game_loop::grand_boss::persist(world, BAIUM);
+        crate::game_loop::grand_boss::set_status(world, BAIUM, ALIVE);
     }
     crate::model::npc::spawn_npc_at(
         world,
@@ -335,7 +333,7 @@ pub(crate) fn handle_cinematic_step(world: &mut World, step: u8) {
     let Some(beat) = BEATS.get(step as usize) else {
         return;
     };
-    let Some(baium) = find_alive(world, BAIUM) else {
+    let Some(baium) = crate::game_loop::grand_boss::find_alive(world, BAIUM) else {
         return; // Baium gone (aborted / killed) — drop the chain
     };
     let waker = world
@@ -422,7 +420,7 @@ fn inside_baium_zone(world: &World, oid: i32) -> bool {
 /// boss zone*, else grabs the nearest in-zone player in reach (3D), else
 /// regroups on Baium. When Baium falls they despawn.
 pub(crate) fn handle_select_target(world: &mut World) {
-    let Some(baium) = find_alive(world, BAIUM) else {
+    let Some(baium) = crate::game_loop::grand_boss::find_alive(world, BAIUM) else {
         // Baium is dead — the archangels leave with him (Java's `deleteMe`).
         for angel in archangels(world) {
             despawn(world, angel);
@@ -471,24 +469,8 @@ fn archangels(world: &mut World) -> Vec<i32> {
     out
 }
 
-fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
-    let mut found = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-            if n.npc_id == npc_id && !v.dead {
-                found = Some(n.object_id);
-            }
-        });
-    found
-}
-
 fn despawn(world: &mut World, oid: i32) {
-    let region = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&oid)
-        .map(|r| r.0)
-        .unwrap_or((0, 0));
+    let region = region_cell_of(world, oid).unwrap_or((0, 0));
     crate::game_loop::death::despawn_npc(world, oid, region);
 }
 
@@ -516,7 +498,7 @@ fn has_living_player_target(world: &World, angel: i32) -> bool {
 /// The nearest living in-zone player within `range` (3D) of the archangel.
 fn nearest_player_in_range(world: &mut World, angel: i32, range: f64) -> Option<i32> {
     let origin = world.objects.get_component::<Position>(&angel).copied()?;
-    let crate::world::World { objects, data, .. } = &mut *world;
+    let World { objects, data, .. } = &mut *world;
     let zone = data.zone_data.by_id(BAIUM_ZONE_ID);
     let mut best: Option<(i32, f64)> = None;
     objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
@@ -665,10 +647,7 @@ pub(crate) fn manage_and_cast(world: &mut World, baium_oid: i32) {
 /// So a party sees Baium's repertoire grow as the fight goes on, which is the
 /// same shape as his threat weighting.
 fn choose_skill(world: &mut World, baium_oid: i32) -> i32 {
-    let (cur, max) = match world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&baium_oid)
-    {
+    let (cur, max) = match world.objects.get_component::<Vitals>(&baium_oid) {
         Some(v) => (v.cur_hp, v.max_hp as f64),
         None => return BAIUM_ATTACK,
     };
@@ -779,7 +758,7 @@ pub(crate) fn handle_clear_zone(world: &mut World) {
 ///
 /// If Baium is already gone (killed, or a prior reset) the beat simply stops.
 pub(crate) fn handle_check_attack(world: &mut World) {
-    let Some(baium) = find_alive(world, BAIUM) else {
+    let Some(baium) = crate::game_loop::grand_boss::find_alive(world, BAIUM) else {
         return; // Baium gone — nothing to watch
     };
     let idle = world

@@ -637,7 +637,7 @@ fn bracket(text: &str) -> String {
     }
 }
 
-/// Match [`crate::dat_text`]'s string escaping.
+/// Match [`dat_text`]'s string escaping.
 fn escape(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {

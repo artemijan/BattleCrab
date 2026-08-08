@@ -17,6 +17,7 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::{broadcast_to_others, send_sm_to_player};
+use crate::game_loop::helpers::player_name_or_empty;
 
 /// `Player.REQUEST_TIMEOUT` (15 s) in ticks — the `_pendingInvitation`
 /// expiry and the friend-invite request timeout.
@@ -323,7 +324,7 @@ pub(crate) fn char_info_state(world: &World, object_id: i32) -> server_packets::
         alike_dead: !world.olympiad.is_in_competition(object_id)
             && world
                 .objects
-                .get_component::<crate::model::components::Vitals>(&object_id)
+                .get_component::<Vitals>(&object_id)
                 .is_some_and(|v| v.dead),
         cursed_weapon_level: p
             .filter(|p| p.cursed_weapon_equipped_id != 0)
@@ -344,14 +345,6 @@ pub(crate) fn char_info_state(world: &World, object_id: i32) -> server_packets::
         armor_min_enchant: crate::game_loop::armor_sets::max_set_enchant(world, object_id)
             .clamp(0, u8::MAX as i32) as u8,
     }
-}
-
-fn player_name(world: &World, object_id: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 // ---------------------------------------------------------------------------
@@ -483,7 +476,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
             world,
             requestor,
             sm_ids::C1_IS_A_MEMBER_OF_ANOTHER_PARTY_AND_CANNOT_BE_INVITED,
-            &[SmParam::Text(player_name(world, target))],
+            &[SmParam::Text(player_name_or_empty(world, target))],
         );
         return;
     }
@@ -516,7 +509,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
             world,
             requestor,
             sm_ids::C1_HAS_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_AND_CANNOT_JOIN_A_PARTY,
-            &[SmParam::Text(player_name(world, target))],
+            &[SmParam::Text(player_name_or_empty(world, target))],
         );
         return;
     }
@@ -528,7 +521,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
             world,
             requestor,
             sm_ids::C1_HAS_PLACED_YOU_ON_HIS_HER_IGNORE_LIST,
-            &[SmParam::Text(player_name(world, target))],
+            &[SmParam::Text(player_name_or_empty(world, target))],
         );
         return;
     }
@@ -541,7 +534,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
         world,
         requestor,
         sm_ids::C1_HAS_BEEN_INVITED_TO_THE_PARTY,
-        &[SmParam::Text(player_name(world, target))],
+        &[SmParam::Text(player_name_or_empty(world, target))],
     );
 
     match world.objects.get_component::<PartyRef>(&requestor).copied() {
@@ -572,7 +565,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
             send_to_player(
                 world,
                 target,
-                server_packets::ask_join_party(&player_name(world, requestor), rule.id()),
+                server_packets::ask_join_party(&player_name_or_empty(world, requestor), rule.id()),
             );
         }
         Some(PartyRef(party_id)) => {
@@ -607,14 +600,17 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
                 send_to_player(
                     world,
                     target,
-                    server_packets::ask_join_party(&player_name(world, requestor), rule.id()),
+                    server_packets::ask_join_party(
+                        &player_name_or_empty(world, requestor),
+                        rule.id(),
+                    ),
                 );
             } else {
                 send_sm_to_player(
                     world,
                     requestor,
                     sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
-                    &[SmParam::Text(player_name(world, target))],
+                    &[SmParam::Text(player_name_or_empty(world, target))],
                 );
             }
         }
@@ -691,7 +687,7 @@ pub(crate) fn handle_request_answer_join_party(world: &mut World, client_id: u32
                 world,
                 requestor,
                 sm_ids::C1_IS_SET_TO_REFUSE_PARTY_REQUESTS,
-                &[SmParam::PlayerName(player_name(world, player))],
+                &[SmParam::PlayerName(player_name_or_empty(world, player))],
             );
         }
         // A declined first invite dissolves the embryo party.
@@ -728,8 +724,8 @@ pub(crate) fn add_party_member(world: &mut World, party_id: u32, new_member: i32
 
     let party = &world.parties[&party_id];
     let (leader, rule, members) = (party.leader(), party.distribution, party.members.clone());
-    let leader_name = player_name(world, leader);
-    let new_name = player_name(world, new_member);
+    let leader_name = player_name_or_empty(world, leader);
+    let new_name = player_name_or_empty(world, new_member);
 
     // New member: the full window (everyone but themselves) + "you joined".
     let others: Vec<PartyMemberView> = members
@@ -839,7 +835,7 @@ pub(crate) fn handle_request_oust_party_member(world: &mut World, client_id: u32
         .members
         .iter()
         .copied()
-        .find(|&m| player_name(world, m).eq_ignore_ascii_case(&name));
+        .find(|&m| player_name_or_empty(world, m).eq_ignore_ascii_case(&name));
     if let Some(victim) = victim {
         remove_party_member(world, party_id, victim, LeaveType::Expelled);
     }
@@ -866,7 +862,7 @@ pub(crate) fn handle_request_change_party_leader(world: &mut World, client_id: u
         .members
         .iter()
         .copied()
-        .find(|&m| player_name(world, m).eq_ignore_ascii_case(&name));
+        .find(|&m| player_name_or_empty(world, m).eq_ignore_ascii_case(&name));
     let Some(target) = target else {
         // Java answers this to the *named* player object being absent from
         // the member list.
@@ -904,7 +900,7 @@ pub(crate) fn handle_request_change_party_leader(world: &mut World, client_id: u
 
 /// SM 1384 + `broadcastToPartyMembersNewLeader` (window rebuild for all).
 fn announce_new_leader(world: &mut World, party_id: u32) {
-    let leader_name = player_name(world, world.parties[&party_id].leader());
+    let leader_name = player_name_or_empty(world, world.parties[&party_id].leader());
     let sm = server_packets::system_message_with(
         sm_ids::C1_HAS_BECOME_THE_PARTY_LEADER,
         &[SmParam::Text(leader_name)],
@@ -964,7 +960,7 @@ pub(crate) fn remove_party_member(
     }
     world.objects.remove_component::<PartyRef>(&leaver);
 
-    let leaver_name = player_name(world, leaver);
+    let leaver_name = player_name_or_empty(world, leaver);
     match leave_type {
         LeaveType::Expelled => {
             send_sm_to_player(
@@ -1079,7 +1075,7 @@ pub(crate) fn handle_request_party_loot_modification(
         return;
     }
     let seq = world.next_request_seq();
-    let leader_name = player_name(world, player);
+    let leader_name = player_name_or_empty(world, player);
     {
         let party = world.parties.get_mut(&party_id).expect("checked");
         party.loot_change = Some(LootChangeRequest {
@@ -1342,6 +1338,43 @@ pub(crate) fn distribute_xp_and_sp(
     }
 }
 
+/// The members of `object_id`'s party, or `None` when they are not in one.
+///
+/// The honest lookup. What "solo" *means* differs by caller and the three
+/// readings are not interchangeable, so the `Option` is deliberately left for
+/// the call site to answer:
+///
+/// - a party of one — reach for [`group_or_self`];
+/// - nobody at all — `.unwrap_or_default()`, e.g. quest kill credit, where a
+///   solo killer is already handled separately;
+/// - nothing happens — `else { return; }`, which is how Java's
+///   `if (party == null)` guards read.
+pub(crate) fn party_members(world: &World, object_id: i32) -> Option<Vec<i32>> {
+    world
+        .objects
+        .get_component::<PartyRef>(&object_id)
+        .and_then(|r| world.parties.get(&r.0))
+        .map(|p| p.members.clone())
+}
+
+/// [`party_members`], counting an unpartied player as their own party of one.
+///
+/// Java's reading wherever a group effect must still reach a solo caster — the
+/// trigger skills and the party-affect scope.
+pub(crate) fn group_or_self(world: &World, object_id: i32) -> Vec<i32> {
+    party_members(world, object_id).unwrap_or_else(|| vec![object_id])
+}
+
+/// `(leader, members)` of `object_id`'s party, `None` when solo.
+///
+/// The shape the raid-entry gates want: they check the leader carries the
+/// portal item and then admit the whole group.
+pub(crate) fn leader_and_members(world: &World, object_id: i32) -> Option<(i32, Vec<i32>)> {
+    let party_id = world.objects.get_component::<PartyRef>(&object_id)?.0;
+    let party = world.parties.get(&party_id)?;
+    Some((party.leader(), party.members.clone()))
+}
+
 /// Whether `a` and `b` are in the same party (`Player.isInLooterParty` half —
 /// the party-membership test, minus the online/proximity filtering the caller
 /// doesn't need for the spoil-owner check).
@@ -1359,6 +1392,24 @@ pub(crate) fn same_party(world: &World, a: i32, b: i32) -> bool {
 /// a Sweeper loot item. Solo (or a party rule that doesn't spread spoil) → the
 /// sweeper. `*_INCLUDING_SPOIL` rules pick a random / by-turn member in loot
 /// range of the corpse, falling back to the sweeper when none qualifies.
+/// The party members standing within `range` (2D) of a corpse — Java's
+/// `getPartyMembersInRange` check that gates both spoil and drop distribution.
+fn members_within(world: &World, members: &[i32], corpse: (i32, i32), range: f64) -> Vec<i32> {
+    members
+        .iter()
+        .copied()
+        .filter(|&m| {
+            world
+                .objects
+                .get_component::<Position>(&m)
+                .is_some_and(|p| {
+                    let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
+                    (dx * dx + dy * dy).sqrt() <= range
+                })
+        })
+        .collect()
+}
+
 pub(crate) fn spoil_looter(world: &mut World, sweeper: i32, corpse: (i32, i32)) -> i32 {
     let Some(party_id) = world
         .objects
@@ -1378,19 +1429,7 @@ pub(crate) fn spoil_looter(world: &mut World, sweeper: i32, corpse: (i32, i32)) 
         return sweeper;
     }
     let range = world.cfg.character.alt_party_range as f64;
-    let in_range: Vec<i32> = members
-        .iter()
-        .copied()
-        .filter(|&m| {
-            world
-                .objects
-                .get_component::<Position>(&m)
-                .is_some_and(|p| {
-                    let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
-                    (dx * dx + dy * dy).sqrt() <= range
-                })
-        })
-        .collect();
+    let in_range = members_within(world, &members, corpse, range);
     if in_range.is_empty() {
         return sweeper;
     }
@@ -1435,19 +1474,7 @@ pub(crate) fn distribute_item(
         super::death::give_item(world, killer, item_id, count);
         return;
     };
-    let in_range: Vec<i32> = members
-        .iter()
-        .copied()
-        .filter(|&m| {
-            world
-                .objects
-                .get_component::<Position>(&m)
-                .is_some_and(|p| {
-                    let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
-                    (dx * dx + dy * dy).sqrt() <= range
-                })
-        })
-        .collect();
+    let in_range = members_within(world, &members, corpse, range);
 
     if item_id == ADENA_ID {
         // `distributeAdena` — an even split over the in-range members.
@@ -1492,7 +1519,7 @@ pub(crate) fn distribute_item(
     super::death::give_item(world, looter, item_id, count);
 
     // "C1 has obtained …" to the rest of the party.
-    let looter_name = player_name(world, looter);
+    let looter_name = player_name_or_empty(world, looter);
     let sm = if count > 1 {
         server_packets::system_message_with(
             sm_ids::C1_HAS_OBTAINED_S3_S2,

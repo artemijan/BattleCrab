@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::stat_add;
@@ -236,11 +237,7 @@ pub(crate) fn calc_counter_attack(
     if skill.magic_type == 1 || skill.cast_range > MELEE_ATTACK_RANGE {
         return;
     }
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target_oid) {
         return;
     }
     let chance = stat_add(
@@ -296,27 +293,49 @@ pub(crate) fn calc_counter_attack(
     );
 }
 
+/// The per-hit half of [`apply_skill_damage`]'s arguments.
+///
+/// Four of them are booleans standing next to each other, which at a call site
+/// reads `true, true, &caster_name, skill.over_hit, false` — impossible to
+/// check by eye and easy to transpose. Naming them costs nothing, and
+/// `..Default::default()` lets each site mention only what it actually varies.
+#[derive(Default)]
+pub(crate) struct SkillHit<'a> {
+    /// Damage before the receiver's own reductions.
+    pub damage: f64,
+    /// The hit rolled a critical — `mcrit` for magic, `crit` for physical.
+    pub crit: bool,
+    pub is_magic: bool,
+    pub caster_name: &'a str,
+    /// Java `AttackableStatus.reduceHp` consults the skill's `<overHit>` here.
+    /// Passed explicitly rather than re-read, because the damage value this
+    /// needs only exists at the call site.
+    pub over_hit: bool,
+    /// `CreatureStatus.reduceHp`'s `isDOT` — a DoT tick (and only a DoT tick)
+    /// still applies through `HP_BLOCK` (`isHpBlocked() && !(isDOT || …)`).
+    /// Every instant-effect call site leaves this `false`; only
+    /// `handle_dam_over_time_tick` sets it.
+    pub is_dot: bool,
+    /// The skill driving this hit, surfaced to quest `onAttack` handlers so they
+    /// can distinguish a skill from a melee swing (Java's `onAttack(..., Skill)`).
+    pub skill_id: i32,
+}
+
 pub(crate) fn apply_skill_damage(
     world: &mut World,
     caster_oid: i32,
     target_oid: i32,
-    damage: f64,
-    crit: bool,
-    is_magic: bool,
-    caster_name: &str,
-    // Java `AttackableStatus.reduceHp` consults the skill's `<overHit>` here.
-    // Passed explicitly rather than re-read, because the damage value this
-    // needs only exists at the call site.
-    over_hit: bool,
-    // `CreatureStatus.reduceHp`'s `isDOT` — a DoT tick (and only a DoT tick)
-    // still applies through `HP_BLOCK` (`isHpBlocked() && !(isDOT || …)`).
-    // Every instant-effect call site passes `false`; only
-    // `handle_dam_over_time_tick` passes `true`.
-    is_dot: bool,
-    // The skill driving this hit, surfaced to quest `onAttack` handlers so they
-    // can distinguish a skill from a melee swing (Java's `onAttack(..., Skill)`).
-    skill_id: i32,
+    hit: SkillHit<'_>,
 ) {
+    let SkillHit {
+        damage,
+        crit,
+        is_magic,
+        caster_name,
+        over_hit,
+        is_dot,
+        skill_id,
+    } = hit;
     record_overhit(world, caster_oid, target_oid, damage, over_hit);
     use server_packets::{SmParam, sm_ids};
 

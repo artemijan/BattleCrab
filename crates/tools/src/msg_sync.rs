@@ -235,7 +235,7 @@ fn bracket(text: &str) -> String {
     }
 }
 
-/// Match [`crate::dat_text`]'s string escaping, so a repack round-trips.
+/// Match [`dat_text`]'s string escaping, so a repack round-trips.
 fn escape(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {

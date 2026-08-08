@@ -39,6 +39,7 @@
 //! All of it unreachable in production — `CustomCommunityBoard = True` never
 //! links here — ported per the config-disabled rule.
 
+use crate::game_loop::helpers::is_dead;
 use tracing::warn;
 
 use crate::model::Player;
@@ -162,7 +163,7 @@ pub(crate) fn handle_write_command(
         let Some(object_id) = world.player_oid(client_id) else {
             return;
         };
-        let Some(clan_id) = clan_of(world, object_id) else {
+        let Some(clan_id) = super::guard::clan_of(world, object_id) else {
             return;
         };
         let is_leader = world
@@ -256,7 +257,7 @@ fn show_shell(world: &mut World, client_id: u32, object_id: i32, file: &str, com
 /// `ClanBoard`: the clan list (7 per page), the clan home page, and the
 /// notice edit/enable/disable flow.
 fn show_clan_board(world: &mut World, client_id: u32, object_id: i32, command: &str) {
-    let my_clan = clan_of(world, object_id);
+    let my_clan = super::guard::clan_of(world, object_id);
     world
         .cb_last_bypass
         .insert(object_id, ("Clan".to_string(), command.to_string()));
@@ -409,7 +410,7 @@ fn clan_home(world: &mut World, client_id: u32, object_id: i32, clan_id: i32) {
 /// Java `ClanBoard.clanNotice` — the leader's edit form (with the on/off
 /// toggle and the `Write Notice Set` MultiEdit) or the member's read view.
 fn clan_notice_page(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(clan_id) = clan_of(world, object_id) else {
+    let Some(clan_id) = super::guard::clan_of(world, object_id) else {
         return;
     };
     let is_leader = world
@@ -449,14 +450,6 @@ fn clan_notice_page(world: &mut World, client_id: u32, object_id: i32) {
     }
     html.push_str("</center></body></html>");
     send_cb_html(world, client_id, &html);
-}
-
-fn clan_of(world: &World, object_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
 }
 
 /// `//bbs` (AdminBBS) — the GM shortcut onto the board's home page.
@@ -578,10 +571,7 @@ fn do_teleport(world: &mut World, client_id: u32, object_id: i32, command: &str)
         world.tick + 30,
         crate::scheduler::ScheduledTask::SkillsReenable { object_id },
     );
-    let dead = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_none_or(|v| v.dead);
+    let dead = is_dead(world, object_id);
     if !dead {
         super::death::teleport_player(world, object_id, x, y, z);
     }
@@ -1031,9 +1021,7 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     };
     let list = list.clone();
     let refund_items = crate::game_loop::shop::refund_items_of(world, object_id);
-    if let Some(inv) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
+    if let Some(inv) = world.objects.get_component::<Inventory>(&object_id)
         && let Some(cs) = world.clients.get(&client_id)
     {
         // Java `HomeBoard`: `new BuyList(…, player, 0)` — the board shop is

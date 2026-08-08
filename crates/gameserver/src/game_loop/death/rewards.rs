@@ -1,4 +1,6 @@
 use super::*;
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::region_cell_of;
 
 /// XP/SP shares from the aggro list + drops to the top damage dealer.
 /// Party members pool shares and split via `Party.distributeXpAndSp` (G10).
@@ -14,11 +16,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
     let Some(t) = npc.template(world).cloned() else {
         return;
     };
-    let Some(npc_region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(npc_region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let (nx, ny, nz) = {
@@ -259,11 +257,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
             else {
                 continue;
             };
-            let Some(pregion) = world
-                .objects
-                .get_component::<RegionCell>(&player_oid)
-                .map(|r| r.0)
-            else {
+            let Some(pregion) = region_cell_of(world, player_oid) else {
                 continue;
             };
             if !regions_adjacent(npc_region, pregion) {
@@ -822,10 +816,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
             .objects
             .get_component::<crate::model::Player>(&victim_oid)
             .map(|p| (p.reputation, p.clan_id));
-        let kc = world
-            .objects
-            .get_component::<crate::model::Player>(&pk)
-            .map_or(0, |p| p.clan_id);
+        let kc = clan_of_or_zero(world, pk);
         if let Some((rep, victim_clan)) = vc
             && rep >= 0
             && crate::game_loop::clans::at_war_between(world, kc, victim_clan)

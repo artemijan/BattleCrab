@@ -236,9 +236,7 @@ fn consume_one(world: &mut World, object_id: i32, ammo_object_id: i32) {
         .objects
         .get_component::<Inventory>(&object_id)
         .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.object_id == ammo_object_id)
+            inv.by_object_id(ammo_object_id)
                 .map(|i| (i.item_id, i.count))
         })
     else {

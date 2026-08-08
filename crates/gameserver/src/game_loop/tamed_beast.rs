@@ -10,6 +10,7 @@
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -92,10 +93,7 @@ pub(crate) fn beasts_of(world: &mut World, owner: i32) -> Vec<i32> {
 }
 
 fn despawn_beast(world: &mut World, oid: i32) {
-    let region = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&oid)
-        .map(|r| r.0);
+    let region = region_cell_of(world, oid);
     if let Some(region) = region {
         crate::game_loop::death::despawn_npc(world, oid, region);
     }

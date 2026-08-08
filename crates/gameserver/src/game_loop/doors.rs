@@ -67,12 +67,15 @@ pub(crate) fn broadcast_status(world: &World, door_oid: i32) {
 /// `Door.openMe()`: no-op when already open; otherwise flip, broadcast, and
 /// arm the auto-close (script-triggered doors with a `closeTime` shut
 /// themselves — BY_TIME doors are driven by their cycle task instead).
-/// Open the door with a given **door id** (Java `DoorData.getDoor(id).openMe()`).
-/// Door object ids are allocated dynamically, so this scans the door regions
-/// for the match — the Valakas gatekeepers name their doors by id.
-pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
-    let oid = world.door_regions.values().flatten().copied().find(|&oid| {
-        // Skip instance door copies — this global path drives the shared grid.
+/// The object id of the **shared-grid** door carrying `door_id`.
+///
+/// Door object ids are allocated dynamically, so this scans the door regions.
+/// Instance door copies are skipped: they carry their own
+/// [`InstanceDoorOpen`](crate::model::components::InstanceDoorOpen) state and
+/// are driven through [`crate::game_loop::instances::open_close_door`], so a
+/// global open/close must not pick one up.
+pub(crate) fn find_shared_door(world: &World, door_id: i32) -> Option<i32> {
+    world.door_regions.values().flatten().copied().find(|&oid| {
         world
             .objects
             .get_component::<crate::model::components::InstanceDoorOpen>(&oid)
@@ -81,8 +84,12 @@ pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
                 .objects
                 .get_component::<Door>(&oid)
                 .is_some_and(|d| d.door_id == door_id)
-    });
-    if let Some(oid) = oid {
+    })
+}
+
+/// Open the door with a given **door id** (Java `DoorData.getDoor(id).openMe()`).
+pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
+    if let Some(oid) = find_shared_door(world, door_id) {
         open_door(world, oid);
     }
 }
@@ -92,17 +99,7 @@ pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
 /// mark-gated doors). Rides the auto-close seq, so a newer open or close
 /// before the timer fires turns this close into a no-op.
 pub(crate) fn open_door_timed(world: &mut World, door_id: i32, close_ticks: u64) {
-    let oid = world.door_regions.values().flatten().copied().find(|&oid| {
-        world
-            .objects
-            .get_component::<crate::model::components::InstanceDoorOpen>(&oid)
-            .is_none()
-            && world
-                .objects
-                .get_component::<Door>(&oid)
-                .is_some_and(|d| d.door_id == door_id)
-    });
-    let Some(oid) = oid else {
+    let Some(oid) = find_shared_door(world, door_id) else {
         return;
     };
     open_door(world, oid);
@@ -124,17 +121,7 @@ pub(crate) fn open_door_timed(world: &mut World, door_id: i32, close_ticks: u64)
 /// Open or close the door with a given **door id** (Java
 /// `ClanHall.openCloseDoors` → `door.openMe()` / `closeMe()`).
 pub(crate) fn set_door_by_id(world: &mut World, door_id: i32, open: bool) {
-    let oid = world.door_regions.values().flatten().copied().find(|&oid| {
-        world
-            .objects
-            .get_component::<crate::model::components::InstanceDoorOpen>(&oid)
-            .is_none()
-            && world
-                .objects
-                .get_component::<Door>(&oid)
-                .is_some_and(|d| d.door_id == door_id)
-    });
-    if let Some(oid) = oid {
+    if let Some(oid) = find_shared_door(world, door_id) {
         if open {
             open_door(world, oid);
         } else {

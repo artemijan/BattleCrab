@@ -623,7 +623,7 @@ fn castle_warehouse_pays_out_blood_alliances_once() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&8815)
+            .get_component::<Inventory>(&8815)
             .map(|i| i.count_of(BLOOD_ALLIANCE))
             .unwrap_or(0),
         2,
@@ -644,7 +644,7 @@ fn castle_warehouse_pays_out_blood_alliances_once() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&8815)
+            .get_component::<Inventory>(&8815)
             .map(|i| i.count_of(BLOOD_ALLIANCE))
             .unwrap_or(0),
         2,
@@ -1262,7 +1262,7 @@ const ADENA: i32 = 57;
 fn adena_of(world: &mut World, player: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&player)
+        .get_component::<Inventory>(&player)
         .map(|i| i.count_of(ADENA))
         .unwrap_or(0)
 }
@@ -1277,7 +1277,7 @@ fn give_test_item(world: &mut World, player: i32, item_id: i32, count: i64) {
     world.next_npc_object_id += 1;
     let World { objects, data, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&player)
+        .get_component_mut::<Inventory>(&player)
         .unwrap()
         .add_item(&data.item_data, obj, item_id, count);
 }
@@ -1377,7 +1377,7 @@ fn toi_vortex_trades_a_stone_for_a_ride() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&8852)
+            .get_component::<Inventory>(&8852)
             .map(|i| i.count_of(GREEN_STONE))
             .unwrap_or(0),
         0,
@@ -1411,7 +1411,7 @@ fn toi_vortex_sells_dimension_stones() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&8853)
+            .get_component::<Inventory>(&8853)
             .map(|i| i.count_of(GREEN_STONE))
             .unwrap_or(0),
         1,

@@ -80,14 +80,16 @@ fn run_for_player(world: &mut World, player_oid: i32) {
 fn use_supply_items(world: &mut World, player_oid: i32) {
     let ids = setting_list(world, player_oid, |s| &s.supply_items);
     for item_id in ids {
-        let Some(item_object_id) = carried(world, player_oid, item_id) else {
+        let Some(item_object_id) =
+            crate::game_loop::helpers::carried_item(world, player_oid, item_id)
+        else {
             forget_item(world, player_oid, item_id);
             continue;
         };
         // `isAffectedBySkill(skill)` — don't re-apply a shot/buff already up.
         if item_skills(world, item_id)
             .iter()
-            .any(|&(sid, _)| has_buff(world, player_oid, sid))
+            .any(|&(sid, _)| crate::game_loop::abnormal::has_buff(world, player_oid, sid))
         {
             continue;
         }
@@ -121,7 +123,8 @@ fn use_potion(world: &mut World, player_oid: i32) {
     if item_id <= 0 {
         return;
     }
-    let Some(item_object_id) = carried(world, player_oid, item_id) else {
+    let Some(item_object_id) = crate::game_loop::helpers::carried_item(world, player_oid, item_id)
+    else {
         // `setAutoPotionItem(0)` — the slot empties itself.
         let mut s = settings(world, player_oid);
         s.potion_item = 0;
@@ -140,7 +143,7 @@ fn cast_buffs(world: &mut World, player_oid: i32) {
             forget_skill(world, player_oid, skill_id, true);
             continue;
         }
-        if has_buff(world, player_oid, skill_id) {
+        if crate::game_loop::abnormal::has_buff(world, player_oid, skill_id) {
             continue;
         }
         if busy_casting(world, player_oid) {
@@ -411,18 +414,6 @@ fn forget_skill(world: &mut World, player_oid: i32, skill_id: i32, buff: bool) {
     store(world, player_oid, s);
 }
 
-fn carried(world: &World, player_oid: i32, item_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|i| i.item_id == item_id && i.count > 0)
-                .map(|i| i.object_id)
-        })
-}
-
 fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {
     world
         .data
@@ -446,13 +437,6 @@ fn known_level(world: &World, player_oid: i32, skill_id: i32) -> Option<i32> {
         .objects
         .get_component::<SkillBook>(&player_oid)
         .and_then(|b| b.0.get(&skill_id).copied())
-}
-
-fn has_buff(world: &World, player_oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&player_oid)
-        .is_some_and(|b| b.0.iter().any(|e| e.skill_id == skill_id))
 }
 
 fn busy_casting(world: &World, player_oid: i32) -> bool {

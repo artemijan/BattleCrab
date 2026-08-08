@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::stat_add;
 
@@ -52,18 +53,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
     // Two-handed timing needs the weapon's body part — item kinds are parsed
     // (G5), so check the equipped right hand for SLOT_LR_HAND.
-    let two_handed = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
-        .is_some_and(|inv| {
-            let rhand = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
-            rhand != 0
-                && world
-                    .data
-                    .item_data
-                    .get(rhand)
-                    .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
-        });
+    let two_handed = super::wields_two_handed(world, attacker_oid);
     let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
 
     // Face the target (Java `setHeading(calculateHeadingFrom(...))`).
@@ -313,11 +303,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         target.z,
     );
     if is_npc_oid(attacker_oid) {
-        let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&attacker_oid)
-            .map(|r| r.0)
-        else {
+        let Some(region) = region_cell_of(world, attacker_oid) else {
             return;
         };
         broadcast_near_region_in(world, region, instance_of(world, attacker_oid), &pkt);
@@ -398,11 +384,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
     else {
         return Vec::new();
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&attacker_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, attacker_oid) else {
         return Vec::new();
     };
     let heading_deg = origin.heading as f64 * 360.0 / 65536.0;

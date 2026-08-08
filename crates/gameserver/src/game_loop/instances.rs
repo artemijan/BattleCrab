@@ -5,6 +5,8 @@
 
 use crate::data::instance_data::ExitType;
 use crate::game_loop::helpers::instance_of;
+use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{InstanceDoorOpen, InstanceId, Position, RegionCell};
 use crate::model::door::Door;
 use crate::network::server_packets;
@@ -117,11 +119,7 @@ fn broadcast_instance_door(world: &World, instance_id: i32, door_oid: i32) {
     let Some(t) = world.data.door_data.get(door.door_id) else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&door_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, door_oid) else {
         return;
     };
     let open = crate::game_loop::doors::door_open_state(world, door_oid, door.door_id);
@@ -210,7 +208,9 @@ pub(crate) fn enter(world: &mut World, player: i32, instance_id: i32) {
     let Some(template_id) = world.instances.get(instance_id).map(|i| i.template_id) else {
         return;
     };
-    let ret = position_of(world, player);
+    // A player with no Position cannot have entered; the origin fallback is
+    // unreachable in practice and only keeps the return location total.
+    let ret = pos_of(world, player).unwrap_or((0, 0, 0));
     world.instances.add_member(instance_id, player, ret);
     world
         .objects
@@ -295,11 +295,7 @@ pub(crate) fn destroy(world: &mut World, instance_id: i32) {
         .map(|i| i.npcs.clone())
         .unwrap_or_default();
     for npc_oid in npcs {
-        let region = world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0)
-            .unwrap_or((0, 0));
+        let region = region_cell_of(world, npc_oid).unwrap_or((0, 0));
         crate::game_loop::death::despawn_npc(world, npc_oid, region);
     }
     let doors = world
@@ -316,11 +312,7 @@ pub(crate) fn destroy(world: &mut World, instance_id: i32) {
 /// Remove one instance door copy: DeleteObject to the instance, drop it from the
 /// region index, and despawn the entity.
 fn despawn_instance_door(world: &mut World, instance_id: i32, door_oid: i32) {
-    let region = world
-        .objects
-        .get_component::<RegionCell>(&door_oid)
-        .map(|r| r.0)
-        .unwrap_or((0, 0));
+    let region = region_cell_of(world, door_oid).unwrap_or((0, 0));
     crate::game_loop::helpers::broadcast_near_region_in(
         world,
         region,
@@ -331,12 +323,4 @@ fn despawn_instance_door(world: &mut World, instance_id: i32, door_oid: i32) {
         ids.retain(|&id| id != door_oid);
     }
     world.objects.despawn(&door_oid);
-}
-
-fn position_of(world: &World, object_id: i32) -> (i32, i32, i32) {
-    world
-        .objects
-        .get_component::<Position>(&object_id)
-        .map(|p| (p.x, p.y, p.z))
-        .unwrap_or((0, 0, 0))
 }

@@ -47,7 +47,7 @@ fn item_facts(world: &World, player: i32, object_id: i32) -> Option<(i32, i32)> 
     world
         .objects
         .get_component::<Inventory>(&player)
-        .and_then(|inv| inv.items().iter().find(|it| it.object_id == object_id))
+        .and_then(|inv| inv.by_object_id(object_id))
         .map(|it| (it.item_id, it.enchant_level))
 }
 
@@ -461,12 +461,10 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         .and_then(|inv| inv.remove_by_object_id(scroll_oid, 1))
         .is_some();
     if !removed {
-        let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        super::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to enchant with a scroll he doesn't have"),
-            punish,
         );
         err(world);
         return;
@@ -479,12 +477,10 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
             .and_then(|inv| inv.remove_by_object_id(support_oid, 1))
             .is_some();
         if !removed {
-            let punish = world.cfg.general.default_punish;
-            super::punishment::handle_illegal_player_action(
+            super::punishment::illegal_action(
                 world,
                 player,
                 &format!("Player {player} tried to enchant with a support item he doesn't have"),
-                punish,
             );
             err(world);
             return;

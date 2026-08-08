@@ -3,6 +3,7 @@
 
 use crate::game_loop::four_sepulchers as fs;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{AdminFlags, Position, RegionCell, Vitals};
 
@@ -362,11 +363,7 @@ pub(crate) fn handle_victim_flee(world: &mut crate::world::World, npc_oid: i32) 
     let msg = VICTIM_MSG[world.roll(3) as usize];
     if let Some(npc_id) = npc_id_of(world, npc_oid) {
         let pkt = crate::network::server_packets::npc_say(npc_oid, npc_id, msg);
-        if let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, npc_oid) {
             crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
         }
     }

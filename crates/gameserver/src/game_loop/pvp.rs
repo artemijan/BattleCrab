@@ -6,13 +6,15 @@
 //! reduce to karma (`Player.reputation`) + the runtime flag. PVP-zone (arena)
 //! exemptions land with Phase 2, when those zones are loaded.
 
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::model::Player;
-use crate::model::components::{PvpState, RegionCell, ZoneFlags};
+use crate::model::components::{PvpState, ZoneFlags};
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
 use super::helpers::{broadcast_including_self, client_for_player};
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
 
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
@@ -90,10 +92,7 @@ pub(crate) fn is_in_siege(world: &World, oid: i32) -> bool {
     let Some(castle_id) = active_siege_castle(world, oid) else {
         return false;
     };
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&oid)
-        .map_or(0, |p| p.clan_id);
+    let clan_id = clan_of_or_zero(world, oid);
     clan_id != 0
         && world
             .sieges
@@ -176,7 +175,10 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     //
     // Same clan falls through: a clanmate is not auto-attackable anyway.
     if let Some(castle_id) = both_in_same_active_siege(world, attacker_oid, target_oid) {
-        let (a_clan, t_clan) = (clan_of(world, attacker_oid), clan_of(world, target_oid));
+        let (a_clan, t_clan) = (
+            clan_of_or_zero(world, attacker_oid),
+            clan_of_or_zero(world, target_oid),
+        );
         if a_clan != 0
             && t_clan != 0
             && a_clan != t_clan
@@ -198,16 +200,8 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     // Mutual clan war → freely attackable (Java `isAutoAttackable`'s
     // `isAtWarWith` both-ways test; the shared war object makes MUTUAL
     // symmetric).
-    let attacker_clan = world
-        .objects
-        .get_component::<Player>(&attacker_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
-    let target_clan = world
-        .objects
-        .get_component::<Player>(&target_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let attacker_clan = clan_of_or_zero(world, attacker_oid);
+    let target_clan = clan_of_or_zero(world, target_oid);
     if super::clans::mutual_war_between(world, attacker_clan, target_clan) {
         return true;
     }
@@ -242,7 +236,7 @@ pub(crate) fn protection_blessing_blocks(world: &World, actor: i32, target: i32)
     };
     if world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&t)
+        .get_component::<ZoneFlags>(&t)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
     {
         return false;
@@ -365,14 +359,6 @@ fn both_in_same_active_siege(world: &World, a_oid: i32, b_oid: i32) -> Option<i3
     }
 }
 
-fn clan_of(world: &World, object_id: i32) -> i32 {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.clan_id)
-        .unwrap_or(0)
-}
-
 /// Java `Player.sendInfo`'s `RelationChanged` half: how `subject` relates to
 /// `viewer` right now — the clan-leader crown (`RELATION_LEADER`), clan/party
 /// bits, the siege enemy state — plus whether `subject` is attackable by
@@ -417,11 +403,7 @@ fn relation_parts(world: &World, oid: i32) -> (i32, u8) {
 /// clears — the attackable state that neither `CharInfo` nor the pvp-flag path
 /// carries. Without it, a combatant entering the zone never appears attackable.
 pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
-    let Some(my_region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(my_region) = region_cell_of(world, object_id) else {
         return;
     };
     let my_client = client_for_player(world, object_id).and_then(|c| world.clients.get(&c));
@@ -434,11 +416,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         if viewer == object_id {
             continue;
         }
-        let Some(vr) = world
-            .objects
-            .get_component::<RegionCell>(&viewer)
-            .map(|r| r.0)
-        else {
+        let Some(vr) = region_cell_of(world, viewer) else {
             continue;
         };
         if !regions_adjacent(my_region, vr) {
@@ -530,11 +508,7 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
     // the party and clan-mate bits differ per onlooker. It used to be, which told
     // every bystander that the flagged player was in a party.
     let auto_attackable = value > 0 || reputation < 0;
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, object_id) else {
         return;
     };
     let viewers: Vec<i32> = world
@@ -753,7 +727,7 @@ pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i3
     }
     let victim_flagged = world
         .objects
-        .get_component::<crate::model::components::PvpState>(&victim_oid)
+        .get_component::<PvpState>(&victim_oid)
         .is_some_and(|f| f.flag != 0);
     let (enabled, item_id, amount, message) = if victim_flagged {
         (

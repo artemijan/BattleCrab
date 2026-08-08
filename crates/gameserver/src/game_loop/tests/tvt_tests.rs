@@ -877,8 +877,7 @@ fn can_register_honours_every_ported_busy_gate() {
                 .add_components(&100, crate::model::components::DuelRef(1));
         }),
         ("in an instance", |w| {
-            w.objects
-                .add_components(&100, crate::model::components::InstanceId(7));
+            w.objects.add_components(&100, InstanceId(7));
         }),
         ("inside a siege zone", |w| {
             w.objects

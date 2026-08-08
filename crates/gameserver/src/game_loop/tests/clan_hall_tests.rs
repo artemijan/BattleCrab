@@ -404,7 +404,7 @@ fn winning_a_hall_starts_the_lease_clock() {
     let before = world.scheduler.len();
     let now = commons::util::now_millis();
 
-    crate::game_loop::clan_hall_auction::finalize_auction(&mut world, ONYX);
+    finalize_auction(&mut world, ONYX);
 
     let hall = &world.clan_halls[&ONYX];
     assert_eq!(hall.owner_id, 10, "clan 10 owns it");
@@ -671,7 +671,7 @@ fn an_expired_function_renews_or_drops() {
     // Solvent clan → the function renews.
     world.clans.insert(10, mk_clan(10, 5));
     fund_clan(&mut world, 10, 5_000);
-    crate::game_loop::clan_hall_function::set_function(&mut world, ONYX, HP_REGEN, 1, now - 1000);
+    set_function(&mut world, ONYX, HP_REGEN, 1, now - 1000);
     handle_function_expiry(&mut world, ONYX, HP_REGEN);
     assert_eq!(function_level(&world, ONYX, HP_REGEN), 1, "renewed");
     assert!(
@@ -707,7 +707,7 @@ fn an_expired_function_renews_or_drops() {
 fn removing_a_function_clears_it() {
     let (mut world, _db) = function_world();
     let now = commons::util::now_millis();
-    crate::game_loop::clan_hall_function::set_function(&mut world, ONYX, HP_REGEN, 1, now + 1000);
+    set_function(&mut world, ONYX, HP_REGEN, 1, now + 1000);
     assert_eq!(function_level(&world, ONYX, HP_REGEN), 1);
 
     assert!(remove_function(&mut world, ONYX, HP_REGEN));

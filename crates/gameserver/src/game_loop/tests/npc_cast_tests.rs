@@ -844,7 +844,7 @@ fn a_casting_mob_does_not_swing() {
     engage(&mut world);
     world.objects.add_components(
         &NPC_OID,
-        crate::model::components::Casting(crate::model::CastState {
+        Casting(crate::model::CastState {
             skill_id: NUKE,
             skill_level: 1,
             skill_sub_level: 0,

@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
@@ -26,11 +27,7 @@ pub(crate) fn handle_dam_over_time_tick(
         return;
     }
     // Dead target → stop (Java `onActionTime`: `isDead()` bails).
-    if world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target_oid) {
         return;
     }
     let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
@@ -254,20 +251,17 @@ pub(crate) fn handle_dam_over_time_tick(
                 world,
                 caster_oid,
                 target_oid,
-                damage,
-                false,
-                skill.magic_type == 1,
-                &caster_name,
-                false,
-                true,
-                skill.id,
+                SkillHit {
+                    damage,
+                    is_magic: skill.magic_type == 1,
+                    caster_name: &caster_name,
+                    is_dot: true,
+                    skill_id: skill.id,
+                    ..Default::default()
+                },
             );
             // A `canKill` tick can kill outright — stop then.
-            if world
-                .objects
-                .get_component::<Vitals>(&target_oid)
-                .is_none_or(|v| v.dead)
-            {
+            if is_dead(world, target_oid) {
                 return;
             }
         }
@@ -645,28 +639,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     if was_fake_dead {
         stop_fake_death(world, player_object_id);
     }
-    if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &mut crate::model::Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &crate::model::inventory::Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&player_object_id)
-    {
-        player.remove_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inventory,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            skill_id,
-        );
-    }
+    crate::game_loop::stat_ctx::with_stat_ctx(world, player_object_id, |ctx| ctx.remove(skill_id));
     // Reverting a MaxHp/MaxMp/MaxCp buff shrinks the bar (and clamps current).
     recompute_max_vitals(world, player_object_id);
     let now = world.tick;

@@ -17,12 +17,13 @@
 //! ported, but no NPC on this dist carries a resurrect skill in its
 //! `<skillList>`.
 
+use crate::game_loop::helpers::is_dead;
 use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
 use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
-use crate::model::components::{Casting, Position, RegionCell, Vitals};
+use crate::model::components::{Casting, Position, Vitals};
 use crate::model::npc::AggroList;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -33,6 +34,7 @@ use super::helpers::ms_to_ticks;
 use super::helpers::{broadcast_near_region_in, instance_of};
 use super::skills::cast::set_skill_reuse;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.
 const SHORT_RANGE: f64 = 150.0;
@@ -513,13 +515,6 @@ fn within_cast_range(world: &World, npc_oid: i32, target_oid: i32, skill: &Skill
     distance_2d(world, npc_oid, target_oid).is_some_and(|d| d <= skill.cast_range as f64)
 }
 
-fn is_dead(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .is_some_and(|v| v.dead)
-}
-
 /// `creature.isInsideZone(ZoneId.PEACE)` for an NPC. NPCs carry no `ZoneFlags`
 /// component (only players are tracked by the zone sweep), so the zone grid is
 /// queried by position.
@@ -637,11 +632,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 
     set_skill_reuse(world, npc_oid, skill);
 
-    if let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    {
+    if let Some(region) = region_cell_of(world, npc_oid) {
         broadcast_near_region_in(
             world,
             region,
@@ -829,10 +820,7 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
     let (Some(mine), Some(pos), Some(region)) = (
         world.data.npc_data.get(npc_id),
         world.objects.get_component::<Position>(&npc_oid).copied(),
-        world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0),
+        region_cell_of(world, npc_oid),
     ) else {
         return Vec::new();
     };

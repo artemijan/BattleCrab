@@ -1,5 +1,7 @@
 use super::*;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_add;
 use crate::game_loop::helpers::stat_mul;
 
@@ -219,11 +221,7 @@ fn reflect_damage(
     if is_dot || damage <= 0.0 {
         return;
     }
-    if world
-        .objects
-        .get_component::<Vitals>(&target)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, target) {
         return;
     }
     let target_is_player = !is_npc_oid(target);
@@ -324,11 +322,7 @@ pub(crate) fn npc_receive_damage(
     damage: f64,
     auto_attack: bool,
 ) {
-    if world
-        .objects
-        .get_component::<Vitals>(&npc_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, npc_oid) {
         return;
     }
     // `ai/others/Servitors/SinEater`'s `ON_CREATURE_ATTACKED` bark (a no-op for
@@ -496,11 +490,7 @@ pub(crate) fn npc_receive_damage(
             world, player_oid, npc_oid, npc_id, skill_id, is_summon,
         );
     }
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
 
@@ -541,11 +531,7 @@ pub(crate) const ATTACK_TIMEOUT_TICKS: u64 = 1200;
 /// (hate += 1), reset the calm-after-spawn counter, arm the timeout, run, and
 /// switch to the attack intention. No StatusUpdate — HP didn't move.
 pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid: i32) {
-    if world
-        .objects
-        .get_component::<Vitals>(&npc_oid)
-        .is_none_or(|v| v.dead)
-    {
+    if is_dead(world, npc_oid) {
         return;
     }
     // `Attackable.addDamageHate` → `MinionList.onAssist`: hitting one member of
@@ -570,12 +556,7 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
         speeds.running = true;
         !was_running
     };
-    if became_running
-        && let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0)
-    {
+    if became_running && let Some(region) = region_cell_of(world, npc_oid) {
         broadcast_near_region_in(
             world,
             region,

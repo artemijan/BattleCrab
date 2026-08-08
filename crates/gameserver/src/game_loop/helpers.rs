@@ -1,6 +1,7 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
-use crate::model::components::{Position, StatModifiers};
+use crate::model::Player;
+use crate::model::components::{Movement, Position, RegionCell, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::npc::Npc;
 use crate::model::stats::Stat;
@@ -31,11 +32,100 @@ pub(crate) fn player_of(world: &World, client_id: u32) -> Option<i32> {
 
 /// The world coordinates of any object carrying a [`Position`], or `None` if
 /// it has despawned.
+///
+/// Delegates to the geo layer's own accessor so there is exactly one
+/// implementation; `crate::geo` cannot depend on `game_loop`, so the
+/// definition has to live down there.
 pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
+    crate::geo::distance::position_of(world, object_id)
+}
+
+/// Halt a creature mid-path and tell everyone where it stopped — Java
+/// `Creature.stopMove` followed by the `StopMove` broadcast.
+///
+/// A no-op for anything that isn't currently moving. Every intent that
+/// interrupts a walk (attack, cast, sit, target change) opens with this.
+pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
+    if !world.objects.has_component::<Movement>(&object_id) {
+        return;
+    }
+    world.objects.remove_component::<Movement>(&object_id);
+    if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+        broadcast_including_self(
+            world,
+            object_id,
+            &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
+        );
+    }
+}
+
+/// `ClassId.level()` — the occupation tier a class sits at: 0 for a base
+/// class, 1/2/3 after the first/second/third transfer.
+///
+/// Read off the `*_CLASS_GROUP` categories rather than the class id itself,
+/// the same mapping the henna slots, the clan-membership gate and the
+/// `/dismount`-style user commands all need.
+pub(crate) fn class_level(world: &World, class_id: i32) -> i32 {
+    let c = &world.data.categories;
+    if c.contains("FOURTH_CLASS_GROUP", class_id) {
+        3
+    } else if c.contains("THIRD_CLASS_GROUP", class_id) {
+        2
+    } else if c.contains("SECOND_CLASS_GROUP", class_id) {
+        1
+    } else {
+        0
+    }
+}
+
+/// Whether a creature counts as dead — **`true` when it has no [`Vitals`] at
+/// all**.
+///
+/// [`Vitals`] is attached once at NPC spawn and player load and is never
+/// removed on its own, so "no Vitals" means the object has left the world or
+/// was never a creature (a dropped item, a door). Every caller is a
+/// "may I still act on this target?" guard, and for those, an object that
+/// isn't there must answer the same way a corpse does.
+pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .get_component::<Position>(&object_id)
-        .map(|p| (p.x, p.y, p.z))
+        .get_component::<Vitals>(&object_id)
+        .is_none_or(|v| v.dead)
+}
+
+/// The region cell an object is binned into, or `None` once it has left the
+/// world.
+///
+/// The key for [`broadcast_near_region`] and the visibility grids — almost
+/// every caller feeds the answer straight to one of those.
+///
+/// Distinct from [`crate::world::region_of`], which derives a region from raw
+/// coordinates; this reads the cell the object is actually registered in.
+pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)> {
+    world
+        .objects
+        .get_component::<RegionCell>(&object_id)
+        .map(|r| r.0)
+}
+
+/// A player's character name, or `None` once the object has left the world.
+///
+/// Prefer this whenever the caller can say something useful about a missing
+/// player; reach for [`player_name_or_empty`] only where Java would have
+/// formatted a `null` name into the message anyway.
+pub(crate) fn player_name(world: &World, object_id: i32) -> Option<String> {
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.name.clone())
+}
+
+/// A player's character name, empty when the object has left the world.
+///
+/// The shape every message-formatting call site wants — `SmParam::Text` and
+/// friends take a `String`, and an absent player formats as blank.
+pub(crate) fn player_name_or_empty(world: &World, object_id: i32) -> String {
+    player_name(world, object_id).unwrap_or_default()
 }
 
 /// Send one packet to a connected client — Java `GameClient.sendPacket`.
@@ -124,6 +214,24 @@ pub(crate) fn npc_id_of(world: &World, object_id: i32) -> Option<i32> {
         .map(|npc| npc.npc_id)
 }
 
+/// The object id of a **usable** instance of `item_id` the player is carrying,
+/// or `None` when they have none.
+///
+/// "Usable" is the `count > 0` filter: a stack that has been spent down to
+/// zero is still in the bag until the next inventory flush, and the auto-use
+/// scans must not keep firing at it.
+pub(crate) fn carried_item(world: &World, player_oid: i32, item_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.item_id == item_id && i.count > 0)
+                .map(|i| i.object_id)
+        })
+}
+
 /// The item id of one inventory instance, found by its object id. `None` if the
 /// owner has no [`Inventory`] or is not holding that instance — the two cases
 /// callers treat alike, since both mean "not theirs to act on".
@@ -131,12 +239,7 @@ pub(crate) fn item_id_of(world: &World, owner_object_id: i32, item_object_id: i3
     world
         .objects
         .get_component::<Inventory>(&owner_object_id)
-        .and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == item_object_id)
-                .map(|it| it.item_id)
-        })
+        .and_then(|inv| inv.by_object_id(item_object_id).map(|it| it.item_id))
 }
 
 /// The additive modifier standing on `stat`, defaulting to the additive
@@ -170,7 +273,7 @@ pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i3
     let max_load = crate::game_loop::weight::max_load(world, object_id);
     let extras = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
+        .get_component::<Inventory>(&object_id)
         .map(|inv| {
             (
                 crate::network::enter_world::ex_adena_inven_count(inv),
@@ -242,7 +345,7 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         || super::punishment::is_chat_banned(world, object_id);
     let charges = world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .map_or(0, |p| p.charges);
     let wp = world
         .objects
@@ -367,17 +470,10 @@ pub(crate) fn send_sm_and_action_failed(
 /// needed the world and the speaker, and the quest coupling was incidental.
 /// `QuestCtx::npc_say` now delegates here.
 pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
-    let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-    else {
+    let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let pkt = crate::network::server_packets::npc_say(npc_oid, npc.npc_id, npc_string_id);
@@ -386,17 +482,10 @@ pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
 
 /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble.
 pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
-    let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-    else {
+    let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
         return;
     };
-    let Some(region) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
     let pkt = crate::network::server_packets::npc_say_text(npc_oid, npc.npc_id, text);
@@ -491,11 +580,7 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
 /// fighting.
 pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec<i32> {
     use crate::model::components::Vitals;
-    let Some(origin) = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&origin_object_id)
-        .map(|r| r.0)
-    else {
+    let Some(origin) = region_cell_of(world, origin_object_id) else {
         return Vec::new();
     };
     // Both halves come from the region indexes. This used to sweep every

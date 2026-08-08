@@ -10,6 +10,7 @@
 
 use crate::enums::ChatType;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::region_cell_of;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
@@ -67,10 +68,7 @@ pub(crate) fn handle_fog_refresh(world: &mut World) {
 pub(crate) fn relocate_toma(world: &mut World) {
     let old = find_toma(world);
     if let Some(oid) = old {
-        let region = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&oid)
-            .map(|r| r.0);
+        let region = region_cell_of(world, oid);
         if let Some(region) = region {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
@@ -340,10 +338,7 @@ fn npc_in_combat(world: &World, oid: i32) -> bool {
 }
 
 fn despawn_by_oid(world: &mut World, oid: i32) {
-    let region = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&oid)
-        .map(|r| r.0);
+    let region = region_cell_of(world, oid);
     if let Some(region) = region {
         crate::game_loop::death::despawn_npc(world, oid, region);
     }

@@ -18,6 +18,10 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
 use crate::model::olympiad::{
@@ -317,7 +321,7 @@ pub(crate) fn claim_hero(world: &mut World, object_id: i32) {
     // the hero's.
     let (clan_id, name) = world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .map(|p| (p.clan_id, p.name.clone()))
         .unwrap_or((0, String::new()));
     let points = world.cfg.feature.hero_points;
@@ -514,11 +518,7 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
             .get(&id)
             .map(|n| n.name.clone())
             .unwrap_or_default();
-        let clan_id = world
-            .objects
-            .get_component::<Player>(&id)
-            .map(|p| p.clan_id)
-            .unwrap_or(0);
+        let clan_id = clan_of_or_zero(world, id);
         world.olympiad.hero_info.insert(
             id,
             crate::model::olympiad::HeroInfo {
@@ -781,7 +781,7 @@ pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player
     let mut watching: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &OlympiadObserver)>(|(p, o)| {
+        .for_each_mut::<(&Player, &OlympiadObserver)>(|(p, o)| {
             if o.arena == arena as i32 {
                 watching.push(p.object_id);
             }
@@ -797,8 +797,10 @@ pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player
         player_b,
         instance_id,
         deadline_tick: 0, // set when the battle actually begins
-        return_a: position_of(world, player_a),
-        return_b: position_of(world, player_b),
+        // Both are in the world to have been matched, so the origin fallback
+        // is unreachable; it only keeps the return location total.
+        return_a: pos_of(world, player_a).unwrap_or((0, 0, 0)),
+        return_b: pos_of(world, player_b).unwrap_or((0, 0, 0)),
     });
     tracing::info!("Olympiad: match in arena {arena}: {player_a} vs {player_b}.");
     world.scheduler.schedule(
@@ -914,7 +916,7 @@ fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
         let name_of = |oid: i32| {
             world
                 .objects
-                .get_component::<crate::model::Player>(&oid)
+                .get_component::<Player>(&oid)
                 .map(|p| p.name.clone())
         };
         let (outcome, winner, loser) = match result {
@@ -991,21 +993,6 @@ fn update_noble(world: &mut World, object_id: i32, f: impl FnOnce(&mut NobleStat
     }
 }
 
-fn position_of(world: &World, object_id: i32) -> (i32, i32, i32) {
-    world
-        .objects
-        .get_component::<crate::model::components::Position>(&object_id)
-        .map(|p| (p.x, p.y, p.z))
-        .unwrap_or((0, 0, 0))
-}
-
-fn is_dead(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_some_and(|v| v.dead)
-}
-
 /// `OlympiadGameNormal.createListOfParticipants`: draw two distinct **online**
 /// players at random from the non-class queue, removing them. Offline entries
 /// are dropped. Returns `None` if fewer than two online players remain.
@@ -1053,7 +1040,7 @@ pub(crate) fn apply_loaded(
     validation_end: i64,
     next_weekly_change: i64,
     nobles: Vec<OlympiadNobleRow>,
-    eom: Vec<crate::db::OlympiadEomRow>,
+    eom: Vec<OlympiadEomRow>,
 ) {
     let oly = &mut world.olympiad;
     oly.eom_nobles = eom;
@@ -1179,7 +1166,7 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
     // $s2 cannot participate in the Olympiad."
     let cursed_id = world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .map_or(0, |p| p.cursed_weapon_equipped_id);
     if cursed_id != 0 {
         send_sm_to_player(
@@ -1349,14 +1336,6 @@ fn arena_match(world: &World, arena: i32) -> Option<&OlympiadMatch> {
         .find(|m| m.arena as i32 == arena)
 }
 
-fn player_name(world: &World, oid: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
-}
-
 /// Java `OlyManager` `watchmatch` / `RequestOlympiadMatchList`: send the list of
 /// ongoing matches a spectator can jump between.
 pub(crate) fn send_match_list(world: &World, client_id: u32) {
@@ -1368,8 +1347,8 @@ pub(crate) fn send_match_list(world: &World, client_id: u32) {
             arena: m.arena as i32,
             // A match in the live list is under way (post-countdown).
             running: true,
-            player_a: player_name(world, m.player_a),
-            player_b: player_name(world, m.player_b),
+            player_a: player_name_or_empty(world, m.player_a),
+            player_b: player_name_or_empty(world, m.player_b),
         })
         .collect();
     if let Some(cs) = world.clients.get(&client_id) {

@@ -1770,7 +1770,7 @@ fn skill_turning_breaks_the_targets_cast_but_not_a_raids() {
     // Against another caster it breaks the cast.
     world.objects.add_components(
         &victim,
-        crate::model::components::Casting(crate::model::CastState {
+        Casting(crate::model::CastState {
             skill_id: 1177,
             skill_level: 1,
             skill_sub_level: 0,
@@ -1785,9 +1785,7 @@ fn skill_turning_breaks_the_targets_cast_but_not_a_raids() {
     );
     land(&mut world, 9342, victim);
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::Casting>(&victim),
+        !world.objects.has_component::<Casting>(&victim),
         "the victim's cast is broken"
     );
 }
@@ -1836,7 +1834,15 @@ fn counter_physical_skill_answers_melee_skills_only() {
     world.data.skill_data.insert_for_test(melee);
     let before = caster_hp(&world);
     crate::game_loop::skills::effects::apply_skill_damage(
-        &mut world, CASTER, NPC_OID, 1.0, false, false, "c", false, false, 9351,
+        &mut world,
+        CASTER,
+        NPC_OID,
+        crate::game_loop::skills::effects::SkillHit {
+            damage: 1.0,
+            caster_name: "c",
+            skill_id: 9351,
+            ..Default::default()
+        },
     );
     assert!(
         caster_hp(&world) < before,
@@ -1851,7 +1857,16 @@ fn counter_physical_skill_answers_melee_skills_only() {
     world.data.skill_data.insert_for_test(magic);
     let before = caster_hp(&world);
     crate::game_loop::skills::effects::apply_skill_damage(
-        &mut world, CASTER, NPC_OID, 1.0, false, true, "c", false, false, 9352,
+        &mut world,
+        CASTER,
+        NPC_OID,
+        crate::game_loop::skills::effects::SkillHit {
+            damage: 1.0,
+            is_magic: true,
+            caster_name: "c",
+            skill_id: 9352,
+            ..Default::default()
+        },
     );
     assert_eq!(
         caster_hp(&world),
@@ -1866,7 +1881,15 @@ fn counter_physical_skill_answers_melee_skills_only() {
     world.data.skill_data.insert_for_test(ranged);
     let before = caster_hp(&world);
     crate::game_loop::skills::effects::apply_skill_damage(
-        &mut world, CASTER, NPC_OID, 1.0, false, false, "c", false, false, 9353,
+        &mut world,
+        CASTER,
+        NPC_OID,
+        crate::game_loop::skills::effects::SkillHit {
+            damage: 1.0,
+            caster_name: "c",
+            skill_id: 9353,
+            ..Default::default()
+        },
     );
     assert_eq!(
         caster_hp(&world),
@@ -2818,7 +2841,7 @@ fn the_pvp_bonus_reads_a_different_stat_pair_per_delivery() {
         *m.mul.entry(Stat::PvpMagicalSkillDamage).or_insert(1.0) *= 1.5;
     }
 
-    let bonus = |world: &World, skill: Option<&crate::model::skill::Skill>| {
+    let bonus = |world: &World, skill: Option<&Skill>| {
         crate::game_loop::skills::effects::pvp_pve_bonus_for_test(world, CASTER, victim, skill)
     };
     assert_eq!(
@@ -3067,7 +3090,7 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     let has = |world: &World, oid: i32| {
         world
             .objects
-            .get_component::<crate::model::components::Buffs>(&oid)
+            .get_component::<Buffs>(&oid)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9416))
     };
 
@@ -3124,7 +3147,7 @@ fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
     let has = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::components::Buffs>(&CASTER)
+            .get_component::<Buffs>(&CASTER)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9418))
     };
 
@@ -3278,7 +3301,7 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Buffs>(&CASTER)
+            .get_component::<Buffs>(&CASTER)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 294)),
         "the buff lands regardless of the hour"
     );
@@ -3405,7 +3428,7 @@ fn every_destination_escape_scroll_now_carries_a_teleport() {
     // Two levels of the same scroll must give two *different* destinations.
     let lv1 = skills.get(2213, 1).expect("SoE lv1");
     let lv2 = skills.get(2213, 2).expect("SoE lv2");
-    let coords = |s: &crate::model::skill::Skill| {
+    let coords = |s: &Skill| {
         s.effects.iter().find_map(|e| match e {
             E::Teleport { x, y, z } => Some((*x, *y, *z)),
             _ => None,
@@ -3639,7 +3662,7 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
     let stunned = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::components::Buffs>(&victim)
+            .get_component::<Buffs>(&victim)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9452))
     };
 
@@ -3653,7 +3676,7 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
     crate::game_loop::skills::effects::handle_buff_expire(&mut world, victim, 9452);
     world.objects.add_components(
         &victim,
-        crate::model::components::Casting(crate::model::CastState {
+        Casting(crate::model::CastState {
             skill_id: 9451,
             skill_level: 1,
             skill_sub_level: 0,
@@ -3730,7 +3753,7 @@ fn an_end_effect_call_skill_lands_on_expiry() {
     let has = |world: &World, id: i32| {
         world
             .objects
-            .get_component::<crate::model::components::Buffs>(&victim)
+            .get_component::<Buffs>(&victim)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id))
     };
 
@@ -3776,7 +3799,7 @@ fn a_self_continuous_skills_debuff_shows_no_icon_to_its_victim() {
     );
 
     // The rule itself, as `apply_continuous_effects` evaluates it.
-    let displayed = |skill: &crate::model::skill::Skill, on_caster: bool| {
+    let displayed = |skill: &Skill, on_caster: bool| {
         !skill.self_continuous || on_caster || skill.self_effects.is_empty()
     };
     assert!(

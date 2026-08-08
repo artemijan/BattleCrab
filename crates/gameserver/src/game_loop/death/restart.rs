@@ -179,6 +179,16 @@ fn restore_clanhall_exp(world: &mut World, player_oid: i32) {
     else {
         return;
     };
+    restore_lost_exp(world, player_oid, percent);
+}
+
+/// Give back `percent` of the exp lost on the last death and push the new total
+/// to the client — Java `Player.restoreExp(percent)`. A no-op when nothing was
+/// lost.
+///
+/// Shared by the clan-hall `EXP_RESTORE` function and the castle
+/// `FUNC_RESTORE_EXP` one, which differ only in where the percent comes from.
+fn restore_lost_exp(world: &mut World, player_oid: i32, percent: f64) {
     let restored = {
         let Some(p) = world
             .objects
@@ -228,24 +238,7 @@ fn restore_castle_exp(world: &mut World, player_oid: i32) {
         return;
     };
     let percent = f64::from(func.level);
-    let restored = {
-        let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player_oid)
-        else {
-            return;
-        };
-        if p.lost_exp_on_death <= 0 {
-            return;
-        }
-        let restored = ((p.lost_exp_on_death as f64 * percent) / 100.0).round() as i64;
-        p.exp += restored;
-        p.lost_exp_on_death = 0;
-        restored
-    };
-    if restored > 0 {
-        crate::game_loop::party::broadcast_user_info(world, player_oid);
-    }
+    restore_lost_exp(world, player_oid, percent);
 }
 
 /// The siege restart-point cases of Java `RequestRestartPoint.portPlayer` /

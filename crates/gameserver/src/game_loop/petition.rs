@@ -14,6 +14,7 @@ use crate::world::World;
 use commons::network::PacketReader;
 
 use super::helpers::{client_for_player, send_sm_to_player as send_sm};
+use crate::game_loop::helpers::player_name_or_empty;
 
 /// Java `Petition`'s 255-char content cap.
 const MAX_CONTENT_LEN: usize = 255;
@@ -22,14 +23,6 @@ const MAX_CONTENT_LEN: usize = 255;
 
 fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
-
-fn player_name(world: &World, object_id: i32) -> String {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.name.clone())
-        .unwrap_or_default()
 }
 
 fn is_online(world: &World, object_id: i32) -> bool {
@@ -132,7 +125,7 @@ pub(crate) fn on_request_petition(world: &mut World, client_id: u32, body: &[u8]
         return; // Java answers a "800 chars" SM; the client caps input already.
     }
 
-    let name = player_name(world, sender);
+    let name = player_name_or_empty(world, sender);
     let id = world.petitions.submit(sender, name.clone(), content, ptype);
     send_sm(
         world,
@@ -188,7 +181,7 @@ pub(crate) fn on_request_petition_cancel(world: &mut World, client_id: u32) {
                 sm_ids::THE_PETITION_WAS_CANCELED_YOU_MAY_SUBMIT_S1_MORE_TODAY,
                 &[SmParam::Text(remaining.to_string())],
             );
-            let name = player_name(world, sender);
+            let name = player_name_or_empty(world, sender);
             broadcast_to_gms(
                 world,
                 "Petition System",
@@ -246,7 +239,7 @@ pub(crate) fn on_request_petition_feedback(world: &mut World, client_id: u32, bo
 /// line to both participants and append it to the transcript. Returns whether
 /// the speaker was a participant in some pending petition.
 pub(crate) fn send_active_petition_message(world: &mut World, speaker: i32, text: &str) -> bool {
-    let name = player_name(world, speaker);
+    let name = player_name_or_empty(world, speaker);
     // Find the petition the speaker participates in and its role.
     let Some((id, as_petitioner)) = world.petitions.pending.values().find_map(|p| {
         if p.petitioner == speaker {
@@ -309,7 +302,7 @@ pub(crate) fn accept_petition(world: &mut World, gm: i32, id: i32) {
         Some(false) => {}
     }
 
-    let gm_name = player_name(world, gm);
+    let gm_name = player_name_or_empty(world, gm);
     let petitioner = {
         let p = world.petitions.pending.get_mut(&id).expect("checked above");
         p.responder = Some(gm);
@@ -330,7 +323,7 @@ pub(crate) fn accept_petition(world: &mut World, gm: i32, id: i32) {
         sm_ids::YOUR_PETITION_APPLICATION_HAS_BEEN_ACCEPTED_RECEIPT_NO_IS_S1,
         &[SmParam::Int(id)],
     );
-    let petitioner_name = player_name(world, petitioner);
+    let petitioner_name = player_name_or_empty(world, petitioner);
     send_sm(
         world,
         gm,
@@ -352,7 +345,7 @@ pub(crate) fn reject_petition(world: &mut World, gm: i32, id: i32) {
     if !ok {
         send_sm(world, gm, sm_ids::FAILED_TO_CANCEL_PETITION, &[]);
     } else {
-        let gm_name = player_name(world, gm);
+        let gm_name = player_name_or_empty(world, gm);
         if let Some(p) = world.petitions.pending.get_mut(&id) {
             p.responder = Some(gm);
             p.responder_name = Some(gm_name);
@@ -524,7 +517,7 @@ pub(crate) fn force_petition(world: &mut World, gm: i32, target: i32, text: &str
     let Some(ptype) = PetitionType::from_wire(9) else {
         return false;
     };
-    let name = player_name(world, target);
+    let name = player_name_or_empty(world, target);
     let id = world
         .petitions
         .submit(target, name, text.to_string(), ptype);

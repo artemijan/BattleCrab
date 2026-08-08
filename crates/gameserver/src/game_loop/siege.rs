@@ -15,8 +15,9 @@
 //! and two registration refusal messages.
 
 use crate::db::DbCommand;
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::model::Player;
-use crate::model::components::{AdvancedHeadquarter, Position, RegionCell};
+use crate::model::components::{AdvancedHeadquarter, Position};
 use crate::model::door::Door;
 use crate::model::siege::{SiegeClanType, SiegeSpawn};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -26,6 +27,7 @@ use crate::world::World;
 
 use super::helpers::send_sm_bare_to_client as send_sm_to;
 use super::helpers::{client_for_player, ms_to_ticks};
+use crate::game_loop::helpers::region_cell_of;
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
 const SIEGE_LENGTH_MIN: i32 = 120;
@@ -159,10 +161,7 @@ pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
         && !(detached && !world.cfg.offline_trade.fame);
     if paid {
         let amount = world.cfg.character.castle_zone_fame_acquire_points;
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player_oid)
-        {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
             p.fame += amount;
         }
         crate::game_loop::clans::send_sm_with(
@@ -196,10 +195,7 @@ pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32,
     let mut touched = Vec::new();
     for (clan_id, side) in sides {
         for member in super::clans::online_members(world, clan_id) {
-            if let Some(p) = world
-                .objects
-                .get_component_mut::<crate::model::Player>(&member)
-            {
+            if let Some(p) = world.objects.get_component_mut::<Player>(&member) {
                 p.siege_state = if clear { 0 } else { side };
                 p.siege_side = if clear { 0 } else { castle_id };
             }
@@ -530,11 +526,7 @@ fn remove_flags_of_defenders(world: &mut World, castle_id: i32) {
         None => Vec::new(),
     };
     for (clan_id, flag_oid) in doomed {
-        if let Some(region) = world
-            .objects
-            .get_component::<RegionCell>(&flag_oid)
-            .map(|r| r.0)
-        {
+        if let Some(region) = region_cell_of(world, flag_oid) {
             super::death::despawn_npc(world, flag_oid, region);
         }
         if let Some(siege) = world.sieges.get_mut(&castle_id) {
@@ -563,7 +555,7 @@ fn respawn_siege_towers(world: &mut World, castle_id: i32) {
         })
         .unwrap_or_default();
     for oid in towers {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = region_cell_of(world, oid) {
             super::death::despawn_npc(world, oid, region);
         }
         if let Some(siege) = world.sieges.get_mut(&castle_id) {
@@ -580,6 +572,32 @@ fn respawn_siege_towers(world: &mut World, castle_id: i32) {
         .cloned()
         .unwrap_or_default();
     spawn_siege_npcs(world, castle_id, &spawns);
+}
+
+/// Send each player home to their own race's town respawn — Java
+/// `Siege.teleportPlayer(…, TeleportWhereType.TOWN)`, used both when a side is
+/// unregistered mid-siege and when the zone is cleared at the end.
+///
+/// Anyone who has left the world in the meantime is skipped, and a race with
+/// no respawn entry falls back to Human as the port does elsewhere.
+fn teleport_to_town(world: &mut World, targets: Vec<i32>) {
+    for oid in targets {
+        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+            continue;
+        };
+        let race = world
+            .objects
+            .get_component::<Player>(&oid)
+            .and_then(|p| crate::enums::Race::from_ordinal(p.race))
+            .unwrap_or(crate::enums::Race::Human);
+        if let Some((x, y, z)) = world
+            .data
+            .map_region
+            .town_respawn(pos.x, pos.y, pos.z, race, 0)
+        {
+            super::death::teleport_player(world, oid, x, y, z);
+        }
+    }
 }
 
 /// A control or flame tower, by template type.
@@ -615,23 +633,7 @@ fn teleport_side_out(world: &mut World, castle_id: i32, side: SiegeClanType) {
                 .is_some_and(|p| clans.contains(&p.clan_id) && !p.is_gm(&world.data))
         })
         .collect();
-    for oid in targets {
-        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
-            continue;
-        };
-        let race = world
-            .objects
-            .get_component::<Player>(&oid)
-            .and_then(|p| crate::enums::Race::from_ordinal(p.race))
-            .unwrap_or(crate::enums::Race::Human);
-        if let Some((x, y, z)) = world
-            .data
-            .map_region
-            .town_respawn(pos.x, pos.y, pos.z, race, 0)
-        {
-            super::death::teleport_player(world, oid, x, y, z);
-        }
-    }
+    teleport_to_town(world, targets);
 }
 
 #[cfg(test)]
@@ -891,7 +893,7 @@ fn despawn_siege_npcs(world: &mut World, castle_id: i32) {
         .map(|s| std::mem::take(&mut s.spawned_npcs))
         .unwrap_or_default();
     for oid in oids {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = region_cell_of(world, oid) {
             super::death::despawn_npc(world, oid, region);
         }
     }
@@ -1002,11 +1004,7 @@ pub(crate) fn try_capture_artifact(world: &mut World, player_oid: i32, artifact_
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;
     }
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&player_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, player_oid);
     if clan_id == 0 {
         return;
     }
@@ -1063,23 +1061,7 @@ fn teleport_non_owners(world: &mut World, castle_id: i32) {
         })
         .collect();
 
-    for oid in targets {
-        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
-            continue;
-        };
-        let race = world
-            .objects
-            .get_component::<Player>(&oid)
-            .and_then(|p| crate::enums::Race::from_ordinal(p.race))
-            .unwrap_or(crate::enums::Race::Human);
-        if let Some((x, y, z)) = world
-            .data
-            .map_region
-            .town_respawn(pos.x, pos.y, pos.z, race, 0)
-        {
-            super::death::teleport_player(world, oid, x, y, z);
-        }
-    }
+    teleport_to_town(world, targets);
 }
 
 /// Java `Castle.oustAllPlayers()` → `getTeleZone().oustAllPlayers()`: every
@@ -1818,10 +1800,7 @@ pub(crate) fn handle_request_join_siege(world: &mut World, client_id: u32, body:
 /// to a castle's Siege Manager NPC as a non-owner (`ai/others/
 /// CastleSiegeManager`). Resolves the caller's clan itself.
 pub(crate) fn list_register_clan(world: &World, client_id: u32, player: i32, castle_id: i32) {
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&player)
-        .map_or(0, |p| p.clan_id);
+    let clan_id = clan_of_or_zero(world, player);
     send_siege_info(
         world,
         client_id,
@@ -1987,7 +1966,7 @@ pub(crate) fn handle_request_set_castle_siege_time(world: &mut World, client_id:
         return;
     }
     let owner_id = owner_clan_id_opt(world, castle_id).unwrap_or(0);
-    let Some(p) = world.objects.get_component::<crate::model::Player>(&player) else {
+    let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
     let clan_id = p.clan_id;
