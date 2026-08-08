@@ -682,7 +682,7 @@ pub(crate) fn clan_name(world: &World, clan_id: i32) -> Option<String> {
 /// A clan's name, empty when no clan carries that id.
 ///
 /// The shape the message formatters want, mirroring
-/// [`crate::game_loop::helpers::player_name_or_empty`].
+/// [`player_name_or_empty`].
 pub(crate) fn clan_name_or_empty(world: &World, clan_id: i32) -> String {
     clan_name(world, clan_id).unwrap_or_default()
 }

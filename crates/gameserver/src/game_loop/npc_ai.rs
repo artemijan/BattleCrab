@@ -215,10 +215,7 @@ pub(crate) fn on_npc_arrived(world: &mut World, npc_oid: i32) {
     // `AbstractAI.notifyEvent`: "happens e.g. from stopmove but we don't
     // process it if we're casting" — a mob that arrived mid-cast defers to the
     // cast finishing.
-    if world
-        .objects
-        .has_component::<crate::model::components::Casting>(&npc_oid)
-    {
+    if world.objects.has_component::<Casting>(&npc_oid) {
         return;
     }
     // `AttackableAI.onEvtThink` bails unless the actor's region and its

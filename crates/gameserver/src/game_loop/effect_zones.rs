@@ -99,7 +99,7 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
 fn zone_occupants(world: &mut World, kind: ZoneKind) -> Vec<(usize, Vec<i32>)> {
     let mut occupants: Vec<(usize, Vec<i32>)> = Vec::new();
     let mut pairs: Vec<(usize, i32)> = Vec::new();
-    let crate::world::World { objects, data, .. } = &mut *world;
+    let World { objects, data, .. } = &mut *world;
     objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals, &ZoneFlags)>(
         |(p, pos, v, flags)| {
             if v.dead || flags.mask & kind.bit() == 0 {

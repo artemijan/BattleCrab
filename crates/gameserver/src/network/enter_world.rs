@@ -1040,7 +1040,7 @@ mod tests {
             let mut t = earring(9000);
             t.body_part = body_part;
             t.type2 = exp_type2;
-            let item = crate::model::inventory::ItemInstance {
+            let item = ItemInstance {
                 object_id: 5000,
                 item_id: 9000,
                 count: 1,

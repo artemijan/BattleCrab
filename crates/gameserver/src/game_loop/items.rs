@@ -84,7 +84,7 @@ fn add_inventory_item_inner(
     if stackable {
         let existing_stack = world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&player_oid)
+            .get_component::<Inventory>(&player_oid)
             .and_then(|inv| inv.first_of_item(item_id).map(|i| i.object_id));
 
         if let Some(stack_oid) = existing_stack {
@@ -92,15 +92,13 @@ fn add_inventory_item_inner(
             // the next flush, not here.
             let inv = world
                 .objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
+                .get_component_mut::<Inventory>(&player_oid)
                 .expect("checked");
             inv.add_item(&world.data.item_data, stack_oid, item_id, count);
             return Some(vec![(stack_oid, false)]);
         }
         let new_oid = world.alloc_object_id()?;
-        let inv = world
-            .objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        let inv = world.objects.get_component_mut::<Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, count);
         return Some(vec![(new_oid, true)]);
     }
@@ -108,9 +106,7 @@ fn add_inventory_item_inner(
     let mut created = Vec::with_capacity(count.max(1) as usize);
     for _ in 0..count.max(1) {
         let new_oid = world.alloc_object_id()?;
-        let inv = world
-            .objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        let inv = world.objects.get_component_mut::<Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, 1);
         created.push((new_oid, true));
     }
@@ -343,10 +339,7 @@ pub(crate) fn use_equipable_item(
     }
 
     let catalog = &world.data.item_data;
-    let Some(inventory) = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
 
@@ -374,7 +367,7 @@ pub(crate) fn use_equipable_item(
     if !was_equipped
         && world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_object_id).is_some())
     {
         super::item_mana::on_item_equipped(world, object_id, item_object_id);
@@ -403,10 +396,7 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
     {
         return;
     }
-    let Some(inventory) = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
     };
     let changed = inventory.unequip_slot(body_part);
@@ -736,10 +726,7 @@ pub(crate) fn finish_equip_change(
     }
     apply_paperdoll_change(world, client_id, object_id, changed);
 
-    let Some(inventory) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
     let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
@@ -772,7 +759,7 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
     for &item_oid in changed {
         let equipped = world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some());
         if equipped {
             super::options::apply_item_options(world, object_id, item_oid);
@@ -942,7 +929,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
             &crate::model::Player,
             &crate::model::components::BaseStats,
             &crate::model::components::StatModifiers,
-            &crate::model::inventory::Inventory,
+            &Inventory,
             &mut crate::model::components::Vitals,
             &mut crate::model::components::Speeds,
             &mut crate::model::components::CombatStats,
@@ -968,10 +955,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }
 
-    let Some(inventory) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
-    else {
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
     if let Some(cs) = world.clients.get(&client_id) {

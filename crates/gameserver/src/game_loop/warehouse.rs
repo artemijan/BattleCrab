@@ -275,7 +275,7 @@ fn warehouse_limit(world: &World, player_oid: i32, tgt: WhTarget) -> i32 {
             let (race, mods) = (
                 world
                     .objects
-                    .get_component::<crate::model::Player>(&player_oid)
+                    .get_component::<Player>(&player_oid)
                     .map_or(0, |p| p.race),
                 world
                     .objects

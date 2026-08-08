@@ -65,7 +65,7 @@ pub(crate) fn is_buff_blocked(world: &World, object_id: i32) -> bool {
 pub(crate) fn has_buff(world: &World, object_id: i32, skill_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::Buffs>(&object_id)
+        .get_component::<Buffs>(&object_id)
         .is_some_and(|b| b.0.iter().any(|e| e.skill_id == skill_id))
 }
 

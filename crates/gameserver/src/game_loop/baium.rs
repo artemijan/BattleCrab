@@ -498,7 +498,7 @@ fn has_living_player_target(world: &World, angel: i32) -> bool {
 /// The nearest living in-zone player within `range` (3D) of the archangel.
 fn nearest_player_in_range(world: &mut World, angel: i32, range: f64) -> Option<i32> {
     let origin = world.objects.get_component::<Position>(&angel).copied()?;
-    let crate::world::World { objects, data, .. } = &mut *world;
+    let World { objects, data, .. } = &mut *world;
     let zone = data.zone_data.by_id(BAIUM_ZONE_ID);
     let mut best: Option<(i32, f64)> = None;
     objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
@@ -647,10 +647,7 @@ pub(crate) fn manage_and_cast(world: &mut World, baium_oid: i32) {
 /// So a party sees Baium's repertoire grow as the fight goes on, which is the
 /// same shape as his threat weighting.
 fn choose_skill(world: &mut World, baium_oid: i32) -> i32 {
-    let (cur, max) = match world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&baium_oid)
-    {
+    let (cur, max) = match world.objects.get_component::<Vitals>(&baium_oid) {
         Some(v) => (v.cur_hp, v.max_hp as f64),
         None => return BAIUM_ATTACK,
     };

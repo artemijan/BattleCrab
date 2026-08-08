@@ -1088,11 +1088,7 @@ impl ItemData {
     /// fields they care about instead of spelling out all thirty.
     /// Attach `<stats>` bonuses to an item in a test fixture.
     #[cfg(test)]
-    pub fn insert_stats_for_test(
-        &mut self,
-        item_id: i32,
-        bonuses: Vec<(crate::model::stats::Stat, f64)>,
-    ) {
+    pub fn insert_stats_for_test(&mut self, item_id: i32, bonuses: Vec<(Stat, f64)>) {
         self.stat_bonuses.insert(
             item_id,
             ItemStats {

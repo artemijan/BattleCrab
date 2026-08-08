@@ -273,7 +273,7 @@ pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i3
     let max_load = crate::game_loop::weight::max_load(world, object_id);
     let extras = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
+        .get_component::<Inventory>(&object_id)
         .map(|inv| {
             (
                 crate::network::enter_world::ex_adena_inven_count(inv),
@@ -345,7 +345,7 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         || super::punishment::is_chat_banned(world, object_id);
     let charges = world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .map_or(0, |p| p.charges);
     let wp = world
         .objects
@@ -470,10 +470,7 @@ pub(crate) fn send_sm_and_action_failed(
 /// needed the world and the speaker, and the quest coupling was incidental.
 /// `QuestCtx::npc_say` now delegates here.
 pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
-    let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-    else {
+    let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
         return;
     };
     let Some(region) = region_cell_of(world, npc_oid) else {
@@ -485,10 +482,7 @@ pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
 
 /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble.
 pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
-    let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-    else {
+    let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
         return;
     };
     let Some(region) = region_cell_of(world, npc_oid) else {

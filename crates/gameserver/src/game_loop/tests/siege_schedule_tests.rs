@@ -173,7 +173,7 @@ fn boot_arms_enabled_castles_and_a_distant_hop_only_re_arms() {
 #[test]
 fn the_auto_task_ladder_starts_only_once_the_date_passes() {
     let (mut world, _db, _l) = schedule_world();
-    let siege_at = crate::game_loop::siege::next_siege_millis(commons::util::now_millis(), 6, 16);
+    let siege_at = next_siege_millis(commons::util::now_millis(), 6, 16);
 
     // Every rung above zero must re-arm without starting. 13_600_000 is Java's
     // registration-close rung — its comment claims "1 hr" but the literal is
@@ -227,7 +227,7 @@ fn the_auto_task_ladder_starts_only_once_the_date_passes() {
 fn an_hour_chosen_after_arming_is_honoured() {
     let (mut world, _db, _l) = schedule_world();
     let now = commons::util::now_millis();
-    let fixed = crate::game_loop::siege::next_siege_millis(now, 6, 16);
+    let fixed = next_siege_millis(now, 6, 16);
 
     crate::game_loop::siege::schedule_all_at_boot(&mut world);
 

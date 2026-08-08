@@ -769,10 +769,7 @@ pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
         send_message(world, client_id, "Select an NPC first.");
         return;
     };
-    if !world
-        .objects
-        .has_component::<crate::model::npc::Npc>(&target)
-    {
+    if !world.objects.has_component::<Npc>(&target) {
         send_message(world, client_id, "Target is not an NPC.");
         return;
     }
@@ -792,10 +789,11 @@ pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
 pub(super) fn admin_unspawnall(world: &mut World, client_id: u32) {
     let all: Vec<(i32, (i32, i32))> = {
         let mut v = Vec::new();
-        world.objects.for_each_mut::<(
-            &crate::model::npc::Npc,
-            &crate::model::components::RegionCell,
-        )>(|(n, r)| v.push((n.object_id, r.0)));
+        world
+            .objects
+            .for_each_mut::<(&Npc, &crate::model::components::RegionCell)>(|(n, r)| {
+                v.push((n.object_id, r.0))
+            });
         v
     };
     let count = all.len();

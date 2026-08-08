@@ -581,7 +581,7 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
 pub(crate) fn is_cursed(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
 }
 
@@ -691,9 +691,7 @@ pub(crate) fn handle_request_location(world: &World, client_id: u32) {
             } else {
                 cw.dropped_item_oid
             };
-            let pos = world
-                .objects
-                .get_component::<crate::model::components::Position>(&holder)?;
+            let pos = world.objects.get_component::<Position>(&holder)?;
             Some((cw.item_id, i32::from(cw.is_activated), pos.x, pos.y, pos.z))
         })
         .collect();

@@ -979,7 +979,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
     }
     let (flying, transformed) = world
         .objects
-        .get_component::<crate::model::Player>(&player)
+        .get_component::<Player>(&player)
         .map_or((false, false), |p| (p.is_flying(), p.transform_id != 0));
     if flying {
         send_player_message(

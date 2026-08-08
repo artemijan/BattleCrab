@@ -161,10 +161,7 @@ pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
         && !(detached && !world.cfg.offline_trade.fame);
     if paid {
         let amount = world.cfg.character.castle_zone_fame_acquire_points;
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player_oid)
-        {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
             p.fame += amount;
         }
         crate::game_loop::clans::send_sm_with(
@@ -198,10 +195,7 @@ pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32,
     let mut touched = Vec::new();
     for (clan_id, side) in sides {
         for member in super::clans::online_members(world, clan_id) {
-            if let Some(p) = world
-                .objects
-                .get_component_mut::<crate::model::Player>(&member)
-            {
+            if let Some(p) = world.objects.get_component_mut::<Player>(&member) {
                 p.siege_state = if clear { 0 } else { side };
                 p.siege_side = if clear { 0 } else { castle_id };
             }
@@ -1972,7 +1966,7 @@ pub(crate) fn handle_request_set_castle_siege_time(world: &mut World, client_id:
         return;
     }
     let owner_id = owner_clan_id_opt(world, castle_id).unwrap_or(0);
-    let Some(p) = world.objects.get_component::<crate::model::Player>(&player) else {
+    let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
     };
     let clan_id = p.clan_id;

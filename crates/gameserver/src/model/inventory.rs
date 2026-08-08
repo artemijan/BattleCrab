@@ -248,7 +248,7 @@ impl Inventory {
     /// client's saved arrangement (`RequestSaveInventoryOrder` →
     /// [`apply_inventory_order`](Self::apply_inventory_order)) survives relog —
     /// `load_items` restores with `ORDER BY loc_data`.
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut inv_order = 0i32;
         self.items
             .iter()
@@ -262,7 +262,7 @@ impl Inventory {
                             ("INVENTORY".to_string(), order)
                         }
                     };
-                crate::character::ItemRow {
+                ItemRow {
                     object_id: i.object_id,
                     item_id: i.item_id,
                     count: i.count,
@@ -1196,13 +1196,13 @@ pub struct Warehouse(pub Inventory);
 impl Warehouse {
     /// Build from the character's `WAREHOUSE`-location item rows (non-paperdoll,
     /// so they land in the flat list).
-    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+    pub fn from_rows(rows: &[ItemRow]) -> Self {
         Self(Inventory::from_rows(rows))
     }
 
     /// Serialize to `items` rows with `loc="WAREHOUSE"` (nothing is equipped in a
     /// warehouse, so [`Inventory::to_rows`] yields `INVENTORY`; remap the loc).
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             r.loc = "WAREHOUSE".to_string();
@@ -1213,7 +1213,7 @@ impl Warehouse {
 
     /// Serialize to `items` rows with `loc="CLANWH"` — the clan warehouse's
     /// persistence location (`owner_id` = clan id, bound by the DB layer).
-    pub fn to_rows_clan(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows_clan(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             r.loc = "CLANWH".to_string();
@@ -1245,7 +1245,7 @@ impl PetInventory {
     /// Build from the character's `PET`/`PET_EQUIP` rows. `PET_EQUIP` is
     /// renamed back to `PAPERDOLL` so the shared loader restores the pet's
     /// worn slots the same way it restores a player's.
-    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+    pub fn from_rows(rows: &[ItemRow]) -> Self {
         let rows: Vec<_> = rows
             .iter()
             .cloned()
@@ -1266,7 +1266,7 @@ impl PetInventory {
     /// `Inventory::to_rows` already marks equipped rows `PAPERDOLL` with the
     /// slot in `loc_data`; remapping the name preserves the slot, so a pet's
     /// armour comes back **on** rather than in its bag.
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             if r.loc == "PAPERDOLL" {
@@ -1289,12 +1289,12 @@ pub struct Freight(pub Inventory);
 
 impl Freight {
     /// Build from the character's `FREIGHT`-location item rows.
-    pub fn from_rows(rows: &[crate::character::ItemRow]) -> Self {
+    pub fn from_rows(rows: &[ItemRow]) -> Self {
         Self(Inventory::from_rows(rows))
     }
 
     /// Serialize to `items` rows with `loc="FREIGHT"`.
-    pub fn to_rows(&self) -> Vec<crate::character::ItemRow> {
+    pub fn to_rows(&self) -> Vec<ItemRow> {
         let mut rows = self.0.to_rows();
         for r in &mut rows {
             r.loc = "FREIGHT".to_string();

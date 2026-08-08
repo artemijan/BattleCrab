@@ -33,11 +33,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    if world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .is_none()
-    {
+    if world.objects.get_component::<Player>(&object_id).is_none() {
         return;
     }
     let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
@@ -804,14 +800,12 @@ pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body
     let clear = matches!(
         world
             .objects
-            .get_component::<crate::model::components::Intent>(&object_id)
+            .get_component::<Intent>(&object_id)
             .map(|i| i.0),
         Some(crate::model::PlayerIntent::Cast { .. })
     );
     if clear {
-        world
-            .objects
-            .remove_component::<crate::model::components::Intent>(&object_id);
+        world.objects.remove_component::<Intent>(&object_id);
     }
 
     // `clientStopMoving(location)`: land where the client says it stopped.

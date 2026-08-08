@@ -321,7 +321,7 @@ pub(crate) fn claim_hero(world: &mut World, object_id: i32) {
     // the hero's.
     let (clan_id, name) = world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .map(|p| (p.clan_id, p.name.clone()))
         .unwrap_or((0, String::new()));
     let points = world.cfg.feature.hero_points;
@@ -781,7 +781,7 @@ pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player
     let mut watching: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &OlympiadObserver)>(|(p, o)| {
+        .for_each_mut::<(&Player, &OlympiadObserver)>(|(p, o)| {
             if o.arena == arena as i32 {
                 watching.push(p.object_id);
             }
@@ -916,7 +916,7 @@ fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
         let name_of = |oid: i32| {
             world
                 .objects
-                .get_component::<crate::model::Player>(&oid)
+                .get_component::<Player>(&oid)
                 .map(|p| p.name.clone())
         };
         let (outcome, winner, loser) = match result {
@@ -1040,7 +1040,7 @@ pub(crate) fn apply_loaded(
     validation_end: i64,
     next_weekly_change: i64,
     nobles: Vec<OlympiadNobleRow>,
-    eom: Vec<crate::db::OlympiadEomRow>,
+    eom: Vec<OlympiadEomRow>,
 ) {
     let oly = &mut world.olympiad;
     oly.eom_nobles = eom;
@@ -1166,7 +1166,7 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
     // $s2 cannot participate in the Olympiad."
     let cursed_id = world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .map_or(0, |p| p.cursed_weapon_equipped_id);
     if cursed_id != 0 {
         send_sm_to_player(

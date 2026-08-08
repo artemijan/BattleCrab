@@ -331,7 +331,7 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     let mut watchers: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
+        .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
             if t.0 == Some(npc_oid) {
                 watchers.push(p.object_id);
             }
@@ -412,7 +412,7 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
     let mut holders: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
+        .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
             if t.0 == Some(npc_oid) {
                 holders.push(p.object_id);
             }
@@ -426,10 +426,7 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
         instance_of(world, npc_oid),
         &server_packets::delete_object(npc_oid),
     );
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&npc_oid)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&npc_oid) {
         p.x = x;
         p.y = y;
         p.z = z;

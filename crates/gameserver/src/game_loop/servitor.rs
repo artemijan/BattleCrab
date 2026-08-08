@@ -549,7 +549,7 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
             const MOUNT_WYVERN: u8 = 2;
             let over_no_landing = world
                 .objects
-                .get_component::<crate::model::components::Position>(&owner_oid)
+                .get_component::<Position>(&owner_oid)
                 .is_some_and(|p| world.data.zone_data.in_no_landing_zone(p.x, p.y, p.z));
             if over_no_landing
                 && world

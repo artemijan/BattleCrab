@@ -130,7 +130,7 @@ pub(crate) fn check_cast(
 /// match what is plainly a Java-side accident.
 pub(crate) fn passive_stat_gate(
     skill: &Skill,
-    inventory: &crate::model::inventory::Inventory,
+    inventory: &Inventory,
     items: &crate::data::item_data::ItemData,
 ) -> bool {
     skill.passive_conditions.iter().all(|c| match c {

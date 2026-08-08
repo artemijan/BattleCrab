@@ -236,7 +236,7 @@ pub(crate) fn protection_blessing_blocks(world: &World, actor: i32, target: i32)
     };
     if world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&t)
+        .get_component::<ZoneFlags>(&t)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
     {
         return false;
@@ -727,7 +727,7 @@ pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i3
     }
     let victim_flagged = world
         .objects
-        .get_component::<crate::model::components::PvpState>(&victim_oid)
+        .get_component::<PvpState>(&victim_oid)
         .is_some_and(|f| f.flag != 0);
     let (enabled, item_id, amount, message) = if victim_flagged {
         (

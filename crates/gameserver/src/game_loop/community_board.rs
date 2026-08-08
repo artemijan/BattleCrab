@@ -1021,9 +1021,7 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     };
     let list = list.clone();
     let refund_items = crate::game_loop::shop::refund_items_of(world, object_id);
-    if let Some(inv) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
+    if let Some(inv) = world.objects.get_component::<Inventory>(&object_id)
         && let Some(cs) = world.clients.get(&client_id)
     {
         // Java `HomeBoard`: `new BuyList(…, player, 0)` — the board shop is

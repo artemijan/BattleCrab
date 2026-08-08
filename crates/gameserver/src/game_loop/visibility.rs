@@ -249,9 +249,7 @@ pub(crate) fn npc_clan_block(world: &World, npc_oid: i32) -> Option<[i32; 5]> {
     }
     // Positional (`zones_at`), not `ZoneFlags` — the flag component is
     // maintained by the player zone tick and never exists on an NPC.
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&npc_oid)?;
+    let pos = world.objects.get_component::<Position>(&npc_oid)?;
     let in_peace = world
         .data
         .zone_data

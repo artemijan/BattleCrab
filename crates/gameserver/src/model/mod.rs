@@ -942,11 +942,7 @@ struct EquippedBonuses {
 }
 
 impl EquippedBonuses {
-    fn from_inventory(
-        inventory: &Inventory,
-        data: &GameData,
-        t: &crate::data::player_template::PlayerTemplate,
-    ) -> Self {
+    fn from_inventory(inventory: &Inventory, data: &GameData, t: &PlayerTemplate) -> Self {
         use crate::model::inventory::PaperdollSlot;
         let mut eq = EquippedBonuses::default();
 

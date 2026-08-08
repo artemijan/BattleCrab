@@ -71,10 +71,7 @@ pub(crate) fn max_load(world: &World, object_id: i32) -> i32 {
 /// Java `CreatureStat.getValue(stat, base)` for the two stats this module
 /// reads: `(base + add) × mul`, identity when the creature carries neither.
 fn stat_value(world: &World, object_id: i32, stat: crate::model::stats::Stat, base: f64) -> f64 {
-    let Some(mods) = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
-    else {
+    let Some(mods) = world.objects.get_component::<StatModifiers>(&object_id) else {
         return base;
     };
     (base + mods.add.get(&stat).copied().unwrap_or(0.0))

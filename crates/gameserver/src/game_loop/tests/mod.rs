@@ -1416,10 +1416,7 @@ fn friend_answer_body(response: i32) -> Vec<u8> {
 
 fn seed_friendship(world: &mut World, a: i32, b: i32) {
     let info = |world: &World, oid: i32| {
-        let p = world
-            .objects
-            .get_component::<crate::model::Player>(&oid)
-            .unwrap();
+        let p = world.objects.get_component::<Player>(&oid).unwrap();
         FriendInfo {
             char_id: oid,
             name: p.name.clone(),

@@ -256,7 +256,7 @@ fn crop_setting_entries(world: &World, castle_id: i32) -> Vec<CropSettingEntry> 
 /// period, each line's level/rewards resolved from the seed catalogue (Java's
 /// `getSeed(seedId)`; unknown ⇒ level 0, rewards 0).
 ///
-/// [`SeedProduction`]: crate::model::manor::SeedProduction
+/// [`SeedProduction`]: SeedProduction
 fn seed_info_entries(world: &World, castle_id: i32, next_period: bool) -> Vec<SeedInfoEntry> {
     world
         .manor
@@ -281,7 +281,7 @@ fn seed_info_entries(world: &World, castle_id: i32, next_period: bool) -> Vec<Se
 /// each line's level/rewards resolved via the crop's seed (Java's
 /// `getSeedByCrop(cropId)`; unknown ⇒ level 0, rewards 0).
 ///
-/// [`CropProcure`]: crate::model::manor::CropProcure
+/// [`CropProcure`]: CropProcure
 fn crop_info_entries(world: &World, castle_id: i32, next_period: bool) -> Vec<CropInfoEntry> {
     world
         .manor

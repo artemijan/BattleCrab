@@ -802,9 +802,7 @@ pub(crate) fn use_magic_on(
         // `MagicSkillUse` with a 0 cast time — the client plays the toggle's
         // animation without drawing a cast bar.
         if let (Some(caster), Some(pos)) = (
-            world
-                .objects
-                .get_component::<crate::model::Player>(&object_id),
+            world.objects.get_component::<Player>(&object_id),
             world.objects.get_component::<Position>(&object_id).copied(),
         ) {
             let pkt = server_packets::magic_skill_use(
@@ -889,7 +887,7 @@ pub(crate) fn use_magic_on(
     // Blessing of Protection pair before anything else about the cast.
     if skill.is_bad()
         && let Some(t) = caster_target
-        && (world.objects.has_component::<crate::model::Player>(&t)
+        && (world.objects.has_component::<Player>(&t)
             || world
                 .objects
                 .has_component::<crate::model::components::ServitorOf>(&t))
@@ -900,10 +898,7 @@ pub(crate) fn use_magic_on(
     }
     // Fetched here rather than at the top of the function: the toggle branch
     // above needs `&mut world`, so this borrow must start after it.
-    let Some(player) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-    else {
+    let Some(player) = world.objects.get_component::<Player>(&object_id) else {
         return;
     };
     let target_oid = match resolve_cast_target(
@@ -1071,10 +1066,7 @@ pub(crate) fn start_casting(
 ) {
     use server_packets::{SmParam, sm_ids};
 
-    let Some(player) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-    else {
+    let Some(player) = world.objects.get_component::<Player>(&object_id) else {
         return;
     };
     let Some(base) = world
@@ -1207,7 +1199,7 @@ pub(crate) fn start_casting(
         };
         let caster = &world
             .objects
-            .get_component::<crate::model::Player>(&object_id)
+            .get_component::<Player>(&object_id)
             .expect("player");
         let Some(caster_pos) = world.objects.get_component::<Position>(&object_id) else {
             return;
@@ -1243,10 +1235,7 @@ pub(crate) fn start_casting(
     }
 
     let cast_seq = {
-        let Some(player) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&object_id)
-        else {
+        let Some(player) = world.objects.get_component_mut::<Player>(&object_id) else {
             return;
         };
         player.cast_seq += 1;
@@ -1751,7 +1740,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     const SKILL_SEE_RANGE: f64 = 1000.0;
     let caster_pos = world
         .objects
-        .get_component::<crate::model::components::Position>(&player_object_id)
+        .get_component::<Position>(&player_object_id)
         .copied();
     let caster_region = region_cell_of(world, player_object_id);
     let skill_see_witnesses: Vec<i32> = match (caster_pos, caster_region) {
@@ -1761,7 +1750,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .filter(|oid| {
                 world
                     .objects
-                    .get_component::<crate::model::components::Position>(oid)
+                    .get_component::<Position>(oid)
                     .is_some_and(|p| pos.distance_2d(p) <= SKILL_SEE_RANGE)
             })
             .collect(),
@@ -2135,10 +2124,7 @@ fn resume_action_after_cast(
     // Players only: an NPC's post-cast behaviour is its own AI's business
     // (`npc_ai` re-thinks every tick), and Java routes NPCs through the same
     // `setIntention` this port expresses as `Intent`.
-    if !world
-        .objects
-        .has_component::<crate::model::Player>(&caster_oid)
-    {
+    if !world.objects.has_component::<Player>(&caster_oid) {
         return;
     }
     // `(target != null) && (target != caster) && target.isAutoAttackable(caster)`.

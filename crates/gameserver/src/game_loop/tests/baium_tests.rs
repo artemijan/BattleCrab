@@ -19,8 +19,8 @@ fn baium_world() -> (
     for (id, kind) in [
         (BAIUM, "GrandBoss"),
         (ARCHANGEL, "Monster"),
-        (crate::game_loop::baium::BAIUM_STONE, "Folk"),
-        (crate::game_loop::baium::TELE_CUBE, "Folk"),
+        (BAIUM_STONE, "Folk"),
+        (TELE_CUBE, "Folk"),
     ] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = kind.into();

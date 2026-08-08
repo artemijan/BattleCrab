@@ -492,7 +492,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // `showMainPage` → `charskills.htm`), not the skill catalog.
         "admin_show_skills" => {
             let target = guard::target(world, object_id)
-                .filter(|oid| world.objects.has_component::<crate::model::Player>(oid))
+                .filter(|oid| world.objects.has_component::<Player>(oid))
                 .unwrap_or(object_id);
             skills::show_char_skills(world, client_id, target)
         }

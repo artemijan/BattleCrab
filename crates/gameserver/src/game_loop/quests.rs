@@ -1845,7 +1845,7 @@ impl<'w> QuestCtx<'w> {
     pub fn equipped_weapon_id(&self) -> i32 {
         self.world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&self.player)
+            .get_component::<Inventory>(&self.player)
             .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
             .unwrap_or(0)
     }

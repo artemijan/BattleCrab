@@ -241,7 +241,7 @@ fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid
         &crate::model::components::Buffs,
         &mut crate::model::components::CombatStats,
         &mut crate::model::components::Speeds,
-        &mut crate::model::components::Vitals,
+        &mut Vitals,
     )>(&minion_oid)
     {
         crate::model::recompute_npc_stats_from_buffs(
@@ -433,7 +433,7 @@ pub(crate) fn is_raid_minion(world: &World, npc_oid: i32) -> bool {
     };
     world
         .objects
-        .get_component::<crate::model::npc::Npc>(&master)
+        .get_component::<Npc>(&master)
         .and_then(|n| world.data.npc_data.get(n.npc_id))
         .is_some_and(|t| t.is_raid())
 }

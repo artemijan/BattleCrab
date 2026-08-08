@@ -41,8 +41,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
     // targets are players and NPCs.
     let target = guard::target(world, object_id)
         .filter(|oid| {
-            world.objects.has_component::<Player>(oid)
-                || world.objects.has_component::<crate::model::npc::Npc>(oid)
+            world.objects.has_component::<Player>(oid) || world.objects.has_component::<Npc>(oid)
         })
         .unwrap_or(object_id);
     if let Some(speeds) = world.objects.get_component_mut::<Speeds>(&target) {
@@ -54,7 +53,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
     } else {
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&target)
+            .get_component::<Npc>(&target)
             .and_then(|n| n.template(world).map(|t| t.name.clone()))
             .unwrap_or_default()
     };

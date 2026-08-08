@@ -174,7 +174,7 @@ pub(crate) fn sepulcher_of(world: &World, player: i32) -> i32 {
 
 fn any_player_inside(world: &mut World, zone_id: i32) -> bool {
     let mut found = false;
-    let crate::world::World { objects, data, .. } = world;
+    let World { objects, data, .. } = world;
     objects.for_each_mut::<(&crate::model::Player, &Position)>(|(_, pos)| {
         if !found
             && data
@@ -468,7 +468,7 @@ pub(crate) fn handle_oust(world: &mut World, sepulcher: i32) {
     let zone_id = ZONES[FsState::idx(sepulcher)];
     let mut inside: Vec<i32> = Vec::new();
     {
-        let crate::world::World { objects, data, .. } = world;
+        let World { objects, data, .. } = world;
         objects.for_each_mut::<(&crate::model::Player, &Position)>(|(p, pos)| {
             if data
                 .zone_data
@@ -502,7 +502,7 @@ fn manager_exit(sepulcher: i32) -> (i32, i32, i32) {
 fn clear_hall(world: &mut World, zone_id: i32, _include_players: bool) {
     let mut goners: Vec<(i32, (i32, i32))> = Vec::new();
     {
-        let crate::world::World { objects, data, .. } = world;
+        let World { objects, data, .. } = world;
         objects.for_each_mut::<(&crate::model::npc::Npc, &Position, &RegionCell)>(|(n, pos, r)| {
             let inside = data
                 .zone_data

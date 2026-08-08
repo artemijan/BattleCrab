@@ -324,7 +324,7 @@ pub(crate) fn char_info_state(world: &World, object_id: i32) -> server_packets::
         alike_dead: !world.olympiad.is_in_competition(object_id)
             && world
                 .objects
-                .get_component::<crate::model::components::Vitals>(&object_id)
+                .get_component::<Vitals>(&object_id)
                 .is_some_and(|v| v.dead),
         cursed_weapon_level: p
             .filter(|p| p.cursed_weapon_equipped_id != 0)

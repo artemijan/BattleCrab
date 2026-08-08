@@ -113,7 +113,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     if matches!(chat_type, ChatType::Trade | ChatType::Shout)
         && world
             .objects
-            .get_component::<crate::model::Player>(&sender_oid)
+            .get_component::<Player>(&sender_oid)
             .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
     {
         send_sm(
@@ -909,7 +909,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
     let count_of = |world: &World, item_id: i32| {
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&player_oid)
+            .get_component::<Inventory>(&player_oid)
             .map_or(0, |inv| inv.count_of(item_id))
     };
     match command {
