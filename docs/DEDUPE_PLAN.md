@@ -278,7 +278,46 @@ varies is readable at a glance.
 
 ---
 
-## Phase 5 — Large block extraction
+## Phase 5 — Large block extraction 🟡 **partly done**
+
+Landed (`1996a836`, `0e796435`, `25422468`, `cc9e72f7`):
+
+| What | Sites | Result |
+|---|---|---|
+| illegal-action punish preamble | 35 | `punishment::illegal_action` reads the config itself |
+| `heal` / `heal_percent` shared branches | 35+30, 28+28 | `heal_npc`, `notify_heal` |
+| stop-movement block | 5 | `helpers::stop_movement` |
+| door lookup | 5 | `doors::find_shared_door` + `castle::find_upgradable_door` |
+| `class_level` | **3**, not 2 | `helpers::class_level` |
+| `ride_target` | 2 | `mounts::ride_target`, now `pub(super)` |
+
+Two corrections worth keeping:
+
+- **`class_level` had a third copy** in `user_commands.rs:696` that the
+  inspection never paired with the other two. It turned up only when checking
+  callers — a reminder that RustRover reports anchors, not clusters.
+- **The `warn_err` "duplication" is not real.** `warn_err` is already a shared
+  helper in `db/queries.rs`; what the inspection flagged 24 times is the shape
+  of the sea-orm statements passed *to* it, which differ by table and column.
+  The macro this plan proposed would not pay for itself. Dropped.
+
+Still open, with anchors re-checked against `cfd8e91f`:
+
+| Lines | Sites | What |
+|---|---|---|
+| 17 × 2 | `siege.rs:618`, `:1066` | `for oid in targets` broadcast loop |
+| 16 × 2 | `db/commands.rs:1537`, `db/queries.rs:1902` | `items::Entity::insert` |
+| 16 × 2 | `clans/alliance.rs:181`, `clans/membership.rs:748` | `if let Some(pos)` |
+| 16 × 2 | `death/progression.rs:141`, `:176` | level-change broadcast |
+| 16 × 2 | `expertise.rs:226`, `clans/skills.rs:156` | `ActiveBuff { … }` |
+| 15 × 2 | `clans/alliance.rs:408`, `clans/membership.rs:157` | membership guard |
+| 15 × 2 | `death/restart.rs:182`, `:231` | `let restored = { … }` |
+| 14 × 2 | `admin/mounts.rs:323`, `admin/transforms.rs:288` | ride/transform resolve |
+| 14 × 2 | `valakas.rs:530`, `:670` | `special_camera` cinematic |
+| 13 × 2 | `party.rs:1381`, `:1438` | `in_range` member filter |
+| 11 × 2 | `skills/instant.rs:1351`, `:1425` | `candidates` sweep |
+
+### Original table
 
 Ranked by lines removed. Each is a local `fn` extraction inside its own file
 unless noted.
