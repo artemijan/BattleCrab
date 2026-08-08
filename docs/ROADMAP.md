@@ -200,10 +200,13 @@ classification), `enchant_enabled`/`enchant_limit`/`is_magic_weapon`, and
 `EnchantScroll.isValid` + `AbstractEnchantItem.isValid` (whitelist / other-scroll
 claim / type2 / grade / range). End-to-end test: use scroll → +0→+1 guaranteed
 success, then a forced fail at +4 destroys the sword and returns crystals.
-**Not modelled (documented TODOs):** support items
-(`RequestExTryToPutEnchantSupportItem` + random-enchant ranges + support bonus),
-the 2-second anti-autoenchant timestamp guard, milestone announce/firework, and
-on-enchant armor skills.
+**Since completed** (this paragraph listed them as unmodelled long after the
+first two landed): support items ✅ (below), the random-enchant ranges ✅ and the
+2-second anti-autoenchant guard ✅ (2026-08-08), and on-enchant armor skills ✅ —
+which were never an enchant gap at all, belonging to `ArmorSetData`. Still out:
+the milestone announce/firework, and only because **no** `announce` attribute
+exists anywhere in `EnchantItemData.xml` on this dist, so nothing could drive
+it.
 
 ✅ **Clan warehouse** (`game_loop/warehouse.rs` refactor + `ClanWarehouse`
 bypass) — a shared container on `Clan` in `world.clans` (vs. the per-player
@@ -1448,6 +1451,40 @@ this port) and Sweeper (`OpSweeper`, enforced at apply time instead). S8 also
 found one last real gap while checking: **Anchor (1170) was doing half its
 job** — its second, paralysing stage is an `<endEffects>` `CallSkill`, and
 neither the END scope nor `CallSkill` existed.
+
+### G36 — The bare-marker sweep ✅ COMPLETE (2026-08-08)
+
+Not a planned milestone: the tail of the `TODO(<tag>)` inventory, which reached
+zero on 2026-08-07 and then had to be re-opened.
+
+**Why it re-opened.** The census counts parseable `TODO(<tag>)` markers. It
+cannot see a *bare* `TODO`/`FIXME`, and a `grep TODO crates/` found 58 of them.
+Triage: ~30 quoted Java's own TODOs, 23 were evidenced `SKIP()`s, and the rest
+were real gaps written as prose. Six were recorded as proper tags and all six
+closed the same day:
+
+- ✅ **`ArmorSetData`** (`armor-sets`) — set skills gated by
+  `minimumPieces`/`minimumEnchant`/`optional`, the `<stats>` base-stat fold, and
+  `getArmorMinEnchant`. **This was deferred *to* G19 by this document's own G14
+  section, and G19 closed on its effects-breadth gate without it.** 37 of 317
+  sets have every piece obtainable here; 19 of those carry a `minimumEnchant`
+  skill, so a full +6 set was giving item stats and nothing else.
+- ✅ **Enchant random ranges** (`enchant-random`) and ✅ **the anti-autoenchant
+  guard** (`enchant-guard`).
+- ✅ **`RelationChanged` per-viewer** (`relation-bits`) — including the
+  `PARTY1..4` slot encoding.
+- ✅ **Frintezza's camera choreography** (`frintezza-cam`) — the intro is now
+  step-for-step with Java, dummies included.
+- ✅ **The admin tail** (`admin-tail`) — `//gmspeed`'s multiplier and NPC
+  targets, `//teleportto` by name, the generated `//remove_skills` page, and the
+  henna drop on class change.
+
+**The lessons, which outlast the tickets.** Roughly half the markers were stale
+prose, three of them describing code as it was before their own function bodies.
+Four real bugs sat *beside* markers rather than in them. Four doc comments made
+false absence claims ("no boss script uses this overload" — 38 do). And a
+deferral recorded only in a plan document, as `ArmorSetData` was here, is
+invisible to the enforcement: **record gaps at the site, not just in prose.**
 
 ---
 
