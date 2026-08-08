@@ -278,7 +278,24 @@ varies is readable at a glance.
 
 ---
 
-## Phase 5 — Large block extraction 🟡 **partly done**
+## Phase 5 — Large block extraction ✅ **done**
+
+Everything in the table below has landed except the `db` items-insert pair,
+which is not a real clone (see "Not extracted"). A clone scan of the working
+tree afterwards turns up no logic duplication above 10 lines — what is left at
+that size is data tables, config field lists and `pub mod` runs.
+
+### Not extracted, deliberately
+
+- **`db/commands.rs` ↔ `db/queries.rs` items insert.** The three sites share
+  the sea-orm *column list*, which is just the table's shape, but every value
+  comes from somewhere different: the freight path hardcodes `loc: "FREIGHT"`,
+  the initial-equipment path hardcodes the enchant/mana/time columns, and the
+  restore path reads all of them off an `ItemRow`. A shared builder would need
+  eight parameters and read worse than the three literals. Same false-positive
+  shape as `warn_err`.
+
+### Landed
 
 Landed (`1996a836`, `0e796435`, `25422468`, `cc9e72f7`):
 
@@ -301,21 +318,26 @@ Two corrections worth keeping:
   of the sea-orm statements passed *to* it, which differ by table and column.
   The macro this plan proposed would not pay for itself. Dropped.
 
-Still open, with anchors re-checked against `cfd8e91f`:
+Also landed (`ca522237`, `321a0523`, `72893acc`):
 
-| Lines | Sites | What |
-|---|---|---|
-| 17 × 2 | `siege.rs:618`, `:1066` | `for oid in targets` broadcast loop |
-| 16 × 2 | `db/commands.rs:1537`, `db/queries.rs:1902` | `items::Entity::insert` |
-| 16 × 2 | `clans/alliance.rs:181`, `clans/membership.rs:748` | `if let Some(pos)` |
-| 16 × 2 | `death/progression.rs:141`, `:176` | level-change broadcast |
-| 16 × 2 | `expertise.rs:226`, `clans/skills.rs:156` | `ActiveBuff { … }` |
-| 15 × 2 | `clans/alliance.rs:408`, `clans/membership.rs:157` | membership guard |
-| 15 × 2 | `death/restart.rs:182`, `:231` | `let restored = { … }` |
-| 14 × 2 | `admin/mounts.rs:323`, `admin/transforms.rs:288` | ride/transform resolve |
-| 14 × 2 | `valakas.rs:530`, `:670` | `special_camera` cinematic |
-| 13 × 2 | `party.rs:1381`, `:1438` | `in_range` member filter |
-| 11 × 2 | `skills/instant.rs:1351`, `:1425` | `candidates` sweep |
+| What | Result |
+|---|---|
+| siege town-respawn loop, 17 × 2 | `siege::teleport_to_town` |
+| clans dissolve gate, 16 × 2 | `clans::in_siege_zone` |
+| clans pending-request gate, 15 × 2 | `clans::refuse_if_busy` |
+| level-change broadcast, 16 × 2 | `progression::apply_level_change` |
+| restore-lost-exp, 15 × 2 | `restart::restore_lost_exp` |
+| synthetic passive buff, 16 × **4** | `ActiveBuff::passive_pump` |
+| valakas cinematic keyframe, 14 × 2 | `valakas::broadcast_camera` |
+| untransform collision restore, 14 × 2 | `transforms::restore_class_collision` |
+| party in-range filter, 13 × 2 | `party::members_within` |
+| dispel candidates snapshot, 11 × 2 | `instant::buffs_on` |
+
+> **Watch the project path when re-running the inspection.** The RustRover MCP
+> indexes `/Users/artem/dev/l2/l2r_interlude` — the *main* checkout — not a
+> worktree under it. Anchors from a run while work sits unmerged in a worktree
+> describe `main`, not what you are editing. Verify completion with the
+> standalone scanner pointed at the worktree instead.
 
 ### Original table
 
