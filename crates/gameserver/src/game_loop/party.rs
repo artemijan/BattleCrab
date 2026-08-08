@@ -160,45 +160,82 @@ pub(crate) fn calculate_relation(world: &World, player: &Player) -> i32 {
 }
 
 /// Java `Player.getRelation(target)` — the bitmask the **`RelationChanged`**
-/// packet carries. This is a *different* layout from [`calculate_relation`]
-/// (which is `UserInfo`'s): here clan member is `0x40` and the clan-leader bit
-/// (the one that draws the on-head crown) is `0x80`. Only the target-independent
-/// bits the port models are produced; the siege enemy/ally bits are folded in
-/// per-viewer by the caller.
+/// packet carries, as `subject` appears *to* `viewer`.
 ///
-/// Clan-mate (`0x100`) and ally genuinely belong to the caller — Java decides
-/// both against the *viewer's* clan, so a target-independent base cannot carry
-/// them. The party-index encoding is a different story and the "fuller party
-/// model" this comment used to blame no longer applies: `World.parties` has the
-/// ordered member list Java's `PARTY1..4` bits are derived from.
+/// A different layout from [`calculate_relation`] (which is `UserInfo`'s): here
+/// clan member is `0x40` and the clan-leader bit (the one that draws the on-head
+/// crown) is `0x80`. The siege enemy/ally and clan-war bits are folded in by the
+/// caller; everything Java computes inside `getRelation` itself is here.
 ///
-/// TODO(relation-bits): the `PARTY1..4` slot encoding (`Player.getRelation`,
-/// the `0x1`-`0x8` block) — the client draws each member's party number from
-/// it, so every party member currently shows an unnumbered relation.
-pub(crate) fn relation_changed_base(world: &World, oid: i32) -> i32 {
-    let Some(p) = world.objects.get_component::<Player>(&oid) else {
+/// **It is viewer-dependent, and three of the bits are not obvious about it.**
+/// `RELATION_HAS_PARTY` and the whole party-slot block only appear when
+/// `party == target.getParty()` — the same party, not merely *a* party — so a
+/// stranger never learns you are grouped. `RELATION_CLAN_MATE` compares the two
+/// clans. `RELATION_ALLY_MEMBER` is the odd one out: it sits inside the
+/// `clan != null` branch but asks only whether **the subject** has an ally, so it
+/// is the same for every viewer.
+pub(crate) fn relation_to(world: &World, subject_oid: i32, viewer_oid: i32) -> i32 {
+    const RELATION_HAS_PARTY: i32 = 0x20;
+    const RELATION_CLAN_MEMBER: i32 = 0x40;
+    const RELATION_LEADER: i32 = 0x80;
+    const RELATION_CLAN_MATE: i32 = 0x100;
+    const RELATION_ALLY_MEMBER: i32 = 0x10000;
+
+    let Some(p) = world.objects.get_component::<Player>(&subject_oid) else {
         return 0;
     };
     let mut relation = 0;
-    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied()
-        && world.parties.get(&pid).is_some()
-    {
-        relation |= 0x20; // RELATION_HAS_PARTY
+    if p.clan_id > 0 {
+        relation |= RELATION_CLAN_MEMBER;
         if world
-            .parties
-            .get(&pid)
-            .is_some_and(|party| party.is_leader(oid))
+            .objects
+            .get_component::<Player>(&viewer_oid)
+            .is_some_and(|v| v.clan_id == p.clan_id)
         {
-            relation |= 0x10; // RELATION_PARTYLEADER
+            relation |= RELATION_CLAN_MATE;
+        }
+        if p.ally_id != 0 {
+            relation |= RELATION_ALLY_MEMBER;
         }
     }
-    if p.clan_id > 0 {
-        relation |= 0x40; // RELATION_CLAN_MEMBER
-        if p.clan_leader {
-            relation |= 0x80; // RELATION_LEADER — draws the clan-leader crown
+    if p.clan_leader {
+        relation |= RELATION_LEADER;
+    }
+    // Java: `(party != null) && (party == target.getParty())`.
+    let party_of = |oid: i32| {
+        world
+            .objects
+            .get_component::<PartyRef>(&oid)
+            .map(|PartyRef(pid)| *pid)
+    };
+    if let Some(pid) = party_of(subject_oid)
+        && party_of(viewer_oid) == Some(pid)
+        && let Some(party) = world.parties.get(&pid)
+    {
+        relation |= RELATION_HAS_PARTY;
+        if let Some(i) = party.members.iter().position(|&m| m == subject_oid) {
+            relation |= party_slot_bits(i);
         }
     }
     relation
+}
+
+/// Java `getRelation`'s party-index `switch` — the client reads the member's
+/// position in the party out of these low bits.
+///
+/// The encoding is not an index and not a bitfield: slot 0 is the leader flag
+/// `0x10`, and slots 1..=8 count **down** from `0x8` to `0x1`, so member *i*
+/// carries the value `9 - i`. Java spells all nine cases out longhand with the
+/// values written as sums (`PARTY3 + PARTY2 + PARTY1` for 7), which hides the
+/// arithmetic; the switch and this expression agree on every case, and slots
+/// past 8 fall through to no bits at all in both (an Interlude party caps at 9).
+pub(crate) fn party_slot_bits(index: usize) -> i32 {
+    const RELATION_PARTYLEADER: i32 = 0x10;
+    match index {
+        0 => RELATION_PARTYLEADER,
+        1..=8 => 9 - index as i32,
+        _ => 0,
+    }
 }
 
 /// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, and Java's
