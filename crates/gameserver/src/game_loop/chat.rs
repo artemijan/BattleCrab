@@ -14,6 +14,7 @@
 //! 2026-08-07 sweep. See PLAN_G10_SOCIAL.md §2/§4 for the original scope, and
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
+use crate::game_loop::guard::clan_of_or_zero;
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -496,11 +497,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         }
         ChatType::Clan => {
             // ChatClan — `clan.broadcastToOnlineMembers` (speaker included).
-            let clan_id = world
-                .objects
-                .get_component::<crate::model::Player>(&sender_oid)
-                .map(|p| p.clan_id)
-                .unwrap_or(0);
+            let clan_id = clan_of_or_zero(world, sender_oid);
             if clan_id != 0 && world.clans.contains_key(&clan_id) {
                 let say = server_packets::creature_say(
                     sender_oid,

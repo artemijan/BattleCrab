@@ -15,6 +15,7 @@
 //! and two registration refusal messages.
 
 use crate::db::DbCommand;
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::model::Player;
 use crate::model::components::{AdvancedHeadquarter, Position};
 use crate::model::door::Door;
@@ -1009,11 +1010,7 @@ pub(crate) fn try_capture_artifact(world: &mut World, player_oid: i32, artifact_
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;
     }
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&player_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, player_oid);
     if clan_id == 0 {
         return;
     }
@@ -1809,10 +1806,7 @@ pub(crate) fn handle_request_join_siege(world: &mut World, client_id: u32, body:
 /// to a castle's Siege Manager NPC as a non-owner (`ai/others/
 /// CastleSiegeManager`). Resolves the caller's clan itself.
 pub(crate) fn list_register_clan(world: &World, client_id: u32, player: i32, castle_id: i32) {
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&player)
-        .map_or(0, |p| p.clan_id);
+    let clan_id = clan_of_or_zero(world, player);
     send_siege_info(
         world,
         client_id,

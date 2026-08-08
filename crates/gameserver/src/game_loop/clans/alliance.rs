@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::clan_of_or_zero;
 
 use crate::model::clan::{
     ALLY_PENALTY_TYPE_CLAN_DISMISSED, ALLY_PENALTY_TYPE_CLAN_LEAVED,
@@ -380,11 +381,7 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
         );
         return;
     }
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, player);
     if clan_id == 0 {
         send_sm_with(
             world,
@@ -482,11 +479,7 @@ pub(crate) fn handle_request_answer_join_ally(world: &mut World, client_id: u32,
         .get(&ally_id)
         .map(|c| c.ally_name.clone())
         .unwrap_or_default();
-    let target_clan_id = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let target_clan_id = clan_of_or_zero(world, player);
     let leader_crest = world
         .clans
         .get(&ally_id)

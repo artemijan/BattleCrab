@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::clan_of_or_zero;
 
 use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 
@@ -57,16 +58,8 @@ fn store_war(world: &World, war: &ClanWar) {
 pub(crate) fn war_relation_bits(world: &World, subject_oid: i32, viewer_oid: i32) -> i32 {
     const RELATION_DECLARED_WAR: i32 = 0x4000; // single sword
     const RELATION_MUTUAL_WAR: i32 = 0x8000; // double swords
-    let subject_clan = world
-        .objects
-        .get_component::<Player>(&subject_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
-    let viewer_clan = world
-        .objects
-        .get_component::<Player>(&viewer_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let subject_clan = clan_of_or_zero(world, subject_oid);
+    let viewer_clan = clan_of_or_zero(world, viewer_oid);
     if subject_clan == 0 || viewer_clan == 0 || subject_clan == viewer_clan {
         return 0;
     }

@@ -2,6 +2,7 @@
 //! `REGEN_TICK_PERIOD` ticks from the game loop.
 
 use crate::data::GameData;
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{BaseStats, PlayerVitals, StatModifiers, Vitals};
@@ -108,11 +109,7 @@ pub(crate) fn clan_hall_regen_mult(world: &World, object_id: i32) -> (f64, f64) 
     else {
         return (1.0, 1.0);
     };
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, object_id);
     if clan_id == 0 {
         return (1.0, 1.0);
     }
@@ -144,11 +141,7 @@ pub(crate) fn castle_regen_mult(world: &World, object_id: i32) -> (f64, f64) {
     else {
         return (1.0, 1.0);
     };
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, object_id);
     if clan_id == 0 {
         return (1.0, 1.0);
     }

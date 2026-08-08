@@ -36,6 +36,7 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
@@ -277,11 +278,7 @@ fn sweep_group(
         Group::Alliance => vec![target_oid],
         Group::Party => crate::game_loop::party::group_or_self(world, target_oid),
         Group::Clan => {
-            let clan_id = world
-                .objects
-                .get_component::<Player>(&target_oid)
-                .map(|p| p.clan_id)
-                .unwrap_or(0);
+            let clan_id = clan_of_or_zero(world, target_oid);
             if clan_id <= 0 {
                 vec![target_oid]
             } else {
@@ -356,13 +353,7 @@ fn sweep_dead_group(
         }
         match group {
             Group::Clan => {
-                let clan_of = |o: i32| {
-                    world
-                        .objects
-                        .get_component::<Player>(&o)
-                        .map(|p| p.clan_id)
-                        .unwrap_or(0)
-                };
+                let clan_of = |o: i32| clan_of_or_zero(world, o);
                 let c = clan_of(target_oid);
                 c != 0 && clan_of(oid) == c
             }
@@ -856,16 +847,8 @@ fn same_party(world: &World, a: i32, b: i32) -> bool {
 }
 
 fn same_clan(world: &World, a: i32, b: i32) -> bool {
-    let ca = world
-        .objects
-        .get_component::<Player>(&a)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
-    let cb = world
-        .objects
-        .get_component::<Player>(&b)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let ca = clan_of_or_zero(world, a);
+    let cb = clan_of_or_zero(world, b);
     ca > 0 && ca == cb
 }
 

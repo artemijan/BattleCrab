@@ -6,6 +6,7 @@
 //! reduce to karma (`Player.reputation`) + the runtime flag. PVP-zone (arena)
 //! exemptions land with Phase 2, when those zones are loaded.
 
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::model::Player;
 use crate::model::components::{PvpState, ZoneFlags};
 use crate::network::server_packets;
@@ -91,10 +92,7 @@ pub(crate) fn is_in_siege(world: &World, oid: i32) -> bool {
     let Some(castle_id) = active_siege_castle(world, oid) else {
         return false;
     };
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&oid)
-        .map_or(0, |p| p.clan_id);
+    let clan_id = clan_of_or_zero(world, oid);
     clan_id != 0
         && world
             .sieges
@@ -177,7 +175,10 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     //
     // Same clan falls through: a clanmate is not auto-attackable anyway.
     if let Some(castle_id) = both_in_same_active_siege(world, attacker_oid, target_oid) {
-        let (a_clan, t_clan) = (clan_of(world, attacker_oid), clan_of(world, target_oid));
+        let (a_clan, t_clan) = (
+            clan_of_or_zero(world, attacker_oid),
+            clan_of_or_zero(world, target_oid),
+        );
         if a_clan != 0
             && t_clan != 0
             && a_clan != t_clan
@@ -199,16 +200,8 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     // Mutual clan war → freely attackable (Java `isAutoAttackable`'s
     // `isAtWarWith` both-ways test; the shared war object makes MUTUAL
     // symmetric).
-    let attacker_clan = world
-        .objects
-        .get_component::<Player>(&attacker_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
-    let target_clan = world
-        .objects
-        .get_component::<Player>(&target_oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let attacker_clan = clan_of_or_zero(world, attacker_oid);
+    let target_clan = clan_of_or_zero(world, target_oid);
     if super::clans::mutual_war_between(world, attacker_clan, target_clan) {
         return true;
     }
@@ -364,12 +357,6 @@ fn both_in_same_active_siege(world: &World, a_oid: i32, b_oid: i32) -> Option<i3
         (Some(a), Some(b)) if a == b => Some(a),
         _ => None,
     }
-}
-
-/// The clan id of a player, 0 = none. The siege block below tests `!= 0`
-/// explicitly, so the sentinel never reaches a clan comparison.
-fn clan_of(world: &World, object_id: i32) -> i32 {
-    super::guard::clan_of(world, object_id).unwrap_or(0)
 }
 
 /// Java `Player.sendInfo`'s `RelationChanged` half: how `subject` relates to

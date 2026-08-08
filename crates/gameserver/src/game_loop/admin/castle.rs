@@ -9,6 +9,7 @@
 
 use crate::db::DbCommand;
 use crate::game_loop::guard;
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::siege::SiegeClanType;
@@ -160,11 +161,7 @@ fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, r
         show_castle_menu(world, client_id, idx);
         return;
     };
-    let target_clan_id = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let target_clan_id = clan_of_or_zero(world, target);
     if world
         .clans
         .get(&target_clan_id)
@@ -243,15 +240,10 @@ fn clan_of_client(world: &World, client_id: u32) -> (i32, i32) {
     match world.clients.get(&client_id) {
         Some(crate::session::ClientSession::InGame(s)) => {
             let oid = s.player_object_id();
-            (oid, clan_of(world, oid))
+            (oid, clan_of_or_zero(world, oid))
         }
         _ => (0, 0),
     }
-}
-
-/// The clan id of a player, 0 = none — the sentinel every caller here checks.
-fn clan_of(world: &World, oid: i32) -> i32 {
-    guard::clan_of(world, oid).unwrap_or(0)
 }
 
 /// `showRegWindow` → Java `Siege.listRegisterClan`: the real `SiegeInfo` window
@@ -296,7 +288,7 @@ fn siege_register(
         return;
     };
     let castle_id = world.castles[idx].id;
-    let clan_id = clan_of(world, target);
+    let clan_id = clan_of_or_zero(world, target);
 
     // registerDefender: only when the castle has an owner.
     if !attacker && owner_clan(world, castle_id).is_none() {
@@ -349,9 +341,9 @@ fn siege_remove(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize
     };
     let castle_id = world.castles[idx].id;
     let clan_id = if attacker {
-        clan_of(world, gm_object_id)
+        clan_of_or_zero(world, gm_object_id)
     } else {
-        clan_of(world, target)
+        clan_of_or_zero(world, target)
     };
     if clan_id <= 0 {
         return; // Java `removeSiegeClan(clanId <= 0)` → no-op.

@@ -18,6 +18,7 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
@@ -517,11 +518,7 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
             .get(&id)
             .map(|n| n.name.clone())
             .unwrap_or_default();
-        let clan_id = world
-            .objects
-            .get_component::<Player>(&id)
-            .map(|p| p.clan_id)
-            .unwrap_or(0);
+        let clan_id = clan_of_or_zero(world, id);
         world.olympiad.hero_info.insert(
             id,
             crate::model::olympiad::HeroInfo {

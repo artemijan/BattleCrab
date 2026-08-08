@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::clan_of_or_zero;
 
 /// Java `Clan.checkClanJoinCondition(player, target, pledgeType)` — the invite
 /// guard chain, with each reject's system message sent to the inviter. Run at
@@ -118,11 +119,7 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
         return;
     };
 
-    let clan_id = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .unwrap_or(0);
+    let clan_id = clan_of_or_zero(world, player);
     if clan_id == 0 {
         return; // Java: getClan() == null → silent
     }
@@ -237,13 +234,7 @@ pub(crate) fn handle_request_answer_join_pledge(world: &mut World, client_id: u3
     if !check_clan_join_condition(world, requestor, player, pledge_type) {
         return;
     }
-    if world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .unwrap_or(0)
-        != 0
-    {
+    if clan_of_or_zero(world, player) != 0 {
         return;
     }
     add_clan_member(world, clan_id, player, pledge_type);

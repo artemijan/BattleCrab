@@ -14,6 +14,7 @@
 
 use crate::data::item_data::ADENA_ID;
 use crate::db::DbCommand;
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::model::clan_hall::{ClanHallBid, ClanHallType};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -130,11 +131,7 @@ pub(crate) fn banish_others(world: &mut World, hall_id: i32) {
         if world.data.zone_data.clan_hall_at(pos.x, pos.y, pos.z) != Some(hall_id) {
             continue;
         }
-        let clan_id = world
-            .objects
-            .get_component::<crate::model::Player>(&oid)
-            .map(|p| p.clan_id)
-            .unwrap_or(0);
+        let clan_id = clan_of_or_zero(world, oid);
         if clan_id != owner_id {
             targets.push(oid);
         }

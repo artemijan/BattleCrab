@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::send_sm_to_player;
 
 /// `Player.doDie`: mark dead, stop everything, apply the XP penalty,
@@ -107,16 +108,8 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         // Java `calculateDeathExpPenalty(killer)` quarters the loss when the
         // killer is a clan-war enemy (`atWarWith`, any war state).
         let at_war = {
-            let kc = world
-                .objects
-                .get_component::<crate::model::Player>(&killer_oid)
-                .map(|p| p.clan_id)
-                .unwrap_or(0);
-            let vc = world
-                .objects
-                .get_component::<crate::model::Player>(&player_oid)
-                .map(|p| p.clan_id)
-                .unwrap_or(0);
+            let kc = clan_of_or_zero(world, killer_oid);
+            let vc = clan_of_or_zero(world, player_oid);
             crate::game_loop::clans::at_war_between(world, kc, vc)
         };
         apply_death_exp_penalty_ex(world, player_oid, at_war, Some(killer_oid));

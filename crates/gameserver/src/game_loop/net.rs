@@ -2,6 +2,7 @@
 //! events, the login-link and DB results, and restart/logout/kick handling.
 //! [`handle_game_event`] routes each unified-channel event to its handler.
 
+use crate::game_loop::guard::clan_of_or_zero;
 use tracing::{debug, error, info, warn};
 
 use crate::db::{self, DbEvent};
@@ -159,11 +160,7 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     super::cubic::on_owner_leave_world(world, player_object_id);
     // deleteMe → clan.broadcastToOnlineMembers(PledgeShowMemberListUpdate offline).
     {
-        let clan_id = world
-            .objects
-            .get_component::<crate::model::Player>(&player_object_id)
-            .map(|p| p.clan_id)
-            .unwrap_or(0);
+        let clan_id = clan_of_or_zero(world, player_object_id);
         super::clans::on_leave_world(world, player_object_id, clan_id);
     }
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
