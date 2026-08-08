@@ -1,7 +1,7 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
 use crate::model::Player;
-use crate::model::components::{RegionCell, StatModifiers, Vitals};
+use crate::model::components::{Movement, Position, RegionCell, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::npc::Npc;
 use crate::model::stats::Stat;
@@ -38,6 +38,25 @@ pub(crate) fn player_of(world: &World, client_id: u32) -> Option<i32> {
 /// definition has to live down there.
 pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
     crate::geo::distance::position_of(world, object_id)
+}
+
+/// Halt a creature mid-path and tell everyone where it stopped — Java
+/// `Creature.stopMove` followed by the `StopMove` broadcast.
+///
+/// A no-op for anything that isn't currently moving. Every intent that
+/// interrupts a walk (attack, cast, sit, target change) opens with this.
+pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
+    if !world.objects.has_component::<Movement>(&object_id) {
+        return;
+    }
+    world.objects.remove_component::<Movement>(&object_id);
+    if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+        broadcast_including_self(
+            world,
+            object_id,
+            &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
+        );
+    }
 }
 
 /// Whether a creature counts as dead — **`true` when it has no [`Vitals`] at

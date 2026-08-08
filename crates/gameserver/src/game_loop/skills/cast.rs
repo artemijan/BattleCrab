@@ -10,7 +10,7 @@ use crate::game_loop::helpers::{
 };
 use crate::model::Player;
 use crate::model::components::{
-    AttackState, Casting, Collision, Intent, Movement, Position, QueuedAction, Vitals,
+    AttackState, Casting, Collision, Intent, Position, QueuedAction, Vitals,
 };
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, SkillEffect, TargetType};
@@ -24,6 +24,7 @@ use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::stat_add;
+use crate::game_loop::helpers::stop_movement;
 
 /// Reuse gate shared by `use_magic_on` and the `ItemSkills` item handler
 /// (Java `Player.isSkillDisabled`/`getSkillRemainingReuseTime`), keyed by the
@@ -1153,16 +1154,7 @@ pub(crate) fn start_casting(
     // intentions with idle. (Mainly done for AI_INTENTION_MOVE_TO)"). An
     // attack loop's chase leg is different: the surviving `Intent` component
     // resumes the loop (and its chase) by itself.
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
 
     // Face the target (Java: `setHeading` + broadcast `ExRotation`).
     if target_oid != object_id {

@@ -426,6 +426,22 @@ pub(crate) fn door_upgrade_ratio(world: &World, door_id: i32) -> i32 {
     super::global_vars::get_i64(world, &door_upgrade_key(door_id), 1).max(1) as i32
 }
 
+/// The door object carrying `door_id`, for the HP-upgrade stamp.
+///
+/// Unlike [`crate::game_loop::doors::find_shared_door`] this does **not** skip
+/// instance door copies. That is preserved from the code this replaced rather
+/// than chosen: whether a castle door id can ever appear in an instance
+/// template's doorlist is untested, and quietly changing it here would be a
+/// behaviour change hidden inside a deduplication.
+fn find_upgradable_door(world: &World, door_id: i32) -> Option<i32> {
+    world.door_regions.values().flatten().copied().find(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::door::Door>(oid)
+            .is_some_and(|d| d.door_id == door_id)
+    })
+}
+
 /// Java `Castle.setDoorUpgrade(doorId, ratio, save)`: record the ratio and
 /// re-derive the door's max HP (healing it to full, as Java's
 /// `setCurrentHp(getMaxHp())` does on upgrade).
@@ -437,12 +453,7 @@ pub(crate) fn set_door_upgrade(world: &mut World, door_id: i32, ratio: i32) {
         .get(door_id)
         .map(|t| t.hp_max)
         .unwrap_or(0);
-    let oid = world.door_regions.values().flatten().copied().find(|oid| {
-        world
-            .objects
-            .get_component::<crate::model::door::Door>(oid)
-            .is_some_and(|d| d.door_id == door_id)
-    });
+    let oid = find_upgradable_door(world, door_id);
     if let Some(oid) = oid
         && let Some(d) = world
             .objects

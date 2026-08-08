@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::stop_movement;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
 /// `NpcAction`'s monster branch: clicking your already-selected monster
@@ -423,16 +424,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return;
     }
     // In reach: stop the chase and swing.
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     // A siege door takes damage through the gate path (no miss/crit/shield/AI);
     // everything else goes through the shared creature swing.
     if world
@@ -869,16 +861,7 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     // Arrived: consume the intention, stop the chase leg (`clientStopMoving`
     // in `thinkCast`), and cast.
     world.objects.remove_component::<Intent>(&object_id);
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     let Some(client_id) = client_for_player(world, object_id) else {
         return;
     };
@@ -946,16 +929,7 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     }
     // Arrived: stop the chase leg and re-run the interact click.
     world.objects.remove_component::<Intent>(&object_id);
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     let Some(client_id) = client_for_player(world, object_id) else {
         return;
     };
@@ -1053,16 +1027,7 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     // Arrived: `setIntention(AI_INTENTION_IDLE)` then `doPickupItem`, which
     // itself sends the `StopMove` that ends the walk client-side.
     world.objects.remove_component::<Intent>(&object_id);
-    if world.objects.has_component::<Movement>(&object_id) {
-        world.objects.remove_component::<Movement>(&object_id);
-        if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
-            broadcast_including_self(
-                world,
-                object_id,
-                &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
-            );
-        }
-    }
+    stop_movement(world, object_id);
     let Some(client_id) = client_for_player(world, object_id) else {
         return;
     };
