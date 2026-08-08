@@ -280,12 +280,27 @@ working-tree file); they run on a full checkout / CI and self-skip on a fresh
 checkout or `git worktree` that lacks it. Plain `cargo test` still works for a
 single filtered test, but prefer nextest for anything broad.
 
-One test is `#[ignore]`d: `e2e_create::full_login_to_character_create`. It is a
-pre-existing failure the old hanging `cargo test` never reached — the login
-server answers `RequestServerLogin` with `PlayFail` instead of `PlayOk`. That is
-a real login play-auth bug (grep `TODO(login-playauth)`), not a test-runner
-issue; remove the `#[ignore]` once it is fixed. Run it explicitly with
-`cargo nextest run -p gameserver --run-ignored all full_login_to_character_create`.
+`e2e_create::full_login_to_character_create` — the full path (login server →
+game server: create, relogin, restart, re-select, re-enter, logout, DB
+assertions) — runs green in the ordinary suite. It is one of the two tests
+above that need the untracked `interlude_classic.db` and self-skip without it;
+it carries no `#[ignore]`.
+
+It *was* broken (a 120 s timeout) from its introduction until 2026-08-06, and
+**both causes recorded over that time were wrong** — the paragraph that used to
+sit here blamed a `PlayFail` login bug that did not exist, and pointed at a
+`TODO(login-playauth)` marker that has since been retired. The real cause, from
+a per-packet trace, was that the post-restart `CharacterSelect` was silently
+swallowed by the **CharacterSelect flood protector** (`FloodProtector.ini`
+interval 30 ticks = 3 s; Java's `CharacterSelect.runImpl` returns without any
+reply inside the window, and the port mirrors it). The scripted client
+re-selected within ~2 s and blocked forever on a `CharSelected` that was never
+coming. Server behaviour was retail-faithful throughout; the fix was to wait the
+window out before re-selecting. The full account lives above the test.
+
+The lesson generalises past this one test: **a silent no-reply from the server
+is what a flood-protector rejection looks like** — check `flood::action_for_opcode`
+before suspecting the session machinery.
 
 ## Linting & formatting
 
