@@ -438,7 +438,36 @@ exists). Keep per-boss constants where they are — only the mechanics move.
 
 ---
 
-## Phase 7 — Module twins
+## Phase 7 — Module twins ✅ **done** (`fc67c1ca`, `67f9a8fb`)
+
+Phases 5 and 6 had already drained `mounts`↔`transforms` and
+`clans/alliance`↔`clans/membership`. What was left:
+
+| What | Sites | Result |
+|---|---|---|
+| `items().iter().find(\|i\| i.object_id == …)` | **39** | `Inventory::by_object_id` |
+| `carried` (`auto_potions` ↔ `auto_use`) | 2 | `helpers::carried_item` |
+| `two_handed` (`combat/attack` ↔ `combat/intent`) | 2 | `combat::wields_two_handed` |
+| inline clan-id read | **30** + 2 wrappers | `guard::clan_of_or_zero` |
+
+Two notes:
+
+- **`by_object_id` was a missing method, not a clone.** Its sibling
+  `first_of_item` was already on `Inventory`, and *its* doc says it exists
+  because callers open-coded the item-id version. The object-id half — Java's
+  `getItemByObjectId` — had simply never been added, so 39 sites open-coded it.
+- **The clan-id sweep is a phase-2 leftover** this scan surfaced. Phase 2
+  consolidated the four `clan_of` *helpers* but left the inline reads, and
+  `pvp.rs` / `admin/castle.rs` each kept a private `i32` wrapper.
+  `guard::clan_of_or_zero` is that wrapper once;
+  `clan_of(..).unwrap_or(0)` is exactly the inline expression, since `clan_of`
+  filters the `0` sentinel to `None` and `unwrap_or(0)` puts it back.
+
+`lottery`↔`monster_race` and `db/commands`↔`db/queries` turned out to have no
+shared logic left once `by_object_id` landed — what the inspection paired in
+the `db` case was the sea-orm column list, recorded under phase 5.
+
+### Original list
 
 Pairs of files that are near-copies. Lower priority: each needs a judgement call
 about whether the shared shape is real or coincidental.
