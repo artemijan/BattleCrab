@@ -154,16 +154,16 @@ fn set_monsters_count(world: &mut World, instance_id: i32, spawned: usize) {
 // ---------------------------------------------------------------------------
 // The intro cinematic (Java `FRINTEZZA_INTRO_*`).
 //
-// Ported faithfully in structure — the 10-minute wait, the player freeze, the
-// staged spawns (dummies → Frintezza → Scarlet → portraits), the prelude skill
-// and social beats, and the hand-back that starts the fight — as a
-// `ScheduledTask::FrintezzaIntro` step machine. The exhaustive dummy-anchored
-// `SpecialCamera` choreography (~20 shots) is abbreviated to the establishing
-// beats.
+// A step-for-step port of Java's `FRINTEZZA_INTRO_START` and `_1`..`_20`, on a
+// `ScheduledTask::FrintezzaIntro` machine: the 10-minute wait, the player
+// freeze, the five camera dummies, the staged spawns (Frintezza → demons →
+// Scarlet → portraits), all 20 `SpecialCamera` shots, the prelude skill and
+// social beats, and the hand-back that starts the fight.
 //
-// TODO(frintezza-cam): the remaining shots. Purely cosmetic — the fight, the
-// spawns and the hand-back are all faithful — but reachable by anyone who
-// clears the tomb, so it is a real difference a player would see.
+// Two things to know before touching the shots: they use Java's *11-argument*
+// `SpecialCamera` overload, which swaps two of its own parameters (see
+// [`camera`]), and most of them are anchored on invisible `DUMMY` actors that
+// are deleted the moment their last shot lands.
 // ---------------------------------------------------------------------------
 
 const FRINTEZZA: i32 = 29045;
@@ -184,6 +184,20 @@ const PORTRAIT_SPAWNS: [[i32; 9]; 4] = [
     ],
 ];
 const CUBE_POS: (i32, i32, i32) = (-87904, -141296, -9168);
+/// Java `DUMMY` / `DUMMY2` — invisible actors that exist only to anchor camera
+/// shots. The cinematic frames Frintezza's hall from points no real NPC stands
+/// at, so the shots hang off these and Java deletes each one the moment its
+/// last shot has played.
+const DUMMY: i32 = 29052;
+const DUMMY2: i32 = 29053;
+const FRINTEZZA_DUMMY_POS: (i32, i32, i32, i32) = (-87784, -155083, -9087, 16048);
+const OVERHEAD_DUMMY_POS: (i32, i32, i32, i32) = (-87784, -153298, -9175, 16384);
+const PORTRAIT_DUMMY1_POS: (i32, i32, i32, i32) = (-89566, -153168, -9165, 16048);
+const PORTRAIT_DUMMY3_POS: (i32, i32, i32, i32) = (-86004, -153168, -9165, 16048);
+/// `sendPacketX`'s pivot — players west of this x get the left-hand shot.
+const PORTRAIT_SPLIT_X: i32 = -87784;
+/// The skill `scarletDummy` casts at `overheadDummy` as Scarlet rises.
+const SCARLET_RISE_SKILL: i32 = 5004;
 const FRINTEZZA_POS: (i32, i32, i32, i32) = (-87780, -155086, -9080, 16384);
 const SCARLET_POS: (i32, i32, i32, i32) = (-87789, -153295, -9176, 16384);
 const PRELUDE_SKILL: i32 = 5006;
@@ -202,22 +216,32 @@ fn schedule_intro(world: &mut World, instance_id: i32, step: u8, delay_ms: u64) 
     );
 }
 
-/// One beat of the intro. The steps collapse Java's `FRINTEZZA_INTRO_1..20` into
-/// the functional milestones (the abbreviated cameras aside), preserving the
-/// spawn order, the player freeze window, and the cumulative timing.
+/// One beat of the intro — Java's `FRINTEZZA_INTRO_START` and `_1`..`_20`, one
+/// step each and with Java's own delays, so the whole cinematic runs to the
+/// same 82 s it does upstream. (It used to collapse into six functional
+/// milestones with the camera work abbreviated; the collapse also drifted the
+/// total by about 14 s.)
 pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
     if !world.instances.contains(instance_id) {
         return; // the instance was torn down mid-cinematic
     }
+    let frintezza = || var_oid(world, instance_id, "frintezza");
     match step {
-        // INTRO_START (+INTRO_1): the earth shakes, the arena seals, and the
-        // teleport cube appears for anyone who wants out.
+        // INTRO_START: the earth shakes. Java arms _1 and _2 as two independent
+        // timers off this one, so the door/cube beat and the actor spawn are not
+        // chained — they are 17 s and 20 s from here.
         0 => {
             instances::broadcast_to_instance(
                 world,
                 instance_id,
                 &server_packets::earthquake(-87784, -155083, -9087, 45, 27),
             );
+            schedule_intro(world, instance_id, 1, 17_000);
+            schedule_intro(world, instance_id, 2, 20_000);
+        }
+        // INTRO_1: the arena seals and the teleport cube appears for anyone who
+        // wants out.
+        1 => {
             for group in [
                 FIRST_ROOM_DOORS,
                 FIRST_ROUTE_DOORS,
@@ -237,13 +261,71 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
                 CUBE_POS.2,
                 0,
             );
-            schedule_intro(world, instance_id, 1, 20_000);
         }
-        // INTRO_2: freeze the party and raise Frintezza (invulnerable) plus the
-        // four immobilized demons.
-        1 => {
+        // INTRO_2: the camera dummies go up, the party freezes, and Frintezza
+        // rises with the four immobilised demons.
+        2 => {
+            for (key, id, pos) in [
+                ("frintezzaDummy", DUMMY, FRINTEZZA_DUMMY_POS),
+                ("overheadDummy", DUMMY, OVERHEAD_DUMMY_POS),
+                ("portraitDummy1", DUMMY, PORTRAIT_DUMMY1_POS),
+                ("portraitDummy3", DUMMY, PORTRAIT_DUMMY3_POS),
+                ("scarletDummy", DUMMY2, OVERHEAD_DUMMY_POS),
+            ] {
+                if let Some(oid) =
+                    instances::spawn_npc(world, instance_id, id, pos.0, pos.1, pos.2, pos.3)
+                {
+                    world.instances.set_var(instance_id, key, oid as i64);
+                }
+            }
+            // `overheadDummy.setCollisionHeight(600)` + its `NpcInfo` resend —
+            // the shot that looks down the hall is framed off this inflated
+            // box, so without it the angle is wrong rather than merely missing.
+            let overhead = var_oid(world, instance_id, "overheadDummy");
+            if overhead != 0 {
+                if let Some(c) = world
+                    .objects
+                    .get_component_mut::<crate::model::components::Collision>(&overhead)
+                {
+                    c.height = 600.0;
+                }
+                if let Some(pkt) = super::visibility::npc_info_bytes(world, overhead) {
+                    instances::broadcast_to_instance(world, instance_id, &pkt);
+                }
+            }
             disable_players(world, instance_id);
-            if let Some(frintezza) = spawn_frozen(
+            camera(
+                world,
+                instance_id,
+                overhead,
+                0,
+                75,
+                -89,
+                0,
+                100,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            camera(
+                world,
+                instance_id,
+                overhead,
+                300,
+                90,
+                -10,
+                6500,
+                7000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+
+            if let Some(f) = spawn_frozen(
                 world,
                 instance_id,
                 FRINTEZZA,
@@ -253,63 +335,305 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
                 FRINTEZZA_POS.3,
                 true,
             ) {
-                world
-                    .instances
-                    .set_var(instance_id, "frintezza", frintezza as i64);
-                camera(
+                world.instances.set_var(instance_id, "frintezza", f as i64);
+            }
+            for (i, sp) in PORTRAIT_SPAWNS.iter().enumerate() {
+                if let Some(demon) = spawn_frozen(
                     world,
                     instance_id,
-                    frintezza,
-                    0,
-                    75,
-                    -89,
-                    0,
-                    100,
-                    0,
-                    0,
-                    1,
-                    0,
-                    0,
-                );
-            }
-            for (i, s) in PORTRAIT_SPAWNS.iter().enumerate() {
-                if let Some(demon) =
-                    spawn_frozen(world, instance_id, s[0] + 2, s[5], s[6], s[7], s[8], false)
-                {
+                    sp[0] + 2,
+                    sp[5],
+                    sp[6],
+                    sp[7],
+                    sp[8],
+                    false,
+                ) {
                     world
                         .instances
                         .set_var(instance_id, &format!("demon{i}"), demon as i64);
                 }
             }
-            schedule_intro(world, instance_id, 2, 40_000);
+            schedule_intro(world, instance_id, 3, 6_500);
         }
-        // INTRO_12: the Mournful Chorale Prelude — screen text + Frintezza's cast.
-        2 => {
-            let frintezza = var_oid(world, instance_id, "frintezza");
+        // INTRO_3/_4: the long push down the hall onto Frintezza's dais.
+        3 => {
+            let d = var_oid(world, instance_id, "frintezzaDummy");
+            camera(
+                world,
+                instance_id,
+                d,
+                1800,
+                90,
+                8,
+                6500,
+                7000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 4, 900);
+        }
+        4 => {
+            let d = var_oid(world, instance_id, "frintezzaDummy");
+            camera(
+                world,
+                instance_id,
+                d,
+                140,
+                90,
+                10,
+                2500,
+                4500,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 5, 4_000);
+        }
+        // INTRO_5: cut to Frintezza himself. Java sends the same framing twice,
+        // a 1 s shot and a 12 s one — the first snaps, the second holds.
+        5 => {
+            let f = frintezza();
+            camera(world, instance_id, f, 40, 75, -10, 0, 1000, 0, 0, 1, 0, 0);
+            camera(world, instance_id, f, 40, 75, -10, 0, 12000, 0, 0, 1, 0, 0);
+            schedule_intro(world, instance_id, 6, 1_350);
+        }
+        // INTRO_6: Frintezza stirs, and the dummy that framed the approach goes.
+        6 => {
+            social(world, instance_id, frintezza(), 2);
+            delete_dummy(world, instance_id, "frintezzaDummy");
+            schedule_intro(world, instance_id, 7, 8_000);
+        }
+        // INTRO_7/_8: the demons wake in pairs — the inner two, then the outer
+        // two under a shot that swings from whichever side the viewer stands.
+        7 => {
+            for i in [1, 2] {
+                social(
+                    world,
+                    instance_id,
+                    var_oid(world, instance_id, &format!("demon{i}")),
+                    1,
+                );
+            }
+            schedule_intro(world, instance_id, 8, 400);
+        }
+        8 => {
+            for i in [0, 3] {
+                social(
+                    world,
+                    instance_id,
+                    var_oid(world, instance_id, &format!("demon{i}")),
+                    1,
+                );
+            }
+            let d1 = var_oid(world, instance_id, "portraitDummy1");
+            let d3 = var_oid(world, instance_id, "portraitDummy3");
+            for dur in [1000, 10000] {
+                let left = camera_packet(d1, 1000, 118, 0, 0, dur, 0, 0, 1, 0, 0);
+                let right = camera_packet(d3, 1000, 62, 0, 0, dur, 0, 0, 1, 0, 0);
+                send_packet_x(world, instance_id, &left, &right, PORTRAIT_SPLIT_X);
+            }
+            schedule_intro(world, instance_id, 9, 2_000);
+        }
+        // INTRO_9: back to Frintezza, who raises the baton; the portrait dummies
+        // have played their part.
+        9 => {
+            let f = frintezza();
+            camera(world, instance_id, f, 240, 90, 0, 0, 1000, 0, 0, 1, 0, 0);
+            camera(
+                world,
+                instance_id,
+                f,
+                240,
+                90,
+                25,
+                5500,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            social(world, instance_id, f, 3);
+            delete_dummy(world, instance_id, "portraitDummy1");
+            delete_dummy(world, instance_id, "portraitDummy3");
+            schedule_intro(world, instance_id, 10, 4_500);
+        }
+        // INTRO_10/_11: the same over-the-shoulder framing held twice.
+        10 => {
+            camera(
+                world,
+                instance_id,
+                frintezza(),
+                100,
+                195,
+                35,
+                0,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 11, 700);
+        }
+        11 => {
+            camera(
+                world,
+                instance_id,
+                frintezza(),
+                100,
+                195,
+                35,
+                0,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 12, 1_300);
+        }
+        // INTRO_12: the Mournful Chorale Prelude — screen text, the pull-back,
+        // and the 34 s cast that carries the rest of the cinematic.
+        12 => {
+            let f = frintezza();
             instances::broadcast_to_instance(
                 world,
                 instance_id,
                 &server_packets::ex_show_screen_message("Mournful Chorale Prelude", 2, 5000),
             );
-            if frintezza != 0 {
-                if let Some(p) = world.objects.get_component::<Position>(&frintezza).copied() {
-                    let src = (frintezza, p.x, p.y, p.z);
-                    instances::broadcast_to_instance(
-                        world,
-                        instance_id,
-                        &server_packets::magic_skill_use_raw(src, src, PRELUDE_SKILL, 1, 34000),
-                    );
-                }
+            camera(
+                world,
+                instance_id,
+                f,
+                120,
+                180,
+                45,
+                1500,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            if f != 0
+                && let Some(p) = world.objects.get_component::<Position>(&f).copied()
+            {
+                let src = (f, p.x, p.y, p.z);
                 instances::broadcast_to_instance(
                     world,
                     instance_id,
-                    &server_packets::social_action(frintezza, 3),
+                    &server_packets::magic_skill_use_raw(src, src, PRELUDE_SKILL, 1, 34000),
                 );
             }
-            schedule_intro(world, instance_id, 3, 25_000);
+            schedule_intro(world, instance_id, 13, 1_500);
         }
-        // INTRO_16: Scarlet takes the field (still invulnerable/immobile).
-        3 => {
+        13 => {
+            camera(
+                world,
+                instance_id,
+                frintezza(),
+                520,
+                135,
+                45,
+                8000,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 14, 7_500);
+        }
+        14 => {
+            camera(
+                world,
+                instance_id,
+                frintezza(),
+                1500,
+                110,
+                25,
+                10000,
+                13000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 15, 9_500);
+        }
+        // INTRO_15: the camera lifts overhead and `scarletDummy` casts at it —
+        // the effect that reads as the floor breaking open.
+        15 => {
+            let overhead = var_oid(world, instance_id, "overheadDummy");
+            let scarlet_dummy = var_oid(world, instance_id, "scarletDummy");
+            camera(
+                world,
+                instance_id,
+                overhead,
+                930,
+                160,
+                -20,
+                0,
+                1000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            camera(
+                world,
+                instance_id,
+                overhead,
+                600,
+                180,
+                -25,
+                0,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            if overhead != 0
+                && scarlet_dummy != 0
+                && let (Some(sp), Some(tp)) = (
+                    world
+                        .objects
+                        .get_component::<Position>(&scarlet_dummy)
+                        .copied(),
+                    world.objects.get_component::<Position>(&overhead).copied(),
+                )
+            {
+                instances::broadcast_to_instance(
+                    world,
+                    instance_id,
+                    &server_packets::magic_skill_use_raw(
+                        (scarlet_dummy, sp.x, sp.y, sp.z),
+                        (overhead, tp.x, tp.y, tp.z),
+                        SCARLET_RISE_SKILL,
+                        1,
+                        5800,
+                    ),
+                );
+            }
+            schedule_intro(world, instance_id, 16, 5_000);
+        }
+        // INTRO_16: Scarlet takes the field, still invulnerable and immobile.
+        16 => {
             if let Some(scarlet) = spawn_frozen(
                 world,
                 instance_id,
@@ -323,45 +647,84 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
                 world
                     .instances
                     .set_var(instance_id, "activeScarlet", scarlet as i64);
-                instances::broadcast_to_instance(
-                    world,
-                    instance_id,
-                    &server_packets::social_action(scarlet, 3),
-                );
-                camera(
-                    world,
-                    instance_id,
-                    scarlet,
-                    300,
-                    60,
-                    8,
-                    0,
-                    10000,
-                    0,
-                    0,
-                    1,
-                    0,
-                    0,
-                );
+                social(world, instance_id, scarlet, 3);
             }
-            schedule_intro(world, instance_id, 4, 9_000);
+            let d = var_oid(world, instance_id, "scarletDummy");
+            camera(
+                world,
+                instance_id,
+                d,
+                800,
+                180,
+                10,
+                1000,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 17, 2_100);
         }
-        // INTRO_19: the four portrait pillars appear.
-        4 => {
-            for (i, s) in PORTRAIT_SPAWNS.iter().enumerate() {
+        17 => {
+            let scarlet = var_oid(world, instance_id, "activeScarlet");
+            camera(
+                world,
+                instance_id,
+                scarlet,
+                300,
+                60,
+                8,
+                0,
+                10000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            schedule_intro(world, instance_id, 18, 2_000);
+        }
+        // INTRO_18: the last shot, and the song starts under it.
+        18 => {
+            let scarlet = var_oid(world, instance_id, "activeScarlet");
+            camera(
+                world,
+                instance_id,
+                scarlet,
+                500,
+                90,
+                10,
+                3000,
+                5000,
+                0,
+                0,
+                1,
+                0,
+                0,
+            );
+            play_song(world, instance_id);
+            schedule_intro(world, instance_id, 19, 3_000);
+        }
+        // INTRO_19: the four portrait pillars appear and the last dummies go.
+        19 => {
+            for (i, sp) in PORTRAIT_SPAWNS.iter().enumerate() {
                 if let Some(portrait) =
-                    instances::spawn_npc(world, instance_id, s[0], s[1], s[2], s[3], s[4])
+                    instances::spawn_npc(world, instance_id, sp[0], sp[1], sp[2], sp[3], sp[4])
                 {
                     world
                         .instances
                         .set_var(instance_id, &format!("portrait{i}"), portrait as i64);
                 }
             }
-            schedule_intro(world, instance_id, 5, 2_000);
+            delete_dummy(world, instance_id, "overheadDummy");
+            delete_dummy(world, instance_id, "scarletDummy");
+            schedule_intro(world, instance_id, 20, 2_000);
         }
         // INTRO_20: hand control back — Scarlet and the demons wake, Frintezza
         // keeps its invulnerability, and the fight is on.
-        5 => {
+        20 => {
             for i in 0..PORTRAIT_SPAWNS.len() {
                 let demon = var_oid(world, instance_id, &format!("demon{i}"));
                 if demon != 0 {
@@ -378,9 +741,8 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
             world
                 .instances
                 .set_var(instance_id, "demonCount", PORTRAIT_SPAWNS.len() as i64);
-            // Java performs a song during the intro (`FRINTEZZA_INTRO_18`)
-            // and arms the 90 s timer separately — hence play *and* schedule.
-            play_song(world, instance_id);
+            // The song itself already started at INTRO_18; this only arms the
+            // 90 s repeat.
             schedule_song(world, instance_id);
             schedule_demons(world, instance_id);
         }
@@ -388,8 +750,24 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
     }
 }
 
-/// One establishing `SpecialCamera` shot to the instance (Java's `broadcastPacket
-/// (world, new SpecialCamera(...))`).
+/// One `SpecialCamera` shot to the instance, transcribing Java's **11-argument**
+/// `new SpecialCamera(target, force, angle1, angle2, time, range, duration,
+/// relYaw, relPitch, isWide, relAngle)` literally.
+///
+/// **That overload swaps two of its own parameters**, and every shot in this
+/// script uses it. It forwards to the canonical constructor as
+/// `this(creature, force, angle1, angle2, time, duration, range, …)` — so the
+/// argument a caller writes as *range* is the one that lands in `_duration` and
+/// goes out on the wire, while the argument written as *duration* is dropped
+/// (the canonical `range` is stored nowhere). Reading the 6th number as the
+/// real duration is the only way these shots make sense: `(…, 6500, 7000, 0,
+/// …)` is a 7 s hold, not a 0 s one.
+///
+/// So the parameters here are named as the script writes them and the swap
+/// happens at the call to `special_camera`, which takes the canonical order.
+/// All 38 of the datapack's 11-arg call sites are in this file; the other
+/// ported bosses (Antharas, Valakas, Dr. Chaos) use the 12-arg form and are
+/// unaffected.
 #[allow(clippy::too_many_arguments)]
 fn camera(
     world: &World,
@@ -409,9 +787,76 @@ fn camera(
     instances::broadcast_to_instance(
         world,
         instance_id,
-        &server_packets::special_camera(
-            oid, force, a1, a2, time, range, dur, ry, rp, wide, rangle, 0,
-        ),
+        &camera_packet(oid, force, a1, a2, time, range, dur, ry, rp, wide, rangle),
+    );
+}
+
+/// [`camera`]'s packet, for the one shot that is not broadcast to everyone.
+#[allow(clippy::too_many_arguments)]
+fn camera_packet(
+    oid: i32,
+    force: i32,
+    a1: i32,
+    a2: i32,
+    time: i32,
+    range: i32,
+    dur: i32,
+    ry: i32,
+    rp: i32,
+    wide: i32,
+    rangle: i32,
+) -> Vec<u8> {
+    // `range` and `dur` cross over here — see [`camera`].
+    server_packets::special_camera(
+        oid, force, a1, a2, time, dur, range, ry, rp, wide, rangle, 0,
+    )
+}
+
+/// Java's `sendPacketX`: members west of `x` get `left`, everyone else `right`.
+/// Used once, to swing the portrait shot from whichever side the player is
+/// standing on.
+fn send_packet_x(world: &World, instance_id: i32, left: &[u8], right: &[u8], x: i32) {
+    for member in instance_members(world, instance_id) {
+        let Some(client_id) = super::helpers::client_for_player(world, member) else {
+            continue;
+        };
+        let west = world
+            .objects
+            .get_component::<Position>(&member)
+            .is_some_and(|p| p.x < x);
+        super::helpers::send_to_client(
+            world,
+            client_id,
+            if west { left.to_vec() } else { right.to_vec() },
+        );
+    }
+}
+
+/// Delete a cinematic dummy (Java `npc.deleteMe()`), clearing the instance var
+/// so a torn-down cinematic cannot double-delete.
+fn delete_dummy(world: &mut World, instance_id: i32, key: &str) {
+    let oid = var_oid(world, instance_id, key);
+    if oid == 0 {
+        return;
+    }
+    world.instances.set_var(instance_id, key, 0);
+    let region = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&oid)
+        .map(|r| r.0)
+        .unwrap_or((0, 0));
+    crate::game_loop::death::despawn_npc(world, oid, region);
+}
+
+/// `SocialAction` to the instance.
+fn social(world: &World, instance_id: i32, oid: i32, action: i32) {
+    if oid == 0 {
+        return;
+    }
+    instances::broadcast_to_instance(
+        world,
+        instance_id,
+        &server_packets::social_action(oid, action),
     );
 }
 
