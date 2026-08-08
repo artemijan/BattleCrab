@@ -1263,8 +1263,14 @@ fn admin_res_revives_and_restores_target() {
     assert_eq!(v.cur_hp, v.max_hp as f64, "victim fully restored");
 }
 
-/// `//gmspeed N` sets the move multiplier to `1 + N` (0 resets) and rebroadcasts
+/// `//gmspeed N` sets the move multiplier to **N** (0 resets) and rebroadcasts
 /// UserInfo.
+///
+/// Java names the argument `runSpeedBoost` but feeds it to `addFixedValue`, and
+/// a fixed value is an *override* — `CreatureStat.getValue` returns it and never
+/// calls the finalizer. So the speed becomes `base * N`, not `base * (1 + N)`,
+/// and `//gmspeed 1` is a no-op. This asserted `1 + N`, one whole multiple of
+/// base speed too fast at every setting except 0.
 #[test]
 fn admin_gmspeed_sets_move_multiplier() {
     let (mut world, ..) = admin_world();
@@ -1278,8 +1284,21 @@ fn admin_gmspeed_sets_move_multiplier() {
             .get_component::<crate::model::components::Speeds>(&7103)
             .unwrap()
             .move_multiplier,
-        4.0,
-        "1 + boost"
+        3.0,
+        "the argument is the multiplier itself"
+    );
+
+    // The witness for the distinction: at 1 the fixed value equals the base, so
+    // nothing moves. Under `1 + N` this would read 2.0.
+    on_packet(&mut world, 1, build_admin("gmspeed 1"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::Speeds>(&7103)
+            .unwrap()
+            .move_multiplier,
+        1.0,
+        "//gmspeed 1 is a no-op, not double speed"
     );
     assert!(
         drain(&mut gm_rx).iter().any(|p| p[0] == 0x32),
@@ -6803,5 +6822,187 @@ fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
             .p_atk,
         naked_p_atk,
         "a COMBAT form ignores <base> and keeps the weapon/class value"
+    );
+}
+
+/// Java's `//gmspeed` target is any **Creature**, not just a player — an NPC
+/// can be sped up too, and it gets `broadcastInfo()` rather than `UserInfo`.
+#[test]
+fn admin_gmspeed_scales_a_targeted_npc() {
+    use crate::model::components::{Speeds, TargetRef};
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7110, 100);
+    scan_npc(&mut world, NPC_OID, 7110, 50, 0, 0);
+    world
+        .objects
+        .add_components(&7110, TargetRef(Some(NPC_OID)));
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("gmspeed 5"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Speeds>(&NPC_OID)
+            .unwrap()
+            .move_multiplier,
+        5.0,
+        "the NPC target is scaled"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Speeds>(&7110)
+            .unwrap()
+            .move_multiplier,
+        1.0,
+        "and the GM is left alone"
+    );
+}
+
+/// `//teleportto <name>` sends the GM to a *named* player. Java's two guards:
+/// an unknown name answers `INVALID_TARGET`, and your own name answers
+/// `YOU_CANNOT_USE_THIS_ON_YOURSELF` — neither moves anybody.
+#[test]
+fn admin_teleportto_moves_the_gm_to_a_named_player() {
+    use crate::model::components::Position;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7120, 100);
+    let _target_rx = ingame_player(&mut world, 2, 7121, 50_000, 60_000, -3000);
+    {
+        let p = world.objects.get_component_mut::<Player>(&7121).unwrap();
+        p.name = "Wanda".into();
+    }
+    let gm_pos = |w: &World| {
+        let p = w.objects.get_component::<Position>(&7120).unwrap();
+        (p.x, p.y)
+    };
+    let start = gm_pos(&world);
+    drain(&mut gm_rx);
+
+    // The system-message *ids*, not just a count: a self-teleport is
+    // positionally invisible (you land where you already are), so the refusal
+    // message is the only witness that the guard fired at all.
+    let sm_ids_of = |pkts: &[Vec<u8>]| -> Vec<i16> {
+        pkts.iter()
+            .filter(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE)
+            .map(|p| i16::from_le_bytes([p[1], p[2]]))
+            .collect()
+    };
+
+    // Unknown name: INVALID_TARGET, nobody moves.
+    on_packet(&mut world, 1, build_admin("teleportto Nobody"));
+    assert_eq!(
+        sm_ids_of(&drain(&mut gm_rx)),
+        vec![server_packets::sm_ids::INVALID_TARGET],
+        "an unknown name answers INVALID_TARGET"
+    );
+    assert_eq!(gm_pos(&world), start, "and moves nothing");
+
+    // Own name: refused with Java's own message, not the success line.
+    let gm_name = world
+        .objects
+        .get_component::<Player>(&7120)
+        .unwrap()
+        .name
+        .clone();
+    on_packet(&mut world, 1, build_admin(&format!("teleportto {gm_name}")));
+    assert_eq!(
+        sm_ids_of(&drain(&mut gm_rx)),
+        vec![server_packets::sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF],
+        "targeting yourself is refused — and refusing is only observable here, \
+         since teleporting to yourself would not move you"
+    );
+    assert_eq!(gm_pos(&world), start, "still put");
+
+    // A real name: the GM lands on them.
+    on_packet(&mut world, 1, build_admin("teleportto Wanda"));
+    assert_eq!(
+        gm_pos(&world),
+        (50_000, 60_000),
+        "the GM is moved onto the named player"
+    );
+}
+
+/// `//remove_skills` is a *generated* per-character page in Java, not a file:
+/// every row is a `bypass -h admin_remove_skill <id>` for a skill that
+/// character actually knows. The port used to serve the static `skills.htm`,
+/// from which a GM could not pick anything.
+#[test]
+fn admin_remove_skills_generates_the_targets_own_skill_list() {
+    use crate::model::components::{SkillBook, TargetRef};
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7130, 100);
+    let _victim_rx = ingame_player(&mut world, 2, 7131, 0, 0, 0);
+    world.objects.add_components(&7130, TargetRef(Some(7131)));
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&7131) {
+        book.0.clear();
+        book.0.insert(1177, 1); // Wind Strike
+    }
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("remove_skills"));
+    let html = drain(&mut gm_rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .map(|p| String::from_utf8_lossy(&p).replace('\0', ""))
+        .expect("an html page was sent");
+    assert!(
+        html.contains("admin_remove_skill 1177"),
+        "the page offers the skill the target actually knows: {html:.400}"
+    );
+    assert!(
+        html.contains("Wind Strike"),
+        "and names it, so the GM can tell what they are clicking"
+    );
+}
+
+/// Java `setClassId` drops hennas the **new** class may not wear — outright,
+/// with no refund, because the character never asked to remove them.
+#[test]
+fn setclass_drops_a_dye_the_new_class_cannot_wear() {
+    use crate::model::components::HennaSlots;
+    let (mut world, ..) = admin_world();
+    world.data.hennas =
+        crate::data::HennaData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.player_templates = crate::data::PlayerTemplateData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let _rx = ingame_player_access(&mut world, 1, 7140, 100);
+
+    // Find a dye this dist restricts, and a class that may not wear it. Driven
+    // off `list_for_class`: a dye that some class can wear and another cannot is
+    // exactly the case the removal exists for.
+    let (dye_id, forbidden_class) = (0..88)
+        .filter(|c| world.data.player_templates.get(*c).is_some())
+        .find_map(|allowed_class| {
+            let dye = world
+                .data
+                .hennas
+                .list_for_class(allowed_class)
+                .first()?
+                .dye_id;
+            let h = world.data.hennas.get(dye)?;
+            let bad = (0..88).find(|c| {
+                world.data.player_templates.get(*c).is_some() && !h.is_allowed_class(*c)
+            })?;
+            Some((dye, bad))
+        })
+        .expect("some dye is class-restricted on this dist");
+
+    world
+        .objects
+        .add_components(&7140, HennaSlots([Some(dye_id), None, None]));
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("setclass {forbidden_class}")),
+    );
+    assert_eq!(
+        world.objects.get_component::<HennaSlots>(&7140).unwrap().0[0],
+        None,
+        "the dye the new class cannot wear came off"
     );
 }

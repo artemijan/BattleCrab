@@ -855,7 +855,17 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
         persist_slot(world, player_oid, slot);
     }
 
+    // Java `setClassId`'s "Remove class permitted hennas" — a dye the new class
+    // may not wear comes off, before the recompute below folds the remaining
+    // dyes' bonuses back into `BaseStats`.
+    super::henna::drop_hennas_the_class_cannot_wear(world, player_oid);
+
     // `rewardSkills()` + the stat recompute + status/UserInfo/SkillList refresh.
+    // `set_level` also runs `check_player_skills`, which is Java's *only* skill
+    // pruning here: `checkPlayerSkills` downgrades a skill whose level now
+    // outranks the character, and does nothing at all to a skill the new class
+    // cannot learn. (An admin marker used to claim Java removed those — it
+    // does not; `rewardSkills` only ever adds.)
     super::death::set_level(world, player_oid, level);
     super::party::broadcast_user_info(world, player_oid);
 

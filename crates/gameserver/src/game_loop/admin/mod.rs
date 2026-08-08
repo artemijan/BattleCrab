@@ -305,6 +305,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_teleport" => admin_teleport_coords(world, client_id, object_id, &args),
         // Bring a player to the GM.
         "admin_recall" => admin_recall(world, client_id, object_id, &args),
+        // Send the GM to a *named* player (`//teleto` uses the current target).
+        "admin_teleportto" => admin_teleportto(world, client_id, object_id, &args),
         // "Additional Movement Options" click-to-move latches (`move.htm`'s
         // "Move:" row). `//instant_move` is a command of its own; the other
         // three ride on `//teleto <word>`, which otherwise teleports the GM to
@@ -327,9 +329,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             // Send the GM to the current target.
             _ => admin_teleto(world, client_id, object_id),
         },
-        "admin_teleportto" | "admin_teleport_to_character" => {
-            admin_teleto(world, client_id, object_id)
-        }
+        // `AdminMenu`'s target-based jump. Its `AdminTeleport` namesake
+        // `//teleportto <name>` is a *different* command — by name, dispatched
+        // above — and this arm used to answer for both.
+        "admin_teleport_to_character" => admin_teleto(world, client_id, object_id),
         // Create an item on the GM.
         "admin_create_item" => admin_create_item(world, client_id, object_id, &args),
         // Create a named coin (adena/alt currencies) on the GM.

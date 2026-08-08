@@ -506,3 +506,38 @@ fn stat_preview(base: &BaseStats, f: impl Fn(BaseStat) -> i32) -> StatPreview {
         (current(base, BaseStat::Wit), f(BaseStat::Wit) as i16),
     ]
 }
+
+/// Java `Player.setClassId`'s "Remove class permitted hennas" block: a dye the
+/// **new** class may not wear comes off on a class change.
+///
+/// Java drops it outright — no refund, no `removeHenna` fee path — because the
+/// character never chose to remove it. Returns whether anything was taken off,
+/// so the caller can skip a redundant stat recompute.
+pub(crate) fn drop_hennas_the_class_cannot_wear(world: &mut World, oid: i32) -> bool {
+    let Some(class_id) = world
+        .objects
+        .get_component::<Player>(&oid)
+        .map(|p| p.class_id)
+    else {
+        return false;
+    };
+    let slots = world
+        .objects
+        .get_component::<HennaSlots>(&oid)
+        .map(|h| h.0)
+        .unwrap_or_default();
+    let mut removed = false;
+    for (i, dye) in slots.iter().enumerate() {
+        let Some(dye_id) = *dye else { continue };
+        let allowed = world
+            .data
+            .hennas
+            .get(dye_id)
+            .is_some_and(|h| h.is_allowed_class(class_id));
+        if !allowed && let Some(h) = world.objects.get_component_mut::<HennaSlots>(&oid) {
+            h.0[i] = None;
+            removed = true;
+        }
+    }
+    removed
+}
