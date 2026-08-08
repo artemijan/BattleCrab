@@ -27,6 +27,7 @@
 //! Queen Ant's nurses and Orfen's minions — via `on_faction_call_script`.
 
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::pos_of;
 use std::collections::HashSet;
 
 use commons::util::rnd;
@@ -357,7 +358,7 @@ fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32) {
             }
         }
         MobGroupState::Follow(commander) => {
-            let Some((cx, cy, cz)) = position_of(world, commander) else {
+            let Some((cx, cy, cz)) = pos_of(world, commander) else {
                 return;
             };
             let dist = distance_2d(world, npc_oid, cx, cy);
@@ -368,7 +369,7 @@ fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32) {
             }
         }
         MobGroupState::Return(commander) => {
-            if let Some((cx, cy, cz)) = position_of(world, commander)
+            if let Some((cx, cy, cz)) = pos_of(world, commander)
                 && world.objects.get_component::<Movement>(&npc_oid).is_none()
             {
                 move_npc_to(world, npc_oid, cx, cy, cz);
@@ -400,7 +401,7 @@ pub(crate) fn seed_attack(world: &mut World, npc_oid: i32, target: i32) {
 
 /// The nearest live member of `group_id` to `npc_oid` (for `//mobgroup_attackgrp`).
 fn nearest_group_member(world: &World, npc_oid: i32, group_id: i32) -> Option<i32> {
-    let (nx, ny, _) = position_of(world, npc_oid)?;
+    let (nx, ny, _) = pos_of(world, npc_oid)?;
     world.mob_groups.get(&group_id).and_then(|g| {
         g.members
             .iter()
@@ -411,19 +412,12 @@ fn nearest_group_member(world: &World, npc_oid: i32, group_id: i32) -> Option<i3
                     .is_some_and(|v| !v.dead)
             })
             .min_by_key(|&&m| {
-                position_of(world, m)
+                pos_of(world, m)
                     .map(|(x, y, _)| ((x - nx) as i64).pow(2) + ((y - ny) as i64).pow(2))
                     .unwrap_or(i64::MAX)
             })
             .copied()
     })
-}
-
-fn position_of(world: &World, oid: i32) -> Option<(i32, i32, i32)> {
-    world
-        .objects
-        .get_component::<Position>(&oid)
-        .map(|p| (p.x, p.y, p.z))
 }
 
 fn distance_2d(world: &World, oid: i32, x: i32, y: i32) -> f64 {

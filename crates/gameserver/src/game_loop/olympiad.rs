@@ -20,6 +20,7 @@
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
 use crate::model::olympiad::{
@@ -799,8 +800,10 @@ pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player
         player_b,
         instance_id,
         deadline_tick: 0, // set when the battle actually begins
-        return_a: position_of(world, player_a),
-        return_b: position_of(world, player_b),
+        // Both are in the world to have been matched, so the origin fallback
+        // is unreachable; it only keeps the return location total.
+        return_a: pos_of(world, player_a).unwrap_or((0, 0, 0)),
+        return_b: pos_of(world, player_b).unwrap_or((0, 0, 0)),
     });
     tracing::info!("Olympiad: match in arena {arena}: {player_a} vs {player_b}.");
     world.scheduler.schedule(
@@ -991,14 +994,6 @@ fn update_noble(world: &mut World, object_id: i32, f: impl FnOnce(&mut NobleStat
     if let Some(n) = world.olympiad.nobles.get_mut(&object_id) {
         f(n);
     }
-}
-
-fn position_of(world: &World, object_id: i32) -> (i32, i32, i32) {
-    world
-        .objects
-        .get_component::<crate::model::components::Position>(&object_id)
-        .map(|p| (p.x, p.y, p.z))
-        .unwrap_or((0, 0, 0))
 }
 
 /// `OlympiadGameNormal.createListOfParticipants`: draw two distinct **online**

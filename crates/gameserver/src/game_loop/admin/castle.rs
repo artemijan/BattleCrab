@@ -249,13 +249,9 @@ fn clan_of_client(world: &World, client_id: u32) -> (i32, i32) {
     }
 }
 
-/// The clan id of a player (0 = none).
+/// The clan id of a player, 0 = none — the sentinel every caller here checks.
 fn clan_of(world: &World, oid: i32) -> i32 {
-    world
-        .objects
-        .get_component::<Player>(&oid)
-        .map(|p| p.clan_id)
-        .unwrap_or(0)
+    guard::clan_of(world, oid).unwrap_or(0)
 }
 
 /// `showRegWindow` → Java `Siege.listRegisterClan`: the real `SiegeInfo` window

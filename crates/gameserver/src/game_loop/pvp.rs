@@ -366,12 +366,10 @@ fn both_in_same_active_siege(world: &World, a_oid: i32, b_oid: i32) -> Option<i3
     }
 }
 
+/// The clan id of a player, 0 = none. The siege block below tests `!= 0`
+/// explicitly, so the sentinel never reaches a clan comparison.
 fn clan_of(world: &World, object_id: i32) -> i32 {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.clan_id)
-        .unwrap_or(0)
+    super::guard::clan_of(world, object_id).unwrap_or(0)
 }
 
 /// Java `Player.sendInfo`'s `RelationChanged` half: how `subject` relates to

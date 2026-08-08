@@ -5,6 +5,7 @@
 
 use crate::data::instance_data::ExitType;
 use crate::game_loop::helpers::instance_of;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{InstanceDoorOpen, InstanceId, Position, RegionCell};
 use crate::model::door::Door;
@@ -207,7 +208,9 @@ pub(crate) fn enter(world: &mut World, player: i32, instance_id: i32) {
     let Some(template_id) = world.instances.get(instance_id).map(|i| i.template_id) else {
         return;
     };
-    let ret = position_of(world, player);
+    // A player with no Position cannot have entered; the origin fallback is
+    // unreachable in practice and only keeps the return location total.
+    let ret = pos_of(world, player).unwrap_or((0, 0, 0));
     world.instances.add_member(instance_id, player, ret);
     world
         .objects
@@ -320,12 +323,4 @@ fn despawn_instance_door(world: &mut World, instance_id: i32, door_oid: i32) {
         ids.retain(|&id| id != door_oid);
     }
     world.objects.despawn(&door_oid);
-}
-
-fn position_of(world: &World, object_id: i32) -> (i32, i32, i32) {
-    world
-        .objects
-        .get_component::<Position>(&object_id)
-        .map(|p| (p.x, p.y, p.z))
-        .unwrap_or((0, 0, 0))
 }
