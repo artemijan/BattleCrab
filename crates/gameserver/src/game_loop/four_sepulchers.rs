@@ -439,13 +439,8 @@ pub(crate) fn on_boss_killed(world: &mut World, boss_oid: i32, killer: i32) {
     let idx = FsState::idx(sepulcher);
     world.four_sepulchers.progress[idx] += 1;
 
-    let members: Vec<i32> = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&killer)
-        .map(|r| r.0)
-        .and_then(|pid| world.parties.get(&pid))
-        .map(|p| p.members.clone())
-        .unwrap_or_default();
+    let members: Vec<i32> =
+        crate::game_loop::party::party_members(world, killer).unwrap_or_default();
     let killer_pos = world.objects.get_component::<Position>(&killer).copied();
     for mem in members {
         let near = match (

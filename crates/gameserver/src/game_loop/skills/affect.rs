@@ -275,13 +275,7 @@ fn sweep_group(
         // `Alliance` is only reachable from the DEAD_* sweep, which never
         // calls this helper.
         Group::Alliance => vec![target_oid],
-        Group::Party => world
-            .objects
-            .get_component::<crate::model::components::PartyRef>(&target_oid)
-            .and_then(|r| world.parties.get(&r.0))
-            .map(|p| p.members.clone())
-            // Java: an unpartied target is still "their own party of one".
-            .unwrap_or_else(|| vec![target_oid]),
+        Group::Party => crate::game_loop::party::group_or_self(world, target_oid),
         Group::Clan => {
             let clan_id = world
                 .objects

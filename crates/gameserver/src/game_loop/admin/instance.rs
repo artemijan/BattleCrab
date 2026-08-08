@@ -9,7 +9,6 @@ use super::menu::show_admin_html_replace;
 use super::send_message;
 use crate::data::instance_data::InstanceTemplate;
 use crate::game_loop::instances;
-use crate::model::components::PartyRef;
 use crate::world::World;
 
 /// Templates the retail panel hides from the list — the Olympiad arenas and the
@@ -63,7 +62,7 @@ pub(super) fn admin_instance_create(world: &mut World, client_id: u32, gm_oid: i
     // collapses to Party (which itself falls back to the GM alone).
     let members: Vec<i32> = match args.get(1).copied().unwrap_or("Alone") {
         "Alone" => vec![gm_oid],
-        "Party" | "CommandChannel" => party_members(world, gm_oid),
+        "Party" | "CommandChannel" => crate::game_loop::party::group_or_self(world, gm_oid),
         _ => {
             send_message(
                 world,
@@ -247,15 +246,6 @@ fn template_name(t: &InstanceTemplate) -> &str {
 }
 
 /// The GM's party members, or just the GM when they aren't in one.
-fn party_members(world: &World, oid: i32) -> Vec<i32> {
-    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied()
-        && let Some(party) = world.parties.get(&pid)
-    {
-        return party.members.clone();
-    }
-    vec![oid]
-}
-
 /// `id=N` / `page=N`-style bypass argument (Java `BypassParser`).
 fn kv_int(args: &[&str], key: &str) -> Option<i32> {
     args.iter().find_map(|a| {

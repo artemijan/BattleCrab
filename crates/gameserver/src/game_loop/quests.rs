@@ -1714,13 +1714,8 @@ impl<'w> QuestCtx<'w> {
                 })
         };
         let killer = self.player;
-        let members: Vec<i32> = self
-            .world
-            .objects
-            .get_component::<crate::model::components::PartyRef>(&killer)
-            .and_then(|r| self.world.parties.get(&r.0))
-            .map(|p| p.members.clone())
-            .unwrap_or_default();
+        let members: Vec<i32> =
+            crate::game_loop::party::party_members(self.world, killer).unwrap_or_default();
         let in_range = |world: &World, oid: i32, npc: i32| {
             if npc == 0 {
                 return true;

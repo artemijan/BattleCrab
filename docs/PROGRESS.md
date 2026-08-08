@@ -4782,6 +4782,18 @@ section warns that a stale client tree tries to revert them on regeneration.
 
 Empty/placeholder now, to be filled in the owning milestone:
 
+- **Grand bosses (G23) — `TODO(antharas-cc)`:** the Antharas entry gate admits
+  the leader's **party** only. Java's `Antharas` consults the *command channel*
+  first — a CC leader brings every party in the channel, and a party leader
+  inside a CC does not count as a leader for entry. Found while deduplicating
+  the group lookups (2026-08-08): the function's doc comment described the CC
+  rule in full, but the body it sat on only ever read `PartyRef`, and was
+  byte-identical to `sailren`'s honestly-party-only twin. Because the claim was
+  prose rather than a marker, the census could not see it. Both bosses now call
+  `party::leader_and_members`. Closing the gap means deciding what a 200-player
+  command channel does to the lair's population cap, which is a G23 question,
+  not a refactor one.
+
 - **Inventory/items (post-G5):** warehouse/clan warehouse/freight/mail,
   trade, pickup/drop, item actions (`RequestActionUse` beyond equip),
   crystallization, enchanting, augmentation, elemental attributes,

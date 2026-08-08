@@ -389,12 +389,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
 
 /// The player's party roster, leader first — empty when partyless.
 fn party_members_of(world: &World, oid: i32) -> Vec<i32> {
-    world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&oid)
-        .and_then(|r| world.parties.get(&r.0))
-        .map(|p| p.members.clone())
-        .unwrap_or_default()
+    crate::game_loop::party::party_members(world, oid).unwrap_or_default()
 }
 
 /// `RequestDuelSurrender` — give up; the opponent wins.

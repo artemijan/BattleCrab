@@ -510,12 +510,7 @@ pub(crate) fn rebalance_party_hp(world: &mut World, caster_oid: i32, skill: &Ski
     {
         return;
     }
-    let Some(members) = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&caster_oid)
-        .and_then(|r| world.parties.get(&r.0))
-        .map(|p| p.members.clone())
-    else {
+    let Some(members) = crate::game_loop::party::party_members(world, caster_oid) else {
         // No party: Java's `if (party != null)` guard skips the whole effect.
         return;
     };
@@ -668,12 +663,7 @@ pub(crate) fn creature_name(world: &World, oid: i32) -> String {
 /// Each member is gated by [`check_summon_target_status`], whose refusals are
 /// **messaged to the caster**, not the member.
 pub(crate) fn call_party(world: &mut World, caster_oid: i32) {
-    let Some(members) = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&caster_oid)
-        .and_then(|r| world.parties.get(&r.0))
-        .map(|p| p.members.clone())
-    else {
+    let Some(members) = crate::game_loop::party::party_members(world, caster_oid) else {
         // `if (party == null) return` — solo, the cast is simply wasted.
         return;
     };

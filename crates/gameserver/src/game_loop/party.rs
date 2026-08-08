@@ -1338,6 +1338,43 @@ pub(crate) fn distribute_xp_and_sp(
     }
 }
 
+/// The members of `object_id`'s party, or `None` when they are not in one.
+///
+/// The honest lookup. What "solo" *means* differs by caller and the three
+/// readings are not interchangeable, so the `Option` is deliberately left for
+/// the call site to answer:
+///
+/// - a party of one — reach for [`group_or_self`];
+/// - nobody at all — `.unwrap_or_default()`, e.g. quest kill credit, where a
+///   solo killer is already handled separately;
+/// - nothing happens — `else { return; }`, which is how Java's
+///   `if (party == null)` guards read.
+pub(crate) fn party_members(world: &World, object_id: i32) -> Option<Vec<i32>> {
+    world
+        .objects
+        .get_component::<PartyRef>(&object_id)
+        .and_then(|r| world.parties.get(&r.0))
+        .map(|p| p.members.clone())
+}
+
+/// [`party_members`], counting an unpartied player as their own party of one.
+///
+/// Java's reading wherever a group effect must still reach a solo caster — the
+/// trigger skills and the party-affect scope.
+pub(crate) fn group_or_self(world: &World, object_id: i32) -> Vec<i32> {
+    party_members(world, object_id).unwrap_or_else(|| vec![object_id])
+}
+
+/// `(leader, members)` of `object_id`'s party, `None` when solo.
+///
+/// The shape the raid-entry gates want: they check the leader carries the
+/// portal item and then admit the whole group.
+pub(crate) fn leader_and_members(world: &World, object_id: i32) -> Option<(i32, Vec<i32>)> {
+    let party_id = world.objects.get_component::<PartyRef>(&object_id)?.0;
+    let party = world.parties.get(&party_id)?;
+    Some((party.leader(), party.members.clone()))
+}
+
 /// Whether `a` and `b` are in the same party (`Player.isInLooterParty` half —
 /// the party-membership test, minus the online/proximity filtering the caller
 /// doesn't need for the spoil-owner check).

@@ -402,7 +402,7 @@ pub(crate) fn try_enter_with_occupancy(
         return EntryVerdict::LairFull;
     }
 
-    let group = group_of(world, player_oid);
+    let group = crate::game_loop::party::leader_and_members(world, player_oid);
     if let Some((leader, members)) = group {
         if leader != player_oid {
             return EntryVerdict::NotLeader;
@@ -427,19 +427,18 @@ pub(crate) fn try_enter_with_occupancy(
     EntryVerdict::Admitted(vec![player_oid])
 }
 
-/// `(leader, members)` for the player's command channel if they are in one,
-/// else their party — `None` when solo.
-///
-/// The **command channel wins over the party**: a CC leader brings everyone,
-/// and a party leader inside a CC is not a leader for this purpose.
-fn group_of(world: &World, player_oid: i32) -> Option<(i32, Vec<i32>)> {
-    let party_id = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&player_oid)?
-        .0;
-    let party = world.parties.get(&party_id)?;
-    Some((party.leader(), party.members.clone()))
-}
+// TODO(antharas-cc): the entry gate reads only the *party*.
+//
+// The doc that used to sit here claimed "the command channel wins over the
+// party: a CC leader brings everyone, and a party leader inside a CC is not a
+// leader for this purpose" — but the body never touched `command_channels`,
+// and was byte-identical to sailren's honestly-party-only version. Both now
+// call `party::leader_and_members`.
+//
+// So the described behaviour is unimplemented, not merely undocumented. Java's
+// Antharas entry does consult the CC, so this is a real gap; closing it means
+// deciding what a CC of 200 does to the lair cap, which is more than a
+// deduplication should carry.
 
 fn has_stone(world: &World, oid: i32) -> bool {
     world
