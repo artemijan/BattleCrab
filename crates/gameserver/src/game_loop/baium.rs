@@ -168,10 +168,7 @@ pub(crate) fn spawn_from_record(world: &mut World, boss: &GrandBoss) {
     // ALIVE or WAITING → the sleeping statue. Fold WAITING down to ALIVE so the
     // stored state matches what we actually spawned.
     if boss.status == WAITING {
-        if let Some(b) = world.grand_bosses.get_mut(&BAIUM) {
-            b.status = ALIVE;
-        }
-        crate::game_loop::grand_boss::persist(world, BAIUM);
+        crate::game_loop::grand_boss::set_status(world, BAIUM, ALIVE);
     }
     crate::model::npc::spawn_npc_at(
         world,
