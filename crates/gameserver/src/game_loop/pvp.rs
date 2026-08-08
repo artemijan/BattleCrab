@@ -521,11 +521,7 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
     // the party and clan-mate bits differ per onlooker. It used to be, which told
     // every bystander that the flagged player was in a party.
     let auto_attackable = value > 0 || reputation < 0;
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+    let Some(region) = region_cell_of(world, object_id) else {
         return;
     };
     let viewers: Vec<i32> = world
