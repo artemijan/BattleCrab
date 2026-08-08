@@ -26,7 +26,15 @@ separate commit that must leave `cargo test` green.
 
 ---
 
-## Phase 1 — The accessor layer (mechanical, no behaviour change)
+## Phase 1 — The accessor layer ✅ **done** (`186791d4`, `e2356a00`, `be9d42fe`)
+
+Landed as three commits. `helpers::region_of` shipped as **`region_cell_of`**:
+`crate::world::region_of(x, y)` already existed and derives a region from raw
+coordinates, which is a different operation.
+
+The original plan follows.
+
+### Original plan
 
 The root cause of most findings: 2,478 `get_component::<…>` call sites and no
 accessor layer, so modules either inline the chain or write a private helper.
@@ -99,7 +107,30 @@ returns one hit each.
 
 ---
 
-## Phase 2 — Semantic reconciliation ⚠️ behaviour-affecting
+## Phase 2 — Semantic reconciliation ✅ **done** (`d17cc0eb`, `cb610c59`)
+
+**Outcome: only one of the three families actually changed behaviour, and the
+`clan_of` bug this phase was built around does not exist.**
+
+- **2a `is_dead`** — flipped to fail-closed. All three permissive call sites
+  were audited individually and none changes observable behaviour (details in
+  `d17cc0eb`). 40 already-fail-closed inline chains folded in.
+  **Still open:** 28 inline `is_some_and(|v| v.dead)` chains across 23 files
+  were deliberately left alone — each needs the same per-site audit.
+- **2b `clan_of`** — audited first, as planned. Every bare-`i32` call site
+  already guards the 0 sentinel (`pvp.rs:181` tests `!= 0`; `mutual_war_between`
+  guards internally; `clanned_target` pre-filters; `siege_remove` returns on
+  `<= 0`). Consolidation was mechanical after all.
+- **2c `position_of`** — the two `(0, 0, 0)` coercions both store a *return*
+  location, and both are unreachable in practice (a player must be in the world
+  to enter an instance or an olympiad match). The fallback now sits at the call
+  site with a comment rather than hidden in a helper. Modelling the return
+  location as `Option` properly is left as a follow-up, since it changes
+  `OlympiadMatch` and the instance exit path.
+
+The original analysis is kept below for reference.
+
+### Original analysis
 
 Three helper families exist in **mutually contradictory versions**. These are
 latent bugs, not style issues. Each needs a decision before the merge.
