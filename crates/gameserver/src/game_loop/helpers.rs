@@ -96,6 +96,22 @@ pub(crate) fn class_level(world: &World, class_id: i32) -> i32 {
     }
 }
 
+/// Java `CharInfoTable.getAccessLevelById(id) > 0` — whether a character is a
+/// GM.
+///
+/// Only answerable for someone **in the world**: the port's offline name→id
+/// table carries no access level, so an offline GM reads as `false`. That is
+/// load-bearing at exactly one call site — the block list, where the
+/// consequence is a block row against a GM that the chat filter then honours —
+/// and it is recorded here rather than papered over with a DB round-trip on a
+/// packet any client can spam.
+pub(crate) fn is_gm(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(|p| p.is_gm(&world.data))
+}
+
 /// Whether a creature counts as dead — **`true` when it has no [`Vitals`] at
 /// all**.
 ///

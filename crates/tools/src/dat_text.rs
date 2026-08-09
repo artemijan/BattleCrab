@@ -524,7 +524,12 @@ impl Walker<'_> {
 /// Make a string safe to sit inside `[...]` in a tab-separated stream. Unlike
 /// L2ClientDat we escape the terminators, so a `]` or a tab in game text can
 /// survive the round trip.
-fn escape_string(s: &str) -> String {
+///
+/// Public because the sync tools have to write text that reads back through
+/// [`unescape_string`] byte for byte; they each carried a private copy of this
+/// before, which is a round-trip bug waiting for someone to add an escape here
+/// and not there.
+pub fn escape_string(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
         match c {
@@ -537,6 +542,23 @@ fn escape_string(s: &str) -> String {
         }
     }
     out
+}
+
+/// Wrap a string the way [`read`] would have emitted it, so a repack
+/// round-trips.
+///
+/// Text that will not fit in single bytes packs as UTF-16, which the reader
+/// marks `w[...]` — 40 rows of the shipped `NpcName` are such names, and 53
+/// retail system messages end in a `…`. Writing a plain `[...]` for those makes
+/// the file fail its own round-trip check, which is how the case was caught
+/// rather than shipped.
+pub fn bracket(text: &str) -> String {
+    let escaped = escape_string(text);
+    if text.chars().any(|c| (c as u32) >= 0x100) {
+        format!("w[{escaped}]")
+    } else {
+        format!("[{escaped}]")
+    }
 }
 
 /// Inverse of [`escape_string`].

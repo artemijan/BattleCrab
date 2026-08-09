@@ -108,6 +108,18 @@ pub(crate) fn hall_by_npc_id(world: &World, npc_id: i32) -> Option<i32> {
         .map(|h| h.id)
 }
 
+/// `(owner clan id, hall id)` for the hall an agent NPC belongs to.
+///
+/// `None` when the NPC is not a hall agent, which for a registered manager or
+/// door manager should not happen — the scripts treat it as "refuse", not as
+/// "unowned", because an unowned hall is `owner_id == 0` and that is a
+/// different answer.
+pub(crate) fn hall_ownership(world: &World, npc_id: i32) -> Option<(i32, i32)> {
+    let hall_id = hall_by_npc_id(world, npc_id)?;
+    let owner_id = world.clan_halls.get(&hall_id).map(|h| h.owner_id)?;
+    Some((owner_id, hall_id))
+}
+
 /// `ClanHall.banishOthers` — eject every player standing inside the hall who
 /// isn't in the owning clan, to the hall's banish point. Uses the `ClanHallZone`
 /// (`clan_hall_at`) to decide who is inside.

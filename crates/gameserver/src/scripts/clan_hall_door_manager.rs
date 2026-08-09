@@ -2,7 +2,7 @@
 //! clan opens/closes its hall's doors. The auction/ownership state lives in
 //! [`crate::game_loop::clan_hall_auction`].
 
-use crate::game_loop::clan_hall_auction::{hall_by_npc_id, open_close_hall_doors};
+use crate::game_loop::clan_hall_auction::{hall_ownership, open_close_hall_doors};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::clan::CH_OPEN_DOOR;
@@ -45,8 +45,8 @@ impl QuestScript for ClanHallDoorManager {
     }
 
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        let (owner_id, _) = hall_ownership(ctx)?;
-        let page = if is_owning_clan(ctx, owner_id) {
+        let (owner_id, _) = hall_ownership(ctx.world, ctx.npc_id)?;
+        let page = if ctx.is_owning_clan(owner_id) {
             "01" // your hall — the door controls
         } else if owner_id <= 0 {
             "02" // unowned
@@ -66,9 +66,9 @@ impl QuestScript for ClanHallDoorManager {
             Some("index") => self.on_first_talk(ctx),
             Some("manageDoors") => {
                 let open = parts.next() == Some("1");
-                let (owner_id, hall_id) = hall_ownership(ctx)?;
+                let (owner_id, hall_id) = hall_ownership(ctx.world, ctx.npc_id)?;
                 // Owning clan + CH_OPEN_DOOR privilege, else "no authority".
-                if is_owning_clan(ctx, owner_id) && has_open_door(ctx) {
+                if ctx.is_owning_clan(owner_id) && has_open_door(ctx) {
                     open_close_hall_doors(ctx.world, hall_id, open);
                     Some(format!(
                         "ClanHallDoorManager-{}.html",
@@ -81,24 +81,6 @@ impl QuestScript for ClanHallDoorManager {
             _ => None,
         }
     }
-}
-
-/// `(owner clan id, hall id)` for this NPC's hall, or `None` if it isn't a hall
-/// agent (shouldn't happen for a registered door manager).
-fn hall_ownership(ctx: &QuestCtx) -> Option<(i32, i32)> {
-    let hall_id = hall_by_npc_id(ctx.world, ctx.npc_id)?;
-    let owner_id = ctx.world.clan_halls.get(&hall_id).map(|h| h.owner_id)?;
-    Some((owner_id, hall_id))
-}
-
-/// `isOwningClan` — the player's clan owns this hall.
-fn is_owning_clan(ctx: &QuestCtx, owner_id: i32) -> bool {
-    owner_id != 0
-        && ctx
-            .world
-            .objects
-            .get_component::<Player>(&ctx.player)
-            .is_some_and(|p| p.clan_id == owner_id)
 }
 
 /// `hasClanPrivilege(CH_OPEN_DOOR)`.

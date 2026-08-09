@@ -947,6 +947,39 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
+    /// Java `isOwningClan` — the player's clan is `owner_id`.
+    ///
+    /// `owner_id == 0` means *unowned*, and nobody's clan owns an unowned
+    /// residence, so that case is `false` before the player is even looked at.
+    pub fn is_owning_clan(&self, owner_id: i32) -> bool {
+        owner_id != 0
+            && self
+                .world
+                .objects
+                .get_component::<crate::model::Player>(&self.player)
+                .is_some_and(|p| p.clan_id == owner_id)
+    }
+
+    /// Java `player.hasClanPrivilege(...)`: the leader holds every privilege,
+    /// otherwise the member's rank privilege mask must carry the bit.
+    ///
+    /// `false` for a clanless player, and for one whose clan id points at
+    /// nothing — the residence scripts gate every paid action on this, so an
+    /// unresolvable clan must not read as "allowed".
+    pub fn has_clan_privilege(&self, privilege: i32) -> bool {
+        let Some(p) = self
+            .world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+        else {
+            return false;
+        };
+        self.world
+            .clans
+            .get(&p.clan_id)
+            .is_some_and(|c| c.has_privilege(self.player, p.clan_privs, privilege))
+    }
+
     /// `npc.getLevel()` — the in-context NPC's template level (regular mobs do
     /// not level up, so the template value is authoritative). 0 when unknown.
     pub fn npc_level(&self) -> i32 {

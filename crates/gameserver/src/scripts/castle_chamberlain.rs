@@ -261,7 +261,7 @@ fn withdraw(ctx: &mut QuestCtx, amount: i64) -> Option<String> {
 
 /// Java's shared vault gate: `isOwner(player, npc) && hasClanPrivilege(CS_TAXES)`.
 fn vault_access(ctx: &QuestCtx) -> bool {
-    is_owner(ctx) && has_priv(ctx, CS_TAXES)
+    is_owner(ctx) && ctx.has_clan_privilege(CS_TAXES)
 }
 
 /// This chamberlain's castle vault balance.
@@ -283,7 +283,7 @@ fn manor(ctx: &mut QuestCtx) -> Option<String> {
         return None;
     }
     Some(
-        if is_owner(ctx) && has_priv(ctx, CS_MANOR_ADMIN) {
+        if is_owner(ctx) && ctx.has_clan_privilege(CS_MANOR_ADMIN) {
             "manor.html"
         } else {
             "chamberlain-21.html"
@@ -365,7 +365,7 @@ fn manage_functions(ctx: &mut QuestCtx) -> Option<String> {
 
 fn banish_show(ctx: &mut QuestCtx) -> Option<String> {
     Some(
-        if !is_owner(ctx) || !has_priv(ctx, CS_DISMISS) {
+        if !is_owner(ctx) || !ctx.has_clan_privilege(CS_DISMISS) {
             "chamberlain-21.html"
         } else if siege_in_progress(ctx) {
             "chamberlain-08.html"
@@ -377,7 +377,7 @@ fn banish_show(ctx: &mut QuestCtx) -> Option<String> {
 }
 
 fn banish(ctx: &mut QuestCtx) -> Option<String> {
-    if !(is_owner(ctx) && has_priv(ctx, CS_DISMISS)) {
+    if !(is_owner(ctx) && ctx.has_clan_privilege(CS_DISMISS)) {
         return Some("chamberlain-21.html".to_string());
     }
     if siege_in_progress(ctx) {
@@ -391,7 +391,7 @@ fn banish(ctx: &mut QuestCtx) -> Option<String> {
 
 /// `doors` — the castle's named door page (`<Name>-d.html`).
 fn doors_page(ctx: &mut QuestCtx) -> Option<String> {
-    Some(if !is_owner(ctx) || !has_priv(ctx, CS_OPEN_DOOR) {
+    Some(if !is_owner(ctx) || !ctx.has_clan_privilege(CS_OPEN_DOOR) {
         "chamberlain-21.html".to_string()
     } else if siege_in_progress(ctx) {
         "chamberlain-08.html".to_string()
@@ -405,7 +405,7 @@ fn operate_door<'a>(
     ctx: &mut QuestCtx,
     tokens: &mut impl Iterator<Item = &'a str>,
 ) -> Option<String> {
-    if !is_owner(ctx) || !has_priv(ctx, CS_OPEN_DOOR) {
+    if !is_owner(ctx) || !ctx.has_clan_privilege(CS_OPEN_DOOR) {
         return Some("chamberlain-21.html".to_string());
     }
     if siege_in_progress(ctx) {
@@ -896,7 +896,7 @@ fn npc_mp(ctx: &QuestCtx) -> f64 {
 // ---------------------------------------------------------------------------
 
 fn list_siege_clans(ctx: &mut QuestCtx) -> Option<String> {
-    if !(is_owner(ctx) && has_priv(ctx, CS_MANAGE_SIEGE)) {
+    if !(is_owner(ctx) && ctx.has_clan_privilege(CS_MANAGE_SIEGE)) {
         return Some("chamberlain-21.html".to_string());
     }
     let castle_id = chamberlain_castle_id(ctx.npc_id)?;
@@ -998,11 +998,11 @@ fn is_my_lord(ctx: &QuestCtx) -> bool {
 }
 
 fn set_func_access(ctx: &QuestCtx) -> bool {
-    is_owner(ctx) && has_priv(ctx, CS_SET_FUNCTIONS)
+    is_owner(ctx) && ctx.has_clan_privilege(CS_SET_FUNCTIONS)
 }
 
 fn use_func_access(ctx: &QuestCtx) -> bool {
-    is_owner(ctx) && has_priv(ctx, CS_USE_FUNCTIONS)
+    is_owner(ctx) && ctx.has_clan_privilege(CS_USE_FUNCTIONS)
 }
 
 fn siege_in_progress(ctx: &QuestCtx) -> bool {
@@ -1032,16 +1032,4 @@ fn is_owner(ctx: &QuestCtx) -> bool {
         return false;
     };
     player.clan_id != 0 && castle_owner_clan_id(ctx.world, castle_id) == Some(player.clan_id)
-}
-
-/// Java `player.hasClanPrivilege(...)`: the leader has all, otherwise the
-/// member's rank privilege mask must carry the bit.
-fn has_priv(ctx: &QuestCtx, privilege: i32) -> bool {
-    let Some(p) = ctx.world.objects.get_component::<Player>(&ctx.player) else {
-        return false;
-    };
-    ctx.world
-        .clans
-        .get(&p.clan_id)
-        .is_some_and(|c| c.has_privilege(ctx.player, p.clan_privs, privilege))
 }

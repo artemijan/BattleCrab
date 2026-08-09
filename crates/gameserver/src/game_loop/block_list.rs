@@ -25,7 +25,7 @@
 //! `relation = 1`.
 
 use super::helpers::send_sm_bare_to_client as send_sm;
-use crate::model::Player;
+use crate::game_loop::helpers::is_gm;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -241,20 +241,6 @@ fn set_block_all(world: &mut World, client_id: u32, owner_oid: i32, on: bool) {
 /// Java `CharInfoTable.getIdByName` — works for offline characters.
 fn resolve(world: &World, name: &str) -> Option<i32> {
     super::mail::char_id_by_name(world, name)
-}
-
-/// Java `CharInfoTable.getAccessLevelById(targetId) > 0`.
-///
-/// Only answerable for an **online** character here: the port's offline
-/// name→id table carries no access level. Offline GMs are rare and the
-/// consequence is a block row against a GM that the filter then honours, so
-/// this is recorded rather than papered over with a DB round-trip on a packet
-/// any client can spam.
-fn is_gm(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .is_some_and(|p| p.is_gm(&world.data))
 }
 
 fn is_friend(world: &World, owner_oid: i32, target_oid: i32) -> bool {

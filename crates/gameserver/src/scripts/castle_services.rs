@@ -86,17 +86,6 @@ fn is_my_lord(ctx: &QuestCtx) -> bool {
             == castle_id(ctx)
 }
 
-/// `player.hasClanPrivilege(...)` — the leader holds every privilege.
-fn has_priv(ctx: &QuestCtx, privilege: i32) -> bool {
-    let Some(p) = ctx.world.objects.get_component::<Player>(&ctx.player) else {
-        return false;
-    };
-    ctx.world
-        .clans
-        .get(&p.clan_id)
-        .is_some_and(|c| c.has_privilege(ctx.player, p.clan_privs, privilege))
-}
-
 /// `npc.getCastle().getSiege().isInProgress()`.
 fn siege_in_progress(ctx: &QuestCtx) -> bool {
     castle_id(ctx).is_some_and(|id| ctx.world.sieges.get(&id).is_some_and(|s| s.in_progress))
@@ -191,7 +180,9 @@ impl QuestScript for CastleBlacksmith {
 /// Java `CastleBlacksmith.hasRights`: cond-override, or the castle's lord, or a
 /// clan member holding `CS_MANOR_ADMIN`.
 fn blacksmith_rights(ctx: &QuestCtx) -> bool {
-    can_override(ctx) || is_my_lord(ctx) || (is_owning_clan(ctx) && has_priv(ctx, CS_MANOR_ADMIN))
+    can_override(ctx)
+        || is_my_lord(ctx)
+        || (is_owning_clan(ctx) && ctx.has_clan_privilege(CS_MANOR_ADMIN))
 }
 
 // ---------------------------------------------------------------------------
@@ -396,7 +387,7 @@ impl QuestScript for CastleMercenaryManager {
 /// Java `onFirstTalk`: the console for an authorized owner (a siege-time
 /// variant while the castle is under attack), otherwise the refusal page.
 fn mercenary_main(ctx: &mut QuestCtx) -> String {
-    if can_override(ctx) || (is_owning_clan(ctx) && has_priv(ctx, CS_MERCENARIES)) {
+    if can_override(ctx) || (is_owning_clan(ctx) && ctx.has_clan_privilege(CS_MERCENARIES)) {
         if siege_in_progress(ctx) {
             "mercmanager-siege.html"
         } else {
@@ -452,11 +443,13 @@ impl QuestScript for CastleDoorManager {
 
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let base = doorman_html(ctx.npc_id);
-        Some(if doorman_rights(ctx) && has_priv(ctx, CS_OPEN_DOOR) {
-            format!("{base}.html")
-        } else {
-            format!("{base}-no.html")
-        })
+        Some(
+            if doorman_rights(ctx) && ctx.has_clan_privilege(CS_OPEN_DOOR) {
+                format!("{base}.html")
+            } else {
+                format!("{base}-no.html")
+            },
+        )
     }
 
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {

@@ -33,6 +33,7 @@
 //! from, the same gate [`crate::client_files`] uses.
 
 use crate::dat_schema::{Layout, SchemaSet};
+use crate::dat_text::bracket;
 use crate::{client_dat, dat_pack, dat_text};
 use commons::system_messages::{MessageInfo, generated};
 use std::path::Path;
@@ -212,40 +213,10 @@ fn new_row(info: &MessageInfo, defaults: &[String]) -> String {
     fields.join("\t")
 }
 
-/// Wrap message text the way the reader would have emitted it.
-///
-/// Text that will not fit in single bytes packs as UTF-16, which the reader
-/// marks `w[...]`. 53 retail messages end in a `…`, so writing a plain `[...]`
-/// for those makes the file fail its own round-trip check — which is exactly
-/// how this was caught rather than shipped.
-fn bracket(text: &str) -> String {
-    let escaped = escape(text);
-    if text.chars().any(|c| (c as u32) >= 0x100) {
-        format!("w[{escaped}]")
-    } else {
-        format!("[{escaped}]")
-    }
-}
-
-/// Match [`dat_text`]'s string escaping, so a repack round-trips.
-fn escape(s: &str) -> String {
-    let mut out = String::with_capacity(s.len());
-    for c in s.chars() {
-        match c {
-            '\\' => out.push_str("\\\\"),
-            ']' => out.push_str("\\]"),
-            '\t' => out.push_str("\\t"),
-            '\r' => out.push_str("\\r"),
-            '\n' => out.push_str("\\n"),
-            _ => out.push(c),
-        }
-    }
-    out
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::dat_text::escape_string as escape;
 
     fn row(id: i32, text: &str, colour: &str) -> String {
         format!(

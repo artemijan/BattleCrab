@@ -9,12 +9,11 @@
 //! (the BUFF-function support-magic menu), and `items` (the ITEM-function
 //! merchant buy window).
 
-use crate::game_loop::clan_hall_auction::{banish_others, hall_by_npc_id, open_close_hall_doors};
+use crate::game_loop::clan_hall_auction::{banish_others, hall_ownership, open_close_hall_doors};
 use crate::game_loop::clan_hall_function::{
     BuffCastOutcome, FunctionOutcome, buy_function, cast_hall_buff, function_level, remove_function,
 };
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::Player;
 use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_OTHER_RIGHTS, CH_SET_FUNCTIONS};
 use crate::model::components::Vitals;
 
@@ -58,9 +57,11 @@ impl QuestScript for ClanHallManager {
     }
 
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        let owner_id = hall_ownership(ctx).map(|(o, _)| o).unwrap_or(0);
+        let owner_id = hall_ownership(ctx.world, ctx.npc_id)
+            .map(|(o, _)| o)
+            .unwrap_or(0);
         // Your hall's console, or the "not the owner" page.
-        Some(page(if is_owning_clan(ctx, owner_id) {
+        Some(page(if ctx.is_owning_clan(owner_id) {
             "01"
         } else {
             "03"
@@ -72,16 +73,16 @@ impl QuestScript for ClanHallManager {
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        let (owner_id, hall_id) = hall_ownership(ctx)?;
+        let (owner_id, hall_id) = hall_ownership(ctx.world, ctx.npc_id)?;
         // The whole console is owner-only (Java's outer `isOwningClan` gate).
-        if !is_owning_clan(ctx, owner_id) {
+        if !ctx.is_owning_clan(owner_id) {
             return Some(page("03"));
         }
         let mut parts = event.split_whitespace();
         match parts.next() {
             Some("index") => Some(page("01")),
             Some("manageDoors") => {
-                if !has_priv(ctx, CH_OPEN_DOOR) {
+                if !ctx.has_clan_privilege(CH_OPEN_DOOR) {
                     return Some(NO_AUTHORITY.to_string());
                 }
                 match parts.next() {
@@ -94,13 +95,13 @@ impl QuestScript for ClanHallManager {
                 }
             }
             Some("manageFunctions") => {
-                if !has_priv(ctx, CH_SET_FUNCTIONS) {
+                if !ctx.has_clan_privilege(CH_SET_FUNCTIONS) {
                     return Some(NO_AUTHORITY.to_string());
                 }
                 self.manage_functions(ctx, hall_id, &mut parts)
             }
             Some("expel") => {
-                if !has_priv(ctx, CH_DISMISS) {
+                if !ctx.has_clan_privilege(CH_DISMISS) {
                     return Some(NO_AUTHORITY.to_string());
                 }
                 // A trailing token = confirmed (Java: `st.hasMoreTokens()`).
@@ -112,7 +113,7 @@ impl QuestScript for ClanHallManager {
                 }
             }
             Some("useFunctions") => {
-                if !has_priv(ctx, CH_OTHER_RIGHTS) {
+                if !ctx.has_clan_privilege(CH_OTHER_RIGHTS) {
                     return Some(NO_AUTHORITY.to_string());
                 }
                 self.use_functions(ctx, hall_id, &mut parts)
@@ -298,30 +299,4 @@ fn page(n: &str) -> String {
 
 fn next_i32(parts: &mut std::str::SplitWhitespace) -> Option<i32> {
     parts.next().and_then(|t| t.parse().ok())
-}
-
-/// `(owner clan id, hall id)` for this manager's hall.
-fn hall_ownership(ctx: &QuestCtx) -> Option<(i32, i32)> {
-    let hall_id = hall_by_npc_id(ctx.world, ctx.npc_id)?;
-    let owner_id = ctx.world.clan_halls.get(&hall_id).map(|h| h.owner_id)?;
-    Some((owner_id, hall_id))
-}
-
-fn is_owning_clan(ctx: &QuestCtx, owner_id: i32) -> bool {
-    owner_id != 0
-        && ctx
-            .world
-            .objects
-            .get_component::<Player>(&ctx.player)
-            .is_some_and(|p| p.clan_id == owner_id)
-}
-
-fn has_priv(ctx: &QuestCtx, privilege: i32) -> bool {
-    let Some(p) = ctx.world.objects.get_component::<Player>(&ctx.player) else {
-        return false;
-    };
-    ctx.world
-        .clans
-        .get(&p.clan_id)
-        .is_some_and(|c| c.has_privilege(ctx.player, p.clan_privs, privilege))
 }

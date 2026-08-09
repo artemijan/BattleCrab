@@ -36,6 +36,7 @@
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::is_gm;
 use crate::model::Player;
 use crate::model::components::{OlympiadObserver, PartyRef, Vitals, ZoneFlags};
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -452,10 +453,6 @@ fn player(world: &World, object_id: i32) -> Option<&Player> {
 
 fn is_player(world: &World, object_id: i32) -> bool {
     object_id != 0 && world.objects.has_component::<Player>(&object_id)
-}
-
-fn is_gm(world: &World, object_id: i32) -> bool {
-    player(world, object_id).is_some_and(|p| p.is_gm(&world.data))
 }
 
 fn in_zone(world: &World, object_id: i32, kind: ZoneKind) -> bool {

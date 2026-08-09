@@ -26,13 +26,9 @@ use crate::world::World;
 
 use super::send_message;
 
-/// Wall-clock millis (Java `System.currentTimeMillis()`).
-pub(crate) fn now_millis() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as i64)
-        .unwrap_or(0)
-}
+// Re-exported rather than redefined: `cursed_weapon.rs` imports `now_millis`
+// from here alongside the rest of this module's surface.
+pub(crate) use commons::util::now_millis;
 
 /// `CursedWeapon.saveData` — upsert this weapon's wielder row. Java calls it
 /// from `activate`, `increaseKills` and `CursedWeaponsManager.saveData` (the

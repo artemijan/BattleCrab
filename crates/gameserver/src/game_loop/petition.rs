@@ -6,6 +6,7 @@
 
 use crate::db::DbCommand;
 use crate::enums::ChatType;
+use crate::game_loop::helpers::is_gm;
 use crate::model::Player;
 use crate::model::petition::{PetitionState, PetitionType};
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
@@ -27,13 +28,6 @@ fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
 
 fn is_online(world: &World, object_id: i32) -> bool {
     client_for_player(world, object_id).is_some()
-}
-
-fn is_gm(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Player>(&object_id)
-        .is_some_and(|p| p.is_gm(&world.data))
 }
 
 /// Java `AdminData.isGmOnline` — at least one GM is connected.

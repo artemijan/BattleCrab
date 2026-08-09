@@ -61,13 +61,9 @@ pub(crate) use skills::*;
 pub(crate) use sub_pledge::*;
 pub(crate) use wars::*;
 
-/// Wall-clock millis (Java `System.currentTimeMillis()`).
-pub(crate) fn now_millis() -> i64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as i64)
-        .unwrap_or(0)
-}
+// Every `clans` submodule reaches this through `use super::*`, so it is
+// re-exported here rather than imported once per file.
+pub(crate) use commons::util::now_millis;
 
 /// `DaysBeforeCreateAClan = 10` on this dist → the recreate cooldown in millis.
 pub(crate) const CLAN_CREATE_COOLDOWN_MS: i64 = 10 * 86_400_000;

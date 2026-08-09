@@ -50,6 +50,7 @@
 //! the same gate [`crate::client_files`] uses.
 
 use crate::dat_schema::{Layout, SchemaSet};
+use crate::dat_text::bracket;
 use crate::{client_dat, dat_pack, dat_text};
 use gameserver::data::npc_data::{NpcData, NpcTemplate};
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -606,34 +607,6 @@ fn field_text(field: &str) -> Option<String> {
     };
     let inner = body.strip_prefix('[')?.strip_suffix(']')?;
     Some(dat_text::unescape_string(inner))
-}
-
-/// Wrap a string the way the reader would have emitted it, so a repack
-/// round-trips. Text that will not fit in single bytes packs as UTF-16, which
-/// the reader marks `w[...]` — 40 rows of the shipped table are such names.
-fn bracket(text: &str) -> String {
-    let escaped = escape(text);
-    if text.chars().any(|c| (c as u32) >= 0x100) {
-        format!("w[{escaped}]")
-    } else {
-        format!("[{escaped}]")
-    }
-}
-
-/// Match [`dat_text`]'s string escaping.
-fn escape(s: &str) -> String {
-    let mut out = String::with_capacity(s.len());
-    for c in s.chars() {
-        match c {
-            '\\' => out.push_str("\\\\"),
-            ']' => out.push_str("\\]"),
-            '\t' => out.push_str("\\t"),
-            '\r' => out.push_str("\\r"),
-            '\n' => out.push_str("\\n"),
-            _ => out.push(c),
-        }
-    }
-    out
 }
 
 /// A record for an NPC the client has never seen. Every column we do not model
