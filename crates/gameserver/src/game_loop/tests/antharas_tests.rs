@@ -1005,12 +1005,6 @@ const MINION_A: i32 = NPC_OID + 140;
 const MINION_B: i32 = NPC_OID + 141;
 const KILLER: i32 = 9960;
 
-fn register_cube(world: &mut World) {
-    let mut t = crate::data::npc_data::default_template(CUBE);
-    t.type_name = "Folk".into();
-    world.data.npc_data.insert_for_test(t);
-}
-
 fn cube_in_lair(world: &World) -> Option<i32> {
     let zone = world.data.zone_data.by_id(70050)?;
     world.npc_regions.values().flatten().copied().find(|oid| {
@@ -1028,7 +1022,7 @@ fn cube_in_lair(world: &World) -> Option<i32> {
 fn killing_antharas_spawns_the_exit_cube_and_clears_minions() {
     let (mut world, _db, _l) = gate_world();
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
-    register_cube(&mut world);
+    register_cube(&mut world, CUBE);
     let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
     add_test_npc(
         &mut world,

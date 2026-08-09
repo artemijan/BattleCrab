@@ -237,6 +237,12 @@ fn pcs(world: &World, oid: i32) -> CombatStats {
     *world.objects.get_component::<CombatStats>(&oid).unwrap()
 }
 
+fn register_cube(world: &mut World, cube: i32) {
+    let mut t = crate::data::npc_data::default_template(cube);
+    t.type_name = "Folk".into();
+    world.data.npc_data.insert_for_test(t);
+}
+
 fn pbuffs(world: &World, oid: i32) -> usize {
     world
         .objects

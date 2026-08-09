@@ -540,12 +540,6 @@ fn the_bypass_reaches_the_entry_through_the_router() {
 
 const CUBE: i32 = 31759;
 
-fn register_cube(world: &mut World) {
-    let mut t = crate::data::npc_data::default_template(CUBE);
-    t.type_name = "Folk".into();
-    world.data.npc_data.insert_for_test(t);
-}
-
 fn spawned_cubes(world: &World) -> usize {
     world
         .npc_regions
@@ -594,7 +588,7 @@ fn killing_valakas_arms_the_death_cinematic() {
 #[test]
 fn the_death_cinematic_spawns_the_exit_cubes() {
     let (mut world, _db, _l) = valakas_world();
-    register_cube(&mut world);
+    register_cube(&mut world, CUBE);
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(
         &mut world,
