@@ -1079,7 +1079,7 @@ fn killing_antharas_spawns_the_exit_cube_and_clears_minions() {
 fn the_death_cube_teleports_out_through_the_router() {
     let (mut world, _db, _l) = gate_world();
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
-    register_cube(&mut world);
+    register_cube(&mut world, CUBE);
     let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
     world
         .objects
@@ -1127,7 +1127,7 @@ fn the_death_cube_teleports_out_through_the_router() {
 fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
     let (mut world, _db, _l) = gate_world();
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
-    register_cube(&mut world);
+    register_cube(&mut world, CUBE);
     let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
     world
         .objects
