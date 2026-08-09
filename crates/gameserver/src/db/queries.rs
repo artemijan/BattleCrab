@@ -965,11 +965,8 @@ async fn load_friends(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::char
     if ids.is_empty() {
         return Vec::new();
     }
-    characters::Entity::find()
-        .filter(characters::Column::CharId.is_in(ids))
-        .all(db)
+    characters_by_id(db, ids)
         .await
-        .unwrap_or_default()
         .into_iter()
         .map(|row| crate::character::FriendInfo {
             char_id: row.char_id,
@@ -1075,11 +1072,7 @@ async fn load_olympiad_eom(db: &DatabaseConnection) -> Vec<OlympiadEomRow> {
     if rows.is_empty() {
         return Vec::new();
     }
-    let chars = characters::Entity::find()
-        .filter(characters::Column::CharId.is_in(rows.iter().map(|r| r.char_id)))
-        .all(db)
-        .await
-        .unwrap_or_default();
+    let chars = characters_by_id(db, rows.iter().map(|r| r.char_id)).await;
     rows.into_iter()
         .map(|r| OlympiadEomRow {
             class_id: r.class_id,
@@ -1097,6 +1090,28 @@ async fn load_olympiad_eom(db: &DatabaseConnection) -> Vec<OlympiadEomRow> {
         .collect()
 }
 
+/// The `characters` rows for a set of char ids — the manual half of every
+/// `LEFT JOIN characters` Java writes.
+///
+/// There is no FK to follow here (Java reaches these fields through
+/// `CharInfoTable` for the same reason), so a loader fetches its own rows and
+/// matches in memory. A deleted character simply has no row, and every caller
+/// turns that into empty display values rather than dropping the record —
+/// which is exactly what the LEFT part of Java's join does.
+///
+/// Callers guard on an empty id set before calling: `is_in([])` is a valid
+/// query that returns nothing, but it is still a round trip.
+async fn characters_by_id(
+    db: &DatabaseConnection,
+    ids: impl IntoIterator<Item = i32>,
+) -> Vec<characters::Model> {
+    characters::Entity::find()
+        .filter(characters::Column::CharId.is_in(ids))
+        .all(db)
+        .await
+        .unwrap_or_default()
+}
+
 /// `Hero.init` — the currently-crowned heroes (`heroes` rows with `played = 1`).
 pub(crate) async fn load_heroes(db: &DatabaseConnection) -> Vec<HeroRow> {
     // The name/clan half of the row lives on `characters`; Java reads it
@@ -1109,11 +1124,7 @@ pub(crate) async fn load_heroes(db: &DatabaseConnection) -> Vec<HeroRow> {
     if heroes.is_empty() {
         return Vec::new();
     }
-    let chars = characters::Entity::find()
-        .filter(characters::Column::CharId.is_in(heroes.iter().map(|h| h.char_id)))
-        .all(db)
-        .await
-        .unwrap_or_default();
+    let chars = characters_by_id(db, heroes.iter().map(|h| h.char_id)).await;
     heroes
         .into_iter()
         .map(|h| {
@@ -2345,11 +2356,7 @@ pub(crate) async fn load_recruit_waiting(
     }
     // Java's query LEFT JOINs `characters` for the display fields; an applicant
     // whose character is gone keeps the row with empty values.
-    let chars = characters::Entity::find()
-        .filter(characters::Column::CharId.is_in(waiting.iter().map(|w| w.char_id)))
-        .all(db)
-        .await
-        .unwrap_or_default();
+    let chars = characters_by_id(db, waiting.iter().map(|w| w.char_id)).await;
     waiting
         .into_iter()
         .map(|w| {
@@ -2376,11 +2383,7 @@ pub(crate) async fn load_recruit_applicants(
     if applicants.is_empty() {
         return Vec::new();
     }
-    let chars = characters::Entity::find()
-        .filter(characters::Column::CharId.is_in(applicants.iter().map(|a| a.char_id)))
-        .all(db)
-        .await
-        .unwrap_or_default();
+    let chars = characters_by_id(db, applicants.iter().map(|a| a.char_id)).await;
     applicants
         .into_iter()
         .map(|a| {

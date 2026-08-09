@@ -1645,13 +1645,7 @@ pub(crate) async fn run(
             }
             DbCommand::DeleteMail { message_id } => {
                 warn_err(messages::Entity::delete_by_id(message_id).exec(&db).await);
-                warn_err(
-                    items::Entity::delete_many()
-                        .filter(items::Column::Loc.eq("MAIL"))
-                        .filter(items::Column::LocData.eq(message_id))
-                        .exec(&db)
-                        .await,
-                );
+                clear_mail_items(&db, message_id).await;
             }
             DbCommand::StoreOfflineWarehouseItems { owner_id, items } => {
                 for it in &items {
@@ -1696,13 +1690,7 @@ pub(crate) async fn run(
                 owner_id,
                 items,
             } => {
-                warn_err(
-                    items::Entity::delete_many()
-                        .filter(items::Column::Loc.eq("MAIL"))
-                        .filter(items::Column::LocData.eq(message_id))
-                        .exec(&db)
-                        .await,
-                );
+                clear_mail_items(&db, message_id).await;
                 for it in &items {
                     warn_err(
                         items::Entity::insert(items::ActiveModel {
@@ -2266,6 +2254,25 @@ pub(crate) async fn run(
 
     let _ = db.close().await;
     info!("DB thread: stopped.");
+}
+
+/// Drop every item attached to a mail message.
+///
+/// `loc = 'MAIL'` **and** `loc_data = <message id>` together: `loc_data` is a
+/// generic slot number reused by every storage kind, so filtering on it alone
+/// would take warehouse and paperdoll rows with it.
+///
+/// Both the delete of a message and the store of one begin here — the store
+/// because it rewrites the attachment set wholesale, and re-inserting over a
+/// stale row would leave items the sender has already taken back.
+async fn clear_mail_items(db: &DatabaseConnection, message_id: i32) {
+    warn_err(
+        items::Entity::delete_many()
+            .filter(items::Column::Loc.eq("MAIL"))
+            .filter(items::Column::LocData.eq(message_id))
+            .exec(db)
+            .await,
+    );
 }
 
 /// `UPDATE <E> SET … WHERE key = id` — the shape most of the `DbCommand` arms
