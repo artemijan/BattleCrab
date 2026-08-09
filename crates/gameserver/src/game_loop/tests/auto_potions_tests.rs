@@ -63,14 +63,6 @@ fn potion_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>)
     (world, rx)
 }
 
-fn give(world: &mut World, item_id: i32, count: i64, obj_id: i32) {
-    let World { objects, data, .. } = world;
-    objects
-        .get_component_mut::<Inventory>(&PLAYER)
-        .unwrap()
-        .add_item(&data.item_data, obj_id, item_id, count);
-}
-
 fn count_of(world: &World, item_id: i32) -> i64 {
     world
         .objects
@@ -126,9 +118,9 @@ fn the_voiced_commands_toggle_membership() {
 #[test]
 fn the_tick_drinks_the_preferred_potion_when_low() {
     let (mut world, mut rx) = potion_world();
-    give(&mut world, HP_GOOD, 5, 0x4B00_0010);
-    give(&mut world, HP_CHEAP, 5, 0x4B00_0011);
-    give(&mut world, MP_POTION, 5, 0x4B00_0012);
+    give_to_player(&mut world, HP_GOOD, 5, 0x4B00_0010, PLAYER);
+    give_to_player(&mut world, HP_CHEAP, 5, 0x4B00_0011, PLAYER);
+    give_to_player(&mut world, MP_POTION, 5, 0x4B00_0012, PLAYER);
     world.auto_potion_players.insert(PLAYER);
     drain(&mut rx);
 
@@ -214,7 +206,7 @@ fn an_empty_bag_is_reported_every_tick() {
 #[test]
 fn death_removes_the_player_from_the_loop() {
     let (mut world, _rx) = potion_world();
-    give(&mut world, HP_GOOD, 5, 0x4B00_0013);
+    give_to_player(&mut world, HP_GOOD, 5, 0x4B00_0013, PLAYER);
     world.auto_potion_players.insert(PLAYER);
 
     world
@@ -242,7 +234,7 @@ fn death_removes_the_player_from_the_loop() {
 #[test]
 fn an_olympiad_competitor_is_dropped() {
     let (mut world, _rx) = potion_world();
-    give(&mut world, HP_GOOD, 5, 0x4B00_0014);
+    give_to_player(&mut world, HP_GOOD, 5, 0x4B00_0014, PLAYER);
     world.cfg.auto_potions.in_olympiad = false;
     world.auto_potion_players.insert(PLAYER);
     world.olympiad.in_competition.insert(PLAYER);
@@ -290,7 +282,7 @@ fn cp_has_its_own_pool() {
     world.cfg.auto_potions.cp.enabled = true;
     world.cfg.auto_potions.cp.percentage = 70;
     world.cfg.auto_potions.cp.item_ids = vec![CP_POTION];
-    give(&mut world, CP_POTION, 5, 0x4B00_0015);
+    give_to_player(&mut world, CP_POTION, 5, 0x4B00_0015, PLAYER);
     world.auto_potion_players.insert(PLAYER);
     {
         let pv = world

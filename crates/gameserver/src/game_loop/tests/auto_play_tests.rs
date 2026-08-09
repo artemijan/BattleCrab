@@ -303,16 +303,8 @@ fn use_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     (world, rx)
 }
 
-fn give(world: &mut World, item_id: i32, count: i64, obj_id: i32) {
-    let World { objects, data, .. } = world;
-    objects
-        .get_component_mut::<Inventory>(&PLAYER)
-        .unwrap()
-        .add_item(&data.item_data, obj_id, item_id, count);
-}
-
 fn auto_use(world: &World) -> AutoUseSettings {
-    crate::game_loop::auto_use::settings(world, PLAYER)
+    auto_use::settings(world, PLAYER)
 }
 
 /// A supply item is used; one the player no longer carries is **dropped from
@@ -320,7 +312,7 @@ fn auto_use(world: &World) -> AutoUseSettings {
 #[test]
 fn supply_items_are_used_and_missing_ones_forgotten() {
     let (mut world, _rx) = use_world();
-    give(&mut world, SHOT, 2, 0x4D00_0010);
+    give_to_player(&mut world, SHOT, 2, 0x4D00_0010, PLAYER);
     set(&mut world, |s| s.active = true);
     world.objects.add_components(
         &PLAYER,
@@ -358,7 +350,7 @@ fn supply_items_are_used_and_missing_ones_forgotten() {
 #[test]
 fn the_potion_drinks_below_the_threshold() {
     let (mut world, _rx) = use_world();
-    give(&mut world, POTION, 1, 0x4D00_0020);
+    give_to_player(&mut world, POTION, 1, 0x4D00_0020, PLAYER);
     set(&mut world, |s| {
         s.active = true;
         s.potion_percent = 70;
@@ -406,7 +398,7 @@ fn the_potion_drinks_below_the_threshold() {
 #[test]
 fn a_peace_zone_stops_items_but_not_buffs() {
     let (mut world, _rx) = use_world();
-    give(&mut world, SHOT, 2, 0x4D00_0030);
+    give_to_player(&mut world, SHOT, 2, 0x4D00_0030, PLAYER);
     world
         .data
         .skill_data
@@ -474,8 +466,16 @@ fn a_running_buff_is_skipped_and_unknown_skills_forgotten() {
     );
 
     // Neither skill is known → both lists self-clean.
-    crate::game_loop::auto_use::tick(&mut world);
+    auto_use::tick(&mut world);
     assert!(auto_use(&world).buffs.is_empty(), "unknown buff forgotten");
+}
+
+fn play(world: &mut World, text: &str) {
+    on_packet(
+        world,
+        1,
+        [vec![cop::SAY2], say2_body(text, 0, None)].concat(),
+    );
 }
 
 /// `.playskills <id>` files a **self-target** skill under buffs and everything
@@ -484,8 +484,8 @@ fn a_running_buff_is_skipped_and_unknown_skills_forgotten() {
 fn the_skill_page_sorts_buffs_from_attack_skills() {
     let (mut world, _rx) = use_world();
     for (id, target) in [
-        (BUFF_SKILL, crate::model::skill::TargetType::Self_),
-        (ATTACK_SKILL, crate::model::skill::TargetType::Enemy),
+        (BUFF_SKILL, TargetType::Self_),
+        (ATTACK_SKILL, TargetType::Enemy),
     ] {
         world
             .data
@@ -505,13 +505,6 @@ fn the_skill_page_sorts_buffs_from_attack_skills() {
             .0
             .insert(id, 1);
     }
-    let play = |world: &mut World, text: &str| {
-        on_packet(
-            world,
-            1,
-            [vec![cop::SAY2], say2_body(text, 0, None)].concat(),
-        );
-    };
 
     play(&mut world, &format!(".playskills {BUFF_SKILL}"));
     assert_eq!(
@@ -538,16 +531,8 @@ fn the_skill_page_sorts_buffs_from_attack_skills() {
 #[test]
 fn the_potion_page_is_one_slot() {
     let (mut world, _rx) = use_world();
-    give(&mut world, POTION, 1, 0x4D00_0040);
-    give(&mut world, SHOT, 1, 0x4D00_0041);
-    let play = |world: &mut World, text: &str| {
-        on_packet(
-            world,
-            1,
-            [vec![cop::SAY2], say2_body(text, 0, None)].concat(),
-        );
-    };
-
+    give_to_player(&mut world, POTION, 1, 0x4D00_0040, PLAYER);
+    give_to_player(&mut world, SHOT, 1, 0x4D00_0041, PLAYER);
     play(&mut world, &format!(".playpotion {POTION}"));
     assert_eq!(auto_use(&world).potion_item, POTION);
     play(&mut world, &format!(".playpotion {SHOT}"));

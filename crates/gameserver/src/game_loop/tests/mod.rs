@@ -26,6 +26,7 @@ use crate::model::components::{
 use crate::model::components::{Macros, Shortcuts};
 use crate::model::components::{PartyRef, PendingRequest};
 use crate::model::formulas;
+use crate::model::inventory::Inventory;
 use crate::model::party::LootRule;
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
@@ -263,6 +264,14 @@ fn find_npc_object_id(world: &mut World, npc_id: i32) -> Option<i32> {
         }
     });
     f
+}
+
+fn give_to_player(world: &mut World, item_id: i32, count: i64, obj_id: i32, player_id: i32) {
+    let World { objects, data, .. } = world;
+    objects
+        .get_component_mut::<Inventory>(&player_id)
+        .unwrap()
+        .add_item(&data.item_data, obj_id, item_id, count);
 }
 /// `MultiSellChoose` body — list id, entry id, amount, then the tail the
 /// server ignores.
