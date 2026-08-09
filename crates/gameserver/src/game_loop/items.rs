@@ -42,6 +42,16 @@ pub(crate) fn add_inventory_item(
         .map(|added| added.into_iter().map(|(oid, _)| oid).collect())
 }
 
+/// The `NORMAL` item-skill list Java's `PetFood` handler runs.
+pub(crate) fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {
+    world
+        .data
+        .item_data
+        .get(item_id)
+        .map(|t| t.item_skills.clone())
+        .unwrap_or_default()
+}
+
 /// [`add_inventory_item`] with the flag every `InventoryUpdate` builder needs:
 /// whether each returned object id is a **freshly created** instance or an
 /// existing stack that merely grew. Java decides the same thing inline in

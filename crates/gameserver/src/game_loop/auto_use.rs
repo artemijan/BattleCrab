@@ -17,6 +17,7 @@
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::items::item_skills;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, AutoUseSettings, SkillBook, ZoneFlags};
 use crate::model::inventory::Inventory;
@@ -303,14 +304,16 @@ fn skill_rows(world: &World, player_oid: i32) -> String {
     }
     out
 }
-
-fn item_rows(world: &World, player_oid: i32) -> String {
-    let s = settings(world, player_oid);
-    let mut ids: Vec<i32> = world
+fn inventory_item_ids(world: &World, player_oid: i32) -> Vec<i32> {
+    world
         .objects
         .get_component::<Inventory>(&player_oid)
         .map(|inv| inv.items().iter().map(|i| i.item_id).collect())
-        .unwrap_or_default();
+        .unwrap_or_default()
+}
+fn item_rows(world: &World, player_oid: i32) -> String {
+    let s = settings(world, player_oid);
+    let mut ids: Vec<i32> = inventory_item_ids(world, player_oid);
     ids.sort_unstable();
     ids.dedup();
     let mut out = String::new();
@@ -330,11 +333,7 @@ fn item_rows(world: &World, player_oid: i32) -> String {
 
 fn potion_rows(world: &World, player_oid: i32) -> String {
     let s = settings(world, player_oid);
-    let mut ids: Vec<i32> = world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .map(|inv| inv.items().iter().map(|i| i.item_id).collect())
-        .unwrap_or_default();
+    let mut ids: Vec<i32> = inventory_item_ids(world, player_oid);
     ids.sort_unstable();
     ids.dedup();
     let mut out = String::new();
@@ -407,15 +406,6 @@ fn forget_skill(world: &mut World, player_oid: i32, skill_id: i32, buff: bool) {
         s.skills.retain(|&x| x != skill_id);
     }
     store(world, player_oid, s);
-}
-
-fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {
-    world
-        .data
-        .item_data
-        .get(item_id)
-        .map(|t| t.item_skills.clone())
-        .unwrap_or_default()
 }
 
 fn item_name(world: &World, item_id: i32) -> String {

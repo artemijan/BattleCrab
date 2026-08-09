@@ -506,6 +506,16 @@ fn pump_events_until(world: &mut World, events_rx: &GameEventRx, deadline: Insta
     }
 }
 
+fn npc_count(world: &mut World, npc_id: i32) -> usize {
+    let mut n = 0;
+    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+        if x.npc_id == npc_id {
+            n += 1;
+        }
+    });
+    n
+}
+
 /// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`
 /// and the timer half of the memory-first model. Flushes **at most one** due
 /// player per sweep (Java's `break; // Prevent SQL flood`) and reschedules it

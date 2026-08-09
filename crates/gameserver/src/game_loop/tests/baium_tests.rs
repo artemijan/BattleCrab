@@ -31,35 +31,22 @@ fn baium_world() -> (
         t.base_mp_max = 10_000.0;
         world.data.npc_data.insert_for_test(t);
     }
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: ANTI_STRIDER,
-            level: 1,
-            abnormal_time: 60,
-            effects: vec![crate::model::skill::SkillEffect::StatModifier(
-                crate::model::skill::StatModifierEffect {
-                    stat: crate::model::stats::Stat::RunSpeed,
-                    mode: crate::model::stats::StatModifierType::Diff,
-                    amount: -50.0,
-                    ..Default::default()
-                },
-            )],
-            ..Default::default()
-        });
-    (world, db, l)
-}
-
-fn count(world: &mut World, npc_id: i32) -> usize {
-    let mut n = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
-        if x.npc_id == npc_id {
-            n += 1;
-        }
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: ANTI_STRIDER,
+        level: 1,
+        abnormal_time: 60,
+        effects: vec![crate::model::skill::SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::RunSpeed,
+                mode: crate::model::stats::StatModifierType::Diff,
+                amount: -50.0,
+                ..Default::default()
+            },
+        )],
+        ..Default::default()
     });
-    n
+    (world, db, l)
 }
 
 fn has_debuff(world: &World, oid: i32) -> bool {
@@ -71,8 +58,8 @@ fn has_debuff(world: &World, oid: i32) -> bool {
 #[test]
 fn baium_spawns_five_archangels() {
     let (mut world, _db, _l) = baium_world();
-    crate::game_loop::baium::spawn_archangels(&mut world);
-    assert_eq!(count(&mut world, ARCHANGEL), 5);
+    baium::spawn_archangels(&mut world);
+    assert_eq!(npc_count(&mut world, ARCHANGEL), 5);
 }
 
 /// A strider-mounted attacker is hindered.
@@ -91,11 +78,11 @@ fn a_strider_rider_is_hindered() {
     }
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .get_component_mut::<Player>(&PLAYER)
         .unwrap()
         .mount_type = MOUNT_STRIDER;
 
-    crate::game_loop::baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -110,7 +97,7 @@ fn an_unmounted_attacker_is_not_hindered() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
 
-    crate::game_loop::baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -134,11 +121,11 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
     }
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .get_component_mut::<Player>(&PLAYER)
         .unwrap()
         .mount_type = MOUNT_STRIDER;
 
-    crate::game_loop::baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -146,7 +133,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
     while rx.try_recv().is_ok() {}
 
     // A second hit while it still holds must start no new cast.
-    crate::game_loop::baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
     let mut casts = 0;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&0x48) {
@@ -197,9 +184,9 @@ fn melee_threat_dwarfs_caster_threat_at_full_health() {
     let caster = PLAYER + 1;
     // No jitter, so the ladder alone decides.
     world.forced_rolls.push_back(0);
-    crate::game_loop::boss_threat::on_boss_damage(&mut world, BAIUM_OID, melee, 300, true);
+    boss_threat::on_boss_damage(&mut world, BAIUM_OID, melee, 300, true);
     world.forced_rolls.push_back(0);
-    crate::game_loop::boss_threat::on_boss_damage(&mut world, BAIUM_OID, caster, 300, false);
+    boss_threat::on_boss_damage(&mut world, BAIUM_OID, caster, 300, false);
 
     let t = threat(&world, BAIUM_OID);
     let melee_v = t.iter().find(|(id, _)| *id == melee).unwrap().1;
@@ -222,7 +209,7 @@ fn caster_threat_climbs_as_baium_weakens() {
         add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
         wound_baium_to(&mut world, fraction);
         world.forced_rolls.push_back(0);
-        crate::game_loop::boss_threat::on_boss_damage(&mut world, BAIUM_OID, PLAYER, 300, false);
+        boss_threat::on_boss_damage(&mut world, BAIUM_OID, PLAYER, 300, false);
         threat(&world, BAIUM_OID)
             .iter()
             .find(|(id, _)| *id == PLAYER)
@@ -253,11 +240,11 @@ fn a_fourth_attacker_displaces_the_weakest() {
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
     for (oid, dmg) in [(101, 500), (102, 100), (103, 400)] {
         world.forced_rolls.push_back(0);
-        crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, oid, dmg, dmg);
+        boss_threat::refresh_threat(&mut world, BAIUM_OID, oid, dmg, dmg);
     }
     // 102 is the weakest at 100.
     world.forced_rolls.push_back(0);
-    crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, 104, 300, 300);
+    boss_threat::refresh_threat(&mut world, BAIUM_OID, 104, 300, 300);
 
     let ids: Vec<i32> = threat(&world, BAIUM_OID)
         .iter()
@@ -281,13 +268,13 @@ fn an_existing_entry_is_not_ratcheted_by_small_hits() {
     let (mut world, _db, _l) = baium_world();
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
     world.forced_rolls.push_back(0);
-    crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 10_000, 10_000);
+    boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 10_000, 10_000);
     let after_big = threat(&world, BAIUM_OID)[0].1;
 
     // A small follow-up: its floor (50 + 1000) is far below the stored value,
     // so nothing changes.
     world.forced_rolls.push_back(0);
-    crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
+    boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
     assert_eq!(
         threat(&world, BAIUM_OID)[0].1,
         after_big,
@@ -309,7 +296,7 @@ const GROUP_HOLD: i32 = 4131;
 fn seed_threat(world: &mut World, oid: i32, value: i32) {
     add_test_npc(world, oid, ARCHANGEL, "Monster", 75, 20, 0, 0);
     world.forced_rolls.push_back(0);
-    crate::game_loop::boss_threat::refresh_threat(world, BAIUM_OID, oid, value, value);
+    boss_threat::refresh_threat(world, BAIUM_OID, oid, value, value);
 }
 
 /// Baium acts on the **highest** threat.
@@ -324,8 +311,7 @@ fn baium_targets_the_highest_threat() {
     world.forced_rolls.push_back(99); // skip the decay
     world.forced_rolls.push_back(99); // and the skill rolls
     world.forced_rolls.push_back(99);
-    let (target, _) =
-        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
+    let (target, _) = baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
     assert_eq!(target, 202, "the biggest threat");
 }
 
@@ -342,7 +328,7 @@ fn the_top_threat_is_knocked_down_so_others_get_a_turn() {
     for _ in 0..4 {
         world.forced_rolls.push_back(99);
     }
-    crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID);
+    baium::manage_skills(&mut world, BAIUM_OID);
 
     let slots = threat(&world, BAIUM_OID);
     let top = slots.iter().find(|(id, _)| *id == 201).unwrap().1;
@@ -370,8 +356,7 @@ fn dead_and_distant_attackers_are_pruned() {
     for _ in 0..4 {
         world.forced_rolls.push_back(99);
     }
-    let (target, _) =
-        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
+    let (target, _) = baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
     assert_eq!(
         target, 203,
         "the only live, nearby attacker — despite the lowest raw threat"
@@ -397,9 +382,7 @@ fn the_skill_pool_widens_as_baium_weakens() {
         }
         world.forced_rolls.push_back(99); // skip the decay
         world.forced_rolls.push_back(5); // the first skill roll hits
-        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID)
-            .unwrap()
-            .1
+        baium::manage_skills(&mut world, BAIUM_OID).unwrap().1
     };
 
     assert_eq!(
@@ -435,7 +418,7 @@ fn all_rolls_missing_falls_back_to_the_basic_attack() {
     for _ in 0..4 {
         world.forced_rolls.push_back(99); // every skill roll misses
     }
-    let (_, skill) = crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).unwrap();
+    let (_, skill) = baium::manage_skills(&mut world, BAIUM_OID).unwrap();
     assert_eq!(skill, BAIUM_ATTACK);
     let _ = (EARTH_QUAKE,);
 }
@@ -445,7 +428,7 @@ fn all_rolls_missing_falls_back_to_the_basic_attack() {
 fn an_empty_threat_table_yields_no_action() {
     let (mut world, _db, _l) = baium_world();
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
-    assert!(crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).is_none());
+    assert!(baium::manage_skills(&mut world, BAIUM_OID).is_none());
 }
 
 /// **Baium casts too.** His `manage_skills` had existed since the threat slice
@@ -469,15 +452,12 @@ fn a_hit_makes_baium_cast() {
         v.cur_mp = 10_000.0;
     }
     // BAIUM_ATTACK, the fallback every band ends on.
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: 4127,
-            level: 1,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: 4127,
+        level: 1,
+        ..Default::default()
+    });
     while rx.try_recv().is_ok() {}
 
     // Jitter 0, no decay, then every ladder roll missing -> the basic attack.
@@ -486,7 +466,7 @@ fn a_hit_makes_baium_cast() {
     for _ in 0..6 {
         world.forced_rolls.push_back(99);
     }
-    crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 500, true);
+    baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 500, true);
 
     let casts = std::iter::from_fn(|| rx.try_recv().ok())
         .filter(|p| p.first() == Some(&0x48))
@@ -502,15 +482,8 @@ fn an_archangel_engages_a_nearby_player() {
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
     let _rx = ingame_player(&mut world, 1, 500, 100, 100, 0);
     add_test_npc(&mut world, 601, ARCHANGEL, "Monster", 75, 150, 150, 0);
-
-    crate::game_loop::baium::handle_select_target(&mut world);
-
-    let hate = world
-        .objects
-        .get_component::<crate::model::npc::AggroList>(&601)
-        .and_then(|a| a.0.get(&500))
-        .map(|h| h.hate)
-        .unwrap_or(0.0);
+    baium::handle_select_target(&mut world);
+    let hate = hate_of(&world, 601, 500);
     assert!(hate > 0.0, "the archangel engaged the intruder");
 }
 
@@ -521,15 +494,15 @@ fn archangels_despawn_when_baium_dies() {
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::Vitals>(&BAIUM_OID)
+        .get_component_mut::<Vitals>(&BAIUM_OID)
         .unwrap()
         .dead = true;
     add_test_npc(&mut world, 601, ARCHANGEL, "Monster", 75, 150, 150, 0);
-    assert_eq!(count(&mut world, ARCHANGEL), 1);
+    assert_eq!(npc_count(&mut world, ARCHANGEL), 1);
 
-    crate::game_loop::baium::handle_select_target(&mut world);
+    baium::handle_select_target(&mut world);
     assert_eq!(
-        count(&mut world, ARCHANGEL),
+        npc_count(&mut world, ARCHANGEL),
         0,
         "the archangels left with Baium"
     );
@@ -567,10 +540,14 @@ fn baium_rests_as_a_stone_when_alive() {
     insert_baium(&mut world, 0); // ALIVE
     let b = world.grand_bosses.get(&BAIUM).unwrap().clone();
 
-    crate::game_loop::baium::spawn_from_record(&mut world, &b);
+    baium::spawn_from_record(&mut world, &b);
 
-    assert_eq!(count(&mut world, BAIUM_STONE), 1, "the statue is placed");
-    assert_eq!(count(&mut world, BAIUM), 0, "the live boss is not");
+    assert_eq!(
+        npc_count(&mut world, BAIUM_STONE),
+        1,
+        "the statue is placed"
+    );
+    assert_eq!(npc_count(&mut world, BAIUM), 0, "the live boss is not");
 }
 
 /// WAITING (server died during the entry window) folds down to ALIVE and still
@@ -581,9 +558,9 @@ fn waiting_folds_to_a_stone() {
     insert_baium(&mut world, 1); // WAITING
     let b = world.grand_bosses.get(&BAIUM).unwrap().clone();
 
-    crate::game_loop::baium::spawn_from_record(&mut world, &b);
+    baium::spawn_from_record(&mut world, &b);
 
-    assert_eq!(count(&mut world, BAIUM_STONE), 1);
+    assert_eq!(npc_count(&mut world, BAIUM_STONE), 1);
     assert_eq!(
         world.grand_bosses.get(&BAIUM).unwrap().status,
         0,
@@ -610,7 +587,7 @@ fn waking_the_stone_raises_baium() {
     );
     let before = world.scheduler.len();
 
-    let raised = crate::game_loop::baium::wake_up(&mut world, 700, PLAYER);
+    let raised = baium::wake_up(&mut world, 700, PLAYER);
 
     assert!(raised.is_some(), "the wake took");
     assert_eq!(
@@ -618,8 +595,8 @@ fn waking_the_stone_raises_baium() {
         2,
         "IN_FIGHT — entry is now locked"
     );
-    assert_eq!(count(&mut world, BAIUM_STONE), 0, "the statue is gone");
-    assert_eq!(count(&mut world, BAIUM), 1, "the boss is up");
+    assert_eq!(npc_count(&mut world, BAIUM_STONE), 0, "the statue is gone");
+    assert_eq!(npc_count(&mut world, BAIUM), 1, "the boss is up");
     assert!(world.scheduler.len() > before, "the cinematic is armed");
 }
 
@@ -631,10 +608,10 @@ fn a_woken_baium_cannot_be_woken_again() {
     insert_baium(&mut world, 2); // IN_FIGHT already
     add_test_npc(&mut world, 700, BAIUM_STONE, "Folk", 75, 0, 0, 0);
 
-    let raised = crate::game_loop::baium::wake_up(&mut world, 700, PLAYER);
+    let raised = baium::wake_up(&mut world, 700, PLAYER);
 
     assert!(raised.is_none(), "the second wake was refused");
-    assert_eq!(count(&mut world, BAIUM), 0, "no second boss spawned");
+    assert_eq!(npc_count(&mut world, BAIUM), 0, "no second boss spawned");
 }
 
 /// **The cinematic's final beat starts the fight:** the archangels arrive,
@@ -662,21 +639,16 @@ fn the_final_beat_spawns_archangels_and_engages() {
         .add_components(&BAIUM_OID, BaiumWaker { player_oid: PLAYER });
 
     // Step 5 is SPAWN_ARCHANGEL (the last beat).
-    crate::game_loop::baium::handle_cinematic_step(&mut world, 5);
+    baium::handle_cinematic_step(&mut world, 5);
 
-    assert_eq!(count(&mut world, ARCHANGEL), 5, "the guardians arrived");
+    assert_eq!(npc_count(&mut world, ARCHANGEL), 5, "the guardians arrived");
     assert!(
         !world
             .objects
             .has_component::<crate::model::components::Immobilized>(&BAIUM_OID),
         "Baium is free to move — his AI is back"
     );
-    let hate = world
-        .objects
-        .get_component::<crate::model::npc::AggroList>(&BAIUM_OID)
-        .and_then(|a| a.0.get(&PLAYER))
-        .map(|h| h.hate)
-        .unwrap_or(0.0);
+    let hate = hate_of(&world, BAIUM_OID, PLAYER);
     assert!(hate > 0.0, "Baium engaged the waker");
 }
 
@@ -689,11 +661,11 @@ fn in_fight_status_recovers_the_live_boss() {
     world.grand_bosses.get_mut(&BAIUM).unwrap().current_hp = 40_000.0;
     let b = world.grand_bosses.get(&BAIUM).unwrap().clone();
 
-    crate::game_loop::baium::spawn_from_record(&mut world, &b);
+    baium::spawn_from_record(&mut world, &b);
 
-    assert_eq!(count(&mut world, BAIUM), 1, "the live boss is back");
-    assert_eq!(count(&mut world, BAIUM_STONE), 0, "no statue");
-    assert_eq!(count(&mut world, ARCHANGEL), 5, "his guardians too");
+    assert_eq!(npc_count(&mut world, BAIUM), 1, "the live boss is back");
+    assert_eq!(npc_count(&mut world, BAIUM_STONE), 0, "no statue");
+    assert_eq!(npc_count(&mut world, ARCHANGEL), 5, "his guardians too");
 }
 
 /// The 13F report: an archangel in the lobby (z 10 136) stood ~85 *2D* units
@@ -706,27 +678,7 @@ fn in_fight_status_recovers_the_live_boss() {
 fn an_archangel_ignores_a_player_on_the_floor_below_the_zone() {
     let (mut world, _db, _l) = baium_world();
     // `baium_no_restart` (70051), simplified to a cuboid over the lobby.
-    world.data.zone_data.insert(crate::data::zone_data::Zone {
-        id: 70051,
-        name: "baium_no_restart".into(),
-        kind: crate::data::zone_data::ZoneKind::NoRestart,
-        territory: crate::data::spawn_data::Territory {
-            form: crate::data::spawn_data::ZoneForm::Cuboid {
-                x1: 113_000,
-                x2: 118_000,
-                y1: 14_000,
-                y2: 19_000,
-            },
-            min_z: 10_061,
-            max_z: 11_061,
-        },
-        castle_id: 0,
-        clan_hall_id: 0,
-        effect: None,
-        damage: None,
-        swamp: None,
-        condition: None,
-    });
+    insert_zone(&mut world);
     add_test_npc(
         &mut world,
         BAIUM_OID,
@@ -743,13 +695,8 @@ fn an_archangel_ignores_a_player_on_the_floor_below_the_zone() {
         &mut world, 601, ARCHANGEL, "Monster", 75, 114_880, 16_236, 10_136,
     );
 
-    crate::game_loop::baium::handle_select_target(&mut world);
-    let hate_below = world
-        .objects
-        .get_component::<crate::model::npc::AggroList>(&601)
-        .and_then(|a| a.0.get(&500))
-        .map(|h| h.hate)
-        .unwrap_or(0.0);
+    baium::handle_select_target(&mut world);
+    let hate_below = hate_of(&world, 601, 500);
     assert_eq!(
         hate_below, 0.0,
         "a player below the boss zone must not be engaged through the floor"
@@ -757,13 +704,8 @@ fn an_archangel_ignores_a_player_on_the_floor_below_the_zone() {
 
     // Control: a player actually inside the lobby zone is engaged.
     let _inside = ingame_player(&mut world, 2, 501, 114_900, 16_240, 10_100);
-    crate::game_loop::baium::handle_select_target(&mut world);
-    let hate_inside = world
-        .objects
-        .get_component::<crate::model::npc::AggroList>(&601)
-        .and_then(|a| a.0.get(&501))
-        .map(|h| h.hate)
-        .unwrap_or(0.0);
+    baium::handle_select_target(&mut world);
+    let hate_inside = hate_of(&world, 601, 501);
     assert!(hate_inside > 0.0, "the in-zone player is still engaged");
 }
 
@@ -774,27 +716,7 @@ fn an_archangel_ignores_a_player_on_the_floor_below_the_zone() {
 #[test]
 fn an_archangel_abandons_a_target_that_left_the_zone() {
     let (mut world, _db, _l) = baium_world();
-    world.data.zone_data.insert(crate::data::zone_data::Zone {
-        id: 70051,
-        name: "baium_no_restart".into(),
-        kind: crate::data::zone_data::ZoneKind::NoRestart,
-        territory: crate::data::spawn_data::Territory {
-            form: crate::data::spawn_data::ZoneForm::Cuboid {
-                x1: 113_000,
-                x2: 118_000,
-                y1: 14_000,
-                y2: 19_000,
-            },
-            min_z: 10_061,
-            max_z: 11_061,
-        },
-        castle_id: 0,
-        clan_hall_id: 0,
-        effect: None,
-        damage: None,
-        swamp: None,
-        condition: None,
-    });
+    insert_zone(&mut world);
     add_test_npc(
         &mut world,
         BAIUM_OID,
@@ -809,7 +731,7 @@ fn an_archangel_abandons_a_target_that_left_the_zone() {
     add_test_npc(
         &mut world, 601, ARCHANGEL, "Monster", 75, 114_880, 16_236, 10_136,
     );
-    crate::game_loop::baium::handle_select_target(&mut world);
+    baium::handle_select_target(&mut world);
     assert!(
         world
             .objects
@@ -821,7 +743,7 @@ fn an_archangel_abandons_a_target_that_left_the_zone() {
 
     // The player jumps down to 13F.
     set_position(&mut world, 500, (114_804, 16_197, 9_208));
-    crate::game_loop::baium::handle_select_target(&mut world);
+    baium::handle_select_target(&mut world);
     assert!(
         world
             .objects
@@ -843,10 +765,7 @@ use crate::game_loop::baium::{EntryOutcome, TELE_CUBE};
 fn the_vortex_admits_a_fabric_bearer() {
     let (mut world, _db, _l) = baium_world();
     insert_baium(&mut world, 0); // ALIVE
-    assert_eq!(
-        crate::game_loop::baium::entry_outcome(&world, true),
-        EntryOutcome::Admitted
-    );
+    assert_eq!(baium::entry_outcome(&world, true), EntryOutcome::Admitted);
 }
 
 /// No fabric, no crossing — the vortex is inert.
@@ -854,10 +773,7 @@ fn the_vortex_admits_a_fabric_bearer() {
 fn the_vortex_is_inert_without_a_fabric() {
     let (mut world, _db, _l) = baium_world();
     insert_baium(&mut world, 0); // ALIVE
-    assert_eq!(
-        crate::game_loop::baium::entry_outcome(&world, false),
-        EntryOutcome::NoFabric
-    );
+    assert_eq!(baium::entry_outcome(&world, false), EntryOutcome::NoFabric);
 }
 
 /// **The fight's state is read before the fabric.** A player without a fabric
@@ -869,14 +785,14 @@ fn state_is_reported_before_the_fabric_check() {
 
     insert_baium(&mut world, 2); // IN_FIGHT
     assert_eq!(
-        crate::game_loop::baium::entry_outcome(&world, false),
+        baium::entry_outcome(&world, false),
         EntryOutcome::InFight,
         "busy beats no-fabric"
     );
 
     world.grand_bosses.get_mut(&BAIUM).unwrap().status = 3; // DEAD
     assert_eq!(
-        crate::game_loop::baium::entry_outcome(&world, false),
+        baium::entry_outcome(&world, false),
         EntryOutcome::Dead,
         "over beats no-fabric"
     );
@@ -886,11 +802,11 @@ fn state_is_reported_before_the_fabric_check() {
 #[test]
 fn killing_baium_drops_the_exit_cube() {
     let (mut world, _db, _l) = baium_world();
-    assert_eq!(count(&mut world, TELE_CUBE), 0);
+    assert_eq!(npc_count(&mut world, TELE_CUBE), 0);
 
-    crate::game_loop::baium::on_baium_killed(&mut world);
+    baium::on_baium_killed(&mut world);
 
-    assert_eq!(count(&mut world, TELE_CUBE), 1, "the way out appeared");
+    assert_eq!(npc_count(&mut world, TELE_CUBE), 1, "the way out appeared");
 }
 
 /// The cube scatters people to one of three surface points, jittered — never
@@ -903,7 +819,7 @@ fn the_exit_scatters_to_a_surface_point() {
     world.forced_rolls.push_back(40);
     world.forced_rolls.push_back(60);
 
-    let (x, y, z) = crate::game_loop::baium::random_exit(&mut world);
+    let (x, y, z) = baium::random_exit(&mut world);
 
     assert_eq!((x, y, z), (113_824 + 40, 10_448 + 60, -5_164));
 }
@@ -939,15 +855,15 @@ fn a_thirty_minute_idle_reverts_baium_to_stone() {
     );
     world.tick = 18_001; // > 30 min since last_attack 0
 
-    crate::game_loop::baium::handle_check_attack(&mut world);
+    baium::handle_check_attack(&mut world);
 
     assert_eq!(
         world.grand_bosses.get(&BAIUM).unwrap().status,
         0,
         "reverted to ALIVE"
     );
-    assert_eq!(count(&mut world, BAIUM_STONE), 1, "the statue is back");
-    assert_eq!(count(&mut world, BAIUM), 0, "the live boss was cleared");
+    assert_eq!(npc_count(&mut world, BAIUM_STONE), 1, "the statue is back");
+    assert_eq!(npc_count(&mut world, BAIUM), 0, "the live boss was cleared");
 }
 
 /// A hit within the window keeps Baium fighting and the beat re-arms.
@@ -974,14 +890,14 @@ fn a_recently_hit_baium_keeps_fighting() {
     );
     let before = world.scheduler.len();
 
-    crate::game_loop::baium::handle_check_attack(&mut world);
+    baium::handle_check_attack(&mut world);
 
     assert_eq!(
         world.grand_bosses.get(&BAIUM).unwrap().status,
         2,
         "still IN_FIGHT"
     );
-    assert_eq!(count(&mut world, BAIUM), 1, "still up");
+    assert_eq!(npc_count(&mut world, BAIUM), 1, "still up");
     assert!(world.scheduler.len() > before, "the beat re-armed");
 }
 
@@ -991,15 +907,12 @@ fn a_recently_hit_baium_keeps_fighting() {
 #[test]
 fn a_wounded_idle_baium_heals_itself() {
     let (mut world, _db, _l) = baium_world();
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: 4135,
-            level: 1,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: 4135,
+        level: 1,
+        ..Default::default()
+    });
     insert_baium(&mut world, 2); // IN_FIGHT
     add_test_npc(
         &mut world,
@@ -1028,12 +941,10 @@ fn a_wounded_idle_baium_heals_itself() {
         },
     );
 
-    crate::game_loop::baium::handle_check_attack(&mut world);
+    baium::handle_check_attack(&mut world);
 
     assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::Casting>(&BAIUM_OID),
+        world.objects.has_component::<Casting>(&BAIUM_OID),
         "Baium began healing himself"
     );
     assert_eq!(
@@ -1052,17 +963,49 @@ fn the_lair_is_emptied_after_the_kill() {
     let _rx = ingame_player(&mut world, 1, PLAYER, 116_000, 17_400, 10_107);
     let before = world.scheduler.len();
 
-    crate::game_loop::baium::on_baium_killed(&mut world);
-    assert_eq!(count(&mut world, TELE_CUBE), 1, "the cube dropped");
+    baium::on_baium_killed(&mut world);
+    assert_eq!(npc_count(&mut world, TELE_CUBE), 1, "the cube dropped");
     assert!(world.scheduler.len() > before, "CLEAR_ZONE is armed");
 
     // The 900 s timer fires: cube gone, straggler ousted to the first exit.
     world.forced_rolls.push_back(0); // exit point 0
     world.forced_rolls.push_back(0); // x jitter
     world.forced_rolls.push_back(0); // y jitter
-    crate::game_loop::baium::handle_clear_zone(&mut world);
+    baium::handle_clear_zone(&mut world);
 
-    assert_eq!(count(&mut world, TELE_CUBE), 0, "the cube despawned");
+    assert_eq!(npc_count(&mut world, TELE_CUBE), 0, "the cube despawned");
     let p = world.objects.get_component::<Position>(&PLAYER).unwrap();
     assert_eq!((p.x, p.y), (108_784, 16_000), "the straggler was sent out");
+}
+fn hate_of(world: &World, of: i32, to: i32) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&of)
+        .and_then(|a| a.0.get(&to))
+        .map(|h| h.hate)
+        .unwrap_or(0.0)
+}
+
+fn insert_zone(world: &mut World) {
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 70051,
+        name: "baium_no_restart".into(),
+        kind: crate::data::zone_data::ZoneKind::NoRestart,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: 113_000,
+                x2: 118_000,
+                y1: 14_000,
+                y2: 19_000,
+            },
+            min_z: 10_061,
+            max_z: 11_061,
+        },
+        castle_id: 0,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+        condition: None,
+    });
 }

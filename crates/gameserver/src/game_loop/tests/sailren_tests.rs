@@ -28,17 +28,6 @@ fn sailren_world() -> (
     (world, db, l)
 }
 
-/// Every living NPC of `npc_id`.
-fn count(world: &mut World, npc_id: i32) -> usize {
-    let mut n = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
-        if x.npc_id == npc_id {
-            n += 1;
-        }
-    });
-    n
-}
-
 /// The object ids of tagged wave mobs of `npc_id`.
 fn tagged(world: &mut World, npc_id: i32) -> Vec<i32> {
     let mut v = Vec::new();
@@ -63,41 +52,45 @@ fn kill(world: &mut World, oid: i32) {
 #[test]
 fn the_wave_climbs_from_raptors_up_to_sailren() {
     let (mut world, _db, _l) = sailren_world();
-    crate::game_loop::sailren::begin_fight(&mut world);
+    sailren::begin_fight(&mut world);
     let raptors = tagged(&mut world, VELOCIRAPTOR);
     assert_eq!(raptors.len(), 3, "three velociraptors enter");
 
     // The first two deaths leave raptors standing → no Pterosaur yet.
     for &r in &raptors[..2] {
         kill(&mut world, r);
-        crate::game_loop::sailren::on_wave_kill(&mut world, KILLER, VELOCIRAPTOR);
+        sailren::on_wave_kill(&mut world, KILLER, VELOCIRAPTOR);
     }
-    assert_eq!(count(&mut world, PTEROSAUR), 0, "raptors remain");
+    assert_eq!(npc_count(&mut world, PTEROSAUR), 0, "raptors remain");
 
     // The third clears them → the Pterosaur enters.
     kill(&mut world, raptors[2]);
-    crate::game_loop::sailren::on_wave_kill(&mut world, KILLER, VELOCIRAPTOR);
-    assert_eq!(count(&mut world, PTEROSAUR), 1, "pterosaur summoned");
+    sailren::on_wave_kill(&mut world, KILLER, VELOCIRAPTOR);
+    assert_eq!(npc_count(&mut world, PTEROSAUR), 1, "pterosaur summoned");
 
     // Pterosaur → Tyrannosaurus.
     let ptero = tagged(&mut world, PTEROSAUR)[0];
     kill(&mut world, ptero);
-    crate::game_loop::sailren::on_wave_kill(&mut world, KILLER, PTEROSAUR);
-    assert_eq!(count(&mut world, TREX), 1, "trex summoned");
+    sailren::on_wave_kill(&mut world, KILLER, PTEROSAUR);
+    assert_eq!(npc_count(&mut world, TREX), 1, "trex summoned");
 
     // Trex falling arms Sailren's entrance (on a timer, not immediate).
     let trex = tagged(&mut world, TREX)[0];
     kill(&mut world, trex);
-    crate::game_loop::sailren::on_wave_kill(&mut world, KILLER, TREX);
-    assert_eq!(count(&mut world, SAILREN), 0, "not until the timer fires");
-    crate::game_loop::sailren::handle_spawn_sailren(&mut world);
-    assert_eq!(count(&mut world, SAILREN), 1, "Sailren enters");
+    sailren::on_wave_kill(&mut world, KILLER, TREX);
+    assert_eq!(
+        npc_count(&mut world, SAILREN),
+        0,
+        "not until the timer fires"
+    );
+    sailren::handle_spawn_sailren(&mut world);
+    assert_eq!(npc_count(&mut world, SAILREN), 1, "Sailren enters");
 }
 
 #[test]
 fn sailren_enters_invulnerable_then_the_fight_begins() {
     let (mut world, _db, _l) = sailren_world();
-    crate::game_loop::sailren::handle_spawn_sailren(&mut world);
+    sailren::handle_spawn_sailren(&mut world);
     let sailren = tagged(&mut world, SAILREN)[0];
 
     assert!(
@@ -113,7 +106,7 @@ fn sailren_enters_invulnerable_then_the_fight_begins() {
         "rooted during the intro"
     );
 
-    crate::game_loop::sailren::handle_attack_enable(&mut world, sailren);
+    sailren::handle_attack_enable(&mut world, sailren);
     assert!(
         !world
             .objects
@@ -131,8 +124,8 @@ fn sailren_enters_invulnerable_then_the_fight_begins() {
 #[test]
 fn felling_sailren_drops_the_exit_cube() {
     let (mut world, _db, _l) = sailren_world();
-    crate::game_loop::sailren::on_wave_kill(&mut world, KILLER, SAILREN);
-    assert_eq!(count(&mut world, CUBIC), 1, "the teleport cube appears");
+    sailren::on_wave_kill(&mut world, KILLER, SAILREN);
+    assert_eq!(npc_count(&mut world, CUBIC), 1, "the teleport cube appears");
 }
 
 /// A solo player can't start the fight — Java shows `32109-01.html`.
@@ -141,7 +134,7 @@ fn a_solo_player_cannot_start_the_fight() {
     let (mut world, _db, _l) = sailren_world();
     let _rx = ingame_player(&mut world, 1, 100, 100, 100, 0);
     assert_eq!(
-        crate::game_loop::sailren::entry_refusal(&mut world, 100),
+        sailren::entry_refusal(&mut world, 100),
         Some("32109-01.html"),
         "no party, no fight"
     );
@@ -157,7 +150,7 @@ fn admitting_a_party_teleports_members_and_arms_the_wave() {
     make_party(&mut world, &[100, 200], LootRule::FindersKeepers);
     let before = world.scheduler.len();
 
-    crate::game_loop::sailren::enter_party(&mut world, 100);
+    sailren::enter_party(&mut world, 100);
 
     let pos = world.objects.get_component::<Position>(&200).unwrap();
     assert_eq!(

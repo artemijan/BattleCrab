@@ -20,6 +20,7 @@ use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::items::item_skills;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
 use crate::world::World;
@@ -1285,16 +1286,6 @@ pub(crate) fn send_pet_item_list(world: &World, owner_oid: i32) {
         return;
     };
     cs.send(server_packets::pet_item_list(&pi.0, &world.data));
-}
-
-/// The `NORMAL` item-skill list Java's `PetFood` handler runs.
-fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {
-    world
-        .data
-        .item_data
-        .get(item_id)
-        .map(|t| t.item_skills.clone())
-        .unwrap_or_default()
 }
 
 /// Run one food skill's effects on the pet. Only `Feed` is meaningful today;
