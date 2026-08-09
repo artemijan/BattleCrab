@@ -142,6 +142,30 @@ pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
         .is_none_or(|v| v.dead)
 }
 
+/// A player's [`Vitals`] and `PlayerVitals`, both copied out.
+///
+/// `None` unless **both** are present, which is what every caller wants: they
+/// are feeding a `StatusUpdate` that carries HP, MP and CP together, and half a
+/// gauge set is not a packet worth sending.
+///
+/// Copied rather than borrowed because every caller then needs `&mut World` to
+/// broadcast.
+pub(crate) fn vitals_pair(
+    world: &World,
+    player_oid: i32,
+) -> Option<(Vitals, crate::model::components::PlayerVitals)> {
+    Some((
+        world
+            .objects
+            .get_component::<Vitals>(&player_oid)
+            .copied()?,
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerVitals>(&player_oid)
+            .copied()?,
+    ))
+}
+
 /// The region cell an object is binned into, or `None` once it has left the
 /// world.
 ///
@@ -157,16 +181,32 @@ pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)
         .map(|r| r.0)
 }
 
+/// The datapack template behind an NPC object — Java `Npc.getTemplate()`.
+///
+/// `None` covers both "the object has left the world" and "it is not an NPC at
+/// all" (a player, a door, a dropped item), which every caller treats the same:
+/// there is nothing to read a template fact off, so bail.
+///
+/// The template is borrowed out of `world.data`, which is immutable after boot,
+/// so the returned reference lives as long as the `&World` rather than as long
+/// as the component lookup.
+pub(crate) fn npc_template(
+    world: &World,
+    object_id: i32,
+) -> Option<&crate::data::npc_data::NpcTemplate> {
+    world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .and_then(|n| n.template(world))
+}
+
 /// An NPC's template name, empty when the object is gone or has no template.
 ///
 /// The NPC counterpart of [`player_name_or_empty`] — the pet/servitor persist
 /// paths and the summon UI all want a `String` and treat "no template" as no
 /// name.
 pub(crate) fn npc_name_or_empty(world: &World, object_id: i32) -> String {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&object_id)
-        .and_then(|n| n.template(world))
+    npc_template(world, object_id)
         .map(|t| t.name.clone())
         .unwrap_or_default()
 }
@@ -511,6 +551,20 @@ pub(crate) fn ms_to_ticks(ms: i32) -> u64 {
     (ms.max(0) as u64).div_ceil(100)
 }
 
+/// Java `client.sendPacket(ActionFailed.STATIC_PACKET)` — the bare "I am not
+/// doing that" reply, and the single most-sent packet in the port.
+///
+/// It is not optional politeness: the client arms a local "request in flight"
+/// lock the moment it sends an action, and only a reply releases it. A handler
+/// that returns without one leaves the player unable to click anything until
+/// the next server packet happens to arrive. Every early return in a request
+/// handler owes the client one of these.
+///
+/// [`send_sm_and_action_failed`] is the variant that explains *why* first.
+pub(crate) fn send_action_failed(world: &World, client_id: u32) {
+    send_to_client(world, client_id, server_packets::action_failed());
+}
+
 /// Send a `SystemMessage` + `ActionFailed` to one client — the standard
 /// "request rejected" reply shape all over `Player.useMagic` /
 /// `SkillCaster.checkUseConditions`.
@@ -533,13 +587,28 @@ pub(crate) fn send_sm_and_action_failed(
 /// needed the world and the speaker, and the quest coupling was incidental.
 /// `QuestCtx::npc_say` now delegates here.
 pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
+    npc_say_param(world, npc_oid, npc_string_id, None);
+}
+
+/// [`npc_say`] with the line's single `$s1` substitution — Java
+/// `broadcastSay(NPC_GENERAL, id, param)`.
+///
+/// `None` is not the same as `Some("")`: the parameterless packet is a
+/// different opcode payload, and a client fed an empty parameter draws the
+/// placeholder rather than the line.
+pub(crate) fn npc_say_param(world: &World, npc_oid: i32, npc_string_id: i32, param: Option<&str>) {
     let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
         return;
     };
     let Some(region) = region_cell_of(world, npc_oid) else {
         return;
     };
-    let pkt = crate::network::server_packets::npc_say(npc_oid, npc.npc_id, npc_string_id);
+    let pkt = match param {
+        Some(p) => {
+            crate::network::server_packets::npc_say_param(npc_oid, npc.npc_id, npc_string_id, p)
+        }
+        None => crate::network::server_packets::npc_say(npc_oid, npc.npc_id, npc_string_id),
+    };
     broadcast_near_region(world, region, &pkt);
 }
 

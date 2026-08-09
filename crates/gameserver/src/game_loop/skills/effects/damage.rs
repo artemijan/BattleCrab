@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::stat_add;
@@ -134,10 +135,7 @@ fn element_stat(
     } else {
         element.power_stat()
     };
-    let base = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&oid)
-        .and_then(|n| n.template(world))
+    let base = npc_template(world, oid)
         .map(|t| {
             if defence {
                 t.base_element_res[element.index()] as f64
@@ -171,6 +169,20 @@ fn element_stat(
         }
     }
     base * mul + add
+}
+
+/// The caster's magic attack — the `mAtk` term of every magic formula
+/// (`calcMagicDam`, `calcMagicAffected`, `calcHeal`).
+///
+/// `0.0` for an object with no `CombatStats`, which is what the formulas want:
+/// a caster that has left the world contributes nothing rather than panicking
+/// mid-cast. The [`target_m_def`] counterpart.
+pub(crate) fn caster_m_atk(world: &World, caster_oid: i32) -> f64 {
+    world
+        .objects
+        .get_component::<CombatStats>(&caster_oid)
+        .map(|c| c.m_atk)
+        .unwrap_or(0.0)
 }
 
 pub(crate) fn target_m_def(world: &World, target_oid: i32) -> f64 {
@@ -381,11 +393,7 @@ pub(crate) fn apply_skill_damage(
         .get_component::<crate::model::Player>(&target_oid)
     {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-    {
+    } else if let Some(t) = npc_template(world, target_oid) {
         SmParam::NpcName(t.id)
     } else {
         return;

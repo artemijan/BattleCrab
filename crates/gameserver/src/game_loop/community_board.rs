@@ -40,6 +40,7 @@
 //! links here — ported per the config-disabled rule.
 
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use tracing::warn;
 
@@ -66,12 +67,11 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
     };
 
     if !world.cfg.community_board.enabled {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::system_message_with(
-                sp::sm_ids::THE_COMMUNITY_SERVER_IS_CURRENTLY_OFFLINE,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            sp::system_message_with(sp::sm_ids::THE_COMMUNITY_SERVER_IS_CURRENTLY_OFFLINE, &[]),
+        );
         return;
     }
 
@@ -383,12 +383,14 @@ fn clan_home(world: &mut World, client_id: u32, object_id: i32, clan_id: i32) {
         return;
     };
     if level < 2 {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            crate::network::server_packets::system_message_with(
                 crate::network::server_packets::sm_ids::NO_CLAN_COMMUNITY_UNDER_LEVEL_2,
                 &[],
-            ));
-        }
+            ),
+        );
         return clan_list(world, client_id, object_id, 1);
     }
     let html = format!(
@@ -562,9 +564,7 @@ fn do_teleport(world: &mut World, client_id: u32, object_id: i32, command: &str)
     // Java hides the board (`new ShowBoard()`) and `disableAllSkills()` for
     // 3 s around the teleport; `SkillsDisabled` + the timed re-enable mirror
     // the `enableAllSkills` ThreadPool.schedule.
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::show_board_hide());
-    }
+    send_to_client(world, client_id, sp::show_board_hide());
     world
         .objects
         .add_components(&object_id, crate::model::components::SkillsDisabled);
@@ -727,9 +727,7 @@ fn cast_animation(
         skill.reuse_delay_group,
         skill.reuse_delay,
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// `HomeBoard`'s `_bbspremium;<days>` branch: buy `<days>` (1–30) days of
@@ -1603,12 +1601,11 @@ fn read_html(root: &str, rel: &str) -> Option<String> {
 }
 
 fn send_message(world: &World, client_id: u32, text: &str) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::system_message_with(
-            sp::sm_ids::S1_TEXT,
-            &[sp::SmParam::Text(text.to_string())],
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        sp::system_message_with(sp::sm_ids::S1_TEXT, &[sp::SmParam::Text(text.to_string())]),
+    );
 }
 
 /// Port of `Util.sendCBHtml`: split the html into ≤3 chunks tagged 101/102/103

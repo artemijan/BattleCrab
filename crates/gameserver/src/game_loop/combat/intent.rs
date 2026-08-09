@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::stop_movement;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
@@ -23,9 +24,7 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     };
 
     if is_dead(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
 
@@ -42,9 +41,7 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         || crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
         || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // A Ctrl-click (force attack) both selects *and* engages the target. When
@@ -127,9 +124,7 @@ pub(crate) fn start_attack_intent(
         // RelationChanged). The server just refuses inside a peace zone; the
         // clean-player "needs Ctrl" gate is enforced client-side.
         if target_dead {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
         if crate::game_loop::zones::is_inside_peace_zone(world, object_id, target_object_id) {
@@ -151,9 +146,7 @@ pub(crate) fn start_attack_intent(
         let attackable =
             crate::game_loop::target::is_auto_attackable(world, object_id, target_object_id);
         if !attackable || target_dead {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
     }

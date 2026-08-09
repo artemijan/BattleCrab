@@ -24,6 +24,7 @@
 //! The weight/slot capacity gates **are** ported now (they were the "same G5
 //! deferral as `shop.rs`", and `shop.rs` has them too).
 
+use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
 
 use super::helpers::send_sm_to_client as send_sm;
@@ -528,13 +529,11 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
                 &[SmParam::ItemName(product.id)],
             );
         }
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::ex_multi_sell_result(
-                true,
-                0,
-                total.min(i32::MAX as i64) as i32,
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            sp::ex_multi_sell_result(true, 0, total.min(i32::MAX as i64) as i32),
+        );
     }
 
     // One InventoryUpdate + adena/weight refresh for the whole exchange.

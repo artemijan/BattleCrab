@@ -2,8 +2,11 @@ use super::*;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_name_or_empty;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_to_client;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
@@ -49,13 +52,7 @@ pub(crate) fn random_bystander(
 /// Java `((Attackable) cha).isInMyClan(effectedMob)` — two NPCs sharing a clan
 /// tag. A player is never in an NPC's faction.
 fn same_npc_faction(world: &World, a_oid: i32, b_oid: i32) -> bool {
-    let clan_of = |oid: i32| {
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&oid)
-            .and_then(|n| n.template(world))
-            .map(|t| t.clans.clone())
-    };
+    let clan_of = |oid: i32| npc_template(world, oid).map(|t| t.clans.clone());
     match (clan_of(a_oid), clan_of(b_oid)) {
         (Some(a), Some(b)) => a.iter().any(|c| b.contains(c)),
         _ => false,
@@ -129,12 +126,7 @@ pub(crate) fn target_level(world: &World, oid: i32) -> i32 {
     if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
         return p.level;
     }
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.level)
-        .unwrap_or(1)
+    npc_template(world, oid).map(|t| t.level).unwrap_or(1)
 }
 
 /// The tail every MP-restore handler shares: the dead / `isMpBlocked` gate, the
@@ -186,9 +178,7 @@ pub(crate) fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, am
                 &[SmParam::Int(restored as i32)],
             )
         };
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(pkt);
-        }
+        send_to_client(world, cid, pkt);
     }
 }
 
@@ -347,11 +337,7 @@ pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &S
     if !mutes {
         return;
     }
-    let is_raid = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_raid());
+    let is_raid = npc_template(world, target_oid).is_some_and(|t| t.is_raid());
     if is_raid {
         return;
     }
@@ -473,12 +459,7 @@ pub(crate) fn creature_level(world: &World, oid: i32) -> i32 {
             .unwrap_or(1);
     }
     if crate::game_loop::combat::is_npc_oid(oid) {
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&oid)
-            .and_then(|n| n.template(world))
-            .map(|t| t.level)
-            .unwrap_or(1)
+        npc_template(world, oid).map(|t| t.level).unwrap_or(1)
     } else {
         world
             .objects
@@ -851,11 +832,7 @@ pub(crate) fn call_pc_player(
         );
     }
 
-    let (x, y, z) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&caster_oid)
-        .map(|p| (p.x, p.y, p.z))
-        .unwrap_or((0, 0, 0));
+    let (x, y, z) = pos_of(world, caster_oid).unwrap_or((0, 0, 0));
     let name = player_name_or_empty(world, caster_oid);
     if let Some(p) = world
         .objects

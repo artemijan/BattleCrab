@@ -8,6 +8,7 @@
 //! spawns on this dist — dead content, not ported.
 
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::RegionCell;
 
@@ -260,12 +261,7 @@ fn spawn_next(ctx: &mut QuestCtx, growth: &Growth, food: i32) {
         table.row0[ctx.roll(table.row0.len() as i32) as usize]
     };
 
-    let Some((x, y, z)) = ctx
-        .world
-        .objects
-        .get_component::<crate::model::components::Position>(&ctx.npc)
-        .map(|p| (p.x, p.y, p.z))
-    else {
+    let Some((x, y, z)) = pos_of(ctx.world, ctx.npc) else {
         return;
     };
     ctx.delete_npc();

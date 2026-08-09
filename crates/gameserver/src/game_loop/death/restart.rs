@@ -1,4 +1,6 @@
 use super::*;
+use crate::game_loop::guard::clan_of;
+use crate::game_loop::helpers::pos_of;
 
 /// Port of `clientpackets/RequestRestartPoint`: pick the respawn point for the
 /// requested restart type — the siege "to castle"/"to siege HQ" cases when the
@@ -85,12 +87,7 @@ pub(crate) fn die_options(world: &World, player_oid: i32) -> server_packets::Die
             .is_some_and(|p| p.revive_request.is_none()),
         ..Default::default()
     };
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, player_oid) else {
         return opts;
     };
     opts.to_clan_hall = world.clan_halls.values().any(|h| h.owner_id == clan_id);
@@ -214,12 +211,7 @@ fn restore_lost_exp(world: &mut World, player_oid: i32, percent: f64) {
 /// are the restore *percent*, 45 or 50 on this dist) — the castle twin of
 /// [`restore_clanhall_exp`].
 fn restore_castle_exp(world: &mut World, player_oid: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, player_oid) else {
         return;
     };
     let Some(castle_id) = world
@@ -301,10 +293,7 @@ fn siege_restart_location(
         }
         4 if role == Some(SiegeClanType::Attacker) => {
             let flag_oid = siege.flag_of(clan_id)?;
-            world
-                .objects
-                .get_component::<Position>(&flag_oid)
-                .map(|p| (p.x, p.y, p.z))
+            pos_of(world, flag_oid)
         }
         _ => None,
     }

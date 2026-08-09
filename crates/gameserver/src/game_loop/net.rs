@@ -3,6 +3,7 @@
 //! [`handle_game_event`] routes each unified-channel event to its handler.
 
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::send_to_client;
 use tracing::{debug, error, info, warn};
 
 use crate::db::{self, DbEvent};
@@ -870,9 +871,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 TooMany => server_packets::char_create_fail(1),
                 Fail => server_packets::char_create_fail(0),
             };
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(body);
-            }
+            send_to_client(world, client_id, body);
         }
         DbEvent::CharCount {
             account,
@@ -886,9 +885,11 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             });
         }
         DbEvent::NameCreatable { client_id, result } => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_is_char_name_creatable(result));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::ex_is_char_name_creatable(result),
+            );
         }
         DbEvent::IdBlock { start, end } => {
             world.id_pool = start..end;

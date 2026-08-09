@@ -14,10 +14,13 @@
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
 use super::helpers::send_sm_to_client as send_sm;
+use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Casting, Position};
 use crate::network::client_packets as cp;
@@ -130,9 +133,7 @@ fn loc(world: &World, client_id: u32, object_id: i32) {
             &[SmParam::Text(format!("{}, {}, {}", pos.x, pos.y, pos.z))],
         )
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// Port of `usercommandhandlers/Unstuck.java`: cast the escape skill and let
@@ -191,9 +192,7 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
     // `Casting` and the guard at the top of this fn already proved the slot
     // was empty — so the component is the "cast started" signal.
     if !world.objects.has_component::<Casting>(&object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         world
             .objects
             .remove_component::<crate::model::components::Intent>(&object_id);
@@ -222,9 +221,7 @@ fn time(world: &World, client_id: u32) {
     // Java pads the minutes to two digits and passes both as *strings*.
     let packet =
         server_packets::system_message_with(message, &[SmParam::Text(hour), SmParam::Text(minute)]);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// The message id and the two string params `/time` sends for `now_millis`:
@@ -275,12 +272,7 @@ fn party_info(world: &World, client_id: u32, object_id: i32) {
 /// ones; the port filters `World.clan_wars` the same way. Each row is one
 /// system message naming the other clan, with its alliance when it has one.
 fn clan_wars_list(world: &World, client_id: u32, object_id: i32, command_id: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, object_id) else {
         send_sm(world, client_id, sm_ids::NOT_JOINED_IN_ANY_CLAN, &[]);
         return;
     };
@@ -357,9 +349,11 @@ fn instance_zone(world: &World, client_id: u32, object_id: i32) {
         .map(|i| i.template_id)
         .filter(|&id| id >= 0)
         .unwrap_or(-1);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_inzone_waiting(template_id, &[]));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_inzone_waiting(template_id, &[]),
+    );
 }
 
 /// Port of `usercommandhandlers/ChannelDelete.java`: only the channel leader,
@@ -449,9 +443,7 @@ fn channel_info(world: &World, client_id: u32, object_id: i32) {
     let member_count = parties.iter().map(|(_, _, n)| n).sum::<i32>();
     let packet =
         server_packets::ex_multi_party_command_channel_info(&leader_name, member_count, &parties);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// The command channel this player leads — Java's compound guard for
@@ -538,9 +530,7 @@ fn siege_status(world: &World, client_id: u32, object_id: i32) {
         .replace("%kill_count%", "0")
         .replace("%death_count%", "0")
         .replace("%member_list%", &rows);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(0, &page));
-    }
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &page));
 }
 
 /// Every online member of `clan_id` with whether they stand in **this castle's**
@@ -622,9 +612,7 @@ fn clan_penalty(world: &World, client_id: u32, object_id: i32) {
 <table width=270 border=0><tr>{rows}</tr></table>\
 <img src=\"L2UI.SquareWhite\" width=270 height=1></center></body></html>"
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }
 
 /// Port of `usercommandhandlers/OlympiadStat.java`: the *target's* Olympiad
@@ -783,9 +771,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
             .get_component::<Player>(&object_id)
             .is_some_and(|p| p.transform_id != 0)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // `Util.checkIfInRange(200, this, pet, true)`.

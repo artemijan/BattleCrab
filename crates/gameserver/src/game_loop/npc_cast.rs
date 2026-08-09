@@ -19,6 +19,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
@@ -552,11 +553,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     if world
         .objects
         .has_component::<crate::model::components::Movement>(&npc_oid)
-        && world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_attackable_class())
+        && npc_template(world, npc_oid).is_some_and(|t| t.is_attackable_class())
     {
         return;
     }

@@ -16,6 +16,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{
     CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals,
@@ -874,9 +875,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         return;
     };
     let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 // ---------------------------------------------------------------------------

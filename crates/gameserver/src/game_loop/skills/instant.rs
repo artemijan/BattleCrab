@@ -8,6 +8,8 @@
 
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
@@ -16,10 +18,10 @@ use crate::world::World;
 
 use super::effects::{
     SkillHit, apply_skill_damage, attribute_mod, broadcast_social_action, broadcast_vitals,
-    calc_general_trait_bonus, caster_display_name, caster_level, confuse_chance_passes,
-    creature_level, defence_after_shield, handle_buff_expire, max_recoverable, pvp_pve_bonus,
-    roll_magic_failure, send_sm, servitor_owner_of, skill_power_mul, skill_trait_mod, target_m_def,
-    target_p_def,
+    calc_general_trait_bonus, caster_display_name, caster_level, caster_m_atk,
+    confuse_chance_passes, creature_level, defence_after_shield, handle_buff_expire,
+    max_recoverable, pvp_pve_bonus, roll_magic_failure, send_sm, servitor_owner_of,
+    skill_power_mul, skill_trait_mod, target_m_def, target_p_def,
 };
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_mul;
@@ -79,11 +81,7 @@ fn magic_damage(
         magic_shots_bonus,
         ..
     } = *ctx;
-    let m_atk = world
-        .objects
-        .get_component::<CombatStats>(&caster_oid)
-        .map(|c| c.m_atk)
-        .unwrap_or(0.0);
+    let m_atk = caster_m_atk(world, caster_oid);
     let failure = roll_magic_failure(world, caster_oid, target_oid, skill, is_drain);
     formulas::calc_magic_dam(
         m_atk,
@@ -215,11 +213,7 @@ pub(super) fn magical_attack_mp(
     if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
         return;
     }
-    let m_atk = world
-        .objects
-        .get_component::<CombatStats>(&caster_oid)
-        .map(|c| c.m_atk)
-        .unwrap_or(0.0);
+    let m_atk = caster_m_atk(world, caster_oid);
     let m_def = target_m_def(world, target_oid);
     // `calcMagicAffected`: `defence` is the target's mDef only for
     // an *active bad* skill — all four of these are.
@@ -406,11 +400,7 @@ pub(super) fn blow(
                     .get(p.class_id)
                     .map_or(4.0, |t| t.base_crit_rate as f64)
             } else {
-                world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&caster_oid)
-                    .and_then(|n| n.template(world))
-                    .map_or(4.0, |t| t.base_crit_rate)
+                npc_template(world, caster_oid).map_or(4.0, |t| t.base_crit_rate)
             }
         })
     };
@@ -512,11 +502,7 @@ pub(super) fn lethal(
     // constructors, and the `NonLethalableNpcs` script sets it on the siege
     // Headquarters. `is_raid()` matches the `GrandBoss` type name as well as
     // `RaidBoss`, so the grand bosses need no separate test.
-    let is_raid = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_raid());
+    let is_raid = npc_template(world, target_oid).is_some_and(|t| t.is_raid());
     if is_raid
         || world
             .objects
@@ -672,12 +658,14 @@ pub(super) fn hp_drain(
                 .get_component::<Vitals>(&caster_oid)
                 .map(|v| v.cur_hp as i32)
                 .unwrap_or(0);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::status_update(
+            send_to_client(
+                world,
+                client_id,
+                server_packets::status_update(
                     caster_oid,
                     &[(server_packets::status_update_type::CUR_HP, cur)],
-                ));
-            }
+                ),
+            );
             crate::game_loop::party::notify_party_vitals(world, caster_oid);
         }
     }
@@ -960,11 +948,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         caster_is_player,
         ..
     } = *ctx;
-    let m_atk = world
-        .objects
-        .get_component::<CombatStats>(&caster_oid)
-        .map(|c| c.m_atk)
-        .unwrap_or(0.0);
+    let m_atk = caster_m_atk(world, caster_oid);
     let mut amount = formulas::calc_heal(
         power,
         m_atk,

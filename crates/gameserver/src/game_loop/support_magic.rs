@@ -16,6 +16,7 @@
 //!   unported). The remaining buffs and the animation land normally.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use tracing::warn;
 
@@ -144,14 +145,7 @@ pub(crate) fn support_magic(
         .categories
         .contains("FOURTH_CLASS_GROUP", class_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                server_packets::sm_ids::S1_TEXT,
-                &[server_packets::SmParam::Text(
-                    "Only adventurers who have not completed their 3rd class transfer may receive these buffs.".to_string(),
-                )],
-            ));
-        }
+        send_to_client(world, client_id, server_packets::system_message_with( server_packets::sm_ids::S1_TEXT, &[server_packets::SmParam::Text( "Only adventurers who have not completed their 3rd class transfer may receive these buffs.".to_string(), )], ));
         return;
     }
 
@@ -209,7 +203,9 @@ fn send_default_html(world: &World, client_id: u32, npc_object_id: i32, file: &s
         crate::data::htm_cache::read_htm(format!("{}data/html/default/{file}", world.data.root))
             .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
             .replace("%objectId%", &npc_object_id.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_object_id, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_object_id, &html),
+    );
 }

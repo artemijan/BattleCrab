@@ -20,6 +20,7 @@
 //! item-stat path has applied to `CombatStats.atk_range` since G14.
 
 use crate::data::item_data::{EtcItemType, WeaponType};
+use crate::game_loop::helpers::send_action_failed;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -150,9 +151,7 @@ pub(crate) fn report_refusal(world: &mut World, attacker_oid: i32, why: RangedRe
         // Java only schedules an AI re-think and sends ActionFailed; the swing
         // is retried on the next combat tick.
         RangedRefusal::Reloading => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
         }
         RangedRefusal::OutOfAmmo => {
             world

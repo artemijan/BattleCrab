@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::helpers::npc_name_or_empty;
+use crate::game_loop::helpers::npc_template;
 
 /// The caster's name for the damage system messages. NPCs cast skills as of
 /// G21, so this can't `expect` a `Player` — a monster resolves to its template
@@ -19,12 +20,7 @@ pub(crate) fn caster_level(world: &World, oid: i32) -> i32 {
     if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
         return p.level;
     }
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.level)
-        .unwrap_or(1)
+    npc_template(world, oid).map(|t| t.level).unwrap_or(1)
 }
 
 /// Java `Formulas.calcGeneralTraitBonus(attacker, target, traitType, false)` —

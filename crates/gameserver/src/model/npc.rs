@@ -1066,12 +1066,8 @@ fn announce_boss_spawn(world: &World, object_id: i32) {
         None,
     );
     let screen = crate::network::server_packets::ex_show_screen_message(&text, 2, 5000);
-    for cs in world.clients.values() {
-        if matches!(cs, crate::session::ClientSession::InGame(_)) {
-            cs.send(say.clone());
-            cs.send(screen.clone());
-        }
-    }
+    world.broadcast_to_all_online(&say);
+    world.broadcast_to_all_online(&screen);
 }
 
 #[cfg(test)]

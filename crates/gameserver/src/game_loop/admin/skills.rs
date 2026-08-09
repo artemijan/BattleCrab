@@ -6,6 +6,7 @@ use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
 use crate::model::components::{Buffs, SkillBook};
@@ -422,9 +423,7 @@ pub(crate) fn refresh_skill_list(world: &World, target: i32) {
     let Some(packet) = super::helpers::skill_list_packet(world, target) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&cid) {
-        cs.send(packet);
-    }
+    send_to_client(world, cid, packet);
 }
 
 /// `AdminBuffs`'s `//buff <skillId> [level]` — apply a skill's effects to the
@@ -640,9 +639,7 @@ fn removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str])
             .get_component::<crate::model::components::Reuses>(&target)
     {
         let packet = crate::network::server_packets::skill_cool_time(reuses, world.tick);
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+        send_to_client(world, cid, packet);
     }
     let name = helpers::player_name_or_empty(world, target);
     send_message(

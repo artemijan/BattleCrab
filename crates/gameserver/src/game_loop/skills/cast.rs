@@ -5,6 +5,9 @@
 use crate::game_loop::common::maybe_distance_too_far;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{
     broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action,
@@ -274,11 +277,7 @@ pub(crate) fn resolve_cast_target(
             // is permissive and leans on the client to demand Ctrl for a good
             // skill on a hostile creature; we enforce it server-side so buffing
             // a mob needs a deliberate force-pick, matching the real client.
-            let is_monster = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&t)
-                .and_then(|n| n.template(world))
-                .is_some_and(|tm| tm.is_auto_attackable());
+            let is_monster = npc_template(world, t).is_some_and(|tm| tm.is_auto_attackable());
             if is_monster && !ctrl {
                 return Err(sm_ids::INVALID_TARGET);
             }
@@ -669,9 +668,7 @@ pub(crate) fn use_magic_on(
 
     // The dead can't cast (`checkUseConditions` → `isDead`).
     if is_dead(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // `Creature.isAllSkillsDisabled()` — `_allSkillsDisabled ||
@@ -679,9 +676,7 @@ pub(crate) fn use_magic_on(
     // a script has locked skills outright (the TvT freeze). Checked before the
     // skill lookup, like Java's `useMagic` guard order.
     if super::super::abnormal::all_skills_disabled(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // Unknown skill → ActionFailed (RequestMagicSkillUse.runImpl).
@@ -693,9 +688,7 @@ pub(crate) fn use_magic_on(
     // skill appears on the bar (it is in the `SkillList`) and then answers
     // every click with `ActionFailed`.
     let Some(skill_level) = known_skill_level(world, object_id, magic_id) else {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     };
     // An enchanted skill resolves to its sub-level variant (Java's known
@@ -719,9 +712,7 @@ pub(crate) fn use_magic_on(
     // Passive → ActionFailed (useMagic); toggles/unsupported targeting are
     // not castable yet and are consumed silently, same as before.
     if skill.operate_type == OperateType::Passive {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // `Player.useMagic`: "Check if the caster is sitting" — a seated player may
@@ -759,9 +750,7 @@ pub(crate) fn use_magic_on(
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill.id));
         if already_on {
             super::effects::handle_buff_expire(world, object_id, skill.id);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
         if skill.toggle_group_id > 0 {
@@ -817,9 +806,7 @@ pub(crate) fn use_magic_on(
         }
         apply_skill_effects(world, object_id, object_id, &skill);
         set_skill_reuse(world, object_id, &skill);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     } else if !matches!(
         skill.operate_type,
@@ -838,9 +825,7 @@ pub(crate) fn use_magic_on(
             .objects
             .has_component::<crate::model::components::GroundSkillTarget>(&object_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // `SkillCaster.checkDoCastConditions`' mute checks: a magic skill is
@@ -854,9 +839,7 @@ pub(crate) fn use_magic_on(
             super::super::abnormal::is_physical_muted(world, object_id)
         };
         if muted {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
     }
@@ -943,9 +926,7 @@ pub(crate) fn use_magic_on(
                 shift,
             },
         );
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
 
@@ -1181,12 +1162,14 @@ pub(crate) fn start_casting(
         mp_update = Some(vitals.cur_mp as i32);
     }
     if let Some(mp) = mp_update {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::status_update(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::status_update(
                 object_id,
                 &[(server_packets::status_update_type::CUR_MP, mp)],
-            ));
-        }
+            ),
+        );
         crate::game_loop::party::notify_party_vitals(world, object_id);
     }
 
@@ -1810,11 +1793,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .objects
             .get_component::<crate::model::npc::NpcAi>(&witness)
             .is_some_and(|ai| ai.intention == crate::model::npc::NpcIntention::Attack)
-            && world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&witness)
-                .and_then(|n| n.template(world))
-                .is_some_and(|tpl| tpl.is_auto_attackable());
+            && npc_template(world, witness).is_some_and(|tpl| tpl.is_auto_attackable());
         if skill.effect_point > 0 && fighting {
             let npc_target = world
                 .objects
@@ -1824,11 +1803,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
                 .iter()
                 .any(|&t| Some(t) == npc_target || t == witness);
             if relevant {
-                let level = world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&witness)
-                    .and_then(|n| n.template(world))
-                    .map_or(1, |tpl| tpl.level);
+                let level = npc_template(world, witness).map_or(1, |tpl| tpl.level);
                 let hate = f64::from(skill.effect_point) * 150.0 / f64::from(level + 7);
                 crate::game_loop::minions::add_hate(world, witness, player_object_id, hate);
             }
@@ -1952,11 +1927,7 @@ fn matchup_effects(
     if world.objects.has_component::<Player>(&target_oid) {
         return Some(skill.pvp_effects.clone());
     }
-    let attackable = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_attackable_class());
+    let attackable = npc_template(world, target_oid).is_some_and(|t| t.is_attackable_class());
     attackable.then(|| skill.pve_effects.clone())
 }
 
@@ -1980,11 +1951,7 @@ fn apply_cast_consequences(
     // Monster proxy: an NPC whose template is auto-attackable (same test the
     // targeting code uses for "is this a monster").
     let target_is_monster = !target_is_player
-        && world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&target_oid)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_auto_attackable());
+        && npc_template(world, target_oid).is_some_and(|t| t.is_auto_attackable());
     if skill.is_bad() {
         // Bad skill on a player → flag the caster against that target
         // (`updatePvPStatus(target)`). Monsters take hate + an AI wake, no flag.

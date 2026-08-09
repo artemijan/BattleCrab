@@ -24,6 +24,7 @@
 //!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
 use crate::game_loop::guard;
+use crate::game_loop::helpers::send_to_client;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -110,9 +111,7 @@ pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
     // Java `new NpcHtmlMessage()` — the **no-arg** ctor, so the window carries
     // npcObjId 0 and its bypasses are not bound to the NPC (Java's
     // `HtmlActionCache` origin). All three NpcViewMod pages do this.
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }
 
 /// `bypass NpcViewMod <verb> …` router — the `Info.htm` buttons *and* the
@@ -192,9 +191,7 @@ fn send_npc_skill_view(world: &World, client_id: u32, npc_object_id: i32) {
         .replace("%skills%", &rows)
         .replace("%npc_name%", &t.name)
         .replace("%npcId%", &t.id.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }
 
 /// `NpcViewMod.sendAggroListView` — `data/html/mods/NpcView/AggroList.htm`,
@@ -237,9 +234,7 @@ fn send_aggro_list_view(world: &World, client_id: u32, npc_object_id: i32) {
         // The Refresh button re-issues the bypass, so this one *is* the
         // object id, not the template id.
         .replace("%objid%", &npc_object_id.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }
 
 /// A player's name, else an NPC's template name — whatever holds the aggro.

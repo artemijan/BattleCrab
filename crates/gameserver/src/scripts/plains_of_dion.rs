@@ -3,9 +3,9 @@
 //! onto you, with the appropriate indignation.
 
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::npc_say_param;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::components::{Position, RegionCell, Vitals};
+use crate::model::components::{Position, Vitals};
 use crate::model::npc::AggroList;
 
 const DELU_LIZARDMEN: [i32; 3] = [
@@ -68,9 +68,9 @@ impl QuestScript for PlainsOfDion {
             .unwrap_or_default();
         let i = ctx.roll(5) as usize;
         if i < 2 {
-            say(ctx, ctx.npc, MONSTERS_MSG[i], Some(&attacker_name));
+            npc_say_param(ctx.world, ctx.npc, MONSTERS_MSG[i], Some(&attacker_name));
         } else {
-            say(ctx, ctx.npc, MONSTERS_MSG[i], None);
+            npc_say_param(ctx.world, ctx.npc, MONSTERS_MSG[i], None);
         }
 
         let help_range = ctx
@@ -125,28 +125,8 @@ impl QuestScript for PlainsOfDion {
             }
             crate::game_loop::npc_ai::seed_attack(ctx.world, helper, ctx.player);
             let assist = ASSIST_MSG[ctx.roll(3) as usize];
-            say(ctx, helper, assist, None);
+            npc_say_param(ctx.world, helper, assist, None);
         }
         ctx.set_npc_script_value(1);
-    }
-}
-
-/// `broadcastSay(NPC_GENERAL, id[, $s1])` — region-scoped like
-/// `broadcastPacket`.
-fn say(ctx: &mut QuestCtx, npc_oid: i32, npc_string_id: i32, param: Option<&str>) {
-    let Some(npc_id) = npc_id_of(ctx.world, npc_oid) else {
-        return;
-    };
-    let pkt = match param {
-        Some(p) => crate::network::server_packets::npc_say_param(npc_oid, npc_id, npc_string_id, p),
-        None => crate::network::server_packets::npc_say(npc_oid, npc_id, npc_string_id),
-    };
-    if let Some(region) = ctx
-        .world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    {
-        crate::game_loop::helpers::broadcast_near_region(ctx.world, region, &pkt);
     }
 }

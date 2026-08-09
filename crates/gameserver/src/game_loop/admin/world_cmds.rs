@@ -310,11 +310,7 @@ fn announce_all(world: &World, text: &str) {
         server_packets::sm_ids::S1_TEXT,
         &[server_packets::SmParam::Text(text.to_string())],
     );
-    for cs in world.clients.values() {
-        if matches!(cs, crate::session::ClientSession::InGame(_)) {
-            cs.send(packet.clone());
-        }
-    }
+    world.broadcast_to_all_online(&packet);
 }
 
 /// `//server_shutdown [sec]` / `//server_restart [sec]` — start the countdown

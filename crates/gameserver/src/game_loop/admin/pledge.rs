@@ -9,6 +9,7 @@ use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
@@ -120,9 +121,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
             let cid = clan_id.or_msg("Target player has no clan!")?;
             if let Some(clan) = world.clans.get(&cid) {
                 let pkt = server_packets::gm_view_pledge_info(clan, &target_name, &world.objects);
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(pkt);
-                }
+                send_to_client(world, client_id, pkt);
             }
         }
         "setlevel" => {

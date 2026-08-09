@@ -5,6 +5,7 @@
 use crate::game_loop::guard;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::session::ClientSession;
 use crate::world::World;
@@ -292,9 +293,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
         let name = player_name_or_empty(world, owner);
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(pkt);
-        }
+        send_to_client(world, client_id, pkt);
     }
     super::party::broadcast_user_info(world, owner);
     send_message(world, client_id, "Item deleted.");
@@ -382,9 +381,7 @@ pub(super) fn admin_delete_quest_item(
     }
     if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(pkt);
-        }
+        send_to_client(world, client_id, pkt);
     }
     super::party::broadcast_user_info(world, target);
     send_message(

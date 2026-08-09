@@ -14,6 +14,7 @@
 //! the conditions as a robe is worn or removed — mirroring [`super::expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Buffs, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::model::skill::StatModifierEffect;
@@ -118,9 +119,7 @@ fn send_user_info(world: &World, object_id: i32) {
             &world.cfg.character,
             super::party::calculate_relation(world, view.p),
         );
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(user_info);
-        }
+        send_to_client(world, client_id, user_info);
     }
 }
 

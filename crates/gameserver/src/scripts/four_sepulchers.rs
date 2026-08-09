@@ -2,12 +2,14 @@
 //! run machinery lives in [`crate::game_loop::four_sepulchers`].
 
 use crate::game_loop::four_sepulchers as fs;
+use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::npc_say;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::components::{AdminFlags, Position, RegionCell, Vitals};
+use crate::model::components::{AdminFlags, Position, Vitals};
 
 const ROOM_3_VICTIM: i32 = 18150;
 const ROOM_3_CHEST_REWARDER: i32 = 18158;
@@ -203,7 +205,7 @@ impl QuestScript for FourSepulchers {
                         fs::open_gate(ctx.world, sep);
                     }
                     let npc = ctx.npc;
-                    say(ctx, npc, MONSTERS_HAVE_SPAWNED);
+                    npc_say(ctx.world, npc, MONSTERS_HAVE_SPAWNED);
                     None
                 } else {
                     Some("Gatekeeper-no.html".into())
@@ -258,7 +260,7 @@ impl QuestScript for FourSepulchers {
                 }
                 let npc = ctx.npc;
                 let msg = charm_msg(npc_id);
-                say(ctx, npc, msg);
+                npc_say(ctx.world, npc, msg);
             }
             ROOM_6_REWARD_CHEST => {
                 drop_adena_reward(ctx);
@@ -335,14 +337,7 @@ fn drop_adena_reward(ctx: &mut QuestCtx) {
         npc,
         crate::game_loop::ground_items::DropSource::Npc,
     );
-    if let Some(g) = ctx
-        .world
-        .objects
-        .get_component_mut::<crate::model::components::GroundItem>(&ground_oid)
-    {
-        g.owner_id = player;
-        g.owner_until_tick = ctx.world.tick + 150;
-    }
+    reserve_for(ctx.world, ground_oid, player, LOOT_PROTECTION_TICKS);
 }
 
 /// `VICTIM_FLEE` — the room-3 victim scrambles around its room crying for
@@ -380,21 +375,6 @@ pub(crate) fn handle_remove_petrify(world: &mut crate::world::World, npc_oid: i3
     if let Some(flags) = world.objects.get_component_mut::<AdminFlags>(&npc_oid) {
         flags.invul = false;
         flags.untargetable = false;
-    }
-}
-
-fn say(ctx: &mut QuestCtx, npc_oid: i32, npc_string_id: i32) {
-    let Some(npc_id) = npc_id_of(ctx.world, npc_oid) else {
-        return;
-    };
-    let pkt = crate::network::server_packets::npc_say(npc_oid, npc_id, npc_string_id);
-    if let Some(region) = ctx
-        .world
-        .objects
-        .get_component::<RegionCell>(&npc_oid)
-        .map(|r| r.0)
-    {
-        crate::game_loop::helpers::broadcast_near_region(ctx.world, region, &pkt);
     }
 }
 

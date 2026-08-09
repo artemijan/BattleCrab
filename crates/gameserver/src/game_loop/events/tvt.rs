@@ -16,6 +16,7 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use commons::util::rnd;
 use tracing::warn;
@@ -30,7 +31,6 @@ use crate::model::event::TvtPhase;
 use crate::model::npc::spawn_npc_at;
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 /// The event's registry name (Java `params.set("Name", "Team Vs Team")`; the
@@ -1269,23 +1269,18 @@ fn manager_html(world: &World, file: &str) -> String {
 
 /// Java `player.sendMessage(String)` — a `$s1` system-message line.
 fn send_player_message(world: &World, client_id: u32, text: &str) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::system_message_with(
-            sp::sm_ids::S1_TEXT,
-            &[sp::SmParam::Text(text.to_string())],
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        sp::system_message_with(sp::sm_ids::S1_TEXT, &[sp::SmParam::Text(text.to_string())]),
+    );
 }
 
 /// Java `Broadcast.toAllOnlinePlayers(String)` — a yellow announcement line to
 /// every in-game player.
 fn announce(world: &World, text: &str) {
     let pkt = sp::creature_say(0, ChatType::Announcement, "", text, None);
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.clone());
-        }
-    }
+    world.broadcast_to_all_online(&pkt);
 }
 
 /// `AntiFeedManager.tryAddPlayer(L2EVENT_ID, player, DUALBOX_CHECK_MAX_L2EVENT_

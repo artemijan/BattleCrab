@@ -10,6 +10,7 @@ use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, GroundItem, Position};
 use crate::world::World;
@@ -159,9 +160,11 @@ fn send_panel(world: &World, client_id: u32, player_oid: i32) {
         "<button action=\"bypass voice .play start\" value=\"Start\" width=240 height=31>"
     };
     html = html.replace("%status_button%", status);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::npc_html_message(0, &html),
+    );
 }
 
 /// `AutoPlayTaskManager.AutoPlay.run` — one pass over every active player.

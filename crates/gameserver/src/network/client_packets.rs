@@ -642,6 +642,33 @@ impl RequestDestroyItem {
     }
 }
 
+/// Read `count` `(object id, count)` pairs — the item-list body every
+/// item-moving request carries (warehouse deposit and withdraw, freight, mail
+/// attachments).
+///
+/// A malformed line rejects the **whole** packet rather than being skipped, as
+/// Java does. That is the part worth stating: taking the valid prefix of a
+/// tampered list is how a client talks the server into a partial warehouse
+/// transfer, and a partial transfer is a duplication bug.
+///
+/// The per-request cap on `count` stays at the call site — 500 for a warehouse
+/// list, `MAX_ATTACHMENTS * 4` for mail — because those are different limits
+/// with different system messages behind them. The preallocation is clamped
+/// regardless, so a caller that forgets to check cannot turn a four-byte header
+/// into a large allocation.
+pub(crate) fn read_item_lines(r: &mut PacketReader, count: i32) -> Option<Vec<(i32, i64)>> {
+    let mut items = Vec::with_capacity(count.clamp(0, 512) as usize);
+    for _ in 0..count {
+        let object_id = r.read_i32()?;
+        let cnt = r.read_i64()?;
+        if object_id < 1 || cnt < 0 {
+            return None;
+        }
+        items.push((object_id, cnt));
+    }
+    Some(items)
+}
+
 /// Port of `SendWareHouseDepositList` / `SendWareHouseWithDrawList` (`d[dq]`):
 /// a count-prefixed list of `(object_id, count)` pairs — the items to move into
 /// or out of the warehouse.
@@ -656,15 +683,7 @@ impl WarehouseItemList {
         if count <= 0 || count > 500 {
             return None;
         }
-        let mut items = Vec::with_capacity(count as usize);
-        for _ in 0..count {
-            let object_id = r.read_i32()?;
-            let cnt = r.read_i64()?;
-            if object_id < 1 || cnt < 0 {
-                return None;
-            }
-            items.push((object_id, cnt));
-        }
+        let items = read_item_lines(&mut r, count)?;
         Some(Self { items })
     }
 }
@@ -700,14 +719,7 @@ impl RequestSendPost {
             if count as usize > Self::MAX_ATTACHMENTS * 4 {
                 return None;
             }
-            for _ in 0..count {
-                let object_id = r.read_i32()?;
-                let cnt = r.read_i64()?;
-                if object_id < 1 || cnt < 0 {
-                    return None;
-                }
-                items.push((object_id, cnt));
-            }
+            items = read_item_lines(&mut r, count)?;
         }
         let req_adena = r.read_i64()?;
         Some(Self {

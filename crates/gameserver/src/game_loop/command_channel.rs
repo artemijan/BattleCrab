@@ -15,6 +15,8 @@
 //! accept path sends on top of the constructor/`addParty` broadcasts, and the
 //! roster query answering for any party with no shared-channel check.
 
+use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
 use crate::model::command_channel::CommandChannel;
 use crate::model::components::{PartyRef, PendingRequest, RequestKind};
@@ -33,10 +35,6 @@ const STRATEGY_GUIDE_ITEM_ID: i32 = 8871;
 const CLAN_IMPERIUM_SKILL_ID: i32 = 391;
 const FORMING_CLAN_LEVEL: i32 = 5;
 const FORMING_PLEDGE_CLASS: u8 = 5;
-
-fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
 
 /// Java `Player.sendMessage` — the plain-text `$s1` system message.
 fn send_text(world: &World, object_id: i32, text: &str) {
@@ -80,7 +78,7 @@ pub(crate) fn cc_members(world: &World, cc_id: u32) -> Vec<i32> {
 /// `AbstractPlayerGroup.broadcastPacket` on the channel.
 pub(crate) fn broadcast_to_cc(world: &World, cc_id: u32, packet: &[u8]) {
     for m in cc_members(world, cc_id) {
-        send_to(world, m, packet.to_vec());
+        send_to_player(world, m, packet.to_vec());
     }
 }
 
@@ -251,7 +249,7 @@ pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32,
         sm_ids::C1_IS_INVITING_YOU_TO_A_COMMAND_CHANNEL_DO_YOU_ACCEPT,
         &[SmParam::PlayerName(requestor_name.clone())],
     );
-    send_to(
+    send_to_player(
         world,
         target_leader,
         server_packets::ex_ask_join_mpcc(&requestor_name),
@@ -558,9 +556,11 @@ pub(crate) fn handle_request_ex_mpcc_show_party_members_info(
                 })
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_mpcc_show_party_member_info(&members));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_mpcc_show_party_member_info(&members),
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -571,14 +571,14 @@ pub(crate) fn handle_request_ex_mpcc_show_party_members_info(
 /// window opened.
 pub(crate) fn on_party_member_added(world: &World, party_id: u32, new_member: i32) {
     if cc_id_of_party(world, party_id).is_some() {
-        send_to(world, new_member, server_packets::ex_open_mpcc());
+        send_to_player(world, new_member, server_packets::ex_open_mpcc());
     }
 }
 
 /// `Party.removePartyMember`: the leaver's CC window closes.
 pub(crate) fn on_party_member_removed(world: &World, party_id: u32, leaver: i32) {
     if cc_id_of_party(world, party_id).is_some() {
-        send_to(world, leaver, server_packets::ex_close_mpcc());
+        send_to_player(world, leaver, server_packets::ex_close_mpcc());
     }
 }
 
@@ -750,10 +750,10 @@ pub(crate) fn create_cc_room(world: &mut World, leader: i32, party_id: u32) {
         &[],
     );
     if let Some(info) = cc_room_info_packet(world, room_id) {
-        send_to(world, leader, info);
+        send_to_player(world, leader, info);
     }
     let views = cc_room_member_views(world, room_id);
-    send_to(
+    send_to_player(
         world,
         leader,
         server_packets::ex_mpcc_room_member(cc_room_member_type(world, room_id, leader), &views),
@@ -820,7 +820,7 @@ pub(crate) fn cc_room_add_member(world: &mut World, room_id: i32, player: i32) -
         joiner_type,
     );
     for oid in others {
-        send_to(world, oid, add_row.clone());
+        send_to_player(world, oid, add_row.clone());
         send_sm(
             world,
             oid,
@@ -829,10 +829,10 @@ pub(crate) fn cc_room_add_member(world: &mut World, room_id: i32, player: i32) -
         );
     }
     if let Some(info) = cc_room_info_packet(world, room_id) {
-        send_to(world, player, info);
+        send_to_player(world, player, info);
     }
     let views = cc_room_member_views(world, room_id);
-    send_to(
+    send_to_player(
         world,
         player,
         server_packets::ex_mpcc_room_member(joiner_type, &views),
@@ -860,12 +860,12 @@ pub(crate) fn cc_room_remove_member(world: &mut World, room_id: i32, player: i32
         let info = cc_room_info_packet(world, room_id);
         for oid in members {
             if let Some(info) = info.clone() {
-                send_to(world, oid, info);
+                send_to_player(world, oid, info);
             }
             // Java computes the member-type field for the *removed* player;
             // the port sends the recipient's own type (same deliberate fix as
             // the party-room port).
-            send_to(
+            send_to_player(
                 world,
                 oid,
                 server_packets::ex_mpcc_room_member(
@@ -899,7 +899,7 @@ fn cc_room_disband(world: &mut World, room_id: i32) {
             sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CANCELLED,
             &[],
         );
-        send_to(world, oid, server_packets::ex_dissmiss_mpcc_room());
+        send_to_player(world, oid, server_packets::ex_dissmiss_mpcc_room());
         super::party_room::set_in_room_flag(world, oid, false);
         super::party::broadcast_user_info(world, oid);
         world.matching_rooms.add_to_waiting_list(oid);
@@ -948,9 +948,11 @@ pub(crate) fn handle_request_ex_list_mpcc_waiting(world: &mut World, client_id: 
             })
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_list_mpcc_waiting(total, &rows));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_list_mpcc_waiting(total, &rows),
+    );
 }
 
 pub(crate) fn handle_request_ex_manage_mpcc_room(world: &mut World, client_id: u32, body: &[u8]) {
@@ -981,7 +983,7 @@ pub(crate) fn handle_request_ex_manage_mpcc_room(world: &mut World, client_id: u
         .unwrap_or_default();
     if let Some(info) = cc_room_info_packet(world, pkt.room_id) {
         for oid in members {
-            send_to(world, oid, info.clone());
+            send_to_player(world, oid, info.clone());
         }
     }
     send_sm(
@@ -1091,9 +1093,11 @@ pub(crate) fn handle_request_ex_mpcc_partymaster_list(world: &mut World, client_
             names.push(name);
         }
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_mpcc_partymaster_list(&names));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_mpcc_partymaster_list(&names),
+    );
 }
 
 // ---------------------------------------------------------------------------

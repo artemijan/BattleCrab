@@ -3,6 +3,9 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use tracing::warn;
 
@@ -253,9 +256,7 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
     if crate::game_loop::abnormal::is_blocked_from_actions(world, object_id)
         || crate::game_loop::abnormal::is_control_blocked(world, object_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     if cursed_weapon_blocks_equip(world, object_id, pkt.object_id) {
@@ -659,12 +660,11 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
 
 /// Send a bare `$s1` system-message line to one client.
 pub(crate) fn send_item_message(world: &World, client_id: u32, text: &str) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(
-            sm_ids::S1_TEXT,
-            &[SmParam::Text(text.to_string())],
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::system_message_with(sm_ids::S1_TEXT, &[SmParam::Text(text.to_string())]),
+    );
 }
 
 /// Port of `clientpackets/RequestSaveInventoryOrder.runImpl`: persist the
@@ -1216,9 +1216,11 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
     }
 
     let send = |world: &World, msg: i16, params: &[SmParam]| {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(msg, params));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(msg, params),
+        );
     };
 
     // A **summon** shot takes Java's `isSummonShot` branch, which checks that
@@ -1289,9 +1291,11 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         {
             p.auto_shots.push(item_id);
         }
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::ex_auto_soul_shot(item_id, true, shot_type));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::ex_auto_soul_shot(item_id, true, shot_type),
+        );
         send(
             world,
             sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED,
@@ -1310,9 +1314,11 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
             p.auto_shots.retain(|&id| id != item_id);
         }
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::ex_auto_soul_shot(item_id, false, shot_type));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::ex_auto_soul_shot(item_id, false, shot_type),
+        );
         send(
             world,
             sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED,
@@ -1484,9 +1490,11 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     };
     let send = |world: &World, sm: i16| {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm, &[]));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(sm, &[]),
+        );
     };
 
     // The seeded target is the player's current target.
@@ -1500,11 +1508,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     };
     // Must be a live, `canBeSown` monster that isn't already seeded.
-    let can_be_sown = world
-        .objects
-        .get_component::<Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.can_be_sown);
+    let can_be_sown = npc_template(world, target_oid).is_some_and(|t| t.can_be_sown);
     let dead = world
         .objects
         .get_component::<crate::model::components::Vitals>(&target_oid)
@@ -1521,9 +1525,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     }
     if already_seeded {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // The seed must be in the catalogue (Java `getSeed(itemId)`)…
@@ -1764,12 +1766,11 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         .get_component::<Inventory>(&object_id)
         .is_some_and(|inv| inv.is_under_80_percent(&world.data.item_data, normal_limit));
     if !under_80 {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOUR_INVENTORY_IS_FULL,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(sm_ids::YOUR_INVENTORY_IS_FULL, &[]),
+        );
         return;
     }
 
@@ -1800,12 +1801,11 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     }
 
     if granted.is_empty() {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE, &[]),
+        );
         return;
     }
 

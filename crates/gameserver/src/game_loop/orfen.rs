@@ -10,6 +10,7 @@
 //! - **The half-HP relocation.** The first time Orfen drops below half health
 //!   it teleports to its "home" spawn point, once per life.
 
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -57,11 +58,7 @@ pub(crate) fn on_orfen_spawned(world: &mut World, orfen_oid: i32) {
     // escort, which the grand-boss spawn path (`spawn_npc_at`) otherwise skips.
     crate::game_loop::minions::spawn_minions(world, orfen_oid);
 
-    let home = world
-        .objects
-        .get_component::<Position>(&orfen_oid)
-        .map(|p| (p.x, p.y, p.z))
-        .unwrap_or(HOME);
+    let home = pos_of(world, orfen_oid).unwrap_or(HOME);
     world.objects.add_components(
         &orfen_oid,
         OrfenState {

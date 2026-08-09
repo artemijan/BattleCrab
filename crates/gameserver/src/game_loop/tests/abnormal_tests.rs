@@ -3,6 +3,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::skill_by_id;
 
 use crate::game_loop::abnormal;
@@ -3428,11 +3429,7 @@ fn a_scroll_of_escape_moves_the_caster() {
 
     land(&mut world, 9440, CASTER);
 
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&CASTER)
-        .map(|p| (p.x, p.y, p.z))
-        .unwrap();
+    let pos = pos_of(&world, CASTER).unwrap();
     assert_eq!(
         (pos.0, pos.1),
         (12_345, -6_789),

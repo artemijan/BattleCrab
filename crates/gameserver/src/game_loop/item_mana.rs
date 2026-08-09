@@ -64,6 +64,7 @@
 //! is null, so `run` throws it away — and without it a relog inside the beat
 //! window would leave two beats racing on one item, draining it twice as fast.
 
+use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
 
 use crate::model::inventory::Inventory;
@@ -214,12 +215,14 @@ pub(crate) fn decrease_mana(
     }
 
     // "The life time has expired."
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::system_message_with(
+    send_to_client(
+        world,
+        client_id,
+        sp::system_message_with(
             sm_ids::S1_S_REMAINING_MANA_IS_NOW_0_AND_THE_ITEM_HAS_DISAPPEARED,
             &[SmParam::ItemName(item_id)],
-        ));
-    }
+        ),
+    );
     world.item_mana_consuming.remove(&item_oid);
     if is_equipped(world, player_oid, item_oid) {
         let changed = world

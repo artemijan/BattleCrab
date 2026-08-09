@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
 /// `handlers/effecthandlers/Spoil.java` + its `calcSuccess`
@@ -12,11 +13,7 @@ pub(crate) fn apply_spoil(world: &mut World, caster_oid: i32, target_oid: i32, s
 
     // `!effected.isMonster() || effected.isDead()` → INVALID_TARGET.
     let is_monster = crate::game_loop::combat::is_npc_oid(target_oid)
-        && world
-            .objects
-            .get_component::<Npc>(&target_oid)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_auto_attackable());
+        && npc_template(world, target_oid).is_some_and(|t| t.is_auto_attackable());
     let dead = world
         .objects
         .get_component::<Vitals>(&target_oid)

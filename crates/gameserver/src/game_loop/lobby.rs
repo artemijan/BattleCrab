@@ -2,7 +2,9 @@
 //! (character list, name check, create/delete/restore/select).
 
 use crate::game_loop::clans::clan_name_or_empty;
+use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_to_client;
 use tracing::info;
 
 use crate::db::{self, NewCharacter};
@@ -32,9 +34,11 @@ pub(crate) fn handle_request_character_name_creatable(
     // name-exists / length checks need the DB.
     let valid = !name.is_empty() && name.chars().all(|c| c.is_alphanumeric());
     if !valid {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::ex_is_char_name_creatable(4));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::ex_is_char_name_creatable(4),
+        );
         return;
     }
     let _ = world
@@ -60,9 +64,11 @@ pub(crate) fn handle_new_character(world: &mut World, client_id: u32) {
                 .map(|t| (*class_id, *race, t))
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::new_character_success(&templates));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::new_character_success(&templates),
+    );
 }
 
 /// Port of `CharacterCreate.runImpl`: cheap validation on the game thread, then
@@ -84,9 +90,7 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
         && !pkt.name.is_empty()
         && pkt.name.chars().all(|c| c.is_alphanumeric());
     let send = |world: &World, body: Vec<u8>| {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(body);
-        }
+        send_to_client(world, client_id, body);
     };
     if pkt.name.chars().count() < 1 || pkt.name.chars().count() > 16 {
         return send(world, fail(3));
@@ -359,9 +363,11 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
                     .to_string()
             })
             .replace("%max%", &limit.to_string());
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::server_packets::npc_html_message(0, &html));
-            }
+            send_to_client(
+                world,
+                client_id,
+                crate::network::server_packets::npc_html_message(0, &html),
+            );
             return;
         }
     }
@@ -825,12 +831,7 @@ pub(crate) fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) 
 /// its notice enabled gets `clanNotice.htm` as a popup, newlines folded to
 /// `<br>` exactly as Java does.
 fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, object_id) else {
         return;
     };
     let Some((true, text)) = world.clan_notices.get(&clan_id).cloned() else {
@@ -846,7 +847,9 @@ fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) 
         "%notice_text%",
         &text.replace("\r\n", "<br>").replace('\n', "<br>"),
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::npc_html_message(0, &html),
+    );
 }

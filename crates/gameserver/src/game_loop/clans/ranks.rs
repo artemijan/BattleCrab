@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::send_to_client;
 
 /// `AcquireSkillType.PLEDGE` on the wire (skill lists + acquire packets).
 const ACQUIRE_TYPE_PLEDGE: i16 = 2;
@@ -159,12 +160,11 @@ pub(crate) fn show_pledge_skill_list(world: &World, client_id: u32, player_oid: 
         .iter()
         .map(|l| (l.skill_id, l.skill_level, l.get_level, l.level_up_sp))
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_acquirable_skill_list_by_class(
-            ACQUIRE_TYPE_PLEDGE,
-            &rows,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_acquirable_skill_list_by_class(ACQUIRE_TYPE_PLEDGE, &rows),
+    );
 }
 
 /// Serve a `data/html/villagemaster/<file>` window (Java `NpcHtmlMessage.
@@ -175,9 +175,7 @@ fn send_villagemaster_html(world: &World, client_id: u32, file: &str) {
         world.data.root
     ))
     .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }
 
 /// `RequestAcquireSkillInfo`'s PLEDGE branch: the leader clicked a skill in the
@@ -201,14 +199,16 @@ pub(crate) fn handle_request_pledge_skill_info(
     else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::acquire_skill_info(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::acquire_skill_info(
             learn.skill_id,
             learn.skill_level,
             learn.level_up_sp,
             ACQUIRE_TYPE_PLEDGE as i32,
-        ));
-    }
+        ),
+    );
 }
 
 /// `RequestAcquireSkill`'s PLEDGE case: the leader confirms a pledge-skill
@@ -275,9 +275,7 @@ pub(crate) fn handle_learn_pledge_skill(
     for oid in online_members(world, clan_id) {
         send_to_member(world, oid, pkt.clone());
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::acquire_skill_done());
-    }
+    send_to_client(world, client_id, server_packets::acquire_skill_done());
     show_pledge_skill_list(world, client_id, player);
 }
 
@@ -334,9 +332,11 @@ pub(crate) fn handle_request_pledge_power(world: &mut World, client_id: u32, bod
         .get(&clan_id)
         .map(|c| c.rank_privs_of(rank))
         .unwrap_or(0);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::manage_pledge_power(rank, action, current));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::manage_pledge_power(rank, action, current),
+    );
 }
 
 /// Java `Clan.setRankPrivs`: store + persist the rank's mask, push it onto
@@ -382,9 +382,11 @@ pub(crate) fn handle_request_pledge_power_grade_list(world: &World, client_id: u
         return;
     }
     let ranks: Vec<i32> = (1..=9).collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::pledge_power_grade_list(&ranks));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::pledge_power_grade_list(&ranks),
+    );
 }
 
 /// Resolve a named member of the acting player's clan; `None` when the player
@@ -429,13 +431,11 @@ pub(crate) fn handle_request_pledge_member_power_info(
         .get(&clan_id)
         .map(|c| c.rank_privs_of(grade))
         .unwrap_or(0);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::pledge_receive_power_info(
-            grade,
-            &member.name,
-            privs,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::pledge_receive_power_info(grade, &member.name, privs),
+    );
 }
 
 /// `RequestPledgeMemberInfo` (ex 0x16): the member-detail pane.
@@ -470,13 +470,11 @@ pub(crate) fn handle_request_pledge_member_info(world: &World, client_id: u32, e
         })
         .unwrap_or_default();
     let partner_name = crate::game_loop::academy::partner_name(world, clan_id, member.char_id);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::pledge_receive_member_info(
-            &member,
-            &unit_name,
-            &partner_name,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::pledge_receive_member_info(&member, &unit_name, &partner_name),
+    );
 }
 
 /// `RequestPledgeSetMemberPowerGrade` (ex 0x15): a CL_MANAGE_RANKS holder
@@ -679,12 +677,14 @@ pub(crate) fn handle_change_clan_leader(
         return;
     }
     let Some((_, member)) = clan_member_by_name(world, player_oid, name) else {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 sm_ids::S1_DOES_NOT_EXIST,
                 &[SmParam::Text(name.to_string())],
-            ));
-        }
+            ),
+        );
         return;
     };
     if client_for_player(world, member.char_id).is_none() {
@@ -765,9 +765,11 @@ fn send_clan_master_html(world: &World, client_id: u32, npc_oid: i32, file: &str
     ))
     .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
     .replace("%objectId%", &npc_oid.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_oid, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_oid, &html),
+    );
 }
 
 // --- G18 slice 4: clan wars ------------------------------------------------

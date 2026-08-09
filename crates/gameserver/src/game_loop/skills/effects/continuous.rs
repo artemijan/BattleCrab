@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::stat_mul;
 
@@ -484,13 +485,13 @@ pub(crate) fn refresh_abnormal_visuals(world: &World, object_id: i32) {
         .objects
         .get_component::<crate::model::Player>(&object_id)
         .map_or(0, |p| p.transform_display_id);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(
-            crate::network::user_info::ex_user_info_abnormal_visual_effect(
-                object_id, invisible, transform, &visuals,
-            ),
-        );
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::user_info::ex_user_info_abnormal_visual_effect(
+            object_id, invisible, transform, &visuals,
+        ),
+    );
 }
 
 /// `broadcastPacket(new ChangeWaitType(creature, moveType))` — the fake-death

@@ -17,6 +17,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use commons::util::rnd;
 
 use crate::game_loop::helpers::npc_id_of;
@@ -155,10 +156,7 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
     let Some(master_pos) = position(world, master_oid) else {
         return false;
     };
-    let min_radius = world
-        .objects
-        .get_component::<Npc>(&master_oid)
-        .and_then(|n| n.template(world))
+    let min_radius = npc_template(world, master_oid)
         .map(|t| t.collision_radius as i32 + 30)
         .unwrap_or(30);
 
@@ -209,11 +207,7 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
 /// between the two points (it has not been introduced to any client yet), so
 /// this is the same outcome, including the team aura the roll would have set.
 fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid: i32) {
-    let master_is_raid = world
-        .objects
-        .get_component::<Npc>(&master_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_raid());
+    let master_is_raid = npc_template(world, master_oid).is_some_and(|t| t.is_raid());
     if !master_is_raid {
         return;
     }
@@ -273,10 +267,7 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
     if is_dead(world, master_oid) {
         return;
     }
-    let master_is_raid = world
-        .objects
-        .get_component::<Npc>(&master_oid)
-        .and_then(|n| n.template(world))
+    let master_is_raid = npc_template(world, master_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss"));
 
     let delay_ms = match world
@@ -314,10 +305,7 @@ pub(crate) fn handle_minion_respawn(world: &mut World, master_object_id: i32, _m
 /// minions are left alive — Java's default, and the reason a mob camp doesn't
 /// evaporate when you kill the biggest one in it.
 pub(crate) fn on_master_die(world: &mut World, master_oid: i32) {
-    let is_raid = world
-        .objects
-        .get_component::<Npc>(&master_oid)
-        .and_then(|n| n.template(world))
+    let is_raid = npc_template(world, master_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss"));
     if !is_raid && !world.cfg.npc.force_delete_minions {
         return;
@@ -346,10 +334,7 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
         return;
     }
 
-    let master_is_raid = world
-        .objects
-        .get_component::<Npc>(&master_oid)
-        .and_then(|n| n.template(world))
+    let master_is_raid = npc_template(world, master_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss"));
 
     // The leader wakes with 1 hate, unless it's already fighting.

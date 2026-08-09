@@ -19,6 +19,7 @@
 //! invites someone to "finish" a feature that does not exist.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::send_to_client;
 use commons::network::PacketWriter;
 
 use crate::world::World;
@@ -417,9 +418,7 @@ pub(super) fn admin_forge_send(world: &mut World, client_id: u32, gm_oid: i32, a
 
     match *method {
         "sc" => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(bytes);
-            }
+            send_to_client(world, client_id, bytes);
         }
         // `broadcastPacket` — everyone who can see the GM, the GM included.
         "sb" => crate::game_loop::helpers::broadcast_including_self(world, gm_oid, &bytes),

@@ -15,6 +15,7 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::send_to_client;
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -596,12 +597,14 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
 
     let min_level = world.cfg.general.world_chat_min_level;
     if level < min_level {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 sm_ids::YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1,
                 &[commons::system_messages::SmParam::Int(min_level)],
-            ));
-        }
+            ),
+        );
         return;
     }
 
@@ -639,12 +642,14 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         // Java `Duration.between(now, instant).getSeconds()` truncates, so a
         // 19.4 s wait reports 19 — matched by the integer division here.
         let remaining = ((until - now) / 1000) as i32;
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 sm_ids::YOU_HAVE_S1_SEC_UNTIL_YOU_ARE_ABLE_TO_USE_WORLD_CHAT,
                 &[commons::system_messages::SmParam::Int(remaining)],
-            ));
-        }
+            ),
+        );
         return;
     }
 
@@ -667,9 +672,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         .map(|(&cid, _)| cid)
         .collect();
     for cid in listeners {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(say.clone());
-        }
+        send_to_client(world, cid, say.clone());
     }
 
     // Spend the point, then tell the speaker what is left. Java writes the
@@ -682,9 +685,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         v.set_int(crate::model::components::WORLD_CHAT_USED, used + 1);
     }
     let left = world_chat_points_left(world, sender_oid);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_world_chat_cnt(left));
-    }
+    send_to_client(world, client_id, server_packets::ex_world_chat_cnt(left));
     if interval_secs > 0 {
         world
             .world_chat_reuse
@@ -835,11 +836,11 @@ pub(crate) fn handle_request_item_link(world: &World, client_id: u32, body: &[u8
     let Some(template) = world.data.item_data.get(item.item_id) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::ex_rp_item_link(
-            &item, template, equipped,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::enter_world::ex_rp_item_link(&item, template, equipped),
+    );
 }
 
 /// Java `World.findObject(objectId)` narrowed to items: the published item is

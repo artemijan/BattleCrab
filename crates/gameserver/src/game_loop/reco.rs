@@ -7,6 +7,7 @@
 //! `db::load_reco_bonus` / `store_player_tx` / `create_character`.
 
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_player;
 use commons::network::PacketReader;
 
 use super::helpers::send_sm_to_player as send_sm;
@@ -25,10 +26,6 @@ const RECO_GIVE_PERIOD: u64 = 36_000;
 /// Java `Player.setRecomHave`/`setRecomLeft`: clamp to `0..=255`.
 fn clamp_reco(value: i32) -> i32 {
     value.clamp(0, 255)
-}
-
-fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 /// Java `Player.updateUserInfo()` — a fresh `UserInfo` to the player themselves

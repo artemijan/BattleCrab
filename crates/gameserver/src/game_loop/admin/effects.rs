@@ -11,6 +11,7 @@
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{self, sm_ids};
@@ -247,11 +248,7 @@ pub(super) fn admin_atmosphere(world: &mut World, client_id: u32, args: &[&str])
         send_message(world, client_id, usage);
         return;
     };
-    for cs in world.clients.values() {
-        if matches!(cs, ClientSession::InGame(_)) {
-            cs.send(packet.clone());
-        }
-    }
+    world.broadcast_to_all_online(&packet);
 }
 
 /// `AdminEffects`' `//play_sound <name>` — play a client sound for the GM and
@@ -646,9 +643,11 @@ fn stop_movie(world: &mut World, client_id: u32, object_id: i32) {
     let Some(movie_id) = movie_id else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::ex_stop_scene_player(movie_id));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::enter_world::ex_stop_scene_player(movie_id),
+    );
     world
         .objects
         .remove_component::<crate::model::components::InMovie>(&object_id);

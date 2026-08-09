@@ -10,6 +10,7 @@
 
 use crate::enums::ChatType;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -205,11 +206,7 @@ fn nearest_castle_name(world: &World, x: i32, y: i32, z: i32) -> String {
 /// Java `Broadcast.toAllOnlinePlayers(text, false)`.
 fn announce_to_all(world: &World, text: &str) {
     let pkt = server_packets::creature_say(0, ChatType::Announcement, "", text, None);
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.clone());
-        }
-    }
+    world.broadcast_to_all_online(&pkt);
 }
 
 // ---------------------------------------------------------------------------
@@ -238,12 +235,7 @@ pub(crate) fn arm_castle_mass_teleport(world: &mut World, npc_oid: i32, delay_ms
 /// gatekeeper so it can be armed again.
 pub(crate) fn handle_castle_mass_teleport(world: &mut World, npc_oid: i32) {
     let Some((npc_id, x, y, z)) = npc_id_of(world, npc_oid)
-        .zip(
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(&npc_oid)
-                .map(|p| (p.x, p.y, p.z)),
-        )
+        .zip(pos_of(world, npc_oid))
         .map(|(id, (x, y, z))| (id, x, y, z))
     else {
         return; // the gatekeeper died/despawned before the timer fired

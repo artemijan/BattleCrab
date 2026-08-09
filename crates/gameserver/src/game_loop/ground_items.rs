@@ -8,6 +8,8 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -25,6 +27,30 @@ const DROP_RADIUS: i64 = 150;
 /// `RequestDropItem`'s `Math.abs(_z - player.getZ()) > 50` — the vertical
 /// tolerance on that same request, so a drop can't be aimed off a ledge.
 const DROP_MAX_Z_DIFF: i32 = 50;
+
+/// `ItemData.createItem("loot")`'s ordinary drop protection: 15 s (150 ticks)
+/// during which only the killer and their party may pick the stack up.
+///
+/// Raid drops use `RaidLootRightsInterval` instead — a config value, and a
+/// different owner (the privileged command channel's leader) — so they pass
+/// their own window to [`reserve_for`] rather than this.
+pub(crate) const LOOT_PROTECTION_TICKS: u64 = 150;
+
+/// Reserve a freshly dropped stack for `owner_oid` for `ticks`.
+///
+/// A no-op when `owner_oid` is 0 — Java's "owned by nobody", which is what a
+/// raid drop with no active command-channel claim gets, and which must not be
+/// confused with "owned by object 0".
+pub(crate) fn reserve_for(world: &mut World, ground_oid: i32, owner_oid: i32, ticks: u64) {
+    if owner_oid == 0 {
+        return;
+    }
+    let until = world.tick + ticks;
+    if let Some(g) = world.objects.get_component_mut::<GroundItem>(&ground_oid) {
+        g.owner_id = owner_oid;
+        g.owner_until_tick = until;
+    }
+}
 
 /// Who dropped a ground item — Java gates auto-destroy differently for the two
 /// (`Player.dropItem` vs `Npc.dropItem`).
@@ -217,9 +243,7 @@ pub(crate) fn pickup_ground_item(
     // intention — auto-play looting — and the case where the player sits down
     // mid-walk. Loot stays on the floor until they stand.
     if super::sit_stand::is_resting(world, player_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     let Some(g) = world
@@ -369,12 +393,14 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         || pkt.count > held
         || world.data.zone_data.no_item_drop_at(ppos.x, ppos.y, ppos.z)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
     if is_quest || (!is_stackable && pkt.count > 1) {
@@ -397,12 +423,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         .get_component::<crate::model::Player>(&player_oid)
         .is_some_and(|p| p.store_type != 0)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                server_packets::sm_ids::WHILE_OPERATING_A_PRIVATE_STORE_OR_WORKSHOP_YOU_CANNOT_DISCARD_DESTROY_OR_TRADE_AN_ITEM,
-                &[],
-            ));
-        }
+        send_to_client(world, client_id, server_packets::system_message_with( server_packets::sm_ids::WHILE_OPERATING_A_PRIVATE_STORE_OR_WORKSHOP_YOU_CANNOT_DISCARD_DESTROY_OR_TRADE_AN_ITEM, &[], ));
         return;
     }
     // `player.isFishing()` — "You cannot do that while fishing."
@@ -411,12 +432,14 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         .get_component::<crate::model::components::FishingSession>(&player_oid)
         .is_some_and(|f| f.is_fishing)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 server_packets::sm_ids::YOU_CANNOT_DO_THAT_WHILE_FISHING_2,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
     // `player.isFlying()` — a silent return in Java (no message on a wyvern).
@@ -433,12 +456,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         .objects
         .has_component::<crate::model::components::EnchantRequest>(&player_oid)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                server_packets::sm_ids::YOU_CANNOT_DESTROY_OR_CRYSTALLIZE_ITEMS_WHILE_ENCHANTING_ATTRIBUTES,
-                &[],
-            ));
-        }
+        send_to_client(world, client_id, server_packets::system_message_with( server_packets::sm_ids::YOU_CANNOT_DESTROY_OR_CRYSTALLIZE_ITEMS_WHILE_ENCHANTING_ATTRIBUTES, &[], ));
         return;
     }
     // `ItemTemplate.TYPE2_QUEST == item.getTemplate().getType2()` — a second,
@@ -450,12 +468,14 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         .get(item_id)
         .is_some_and(|t| t.type2 == TYPE2_QUEST)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED_OR_EXCHANGED,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
     // `!player.isInsideRadius2D(_x, _y, 0, 150) || (Math.abs(_z - player.getZ()) > 50)`.
@@ -466,12 +486,14 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     if ((dx * dx) + (dy * dy)) > (DROP_RADIUS * DROP_RADIUS)
         || (pkt.z - ppos.z).abs() > DROP_MAX_Z_DIFF
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
     // "Do not drop items when casting known skills to avoid exploits." Java

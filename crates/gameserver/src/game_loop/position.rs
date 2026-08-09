@@ -3,6 +3,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_action_failed;
 use crate::geo::worker::{PathEvent, PathRequest};
 use crate::model::Player;
 use crate::model::components::{
@@ -107,16 +108,12 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // covers the 2.5 s stand-up animation too, since REST is only released by
     // `StandUpTask` (which clears the seated flag in the same breath).
     if super::sit_stand::is_resting(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // Dead players can't move at all (`isMovementDisabled`).
     if is_dead(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // Java `PlayerAI.onIntentionMoveTo`: a move request while busy (mid-cast
@@ -140,9 +137,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
                 z: target_z,
             },
         );
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     // A manual move click replaces an attack loop (MOVE_TO intention).
@@ -190,9 +185,7 @@ fn take_admin_tele_mode(
     match mode {
         crate::enums::AdminTeleportType::Normal => return false,
         crate::enums::AdminTeleportType::Demonic => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             super::death::teleport_player(world, object_id, x, y, z);
             set_tele_mode(world, object_id, crate::enums::AdminTeleportType::Normal);
         }
@@ -253,9 +246,7 @@ fn take_admin_tele_mode(
                 &[object_id],
             );
             broadcast_including_self(world, object_id, &launched);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
         }
     }
     true
@@ -390,9 +381,7 @@ pub(crate) fn intention_move_to(
     let mut dy = (target_y - cur.y) as f64;
     if dx * dx + dy * dy > 98_010_000.0 {
         // 9900² — Java's max single-click move distance.
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     let mut distance = (dx * dx + dy * dy).sqrt();
@@ -486,9 +475,7 @@ pub(crate) fn intention_move_to(
     // `verticalMovementOnly` (flying, dx=dy=0, dz≠0) sets `distance = |dz|`
     // first, so a straight up/down flight click goes through.
     if distance < 1.0 && !(is_flying && target_z != cur.z) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
 

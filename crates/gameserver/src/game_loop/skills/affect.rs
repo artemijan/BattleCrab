@@ -39,6 +39,7 @@
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
@@ -731,11 +732,7 @@ fn corpse_skill(skill: &Skill) -> bool {
 /// The same "is this a monster" test the targeting code uses: an NPC whose
 /// template is auto-attackable.
 fn is_monster(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_auto_attackable())
+    npc_template(world, oid).is_some_and(|t| t.is_auto_attackable())
 }
 
 /// 3D radius test (Java `isInsideRadius3D`).

@@ -4,6 +4,7 @@
 //! ending-extend state machine, and cancel/refund — plus the auctioneer NPC
 //! dialog + the client packets (slice 3). Winner→warehouse delivery is slice 4.
 
+use crate::game_loop::helpers::send_to_client;
 use commons::util::rnd;
 use tracing::info;
 
@@ -507,7 +508,7 @@ pub(crate) fn register_bid(
         && prev != player
         && let Some(cid) = crate::game_loop::helpers::client_for_player(world, prev)
     {
-        send_pkt(
+        send_to_client(
             world,
             cid,
             sp::system_message_with(
@@ -519,7 +520,7 @@ pub(crate) fn register_bid(
 
     apply_ending_extend(world, auction_id, player);
 
-    send_pkt(
+    send_to_client(
         world,
         client_id,
         sp::system_message_with(
@@ -687,7 +688,7 @@ pub(crate) fn link_bypass(
                     cur,
                     world.item_auctions.instances[&instance_id].next,
                 );
-                send_pkt(world, client_id, pkt);
+                send_to_client(world, client_id, pkt);
             }
             None => send_sm(world, client_id, sm_ids::IT_IS_NOT_AN_AUCTION_PERIOD),
         },
@@ -747,7 +748,7 @@ pub(crate) fn on_request_info(world: &mut World, client_id: u32, body: &[u8]) {
     };
     if let Some(cur) = rt.current {
         let pkt = build_info_packet(world, true, cur, rt.next);
-        send_pkt(world, client_id, pkt);
+        send_to_client(world, client_id, pkt);
     }
 }
 
@@ -863,8 +864,4 @@ fn broadcast_to_bidders(world: &World, auction_id: i32, sm_id: i16) {
             send_sm(world, cid, sm_id);
         }
     }
-}
-
-fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {
-    crate::game_loop::helpers::send_to_client(world, client_id, pkt);
 }

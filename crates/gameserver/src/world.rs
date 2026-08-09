@@ -896,6 +896,30 @@ impl World {
         );
     }
 
+    /// Java `Broadcast.toAllOnlinePlayers` — every session that has finished
+    /// entering the world, with no region or instance filter at all.
+    ///
+    /// The `InGame` test is the whole point and is easy to drop: sessions still
+    /// authenticating or sitting in character select are in [`World::clients`]
+    /// too, and have no player to draw the packet against. Unattended private
+    /// shops ([`World::offline_traders`]) have no session, so they never receive
+    /// one of these — which matches Java, where a detached client is not an
+    /// online player.
+    ///
+    /// This is the server-wide announcement channel: sieges, cursed weapons, the
+    /// lottery, TvT, GM `//announce`, raid-boss spawns. Anything a player could
+    /// plausibly *see* belongs on a region broadcast instead.
+    pub fn broadcast_to_all_online(&self, packet: &[u8]) {
+        // One refcounted buffer rather than a `to_vec()` per recipient — this
+        // fans out to every player on the server.
+        let shared = bytes::Bytes::copy_from_slice(packet);
+        for cs in self.clients.values() {
+            if matches!(cs, ClientSession::InGame(_)) {
+                cs.send(shared.clone());
+            }
+        }
+    }
+
     /// Object ids of every NPC whose region cell lies in `region`'s 3×3
     /// surrounding block (the NPC half of Java's
     /// `World.forEachVisibleObject`), via the `npc_regions` index.

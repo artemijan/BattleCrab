@@ -23,6 +23,7 @@
 use crate::config::flood_protector::FloodAction;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::SkillBook;
 use crate::model::{Player, SubClass};
 use crate::world::World;
@@ -787,11 +788,11 @@ fn show_change_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32
 }
 
 fn send_html(world: &World, client_id: u32, npc_oid: i32, page: &str) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::npc_html_message(
-            npc_oid, page,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::npc_html_message(npc_oid, page),
+    );
 }
 
 // ---------------------------------------------------------------------------

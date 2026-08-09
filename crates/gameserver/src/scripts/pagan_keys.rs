@@ -2,6 +2,8 @@
 //! drop the Anteroom Key, Triol's Laypersons the Chapel Key, Triol's
 //! Priests the Key of Darkness — 10% each, honoring `AutoLoot`.
 
+use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 const ANTEROOM_KEY: i32 = 8273;
@@ -56,12 +58,7 @@ impl QuestScript for PaganKeys {
         }
         // Java `npc.dropItem(killer, key, 1)` — toss it on the corpse with
         // the killer's 15 s pickup protection (the death-drop rules).
-        let Some((x, y, z)) = ctx
-            .world
-            .objects
-            .get_component::<crate::model::components::Position>(&ctx.npc)
-            .map(|p| (p.x, p.y, p.z))
-        else {
+        let Some((x, y, z)) = pos_of(ctx.world, ctx.npc) else {
             return;
         };
         let npc_oid = ctx.npc;
@@ -77,13 +74,6 @@ impl QuestScript for PaganKeys {
             npc_oid,
             crate::game_loop::ground_items::DropSource::Npc,
         );
-        if let Some(g) = ctx
-            .world
-            .objects
-            .get_component_mut::<crate::model::components::GroundItem>(&ground_oid)
-        {
-            g.owner_id = player;
-            g.owner_until_tick = ctx.world.tick + 150;
-        }
+        reserve_for(ctx.world, ground_oid, player, LOOT_PROTECTION_TICKS);
     }
 }

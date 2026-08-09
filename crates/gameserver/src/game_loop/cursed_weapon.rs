@@ -15,12 +15,13 @@
 //! `activate` gives the new wielder.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_millis};
@@ -59,10 +60,7 @@ pub(crate) fn on_monster_killed(world: &mut World, monster_oid: i32, killer_oid:
     }
     // Ordinary monster only — `is_monster()` covers the Monster subtree
     // (including raids/feedable beasts), so subtract the excluded kinds.
-    let ordinary = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&monster_oid)
-        .and_then(|n| n.template(world))
+    let ordinary = npc_template(world, monster_oid)
         .is_some_and(|t| t.is_monster() && !t.is_raid() && t.type_name != "FeedableBeast");
     if !ordinary {
         return;
@@ -91,7 +89,7 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
     let oid = spawn_ground_item(world, item_id, 1, 0, x, y, z, 0, DropSource::CursedWeapon);
 
     // RedSky + Earthquake at the drop site (Java `dropIt`, fromMonster branch).
-    broadcast_to_all(world, &server_packets::ex_red_sky(10));
+    world.broadcast_to_all_online(&server_packets::ex_red_sky(10));
     let quake = {
         let p = position(world, killer).unwrap_or(Position {
             x,
@@ -101,7 +99,7 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
         });
         server_packets::earthquake(p.x, p.y, p.z, 14, 3)
     };
-    broadcast_to_all(world, &quake);
+    world.broadcast_to_all_online(&quake);
 
     // Java's `checkDrop` arms the life task for the FULL duration (not
     // durationLost) — the ground weapon lives just as long as a wielded one.
@@ -122,7 +120,7 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
         sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION,
         &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
     arm_expiry(world, idx);
 }
 
@@ -327,9 +325,7 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
     if let Some(cid) = super::helpers::client_for_player(world, victim_oid) {
         if let Some(inv) = world.objects.get_component::<Inventory>(&victim_oid) {
             let list = crate::network::enter_world::item_list(inv, &world.data, false);
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(list);
-            }
+            send_to_client(world, cid, list);
         }
         // The bag list alone leaves the *model* holding the sword: the client
         // reads its own paperdoll from `ExUserInfoEquipSlot`, which Java emits
@@ -370,7 +366,7 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
         sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION,
         &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
 }
 
 // ---------------------------------------------------------------------------
@@ -423,16 +419,18 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
         sm_ids::S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION,
         &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
 
     // "$s1 has $s2 minute(s) of usage time remaining." to the wielder alone.
     let minutes = (world.cursed_weapons[idx].time_left(now_millis()) / MILLIS_PER_MINUTE) as i32;
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::system_message_with(
             sm_ids::S1_HAS_S2_MINUTE_S_OF_USAGE_TIME_REMAINING,
             &[SmParam::ItemName(item_id), SmParam::Int(minutes)],
-        ));
-    }
+        ),
+    );
 }
 
 /// `CursedWeapon.doTransform` — Zariche (8190) becomes transform 301, Akamanah
@@ -633,15 +631,6 @@ pub(crate) fn handle_expiry(world: &mut World, item_id: i32) {
     end_of_life(world, idx);
 }
 
-/// Broadcast `pkt` to every online player (Java `Broadcast.toAllOnlinePlayers`).
-fn broadcast_to_all(world: &World, pkt: &[u8]) {
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.to_vec());
-        }
-    }
-}
-
 // ---------------------------------------------------------------------------
 // The client's cursed-weapon window (`RequestCursedWeaponList` /
 // `RequestCursedWeaponLocation`, ex 0x2A / 0x2B — row 10)
@@ -651,9 +640,11 @@ fn broadcast_to_all(world: &World, pkt: &[u8]) {
 /// id the server knows, live or not (Java sends `getCursedWeaponsIds()`).
 pub(crate) fn handle_request_list(world: &World, client_id: u32) {
     let ids: Vec<i32> = world.cursed_weapons.iter().map(|cw| cw.item_id).collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::ex_cursed_weapon_list(&ids));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::ex_cursed_weapon_list(&ids),
+    );
 }
 
 /// `RequestCursedWeaponLocation` → `ExCursedWeaponLocation`: where each *live*
@@ -683,9 +674,9 @@ pub(crate) fn handle_request_location(world: &World, client_id: u32) {
     if entries.is_empty() {
         return;
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::ex_cursed_weapon_location(
-            &entries,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::ex_cursed_weapon_location(&entries),
+    );
 }

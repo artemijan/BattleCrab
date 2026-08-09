@@ -6,6 +6,8 @@
 //! tactical signs, pets/servitors, duels, block list.
 
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
 use crate::model::components::{
     PartyRef, PendingRequest, PlayerVitals, Position, RequestKind, Vitals,
@@ -107,10 +109,6 @@ fn summon_views(
         })
     })
     .collect()
-}
-
-fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 /// `Party.broadcastPacket` — every member, or all but `exclude`.
@@ -496,9 +494,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
             sm_ids::YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_PARTICIPATING_IN_A_PARTY_IS_NOT_ALLOWED,
             &[],
         );
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     if super::punishment::is_party_banned(world, target) {

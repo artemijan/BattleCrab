@@ -17,16 +17,13 @@
 //! fires until an operator turns it on. It is ported anyway: the config is the
 //! switch, not the reason to skip the code.
 
+use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::helpers::client_for_player;
-
-fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
 
 /// `Player.getPcCafePoints()`.
 pub(crate) fn points_of(world: &World, object_id: i32) -> i32 {

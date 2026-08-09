@@ -18,13 +18,14 @@ use crate::db::DbCommand;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{AdvancedHeadquarter, Position};
 use crate::model::door::Door;
 use crate::model::siege::{SiegeClanType, SiegeSpawn};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::send_sm_bare_to_client as send_sm_to;
@@ -60,7 +61,7 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
 
     // "The <castle> siege has started." + the siege sound, to everyone.
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_STARTED, castle_id);
-    broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.17"));
+    world.broadcast_to_all_online(&server_packets::play_sound("systemmsg_eu.17"));
 
     // Auto-end after the siege length (Java `ScheduleEndSiegeTask`).
     let fire_at = world.tick + ms_to_ticks(SIEGE_LENGTH_MIN * 60 * 1000);
@@ -233,7 +234,7 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     }
 
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_FINISHED, castle_id);
-    broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.18"));
+    world.broadcast_to_all_online(&server_packets::play_sound("systemmsg_eu.18"));
 
     // The winner is whoever owns the castle at the end (an attacker only owns it
     // if they captured it mid-siege via `capture`).
@@ -249,7 +250,7 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
                 sm_ids::CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE,
                 &[SmParam::Text(owner_name), SmParam::CastleName(castle_id)],
             );
-            broadcast_to_all(world, &pkt);
+            world.broadcast_to_all_online(&pkt);
             // Java: owner unchanged (`clan.getId() == _firstOwnerClanId`) → the
             // defenders held → blood-alliance reward; owner changed → an attacker
             // captured it → the castle's mercenary ticket count is cleared.
@@ -601,10 +602,7 @@ fn teleport_to_town(world: &mut World, targets: Vec<i32>) {
 
 /// A control or flame tower, by template type.
 fn is_siege_tower(world: &World, npc_oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
+    npc_template(world, npc_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"))
 }
 
@@ -674,10 +672,7 @@ fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[SiegeSpawn]) {
 /// Whether an NPC is a siege tower (control / flame) standing in an active
 /// siege zone — attackable so attackers can tear it down.
 pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
-    let is_tower = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
+    let is_tower = npc_template(world, npc_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"));
     if !is_tower {
         return false;
@@ -694,11 +689,7 @@ pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
 /// Java `Siege.killedCT` — a control tower fell; decrement its castle's live
 /// count. At 0 the defenders lose their castle respawn.
 pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
-    let is_ct = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.type_name == "ControlTower");
+    let is_ct = npc_template(world, npc_oid).is_some_and(|t| t.type_name == "ControlTower");
     if !is_ct {
         return;
     }
@@ -1105,16 +1096,7 @@ pub(crate) fn oust_all_players(world: &mut World, castle_id: i32) {
 /// Broadcast `SystemMessage(id, castleName = castle_id)` to every online player.
 fn broadcast_sm(world: &World, message_id: i16, castle_id: i32) {
     let pkt = server_packets::system_message_with(message_id, &[SmParam::CastleName(castle_id)]);
-    broadcast_to_all(world, &pkt);
-}
-
-/// Java `Broadcast.toAllOnlinePlayers`.
-fn broadcast_to_all(world: &World, pkt: &[u8]) {
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.to_vec());
-        }
-    }
+    world.broadcast_to_all_online(&pkt);
 }
 
 // ---------------------------------------------------------------------------
@@ -1693,12 +1675,14 @@ fn send_register_outcome(world: &World, client_id: u32, castle_id: i32, outcome:
         // `sm.addCastleId(residenceId)` — the client resolves the castle's name
         // from the id, so this needs the parameterised writer.
         RegistrationOver => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::server_packets::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                crate::network::server_packets::system_message_with(
                     sm_ids::THE_DEADLINE_TO_REGISTER_FOR_THE_SIEGE_OF_S1_HAS_PASSED,
                     &[commons::system_messages::SmParam::CastleName(castle_id)],
-                ));
-            }
+                ),
+            );
         }
         // Java: `player.sendMessage("You cannot register as a defender because
         // " + castle.getName() + " is owned by NPC.")` — a plain line, not a
@@ -1864,9 +1848,7 @@ pub(crate) fn send_siege_info(
         siege_date_secs,
         &hour_options,
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// A clan's role in a castle's siege, if registered.
@@ -2049,9 +2031,7 @@ fn send_defender_list(world: &World, client_id: u32, castle_id: i32, now_millis:
 
     let valid_registration = owner_id != 0 && is_registration_over(world, castle_id, now_millis);
     let pkt = server_packets::siege_defender_list(castle_id, valid_registration, &entries);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// Java `RequestSiegeAttackerList` (client 0xAB): send the castle's registered
@@ -2077,9 +2057,7 @@ pub(crate) fn handle_request_siege_attacker_list(world: &mut World, client_id: u
         }
     }
     let pkt = server_packets::siege_attacker_list(castle_id, &entries);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// Java `RequestSiegeDefenderList` (client 0xAC): send the castle's owner +
