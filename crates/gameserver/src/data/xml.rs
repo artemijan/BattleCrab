@@ -5,11 +5,17 @@
 //! element and half as a private `fn attr_str`. They are here instead.
 //!
 //! What is deliberately *not* here: the loaders whose readers only look alike.
-//! `npc_data` unescapes XML entities (`unescape_value`), `pledge_skill_tree`
-//! parses strictly and drops an element on invalid UTF-8 rather than replacing
-//! the bytes, `route_data` matches attribute names case-insensitively, and
-//! `instance_data` / `item_auction_data` trim before parsing. Those differences
-//! decide what a datapack file means, so each keeps its own reader.
+//! `npc_data` unescapes XML entities (`unescape_value`) and `route_data`
+//! matches attribute names case-insensitively. Those differences decide what a
+//! datapack file means, so each keeps its own reader. Strict-vs-lossy and
+//! trim-vs-not are differences too, but they are *arguments* — [`attr_strict`]
+//! and [`attr_i32_trimmed`] — not separate readers.
+//!
+//! Loaders that want the short `attr(b"id")` form keep a closure over the
+//! current element; the closure body is one call to a reader here, which is the
+//! point. `pledge_skill_tree` used to be listed as strict-on-purpose and is
+//! not any more: every one of its call sites either parses a number or compares
+//! against a literal, so strict and lossy cannot produce different answers.
 
 use quick_xml::events::BytesStart;
 use std::path::{Path, PathBuf};

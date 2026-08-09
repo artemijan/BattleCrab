@@ -59,12 +59,7 @@ fn parse_file(content: &str, out: &mut HashMap<i32, i32>) {
         match reader.read_event() {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
                 let name = e.name();
-                let attr = |key: &[u8]| {
-                    e.attributes()
-                        .flatten()
-                        .find(|a| a.key.as_ref() == key)
-                        .and_then(|a| String::from_utf8_lossy(&a.value).parse::<i32>().ok())
-                };
+                let attr = |key: &[u8]| super::xml::attr_i32(&e, key);
                 match name.as_ref() {
                     b"castle" => castle_id = attr(b"id").unwrap_or(0),
                     b"guard" => {

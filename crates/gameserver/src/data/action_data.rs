@@ -36,12 +36,7 @@ impl ActionData {
         loop {
             match reader.read_event() {
                 Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"action" => {
-                    let attr = |key: &[u8]| {
-                        e.attributes()
-                            .flatten()
-                            .find(|a| a.key.as_ref() == key)
-                            .map(|a| String::from_utf8_lossy(&a.value).to_string())
-                    };
+                    let attr = |key: &[u8]| super::xml::attr_str(&e, key);
                     let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
                         continue;
                     };

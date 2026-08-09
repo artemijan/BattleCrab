@@ -156,12 +156,7 @@ impl CubicData {
                 Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
                     let name = e.name();
                     let tag = String::from_utf8_lossy(name.as_ref()).to_string();
-                    let attr = |key: &str| -> Option<String> {
-                        e.attributes()
-                            .flatten()
-                            .find(|a| a.key.as_ref() == key.as_bytes())
-                            .map(|a| String::from_utf8_lossy(&a.value).to_string())
-                    };
+                    let attr = |key: &str| super::xml::attr_str(&e, key.as_bytes());
                     match tag.as_str() {
                         "cubic" => {
                             let mut t = CubicTemplate {

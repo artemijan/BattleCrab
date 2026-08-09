@@ -5,6 +5,7 @@
 //! a clan skill is granted / a member logs in ([`PledgeSkillTreeData::
 //! social_class_of`], Java `getPledgeSkill`/`getSubPledgeSkill`).
 
+use crate::data::xml::{attr_i32, attr_str};
 use std::collections::HashMap;
 
 use quick_xml::Reader;
@@ -272,17 +273,6 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
         }
     }
     out
-}
-
-fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    attr_str(e, key).and_then(|s| s.parse().ok())
 }
 
 #[cfg(test)]

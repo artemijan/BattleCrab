@@ -136,17 +136,12 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
-                let attr = |key: &[u8]| -> Option<String> {
-                    e.attributes()
-                        .flatten()
-                        .find(|a| a.key.as_ref() == key)
-                        .and_then(|a| String::from_utf8(a.value.to_vec()).ok())
-                };
-                let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<f64>().ok());
+                let attr = |key: &str| super::xml::attr_strict(&e, key);
+                let num = |key: &str| attr(key).and_then(|v| v.parse::<f64>().ok());
                 match e.name().as_ref() {
                     b"option" => {
                         current =
-                            attr(b"id")
+                            attr("id")
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .map(|id| OptionEntry {
                                     id,
@@ -154,7 +149,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                                 });
                     }
                     b"effect" => {
-                        effect_name = attr(b"name");
+                        effect_name = attr("name");
                         amount = None;
                         mode = StatModifierType::Diff;
                     }
@@ -163,8 +158,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                     b"passive_skill" | b"active_skill" => {
                         if let (Some(o), Some(id), Some(level)) = (
                             current.as_mut(),
-                            num(b"id").map(|v| v as i32),
-                            num(b"level").map(|v| v as i32),
+                            num("id").map(|v| v as i32),
+                            num("level").map(|v| v as i32),
                         ) {
                             if e.name().as_ref() == b"passive_skill" {
                                 o.passive_skills.push((id, level));
@@ -181,13 +176,13 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                         };
                         if let (Some(o), Some(id), Some(level)) = (
                             current.as_mut(),
-                            num(b"id").map(|v| v as i32),
-                            num(b"level").map(|v| v as i32),
+                            num("id").map(|v| v as i32),
+                            num("level").map(|v| v as i32),
                         ) {
                             o.triggers.push(OptionTrigger {
                                 skill_id: id,
                                 skill_level: level,
-                                chance: num(b"chance").unwrap_or(0.0),
+                                chance: num("chance").unwrap_or(0.0),
                                 kind,
                             });
                         }
