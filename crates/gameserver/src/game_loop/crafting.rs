@@ -281,11 +281,7 @@ pub(crate) fn handle_make_info(world: &mut World, client_id: u32, id: i32) {
     let Some(is_dwarven) = world.data.recipes.get(id).map(|r| r.is_dwarven) else {
         return;
     };
-    let (cur_mp, max_mp) = world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| (v.cur_mp as i32, v.max_mp))
-        .unwrap_or((0, 0));
+    let (cur_mp, max_mp) = mp_gauge(world, oid);
     send_to_client(
         world,
         client_id,
@@ -440,17 +436,30 @@ pub(crate) fn open_sell_list(world: &mut World, client_id: u32, buyer: i32, manu
     if store_type(world, manufacturer) != STORE_TYPE_MANUFACTURE {
         return;
     }
-    let (cur_mp, max_mp) = world
-        .objects
-        .get_component::<Vitals>(&manufacturer)
-        .map(|v| (v.cur_mp as i32, v.max_mp))
-        .unwrap_or((0, 0));
+    let (cur_mp, max_mp) = mp_gauge(world, manufacturer);
     let store = current_store_items(world, manufacturer);
     send_to_client(
         world,
         client_id,
         sp::recipe_shop_sell_list(manufacturer, cur_mp, max_mp, adena(world, buyer), &store),
     );
+}
+
+/// `(curMp as int, maxMp)` — the crafter's MP gauge, as every recipe packet in
+/// this file carries it.
+///
+/// Java reads `getCurrentMp()` / `getMaxMp()` off the *manufacturer*, who is
+/// not always the packet's recipient: a customer browsing a private workshop
+/// sees the shop owner's MP, because that is what limits what can be crafted.
+///
+/// `(0, 0)` when the object has left the world — the packet still goes out, and
+/// an empty gauge is what Java's null-safe path draws.
+fn mp_gauge(world: &World, oid: i32) -> (i32, i32) {
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .map(|v| (v.cur_mp as i32, v.max_mp))
+        .unwrap_or((0, 0))
 }
 
 /// `RequestRecipeShopMakeInfo` — the per-recipe info line in a shop.
@@ -463,11 +472,7 @@ pub(crate) fn handle_shop_make_info(
     if store_type(world, shop_oid) != STORE_TYPE_MANUFACTURE {
         return;
     }
-    let (cur_mp, max_mp) = world
-        .objects
-        .get_component::<Vitals>(&shop_oid)
-        .map(|v| (v.cur_mp as i32, v.max_mp))
-        .unwrap_or((0, 0));
+    let (cur_mp, max_mp) = mp_gauge(world, shop_oid);
     send_to_client(
         world,
         client_id,
@@ -1126,22 +1131,14 @@ fn update_make_info(
     success: bool,
 ) {
     if crafter == customer {
-        let (cur_mp, max_mp) = world
-            .objects
-            .get_component::<Vitals>(&customer)
-            .map(|v| (v.cur_mp as i32, v.max_mp))
-            .unwrap_or((0, 0));
+        let (cur_mp, max_mp) = mp_gauge(world, customer);
         send_to_client(
             world,
             customer_client,
             sp::recipe_item_make_info(recipe_id, is_dwarven, cur_mp, max_mp, success),
         );
     } else {
-        let (cur_mp, max_mp) = world
-            .objects
-            .get_component::<Vitals>(&crafter)
-            .map(|v| (v.cur_mp as i32, v.max_mp))
-            .unwrap_or((0, 0));
+        let (cur_mp, max_mp) = mp_gauge(world, crafter);
         send_to_client(
             world,
             customer_client,

@@ -1001,24 +1001,12 @@ fn bypass_body(command: &str) -> Vec<u8> {
 /// units tall, not enterable, and the approach cells block their east
 /// exit (how real geodata encodes walls).
 fn install_wall_region(world: &mut World) {
-    use crate::geo::{NSWE_ALL, NSWE_EAST, synthetic_region};
+    use crate::geo::synthetic_region;
     // `world.geo` is shared with the path worker via `Arc` — in tests nothing
     // has cloned it yet, so it can be mutated in place.
     std::sync::Arc::get_mut(&mut world.geo)
         .expect("geo Arc not shared yet")
-        .set_region(
-            20,
-            18,
-            synthetic_region(|x, _y| {
-                if x == 10 {
-                    (200, 0)
-                } else if x == 9 {
-                    (0, NSWE_ALL & !NSWE_EAST)
-                } else {
-                    (0, NSWE_ALL)
-                }
-            }),
-        );
+        .set_region(20, 18, synthetic_region(crate::geo::wall_column));
 }
 
 fn validate_position_body(x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
