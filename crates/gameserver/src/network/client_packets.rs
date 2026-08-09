@@ -669,6 +669,41 @@ pub(crate) fn read_item_lines(r: &mut PacketReader, count: i32) -> Option<Vec<(i
     Some(items)
 }
 
+/// Port of Java's `AbstractRefinePacket` body (`dddq`) — the four fields every
+/// augment-window request carries: the weapon being augmented, the life stone,
+/// the gemstone offered as the fee, and how many.
+///
+/// `RequestRefine` and `RequestConfirmGemStone` send exactly this and nothing
+/// else, which is why Java gives them a shared base class rather than two
+/// readers. The two handlers then diverge completely — one rolls the augment,
+/// the other only echoes the fee back — so what is shared is the body, not the
+/// behaviour.
+///
+/// Note this is *not* the shape of every `dddq` in the protocol: the manor's
+/// crop-sale lines read the same four widths and mean something entirely
+/// different, and they validate ranges this does not.
+pub struct RefineRequest {
+    /// The item being augmented.
+    pub target_obj: i32,
+    /// The life stone.
+    pub mineral_obj: i32,
+    /// The gemstone offered against the fee.
+    pub fee_obj: i32,
+    pub fee_count: i64,
+}
+
+impl RefineRequest {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            target_obj: r.read_i32()?,
+            mineral_obj: r.read_i32()?,
+            fee_obj: r.read_i32()?,
+            fee_count: r.read_i64()?,
+        })
+    }
+}
+
 /// Port of `SendWareHouseDepositList` / `SendWareHouseWithDrawList` (`d[dq]`):
 /// a count-prefixed list of `(object_id, count)` pairs — the items to move into
 /// or out of the warehouse.

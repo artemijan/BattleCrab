@@ -22,6 +22,7 @@ use super::helpers::send_sm_bare_to_client as send_sm;
 use super::helpers::{player_of, send_to_client as send};
 use crate::game_loop::helpers::item_id_of;
 use crate::model::inventory::Inventory;
+use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
 use crate::world::World;
 
@@ -99,9 +100,12 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player) = player_of(world, client_id) else {
         return;
     };
-    let mut r = PacketReader::new(body);
-    let (Some(target_obj), Some(mineral_obj), Some(fee_obj), Some(fee_count)) =
-        (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i64())
+    let Some(cp::RefineRequest {
+        target_obj,
+        mineral_obj,
+        fee_obj,
+        fee_count,
+    }) = cp::RefineRequest::read(body)
     else {
         return;
     };
@@ -293,9 +297,12 @@ pub(crate) fn handle_confirm_gemstone(world: &mut World, client_id: u32, body: &
     let Some(player) = player_of(world, client_id) else {
         return;
     };
-    let mut r = PacketReader::new(body);
-    let (Some(target_obj), Some(mineral_obj), Some(fee_obj), Some(fee_count)) =
-        (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i64())
+    let Some(cp::RefineRequest {
+        target_obj,
+        mineral_obj,
+        fee_obj,
+        fee_count,
+    }) = cp::RefineRequest::read(body)
     else {
         return;
     };
