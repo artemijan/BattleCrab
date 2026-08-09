@@ -221,7 +221,7 @@ fn trex_on_attack(ctx: &mut QuestCtx) {
     }
 
     let far = {
-        let a = ctx.world.objects.get_component::<Position>(&npc).copied();
+        let a = position(ctx.world, npc);
         let b = ctx
             .world
             .objects
@@ -277,13 +277,7 @@ fn monster_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
         set_running(ctx, npc);
         // `calculateHeadingFrom(creature, npc)` — the direction from the
         // player *to* the dino, extended 3000 units: straight away.
-        let (from, at) = (
-            ctx.world
-                .objects
-                .get_component::<Position>(&creature)
-                .copied(),
-            ctx.world.objects.get_component::<Position>(&npc).copied(),
-        );
+        let (from, at) = (position(ctx.world, creature), position(ctx.world, npc));
         let (Some(from), Some(at)) = (from, at) else {
             return;
         };

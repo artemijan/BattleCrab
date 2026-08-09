@@ -11,6 +11,7 @@
 //! dist — Classic event content — so it is not ported; see
 //! `PLAN_G22_AI_OTHERS.md`'s skip table.)
 
+use crate::game_loop::guard::position;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Immobilized, Position, Vitals};
 
@@ -428,10 +429,7 @@ impl QuestScript for FleeMonsters {
                 .objects
                 .get_component::<Position>(&ctx.npc)
                 .copied(),
-            ctx.world
-                .objects
-                .get_component::<Position>(&attacker)
-                .copied(),
+            position(ctx.world, attacker),
         ) else {
             return;
         };
@@ -517,10 +515,7 @@ impl QuestScript for FairyTrees {
                 .objects
                 .get_component::<Position>(&ctx.npc)
                 .copied(),
-            ctx.world
-                .objects
-                .get_component::<Position>(&killer)
-                .copied(),
+            position(ctx.world, killer),
         ) else {
             return;
         };
