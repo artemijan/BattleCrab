@@ -28,6 +28,9 @@ use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
+/// `Util.checkIfInRange(200, this, pet, true)` — how close the mount must be.
+const MOUNT_RANGE: f64 = 200.0;
+
 const USER_CMD_LOC: i32 = 0;
 const USER_CMD_UNSTUCK: i32 = 52;
 /// `usercommandhandlers/Mount.java` — `/mount` (id 61): ride the summoned pet.
@@ -713,7 +716,6 @@ fn my_birthday(world: &World, client_id: u32, object_id: i32) {
 /// hungry guards — no landing zones are loaded and mount feeding is unported.
 pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     use crate::model::Player;
-    use crate::model::components::Position;
 
     if world
         .objects
@@ -774,18 +776,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
         send_action_failed(world, client_id);
         return;
     }
-    // `Util.checkIfInRange(200, this, pet, true)`.
-    let too_far = {
-        let (Some(a), Some(b)) = (
-            world.objects.get_component::<Position>(&object_id),
-            world.objects.get_component::<Position>(&pet),
-        ) else {
-            return;
-        };
-        let (dx, dy, dz) = ((a.x - b.x) as i64, (a.y - b.y) as i64, (a.z - b.z) as i64);
-        dx * dx + dy * dy + dz * dz > 200 * 200
-    };
-    if too_far {
+    if !crate::geo::distance::within_3d(world, object_id, pet, MOUNT_RANGE) {
         refuse(world, sm_ids::YOU_ARE_TOO_FAR_AWAY_FROM_YOUR_MOUNT_TO_RIDE);
         return;
     }

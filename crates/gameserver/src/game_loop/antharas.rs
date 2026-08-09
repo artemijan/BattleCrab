@@ -444,18 +444,7 @@ fn near_leader(world: &World, leader: i32, member: i32) -> bool {
     if leader == member {
         return true;
     }
-    let (Some(a), Some(b)) = (
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&leader),
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&member),
-    ) else {
-        return false;
-    };
-    let (dx, dy) = ((a.x - b.x) as f64, (a.y - b.y) as f64);
-    (dx * dx + dy * dy).sqrt() <= GATHER_RANGE
+    crate::geo::distance::within_2d(world, leader, member, GATHER_RANGE)
 }
 
 fn players_in_lair(world: &World) -> usize {

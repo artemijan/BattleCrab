@@ -541,22 +541,7 @@ fn skill_name(world: &World, skill_id: i32, level: i32) -> String {
 
 /// `Util.checkIfInRange(Npc.INTERACTION_DISTANCE, …, true)` — 3D.
 fn in_range(world: &World, a: i32, b: i32) -> bool {
-    let (Some(pa), Some(pb)) = (
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&a),
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&b),
-    ) else {
-        return false;
-    };
-    let (dx, dy, dz) = (
-        (pa.x - pb.x) as f64,
-        (pa.y - pb.y) as f64,
-        (pa.z - pb.z) as f64,
-    );
-    dx * dx + dy * dy + dz * dz <= INTERACTION_DISTANCE * INTERACTION_DISTANCE
+    crate::geo::distance::within_3d(world, a, b, INTERACTION_DISTANCE)
 }
 
 /// The previous/next links Java appends under each page.
