@@ -750,14 +750,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
         // Party duels also teleport everyone back (`PlayerCondition` stored
         // the spot at the count-4 step) and tear the arena instance down.
         for (oid, (hp, mp, cp), (x, y, z)) in duel.member_snapshot {
-            if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
-                v.dead = false;
-                v.cur_hp = hp.min(v.max_hp as f64);
-                v.cur_mp = mp.min(v.max_mp as f64);
-            }
-            if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&oid) {
-                pv.cur_cp = cp.min(pv.max_cp as f64);
-            }
+            restore_condition(world, oid, (hp, mp, cp));
             world
                 .objects
                 .remove_component::<crate::model::components::InstanceId>(&oid);
@@ -771,14 +764,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
     }
     for (i, oid) in [a, b].into_iter().enumerate() {
         let (hp, mp, cp) = snapshot[i];
-        if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
-            v.dead = false;
-            v.cur_hp = hp.min(v.max_hp as f64);
-            v.cur_mp = mp.min(v.max_mp as f64);
-        }
-        if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&oid) {
-            pv.cur_cp = cp.min(pv.max_cp as f64);
-        }
+        restore_condition(world, oid, (hp, mp, cp));
         super::party::broadcast_user_info(world, oid);
     }
 }
@@ -880,4 +866,22 @@ fn distance(world: &World, a: i32, b: i32) -> f64 {
 
 fn send_to(world: &World, oid: i32, packet: Vec<u8>) {
     crate::game_loop::helpers::send_to_player(world, oid, packet);
+}
+
+/// Java `PlayerCondition.restoreCondition` — put a duellist's HP, MP and CP
+/// back to the pre-duel snapshot and clear the death flag.
+///
+/// Each value is clamped to the *current* maximum rather than restored blind: a
+/// buff that expired during the duel can have lowered the ceiling since the
+/// snapshot was taken, and an over-max gauge would stick until the next stat
+/// recalculation happened to notice.
+fn restore_condition(world: &mut World, oid: i32, (hp, mp, cp): (f64, f64, f64)) {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+        v.dead = false;
+        v.cur_hp = hp.min(v.max_hp as f64);
+        v.cur_mp = mp.min(v.max_mp as f64);
+    }
+    if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&oid) {
+        pv.cur_cp = cp.min(pv.max_cp as f64);
+    }
 }

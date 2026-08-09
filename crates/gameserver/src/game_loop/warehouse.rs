@@ -733,15 +733,7 @@ fn read_package_send(body: &[u8]) -> Option<(i32, Vec<(i32, i64)>)> {
     if !(1..=500).contains(&count) {
         return None;
     }
-    let mut lines = Vec::with_capacity(count as usize);
-    for _ in 0..count {
-        let object_id = r.read_i32()?;
-        let cnt = r.read_i64()?;
-        if object_id < 1 || cnt < 0 {
-            return None;
-        }
-        lines.push((object_id, cnt));
-    }
+    let lines = crate::network::client_packets::read_item_lines(&mut r, count)?;
     Some((recipient, lines))
 }
 

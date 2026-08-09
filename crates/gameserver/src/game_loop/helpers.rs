@@ -142,6 +142,30 @@ pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
         .is_none_or(|v| v.dead)
 }
 
+/// A player's [`Vitals`] and `PlayerVitals`, both copied out.
+///
+/// `None` unless **both** are present, which is what every caller wants: they
+/// are feeding a `StatusUpdate` that carries HP, MP and CP together, and half a
+/// gauge set is not a packet worth sending.
+///
+/// Copied rather than borrowed because every caller then needs `&mut World` to
+/// broadcast.
+pub(crate) fn vitals_pair(
+    world: &World,
+    player_oid: i32,
+) -> Option<(Vitals, crate::model::components::PlayerVitals)> {
+    Some((
+        world
+            .objects
+            .get_component::<Vitals>(&player_oid)
+            .copied()?,
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerVitals>(&player_oid)
+            .copied()?,
+    ))
+}
+
 /// The region cell an object is binned into, or `None` once it has left the
 /// world.
 ///

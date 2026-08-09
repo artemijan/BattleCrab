@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::vitals_pair;
 use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player};
 
 /// `Attackable.calculateOverhitExp` — the bonus XP a killing `<overHit>` blow
@@ -273,13 +274,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     }
     // Status + full info refresh (`broadcastStatusUpdate` + `updateUserInfo`
     // + `SkillList`).
-    let (Some(vitals), Some(pvitals)) = (
-        world.objects.get_component::<Vitals>(&player_oid).copied(),
-        world
-            .objects
-            .get_component::<PlayerVitals>(&player_oid)
-            .copied(),
-    ) else {
+    let Some((vitals, pvitals)) = vitals_pair(world, player_oid) else {
         return;
     };
     broadcast_including_self(

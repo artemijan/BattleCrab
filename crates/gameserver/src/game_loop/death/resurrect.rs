@@ -3,6 +3,7 @@ use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::vitals_pair;
 
 /// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
 /// how much of the lost XP their resurrection gives back.
@@ -357,13 +358,7 @@ pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
     }
     broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
     crate::game_loop::party::notify_party_vitals(world, player_oid);
-    let (Some(vitals), Some(pvitals)) = (
-        world.objects.get_component::<Vitals>(&player_oid).copied(),
-        world
-            .objects
-            .get_component::<PlayerVitals>(&player_oid)
-            .copied(),
-    ) else {
+    let Some((vitals, pvitals)) = vitals_pair(world, player_oid) else {
         return;
     };
     broadcast_including_self(
