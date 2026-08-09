@@ -11,6 +11,7 @@
 use commons::util::now_millis;
 
 use crate::db::DbCommand;
+use crate::game_loop::area_npcs::find_by_npc_id;
 use crate::game_loop::helpers::region_cell_of;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -49,23 +50,6 @@ fn roar(world: &World, boss_oid: i32, sound: &str) {
     if let Some(region) = region_cell_of(world, boss_oid) {
         crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
     }
-}
-
-/// Find the boss's instance by npc id — the death path runs while the corpse
-/// is still in the world. `None` in minimal test worlds that flip status
-/// without spawning the boss; only the roar is skipped.
-fn boss_oid(world: &mut World, boss_id: i32) -> Option<i32> {
-    let mut found = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &crate::model::components::Position)>(
-            |(n, _)| {
-                if n.npc_id == boss_id {
-                    found = Some(n.object_id);
-                }
-            },
-        );
-    found
 }
 
 /// The stored "dead" status differs by boss family: the simple bosses use the
@@ -150,7 +134,7 @@ pub(crate) fn on_grand_boss_killed(world: &mut World, boss_id: i32) {
     };
     // The stock death roar, first thing in every simple script's `onKill`.
     if plays_stock_roars(boss_id)
-        && let Some(oid) = boss_oid(world, boss_id)
+        && let Some(oid) = find_by_npc_id(world, boss_id)
     {
         roar(world, oid, "BS02_D");
     }

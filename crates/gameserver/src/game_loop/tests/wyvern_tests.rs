@@ -5,7 +5,6 @@
 use super::*;
 
 use crate::model::Player;
-use crate::model::clan::Clan;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets::sm_ids;
 
@@ -278,45 +277,6 @@ fn wyvern_manager_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes:
     add_test_npc(&mut world, 701, 35101, "Merchant", 75, 0, 0, 0);
     let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
     (world, rx)
-}
-
-/// Make player 100 the leader of clan 500 owning `castle_id` (Java
-/// `isOwnerClan`: leader of the residence's owner clan).
-fn own_castle(world: &mut World, castle_id: i32) {
-    let clan_id = 500;
-    world.clans.insert(
-        clan_id,
-        Clan {
-            id: clan_id,
-            name: "Owners".into(),
-            leader_id: 100,
-            level: 5,
-            reputation_score: 0,
-            castle_id,
-            members: Vec::new(),
-            skills: Default::default(),
-            warehouse: Default::default(),
-            char_penalty_expiry_time: 0,
-            dissolving_expiry_time: 0,
-            rank_privs: Default::default(),
-            new_leader_id: 0,
-            sub_pledges: Default::default(),
-            ally_id: 0,
-            ally_name: String::new(),
-            ally_penalty_expiry_time: 0,
-            ally_penalty_type: 0,
-            crest_id: 0,
-            crest_large_id: 0,
-            ally_crest_id: 0,
-            blood_alliance_count: 0,
-        },
-    );
-    let p = world.objects.get_component_mut::<Player>(&100).unwrap();
-    p.clan_id = clan_id;
-}
-
-fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
-    drain(rx).iter().find_map(|p| decode_npc_html(p))
 }
 
 /// **Only the owning clan's leader is served, and the default config keeps

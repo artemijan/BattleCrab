@@ -15,6 +15,7 @@
 //! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::common::players_in_lair_oids;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
@@ -351,7 +352,7 @@ fn choose_skill(world: &mut World, valakas_oid: i32) -> i32 {
 
 /// A random living player inside the lair (Java `getRandomTarget`), or `0`.
 fn random_target_in_lair(world: &mut World) -> i32 {
-    let alive: Vec<i32> = players_in_lair_oids(world)
+    let alive: Vec<i32> = players_in_lair_oids(world, BOSS_ZONE_ID)
         .into_iter()
         .filter(|&oid| !is_dead(world, oid))
         .collect();
@@ -366,7 +367,7 @@ fn players_within(world: &World, valakas_oid: i32, range: f64) -> usize {
     let Some(origin) = position(world, valakas_oid) else {
         return 0;
     };
-    players_in_lair_oids(world)
+    players_in_lair_oids(world, BOSS_ZONE_ID)
         .into_iter()
         .filter(|&oid| {
             world
@@ -668,20 +669,9 @@ pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, s
 /// the lair out to the exit. The cubes outlive this by design — they are on
 /// their own 15-minute `addSpawn` lifetime, armed where they spawn.
 pub(crate) fn handle_remove_players(world: &mut World) {
-    for player_oid in players_in_lair_oids(world) {
+    for player_oid in players_in_lair_oids(world, BOSS_ZONE_ID) {
         teleport_out(world, player_oid);
     }
-}
-
-/// Object ids of the online players standing in the lair zone.
-fn players_in_lair_oids(world: &World) -> Vec<i32> {
-    let Some(zone) = world.data.zone_data.by_id(BOSS_ZONE_ID) else {
-        return Vec::new();
-    };
-    world
-        .in_game_player_oids()
-        .filter(|oid| in_zone(world, *oid, zone))
-        .collect()
 }
 
 /// `BOSS_ZONE.broadcastPacket` — the cinematic plays for everyone **in the

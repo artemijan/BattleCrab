@@ -86,7 +86,7 @@ pub(crate) fn find_toma(world: &mut World) -> Option<i32> {
     find_by_npc_id(world, TOMA)
 }
 
-fn find_by_npc_id(world: &mut World, npc_id: i32) -> Option<i32> {
+pub fn find_by_npc_id(world: &mut World, npc_id: i32) -> Option<i32> {
     let mut found = None;
     world
         .objects

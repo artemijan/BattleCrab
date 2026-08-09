@@ -428,10 +428,6 @@ fn chamberlain(world: &mut World, event: &str) {
     );
 }
 
-fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
-    drain(rx).iter().find_map(|p| decode_npc_html(p))
-}
-
 /// **Deposit then withdraw through the chamberlain.** The adena moves both
 /// ways, and the vault page shows the balance grouped into thousands
 /// (`Util.formatAdena`).

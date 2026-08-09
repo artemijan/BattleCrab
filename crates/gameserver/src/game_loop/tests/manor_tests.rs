@@ -8,7 +8,6 @@ use super::*;
 use crate::data::item_data::ADENA_ID;
 use crate::data::manor_data::Seed;
 use crate::model::Player;
-use crate::model::clan::Clan;
 use crate::model::components::LastFolkNpc;
 use crate::model::inventory::Inventory;
 use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
@@ -494,45 +493,6 @@ fn chamberlain_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::By
     add_test_npc(&mut world, 701, 35100, "Merchant", 75, 0, 0, 0);
     let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
     (world, rx)
-}
-
-/// Make player 100 the leader of a clan that owns `castle_id` (so `isOwner` and
-/// the `CS_MANOR_ADMIN` privilege both hold — the leader has every privilege).
-fn own_castle(world: &mut World, castle_id: i32) {
-    let clan_id = 500;
-    world.clans.insert(
-        clan_id,
-        Clan {
-            id: clan_id,
-            name: "Owners".into(),
-            leader_id: 100,
-            level: 5,
-            reputation_score: 0,
-            castle_id,
-            members: Vec::new(),
-            skills: Default::default(),
-            warehouse: Default::default(),
-            char_penalty_expiry_time: 0,
-            dissolving_expiry_time: 0,
-            rank_privs: Default::default(),
-            new_leader_id: 0,
-            sub_pledges: Default::default(),
-            ally_id: 0,
-            ally_name: String::new(),
-            ally_penalty_expiry_time: 0,
-            ally_penalty_type: 0,
-            crest_id: 0,
-            crest_large_id: 0,
-            ally_crest_id: 0,
-            blood_alliance_count: 0,
-        },
-    );
-    let p = world.objects.get_component_mut::<Player>(&100).unwrap();
-    p.clan_id = clan_id;
-}
-
-fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
-    drain(rx).iter().find_map(|p| decode_npc_html(p))
 }
 
 /// **The chamberlain's manor button gates on castle ownership specifically.**

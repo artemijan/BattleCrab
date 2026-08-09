@@ -9,7 +9,7 @@
 //! walk with its `BOMBER`/invisible-NPC decorations, and the `onSpellFinished`
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
-use crate::game_loop::common::near_leader;
+use crate::game_loop::common::{near_leader, players_in_lair_oids};
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
@@ -833,7 +833,7 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
                 crate::game_loop::death::despawn_npc(world, oid, region);
             }
         }
-        for player_oid in players_in_lair_oids(world) {
+        for player_oid in players_in_lair_oids(world, LAIR_ZONE_ID) {
             teleport_out(world, player_oid);
         }
         crate::game_loop::grand_boss::set_status(world, ANTHARAS, DORMANT); // Java's ALIVE (0) — resting, re-enterable
@@ -973,7 +973,7 @@ pub(crate) fn on_antharas_killed(world: &mut World) {
 /// `CLEAR_ZONE`: teleport every lingering player out, then despawn every NPC
 /// still in the lair (the cube and any straggler minions).
 pub(crate) fn handle_clear_zone(world: &mut World) {
-    for player_oid in players_in_lair_oids(world) {
+    for player_oid in players_in_lair_oids(world, LAIR_ZONE_ID) {
         teleport_out(world, player_oid);
     }
     for oid in npcs_in_lair(world) {
@@ -1013,17 +1013,6 @@ fn npcs_in_lair(world: &World) -> Vec<i32> {
         .values()
         .flatten()
         .copied()
-        .filter(|oid| in_zone(world, *oid, zone))
-        .collect()
-}
-
-/// Object ids of the online players standing in the lair zone.
-fn players_in_lair_oids(world: &World) -> Vec<i32> {
-    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else {
-        return Vec::new();
-    };
-    world
-        .in_game_player_oids()
         .filter(|oid| in_zone(world, *oid, zone))
         .collect()
 }

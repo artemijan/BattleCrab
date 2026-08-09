@@ -17,6 +17,7 @@ use crate::character::FriendInfo;
 use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::Player;
+use crate::model::clan::Clan;
 use crate::model::components::Friends;
 use crate::model::components::{
     AdminFlags, Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement,
@@ -241,6 +242,44 @@ fn register_cube(world: &mut World, cube: i32) {
     let mut t = crate::data::npc_data::default_template(cube);
     t.type_name = "Folk".into();
     world.data.npc_data.insert_for_test(t);
+}
+
+fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
+    drain(rx).iter().find_map(|p| decode_npc_html(p))
+}
+/// Make player 100 the leader of clan 500 owning `castle_id` (Java
+/// `isOwnerClan`: leader of the residence's owner clan).
+fn own_castle(world: &mut World, castle_id: i32) {
+    let clan_id = 500;
+    world.clans.insert(
+        clan_id,
+        Clan {
+            id: clan_id,
+            name: "Owners".into(),
+            leader_id: 100,
+            level: 5,
+            reputation_score: 0,
+            castle_id,
+            members: Vec::new(),
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        },
+    );
+    let p = world.objects.get_component_mut::<Player>(&100).unwrap();
+    p.clan_id = clan_id;
 }
 
 fn pbuffs(world: &World, oid: i32) -> usize {
