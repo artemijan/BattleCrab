@@ -5,6 +5,7 @@
 //! targeted) and re-render their HTML menu after every action, exactly like the
 //! Java handlers.
 
+use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
 use crate::network::server_packets;
 use crate::world::World;
@@ -109,7 +110,7 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
             "rewardOnline" => {
                 // Java `rewardOnline`: the parsed `value` is the amount; the
                 // optional next token is the range (default 0 = all online).
-                let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+                let range = nth_arg::<i32>(args, 2).unwrap_or(0);
                 let count = reward_online_pccafe(world, object_id, value, range);
                 if range <= 0 {
                     send_message(
@@ -239,7 +240,7 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
                 );
             }
             "rewardOnline" => {
-                let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+                let range = nth_arg::<i32>(args, 2).unwrap_or(0);
                 let count = reward_online_prime(world, object_id, value, range);
                 if range <= 0 {
                     send_message(

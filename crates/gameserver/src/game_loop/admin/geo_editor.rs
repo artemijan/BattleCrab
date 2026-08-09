@@ -15,6 +15,7 @@
 //! them back into the on-disk format — see [`crate::geo::region::Region::write_to`].
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::nth_arg;
 use std::path::Path;
 
 use crate::game_loop::community_board::send_cb_html;
@@ -108,10 +109,7 @@ pub(super) fn admin_ge(world: &mut World, client_id: u32, object_id: i32, args: 
         admin_geoedit(world, client_id, object_id);
         return;
     }
-    let (Some(gx), Some(gy)) = (
-        args.first().and_then(|a| a.parse::<i32>().ok()),
-        args.get(1).and_then(|a| a.parse::<i32>().ok()),
-    ) else {
+    let (Some(gx), Some(gy)) = (nth_arg::<i32>(args, 0), nth_arg::<i32>(args, 1)) else {
         send_message(world, client_id, "Usage: //ge <geoX> <geoY>");
         return;
     };
@@ -192,10 +190,7 @@ pub(super) fn admin_geo_nswe(
     };
     // Java reads the pair as `geoX geoY`; a partial pair falls back to the
     // GM's own cell, as `hasMoreTokens()` does there.
-    let (gx, gy) = match (
-        args.first().and_then(|a| a.parse::<i32>().ok()),
-        args.get(1).and_then(|a| a.parse::<i32>().ok()),
-    ) {
+    let (gx, gy) = match (nth_arg::<i32>(args, 0), nth_arg::<i32>(args, 1)) {
         (Some(x), Some(y)) => (x, y),
         // NOTE: Java's `admin_geodisablenorth` branch reads its default geoX
         // through `getGeoY(getX())` — a copy-paste slip that would edit a cell

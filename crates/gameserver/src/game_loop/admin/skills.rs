@@ -4,6 +4,7 @@
 use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
@@ -21,15 +22,11 @@ use super::send_message;
 /// below — the marker was describing the code as it was before its own
 /// function body.)
 pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(skill_id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //add_skill <id> [level]");
         return;
     };
-    let level = args
-        .get(1)
-        .and_then(|s| s.parse::<i32>().ok())
-        .unwrap_or(1)
-        .max(1);
+    let level = nth_arg::<i32>(args, 1).unwrap_or(1).max(1);
     if world.data.skill_data.get(skill_id, level).is_none() {
         send_message(
             world,
@@ -76,7 +73,7 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
 /// `AdminSkill`'s `//remove_skill <id>` — remove a skill from the targeted
 /// player (or self).
 pub(super) fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(skill_id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //remove_skill <id>");
         return;
     };
@@ -93,10 +90,7 @@ pub(super) fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i
 /// `AdminSkill`'s `//setskill <id> <level>` — add a skill to the GM
 /// themselves (Java always targets `activeChar`), then refresh their list.
 pub(super) fn admin_setskill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let (Some(id), Some(level)) = (
-        args.first().and_then(|s| s.parse::<i32>().ok()),
-        args.get(1).and_then(|s| s.parse::<i32>().ok()),
-    ) else {
+    let (Some(id), Some(level)) = (nth_arg::<i32>(args, 0), nth_arg::<i32>(args, 1)) else {
         send_message(world, client_id, "Usage: //setskill <id> <level>");
         return;
     };
@@ -306,14 +300,11 @@ fn reset_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> 
 /// target; both land on the same effect pipeline here (documented
 /// simplification — no cast bar for the admin path).
 pub(super) fn admin_cast(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //cast <skillId> <skillLevel>");
         return;
     };
-    let level = args
-        .get(1)
-        .and_then(|s| s.parse::<i32>().ok())
-        .unwrap_or_else(|| world.data.skill_data.max_level(id));
+    let level = nth_arg::<i32>(args, 1).unwrap_or_else(|| world.data.skill_data.max_level(id));
     let Some(skill) = skill_by_id(world, id, level) else {
         send_message(
             world,
@@ -336,10 +327,7 @@ pub(super) fn admin_cast(world: &mut World, client_id: u32, object_id: i32, args
 /// admin HTML page.
 pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str, args: &[&str]) {
     if command == "admin_remove_skills" {
-        let page = args
-            .first()
-            .and_then(|s| s.parse::<usize>().ok())
-            .unwrap_or(0);
+        let page = nth_arg::<usize>(args, 0).unwrap_or(0);
         remove_skills_page(world, client_id, page);
         return;
     }
@@ -443,15 +431,11 @@ pub(crate) fn refresh_skill_list(world: &World, target: i32) {
 /// target (any creature) or self, exactly as a cast would (reuses the cast
 /// effect pipeline, so buffs/heals broadcast correctly).
 pub(super) fn admin_buff(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(skill_id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //buff <skillId> [level]");
         return;
     };
-    let level = args
-        .get(1)
-        .and_then(|s| s.parse::<i32>().ok())
-        .unwrap_or(1)
-        .max(1);
+    let level = nth_arg::<i32>(args, 1).unwrap_or(1).max(1);
     let Some(skill) = skill_by_id(world, skill_id, level) else {
         send_message(
             world,
@@ -615,7 +599,7 @@ fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], 
 /// `AdminBuffs`'s `//areacancel <radius>` — clear every timed buff from all
 /// players within `radius` (Java `Creature::stopAllEffects`).
 pub(super) fn admin_areacancel(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(radius) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(radius) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //areacancel <radius>");
         return;
     };
@@ -672,7 +656,7 @@ fn removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str])
 /// `AdminBuffs`'s `//stopbuff <skillId>` — remove a single buff from the target
 /// (reuses the buff-expiry path: stat revert + rebroadcast).
 pub(super) fn admin_stopbuff(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(skill_id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //stopbuff <skillId>");
         return;
     };

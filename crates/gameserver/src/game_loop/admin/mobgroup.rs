@@ -6,6 +6,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::components::{AdminFlags, Position};
 use crate::model::mob_group::{Controllable, MobGroup, MobGroupState};
 use crate::model::npc::Npc;
@@ -48,9 +49,9 @@ pub(super) fn admin_mobgroup_list(world: &mut World, client_id: u32) {
 /// group.
 pub(super) fn admin_mobgroup_create(world: &mut World, client_id: u32, args: &[&str]) {
     let (Some(group_id), Some(npc_id), Some(count)) = (
-        args.first().and_then(|s| s.parse::<i32>().ok()),
-        args.get(1).and_then(|s| s.parse::<i32>().ok()),
-        args.get(2).and_then(|s| s.parse::<i32>().ok()),
+        nth_arg::<i32>(args, 0),
+        nth_arg::<i32>(args, 1),
+        nth_arg::<i32>(args, 2),
     ) else {
         send_message(
             world,
@@ -119,9 +120,9 @@ pub(super) fn admin_mobgroup_spawn(
     }
     // Position: explicit `x y z` (args[1..4]) or the GM's own.
     let pos = match (
-        args.get(1).and_then(|s| s.parse::<i32>().ok()),
-        args.get(2).and_then(|s| s.parse::<i32>().ok()),
-        args.get(3).and_then(|s| s.parse::<i32>().ok()),
+        nth_arg::<i32>(args, 1),
+        nth_arg::<i32>(args, 2),
+        nth_arg::<i32>(args, 3),
     ) {
         (Some(x), Some(y), Some(z)) => (x, y, z, 0),
         _ => {
@@ -290,7 +291,7 @@ pub(super) fn admin_mobgroup_state(
             }
         }
         "attackgrp" => {
-            let Some(other) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
+            let Some(other) = nth_arg::<i32>(args, 1) else {
                 send_message(
                     world,
                     client_id,
@@ -320,7 +321,7 @@ pub(super) fn admin_mobgroup_state(
 
 /// Parse `args[0]` as a group id and confirm the group exists.
 fn group_arg(world: &World, client_id: u32, args: &[&str]) -> Option<i32> {
-    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Incorrect command arguments.");
         return None;
     };

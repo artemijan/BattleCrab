@@ -9,6 +9,7 @@
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, GroundItem, Position};
 use crate::world::World;
@@ -74,7 +75,7 @@ fn apply_toggle(world: &mut World, player_oid: i32, args: &[&str]) {
         "mode2" => s.next_target_mode = 2,
         "mode3" => s.next_target_mode = 3,
         "percent" => {
-            if let Some(v) = args.get(1).and_then(|v| v.parse::<i32>().ok()) {
+            if let Some(v) = nth_arg::<i32>(args, 1) {
                 s.potion_percent = v.clamp(0, 100);
             }
         }

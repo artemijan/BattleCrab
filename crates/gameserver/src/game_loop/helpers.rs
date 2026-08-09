@@ -96,6 +96,21 @@ pub(crate) fn class_level(world: &World, class_id: i32) -> i32 {
     }
 }
 
+/// Argument `n` of a chat command, parsed as `T`. `None` when it is missing
+/// **or** does not parse.
+///
+/// Those two failures are the same failure to every caller — both mean "show
+/// the usage line" — and Java's handlers conflate them the same way, wrapping a
+/// `countTokens()` check and the parse in one `try`. Bundling them here is what
+/// lets a command state its arity as a tuple pattern at its head instead of
+/// three lines of `args.get(i).and_then(|s| s.parse::<i32>().ok())` each.
+///
+/// The turbofish is usually only needed on the first element of such a tuple;
+/// the rest infer from the binding.
+pub(crate) fn nth_arg<T: std::str::FromStr>(args: &[&str], n: usize) -> Option<T> {
+    args.get(n).and_then(|s| s.parse().ok())
+}
+
 /// Java `CharInfoTable.getAccessLevelById(id) > 0` — whether a character is a
 /// GM.
 ///

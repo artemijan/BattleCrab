@@ -16,6 +16,7 @@
 //! the evidence lives in `data::transform_data`'s module header.
 
 use super::mounts::ride_target;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
 use crate::model::components::{
     BaseStats, Collision, CombatStats, SkillBook, Speeds, StatModifiers,
@@ -28,7 +29,7 @@ use super::{send_message, send_sm};
 /// `//transform <id>` — transform the ride target (target player or GM) into the
 /// given transform id.
 pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(transform_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(transform_id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //transform <id>");
         return;
     };

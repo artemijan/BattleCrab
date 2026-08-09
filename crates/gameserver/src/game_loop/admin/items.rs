@@ -3,6 +3,7 @@
 //! menus, and `AdminDestroyItems`' inventory-wipe commands.
 
 use crate::game_loop::guard;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::session::ClientSession;
@@ -158,11 +159,7 @@ pub(super) fn admin_create_coin(world: &mut World, client_id: u32, object_id: i3
         send_message(world, client_id, "Unknown coin name.");
         return;
     };
-    let count = args
-        .get(1)
-        .and_then(|s| s.parse::<i64>().ok())
-        .unwrap_or(1)
-        .max(1);
+    let count = nth_arg::<i64>(args, 1).unwrap_or(1).max(1);
     super::quests::give_item_with_earned_message(world, client_id, object_id, item_id, count);
 }
 
@@ -250,11 +247,11 @@ pub(super) fn admin_destroy_items(
 /// items that live in a loaded inventory, so the owner scan *is* the lookup, and
 /// an unknown id and an offline owner collapse into one message.
 pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(item_oid) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(item_oid) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //delete_item <objectId> [count]");
         return;
     };
-    let requested = args.get(1).and_then(|s| s.parse::<i64>().ok()).unwrap_or(1);
+    let requested = nth_arg::<i64>(args, 1).unwrap_or(1);
     let players: Vec<i32> = world.in_game_player_oids().collect();
     let owned = players.into_iter().find_map(|oid| {
         let inv = world.objects.get_component::<Inventory>(&oid)?;
@@ -326,7 +323,7 @@ pub(super) fn admin_delete_quest_item(
     gm_oid: i32,
     args: &[&str],
 ) {
-    let Some(item_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(item_id) = nth_arg::<i32>(args, 0) else {
         send_message(
             world,
             client_id,
@@ -402,11 +399,7 @@ pub(super) fn admin_delete_quest_item(
 
 /// Parse `<id> [count]` — item id (required) and count (default 1, min 1).
 fn parse_item_args(args: &[&str]) -> (Option<i32>, i64) {
-    let item_id = args.first().and_then(|s| s.parse::<i32>().ok());
-    let count = args
-        .get(1)
-        .and_then(|s| s.parse::<i64>().ok())
-        .unwrap_or(1)
-        .max(1);
+    let item_id = nth_arg::<i32>(args, 0);
+    let count = nth_arg::<i64>(args, 1).unwrap_or(1).max(1);
     (item_id, count)
 }

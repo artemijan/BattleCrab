@@ -4,6 +4,7 @@
 //! `//serverinfo`.
 
 use crate::game_loop::guard;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids};
@@ -211,7 +212,7 @@ pub(super) fn admin_jail(world: &mut World, client_id: u32, object_id: i32, args
         send_message(world, client_id, &format!("Player '{name}' is not online."));
         return;
     };
-    let minutes = args.get(1).and_then(|m| m.parse::<i64>().ok()).unwrap_or(0);
+    let minutes = nth_arg::<i64>(args, 1).unwrap_or(0);
     let by = world
         .objects
         .get_component::<Player>(&object_id)
@@ -301,7 +302,7 @@ fn char_punish(
         send_message(world, client_id, &format!("Player '{name}' is not online."));
         return;
     };
-    let minutes = args.get(1).and_then(|m| m.parse::<i64>().ok()).unwrap_or(0);
+    let minutes = nth_arg::<i64>(args, 1).unwrap_or(0);
     let by = gm_name(world, object_id);
     let applied = super::super::punishment::start_punishment(
         world,
@@ -429,7 +430,7 @@ pub(super) fn admin_ban_acc(world: &mut World, client_id: u32, object_id: i32, a
         send_message(world, client_id, "Usage: //ban_acc <account> [minutes]");
         return;
     };
-    let minutes = args.get(1).and_then(|m| m.parse::<i64>().ok()).unwrap_or(0);
+    let minutes = nth_arg::<i64>(args, 1).unwrap_or(0);
     let by = gm_name(world, object_id);
     let applied = super::super::punishment::start_punishment(
         world,
@@ -605,11 +606,7 @@ pub(super) fn admin_find_ip(world: &mut World, client_id: u32, args: &[&str]) {
 /// `AdminEditChar`'s `//find_dualbox [n]` — IPs with `n` or more online
 /// characters (default 2). Java's default `multibox` is 2.
 pub(super) fn admin_find_dualbox(world: &mut World, client_id: u32, args: &[&str]) {
-    let threshold = args
-        .first()
-        .and_then(|a| a.parse::<usize>().ok())
-        .filter(|&n| n >= 1)
-        .unwrap_or(2);
+    let threshold = nth_arg::<usize>(args, 0).filter(|&n| n >= 1).unwrap_or(2);
     let hits = dualbox_ips(world, threshold);
     send_message(
         world,

@@ -14,6 +14,7 @@
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_name_or_empty;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{
@@ -274,10 +275,7 @@ fn char_row(name: &str, class_id: i32, level: i32) -> String {
 /// as `charlist.htm` (Java `listCharacters`, 20 per page).
 pub(super) fn admin_character_list(world: &mut World, client_id: u32, args: &[&str]) {
     const PER_PAGE: usize = 20;
-    let page = args
-        .first()
-        .and_then(|s| s.parse::<usize>().ok())
-        .unwrap_or(0);
+    let page = nth_arg::<usize>(args, 0).unwrap_or(0);
     let ids = online_players(world);
     let pages = ids.len().div_ceil(PER_PAGE).max(1);
     let page = page.min(pages.saturating_sub(1));
@@ -566,7 +564,7 @@ pub(super) fn admin_setparam(
         })
         .unwrap_or(object_id);
     if set {
-        let Some(value) = args.get(1).and_then(|s| s.parse::<f64>().ok()) else {
+        let Some(value) = nth_arg::<f64>(args, 1) else {
             send_message(world, client_id, "Syntax: //setparam <stat> <value>");
             return;
         };
@@ -683,7 +681,7 @@ pub(super) fn admin_remove_clan_penalty(world: &mut World, client_id: u32, args:
 /// `//rec <n>` — set the targeted player's Recommend count (Java
 /// `setRecomHave` + `broadcastUserInfo` + both messages).
 pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(val) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+    let Some(val) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //rec number");
         return;
     };
@@ -809,7 +807,7 @@ pub(super) fn admin_summon_setlvl(
     object_id: i32,
     args: &[&str],
 ) {
-    let Some(level) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+    let Some(level) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //summon_setlvl level");
         return;
     };
@@ -847,9 +845,7 @@ pub(super) fn admin_summon_setlvl(
 /// own inventory (or the pet of the player with the given object id).
 pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     // Java's argument is the *owner's* object id (`World.getPet(ownerId)`).
-    let pet_oid = args
-        .first()
-        .and_then(|a| a.parse::<i32>().ok())
+    let pet_oid = nth_arg::<i32>(args, 0)
         .and_then(|owner| crate::game_loop::servitor::servitor_of(world, owner))
         .filter(|oid| {
             world

@@ -8,6 +8,7 @@
 use super::menu::show_admin_html_replace;
 use super::send_message;
 use crate::data::instance_data::InstanceTemplate;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::instances;
 use crate::world::World;
 
@@ -46,7 +47,7 @@ pub(super) fn admin_instance_list(world: &World, client_id: u32, args: &[&str]) 
 /// instance from the template and move the chosen group into it, then redraw
 /// its detail page.
 pub(super) fn admin_instance_create(world: &mut World, client_id: u32, gm_oid: i32, args: &[&str]) {
-    let Some(template_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(template_id) = nth_arg::<i32>(args, 0) else {
         send_message(
             world,
             client_id,
@@ -91,7 +92,7 @@ pub(super) fn admin_instance_teleport(
     gm_oid: i32,
     args: &[&str],
 ) {
-    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //instanceteleport <instanceId>");
         return;
     };
@@ -106,7 +107,7 @@ pub(super) fn admin_instance_teleport(
 /// `//instancedestroy <instanceId>`: tear an instance down (ousting anyone
 /// inside), then redraw its template detail page.
 pub(super) fn admin_instance_destroy(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //instancedestroy <instanceId>");
         return;
     };

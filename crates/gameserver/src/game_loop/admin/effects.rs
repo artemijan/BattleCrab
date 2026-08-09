@@ -10,6 +10,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{self, sm_ids};
@@ -162,7 +163,7 @@ fn creatures_in_range(world: &World, center: &Position, radius: i32, exclude: i3
 /// broadcast a `MagicSkillUse` so the targeted creature (or the GM if none)
 /// plays the skill's animation toward the GM. Purely cosmetic (no effects run).
 pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(skill_id) = nth_arg::<i32>(args, 0) else {
         send_message(
             world,
             client_id,
@@ -170,8 +171,8 @@ pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, ar
         );
         return;
     };
-    let level = args.get(1).and_then(|s| s.parse::<i32>().ok()).unwrap_or(1);
-    let hit_time = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(1);
+    let level = nth_arg::<i32>(args, 1).unwrap_or(1);
+    let hit_time = nth_arg::<i32>(args, 2).unwrap_or(1);
     // Java: obj = target, or self if none; must be a creature.
     let source = guard::target(world, object_id).unwrap_or(object_id);
     if !is_creature(world, source) {
@@ -201,10 +202,8 @@ pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, ar
 /// `AdminEffects`' `//earthquake <intensity> <duration>` — a localised
 /// screen-shake centred on the GM, broadcast to the surrounding regions.
 pub(super) fn admin_earthquake(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let (Some(intensity), Some(duration)) = (
-        args.first().and_then(|s| s.parse::<i32>().ok()),
-        args.get(1).and_then(|s| s.parse::<i32>().ok()),
-    ) else {
+    let (Some(intensity), Some(duration)) = (nth_arg::<i32>(args, 0), nth_arg::<i32>(args, 1))
+    else {
         send_message(
             world,
             client_id,
@@ -229,7 +228,7 @@ pub(super) fn admin_atmosphere(world: &mut World, client_id: u32, args: &[&str])
         send_message(world, client_id, usage);
         return;
     };
-    let duration = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
+    let duration = nth_arg::<i32>(args, 2).unwrap_or(0);
     let packet = if kind == "sky" {
         match state {
             "night" => Some(server_packets::sun_set()),
@@ -294,10 +293,7 @@ pub(super) fn admin_setteam(
         return;
     };
     let targets: Vec<i32> = if close {
-        let radius = args
-            .get(1)
-            .and_then(|r| r.parse::<i32>().ok())
-            .unwrap_or(400) as f64;
+        let radius = nth_arg::<i32>(args, 1).unwrap_or(400) as f64;
         let Some(origin) = position(world, object_id) else {
             return;
         };
@@ -572,10 +568,8 @@ const MOVIES: &[(i32, bool)] = &[
 pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) {
     use crate::model::components::InMovie;
 
-    let movie = args
-        .first()
-        .and_then(|v| v.parse::<i32>().ok())
-        .and_then(|id| MOVIES.iter().find(|&&(mid, _)| mid == id).copied());
+    let movie =
+        nth_arg::<i32>(args, 0).and_then(|id| MOVIES.iter().find(|&&(mid, _)| mid == id).copied());
     let Some((movie_id, escapable)) = movie else {
         send_message(world, client_id, "Usage: //playmovie <id>");
         return;
@@ -669,7 +663,7 @@ pub(super) fn admin_event_trigger(
     args: &[&str],
 ) {
     let (Some(id), enabled) = (
-        args.first().and_then(|v| v.parse::<i32>().ok()),
+        nth_arg::<i32>(args, 0),
         args.get(1).is_some_and(|v| v.eq_ignore_ascii_case("true")),
     ) else {
         send_message(world, client_id, "Usage: //event_trigger id [true | false]");
@@ -689,7 +683,7 @@ pub(super) fn admin_set_displayeffect(
     object_id: i32,
     args: &[&str],
 ) {
-    let Some(state) = args.first().and_then(|v| v.parse::<i32>().ok()) else {
+    let Some(state) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //set_displayeffect <id>");
         return;
     };

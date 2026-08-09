@@ -4,6 +4,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets;
@@ -434,7 +435,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         );
         return;
     };
-    let radius = args.get(1).and_then(|r| r.parse::<i32>().ok()).unwrap_or(0);
+    let radius = nth_arg::<i32>(args, 1).unwrap_or(0);
 
     // Target set: everyone in radius, else the target, else self.
     let targets: Vec<i32> = if radius > 0 {

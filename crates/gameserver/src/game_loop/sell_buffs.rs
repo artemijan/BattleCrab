@@ -18,6 +18,7 @@
 //! silently failing.
 
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
@@ -247,10 +248,7 @@ fn add_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) 
     if is_selling(world, player_oid) {
         return;
     }
-    let (Some(skill_id), Some(price)) = (
-        args.first().and_then(|a| a.parse::<i32>().ok()),
-        args.get(1).and_then(|a| a.parse::<i64>().ok()),
-    ) else {
+    let (Some(skill_id), Some(price)) = (nth_arg::<i32>(args, 0), nth_arg::<i64>(args, 1)) else {
         return;
     };
     if known_level(world, player_oid, skill_id).is_none() {
@@ -306,10 +304,7 @@ fn change_price(world: &mut World, client_id: u32, player_oid: i32, args: &[&str
     if is_selling(world, player_oid) {
         return;
     }
-    let (Some(skill_id), Some(price)) = (
-        args.first().and_then(|a| a.parse::<i32>().ok()),
-        args.get(1).and_then(|a| a.parse::<i64>().ok()),
-    ) else {
+    let (Some(skill_id), Some(price)) = (nth_arg::<i32>(args, 0), nth_arg::<i64>(args, 1)) else {
         return;
     };
     let Some(level) = known_level(world, player_oid, skill_id) else {
@@ -343,7 +338,7 @@ fn remove_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str
     if is_selling(world, player_oid) {
         return;
     }
-    let Some(skill_id) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+    let Some(skill_id) = nth_arg::<i32>(args, 0) else {
         return;
     };
     let Some(level) = known_level(world, player_oid, skill_id) else {
@@ -372,7 +367,7 @@ fn remove_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str
 /// `sellbuffbuymenu <sellerObjId> [index]` — the shop's page, refused unless
 /// the seller is really selling and the buyer is in interaction range.
 pub(crate) fn buy_menu(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) {
-    let Some(seller) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+    let Some(seller) = nth_arg::<i32>(args, 0) else {
         return;
     };
     let index = args.get(1).and_then(|a| a.parse().ok()).unwrap_or(0);
@@ -415,10 +410,8 @@ pub(crate) fn send_buff_menu(
 /// `sellbuffbuyskill <sellerObjId> <skillId> [index]` — the transaction:
 /// buyer pays, **seller** pays the MP, and the skill lands on the buyer.
 fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
-    let (Some(seller_oid), Some(skill_id)) = (
-        args.first().and_then(|a| a.parse::<i32>().ok()),
-        args.get(1).and_then(|a| a.parse::<i32>().ok()),
-    ) else {
+    let (Some(seller_oid), Some(skill_id)) = (nth_arg::<i32>(args, 0), nth_arg::<i32>(args, 1))
+    else {
         return;
     };
     let index = args.get(2).and_then(|a| a.parse().ok()).unwrap_or(0);

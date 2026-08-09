@@ -6,6 +6,7 @@
 use crate::enums::AdminTeleportType;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
@@ -31,11 +32,7 @@ use crate::game_loop::helpers::region_cell_of;
 /// The target is any **Creature** — Java takes `target.isCreature()`, so an NPC
 /// can be sped up too; only a non-creature target falls back to the GM.
 pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(mult) = args
-        .first()
-        .and_then(|s| s.parse::<f64>().ok())
-        .filter(|b| (0.0..=10.0).contains(b))
-    else {
+    let Some(mult) = nth_arg::<f64>(args, 0).filter(|b| (0.0..=10.0).contains(b)) else {
         send_message(world, client_id, "//gmspeed [0...10]");
         return;
     };
@@ -125,9 +122,9 @@ pub(super) fn admin_teleport_coords(
     args: &[&str],
 ) {
     let coords = (
-        args.first().and_then(|s| s.parse::<i32>().ok()),
-        args.get(1).and_then(|s| s.parse::<i32>().ok()),
-        args.get(2).and_then(|s| s.parse::<i32>().ok()),
+        nth_arg::<i32>(args, 0),
+        nth_arg::<i32>(args, 1),
+        nth_arg::<i32>(args, 2),
     );
     let (Some(x), Some(y), Some(z)) = coords else {
         send_message(world, client_id, "Usage: //teleport <x> <y> <z>");
@@ -306,10 +303,7 @@ pub(super) fn admin_go(
     dir: &str,
     args: &[&str],
 ) {
-    let offset = args
-        .first()
-        .and_then(|s| s.parse::<i32>().ok())
-        .unwrap_or(150);
+    let offset = nth_arg::<i32>(args, 0).unwrap_or(150);
     let Some(mut pos) = guard::position(world, object_id) else {
         return;
     };
@@ -342,9 +336,9 @@ pub(super) fn admin_go(
 /// Java (`catch (Exception e) {}` with an empty body).
 pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let (Some(x), Some(y), Some(z)) = (
-        args.first().and_then(|s| s.parse::<i32>().ok()),
-        args.get(1).and_then(|s| s.parse::<i32>().ok()),
-        args.get(2).and_then(|s| s.parse::<i32>().ok()),
+        nth_arg::<i32>(args, 0),
+        nth_arg::<i32>(args, 1),
+        nth_arg::<i32>(args, 2),
     ) else {
         return;
     };
@@ -398,9 +392,9 @@ pub(super) fn admin_teleport_character(
 
 fn teleport_character(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
     let (Some(x), Some(y), Some(z)) = (
-        args.first().and_then(|s| s.parse::<i32>().ok()),
-        args.get(1).and_then(|s| s.parse::<i32>().ok()),
-        args.get(2).and_then(|s| s.parse::<i32>().ok()),
+        nth_arg::<i32>(args, 0),
+        nth_arg::<i32>(args, 1),
+        nth_arg::<i32>(args, 2),
     ) else {
         return Err(Reject::Msg("Wrong or no Coordinates given.".to_string()));
     };
@@ -466,11 +460,7 @@ const SUPER_HASTE_ID: i32 = 7029;
 /// `AdminSuperHaste`'s `//superhaste` / `//speed <0-4>` — apply the super-haste
 /// buff at the given level to the GM (level 0 removes it).
 pub(super) fn admin_superhaste(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(level) = args
-        .first()
-        .and_then(|s| s.parse::<i32>().ok())
-        .filter(|v| (0..=4).contains(v))
-    else {
+    let Some(level) = nth_arg::<i32>(args, 0).filter(|v| (0..=4).contains(v)) else {
         send_message(world, client_id, "Usage: //superhaste <Effect level (0-4)>");
         return;
     };

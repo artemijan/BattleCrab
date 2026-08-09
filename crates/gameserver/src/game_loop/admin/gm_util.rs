@@ -11,6 +11,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
@@ -145,7 +146,7 @@ pub(super) fn admin_targetsay(world: &mut World, client_id: u32, object_id: i32,
 
 /// `AdminMessages`'s `//msg <id>` — send the raw `SystemMessage(id)` to the GM.
 pub(super) fn admin_msg(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(id) = args.first().and_then(|s| s.parse::<i16>().ok()) else {
+    let Some(id) = nth_arg::<i16>(args, 0) else {
         send_message(world, client_id, "Command format: //msg <SYSTEM_MSG_ID>");
         return;
     };
@@ -790,7 +791,7 @@ pub(super) fn admin_quest_info(world: &mut World, client_id: u32, args: &[&str])
 /// hall to the targeted player's clan, `take` frees it (the panel half of
 /// Java `AdminClanHall`; doors/teleport have their own commands).
 pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(hall_id) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+    let Some(hall_id) = nth_arg::<i32>(args, 0) else {
         let mut halls: Vec<_> = world.clan_halls.values().collect();
         halls.sort_by_key(|h| h.id);
         let rows: String = halls

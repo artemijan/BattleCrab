@@ -3,6 +3,7 @@
 //! target (or the GM) and push the resulting `StatusUpdate`.
 
 use crate::game_loop::guard;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
 use crate::model::npc::Npc;
@@ -105,7 +106,7 @@ pub(super) fn admin_res(world: &mut World, client_id: u32, object_id: i32, args:
 /// `AdminRes`'s `//res_monster [radius]` — revive the targeted NPC, or every
 /// non-player creature within `radius`.
 pub(super) fn admin_res_monster(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    if let Some(radius) = args.first().and_then(|s| s.parse::<i32>().ok()) {
+    if let Some(radius) = nth_arg::<i32>(args, 0) {
         for oid in super::creatures_in_range(world, object_id, radius, false, true) {
             res_creature(world, oid);
         }
@@ -206,7 +207,7 @@ pub(super) fn set_vital(
     vital: Vital,
     args: &[&str],
 ) {
-    let Some(value) = args.first().and_then(|s| s.parse::<f64>().ok()) else {
+    let Some(value) = nth_arg::<f64>(args, 0) else {
         send_message(world, client_id, "Usage: //set_hp <value>");
         return;
     };
@@ -262,7 +263,7 @@ pub(super) fn admin_kill(
         // `//kill <name>` — a named online player (not for `//kill_monster`).
         if !monster && let Some(named) = find_online_player(world, arg) {
             // `//kill <name> <radius>` kills players around that player.
-            if let Some(radius) = args.get(1).and_then(|s| s.parse::<i32>().ok()) {
+            if let Some(radius) = nth_arg::<i32>(args, 1) {
                 for oid in super::creatures_in_range(world, named, radius, true, false) {
                     kill_creature(world, oid, object_id);
                 }

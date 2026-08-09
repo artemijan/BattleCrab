@@ -13,6 +13,7 @@ use crate::data::zone_data::ZoneKind;
 use crate::game_loop::doors;
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::ZoneFlags;
 use crate::model::door::Door;
@@ -48,7 +49,7 @@ pub(super) fn admin_door(
         );
         return;
     }
-    if let Some(door_id) = args.first().and_then(|s| s.parse::<i32>().ok()) {
+    if let Some(door_id) = nth_arg::<i32>(args, 0) {
         doors::open_close_by_door_id(world, door_id, open);
         return;
     }
@@ -103,7 +104,7 @@ pub(super) fn admin_zones(world: &mut World, client_id: u32, object_id: i32) {
 /// `AdminShop`'s `//buy <buyListId>` — open a buy window for a merchant buy-list
 /// (admin path skips the npc-allowed check Java also bypasses).
 pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(list_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(list_id) = nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Please specify buylist.");
         return;
     };
@@ -327,7 +328,7 @@ pub(super) fn admin_server_shutdown(
     args: &[&str],
     restart: bool,
 ) {
-    let Some(secs) = args.first().and_then(|a| a.parse::<u64>().ok()) else {
+    let Some(secs) = nth_arg::<u64>(args, 0) else {
         send_message(world, client_id, "Usage: //server_shutdown <seconds>");
         return;
     };
@@ -414,14 +415,14 @@ pub(super) fn admin_server_status(world: &mut World, client_id: u32, cmd: &str, 
         "admin_server_gm_only" => vec![(status::SERVER_LIST_STATUS, status::STATUS_GM_ONLY)],
         "admin_server_all" => vec![(status::SERVER_LIST_STATUS, status::STATUS_AUTO)],
         "admin_server_max_player" => {
-            let Some(n) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+            let Some(n) = nth_arg::<i32>(args, 0) else {
                 send_message(world, client_id, "Format: //server_max_player <number>");
                 return;
             };
             vec![(status::MAX_PLAYERS, n)]
         }
         "admin_server_list_age" => {
-            let age = match args.first().and_then(|a| a.parse::<i32>().ok()) {
+            let age = match nth_arg::<i32>(args, 0) {
                 Some(15) => status::SERVER_AGE_15,
                 Some(18) => status::SERVER_AGE_18,
                 Some(0) => status::SERVER_AGE_ALL,
@@ -433,7 +434,7 @@ pub(super) fn admin_server_status(world: &mut World, client_id: u32, cmd: &str, 
             vec![(status::SERVER_AGE, age)]
         }
         "admin_server_list_type" => {
-            let Some(n) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+            let Some(n) = nth_arg::<i32>(args, 0) else {
                 send_message(world, client_id, "Format: //server_list_type <type mask>");
                 return;
             };

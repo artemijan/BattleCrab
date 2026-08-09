@@ -4,6 +4,7 @@
 
 use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::sm_ids;
@@ -26,11 +27,7 @@ fn add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) 
     let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     // Exactly two numeric tokens, else the usage hint (Java: `countTokens() != 2`
     // or a parse failure returns false → "Usage" sysmessage).
-    match (
-        args.len(),
-        args.first().and_then(|s| s.parse::<i64>().ok()),
-        args.get(1).and_then(|s| s.parse::<i64>().ok()),
-    ) {
+    match (args.len(), nth_arg::<i64>(args, 0), nth_arg::<i64>(args, 1)) {
         // Java only applies + messages when at least one value is non-zero.
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
             let name = helpers::player_name_or_empty(world, target);
@@ -71,11 +68,7 @@ pub(super) fn admin_remove_exp_sp(
 
 fn remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
     let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
-    match (
-        args.len(),
-        args.first().and_then(|s| s.parse::<i64>().ok()),
-        args.get(1).and_then(|s| s.parse::<i64>().ok()),
-    ) {
+    match (args.len(), nth_arg::<i64>(args, 0), nth_arg::<i64>(args, 1)) {
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
             let name = helpers::player_name_or_empty(world, target);
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
@@ -136,7 +129,7 @@ pub(super) fn admin_change_level(
     args: &[&str],
     set: bool,
 ) {
-    let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(value) = nth_arg::<i32>(args, 0) else {
         send_message(
             world,
             client_id,
@@ -196,7 +189,7 @@ pub(super) fn set_int_field(
     field: IntField,
     args: &[&str],
 ) {
-    let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(value) = nth_arg::<i32>(args, 0) else {
         send_message(
             world,
             client_id,
@@ -257,7 +250,7 @@ pub(super) fn admin_vitality(
             return;
         }
         "set" => {
-            let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+            let Some(value) = nth_arg::<i32>(args, 0) else {
                 send_message(world, client_id, "Incorrect vitality");
                 return;
             };
@@ -297,7 +290,7 @@ pub(super) fn admin_vitality(
 pub(super) fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     // Java: no (parseable) argument throws StringIndexOutOfBoundsException and
     // opens the class-picker menu instead of printing a usage line.
-    let Some(class_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(class_id) = nth_arg::<i32>(args, 0) else {
         super::menu::show_admin_html(world, client_id, "setclass/human_fighter.htm");
         return;
     };
@@ -383,11 +376,7 @@ pub(super) fn admin_set_enchant(
     slot: PaperdollSlot,
     args: &[&str],
 ) {
-    let Some(value) = args
-        .first()
-        .and_then(|s| s.parse::<i32>().ok())
-        .filter(|v| (0..=127).contains(v))
-    else {
+    let Some(value) = nth_arg::<i32>(args, 0).filter(|v| (0..=127).contains(v)) else {
         send_message(world, client_id, "Usage: //set<slot> <0..127>");
         return;
     };
@@ -419,7 +408,7 @@ pub(super) fn admin_setsubclass(world: &mut World, client_id: u32, object_id: i3
     use crate::game_loop::subclass::{AddError, add_subclass};
 
     let target = target_player(world, object_id);
-    let Some(class_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(class_id) = nth_arg::<i32>(args, 0) else {
         let listing = world
             .objects
             .get_component::<Player>(&target)
@@ -472,7 +461,7 @@ pub(super) fn admin_changesubclass(
     object_id: i32,
     args: &[&str],
 ) {
-    let Some(index) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(index) = nth_arg::<i32>(args, 0) else {
         send_message(
             world,
             client_id,

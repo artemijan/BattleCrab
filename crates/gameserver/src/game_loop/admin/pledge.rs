@@ -8,6 +8,7 @@
 use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
@@ -219,7 +220,7 @@ pub(super) fn admin_clan_show_pending(world: &mut World, client_id: u32) {
 /// once instead of waiting for Wednesday. Java bails silently on a non-numeric
 /// argument, an unknown clan, or a nominee who is no longer a member.
 pub(super) fn admin_clan_force_pending(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(clan_id) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+    let Some(clan_id) = nth_arg::<i32>(args, 0) else {
         return;
     };
     let Some(new_leader) = world
@@ -285,10 +286,7 @@ pub(super) fn admin_add_clan_skill(
 }
 
 fn add_clan_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
-    let (Some(skill_id), Some(level)) = (
-        args.first().and_then(|a| a.parse::<i32>().ok()),
-        args.get(1).and_then(|a| a.parse::<i32>().ok()),
-    ) else {
+    let (Some(skill_id), Some(level)) = (nth_arg::<i32>(args, 0), nth_arg::<i32>(args, 1)) else {
         return Err(Reject::Msg(
             "Usage: //add_clan_skill <skillId> <level>".to_string(),
         ));
