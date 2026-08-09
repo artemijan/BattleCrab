@@ -65,13 +65,13 @@ pub(crate) async fn run(
                 char_id,
                 delete_time,
             } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Deletetime, delete_time.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(
+                    &db,
+                    char_id,
+                    characters::Column::Deletetime,
+                    delete_time.into(),
+                )
+                .await;
                 reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::RestoreCharacter {
@@ -79,13 +79,7 @@ pub(crate) async fn run(
                 account,
                 char_id,
             } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Deletetime, 0.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(&db, char_id, characters::Column::Deletetime, 0.into()).await;
                 reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::DeleteCharacter { char_id } => {
@@ -520,61 +514,34 @@ pub(crate) async fn run(
                 }
             }
             DbCommand::UpdateCastleSide { castle_id, side } => {
-                warn_err(
-                    castle::Entity::update_many()
-                        .col_expr(castle::Column::Side, side.into())
-                        .filter(castle::Column::Id.eq(castle_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_castle_col(&db, castle_id, castle::Column::Side, side.into()).await;
             }
             DbCommand::UpdateCastleShowNpcCrest { castle_id, show } => {
-                warn_err(
-                    castle::Entity::update_many()
-                        .col_expr(
-                            castle::Column::ShowNpcCrest,
-                            if show { "true" } else { "false" }.into(),
-                        )
-                        .filter(castle::Column::Id.eq(castle_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_castle_col(
+                    &db,
+                    castle_id,
+                    castle::Column::ShowNpcCrest,
+                    if show { "true" } else { "false" }.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanLeader { clan_id, leader_id } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::LeaderId, leader_id.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(&db, clan_id, clan_data::Column::LeaderId, leader_id.into()).await;
             }
             DbCommand::UpdateClanCastle { clan_id, castle_id } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::HasCastle, castle_id.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(&db, clan_id, clan_data::Column::HasCastle, castle_id.into()).await;
             }
             DbCommand::UpdateClanBloodAlliance { clan_id, count } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::BloodAllianceCount, count.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    clan_data::Column::BloodAllianceCount,
+                    count.into(),
+                )
+                .await;
             }
             DbCommand::UpdateCastleTicketCount { castle_id, count } => {
-                warn_err(
-                    castle::Entity::update_many()
-                        .col_expr(castle::Column::TicketBuyCount, count.into())
-                        .filter(castle::Column::Id.eq(castle_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_castle_col(&db, castle_id, castle::Column::TicketBuyCount, count.into()).await;
             }
             DbCommand::AddFreightItems { owner_id, items } => {
                 for it in &items {
@@ -711,13 +678,7 @@ pub(crate) async fn run(
                 castle_id,
                 treasury,
             } => {
-                warn_err(
-                    castle::Entity::update_many()
-                        .col_expr(castle::Column::Treasury, treasury.into())
-                        .filter(castle::Column::Id.eq(castle_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_castle_col(&db, castle_id, castle::Column::Treasury, treasury.into()).await;
             }
             DbCommand::UpdateCastleSiegeTime {
                 castle_id,
@@ -1041,25 +1002,19 @@ pub(crate) async fn run(
                 );
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::ClanLevel, level.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(&db, clan_id, clan_data::Column::ClanLevel, level.into()).await;
             }
             DbCommand::UpdateClanReputation {
                 clan_id,
                 reputation,
             } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::ReputationScore, reputation.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    clan_data::Column::ReputationScore,
+                    reputation.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanPenalties {
                 clan_id,
@@ -1133,13 +1088,13 @@ pub(crate) async fn run(
                 char_id,
                 power_grade,
             } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::PowerGrade, power_grade.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(
+                    &db,
+                    char_id,
+                    characters::Column::PowerGrade,
+                    power_grade.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanAlly {
                 clan_id,
@@ -1199,16 +1154,13 @@ pub(crate) async fn run(
                 char_id,
                 lvl_joined_academy,
             } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(
-                            characters::Column::LvlJoinedAcademy,
-                            lvl_joined_academy.into(),
-                        )
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(
+                    &db,
+                    char_id,
+                    characters::Column::LvlJoinedAcademy,
+                    lvl_joined_academy.into(),
+                )
+                .await;
             }
             DbCommand::UpdateCharApprenticeSponsor {
                 char_id,
@@ -1228,13 +1180,13 @@ pub(crate) async fn run(
                 char_id,
                 pledge_type,
             } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Subpledge, pledge_type.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(
+                    &db,
+                    char_id,
+                    characters::Column::Subpledge,
+                    pledge_type.into(),
+                )
+                .await;
             }
             DbCommand::InsertCrest { id, data, kind } => {
                 warn_err(
@@ -1256,37 +1208,31 @@ pub(crate) async fn run(
                 );
             }
             DbCommand::UpdateClanCrest { clan_id, crest_id } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::CrestId, crest_id.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(&db, clan_id, clan_data::Column::CrestId, crest_id.into()).await;
             }
             DbCommand::UpdateClanCrestLarge {
                 clan_id,
                 crest_large_id,
             } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::CrestLargeId, crest_large_id.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    clan_data::Column::CrestLargeId,
+                    crest_large_id.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanAllyCrestSelf {
                 clan_id,
                 ally_crest_id,
             } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::AllyCrestId, ally_crest_id.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    clan_data::Column::AllyCrestId,
+                    ally_crest_id.into(),
+                )
+                .await;
             }
             DbCommand::UpdateAllyCrestForAlliance {
                 ally_id,
@@ -1472,22 +1418,22 @@ pub(crate) async fn run(
                 clan_id,
                 new_leader_id,
             } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::NewLeaderId, new_leader_id.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    clan_data::Column::NewLeaderId,
+                    new_leader_id.into(),
+                )
+                .await;
             }
             DbCommand::UpdateCharClanJoinExpiry { char_id, expiry } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::ClanJoinExpiryTime, expiry.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(
+                    &db,
+                    char_id,
+                    characters::Column::ClanJoinExpiryTime,
+                    expiry.into(),
+                )
+                .await;
             }
             DbCommand::DestroyClan {
                 clan_id,
@@ -1514,16 +1460,13 @@ pub(crate) async fn run(
                         .exec(&db)
                         .await,
                 );
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(
-                            characters::Column::ClanCreateExpiryTime,
-                            leader_expiry.into(),
-                        )
-                        .filter(characters::Column::CharId.eq(leader_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(
+                    &db,
+                    leader_id,
+                    characters::Column::ClanCreateExpiryTime,
+                    leader_expiry.into(),
+                )
+                .await;
             }
             DbCommand::StoreClanWarehouse { clan_id, items } => {
                 warn_err(
@@ -1554,13 +1497,7 @@ pub(crate) async fn run(
                 }
             }
             DbCommand::SetAccessLevel { char_id, level } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Accesslevel, level.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_col(&db, char_id, characters::Column::Accesslevel, level.into()).await;
             }
             DbCommand::StoreAccountVar {
                 account_name,
@@ -2324,4 +2261,62 @@ pub(crate) async fn run(
 
     let _ = db.close().await;
     info!("DB thread: stopped.");
+}
+
+/// `UPDATE <E> SET col = val WHERE key = id` — the shape twenty-odd of the
+/// single-field `DbCommand` arms above reduce to.
+///
+/// `update_many` rather than a loaded `ActiveModel`: the game thread already
+/// holds the authoritative value, so re-reading the row first would be a round
+/// trip to learn something we are about to overwrite. Failures are logged and
+/// swallowed by [`warn_err`], like every other write on this thread — the DB
+/// mirrors live state rather than owning it, so a lost write must not take the
+/// server down with it.
+///
+/// Arms that set *several* columns keep their own `update_many` chain: that is
+/// one statement, and calling this once per column would make it several.
+async fn set_col<E: EntityTrait>(
+    db: &DatabaseConnection,
+    key: E::Column,
+    id: i32,
+    col: E::Column,
+    val: SimpleExpr,
+) {
+    warn_err(
+        E::update_many()
+            .col_expr(col, val)
+            .filter(key.eq(id))
+            .exec(db)
+            .await,
+    );
+}
+
+/// [`set_col`] on `characters`, keyed by `char_id`.
+async fn set_char_col(
+    db: &DatabaseConnection,
+    char_id: i32,
+    col: characters::Column,
+    val: SimpleExpr,
+) {
+    set_col::<characters::Entity>(db, characters::Column::CharId, char_id, col, val).await;
+}
+
+/// [`set_col`] on `clan_data`, keyed by `clan_id`.
+async fn set_clan_col(
+    db: &DatabaseConnection,
+    clan_id: i32,
+    col: clan_data::Column,
+    val: SimpleExpr,
+) {
+    set_col::<clan_data::Entity>(db, clan_data::Column::ClanId, clan_id, col, val).await;
+}
+
+/// [`set_col`] on `castle`, keyed by `castle_id`.
+async fn set_castle_col(
+    db: &DatabaseConnection,
+    castle_id: i32,
+    col: castle::Column,
+    val: SimpleExpr,
+) {
+    set_col::<castle::Entity>(db, castle::Column::Id, castle_id, col, val).await;
 }

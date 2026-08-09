@@ -34,7 +34,7 @@ use models::entity::{
 };
 use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use models::sea_orm::Condition;
-use models::sea_orm::sea_query::{CaseStatement, Expr, OnConflict};
+use models::sea_orm::sea_query::{CaseStatement, Expr, OnConflict, SimpleExpr};
 use models::sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, DbErr, EntityTrait,
     PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, TransactionTrait,
