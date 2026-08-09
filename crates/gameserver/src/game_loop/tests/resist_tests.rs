@@ -1,9 +1,9 @@
 //! Abnormal resistance, blocking and probabilistic dispel (G19).
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::game_loop::helpers::stat_mul;
-use crate::model::components::Buffs;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
 };
@@ -71,13 +71,6 @@ fn land(world: &mut World, skill_id: i32, target: i32) {
         .cloned()
         .expect("registered");
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
-}
-
-fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
 }
 
 // ---------------------------------------------------------------------------

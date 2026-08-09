@@ -4,8 +4,9 @@
 //! re-cast gate.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
-use crate::model::components::{Buffs, Casting, SummonerRef};
+use crate::model::components::{Casting, SummonerRef};
 use crate::model::skill::{
     AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillCondition,
     SkillEffect, TargetType,
@@ -113,13 +114,6 @@ fn learn(world: &mut World, oid: i32, skill: &Skill) {
         .unwrap()
         .0
         .insert(skill.id, 1);
-}
-
-fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
 }
 
 /// The totem entity standing at (x, y), if any.
