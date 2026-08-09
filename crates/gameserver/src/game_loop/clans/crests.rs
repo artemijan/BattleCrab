@@ -58,6 +58,14 @@ fn refresh_clan_crest_on_members(world: &mut World, clan_id: i32) {
     }
 }
 
+fn read_crest_data(r: &mut PacketReader, length: i32) -> Option<Vec<u8>> {
+    if length > 0 {
+        r.read_bytes(length as usize).map(|d| d.to_vec())
+    } else {
+        Some(Vec::new())
+    }
+}
+
 /// `RequestSetPledgeCrest` (0x09): the small (≤256-byte) clan crest.
 pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player) = world.player_oid(client_id) else {
@@ -68,12 +76,9 @@ pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32,
     if length > 256 {
         return; // Java's own readImpl bails before the length even reaches runImpl
     }
-    let data = if length > 0 {
-        r.read_bytes(length as usize).map(|d| d.to_vec())
-    } else {
-        Some(Vec::new())
+    let Some(data) = read_crest_data(&mut r, length) else {
+        return;
     };
-    let Some(data) = data else { return };
 
     let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
@@ -165,12 +170,9 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
     if length > 2176 {
         return;
     }
-    let data = if length > 0 {
-        r.read_bytes(length as usize).map(|d| d.to_vec())
-    } else {
-        Some(Vec::new())
+    let Some(data) = read_crest_data(&mut r, length) else {
+        return;
     };
-    let Some(data) = data else { return };
 
     let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
@@ -295,12 +297,9 @@ pub(crate) fn handle_request_set_ally_crest(world: &mut World, client_id: u32, b
     if length > 192 {
         return;
     }
-    let data = if length > 0 {
-        r.read_bytes(length as usize).map(|d| d.to_vec())
-    } else {
-        Some(Vec::new())
+    let Some(data) = read_crest_data(&mut r, length) else {
+        return;
     };
-    let Some(data) = data else { return };
 
     let Some(p) = world.objects.get_component::<Player>(&player) else {
         return;
