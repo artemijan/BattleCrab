@@ -10,7 +10,7 @@ use crate::game_loop::area_npcs::{
 };
 use crate::model::components::ActiveMultisell;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// The Blacksmith of Mammon's first exchange list — `<npcs><npc>31126</npc>`,
 /// i.e. openable *only* from him.

@@ -166,8 +166,7 @@ fn the_two_basic_property_terms_enter_the_formula_at_different_points() {
 fn a_landed_stun_accrues_and_a_resisted_one_does_not() {
     const STUN_ATTACK: i32 = 100;
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
     add_test_npc(&mut world, MOB, 20001, "Monster", 20, 0, 0, 0);
     let _rx = ingame_player_access(&mut world, 1, PLAYER, 0);
     let skill = world

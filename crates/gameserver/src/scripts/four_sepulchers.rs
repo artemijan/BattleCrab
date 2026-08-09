@@ -5,6 +5,7 @@ use crate::game_loop::four_sepulchers as fs;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{AdminFlags, Position, RegionCell, Vitals};
 
@@ -232,7 +233,7 @@ impl QuestScript for FourSepulchers {
                         ..Default::default()
                     },
                 );
-                if let Some(skill) = ctx.world.data.skill_data.get(PETRIFY, 1).cloned() {
+                if let Some(skill) = skill_by_id(ctx.world, PETRIFY, 1) {
                     crate::game_loop::npc_cast::start_cast(ctx.world, npc, npc, &skill);
                 }
                 ctx.world.scheduler.schedule(

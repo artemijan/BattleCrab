@@ -13,6 +13,7 @@
 //! | 4215 `RAID_CURSE`  | `Mute` + `PhysicalMute` | 3600 s | casting a **good** skill nearby |
 //! | 4515 `RAID_CURSE2` | `BlockActions`          | 120 s  | attacking it, or casting a **bad** skill nearby |
 
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
 use crate::world::World;
 
@@ -126,15 +127,7 @@ pub(crate) fn on_skill_cast_near_raid(world: &mut World, caster_oid: i32, skill_
 const PARTY_RANGE: f64 = 1500.0;
 
 fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
-    use crate::model::components::Position;
-    let (Some(pa), Some(pb)) = (
-        world.objects.get_component::<Position>(&a),
-        world.objects.get_component::<Position>(&b),
-    ) else {
-        return false;
-    };
-    let (dx, dy) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64);
-    (dx * dx + dy * dy).sqrt() <= range
+    crate::geo::distance::within_2d(world, a, b, range)
 }
 
 /// A boss only curses while it is actually fighting (`isInCombat`).
@@ -149,7 +142,7 @@ fn in_combat(world: &World, npc_oid: i32) -> bool {
 /// caster, so the debuff cannot be resisted as if the victim had cast it on
 /// themselves, and its landing rate reads the boss's level.
 fn apply_curse(world: &mut World, npc_oid: i32, player_oid: i32, skill_id: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, 1) else {
         return;
     };
     crate::game_loop::skills::effects::apply_continuous_effects(

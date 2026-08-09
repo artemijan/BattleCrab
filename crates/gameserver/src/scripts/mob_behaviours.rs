@@ -12,6 +12,7 @@
 //! `PLAN_G22_AI_OTHERS.md`'s skip table.)
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Immobilized, Position, Vitals};
 
@@ -533,12 +534,7 @@ impl QuestScript for FairyTrees {
             ctx.seed_npc_attack(guardian, killer);
             // `getRandomBoolean()` — half of them lead with the poison.
             if ctx.roll(2) == 0
-                && let Some(skill) = ctx
-                    .world
-                    .data
-                    .skill_data
-                    .get(VENOMOUS_POISON.0, VENOMOUS_POISON.1)
-                    .cloned()
+                && let Some(skill) = skill_by_id(ctx.world, VENOMOUS_POISON.0, VENOMOUS_POISON.1)
             {
                 crate::game_loop::npc_cast::start_cast(ctx.world, guardian, killer, &skill);
             }

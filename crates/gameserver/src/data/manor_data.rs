@@ -3,6 +3,7 @@
 //! (Java `model/Seed`). Manor is gated by `AllowManor` (off on this dist), but
 //! the data is loaded regardless so it works the moment an operator enables it.
 
+use crate::data::xml::attr_i32_trimmed as attr_i32;
 use std::collections::HashMap;
 
 use quick_xml::Reader;
@@ -140,14 +141,6 @@ impl ManorData {
     }
 }
 
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
-        .and_then(|s| s.trim().parse().ok())
-}
-
 fn parse(content: &str) -> HashMap<i32, Vec<Seed>> {
     let mut reader = Reader::from_str(content);
     let mut out: HashMap<i32, Vec<Seed>> = HashMap::new();
@@ -195,7 +188,7 @@ fn parse(content: &str) -> HashMap<i32, Vec<Seed>> {
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// The dist `Seeds.xml` loads: all 9 castles offer a manor, and Gludio's
     /// first seed carries its full crop/reward/limit fields.

@@ -12,6 +12,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -1549,7 +1550,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return false;
         }
-        let Some(skill) = self.world.data.skill_data.get(skill_id, level).cloned() else {
+        let Some(skill) = skill_by_id(self.world, skill_id, level) else {
             return false;
         };
         if !super::npc_cast::check_use_conditions_pub(self.world, caster_oid, &skill) {

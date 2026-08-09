@@ -220,8 +220,7 @@ fn the_ex_packet_path_is_gated_by_sub_opcode() {
 #[test]
 fn the_dist_config_throttles_a_burst_and_then_reopens() {
     let (mut world, ..) = test_world();
-    world.cfg.flood_protector =
-        FloodProtectorsConfig::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.cfg.flood_protector = FloodProtectorsConfig::load_from(crate::data::DIST_GAME);
     assert_eq!(
         world
             .cfg

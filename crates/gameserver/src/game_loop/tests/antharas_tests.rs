@@ -710,7 +710,7 @@ fn a_second_hit_mid_cast_starts_nothing() {
 // Slice 20: the entry flow wired — Heart of Warding → WAITING → SPAWN.
 // ---------------------------------------------------------------------------
 
-const DIST_GAME: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST_GAME: &str = crate::data::DIST_GAME;
 
 /// The full arc: an admitted player is teleported in, WAITING is set, and the
 /// clock is NOT restarted by a second entrant — the boss takes the platform

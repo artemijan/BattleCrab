@@ -826,11 +826,9 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
         return Vec::new();
     }
 
-    (-1..=1)
-        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
-        .flatten()
-        .copied()
+    world
+        .npcs_visible_from(region)
+        .into_iter()
         .filter(|&other| other != npc_oid)
         .filter(|&other| {
             world

@@ -597,22 +597,8 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             // Target drops (with their TargetUnselected) precede the
             // DeleteObject, as in Java. The mover's own target was already
             // handled above; the guard makes a second call a no-op anyway.
-            if world
-                .objects
-                .get_component::<TargetRef>(&other_id)
-                .copied()
-                .is_some_and(|t| t.0 == Some(object_id))
-            {
-                super::target::drop_target_notify(world, other_id);
-            }
-            if world
-                .objects
-                .get_component::<TargetRef>(&object_id)
-                .copied()
-                .is_some_and(|t| t.0 == Some(other_id))
-            {
-                super::target::drop_target_notify(world, object_id);
-            }
+            drop_target_if_pointing_at(world, other_id, object_id);
+            drop_target_if_pointing_at(world, object_id, other_id);
             if let Some(cs) = world.clients.get(&other_client) {
                 cs.send(server_packets::delete_object(object_id));
             }
@@ -652,14 +638,7 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
     for (cid, other_id) in observers {
         // TargetUnselected before DeleteObject (Java `removeVisibleObject`
         // runs `setTarget(null)` first) — see `drop_target_notify`.
-        if world
-            .objects
-            .get_component::<TargetRef>(&other_id)
-            .copied()
-            .is_some_and(|t| t.0 == Some(object_id))
-        {
-            super::target::drop_target_notify(world, other_id);
-        }
+        drop_target_if_pointing_at(world, other_id, object_id);
         if let Some(cs) = world.clients.get(&cid) {
             cs.send(server_packets::delete_object(object_id));
         }
@@ -751,14 +730,7 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
                 cs.send(pkt.clone());
             }
         } else {
-            if world
-                .objects
-                .get_component::<TargetRef>(&player_id)
-                .copied()
-                .is_some_and(|t| t.0 == Some(npc_object_id))
-            {
-                super::target::drop_target_notify(world, player_id);
-            }
+            drop_target_if_pointing_at(world, player_id, npc_object_id);
             if let Some(cs) = world.clients.get(&cid) {
                 cs.send(server_packets::delete_object(npc_object_id));
             }
@@ -824,5 +796,22 @@ pub(crate) fn movement_tick(world: &mut World) {
             id, m.dest_x, m.dest_y, m.dest_z, m.start_x, m.start_y, m.start_z,
         );
         super::helpers::broadcast_including_self(world, id, &pkt);
+    }
+}
+
+/// Clear `viewer`'s selection if it points at `object_id`.
+///
+/// Java's `removeVisibleObject` runs `setTarget(null)` before `DeleteObject`,
+/// so a client never keeps a selection on something it can no longer see. The
+/// no-op-when-it-points-elsewhere behaviour is what makes the symmetric pair of
+/// calls on a mutual despawn safe to issue unconditionally.
+fn drop_target_if_pointing_at(world: &mut World, viewer: i32, object_id: i32) {
+    if world
+        .objects
+        .get_component::<TargetRef>(&viewer)
+        .copied()
+        .is_some_and(|t| t.0 == Some(object_id))
+    {
+        super::target::drop_target_notify(world, viewer);
     }
 }

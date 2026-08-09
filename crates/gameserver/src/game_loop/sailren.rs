@@ -15,7 +15,7 @@
 //!
 //! [`SailrenWaveMob`]: crate::model::components::SailrenWaveMob
 
-use crate::model::components::{AdminFlags, Immobilized, Position, SailrenWaveMob, Vitals};
+use crate::model::components::{AdminFlags, Immobilized, SailrenWaveMob, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -116,13 +116,7 @@ fn near_leader(world: &World, leader: i32, member: i32) -> bool {
     if leader == member {
         return true;
     }
-    let (Some(a), Some(b)) = (
-        world.objects.get_component::<Position>(&leader),
-        world.objects.get_component::<Position>(&member),
-    ) else {
-        return false;
-    };
-    a.distance_2d(b) <= GATHER_RANGE
+    crate::geo::distance::within_2d(world, leader, member, GATHER_RANGE)
 }
 
 fn gazkh_count(world: &World, oid: i32) -> i64 {

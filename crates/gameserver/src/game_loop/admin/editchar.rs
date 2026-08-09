@@ -13,6 +13,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{
@@ -868,12 +869,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
-    let name = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&pet_oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let name = npc_name_or_empty(world, pet_oid);
     let Some(inv) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&pet_oid)

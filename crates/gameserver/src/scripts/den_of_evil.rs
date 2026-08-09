@@ -3,6 +3,7 @@
 //! and its eyes (18812–18814) have no spawns, so only the orcs are live
 //! content.
 
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 const RAGNA_ORC_COMMANDER: i32 = 22694;
@@ -205,7 +206,7 @@ impl QuestScript for FrightenedRagnaOrc {
 
 fn cast_vanish(ctx: &mut QuestCtx) {
     let npc = ctx.npc;
-    if let Some(skill) = ctx.world.data.skill_data.get(VANISH_SKILL, 1).cloned()
+    if let Some(skill) = skill_by_id(ctx.world, VANISH_SKILL, 1)
         && crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill)
     {
         crate::game_loop::npc_cast::start_cast(ctx.world, npc, npc, &skill);

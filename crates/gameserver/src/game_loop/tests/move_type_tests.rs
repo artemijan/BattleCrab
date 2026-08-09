@@ -18,7 +18,7 @@ use crate::game_loop::regen::{move_type_of, movement_regen_multiplier, run_regen
 
 const PLAYER: i32 = 4101;
 const CID: u32 = 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// `cast_test_world` with the **real** player templates and stat bonuses
 /// loaded. Required for anything asserting on a regen *rate*: the synthetic

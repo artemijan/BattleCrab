@@ -653,6 +653,25 @@ pub fn synthetic_region(f: impl Fn(i32, i32) -> (i16, u8)) -> Region {
     Region::from_owned(img).expect("synthetic region image is well-formed")
 }
 
+/// The wall terrain three test modules build for [`synthetic_region`]: cell
+/// column x = 10 is a 200-unit wall with no exits, the approach column x = 9 is
+/// walkable but cannot be stepped out of eastward, everything else is open
+/// ground.
+///
+/// LOS ([`GeoEngine::can_see_target`]), pathfinding ([`path::find_path`]) and
+/// the game-loop aggro tests each need this same obstacle, and a wall is only a
+/// wall if all three agree on its shape — a stray `NSWE_EAST` in one copy turns
+/// that module's "blocked" assertion into a tautology.
+pub fn wall_column(x: i32, _y: i32) -> (i16, u8) {
+    if x == 10 {
+        (200, 0) // the wall itself: 200 units high, no exits
+    } else if x == 9 {
+        (0, NSWE_ALL & !NSWE_EAST) // ground before it: can't step east
+    } else {
+        (0, NSWE_ALL)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -756,15 +775,7 @@ mod tests {
     /// stop both sight and movement; `get_valid_location` walks up to it.
     #[test]
     fn wall_blocks_los_and_movement() {
-        let g = engine_with(|x, _y| {
-            if x == 10 {
-                (200, 0) // the wall itself: 200 units high, no exits
-            } else if x == 9 {
-                (0, NSWE_ALL & !NSWE_EAST) // ground before it: can't step east
-            } else {
-                (0, NSWE_ALL)
-            }
-        });
+        let g = engine_with(wall_column);
         let (x0, y0) = world(&g, 5, 5);
         let (x1, y1) = world(&g, 15, 5);
         assert!(

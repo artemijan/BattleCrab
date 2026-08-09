@@ -279,7 +279,7 @@ fn gm_startup_applies_invul_and_invisible() {
 /// config is turned back off.
 #[test]
 fn gm_special_skills_are_granted_but_never_persisted() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     /// Super Haste, the first row of `gameMasterSkillTree.xml`.
     const SUPER_HASTE: i32 = 7029;
 
@@ -370,7 +370,7 @@ fn gm_startup_builder_hide_short_circuits() {
 fn admin_menu_serves_main_page() {
     let (mut world, ..) = admin_world();
     // Point the datapack root at dist/game so the html file resolves.
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6431, 100);
     drain(&mut rx);
 
@@ -405,7 +405,7 @@ fn admin_menu_serves_main_page() {
 fn admin_instance_detail_lists_live_instances() {
     use crate::data::instance_data::{ExitType, InstanceTemplate};
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
 
     // A template with an empty default group (no NPC data needed) + a live copy.
     world
@@ -467,7 +467,7 @@ fn admin_instance_detail_lists_live_instances() {
 fn admin_instancecreate_enters_the_gm() {
     use crate::data::instance_data::{ExitType, InstanceTemplate};
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world
         .data
         .instance_templates
@@ -510,7 +510,7 @@ fn admin_instancecreate_enters_the_gm() {
 #[test]
 fn admin_editchar_info_commands_use_html() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6432, 100);
     drain(&mut rx);
 
@@ -604,7 +604,7 @@ fn admin_editchar_info_commands_use_html() {
 fn admin_grandboss_status_panel_and_actions() {
     use crate::model::grand_boss::GrandBoss;
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     // Queen Ant alive (status 0); Antharas dead (status 3) with a known respawn.
     world.grand_bosses.insert(
         29001,
@@ -773,7 +773,7 @@ fn admin_grandboss_status_panel_and_actions() {
 /// `//cw_remove` reverses it. Port of `AdminCursedWeapons`.
 #[test]
 fn admin_cursed_weapons_info_add_remove() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     // Boot-equivalent: load config, then build the runtime list (as net.rs does).
@@ -951,7 +951,7 @@ fn admin_cursed_weapons_info_add_remove() {
 /// redraw the panel from the state they just changed.
 #[test]
 fn cursed_weapon_panel_redraws_after_give_and_remove() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, _db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
@@ -1088,7 +1088,7 @@ fn user_info_isgm_byte_reflects_access_level() {
 #[test]
 fn admin_silence_toggles_refusal_mode() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6471, 100);
     drain(&mut rx);
 
@@ -1448,8 +1448,7 @@ fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
 #[test]
 fn admin_create_item_adds_to_gm_inventory() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7201, 100);
     drain(&mut gm_rx);
@@ -1471,8 +1470,7 @@ fn admin_create_item_adds_to_gm_inventory() {
 #[test]
 fn admin_delete_item_trims_a_stack_by_object_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0200..0x4000_0300;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7211, 100);
     drain(&mut gm_rx);
@@ -1512,8 +1510,7 @@ fn admin_delete_item_trims_a_stack_by_object_id() {
 #[test]
 fn admin_delete_item_rejects_unowned_object_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0300..0x4000_0400;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7212, 100);
     on_packet(&mut world, 1, build_admin("create_item 57 50"));
@@ -1541,8 +1538,7 @@ fn admin_delete_item_rejects_unowned_object_id() {
 #[test]
 fn admin_delete_quest_item_by_template_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0400..0x4000_0500;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7213, 100);
     let _p_rx = ingame_player_access(&mut world, 2, 7214, 0);
@@ -1597,8 +1593,7 @@ fn admin_delete_quest_item_by_template_id() {
 #[test]
 fn admin_create_item_rejects_unknown_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7204, 100);
     drain(&mut gm_rx);
 
@@ -1668,7 +1663,7 @@ fn admin_add_exp_sp_grants_to_target() {
 #[test]
 fn admin_add_exp_sp_to_character_opens_menu() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
     world
         .objects
@@ -1705,7 +1700,7 @@ fn admin_add_exp_sp_to_character_opens_menu() {
 #[test]
 fn admin_character_info_by_name_sets_target() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7311, 100);
     let _victim_rx = ingame_player_access(&mut world, 2, 7312, 0);
     if let Some(p) = world.objects.get_component_mut::<Player>(&7312) {
@@ -2008,8 +2003,7 @@ fn admin_spawn_rejects_unknown_npc() {
 #[test]
 fn admin_spawn_creates_npc_at_gm() {
     let (mut world, ..) = admin_world();
-    world.data.npc_data =
-        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.npc_data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7604, 100);
     drain(&mut gm_rx);
     if let Some(p) = world
@@ -2195,8 +2189,7 @@ fn admin_hide_toggles_visibility() {
 #[test]
 fn admin_add_and_remove_skill() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8001, 100);
     drain(&mut gm_rx);
 
@@ -2232,8 +2225,7 @@ fn admin_add_and_remove_skill() {
 #[test]
 fn admin_add_skill_rejects_unknown() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8002, 100);
     drain(&mut gm_rx);
 
@@ -2249,8 +2241,7 @@ fn admin_add_skill_rejects_unknown() {
 #[test]
 fn admin_setew_enchants_equipped_weapon() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8101, 100);
     drain(&mut gm_rx);
     // Equip a weapon (item 1, the starter gloves aside — any weapon id) in RHand.
@@ -2305,8 +2296,7 @@ fn admin_setew_without_weapon_warns() {
 #[test]
 fn admin_buff_applies_skill_to_self() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8201, 100);
     drain(&mut gm_rx);
 
@@ -2329,8 +2319,7 @@ fn admin_superhaste_applies_and_persists() {
     // is negligible (`power` 0.0001) but still needs a real MP pool: with
     // `for_test()`'s empty `player_templates` a level-1 dummy char computes 0
     // max MP, and the very first tick would exceed it and cancel the toggle.
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8202, 100);
     drain(&mut gm_rx);
 
@@ -2451,8 +2440,7 @@ fn client_atk_speed_multiplier_tracks_haste() {
 #[test]
 fn admin_buff_rejects_unknown_skill() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8202, 100);
     drain(&mut gm_rx);
 
@@ -2520,9 +2508,8 @@ fn admin_set_hp_sets_current_hp() {
 #[test]
 fn admin_getbuffs_lists_active_buffs() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8401, 100);
     drain(&mut gm_rx);
 
@@ -2554,9 +2541,8 @@ fn admin_getbuffs_lists_active_buffs() {
 #[test]
 fn admin_getbuffs_pages_at_three() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8402, 100);
     drain(&mut gm_rx);
 
@@ -2592,8 +2578,7 @@ fn admin_getbuffs_pages_at_three() {
 #[test]
 fn admin_stopbuff_removes_one() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8501, 100);
     drain(&mut gm_rx);
 
@@ -2612,8 +2597,7 @@ fn admin_stopbuff_removes_one() {
 #[test]
 fn admin_stopallbuffs_clears_after_confirm() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8502, 100);
     drain(&mut gm_rx);
 
@@ -2667,7 +2651,7 @@ fn admin_setclass_changes_class() {
 /// class tree — not just the base-class ones.
 #[test]
 fn admin_setclass_grants_advanced_class_skills() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.player_templates = crate::data::PlayerTemplateData::load_from(ROOT);
     world.data.skill_trees = crate::data::SkillTreeData::load_from(ROOT);
@@ -2890,8 +2874,7 @@ fn admin_remove_exp_sp_reduces() {
 #[test]
 fn admin_setskill_adds_to_self() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8902, 100);
     drain(&mut gm_rx);
     on_packet(&mut world, 1, build_admin("setskill 1177 1"));
@@ -2994,7 +2977,7 @@ fn admin_gonorth_moves_gm() {
 #[test]
 fn admin_tele_opens_the_additional_movement_options_window() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8920, 100);
     drain(&mut gm_rx);
 
@@ -3145,8 +3128,7 @@ fn admin_geo_pos_no_geodata() {
 #[test]
 fn admin_create_coin_gives_adena() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut gm_rx = ingame_player_access(&mut world, 1, 8911, 100);
     drain(&mut gm_rx);
@@ -3162,8 +3144,7 @@ fn admin_create_coin_gives_adena() {
 #[test]
 fn admin_spawnat_creates_npc_at_coords() {
     let (mut world, ..) = admin_world();
-    world.data.npc_data =
-        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.npc_data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8912, 100);
     drain(&mut gm_rx);
     let npc_oid = world.next_npc_object_id;
@@ -3329,8 +3310,7 @@ fn admin_ride_bike_transforms_and_reverts() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     // Jet bike (20001) exists in the dist with run=170 + a Dismount skill.
     let bike = world
         .data
@@ -3430,8 +3410,7 @@ fn dismount_skill_reverts_gm_ride_transform() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
 
     let mut gm_rx = ingame_player_access(&mut world, 1, 8935, 100);
     drain(&mut gm_rx);
@@ -3498,8 +3477,7 @@ fn transform_skills_never_persist() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let bike_skills: Vec<i32> = world
         .data
         .transforms
@@ -3554,8 +3532,7 @@ fn transform_skills_never_persist() {
 #[test]
 fn admin_mobgroup_lifecycle() {
     let (mut world, ..) = admin_world();
-    world.data.npc_data =
-        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.npc_data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8940, 100);
     drain(&mut gm_rx);
 
@@ -3691,7 +3668,7 @@ fn admin_setparam_fixes_and_clears_a_stat() {
 /// hero list. Port of AdminAdmin's hero commands.
 #[test]
 fn admin_sethero_toggles_status_skills_and_aura() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
     world.data.skill_trees = crate::data::SkillTreeData::load_from(ROOT);
@@ -3774,7 +3751,7 @@ fn admin_sethero_toggles_status_skills_and_aura() {
 fn admin_castlemanage_ownership_and_side() {
     use crate::model::castle::{Castle, CastleSide};
     use crate::model::clan::{Clan, ClanMember};
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     world.castles = vec![Castle {
@@ -3953,7 +3930,7 @@ fn admin_castlemanage_siege_registration_and_state() {
     use crate::model::castle::{Castle, CastleSide};
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::siege::Siege;
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     world.castles = vec![Castle {
@@ -4253,7 +4230,7 @@ fn admin_ave_abnormal_toggles_a_pinned_visual() {
     use crate::game_loop::abnormal::visual_effects;
 
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6481, 100);
     drain(&mut rx);
 
@@ -4314,7 +4291,7 @@ fn admin_ave_abnormal_toggles_a_pinned_visual() {
 #[test]
 fn admin_setteam_sets_the_aura_color() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6491, 100);
     drain(&mut rx);
 
@@ -4385,7 +4362,7 @@ fn admin_para_blocks_actions_until_unpara() {
     };
 
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6492, 100);
     drain(&mut rx);
 
@@ -4424,7 +4401,7 @@ fn admin_settargetable_blocks_selection() {
     use crate::model::components::TargetRef;
 
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6493, 100);
     let mut rx2 = ingame_player_access(&mut world, 2, 6494, 0);
     drain(&mut rx);
@@ -4500,7 +4477,7 @@ fn admin_settargetable_blocks_selection() {
 #[test]
 fn admin_event_trigger_and_playmovie_send_their_packets() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 6495, 100);
     drain(&mut rx);
 
@@ -4614,7 +4591,7 @@ fn scan_world() -> (
     tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, a, b, c) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     (world, a, b, c)
 }
 
@@ -4768,7 +4745,7 @@ fn oversized_html_is_clipped_to_java_limit() {
 fn admin_invis_menu_hides_and_reserves_panel() {
     use crate::model::components::{AdminFlags, TargetRef};
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7101, 100);
     let mut obs_rx = ingame_player_access(&mut world, 2, 7102, 0);
     world.objects.add_components(&7102, TargetRef(Some(7101)));
@@ -4918,7 +4895,7 @@ fn npc_aggro_ignores_hidden_gm() {
 #[test]
 fn debug_menu_renders_and_packet_toggle_works() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7141, 100);
     drain(&mut gm_rx);
 
@@ -4966,7 +4943,7 @@ fn debug_menu_renders_and_packet_toggle_works() {
 fn punishment_console_add_info_remove() {
     use crate::model::punishment::{PunishmentAffect, PunishmentType};
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7501, 100);
     let mut victim_rx = ingame_player_access(&mut world, 2, 7502, 0);
     drain(&mut gm_rx);
@@ -5318,9 +5295,8 @@ fn setcharquest_and_menu_roundtrip() {
 #[test]
 fn getbuffs_follows_an_npc_target_and_a_name_argument() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut t = crate::data::npc_data::default_template(30001);
     t.name = "Buffed Mob".into();
     t.type_name = "Monster".into();
@@ -5419,7 +5395,7 @@ fn show_quests_lists_the_target_npcs_scripts() {
     }
 
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(
         NpcQuestScript,
     )]));
@@ -5494,7 +5470,7 @@ fn tradeoff_refuses_trade_requests() {
 #[test]
 fn cond_overrides_and_see_all_players() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7911, 100);
     let mut watcher_rx = ingame_player_access(&mut world, 2, 7912, 100);
     drain(&mut gm_rx);
@@ -5544,7 +5520,7 @@ fn cond_overrides_and_see_all_players() {
 #[test]
 fn reload_config_rereads_ini() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7921, 100);
     drain(&mut gm_rx);
 
@@ -5575,7 +5551,7 @@ fn reload_config_rereads_ini() {
 #[test]
 fn debug_panel_geodata_toggle_draws_grid() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7951, 100);
     drain(&mut gm_rx);
 
@@ -5731,7 +5707,7 @@ fn debug_panel_movement_toggle_draws_walk_line() {
 /// Visual Effects" button opened nothing.
 #[test]
 fn ave_abnormal_without_args_serves_the_paged_effect_list() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 7501, 100);
@@ -5797,7 +5773,7 @@ fn ave_abnormal_without_args_serves_the_paged_effect_list() {
 /// has its own page (`transform.htm`), not the main GM menu the port served.
 #[test]
 fn effects_panel_menu_commands_reserve_their_pages() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 7510, 100);
@@ -5864,7 +5840,7 @@ fn effects_panel_menu_commands_reserve_their_pages() {
 /// `First | Prev | Page: x/y | Next | Last` strip, which this page never uses.
 #[test]
 fn ave_menu_pager_is_the_numbered_default_handler() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 7511, 100);
@@ -5936,7 +5912,7 @@ fn ave_menu_pager_is_the_numbered_default_handler() {
 /// returns to the cursed value after a relog".
 #[test]
 fn cursed_weapon_skill_not_persisted_after_removal() {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     world.data.skill_data = crate::data::skill_data::SkillData::load_from(ROOT);
@@ -6290,7 +6266,7 @@ fn playmovie_movie_holder_bookkeeping() {
 fn admin_instancedestroy_warns_the_players_inside() {
     use crate::data::instance_data::{ExitType, InstanceTemplate};
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world
         .data
         .instance_templates
@@ -6578,7 +6554,7 @@ fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
 #[test]
 fn cw_goto_falls_through_from_the_holder_to_the_dropped_item() {
     use crate::model::components::Position;
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
@@ -6665,8 +6641,7 @@ fn admin_transform_swaps_and_restores_the_action_bar() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     // The fixture world ships an *empty* ActionData, which would make the
     // restore leg below compare an empty bar against an empty bar and pass
     // while proving nothing. Load the real one.
@@ -6728,8 +6703,7 @@ fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     // The fixture's single synthetic class template does not cover the test
     // player's class, so `recalculate_stats` would fall back to
     // `PlayerTemplate::default()` — every class base 0, which makes a ratio
@@ -6931,8 +6905,7 @@ fn admin_teleportto_moves_the_gm_to_a_named_player() {
 fn admin_remove_skills_generates_the_targets_own_skill_list() {
     use crate::model::components::{SkillBook, TargetRef};
     let (mut world, ..) = admin_world();
-    world.data.skill_data =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7130, 100);
     let _victim_rx = ingame_player(&mut world, 2, 7131, 0, 0, 0);
     world.objects.add_components(&7130, TargetRef(Some(7131)));
@@ -6964,8 +6937,7 @@ fn admin_remove_skills_generates_the_targets_own_skill_list() {
 fn setclass_drops_a_dye_the_new_class_cannot_wear() {
     use crate::model::components::HennaSlots;
     let (mut world, ..) = admin_world();
-    world.data.hennas =
-        crate::data::HennaData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.hennas = crate::data::HennaData::load_from(crate::data::DIST_GAME);
     world.data.player_templates = crate::data::PlayerTemplateData::load_from(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"

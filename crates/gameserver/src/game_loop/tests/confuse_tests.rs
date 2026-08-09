@@ -21,7 +21,7 @@ const ORC_A: i32 = 47001;
 const ORC_B: i32 = 47002;
 const VICTIM_OID: i32 = NPC_OID;
 const BYSTANDER_OID: i32 = NPC_OID + 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn mob_template(id: i32, clans: &[&str]) -> crate::data::npc_data::NpcTemplate {
     let mut t = crate::data::npc_data::default_template(id);

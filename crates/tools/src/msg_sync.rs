@@ -69,21 +69,13 @@ pub fn sync(
     name: &str,
     dry_run: bool,
 ) -> Result<Report, String> {
-    let path = system_dir.join(name);
-    let raw = std::fs::read(&path).map_err(|e| format!("cannot read {}: {e}", path.display()))?;
-    let version = client_dat::read_version(&raw)
-        .ok_or_else(|| format!("{} has no Lineage2Ver header", path.display()))?;
-    let plain = client_dat::decrypt(&raw, &version)?;
-
-    let enums = set.enums.clone();
-    let (text, layout) = set
-        .candidates(name)
-        .into_iter()
-        .find_map(|(_label, layout)| {
-            let outcome = dat_text::read(&plain, &layout, &enums, false);
-            outcome.exact().then_some((outcome.text, layout))
-        })
-        .ok_or_else(|| format!("no schema layout fits {name}"))?;
+    let dat_text::Unpacked {
+        path,
+        text,
+        version,
+        layout,
+        enums,
+    } = dat_text::unpack(set, system_dir, name, &mut |_| {})?;
 
     let mut lines: Vec<String> = text.lines().map(str::to_owned).collect();
     let defaults = modal_fields(&lines)?;

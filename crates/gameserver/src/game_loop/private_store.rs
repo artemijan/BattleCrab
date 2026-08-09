@@ -1009,12 +1009,7 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
         let Some(region) = region_cell_of(world, owner) else {
             return false;
         };
-        let nearby_npcs: Vec<i32> = (-1..=1)
-            .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-            .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
-            .flatten()
-            .copied()
-            .collect();
+        let nearby_npcs = world.npcs_visible_from(region);
         for npc in nearby_npcs {
             if too_close(npc, cfg.shop_min_range_from_npc) {
                 send_cannot_open_here(world, client_id);

@@ -15,7 +15,7 @@
 use super::*;
 use crate::data::multisell_data::MultisellData;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// Galladucci — the Giran luxury shop's weapon trader. `merchant/30097.htm`:
 /// `bypass -h npc_%objectId%_Multisell 3009701`.

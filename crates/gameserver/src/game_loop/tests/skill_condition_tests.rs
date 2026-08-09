@@ -25,8 +25,7 @@ const REVIVAL: i32 = 181;
 
 fn dist_world() -> (World, impl Sized, impl Sized, impl Sized) {
     let (mut world, a, b, c) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
     (world, a, b, c)
 }
 

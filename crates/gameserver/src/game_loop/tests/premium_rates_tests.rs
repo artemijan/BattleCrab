@@ -12,7 +12,7 @@ use crate::model::Player;
 const PLAYER: i32 = 8001;
 const CID: u32 = 1;
 const ADENA: i32 = 57;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn grant_premium(world: &mut World, oid: i32) {
     world.cfg.premium.enabled = true;

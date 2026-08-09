@@ -1,6 +1,7 @@
 //! Over-hit (G20): bonus XP for a killing blow that overshoots.
 
 use super::*;
+use crate::game_loop::helpers::skill_by_id;
 
 use crate::model::components::Overhit;
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
@@ -122,12 +123,7 @@ fn wounded_mob(world: &mut World, remaining_hp: f64) -> i32 {
 }
 
 fn cast(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world
-        .data
-        .skill_data
-        .get(skill_id, 1)
-        .cloned()
-        .expect("registered");
+    let skill = skill_by_id(world, skill_id, 1).expect("registered");
     // Pin the two rolls a `MagicalAttack` consumes: the magic crit (999 → no
     // crit, so the exp comparisons aren't skewed by a random doubling) and the
     // `MagicFailures` success roll (0 → lands). A resisted cast floors the

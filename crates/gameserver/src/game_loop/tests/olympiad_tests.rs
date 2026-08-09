@@ -1287,7 +1287,7 @@ fn monument_hero_list_sends_ex_hero_list() {
 fn hero_diary_window_renders_with_the_deed_list() {
     let (mut world, _tx, _rx, _l) = test_world();
     // The diary template lives in the dist html tree.
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     // A crowned hero (class 88) with a "Gained Hero status" diary entry.
     world.olympiad.heroes.push((100, 88));
     world.olympiad.hero_info.insert(

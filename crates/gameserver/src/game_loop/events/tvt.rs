@@ -16,6 +16,7 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::skill_by_id;
 use commons::util::rnd;
 use tracing::warn;
 
@@ -487,7 +488,7 @@ pub(crate) fn resurrect_player(world: &mut World, player: i32) {
     teleport_player(world, player, spawn.0, spawn.1, spawn.2);
     crate::game_loop::death::do_revive(world, player);
     // Ghost Walking: 30s of DamageBlock (HP/MP) invulnerability + speed.
-    if let Some(skill) = world.data.skill_data.get(GHOST_WALKING, 1).cloned() {
+    if let Some(skill) = skill_by_id(world, GHOST_WALKING, 1) {
         crate::game_loop::skills::effects::apply_skill_effects(world, player, player, &skill);
     }
     // Java resets the clock here too — a player who died *inside* their own

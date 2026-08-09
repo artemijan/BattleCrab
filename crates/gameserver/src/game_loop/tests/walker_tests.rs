@@ -214,7 +214,7 @@ fn a_dead_walker_stops_permanently() {
 /// The real datapack: a walker template that actually ships with a route.
 #[test]
 fn real_dist_attaches_porter_remy() {
-    let routes = RouteData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let routes = RouteData::load_from(crate::data::DIST_GAME);
     let (_, r) = routes.route_for_npc(31356).expect("Porter Remy walks");
     assert_eq!(r.nodes.len(), 18);
     assert_eq!(r.repeat_style, RepeatStyle::GoFirst);

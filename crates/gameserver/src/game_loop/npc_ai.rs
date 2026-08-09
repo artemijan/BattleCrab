@@ -29,6 +29,7 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashSet;
 
 use commons::util::rnd;
@@ -1103,11 +1104,9 @@ fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_oid: i32) -
     let Some(region) = region_cell_of(world, npc_oid) else {
         return false;
     };
-    let crowder = (-1..=1)
-        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
-        .flatten()
-        .copied()
+    let crowder = world
+        .npcs_visible_from(region)
+        .into_iter()
         .filter(|&other| other != npc_oid && other != target_oid)
         .filter(|&other| {
             world
@@ -2042,11 +2041,9 @@ fn faction_recruits(
     };
 
     // Candidate clan-mates: NPCs in this and the neighbouring regions.
-    let nearby: Vec<i32> = (-1..=1)
-        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
-        .flatten()
-        .copied()
+    let nearby: Vec<i32> = world
+        .npcs_visible_from(region)
+        .into_iter()
         .filter(|&other| other != caller_oid)
         .collect();
 
@@ -2127,7 +2124,7 @@ fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, 
         .get_component::<Vitals>(&caller_oid)
         .map(|v| (v.cur_hp, v.max_hp as f64));
     let cast = |world: &mut World, target: i32, (id, lvl): (i32, i32)| {
-        if let Some(skill) = world.data.skill_data.get(id, lvl).cloned()
+        if let Some(skill) = skill_by_id(world, id, lvl)
             && crate::game_loop::npc_cast::check_use_conditions_pub(world, recruit_oid, &skill)
         {
             crate::game_loop::npc_cast::start_cast(world, recruit_oid, target, &skill);

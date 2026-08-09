@@ -5,6 +5,7 @@ use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
 use crate::model::components::{Buffs, SkillBook};
 use crate::network::server_packets::sm_ids;
@@ -313,7 +314,7 @@ pub(super) fn admin_cast(world: &mut World, client_id: u32, object_id: i32, args
         .get(1)
         .and_then(|s| s.parse::<i32>().ok())
         .unwrap_or_else(|| world.data.skill_data.max_level(id));
-    let Some(skill) = world.data.skill_data.get(id, level).cloned() else {
+    let Some(skill) = skill_by_id(world, id, level) else {
         send_message(
             world,
             client_id,
@@ -451,7 +452,7 @@ pub(super) fn admin_buff(world: &mut World, client_id: u32, object_id: i32, args
         .and_then(|s| s.parse::<i32>().ok())
         .unwrap_or(1)
         .max(1);
-    let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, level) else {
         send_message(
             world,
             client_id,

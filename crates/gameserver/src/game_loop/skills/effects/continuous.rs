@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::stat_mul;
 
 /// The continuous half of Java `Skill.applyEffects` — everything that turns a
@@ -453,12 +454,7 @@ pub(crate) fn restore_persisted_buffs(
     rows: &[crate::db::SkillBuffRow],
 ) {
     for row in rows {
-        let Some(skill) = world
-            .data
-            .skill_data
-            .get(row.skill_id, row.skill_level)
-            .cloned()
-        else {
+        let Some(skill) = skill_by_id(world, row.skill_id, row.skill_level) else {
             continue;
         };
         apply_continuous_effects(

@@ -122,8 +122,7 @@ mod tests {
 
     #[test]
     fn loads_castle_restart_points_from_dist() {
-        let pts =
-            load_castle_restart_points(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let pts = load_castle_restart_points(crate::data::DIST_GAME);
         // All nine castles carry an owner_restart_point_list.
         assert_eq!(pts.len(), 9, "nine castle residence zones");
         // Gludio (castle 1): first owner_restart_point is -16554,109382,-1799.
@@ -141,8 +140,7 @@ mod tests {
     /// picked a village point 8 times out of 9.
     #[test]
     fn spawn_types_are_not_pooled() {
-        let pts =
-            load_castle_restart_points(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let pts = load_castle_restart_points(crate::data::DIST_GAME);
         let gludio = pts.get(&1).expect("Gludio restart points");
         assert_eq!(gludio.spawn.len(), 4, "owner_restart_point_list");
         assert!(!gludio.other.is_empty(), "other_restart_village_list");

@@ -88,18 +88,7 @@ pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: 
     if super::sit_stand::is_resting(world, player_object_id) {
         return false;
     }
-    let (Some(ppos), Some(npos)) = (
-        world.objects.get_component::<Position>(&player_object_id),
-        world.objects.get_component::<Position>(&npc_object_id),
-    ) else {
-        return false;
-    };
-    let (dx, dy, dz) = (
-        (npos.x - ppos.x) as f64,
-        (npos.y - ppos.y) as f64,
-        (npos.z - ppos.z) as f64,
-    );
-    dx * dx + dy * dy + dz * dz <= INTERACTION_DISTANCE * INTERACTION_DISTANCE
+    crate::geo::distance::within_3d(world, player_object_id, npc_object_id, INTERACTION_DISTANCE)
 }
 
 /// Port of `clientpackets/Action.runImpl`, now resolving both players and NPCs.

@@ -931,14 +931,8 @@ impl ItemData {
         let mut weapon_shots = HashMap::new();
         let mut icons = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
-        if let Ok(entries) = std::fs::read_dir(&dir) {
-            let mut paths: Vec<_> = entries
-                .flatten()
-                .map(|e| e.path())
-                .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
-                .collect();
-            paths.sort();
-            for path in paths {
+        {
+            for path in super::xml::xml_files_in(&dir) {
                 parse_file(
                     &path,
                     &mut by_id,
@@ -1480,7 +1474,7 @@ mod tests {
 
     #[test]
     fn loads_short_sword_and_adena() {
-        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = ItemData::load_from(crate::data::DIST_GAME);
         let sword = data.get(1).expect("item 1 (Short Sword)");
         assert_eq!(sword.name, "Short Sword");
         assert_eq!(sword.kind, ItemKind::Weapon);
@@ -1560,7 +1554,7 @@ mod tests {
 
     #[test]
     fn parses_extractable_pack_handler_and_capsules() {
-        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = ItemData::load_from(crate::data::DIST_GAME);
         let pack = data
             .get(15195)
             .expect("item 15195 (Mage Class Equipment Set, 10-day)");
@@ -1590,7 +1584,7 @@ mod tests {
     /// inherits Java's permissive defaults.
     #[test]
     fn parses_bound_item_trade_flags() {
-        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = ItemData::load_from(crate::data::DIST_GAME);
         let bound = data
             .get(15195)
             .expect("item 15195 (Mage Class Equipment Set, 10-day)");
@@ -1625,7 +1619,7 @@ mod tests {
 
     #[test]
     fn parses_item_icons_with_fallback() {
-        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = ItemData::load_from(crate::data::DIST_GAME);
         // Adena carries an explicit `<set name="icon">`.
         assert_eq!(data.icon(57), "icon.etc_adena_i00");
         // An unknown item falls back to the client question-mark (Java default).
@@ -1639,7 +1633,7 @@ mod tests {
 
     #[test]
     fn parses_weapon_and_armor_stats() {
-        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = ItemData::load_from(crate::data::DIST_GAME);
 
         // Short Sword (item 1): pAtk/mAtk/rCrit/pAtkSpd + range/random-damage.
         let sword = data.item_stats(1).expect("item 1 <stats>");

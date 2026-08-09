@@ -7,6 +7,7 @@
 //! effects were icon-only markers: Arcane Wisdom cost nothing to *have*.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::game_loop::skills::effects::{
     merge_skill_rates, mp_consume_for, remove_skill_rates, reuse_time_for,
@@ -16,7 +17,7 @@ use crate::model::skill::{Skill, SkillEffect, TargetType};
 
 const CASTER: i32 = 7001;
 const CID: u32 = 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// A skill of `magic_type` costing `mp_consume` MP with a `reuse_delay` ms
 /// cooldown — the *victim* of the rates, not a carrier of them.
@@ -276,10 +277,7 @@ fn the_rates_arrive_and_leave_with_the_buff() {
 
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &song);
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Buffs>(&CASTER)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9517)),
+        has_buff(&world, CASTER, 9517),
         "an effect-less rate buff still lands as a timed buff"
     );
     assert_eq!(mp_consume_for(&world, CASTER, &victim), 100);

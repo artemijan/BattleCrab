@@ -10,6 +10,7 @@
 //! - **The half-HP relocation.** The first time Orfen drops below half health
 //!   it teleports to its "home" spawn point, once per life.
 
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -220,7 +221,7 @@ fn distance_2d(world: &World, a: i32, b: i32) -> Option<f64> {
 }
 
 fn cast_on(world: &mut World, caster_oid: i32, target_oid: i32, skill_id: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, 1) else {
         return;
     };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, caster_oid, &skill) {

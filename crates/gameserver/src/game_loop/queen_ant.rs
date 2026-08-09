@@ -6,6 +6,7 @@
 //! rotation is the actual fight.
 
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{AdminFlags, Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -192,7 +193,7 @@ fn nurses_of(world: &mut World, queen_oid: i32) -> Vec<i32> {
 /// cast path, so a nurse's heal obeys the same MP cost and cooldown as any
 /// other NPC skill rather than being a privileged script effect.
 fn cast_heal(world: &mut World, nurse_oid: i32, target_oid: i32, skill_id: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, 1) else {
         return;
     };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, nurse_oid, &skill) {

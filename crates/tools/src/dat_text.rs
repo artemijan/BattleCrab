@@ -49,6 +49,67 @@ impl Value {
     }
 }
 
+/// One client `.dat`, decrypted and decoded — plus everything needed to write
+/// it back.
+pub struct Unpacked {
+    /// Where it came from, so a caller that saves does not re-derive the path.
+    pub path: PathBuf,
+    /// The tab-separated text L2ClientDat would produce.
+    pub text: String,
+    /// The `Lineage2Ver` header, needed to re-encrypt with the same cipher.
+    pub version: String,
+    /// The layout that consumed the file exactly. Handed back so packing uses
+    /// the very same one — unpack and pack cannot disagree about the shape.
+    pub layout: Layout,
+    pub enums: HashMap<String, HashMap<i64, String>>,
+}
+
+/// Decrypt `system_dir/name` and decode it with whichever schema candidate
+/// consumes the file **exactly**.
+///
+/// That test is the whole point (see the module header): nothing in a `.dat` is
+/// self-describing past the first field, so a subtly wrong schema still reads
+/// *something*. The layout that accounts for every byte is the one that
+/// describes the file, and keeping it is what lets `--chronicle auto` work.
+///
+/// Everything stays in memory — no `system_decrypted` is read or written — so
+/// an editing or sync run leaves no trace on disk unless its caller saves.
+///
+/// `progress` is called with a one-word stage name before each slow step; pass
+/// `&mut |_| {}` where there is no UI to feed.
+pub fn unpack(
+    set: &mut crate::dat_schema::SchemaSet,
+    system_dir: &Path,
+    name: &str,
+    progress: &mut dyn FnMut(&str),
+) -> Result<Unpacked, String> {
+    progress("decrypting");
+    let path = system_dir.join(name);
+    let raw = std::fs::read(&path).map_err(|e| format!("cannot read {}: {e}", path.display()))?;
+    let version = crate::client_dat::read_version(&raw)
+        .ok_or_else(|| format!("{} has no Lineage2Ver header", path.display()))?;
+    let plain = crate::client_dat::decrypt(&raw, &version)?;
+
+    progress("reading");
+    let enums = set.enums.clone();
+    let (text, layout) = set
+        .candidates(name)
+        .into_iter()
+        .find_map(|(_label, layout)| {
+            let outcome = read(&plain, &layout, &enums, false);
+            outcome.exact().then_some((outcome.text, layout))
+        })
+        .ok_or_else(|| format!("no schema layout fits {name}"))?;
+
+    Ok(Unpacked {
+        path,
+        text,
+        version,
+        layout,
+        enums,
+    })
+}
+
 /// How a walk ended.
 pub struct Outcome {
     pub text: String,

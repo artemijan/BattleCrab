@@ -9,7 +9,7 @@ use crate::model::clan::Clan;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets::sm_ids;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 const CRYSTAL_B: i32 = 1460;
 
 /// **`//ride_wyvern` produces a flying mount moving at the wyvern's

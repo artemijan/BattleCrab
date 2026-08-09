@@ -8,7 +8,7 @@
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn dist_skills() -> crate::data::skill_data::SkillData {
     crate::data::skill_data::SkillData::load_from(DIST)
@@ -142,7 +142,7 @@ fn the_weapon_and_slot_conditions_are_separate_axes() {
 /// one-hander.
 #[test]
 fn the_slot_condition_reads_the_weapon_bodypart() {
-    const ITEM_DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ITEM_DIST: &str = crate::data::DIST_GAME;
     let items = crate::data::item_data::ItemData::load_from(ITEM_DIST);
 
     // A two-handed weapon really is marked `lrhand` in the datapack, and a

@@ -13,6 +13,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -273,7 +274,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
         });
     // `if (((numBuffs * 2) / 3) > totalBuffsOnOwner) sitCastAndFollow(...)`.
     if (buffs.len() * 2) / 3 > on_owner
-        && let Some(skill) = world.data.skill_data.get(pick.0, pick.1).cloned()
+        && let Some(skill) = skill_by_id(world, pick.0, pick.1)
     {
         crate::game_loop::npc_cast::start_cast(world, beast_oid, owner, &skill);
     }

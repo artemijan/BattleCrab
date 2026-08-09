@@ -438,8 +438,7 @@ fn the_available_list_excludes_the_base_lineage_and_held_classes() {
     // Against the real datapack, so the class hierarchy and category groups
     // are the shipped ones rather than a fixture's guess.
     let (mut world, _db, _l) = combat_test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     // Human Fighter line: base class 0.
     let avail = available_subclasses(&world, PLAYER);

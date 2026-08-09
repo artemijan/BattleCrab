@@ -332,7 +332,7 @@ fn parse_str(
 #[cfg(test)]
 mod tests {
     use super::*;
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// The whole dist loads, and the Wolf (the starter pet) reads back the
     /// values its XML declares.

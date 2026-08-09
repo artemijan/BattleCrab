@@ -384,7 +384,7 @@ fn shift_click_npc_without_alt_game_view_npc_only_selects() {
 fn gm_shift_click_npc_opens_admin_npc_info_window() {
     let (mut world, ..) = admin_world();
     // The real npcinfo.htm, so the placeholder substitution is under test too.
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     assert!(!world.cfg.npc.alt_game_view_npc, "GM path needs no config");
     add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
     let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
@@ -437,7 +437,7 @@ fn gm_npc_info_names_the_spawn_file() {
     use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate};
 
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     // Index 0 is the `spawn_ref` sentinel a runtime spawn carries, so the line
     // under test has to sit past it for the "unreferenced" half to mean
     // anything — an unrelated template holds that slot.
@@ -510,7 +510,7 @@ fn gm_npc_info_names_the_spawn_file() {
 #[test]
 fn non_gm_shift_click_gets_player_view_not_admin_window() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world.cfg.npc.alt_game_view_npc = true;
     add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
     let mut rx = ingame_player_access(&mut world, 1, 3001, 0);
@@ -533,7 +533,7 @@ fn non_gm_shift_click_gets_player_view_not_admin_window() {
 #[test]
 fn npc_view_skills_page_lists_the_npcs_skills() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world
         .data
         .skill_data
@@ -583,7 +583,7 @@ fn npc_view_aggro_page_lists_hate_and_damage() {
     use crate::model::npc::{AggroInfo, AggroList};
 
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
     let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
     let mut list = AggroList(std::collections::HashMap::new());
@@ -634,7 +634,7 @@ fn npc_view_aggro_page_lists_hate_and_damage() {
 #[test]
 fn npc_view_verbs_fall_back_to_the_current_target() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
     let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
     handle_action(&mut world, 1, &action_body(NPC_OID, 0)); // select it
@@ -659,13 +659,12 @@ fn npc_view_verbs_fall_back_to_the_current_target() {
 #[test]
 fn npc_view_drop_page_uses_board_channel_real_icons_and_java_chance_format() {
     let (mut world, ..) = admin_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world.cfg.rates.death_drop_chance_multiplier = 1.0;
     world.cfg.rates.death_drop_amount_multiplier = 1.0;
     // The real item catalogue, so the rows carry real `<set name="icon">`
     // values (the synthetic test data has none).
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     let mut t = crate::data::npc_data::default_template(30001);
     t.name = "Test Mob".into();
     t.type_name = "Monster".into();
@@ -871,7 +870,7 @@ fn bypass_routes_npc_commands_and_tracks_last_folk_npc() {
 #[test]
 fn chat_bypass_walks_merchant_dialog_pages() {
     let (mut world, ..) = test_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     add_test_npc(&mut world, NPC_OID, 30001, "Merchant", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 

@@ -19,6 +19,23 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
     world.clients.client_of_player(player_object_id)
 }
 
+/// Java `SkillData.getSkill(id, level)` — a datapack skill, **cloned**.
+///
+/// The clone is not incidental. Every `apply_*` in the skill pipeline wants
+/// `&mut World`, so a borrow of `world.data.skill_data` cannot survive the
+/// call; sixty-odd lookup sites all cloned immediately, and each spelled the
+/// four-segment path out by hand. This is that, said once.
+///
+/// Enchanted sub-levels go through `SkillData::get_enchanted` instead — they
+/// are a different lookup, not a defaulted argument.
+pub(crate) fn skill_by_id(
+    world: &World,
+    id: i32,
+    level: i32,
+) -> Option<crate::model::skill::Skill> {
+    world.data.skill_data.get(id, level).cloned()
+}
+
 /// The object id of the player driven by `client_id`, or `None` when that
 /// session is not `InGame` (still logging in, in the lobby, or already gone).
 ///
@@ -107,6 +124,20 @@ pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)
         .objects
         .get_component::<RegionCell>(&object_id)
         .map(|r| r.0)
+}
+
+/// An NPC's template name, empty when the object is gone or has no template.
+///
+/// The NPC counterpart of [`player_name_or_empty`] — the pet/servitor persist
+/// paths and the summon UI all want a `String` and treat "no template" as no
+/// name.
+pub(crate) fn npc_name_or_empty(world: &World, object_id: i32) -> String {
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&object_id)
+        .and_then(|n| n.template(world))
+        .map(|t| t.name.clone())
+        .unwrap_or_default()
 }
 
 /// A player's character name, or `None` once the object has left the world.

@@ -20,8 +20,10 @@
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
 use super::helpers::pos_of;
+use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Immobilized, Position, Vitals};
 use crate::model::grand_boss::GrandBoss;
 use crate::scheduler::ScheduledTask;
@@ -367,7 +369,7 @@ pub(crate) fn handle_cinematic_step(world: &mut World, step: u8) {
     }
     if beat.strike_waker
         && let Some(p) = waker
-        && let Some(skill) = world.data.skill_data.get(BAIUM_PRESENT, 1).cloned()
+        && let Some(skill) = skill_by_id(world, BAIUM_PRESENT, 1)
     {
         super::boss_threat::cast_boss_skill(world, baium, p, skill.id, false);
     }
@@ -584,14 +586,11 @@ pub(crate) fn on_baium_attacked(world: &mut World, baium_oid: i32, attacker_oid:
     if !on_strider {
         return;
     }
-    let already = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&attacker_oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == ANTI_STRIDER));
+    let already = has_buff(world, attacker_oid, ANTI_STRIDER);
     if already {
         return;
     }
-    let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned() else {
+    let Some(skill) = skill_by_id(world, ANTI_STRIDER, 1) else {
         return;
     };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, baium_oid, &skill) {

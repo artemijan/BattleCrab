@@ -28,3 +28,10 @@ dist/client/system_decrypted
 dist/client/system_encrypted
 dist/client/system_roundtrip
 
+# IDE inspection exports (Analyze | Run Inspection by Name -> Export to XML).
+# Machine output about the tree, not part of it, and they land in the repo root
+# where a `git add -A` would otherwise sweep them in.
+/.descriptions.xml
+/DuplicatedCode.xml
+/DuplicatedCode_aggregate.xml
+

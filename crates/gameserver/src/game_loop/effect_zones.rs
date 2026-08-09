@@ -16,6 +16,7 @@
 //! nobody in it costs one hash lookup and never advances its timer.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::skill_by_id;
 use commons::util::rnd;
 
 use crate::data::zone_data::ZoneKind;
@@ -74,7 +75,7 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
                 continue;
             }
             for &(skill_id, skill_level) in &params.skills {
-                let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+                let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
                     continue;
                 };
                 // `getAffectedSkillLevel(id) < skill.getLevel()` — don't

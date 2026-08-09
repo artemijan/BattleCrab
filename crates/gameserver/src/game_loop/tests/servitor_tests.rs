@@ -6,6 +6,8 @@
 //! shows a servitor to *other* players are separate slices.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::skill_by_id;
 
 use crate::model::components::ServitorOf;
 use crate::model::skill::SkillEffect;
@@ -26,7 +28,7 @@ const PANTHER: i32 = 14799;
 /// fixture NPC placed there silently *replaces* the servitor. Three tests
 /// failed on exactly that before this constant existed.
 const FOE: i32 = NPC_OID + 10;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn servitor_world() -> (
     World,
@@ -4273,7 +4275,6 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
 /// `getPet()`/`getServitors()`), not the player; with no summon it refuses.
 #[test]
 fn community_board_pet_buffer_targets_the_summon() {
-    use crate::model::components::Buffs;
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
@@ -4285,12 +4286,7 @@ fn community_board_pet_buffer_targets_the_summon() {
         .buffer_schemes
         .insert(OWNER, vec![("s".to_string(), vec![1068])]);
 
-    let has_buff = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Buffs>(&oid)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 1068))
-    };
+    let has_buff = |world: &World, oid: i32| has_buff(world, oid, 1068);
 
     crate::game_loop::community_board::apply_scheme(&mut world, CID, OWNER, "s", true)
         .expect("applied to the summon");
@@ -4637,8 +4633,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
 fn a_pet_ticket_exchanges_for_a_collar() {
     let (mut world, ..) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4500_0000..0x4500_0100;
 
     // No ticket → nothing.
@@ -4802,7 +4797,7 @@ fn sharing_world() -> (
 }
 
 fn land_on(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world.data.skill_data.get(skill_id, 1).cloned().unwrap();
+    let skill = skill_by_id(world, skill_id, 1).unwrap();
     crate::game_loop::skills::effects::apply_skill_effects(world, target, target, &skill);
 }
 

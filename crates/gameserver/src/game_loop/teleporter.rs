@@ -19,6 +19,7 @@
 
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_name_or_empty;
 use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
@@ -403,12 +404,7 @@ pub(crate) fn do_teleport(
 /// `Teleporter.sendHtmlMessage`: a fixed page from `data/html/teleporter/`
 /// with the `%objectId%`/`%npcname%` replacements.
 fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
-    let name = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_object_id)
-        .and_then(|n| n.template(world))
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let name = npc_name_or_empty(world, npc_object_id);
     let html =
         crate::data::htm_cache::read_htm(format!("{}data/html/teleporter/{file}", world.data.root))
             .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())

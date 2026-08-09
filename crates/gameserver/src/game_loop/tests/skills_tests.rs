@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::skill_by_id;
 use commons::system_messages::generated::{
     C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
 };
@@ -298,7 +299,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
 /// `(int)` truncation) *and* the armor-conditioned passives end to end.
 #[test]
 fn human_mystic_lvl1_full_loadout_matches_java_client() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let mut data = GameData::for_test();
     data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
     data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
@@ -406,7 +407,7 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
 /// (118) stays inert (its −20% atk-speed penalty is gated to non-robe armor).
 #[test]
 fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -480,7 +481,7 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
 /// keeps the armor grade-penalty out of it, isolating the weapon-condition bug.
 #[test]
 fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let mut data = GameData::for_test();
     data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
     data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
@@ -621,7 +622,7 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
 /// the refold path is identical either way.
 #[test]
 fn delevel_filter_on_select_keeps_passive_stats() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -703,7 +704,7 @@ fn delevel_filter_on_select_keeps_passive_stats() {
 /// never strips a getLevel-7 skill, so it would leave this test no trigger.
 #[test]
 fn live_delevel_removes_passive_and_recomputes_stats() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -4643,8 +4644,7 @@ fn queued_far_retarget_with_real_datapack_timings() {
     use crate::model::components::QueuedAction;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     // The first cast's damage makes the (passive, level-1) Gremlin retaliate,
     // and a melee hit on a still-abortable cast rolls `Formulas.calcAtkBreak`
@@ -4754,8 +4754,7 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
     // The full real datapack, not just `transforms`/`skill_data`: `checkUseConditions`'
     // MP/HP prechecks need a real class template's hp/mp tables (`for_test`'s
     // `player_templates` is empty, so a level-1 dummy char would compute 0 max HP).
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut rx = ingame_player_access(&mut world, 1, 5001, 0);
     drain(&mut rx);
@@ -4970,8 +4969,7 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
 #[test]
 fn mp_consume_per_level_toggle_drains_mp_and_self_deactivates() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut rx = ingame_player_access(&mut world, 1, 5101, 0);
     drain(&mut rx);
@@ -5049,7 +5047,7 @@ fn mp_consume_per_level_toggle_drains_mp_and_self_deactivates() {
 /// than going through the cast pipeline.
 #[test]
 fn shield_mastery_passive_raises_shield_block_stats() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -5114,7 +5112,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
 /// gate is also checked: unarmed, Archery must be inert.
 #[test]
 fn archery_passive_raises_bow_attack_range() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -5179,7 +5177,7 @@ fn archery_passive_raises_bow_attack_range() {
 /// shift is covered by `formulas::tests::blow_success_rate_cap_and_threshold`).
 #[test]
 fn assassination_passive_raises_blow_rate_stat() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -5223,7 +5221,7 @@ fn assassination_passive_raises_blow_rate_stat() {
 /// nothing (the client always showed the bare race-based cap).
 #[test]
 fn enlarge_slot_expand_inventory_raises_reported_cap() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -5279,7 +5277,7 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
 /// client is told.
 #[test]
 fn ex_storage_max_count_reports_the_configured_capacities() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
@@ -5362,8 +5360,7 @@ fn ex_storage_max_count_reports_the_configured_capacities() {
 #[test]
 fn heal_percent_restores_a_share_of_max_hp() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut rx = ingame_player_access(&mut world, 1, 5301, 0);
     drain(&mut rx);
@@ -5411,8 +5408,7 @@ fn heal_percent_restores_a_share_of_max_hp() {
 #[test]
 fn enemy_not_targets_a_friendly_player() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     // Restore Life is `isMagic`, so its cast time scales by the caster's
     // *magic* casting speed — a level-1 default (Human Fighter, class 0) has
@@ -5487,8 +5483,7 @@ fn enemy_not_targets_a_friendly_player() {
 #[test]
 fn enemy_not_refuses_a_hostile_target() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut a_rx = ingame_player_access(&mut world, 1, 5411, 0);
     drain(&mut a_rx);
@@ -5536,8 +5531,7 @@ fn enemy_not_refuses_a_hostile_target() {
 #[test]
 fn focus_momentum_builds_force_and_refuses_past_the_cap() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut rx = ingame_player_access(&mut world, 1, 5501, 0);
     drain(&mut rx);
@@ -5657,8 +5651,7 @@ fn force_charges_decay_after_ten_minutes_and_the_clock_restarts_on_a_gain() {
 #[test]
 fn energy_attack_spends_charges_for_bonus_damage() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut a_rx = ingame_player_access(&mut world, 1, 5511, 0);
     drain(&mut a_rx);
@@ -5743,8 +5736,7 @@ fn energy_attack_spends_charges_for_bonus_damage() {
 #[test]
 fn lethal_half_kill_sets_player_cp_to_1() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut a_rx = ingame_player_access(&mut world, 1, 5601, 0);
     let mut b_rx = ingame_player_access(&mut world, 2, 5602, 0);
@@ -5814,8 +5806,7 @@ fn lethal_half_kill_sets_player_cp_to_1() {
 #[test]
 fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut a_rx = ingame_player_access(&mut world, 1, 5621, 0);
     let mut b_rx = ingame_player_access(&mut world, 2, 5622, 0);
@@ -5901,8 +5892,7 @@ fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
 #[test]
 fn lethal_spares_a_raid_boss() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut a_rx = ingame_player_access(&mut world, 1, 5611, 0);
     drain(&mut a_rx);
@@ -5972,8 +5962,7 @@ fn lethal_spares_a_raid_boss() {
 #[test]
 fn attack_trait_lands_as_an_icon_only_buff() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     let mut rx = ingame_player_access(&mut world, 1, 5701, 0);
     drain(&mut rx);
@@ -6013,8 +6002,7 @@ fn attack_trait_lands_as_an_icon_only_buff() {
 #[test]
 fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
 
     // isMagic: needs a real magic casting speed, like the EnemyNot slice's
     // own test found — a level-1 default (Fighter, class 0) stretches the
@@ -6170,8 +6158,7 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
     let npc = crate::model::npc::FIRST_NPC_OBJECT_ID + 7801;
 
     let (mut world, ..) = test_world();
-    world.data =
-        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
     let _rx = ingame_player_access(&mut world, 1, CASTER, 0);
     add_test_npc(&mut world, npc, 20001, "Monster", 20, 0, 0, 0);
 
@@ -6191,12 +6178,7 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
             v.max_hp = 1_000_000;
             v.cur_hp = 1_000_000.0;
         }
-        let skill = world
-            .data
-            .skill_data
-            .get(skill_id, 1)
-            .cloned()
-            .expect("skill");
+        let skill = skill_by_id(world, skill_id, 1).expect("skill");
         world.forced_rolls.clear();
         world.forced_rolls.extend([50; 12]);
         crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, npc, &skill);
@@ -6351,7 +6333,7 @@ fn a_non_combat_transform_is_refused_a_walk_to_cast() {
 /// skills.
 #[test]
 fn a_passive_rate_skill_actually_discounts_the_skill_it_names() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     /// Inner Rhythm: `MagicMpCost -10 PER`, `magicType 3` (songs and dances).
     const INNER_RHYTHM: i32 = 428;
     /// Champion Song — `magicType 3`, `mpConsume 60`.
@@ -6417,7 +6399,7 @@ fn a_passive_rate_skill_actually_discounts_the_skill_it_names() {
 /// `RequestMagicSkillUse` so nothing between them can quietly skip the rate.
 #[test]
 fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     const CHAMPION_SONG: i32 = 364;
     const OID: i32 = 7721;
 

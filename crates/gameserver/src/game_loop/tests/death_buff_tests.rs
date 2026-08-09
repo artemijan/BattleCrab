@@ -2,6 +2,7 @@
 //! Noblesse Blessing is up — then the blessing is the only thing lost.
 
 use super::*;
+use crate::game_loop::helpers::skill_by_id;
 
 use crate::game_loop::abnormal;
 use crate::model::components::{Buffs, Vitals};
@@ -102,12 +103,7 @@ fn death_buff_world() -> (
 
 /// Land a buff straight onto the target, bypassing the cast pipeline.
 fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world
-        .data
-        .skill_data
-        .get(skill_id, 1)
-        .cloned()
-        .expect("registered");
+    let skill = skill_by_id(world, skill_id, 1).expect("registered");
     crate::game_loop::skills::effects::apply_skill_effects(world, target, target, &skill);
 }
 

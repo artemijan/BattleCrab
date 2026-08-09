@@ -2,11 +2,12 @@
 //! overlays onto them at boot.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::data::clan_hall_data::load_clan_halls;
 use crate::model::clan_hall::{ClanHallGrade, ClanHallType};
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// **All 48 clan halls load, with their auction terms, agents and doors.**
 /// Onyx Hall (id 27) is the fixture — a Gludin GRADE_B auctionable hall.
@@ -905,7 +906,7 @@ fn a_hall_teleport_moves_the_player() {
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::clan_hall_function::{BuffCastOutcome, cast_hall_buff};
-use crate::model::components::{Buffs, Vitals};
+use crate::model::components::Vitals;
 
 /// Build a world with a clan-hall manager NPC and a nearby player, plus a
 /// synthetic "Wind Walk" (4342_2) branded onto the Might buff template so it
@@ -945,10 +946,7 @@ fn buff_world(
 }
 
 fn player_has_buff(world: &World, player: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Buffs>(&player)
-        .is_some_and(|b| b.0.iter().any(|a| a.skill_id == skill_id))
+    has_buff(world, player, skill_id)
 }
 
 /// **A hall buff is cast and paid for from the manager's MP.**

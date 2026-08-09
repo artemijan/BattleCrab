@@ -15,8 +15,10 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
 use crate::world::World;
@@ -925,12 +927,7 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
         .map(|v| (v.cur_hp, v.cur_mp))
         .unwrap_or((0.0, 0.0));
     // Java stores `getName()`, which for an unnamed pet is the template name.
-    let name = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&pet_oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let name = npc_name_or_empty(world, pet_oid);
     let row = crate::db::PetRow {
         collar_object_id: pet.collar_object_id,
         name,
@@ -1577,18 +1574,7 @@ pub(crate) fn split_exp_with_pet(
 }
 
 fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
-    let (Some(pa), Some(pb)) = (
-        world.objects.get_component::<Position>(&a),
-        world.objects.get_component::<Position>(&b),
-    ) else {
-        return false;
-    };
-    let (dx, dy, dz) = (
-        (pa.x - pb.x) as f64,
-        (pa.y - pb.y) as f64,
-        (pa.z - pb.z) as f64,
-    );
-    (dx * dx + dy * dy + dz * dz).sqrt() <= range
+    crate::geo::distance::within_3d(world, a, b, range)
 }
 
 /// Java `PetStat.addExpAndSp` — award the pet its cut and level it up.
@@ -2343,12 +2329,7 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
     else {
         return; // unlearned across a subclass change — nothing to restore
     };
-    let Some(skill) = world
-        .data
-        .skill_data
-        .get(row.summon_skill_id, level)
-        .cloned()
-    else {
+    let Some(skill) = skill_by_id(world, row.summon_skill_id, level) else {
         return;
     };
     crate::game_loop::skills::effects::apply_skill_effects(world, owner_oid, owner_oid, &skill);
@@ -2406,7 +2387,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         // cast. Silent, as it is: the client only shows buttons the summon has.
         return;
     };
-    let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, level) else {
         return;
     };
 

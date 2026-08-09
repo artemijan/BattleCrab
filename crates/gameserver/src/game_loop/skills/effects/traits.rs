@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::npc_name_or_empty;
 
 /// The caster's name for the damage system messages. NPCs cast skills as of
 /// G21, so this can't `expect` a `Player` — a monster resolves to its template
@@ -9,12 +10,7 @@ pub(crate) fn caster_display_name(world: &World, oid: i32) -> String {
     if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
         return p.name.clone();
     }
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.name.clone())
-        .unwrap_or_default()
+    npc_name_or_empty(world, oid)
 }
 
 /// The caster's level for `levelMod` in the physical-skill damage formula

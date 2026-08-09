@@ -299,7 +299,7 @@ mod tests {
     /// the default and turn every mob's blade dull again.
     #[test]
     fn loads_dist_random_enchant_effect() {
-        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let root = crate::data::DIST_GAME;
         let cfg = NpcConfig::load_from(root);
         assert!(
             cfg.enable_random_enchant_effect,

@@ -103,8 +103,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_file() {
-        let data =
-            CategoryData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = CategoryData::load_from(crate::data::DIST_GAME);
         assert!(
             data.len() > 50,
             "expected many categories, got {}",

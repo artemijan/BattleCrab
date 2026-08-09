@@ -290,7 +290,7 @@ mod tests {
     use super::*;
 
     fn dist_root() -> &'static str {
-        concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/")
+        crate::data::DIST_GAME
     }
 
     #[test]

@@ -22,7 +22,7 @@ use tracing::info;
 
 use crate::enums::Race;
 
-use super::spawn_data::{Territory, ZoneForm};
+use super::spawn_data::Territory;
 use crate::data::xml::attr_str;
 
 pub const MAPREGION_DIR: &str = "data/mapregion";
@@ -82,14 +82,8 @@ impl MapRegionData {
     pub fn load_from(file_path: &str) -> Self {
         let mut regions = Vec::new();
         let dir = format!("{file_path}{MAPREGION_DIR}");
-        if let Ok(entries) = std::fs::read_dir(&dir) {
-            let mut paths: Vec<_> = entries
-                .flatten()
-                .map(|e| e.path())
-                .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
-                .collect();
-            paths.sort();
-            for path in paths {
+        {
+            for path in super::xml::xml_files_in(&dir) {
                 parse_file(&path, &mut regions);
             }
         }
@@ -285,7 +279,8 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
                 if e.name().as_ref() == b"zone"
                     && let Some(p) = cur.take()
                     && p.is_respawn
-                    && let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad)
+                    && let Some(form) =
+                        super::spawn_data::build_zone_form(&p.shape, p.xs, p.ys, p.rad)
                 {
                     out.push(RespawnZone {
                         name: p.name,
@@ -351,31 +346,11 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
     out
 }
 
-/// Same shape-construction rules as `zone_data::build_form` /
-/// `spawn_data::finish_territory`.
-fn build_form(shape: &str, xs: Vec<i32>, ys: Vec<i32>, rad: Option<i32>) -> Option<ZoneForm> {
-    match shape {
-        "Cuboid" if xs.len() >= 2 && ys.len() >= 2 => Some(ZoneForm::Cuboid {
-            x1: xs[0].min(xs[1]),
-            x2: xs[0].max(xs[1]),
-            y1: ys[0].min(ys[1]),
-            y2: ys[0].max(ys[1]),
-        }),
-        "Cylinder" if !xs.is_empty() && !ys.is_empty() => Some(ZoneForm::Cylinder {
-            x: xs[0],
-            y: ys[0],
-            rad: rad.unwrap_or(0),
-        }),
-        _ if xs.len() >= 3 => Some(ZoneForm::NPoly { xs, ys }),
-        _ => None,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     #[test]
     fn loads_real_dist_and_maps_giran() {

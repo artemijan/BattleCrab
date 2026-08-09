@@ -1,6 +1,7 @@
 //! Baium — archangels and the strider debuff.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::game_loop::baium::{ARCHANGEL, BAIUM};
 
@@ -61,10 +62,7 @@ fn count(world: &mut World, npc_id: i32) -> usize {
 }
 
 fn has_debuff(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == ANTI_STRIDER))
+    has_buff(world, oid, ANTI_STRIDER)
 }
 
 /// Baium brings out five archangels. They are **not** in a minion table, so

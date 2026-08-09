@@ -339,7 +339,7 @@ mod tests {
     use super::*;
 
     fn dist() -> String {
-        concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string()
+        crate::data::DIST_GAME.to_string()
     }
 
     #[test]

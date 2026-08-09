@@ -46,7 +46,32 @@ pub(super) struct CastCtx {
     pub caster_is_player: bool,
 }
 
-pub(super) fn magical_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) {
+/// Java `Formulas.calcMagicDam` together with the multiplier tail every
+/// magical-damage handler here applies to its result:
+///
+/// - `attributeMod` — the skill's element against the target's resistance
+///   (Volcano's FIRE 20 vs the target's fire resistance);
+/// - the trait bonus;
+/// - `damage *= getValue(Stat.MAGICAL_SKILL_POWER, 1)`, which lives *inside*
+///   Java's `calcMagicDam`, so every caller gets it — HpDrain included, even
+///   though its own handler never mentions the stat;
+/// - the PvP/PvE bonus.
+///
+/// `m_def` is a parameter rather than read from the target here because
+/// [`magical_attack_range`] folds a successful shield block into it first.
+///
+/// `is_drain` only picks the wording of the caster-side failure message (Java
+/// checks `skill.hasEffectType(HP_DRAIN)`), but that message rides along with
+/// the failure roll, which is the one impure step in this function — hence the
+/// `&mut World`, and hence the flag living here rather than at the call site.
+fn magic_damage(
+    world: &mut World,
+    ctx: &CastCtx,
+    skill: &Skill,
+    power: f64,
+    m_def: f64,
+    is_drain: bool,
+) -> f64 {
     let CastCtx {
         caster_oid,
         target_oid,
@@ -54,19 +79,13 @@ pub(super) fn magical_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, po
         magic_shots_bonus,
         ..
     } = *ctx;
-    let (m_atk, caster_name) = {
-        let m_atk = world
-            .objects
-            .get_component::<CombatStats>(&caster_oid)
-            .map(|c| c.m_atk)
-            .unwrap_or(0.0);
-        (m_atk, caster_display_name(world, caster_oid))
-    };
-    let m_def = target_m_def(world, target_oid);
-    let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
-    // `calcMagicDam`'s `attributeMod` term (Volcano's FIRE 20 vs
-    // the target's fire resistance).
-    let damage = formulas::calc_magic_dam(
+    let m_atk = world
+        .objects
+        .get_component::<CombatStats>(&caster_oid)
+        .map(|c| c.m_atk)
+        .unwrap_or(0.0);
+    let failure = roll_magic_failure(world, caster_oid, target_oid, skill, is_drain);
+    formulas::calc_magic_dam(
         m_atk,
         m_def,
         power,
@@ -76,24 +95,41 @@ pub(super) fn magical_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, po
         failure,
     ) * attribute_mod(world, caster_oid, target_oid, skill)
         * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-        // `calcMagicDam`'s own tail:
-        // `damage *= getValue(Stat.MAGICAL_SKILL_POWER, 1)`.
         * skill_power_mul(world, caster_oid, true)
-        * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
+        * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
+}
+
+/// The `apply_skill_damage` tail all four [`magic_damage`] callers share: a
+/// magic hit crediting the cast's single magic-crit roll and carrying the
+/// skill's over-hit flag and id.
+fn apply_magic_hit(
+    world: &mut World,
+    ctx: &CastCtx,
+    skill: &Skill,
+    damage: f64,
+    caster_name: &str,
+) {
     apply_skill_damage(
         world,
-        caster_oid,
-        target_oid,
+        ctx.caster_oid,
+        ctx.target_oid,
         SkillHit {
             damage,
-            crit: mcrit,
+            crit: ctx.mcrit,
             is_magic: true,
-            caster_name: &caster_name,
+            caster_name,
             over_hit: skill.over_hit,
             skill_id: skill.id,
             ..Default::default()
         },
     );
+}
+
+pub(super) fn magical_attack(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) {
+    let caster_name = caster_display_name(world, ctx.caster_oid);
+    let m_def = target_m_def(world, ctx.target_oid);
+    let damage = magic_damage(world, ctx, skill, power, m_def, false);
+    apply_magic_hit(world, ctx, skill, damage, &caster_name);
 }
 
 /// `MagicalAttackRange.instant` — `magical_attack`'s core with Java's shield
@@ -110,8 +146,6 @@ pub(super) fn magical_attack_range(
     let CastCtx {
         caster_oid,
         target_oid,
-        mcrit,
-        magic_shots_bonus,
         ..
     } = *ctx;
     // The shield roll, angle-gated exactly like the melee path (Aegis makes
@@ -149,14 +183,7 @@ pub(super) fn magical_attack_range(
             crate::network::server_packets::sm_ids::SHIELD_DEFENSE_SUCCEEDED,
         );
     }
-    let (m_atk, caster_name) = {
-        let m_atk = world
-            .objects
-            .get_component::<CombatStats>(&caster_oid)
-            .map(|c| c.m_atk)
-            .unwrap_or(0.0);
-        (m_atk, caster_display_name(world, caster_oid))
-    };
+    let caster_name = caster_display_name(world, caster_oid);
     let damage = if shield == formulas::SHIELD_PERFECT {
         1.0
     } else {
@@ -164,34 +191,9 @@ pub(super) fn magical_attack_range(
         if shield == formulas::SHIELD_SUCCEED {
             m_def += (target_shield_def * shield_def_percent) / 100.0;
         }
-        let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
-        formulas::calc_magic_dam(
-            m_atk,
-            m_def,
-            power,
-            mcrit,
-            crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
-            magic_shots_bonus,
-            failure,
-        ) * attribute_mod(world, caster_oid, target_oid, skill)
-            * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-            * skill_power_mul(world, caster_oid, true)
-            * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
+        magic_damage(world, ctx, skill, power, m_def, false)
     };
-    apply_skill_damage(
-        world,
-        caster_oid,
-        target_oid,
-        SkillHit {
-            damage,
-            crit: mcrit,
-            is_magic: true,
-            caster_name: &caster_name,
-            over_hit: skill.over_hit,
-            skill_id: skill.id,
-            ..Default::default()
-        },
-    );
+    apply_magic_hit(world, ctx, skill, damage, &caster_name);
 }
 
 pub(super) fn magical_attack_mp(
@@ -627,37 +629,11 @@ pub(super) fn hp_drain(
     let CastCtx {
         caster_oid,
         target_oid,
-        mcrit,
-        magic_shots_bonus,
         ..
     } = *ctx;
-    let (m_atk, caster_name) = {
-        let m_atk = world
-            .objects
-            .get_component::<CombatStats>(&caster_oid)
-            .map(|c| c.m_atk)
-            .unwrap_or(0.0);
-        (m_atk, caster_display_name(world, caster_oid))
-    };
+    let caster_name = caster_display_name(world, caster_oid);
     let m_def = target_m_def(world, target_oid);
-    // `is_drain` swaps the caster-side failure lines for the drain
-    // wording (Java checks `skill.hasEffectType(HP_DRAIN)`).
-    let failure = roll_magic_failure(world, caster_oid, target_oid, skill, true);
-    let damage = formulas::calc_magic_dam(
-        m_atk,
-        m_def,
-        power,
-        mcrit,
-        crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
-        magic_shots_bonus,
-        failure,
-    ) * attribute_mod(world, caster_oid, target_oid, skill)
-        * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-        // `MAGICAL_SKILL_POWER` lives *inside* Java's `calcMagicDam`,
-        // so every caller gets it — HpDrain included, even though
-        // its own handler never mentions the stat.
-        * skill_power_mul(world, caster_oid, true)
-        * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
+    let damage = magic_damage(world, ctx, skill, power, m_def, true);
 
     // `HpDrain.instant()`: the drained HP is what's actually removed
     // — CP absorbs first (player targets only; NPCs have no CP),
@@ -705,20 +681,7 @@ pub(super) fn hp_drain(
             crate::game_loop::party::notify_party_vitals(world, caster_oid);
         }
     }
-    apply_skill_damage(
-        world,
-        caster_oid,
-        target_oid,
-        SkillHit {
-            damage,
-            crit: mcrit,
-            is_magic: true,
-            caster_name: &caster_name,
-            over_hit: skill.over_hit,
-            skill_id: skill.id,
-            ..Default::default()
-        },
-    );
+    apply_magic_hit(world, ctx, skill, damage, &caster_name);
 }
 
 pub(super) fn open_door(
@@ -861,8 +824,6 @@ pub(super) fn death_link(world: &mut World, ctx: &CastCtx, skill: &Skill, power:
     let CastCtx {
         caster_oid,
         target_oid,
-        mcrit,
-        magic_shots_bonus,
         ..
     } = *ctx;
     let Some(v) = world.objects.get_component::<Vitals>(&caster_oid).copied() else {
@@ -872,40 +833,10 @@ pub(super) fn death_link(world: &mut World, ctx: &CastCtx, skill: &Skill, power:
         return;
     }
     let scaled = power * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0);
-    let m_atk = world
-        .objects
-        .get_component::<CombatStats>(&caster_oid)
-        .map(|c| c.m_atk)
-        .unwrap_or(0.0);
     let m_def = target_m_def(world, target_oid);
     let caster_name = caster_display_name(world, caster_oid);
-    let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
-    let damage = formulas::calc_magic_dam(
-        m_atk,
-        m_def,
-        scaled,
-        mcrit,
-        crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
-        magic_shots_bonus,
-        failure,
-    ) * attribute_mod(world, caster_oid, target_oid, skill)
-        * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-        * skill_power_mul(world, caster_oid, true)
-        * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
-    apply_skill_damage(
-        world,
-        caster_oid,
-        target_oid,
-        SkillHit {
-            damage,
-            crit: mcrit,
-            is_magic: true,
-            caster_name: &caster_name,
-            over_hit: skill.over_hit,
-            skill_id: skill.id,
-            ..Default::default()
-        },
-    );
+    let damage = magic_damage(world, ctx, skill, scaled, m_def, false);
+    apply_magic_hit(world, ctx, skill, damage, &caster_name);
 }
 
 pub(super) fn cp_heal_percent(world: &mut World, ctx: &CastCtx, power: f64) {

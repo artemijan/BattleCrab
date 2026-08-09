@@ -93,6 +93,39 @@ pub enum ZoneForm {
     Cylinder { x: i32, y: i32, rad: i32 },
 }
 
+/// Build a [`ZoneForm`] from the raw `<node>` coordinates a datapack zone
+/// element carries — the one rule set shared by `spawns.xml`, `zones/*.xml` and
+/// `mapregion/*.xml`, all three of which describe zones the same way.
+///
+/// `None` for a degenerate shape: a Cuboid or Cylinder missing its points, or a
+/// polygon with fewer than three. Callers drop the territory rather than store
+/// something nothing can be randomized inside.
+///
+/// The Cuboid arm normalizes the corners (`min`/`max`) because the datapack
+/// does not guarantee which corner comes first.
+pub(crate) fn build_zone_form(
+    shape: &str,
+    xs: Vec<i32>,
+    ys: Vec<i32>,
+    rad: Option<i32>,
+) -> Option<ZoneForm> {
+    match shape {
+        "Cuboid" if xs.len() >= 2 && ys.len() >= 2 => Some(ZoneForm::Cuboid {
+            x1: xs[0].min(xs[1]),
+            x2: xs[0].max(xs[1]),
+            y1: ys[0].min(ys[1]),
+            y2: ys[0].max(ys[1]),
+        }),
+        "Cylinder" if !xs.is_empty() && !ys.is_empty() => Some(ZoneForm::Cylinder {
+            x: xs[0],
+            y: ys[0],
+            rad: rad.unwrap_or(0),
+        }),
+        _ if xs.len() >= 3 => Some(ZoneForm::NPoly { xs, ys }),
+        _ => None,
+    }
+}
+
 impl Territory {
     /// Bounding box (`Polygon.getBounds()` / the cuboid / the circle box).
     pub fn bounds(&self) -> (i32, i32, i32, i32) {
@@ -187,10 +220,7 @@ impl SpawnData {
     pub fn load_from(file_path: &str) -> Self {
         let mut spawns = Vec::new();
         let dir = std::path::PathBuf::from(format!("{file_path}{SPAWNS_DIR}"));
-        let mut paths = Vec::new();
-        collect_xml_files(&dir, &mut paths);
-        paths.sort();
-        for path in &paths {
+        for path in &super::xml::xml_files_under(&dir) {
             parse_file(path, &relative_spawn_path(&dir, path), &mut spawns);
         }
         info!(
@@ -213,20 +243,6 @@ impl SpawnData {
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self { spawns: Vec::new() }
-    }
-}
-
-fn collect_xml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            collect_xml_files(&path, out);
-        } else if path.extension().and_then(|e| e.to_str()) == Some("xml") {
-            out.push(path);
-        }
     }
 }
 
@@ -438,20 +454,9 @@ fn finish_territory(
     else {
         return;
     };
-    let form = match shape.as_str() {
-        "Cuboid" if xs.len() >= 2 && ys.len() >= 2 => ZoneForm::Cuboid {
-            x1: xs[0].min(xs[1]),
-            x2: xs[0].max(xs[1]),
-            y1: ys[0].min(ys[1]),
-            y2: ys[0].max(ys[1]),
-        },
-        "Cylinder" if !xs.is_empty() && !ys.is_empty() => ZoneForm::Cylinder {
-            x: xs[0],
-            y: ys[0],
-            rad: rad.unwrap_or(0),
-        },
-        _ if xs.len() >= 3 => ZoneForm::NPoly { xs, ys },
-        _ => return, // degenerate polygon — nothing sane to randomize inside
+    // Degenerate shape — nothing sane to randomize inside, so drop it.
+    let Some(form) = build_zone_form(&shape, xs, ys, rad) else {
+        return;
     };
     let territory = Territory { form, min_z, max_z };
     if in_group {
@@ -478,7 +483,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_files() {
-        let data = SpawnData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = SpawnData::load_from(crate::data::DIST_GAME);
         // Java startup: "SpawnData: Loaded 27155 spawns" (npc lines).
         let lines = data.npc_line_count();
         assert!(lines > 25_000, "expected >25k spawn lines, got {lines}");

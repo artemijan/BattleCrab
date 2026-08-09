@@ -225,7 +225,7 @@ mod tests {
 
     #[test]
     fn loads_the_real_dist_file() {
-        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let root = crate::data::DIST_GAME;
         let data = FishingData::load_from(root);
         // The starter bait and its catch table.
         let bait = data.bait(47547).expect("starter bait");

@@ -13,7 +13,7 @@ const MOB_NPC: i32 = 29002;
 const RAID_CURSE2: i32 = 4515;
 /// 4215 `RAID_CURSE` — silence, for helping from a distance.
 const RAID_CURSE: i32 = 4215;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn curse_world() -> (
     World,

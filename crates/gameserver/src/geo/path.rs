@@ -474,7 +474,7 @@ pub fn find_path(
 mod tests {
     use super::*;
     use crate::geo::region::{REGION_CELLS_X, REGION_CELLS_Y};
-    use crate::geo::{NSWE_ALL, synthetic_region};
+    use crate::geo::{NSWE_ALL, synthetic_region, wall_column};
 
     const BASE_GEO_X: i32 = 11 * REGION_CELLS_X;
     const BASE_GEO_Y: i32 = 10 * REGION_CELLS_Y;
@@ -545,19 +545,7 @@ mod tests {
     #[test]
     fn sealed_wall_yields_no_path() {
         let mut engine = GeoEngine::empty();
-        engine.set_region(
-            11,
-            10,
-            synthetic_region(|x, _y| {
-                if x == 10 {
-                    (200, 0)
-                } else if x == 9 {
-                    (0, NSWE_ALL & !NSWE_EAST)
-                } else {
-                    (0, NSWE_ALL)
-                }
-            }),
-        );
+        engine.set_region(11, 10, synthetic_region(wall_column));
         let cfg = PathConfig::default();
         let (x0, y0) = world_at(&engine, 5, 1000);
         let (x1, y1) = world_at(&engine, 15, 1000);

@@ -15,7 +15,7 @@ const PICKER_OID: i32 = 6002;
 /// Boot-equivalent load of `CursedWeapons.xml` into the runtime list, mirroring
 /// `net.rs` (and the admin test).
 fn load_cursed_weapons(world: &mut World) {
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     world.data.root = ROOT.to_string();
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
     world.cursed_weapons = world
@@ -478,8 +478,7 @@ fn the_cursed_weapon_window_lists_and_locates() {
 fn a_gm_granted_cursed_weapon_arms_its_expiry() {
     let (mut world, _db, mut db_rx, _l) = test_world();
     load_cursed_weapons(&mut world);
-    world.data.admin =
-        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x3000_0000..0x3000_0100;
     let mut gm_rx = ingame_player_access(&mut world, 1, KILLER_OID, 100);
     drain(&mut gm_rx);
@@ -529,7 +528,7 @@ fn a_gm_granted_cursed_weapon_arms_its_expiry() {
 // Login restore + the equip locks it depends on
 // ---------------------------------------------------------------------------
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 const AKAMANAH: i32 = 8689; // Blood Sword Akamanah
 /// Squire's Sword — an ordinary one-hand weapon to try swapping to.
 const SQUIRES_SWORD: i32 = 7816;
@@ -1497,8 +1496,7 @@ fn cw_goto_reaches_a_weapon_lying_on_the_ground() {
 
     let (mut world, _db, _db_rx, _l) = test_world();
     load_cursed_weapons(&mut world);
-    world.data.admin =
-        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x3100_0000..0x3100_0400;
     let mut gm_rx = ingame_player_access(&mut world, 1, KILLER_OID, 100);
     drain(&mut gm_rx);

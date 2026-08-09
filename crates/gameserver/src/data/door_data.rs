@@ -216,7 +216,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_file() {
-        let data = DoorData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = DoorData::load_from(crate::data::DIST_GAME);
         assert_eq!(data.doors.len(), 1180);
 
         // First door in the file: Embryo fort raid door 12220001.

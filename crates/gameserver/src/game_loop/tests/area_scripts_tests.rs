@@ -628,7 +628,7 @@ fn ketra_teleporter_serves_only_level_four_allies() {
     const KURFA: i32 = 31376;
     const MARK_4: i32 = 7214;
     // Serve the real script htmls — the html IS the observable here.
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world
         .data
         .npc_data

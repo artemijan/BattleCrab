@@ -266,7 +266,7 @@ fn handle_open(
 mod tests {
     use super::*;
 
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
 
     #[test]
     fn loads_the_real_instance_templates() {

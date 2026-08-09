@@ -12,6 +12,7 @@
 
 use crate::data::item_data::ADENA_ID;
 use crate::db::DbCommand;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::clan_hall::ActiveFunction;
 use crate::model::components::{Reuses, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -55,7 +56,7 @@ pub(crate) fn cast_hall_buff(
     if !ALLOWED_BUFFS.contains(&skill_id) {
         return BuffCastOutcome::NotAllowed;
     }
-    let Some(skill) = world.data.skill_data.get(skill_id, skill_lvl).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, skill_lvl) else {
         return BuffCastOutcome::NotAllowed;
     };
     // Java: `npc.getCurrentMp() < (mpConsume + mpInitialConsume)`.

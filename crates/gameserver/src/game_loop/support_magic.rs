@@ -16,6 +16,7 @@
 //!   unported). The remaining buffs and the animation land normally.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::skill_by_id;
 use tracing::warn;
 
 use crate::game_loop::skills::effects::apply_skill_effects;
@@ -180,7 +181,7 @@ pub(crate) fn cast_from_npc(
     target_oid: i32,
     (skill_id, skill_level): (i32, i32),
 ) {
-    let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
         warn!("SupportMagic: skill {skill_id}/{skill_level} missing from skill data.");
         return;
     };

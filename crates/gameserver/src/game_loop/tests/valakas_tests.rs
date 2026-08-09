@@ -7,7 +7,7 @@ use crate::game_loop::valakas::{AttackVerdict, DEAD, FIGHTING, VALAKAS, ValakasC
 const VALAKAS_OID: i32 = NPC_OID + 100;
 const PLAYER: i32 = 9990;
 const CID: u32 = 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 /// A point inside zone 12010 ("Valakas Boss"), taken from the boss's own lair.
 const IN_LAIR: (i32, i32, i32) = (212_852, -114_842, -1_632);
 

@@ -5,6 +5,7 @@
 //! skill's own HP/MP/CP percentages and a share of the XP the death cost.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::model::skill::{SkillEffect, TargetType};
 
@@ -16,7 +17,7 @@ const REVIVER: i32 = 9601;
 const CORPSE: i32 = 9602;
 const CID: u32 = 1;
 const TCID: u32 = 2;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn kill(world: &mut World, oid: i32, lost_exp: i64) {
     world
@@ -615,12 +616,7 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
         crate::game_loop::skills::effects::apply_skill_effects(&mut world, CORPSE, CORPSE, s);
     }
 
-    let has = |world: &World, id: i32| {
-        world
-            .objects
-            .get_component::<crate::model::components::Buffs>(&CORPSE)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id))
-    };
+    let has = |world: &World, id: i32| has_buff(world, CORPSE, id);
     assert!(has(&world, 1410) && has(&world, 9430), "both are up");
 
     crate::game_loop::death::stop_effects_on_death_for_test(&mut world, CORPSE);

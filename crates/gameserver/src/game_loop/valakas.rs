@@ -14,8 +14,10 @@
 //! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) and the
 //! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
+use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -189,12 +191,7 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
         .map(|v| (v.cur_hp, v.max_hp as f64))
     {
         let level = regen_level(cur, max);
-        if let Some(skill) = world
-            .data
-            .skill_data
-            .get(VALAKAS_REGENERATION, level)
-            .cloned()
-        {
+        if let Some(skill) = skill_by_id(world, VALAKAS_REGENERATION, level) {
             crate::game_loop::skills::effects::apply_continuous_effects(
                 world,
                 valakas_oid,
@@ -235,14 +232,11 @@ fn attacker_in_lair(world: &World, attacker_oid: i32) -> bool {
 }
 
 fn already_debuffed(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == STRIDER_DEBUFF))
+    has_buff(world, oid, STRIDER_DEBUFF)
 }
 
 fn cast_debuff(world: &mut World, caster_oid: i32, target_oid: i32) {
-    let Some(skill) = world.data.skill_data.get(STRIDER_DEBUFF, 1).cloned() else {
+    let Some(skill) = skill_by_id(world, STRIDER_DEBUFF, 1) else {
         return;
     };
     crate::game_loop::skills::effects::apply_continuous_effects(

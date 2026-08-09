@@ -779,7 +779,7 @@ fn a_cron_schedule_starts_the_event_and_re_arms() {
     register_coliseum_template(&mut world);
 
     // The dist's own config: every schedule line is commented out.
-    let dist = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let dist = crate::data::DIST_GAME;
     assert!(
         tvt::load_schedule(dist).is_empty(),
         "this dist ships no active TvT schedule"

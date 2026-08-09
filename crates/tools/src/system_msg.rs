@@ -76,26 +76,8 @@ impl MsgFile {
     /// Everything stays in memory: no `system_decrypted` is read or written,
     /// so an editing session leaves no trace unless it is saved.
     pub fn open(set: &mut SchemaSet, system_dir: &Path, name: &str) -> Result<Self, String> {
-        let path = system_dir.join(name);
-        let raw =
-            std::fs::read(&path).map_err(|e| format!("cannot read {}: {e}", path.display()))?;
-        let version = client_dat::read_version(&raw)
-            .ok_or_else(|| format!("{} has no Lineage2Ver header", path.display()))?;
-        let plain = client_dat::decrypt(&raw, &version)?;
-
-        // Whichever layout consumes the file exactly is the one that describes
-        // it; the same one is kept for packing so the two cannot disagree.
-        let enums = set.enums.clone();
-        let (text, layout) = set
-            .candidates(name)
-            .into_iter()
-            .find_map(|(_label, layout)| {
-                let outcome = dat_text::read(&plain, &layout, &enums, false);
-                outcome.exact().then_some((outcome.text, layout))
-            })
-            .ok_or_else(|| format!("no schema layout fits {name}"))?;
-
-        Self::from_text(name, &text, version, layout, path)
+        let u = dat_text::unpack(set, system_dir, name, &mut |_| {})?;
+        Self::from_text(name, &u.text, u.version, u.layout, u.path)
     }
 
     /// Parse already-unpacked text into a session. `open` is the normal entry

@@ -12,6 +12,7 @@ use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, Vitals};
 use crate::world::World;
 
@@ -416,12 +417,7 @@ fn distance(world: &World, a: i32, b: i32) -> Option<f64> {
 /// owner**, since the cubic has no object id of its own, and the effects are
 /// applied with the owner as caster.
 fn cast(world: &mut World, owner_oid: i32, caster_oid: i32, target: i32, cubic_skill: &CubicSkill) {
-    let Some(skill) = world
-        .data
-        .skill_data
-        .get(cubic_skill.skill_id, cubic_skill.skill_level)
-        .cloned()
-    else {
+    let Some(skill) = skill_by_id(world, cubic_skill.skill_id, cubic_skill.skill_level) else {
         return;
     };
     let target_pos = position(world, target);

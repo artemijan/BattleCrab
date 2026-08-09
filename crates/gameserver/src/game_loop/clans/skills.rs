@@ -1,6 +1,8 @@
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::skill_by_id;
 
 /// The clan's member object-ids that are currently online (leader included).
 pub(crate) fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
@@ -20,19 +22,11 @@ pub(crate) fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
 /// re-trigger must not stack a second copy (Java's `EffectList` replaces in
 /// place; skipping the identical permanent buff is equivalent).
 pub(crate) fn apply_clan_advent(world: &mut World, object_id: i32) {
-    let already = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&object_id)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == CLAN_ADVENT_SKILL_ID));
+    let already = has_buff(world, object_id, CLAN_ADVENT_SKILL_ID);
     if already {
         return;
     }
-    let Some(skill) = world
-        .data
-        .skill_data
-        .get(CLAN_ADVENT_SKILL_ID, CLAN_ADVENT_SKILL_LEVEL)
-        .cloned()
-    else {
+    let Some(skill) = skill_by_id(world, CLAN_ADVENT_SKILL_ID, CLAN_ADVENT_SKILL_LEVEL) else {
         return;
     };
     crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);

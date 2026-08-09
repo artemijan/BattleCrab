@@ -150,15 +150,7 @@ fn a_mob_refuses_to_engage_a_target_it_cannot_see() {
     engine.set_region(
         11,
         10,
-        crate::geo::synthetic_region(|x, _y| {
-            if x == 10 {
-                (200, 0) // the wall: 200 units high, no exits
-            } else if x == 9 {
-                (0, NSWE_ALL & !NSWE_EAST) // approach cell: can't step east
-            } else {
-                (0, NSWE_ALL)
-            }
-        }),
+        crate::geo::synthetic_region(crate::geo::wall_column),
     );
     let engine = std::sync::Arc::new(engine);
     world.geo = engine.clone();
