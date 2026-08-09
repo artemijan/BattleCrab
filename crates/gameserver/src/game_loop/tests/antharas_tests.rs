@@ -1,6 +1,7 @@
 //! Antharas — the escalating, capped minion waves.
 
 use super::*;
+use crate::game_loop::helpers::in_zone;
 
 use crate::game_loop::antharas::{ANTHARAS, AntharasMinions};
 
@@ -1017,10 +1018,7 @@ fn cube_in_lair(world: &World) -> Option<i32> {
             .objects
             .get_component::<crate::model::npc::Npc>(oid)
             .is_some_and(|n| n.npc_id == CUBE)
-            && world
-                .objects
-                .get_component::<Position>(oid)
-                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+            && in_zone(world, *oid, zone)
     })
 }
 

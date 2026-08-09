@@ -10,6 +10,7 @@
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
@@ -459,12 +460,7 @@ fn players_in_lair(world: &World) -> usize {
             crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
             _ => None,
         })
-        .filter(|oid| {
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(oid)
-                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
-        })
+        .filter(|oid| in_zone(world, *oid, zone))
         .count()
 }
 
@@ -1018,11 +1014,7 @@ fn lair_minions(world: &World) -> Vec<i32> {
                 .objects
                 .get_component::<crate::model::npc::Npc>(oid)
                 .is_some_and(|n| n.npc_id == BEHEMOTH || n.npc_id == TERASQUE);
-            is_minion
-                && world
-                    .objects
-                    .get_component::<crate::model::components::Position>(oid)
-                    .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+            is_minion && in_zone(world, *oid, zone)
         })
         .collect()
 }
@@ -1037,12 +1029,7 @@ fn npcs_in_lair(world: &World) -> Vec<i32> {
         .values()
         .flatten()
         .copied()
-        .filter(|oid| {
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(oid)
-                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
-        })
+        .filter(|oid| in_zone(world, *oid, zone))
         .collect()
 }
 
@@ -1053,11 +1040,6 @@ fn players_in_lair_oids(world: &World) -> Vec<i32> {
     };
     world
         .in_game_player_oids()
-        .filter(|oid| {
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(oid)
-                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
-        })
+        .filter(|oid| in_zone(world, *oid, zone))
         .collect()
 }
