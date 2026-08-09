@@ -17,6 +17,7 @@
 
 use crate::db::DbCommand;
 use crate::game_loop::guard;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::model::inventory::Inventory;
@@ -106,9 +107,11 @@ pub(super) fn admin_cw_info(world: &mut World, client_id: u32) {
     };
     for line in lines {
         if line.is_empty() {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(sm_ids::EMPTY_3, &[]));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::system_message_with(sm_ids::EMPTY_3, &[]),
+            );
         } else {
             send_message(world, client_id, &line);
         }
@@ -367,12 +370,14 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     if let Some(tc) = target_client {
         crate::game_loop::items::use_equipable_item(world, tc, target, item_oid);
         // "You have equipped your $s1."
-        if let Some(cs) = world.clients.get(&tc) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            tc,
+            server_packets::system_message_with(
                 sm_ids::YOU_HAVE_EQUIPPED_YOUR_S1,
                 &[SmParam::ItemName(item_id)],
-            ));
-        }
+            ),
+        );
     }
 
     // Fully heal (Java `setCurrentHpMp/Cp(max)`), refresh UI.

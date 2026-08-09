@@ -15,6 +15,7 @@
 //! accept path sends on top of the constructor/`addParty` broadcasts, and the
 //! roster query answering for any party with no shared-channel check.
 
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::command_channel::CommandChannel;
 use crate::model::components::{PartyRef, PendingRequest, RequestKind};
@@ -558,9 +559,11 @@ pub(crate) fn handle_request_ex_mpcc_show_party_members_info(
                 })
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_mpcc_show_party_member_info(&members));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_mpcc_show_party_member_info(&members),
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -948,9 +951,11 @@ pub(crate) fn handle_request_ex_list_mpcc_waiting(world: &mut World, client_id: 
             })
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_list_mpcc_waiting(total, &rows));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_list_mpcc_waiting(total, &rows),
+    );
 }
 
 pub(crate) fn handle_request_ex_manage_mpcc_room(world: &mut World, client_id: u32, body: &[u8]) {
@@ -1091,9 +1096,11 @@ pub(crate) fn handle_request_ex_mpcc_partymaster_list(world: &mut World, client_
             names.push(name);
         }
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_mpcc_partymaster_list(&names));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_mpcc_partymaster_list(&names),
+    );
 }
 
 // ---------------------------------------------------------------------------

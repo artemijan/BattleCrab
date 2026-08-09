@@ -8,6 +8,7 @@
 
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
@@ -672,12 +673,14 @@ pub(super) fn hp_drain(
                 .get_component::<Vitals>(&caster_oid)
                 .map(|v| v.cur_hp as i32)
                 .unwrap_or(0);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::status_update(
+            send_to_client(
+                world,
+                client_id,
+                server_packets::status_update(
                     caster_oid,
                     &[(server_packets::status_update_type::CUR_HP, cur)],
-                ));
-            }
+                ),
+            );
             crate::game_loop::party::notify_party_vitals(world, caster_oid);
         }
     }

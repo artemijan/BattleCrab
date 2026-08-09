@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::send_to_client;
 
 use crate::model::clan::CL_MANAGE_RANKS;
 
@@ -272,16 +273,18 @@ pub(crate) fn handle_request_pledge_recruit_board_detail(
     let Some(info) = world.recruit_clans.get(&clan_id) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_pledge_recruit_board_detail(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_pledge_recruit_board_detail(
             info.clan_id,
             info.karma,
             &info.information,
             &info.detailed_information,
             info.application_type,
             info.recruit_type,
-        ));
-    }
+        ),
+    );
 }
 
 /// `RequestPledgeRecruitBoardSearch` (ex 0xD4): the recruit-board search,
@@ -397,13 +400,11 @@ pub(crate) fn handle_request_pledge_recruit_board_search(
             ))
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_pledge_recruit_board_search(
-            page,
-            total,
-            &page_entries,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_pledge_recruit_board_search(page, total, &page_entries),
+    );
 }
 
 /// `RequestPledgeWaitingApply` (ex 0xD7): a clanless player applies to a
@@ -660,9 +661,11 @@ pub(crate) fn handle_request_pledge_draft_list_search(
         .iter()
         .map(|p| (p.player_id, p.name.clone(), p.karma, p.class_id, p.level))
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_pledge_draft_list_search(&out));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_pledge_draft_list_search(&out),
+    );
 }
 
 /// `RequestPledgeDraftListApply` (ex 0xDD): a clanless player adds/removes

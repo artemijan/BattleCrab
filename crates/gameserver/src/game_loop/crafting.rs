@@ -18,6 +18,7 @@ use super::helpers::{adena, player_of};
 use crate::data::recipe_data::RecipeList;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::{send_to_client, send_to_player};
 use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
@@ -67,16 +68,6 @@ fn set_store_type(world: &mut World, oid: i32, ty: u8) {
     {
         p.store_type = ty;
     }
-}
-
-fn send_to_client(world: &World, client_id: u32, packet: Vec<u8>) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
-}
-
-fn send_to_player(world: &World, oid: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, oid, packet);
 }
 
 fn vitals(world: &World, oid: i32) -> Option<(f64, i32, f64)> {

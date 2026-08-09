@@ -5,6 +5,7 @@
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets;
@@ -62,13 +63,13 @@ fn send_invisible_visual(world: &World, client_id: u32, object_id: i32, invisibl
     // Carry the buff-driven visuals through too, so toggling invisibility on a
     // stunned/poisoned GM doesn't wipe those from their own view.
     let visuals = crate::game_loop::abnormal::visual_effects(world, object_id);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(
-            crate::network::user_info::ex_user_info_abnormal_visual_effect(
-                object_id, invisible, transform, &visuals,
-            ),
-        );
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::user_info::ex_user_info_abnormal_visual_effect(
+            object_id, invisible, transform, &visuals,
+        ),
+    );
 }
 
 /// `AdminHide`'s `//hide` — toggle the GM's visibility to other players (Java
@@ -499,13 +500,13 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
                 .objects
                 .get_component::<AdminFlags>(target)
                 .is_some_and(|f| f.hidden);
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(
-                    crate::network::user_info::ex_user_info_abnormal_visual_effect(
-                        *target, hidden, transform, &visuals,
-                    ),
-                );
-            }
+            send_to_client(
+                world,
+                cid,
+                crate::network::user_info::ex_user_info_abnormal_visual_effect(
+                    *target, hidden, transform, &visuals,
+                ),
+            );
         }
     }
     send_message(

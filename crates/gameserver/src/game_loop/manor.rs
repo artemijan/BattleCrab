@@ -27,6 +27,8 @@
 //! the reference build never sends the buy/sell *display* packets (`BuyListSeed`
 //! /`ExShowSellCropList` are dead), so the trader window is client-native.
 
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use commons::network::PacketReader;
 use tracing::warn;
 
@@ -114,66 +116,72 @@ pub(crate) fn handle_manor_menu_select(
         // production (`ExShowSeedInfo`).
         3 => {
             let seeds = seed_info_entries(world, castle_id, next_period);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_show_seed_info(
-                    castle_id,
-                    true,
-                    Some(&seeds),
-                ));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::ex_show_seed_info(castle_id, true, Some(&seeds)),
+            );
         }
         // Request 4: the "Crop Sales" view — the castle's live crop procure
         // (`ExShowCropInfo`).
         4 => {
             let crops = crop_info_entries(world, castle_id, next_period);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_show_crop_info(
-                    castle_id,
-                    true,
-                    Some(&crops),
-                ));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::ex_show_crop_info(castle_id, true, Some(&crops)),
+            );
         }
         // Request 5: the seed/crop reference table (static catalogue).
         5 => {
             let crops = default_entries(world);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_show_manor_default_info(&crops, true));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::ex_show_manor_default_info(&crops, true),
+            );
         }
         // Request 7: the owner's "Edit Seed Setup" view (`ExShowSeedSetting`).
         7 => {
             if world.manor.is_manor_approved() {
                 // Java: no setup outside the modifiable period.
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
+                send_to_client(
+                    world,
+                    client_id,
+                    server_packets::system_message_with(
                         sm_ids::A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM,
                         &[],
-                    ));
-                }
+                    ),
+                );
                 return;
             }
             let seeds = seed_setting_entries(world, castle_id);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_show_seed_setting(castle_id, &seeds));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::ex_show_seed_setting(castle_id, &seeds),
+            );
         }
         // Request 8: the owner's "Edit Crop Setup" view (`ExShowCropSetting`).
         8 => {
             if world.manor.is_manor_approved() {
                 // Same approved-period guard (and message) as request 7.
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
+                send_to_client(
+                    world,
+                    client_id,
+                    server_packets::system_message_with(
                         sm_ids::A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM,
                         &[],
-                    ));
-                }
+                    ),
+                );
                 return;
             }
             let crops = crop_setting_entries(world, castle_id);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_show_crop_setting(castle_id, &crops));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::ex_show_crop_setting(castle_id, &crops),
+            );
         }
         _ => {
             warn!("Manor: unknown manor request {request}.");
@@ -794,9 +802,7 @@ fn manor_setup_gate(world: &mut World, client_id: u32, manor_id: i32) -> Option<
 
 /// Send `ActionFailed` and yield `None` (the gate's rejection path).
 fn fail(world: &World, client_id: u32) -> Option<i32> {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::action_failed());
-    }
+    send_action_failed(world, client_id);
     None
 }
 
@@ -970,9 +976,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         || !world.data.manor.manor_castle_ids().contains(&manor_id)
         || manor_manager_castle(world, player_oid) != Some(manor_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
 
@@ -988,9 +992,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
             .seed_product(manor_id, item_id, false)
             .is_some_and(|sp| sp.price > 0 && sp.amount >= cnt && MAX_ADENA / cnt >= sp.price);
         if !ok {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
         let price = world
@@ -1020,21 +1022,19 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
     // Java's order is weight, then slots, then adena — and it matters: an
     // overloaded player with no money is told about the weight, not the money.
     if !crate::game_loop::weight::validate_weight(world, player_oid, total_weight) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT, &[]),
+        );
         return;
     }
     if !crate::game_loop::weight::validate_capacity(world, player_oid, slots) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOUR_INVENTORY_IS_FULL,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(sm_ids::YOUR_INVENTORY_IS_FULL, &[]),
+        );
         return;
     }
 
@@ -1043,12 +1043,11 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         .get_component::<crate::model::inventory::Inventory>(&player_oid)
         .map_or(0, |i| i.adena());
     if adena < total_price {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]),
+        );
         return;
     }
     if total_price > 0
@@ -1133,9 +1132,7 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
     } else {
         manor_manager_castle(world, player_oid)
     }) else {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     };
 
@@ -1151,9 +1148,7 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
             .crop_procure_for(item_manor, crop_id, false)
             .is_some_and(|cp| cp.amount >= cnt);
         if !item_ok || !cp_ok {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
     }
@@ -1182,12 +1177,14 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
         let reward_count = price / reward_price;
         if reward_count < 1 {
             // Java reports the line and skips it.
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                server_packets::system_message_with(
                     sm_ids::FAILED_IN_TRADING_S2_OF_S1_CROPS,
                     &[SmParam::ItemName(crop_id), SmParam::Long(cnt)],
-                ));
-            }
+                ),
+            );
             continue;
         }
         // A 5 % adena fee when selling at a manor other than the crop's own.
@@ -1202,12 +1199,11 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
                 .get_component::<Inventory>(&player_oid)
                 .map_or(0, |i| i.adena());
             if adena < fee {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
-                        &[],
-                    ));
-                }
+                send_to_client(
+                    world,
+                    client_id,
+                    server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]),
+                );
                 continue;
             }
         }

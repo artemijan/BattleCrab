@@ -4,13 +4,14 @@
 //! the weight/capacity gates (no `maxLoad`/slot enforcement exists yet — a G5
 //! deferral) are out of scope.
 
+use crate::game_loop::helpers::send_action_failed;
 use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
 use crate::model::components::TargetRef;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
-use crate::network::server_packets::{self, sm_ids};
+use crate::network::server_packets::sm_ids;
 use crate::network::trade;
 use crate::world::World;
 
@@ -62,16 +63,12 @@ pub(crate) fn show_buy_window_taxed(
     let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
     let Some(list) = world.data.buy_lists.get(list_id) else {
         warn!("Shop: buylist {list_id} not found.");
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     };
     if !list.is_npc_allowed(npc_id) {
         warn!("Shop: npc {npc_id} not allowed in buylist {list_id}.");
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
     let tax_rate = if apply_castle_tax {
@@ -123,9 +120,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     let Some(merchant_oid) =
         target.filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
     else {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     };
     let merchant_id = npc_id_of(world, merchant_oid).unwrap_or(0);
@@ -142,9 +137,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         return;
     };
     if !list.is_npc_allowed(merchant_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
 
@@ -191,9 +184,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
                 "Shop: no price for item {} on buylist {}.",
                 line.item_id, pkt.list_id
             );
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
         if MAX_ADENA / line.count < product.price {
@@ -357,9 +348,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
         .is_none()
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
 
@@ -503,9 +492,7 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
         .is_none()
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     }
 
@@ -515,9 +502,7 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
     let mut adena_cost: i64 = 0;
     for (i, &idx) in pkt.indexes.iter().enumerate() {
         if idx < 0 || idx as usize >= refund_items.len() || pkt.indexes[..i].contains(&idx) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+            send_action_failed(world, client_id);
             return;
         }
         let inst = &refund_items[idx as usize];

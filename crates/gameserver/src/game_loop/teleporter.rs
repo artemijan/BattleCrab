@@ -20,6 +20,7 @@
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
@@ -284,9 +285,11 @@ pub(crate) fn show_teleport_list(
     ))
     .unwrap_or_else(|| "<html><body>%locations%</body></html>".to_string())
     .replace("%locations%", &buttons);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_object_id, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_object_id, &html),
+    );
 }
 
 /// `TeleportHolder.doTeleport`: validate, charge the fee, and teleport.
@@ -327,12 +330,14 @@ pub(crate) fn do_teleport(
     if !world.cfg.character.teleport_while_siege_in_progress
         && any_siege_in_progress(world, &loc.castle_ids)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 sm_ids::YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
 
@@ -351,12 +356,14 @@ pub(crate) fn do_teleport(
             return;
         }
         if has_combat_flag(world, object_id) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                server_packets::system_message_with(
                     sm_ids::YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD,
                     &[],
-                ));
-            }
+                ),
+            );
             return;
         }
     }
@@ -371,12 +378,11 @@ pub(crate) fn do_teleport(
             .unwrap_or(0);
         if have < fee || !super::quests::take_items(world, client_id, object_id, loc.fee_id, fee) {
             if loc.fee_id == ADENA_ID {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
-                        &[],
-                    ));
-                }
+                send_to_client(
+                    world,
+                    client_id,
+                    server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]),
+                );
             } else {
                 let item = world
                     .data
@@ -410,9 +416,11 @@ fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file:
             .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
             .replace("%objectId%", &npc_object_id.to_string())
             .replace("%npcname%", &name);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_object_id, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_object_id, &html),
+    );
 }
 
 /// `Player.isNoble()` — nobless gates the `NOBLESS` teleport lists.

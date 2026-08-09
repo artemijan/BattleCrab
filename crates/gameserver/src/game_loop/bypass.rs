@@ -16,6 +16,8 @@
 //!   `item_`, menu/manor selects and the rest of the prefix zoo wait for
 //!   their systems).
 
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
 
 use crate::model::components::LastFolkNpc;
@@ -51,9 +53,7 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         {
             npc_bypass(world, client_id, object_id, npc_object_id, npc_command);
         }
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
     } else if command == "Quest" || command.starts_with("Quest ") {
         // Bare quest link (`bypass -h Quest <Name> [<event>]`) — the form
         // the quest/script htmls use. Java recovers the NPC from the
@@ -178,9 +178,11 @@ fn handle_link(world: &mut World, client_id: u32, npc_object_id: i32, html_path:
     let html = content
         .map(|c| c.replace("%objectId%", &npc_object_id.to_string()))
         .unwrap_or_default();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_object_id, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_object_id, &html),
+    );
 }
 
 /// Port of `Npc.onBypassFeedback` + the `VillageMaster` override: route an

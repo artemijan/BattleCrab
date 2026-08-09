@@ -10,6 +10,7 @@
 //! they are still gated correctly by the access table and reach the "not
 //! implemented" path rather than crashing.
 
+use crate::game_loop::helpers::send_to_client;
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -1063,10 +1064,12 @@ pub(super) fn creatures_in_range(
 
 /// Java `Player.sendMessage(String)` — a bare `$s1` system message.
 pub(crate) fn send_message(world: &World, client_id: u32, text: &str) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::system_message_with(
             sm_ids::S1_TEXT,
             &[server_packets::SmParam::Text(text.to_string())],
-        ));
-    }
+        ),
+    );
 }

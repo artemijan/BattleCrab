@@ -23,6 +23,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::olympiad::{
     CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
@@ -1347,9 +1348,7 @@ pub(crate) fn send_match_list(world: &World, client_id: u32) {
             player_b: player_name_or_empty(world, m.player_b),
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::ex_olympiad_match_list(&rows));
-    }
+    send_to_client(world, client_id, sp::ex_olympiad_match_list(&rows));
 }
 
 /// Java `OlyManager.arenachange` → `Player.enterOlympiadObserverMode`: teleport
@@ -1395,9 +1394,7 @@ pub(crate) fn enter_observer(world: &mut World, client_id: u32, player_oid: i32,
         OBSERVE_SPAWN.1,
         OBSERVE_SPAWN.2,
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::ex_olympiad_mode(3));
-    }
+    send_to_client(world, client_id, sp::ex_olympiad_mode(3));
     // Java `enterOlympiadObserverMode` also makes the spectator invulnerable +
     // invisible so a stray AoE can't touch them and they don't clutter the
     // arena. Set the two flags (adding the component if absent), leaving any
@@ -1446,9 +1443,7 @@ pub(crate) fn leave_observer(world: &mut World, client_id: u32, player_oid: i32)
         .remove_component::<crate::model::components::InstanceId>(&player_oid);
     // Clear the spectator's invul + invisible (Java restores the normal state).
     set_observer_flags(world, player_oid, false);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::ex_olympiad_mode(0));
-    }
+    send_to_client(world, client_id, sp::ex_olympiad_mode(0));
     let (x, y, z) = observer.return_pos;
     crate::game_loop::death::teleport_player(world, player_oid, x, y, z);
 }
@@ -1530,9 +1525,7 @@ pub(crate) fn show_hero_diary(world: &mut World, client_id: u32, npc_oid: i32, a
         .replace("%list%", &list)
         .replace("%buttprev%", &prev)
         .replace("%buttnext%", &next);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::npc_html_message(npc_oid, &html));
-    }
+    send_to_client(world, client_id, sp::npc_html_message(npc_oid, &html));
 }
 
 /// Format one diary entry's action (Java `showHeroDiary`'s three `ACTION_*`
@@ -1623,9 +1616,7 @@ pub(crate) fn send_hero_list(world: &World, client_id: u32) {
             }
         })
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::ex_hero_list(&rows));
-    }
+    send_to_client(world, client_id, sp::ex_hero_list(&rows));
 }
 
 #[cfg(test)]

@@ -12,6 +12,8 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -2325,9 +2327,7 @@ pub(crate) fn give_item_with_earned_message_enchanted(
         )
     };
     let iu = ew::inventory_update_added(inventory, &world.data, &added);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sm);
-    }
+    send_to_client(world, client_id, sm);
     // `InventoryUpdate` + adena counter + weight bar (Java `sendInventoryUpdate`),
     // so the status-bar adena count refreshes on adena gains (`//create_coin`).
     super::helpers::send_inventory_update(world, client_id, player, iu);
@@ -2583,9 +2583,7 @@ fn show_quest_window(
     let registry = world.quests.clone();
     let Some(script) = registry.by_name(quest_name) else {
         send_no_quest_html(world, client_id, npc_oid);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
         return;
     };
     world.objects.add_components(&player, LastFolkNpc(npc_oid));
@@ -2827,9 +2825,7 @@ pub(crate) fn handle_tutorial_bypass(world: &mut World, client_id: u32, bypass: 
     };
     let bypass = bypass.trim();
     if bypass == "tutorial_close" {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::tutorial_close_html());
-        }
+        send_to_client(world, client_id, server_packets::tutorial_close_html());
         return;
     }
     if let Some(rest) = bypass.strip_prefix("Quest ") {
@@ -3006,9 +3002,7 @@ pub(crate) fn handle_request_quest_list(world: &World, client_id: u32) {
         return;
     };
     let pkt = ew::quest_list(quests, &world.quests);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 pub(crate) fn handle_request_quest_abort(world: &mut World, client_id: u32, body: &[u8]) {
@@ -3127,9 +3121,11 @@ fn no_quest_html(world: &World) -> String {
 
 fn send_no_quest_html(world: &mut World, client_id: u32, npc_oid: i32) {
     let content = no_quest_html(world).replace("%objectId%", &npc_oid.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_oid, &content));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_oid, &content),
+    );
 }
 
 fn player_name_of_client(world: &World, client_id: u32) -> String {

@@ -26,6 +26,7 @@
 
 use super::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::helpers::is_gm;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -209,9 +210,7 @@ fn send_list_to_owner(world: &World, client_id: u32, owner_oid: i32) {
         .into_iter()
         .map(|id| super::mail::char_name_by_id(world, id))
         .collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::block_list(&names));
-    }
+    send_to_client(world, client_id, server_packets::block_list(&names));
 }
 
 /// Java `BlockList.setBlockAll` — message-refusal mode, the `isBlockAll()`
@@ -258,10 +257,12 @@ fn client_of(world: &World, object_id: i32) -> Option<u32> {
 }
 
 fn send_sm_str(world: &World, client_id: u32, message_id: i16, text: &str) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::system_message_with(
             message_id,
             &[commons::system_messages::SmParam::Text(text.to_string())],
-        ));
-    }
+        ),
+    );
 }

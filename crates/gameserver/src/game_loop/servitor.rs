@@ -18,6 +18,7 @@ use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
@@ -578,12 +579,11 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
     }
     // Every handler opens with the same "do you even have one" check.
     if servitor_of(world, owner_oid).is_none() {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR, &[]),
+        );
         return;
     }
     // `Summon.canAttack`'s `isBetrayed()` gate — a servitor under Betray

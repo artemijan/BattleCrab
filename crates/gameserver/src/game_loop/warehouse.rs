@@ -11,6 +11,7 @@
 //! change.
 
 use super::helpers::{adena, player_of, send_sm_bare_to_client as send_sm};
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::ActiveWarehouse;
 use crate::model::inventory::{Freight, Inventory, ItemInstance, Warehouse};
@@ -139,9 +140,7 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
         .collect();
     let packet =
         sp::warehouse_deposit_list(wh_type(tgt), adena(world, player_oid), wh_size, &items);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `WithdrawP`/`WithdrawC`/`package_withdraw` — show the withdraw window (the
@@ -171,9 +170,7 @@ pub(crate) fn open_withdraw_window(world: &mut World, client_id: u32) {
         .collect();
     let packet =
         sp::warehouse_withdrawal_list(wh_type(tgt), adena(world, player_oid), inv_size, &items);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `Freight` bypass (`package_withdraw`): set the active warehouse to the
@@ -243,12 +240,14 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
         }
         let used = container_ref(world, player_oid, tgt).map_or(0, |c| c.items().len()) as i64;
         if used + slots > i64::from(limit) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(sp::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                sp::system_message_with(
                     sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
                     &[],
-                ));
-            }
+                ),
+            );
             return;
         }
     }
@@ -518,9 +517,7 @@ pub(crate) fn persist_clan_warehouse(world: &World, clan_id: i32) {
 fn send_inventory(world: &World, client_id: u32, player_oid: i32) {
     if let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) {
         let packet = crate::network::enter_world::item_list(inv, &world.data, false);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(packet);
-        }
+        send_to_client(world, client_id, packet);
     }
 }
 
@@ -539,9 +536,7 @@ pub(crate) fn open_freight_send(world: &mut World, client_id: u32) {
     } else {
         sp::package_to_list(&chars)
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `RequestPackageSendableItemList` (0xA7): the sender's freightable items, for
@@ -567,9 +562,7 @@ pub(crate) fn handle_package_sendable_list(world: &mut World, client_id: u32, bo
         })
         .collect();
     let packet = sp::package_sendable_list(recipient, inv.adena(), &items);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `RequestPackageSend` (0xA8): freight the listed items to another character

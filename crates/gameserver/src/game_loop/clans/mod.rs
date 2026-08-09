@@ -26,6 +26,7 @@
 //!   list and applications.
 
 pub(crate) use crate::game_loop::helpers::class_level;
+use crate::game_loop::helpers::send_to_client;
 use commons::network::PacketReader;
 use tracing::warn;
 
@@ -146,12 +147,14 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         .values()
         .any(|c| c.name.eq_ignore_ascii_case(&name))
     {
-        if let Some(cs) = world.clients.get(&leader_client) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            leader_client,
+            server_packets::system_message_with(
                 sm_ids::S1_ALREADY_EXISTS,
                 &[SmParam::Text(name.clone())],
-            ));
-        }
+            ),
+        );
         return None;
     }
 
@@ -401,9 +404,7 @@ pub(crate) fn handle_request_pledge_info(world: &World, client_id: u32, body: &[
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::pledge_info(clan));
-    }
+    send_to_client(world, client_id, server_packets::pledge_info(clan));
 }
 
 /// `RequestPledgeRecruitInfo` (ex 0xD3): a clan's recruitment summary,
@@ -416,9 +417,11 @@ pub(crate) fn handle_request_pledge_recruit_info(world: &World, client_id: u32, 
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_pledge_recruit_info(clan));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_pledge_recruit_info(clan),
+    );
 }
 
 /// `RequestPledgeRecruitApplyInfo` (ex 0xDE): the clan window polls the
@@ -441,9 +444,11 @@ pub(crate) fn handle_request_pledge_recruit_apply_info(world: &World, client_id:
     } else {
         0 // DEFAULT
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_pledge_recruit_apply_info(status));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_pledge_recruit_apply_info(status),
+    );
 }
 
 /// `EnterWorld.runImpl`'s clan section (narrowed): fix the leader flag from

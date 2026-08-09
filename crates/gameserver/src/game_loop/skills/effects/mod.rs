@@ -22,6 +22,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
@@ -847,9 +848,7 @@ pub(crate) fn apply_skill_effects(
                 let current = world.objects.get_component::<crate::model::Player>(&target_oid).map(|p| p.charges).unwrap_or(0);
                 let Some(client_id) = client_for_player(world, target_oid) else { continue };
                 if current >= max {
-                    if let Some(cs) = world.clients.get(&client_id) {
-                        cs.send(server_packets::system_message_with(sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY, &[]));
-                    }
+                    send_to_client(world, client_id, server_packets::system_message_with(sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY, &[]));
                     continue;
                 }
                 let new_charge = (current + *amount).min(max);

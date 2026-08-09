@@ -6,6 +6,7 @@
 //! name (online or offline) and re-render `premium_menu.htm` afterwards, like
 //! the Java handler.
 
+use crate::game_loop::helpers::send_to_client;
 use crate::world::World;
 
 use super::send_message;
@@ -275,9 +276,11 @@ pub(crate) fn show_premium_panel(world: &World, client_id: u32, object_id: i32) 
             format_datetime(commons::util::now_millis()),
         )
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::npc_html_message(5, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::npc_html_message(5, &html),
+    );
 }
 
 #[cfg(test)]

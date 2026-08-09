@@ -7,6 +7,7 @@ pub(crate) mod conditions;
 pub(crate) mod effects;
 pub(crate) mod instant;
 
+use crate::game_loop::helpers::send_to_client;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
@@ -121,12 +122,14 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
         return;
     }
     if prev_level != pkt.skill_level - 1 {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 server_packets::sm_ids::THE_PREVIOUS_LEVEL_SKILL_HAS_NOT_BEEN_LEARNED,
                 &[],
-            ));
-        }
+            ),
+        );
         super::punishment::handle_illegal_player_action(
             world,
             object_id,
@@ -157,21 +160,25 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // level first, then SP (the SP gate only bites a skill that actually costs
     // SP). Each failure sends its own SystemMessage and stops.
     if learn.get_level > player.level {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 server_packets::sm_ids::YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
     if learn.level_up_sp > 0 && learn.level_up_sp > player.sp {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
     let (skill_id, skill_level, mut level_up_sp) =
@@ -204,12 +211,14 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             .iter()
             .any(|&(item_id, count)| inv.count_of(item_id) < count)
         {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                server_packets::system_message_with(
                     server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL,
                     &[],
-                ));
-            }
+                ),
+            );
             return;
         }
         // `destroyItemByItemId("SkillLearn", …, sendMessage = true)`: the

@@ -7,6 +7,7 @@
 //! by the same rule (`helpers::broadcast_to_others`).
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Movement, Position, RegionCell, TargetRef};
 use crate::network::server_packets;
 use crate::session::ClientSession;
@@ -599,9 +600,11 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             // handled above; the guard makes a second call a no-op anyway.
             drop_target_if_pointing_at(world, other_id, object_id);
             drop_target_if_pointing_at(world, object_id, other_id);
-            if let Some(cs) = world.clients.get(&other_client) {
-                cs.send(server_packets::delete_object(object_id));
-            }
+            send_to_client(
+                world,
+                other_client,
+                server_packets::delete_object(object_id),
+            );
             if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
                 cs.send(server_packets::delete_object(other_id));
             }
@@ -639,9 +642,7 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
         // TargetUnselected before DeleteObject (Java `removeVisibleObject`
         // runs `setTarget(null)` first) — see `drop_target_notify`.
         drop_target_if_pointing_at(world, other_id, object_id);
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(server_packets::delete_object(object_id));
-        }
+        send_to_client(world, cid, server_packets::delete_object(object_id));
     }
 
     // `EVT_FORGET_OBJECT` at the surrounding NPCs' AI — logging out mid-fight
@@ -731,9 +732,7 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
             }
         } else {
             drop_target_if_pointing_at(world, player_id, npc_object_id);
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::delete_object(npc_object_id));
-            }
+            send_to_client(world, cid, server_packets::delete_object(npc_object_id));
         }
     }
 }

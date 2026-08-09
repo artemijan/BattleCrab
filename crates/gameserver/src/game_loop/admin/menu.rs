@@ -4,6 +4,7 @@
 //! through [`use_admin_command`](super::use_admin_command) into the ordinary
 //! handlers — so the menu drives the same commands the `//` bar does.
 
+use crate::game_loop::helpers::send_to_client;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -50,16 +51,20 @@ pub(super) fn show_admin_html_replace(
     for (token, value) in replacements {
         content = content.replace(&format!("%{token}%"), value);
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message_item(0, 1, &content));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message_item(0, 1, &content),
+    );
 }
 
 /// Send fully-built admin HTML through the same `NpcHtmlMessage(0, 1)` channel
 /// as [`show_admin_html`], for the dynamically-generated listings (spawn-by-level,
 /// npc-by-letter) that Java assembles in a `StringBuilder` rather than a file.
 pub(super) fn send_admin_html_content(world: &World, client_id: u32, html: &str) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message_item(0, 1, html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message_item(0, 1, html),
+    );
 }

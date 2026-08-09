@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::stat_add;
 use crate::game_loop::helpers::stat_mul;
 
@@ -746,16 +747,18 @@ pub(crate) fn player_receive_damage_ex(
             .expect("player")
             .name
             .clone();
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
                 sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2,
                 &[
                     SmParam::PlayerName(victim_name),
                     attacker_name,
                     SmParam::Int(damage as i32),
                 ],
-            ));
-        }
+            ),
+        );
     }
     if !died {
         refresh_attack_stance(world, player_oid);

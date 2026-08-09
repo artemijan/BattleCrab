@@ -5,6 +5,8 @@
 use crate::data::htm_cache::read_htm;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -235,9 +237,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         || super::abnormal::is_targeting_disabled(world, object_id)
     {
         // `//settargetable` off — Java's `isTargetable()` gate in `canTarget`.
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::server_packets::action_failed());
-        }
+        send_action_failed(world, client_id);
     } else if world
         .objects
         .has_component::<crate::model::Player>(&pkt.object_id)
@@ -364,9 +364,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             set_target(world, client_id, object_id, Some(pkt.object_id));
         }
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::action_failed());
-    }
+    send_action_failed(world, client_id);
 }
 
 /// Port of `clientpackets/RequestTargetCanceld.runImpl`: clear a queued
@@ -579,9 +577,7 @@ pub(crate) fn set_target(
         // deselecting client must get TargetUnselected too, or its UI keeps
         // the target locked.
         let pkt = server_packets::target_unselected(object_id, px, py, pz);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(pkt.clone());
-        }
+        send_to_client(world, client_id, pkt.clone());
         broadcast_to_others(world, object_id, &pkt);
     }
 
@@ -775,9 +771,11 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
         .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
         .replace("%objectId%", &npc_object_id.to_string())
         .replace("%npcname%", &t.name);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_object_id, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_object_id, &html),
+    );
 }
 
 /// `getHtmlPath` across the instance classes this slice can meet: each

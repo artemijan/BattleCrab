@@ -24,6 +24,7 @@
 //! case — parity, not a narrowing. The one Java gate without a port
 //! equivalent is the subclass lock (see [`busy_for_enchant`]).
 
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{SkillBook, SkillEnchants};
 use crate::network::server_packets;
@@ -133,9 +134,7 @@ pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u3
         &route_starts,
         max_enchant,
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// `RequestExEnchantSkillInfoDetail` (ex 0x43: `d type, d skillId, h level,
@@ -165,9 +164,7 @@ pub(crate) fn handle_request_enchant_skill_info_detail(
     let pkt = crate::network::enter_world::ex_enchant_skill_info_detail(
         ty, skill_id, level, sub, sp, chance, &items,
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// The player's known (level, sub) for a skill id.

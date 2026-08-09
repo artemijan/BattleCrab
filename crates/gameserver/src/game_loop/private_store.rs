@@ -11,6 +11,7 @@
 
 use super::helpers::{adena, player_of, send_sm_bare_to_client as send_sm};
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
@@ -86,9 +87,7 @@ fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
         .collect();
     let in_store = store_lines(world, owner);
     let packet = sp::manage_list_sell(owner, adena(world, owner), &sellable, &in_store, packaged);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `SetPrivateStoreListSell` (0x31): activate the store with the given
@@ -134,12 +133,14 @@ pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
     // length against `getPrivateSellStoreLimit()`, refused with SM 1036
     // before any validation, as in Java.
     if pkt.items.len() > store_slot_limit(world, owner, true) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::system_message_with(
+        send_to_client(
+            world,
+            client_id,
+            sp::system_message_with(
                 sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
                 &[],
-            ));
-        }
+            ),
+        );
         return;
     }
     // Java `Item.addToTradeList`'s `(MAX_ADENA / count) < price` per-line
@@ -248,9 +249,7 @@ pub(crate) fn open_buyer_view(world: &mut World, client_id: u32, buyer: i32, sel
         .is_some_and(|s| s.packaged);
     let lines = store_lines(world, seller);
     let packet = sp::list_sell(seller, adena(world, buyer), &lines, packaged);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `RequestPrivateStoreBuy` (0x83): a customer buys items from `seller`'s store —
@@ -289,9 +288,7 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
                 "[RequestPrivateStoreBuy] player {buyer} tried to buy less items than sold by package-sell, ban this player for bot usage!"
             ),
         );
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::action_failed());
-        }
+        send_to_client(world, client_id, sp::action_failed());
         return;
     }
     // Match each requested line against the live store + verify the seller still
@@ -327,12 +324,11 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
         buys.push((*obj_id, line.item_id, n, line.enchant));
     }
     if buys.is_empty() || adena(world, buyer) < total {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::system_message_with(
-                sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
-                &[],
-            ));
-        }
+        send_to_client(
+            world,
+            client_id,
+            sp::system_message_with(sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]),
+        );
         return;
     }
     // Move the items seller → buyer.
@@ -552,9 +548,7 @@ fn send_manage_buy_window(world: &mut World, client_id: u32) {
         let wanted = wanted_lines(world, owner);
         sp::manage_list_buy(owner, adena(world, owner), &inventory, &wanted)
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `SetPrivateStoreListBuy` (0x9A): open the store for business. Java's gates,
@@ -734,9 +728,11 @@ pub(crate) fn handle_set_whole_msg(world: &mut World, client_id: u32, body: &[u8
             },
         );
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::ex_private_store_whole_msg(owner, &title));
-    }
+    send_to_client(
+        world,
+        client_id,
+        sp::ex_private_store_whole_msg(owner, &title),
+    );
 }
 
 /// A customer clicked a buy-store owner: show them what is wanted. Java sends
@@ -765,9 +761,7 @@ pub(crate) fn open_seller_view(world: &mut World, client_id: u32, viewer: i32, o
         })
         .collect::<Vec<_>>();
     let packet = sp::list_buy(owner, adena(world, viewer), &lines);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    send_to_client(world, client_id, packet);
 }
 
 /// `RequestPrivateStoreSell` (0x9F): the customer hands items over and takes
@@ -1047,10 +1041,9 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
 }
 
 fn send_cannot_open_here(world: &World, client_id: u32) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(sp::system_message_with(
-            sp::sm_ids::YOU_CANNOT_OPEN_A_PRIVATE_STORE_HERE,
-            &[],
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        sp::system_message_with(sp::sm_ids::YOU_CANNOT_OPEN_A_PRIVATE_STORE_HERE, &[]),
+    );
 }

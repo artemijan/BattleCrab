@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::stat_add;
 
 /// Port of `Creature.doAutoAttack` + `generateAttackTargetData`/`generateHit`
@@ -498,17 +499,21 @@ pub(crate) fn handle_attack_hit(
                 .expect("player")
                 .name
                 .clone();
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                server_packets::system_message_with(
                     sm_ids::C1_S_ATTACK_WENT_ASTRAY,
                     &[SmParam::PlayerName(name)],
-                ));
-            }
+                ),
+            );
         }
         if let Some(client_id) = client_for_player(world, target) {
             let attacker_name = attacker_display_name(world, attacker);
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                server_packets::system_message_with(
                     sm_ids::C1_HAS_EVADED_C2_S_ATTACK,
                     &[
                         SmParam::PlayerName(
@@ -521,8 +526,8 @@ pub(crate) fn handle_attack_hit(
                         ),
                         attacker_name,
                     ],
-                ));
-            }
+                ),
+            );
             refresh_attack_stance(world, target);
         }
         return;

@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::send_to_client;
 
 use crate::model::clan::{
     CL_REGISTER_CREST, CREST_TYPE_ALLY, CREST_TYPE_PLEDGE, CREST_TYPE_PLEDGE_LARGE, Crest,
@@ -145,9 +146,11 @@ pub(crate) fn handle_request_pledge_crest(world: &World, client_id: u32, body: &
     let mut r = PacketReader::new(body);
     let Some(crest_id) = r.read_i32() else { return };
     let data = world.crests.get(&crest_id).map(|c| c.data.as_slice());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::pledge_crest(crest_id, data));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::pledge_crest(crest_id, data),
+    );
 }
 
 /// `RequestExSetPledgeCrestLarge` (ex 0x11): the large (≤2176-byte) crest,
@@ -385,9 +388,7 @@ pub(crate) fn handle_request_ally_crest(world: &World, client_id: u32, body: &[u
     let mut r = PacketReader::new(body);
     let Some(crest_id) = r.read_i32() else { return };
     let data = world.crests.get(&crest_id).map(|c| c.data.as_slice());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ally_crest(crest_id, data));
-    }
+    send_to_client(world, client_id, server_packets::ally_crest(crest_id, data));
 }
 
 // --- G18 slice 8: recruitment registry (ClanEntryManager) ------------------

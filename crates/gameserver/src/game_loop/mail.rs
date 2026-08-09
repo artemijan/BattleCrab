@@ -7,6 +7,7 @@
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
 pub(crate) use super::helpers::{send_sm_to_player as send_sm, send_to_player as send};
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{Trade, ZoneFlags};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -588,9 +589,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     // creates a new object id, which an InventoryUpdate cannot express.
     if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
         let packet = crate::network::enter_world::item_list(inv, &world.data, false);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(packet);
-        }
+        send_to_client(world, client_id, packet);
     }
 
     send(world, player, server_packets::ex_notice_post_sent(true));

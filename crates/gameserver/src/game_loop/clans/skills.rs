@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 
 /// The clan's member object-ids that are currently online (leader included).
@@ -212,9 +213,7 @@ pub(crate) fn apply_clan_skills_to_member(world: &mut World, clan_id: i32, membe
     // The clan window's skill tab (Java sends `PledgeSkillList` on enter-world).
     if let Some(cid) = client_for_player(world, member_oid) {
         let pkt = server_packets::pledge_skill_list(&clan_skill_pairs(world, clan_id));
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(pkt);
-        }
+        send_to_client(world, cid, pkt);
     }
 }
 

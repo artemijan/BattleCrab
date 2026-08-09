@@ -18,6 +18,7 @@ use crate::db::DbCommand;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{AdvancedHeadquarter, Position};
 use crate::model::door::Door;
@@ -1683,12 +1684,14 @@ fn send_register_outcome(world: &World, client_id: u32, castle_id: i32, outcome:
         // `sm.addCastleId(residenceId)` — the client resolves the castle's name
         // from the id, so this needs the parameterised writer.
         RegistrationOver => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::server_packets::system_message_with(
+            send_to_client(
+                world,
+                client_id,
+                crate::network::server_packets::system_message_with(
                     sm_ids::THE_DEADLINE_TO_REGISTER_FOR_THE_SIEGE_OF_S1_HAS_PASSED,
                     &[commons::system_messages::SmParam::CastleName(castle_id)],
-                ));
-            }
+                ),
+            );
         }
         // Java: `player.sendMessage("You cannot register as a defender because
         // " + castle.getName() + " is owned by NPC.")` — a plain line, not a
@@ -1854,9 +1857,7 @@ pub(crate) fn send_siege_info(
         siege_date_secs,
         &hour_options,
     );
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// A clan's role in a castle's siege, if registered.
@@ -2039,9 +2040,7 @@ fn send_defender_list(world: &World, client_id: u32, castle_id: i32, now_millis:
 
     let valid_registration = owner_id != 0 && is_registration_over(world, castle_id, now_millis);
     let pkt = server_packets::siege_defender_list(castle_id, valid_registration, &entries);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// Java `RequestSiegeAttackerList` (client 0xAB): send the castle's registered
@@ -2067,9 +2066,7 @@ pub(crate) fn handle_request_siege_attacker_list(world: &mut World, client_id: u
         }
     }
     let pkt = server_packets::siege_attacker_list(castle_id, &entries);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(pkt);
-    }
+    send_to_client(world, client_id, pkt);
 }
 
 /// Java `RequestSiegeDefenderList` (client 0xAC): send the castle's owner +

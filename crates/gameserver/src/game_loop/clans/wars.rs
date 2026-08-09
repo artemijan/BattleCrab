@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::send_to_client;
 
 use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 
@@ -111,12 +112,11 @@ fn war_list_rows(world: &World, clan_id: i32) -> Vec<(String, i32, i32, i32, i32
 }
 
 fn send_war_list(world: &World, client_id: u32, clan_id: i32, tab: i32) {
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::pledge_receive_war_list(
-            tab,
-            &war_list_rows(world, clan_id),
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::pledge_receive_war_list(tab, &war_list_rows(world, clan_id)),
+    );
 }
 
 /// `RequestPledgeWarList` (ex 0x17).
@@ -483,12 +483,11 @@ pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: 
     // `ClanWar.cancel(player, cancelor)`.
     add_clan_reputation(world, clan_id, -500);
     let clan_name = clan_name_or_empty(world, clan_id);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::surrender_pledge_war(
-            &clan_name,
-            &player_name,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::surrender_pledge_war(&clan_name, &player_name),
+    );
     let lost = server_packets::system_message_with(
         sm_ids::THE_WAR_ENDED_BY_YOUR_DEFEAT_DECLARATION_WITH_THE_S1_CLAN,
         &[SmParam::Text(target_name)],

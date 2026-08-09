@@ -4,6 +4,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_to_client;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
@@ -186,9 +187,7 @@ pub(crate) fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, am
                 &[SmParam::Int(restored as i32)],
             )
         };
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(pkt);
-        }
+        send_to_client(world, cid, pkt);
     }
 }
 

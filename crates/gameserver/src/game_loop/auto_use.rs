@@ -15,6 +15,7 @@
 //! dead entries.
 
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, AutoUseSettings, SkillBook, Vitals, ZoneFlags};
 use crate::model::inventory::Inventory;
@@ -274,9 +275,11 @@ fn send_page(world: &World, client_id: u32, player_oid: i32, command: &str) {
     ))
     .unwrap_or_else(|| "<html><body>%list%</body></html>".to_string())
     .replace("%list%", &rows);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::npc_html_message(0, &html));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::npc_html_message(0, &html),
+    );
 }
 
 fn skill_rows(world: &World, player_oid: i32) -> String {

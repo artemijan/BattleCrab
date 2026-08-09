@@ -3,6 +3,7 @@
 //! per player; items stay in the owner's inventory until the swap.
 
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use commons::network::PacketReader;
 
 use super::helpers::{player_of, send_to_player as send};
@@ -35,9 +36,7 @@ pub(crate) fn handle_request(world: &mut World, client_id: u32, body: &[u8]) {
         || busy(world, target)
         || busy(world, from)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::action_failed());
-        }
+        send_to_client(world, client_id, sp::action_failed());
         return;
     }
     // Java `TradeRequest`: a `BOT_PENALTY` buff whose `BlockAction` list holds
@@ -54,9 +53,7 @@ pub(crate) fn handle_request(world: &mut World, client_id: u32, body: &[u8]) {
             sp::sm_ids::REPORTED_SO_YOUR_ACTIONS_ARE_RESTRICTED,
             &[],
         );
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::action_failed());
-        }
+        send_to_client(world, client_id, sp::action_failed());
         return;
     }
     // `//tradeoff`: the partner refuses all trades (Java `getTradeRefusal`).

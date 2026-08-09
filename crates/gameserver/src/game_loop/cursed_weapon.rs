@@ -15,6 +15,7 @@
 //! `activate` gives the new wielder.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
@@ -326,9 +327,7 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
     if let Some(cid) = super::helpers::client_for_player(world, victim_oid) {
         if let Some(inv) = world.objects.get_component::<Inventory>(&victim_oid) {
             let list = crate::network::enter_world::item_list(inv, &world.data, false);
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(list);
-            }
+            send_to_client(world, cid, list);
         }
         // The bag list alone leaves the *model* holding the sword: the client
         // reads its own paperdoll from `ExUserInfoEquipSlot`, which Java emits
@@ -426,12 +425,14 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
 
     // "$s1 has $s2 minute(s) of usage time remaining." to the wielder alone.
     let minutes = (world.cursed_weapons[idx].time_left(now_millis()) / MILLIS_PER_MINUTE) as i32;
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::system_message_with(
             sm_ids::S1_HAS_S2_MINUTE_S_OF_USAGE_TIME_REMAINING,
             &[SmParam::ItemName(item_id), SmParam::Int(minutes)],
-        ));
-    }
+        ),
+    );
 }
 
 /// `CursedWeapon.doTransform` — Zariche (8190) becomes transform 301, Akamanah
@@ -641,9 +642,11 @@ pub(crate) fn handle_expiry(world: &mut World, item_id: i32) {
 /// id the server knows, live or not (Java sends `getCursedWeaponsIds()`).
 pub(crate) fn handle_request_list(world: &World, client_id: u32) {
     let ids: Vec<i32> = world.cursed_weapons.iter().map(|cw| cw.item_id).collect();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::ex_cursed_weapon_list(&ids));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::ex_cursed_weapon_list(&ids),
+    );
 }
 
 /// `RequestCursedWeaponLocation` → `ExCursedWeaponLocation`: where each *live*
@@ -673,9 +676,9 @@ pub(crate) fn handle_request_location(world: &World, client_id: u32) {
     if entries.is_empty() {
         return;
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::ex_cursed_weapon_location(
-            &entries,
-        ));
-    }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::ex_cursed_weapon_location(&entries),
+    );
 }

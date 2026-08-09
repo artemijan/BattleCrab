@@ -511,6 +511,20 @@ pub(crate) fn ms_to_ticks(ms: i32) -> u64 {
     (ms.max(0) as u64).div_ceil(100)
 }
 
+/// Java `client.sendPacket(ActionFailed.STATIC_PACKET)` — the bare "I am not
+/// doing that" reply, and the single most-sent packet in the port.
+///
+/// It is not optional politeness: the client arms a local "request in flight"
+/// lock the moment it sends an action, and only a reply releases it. A handler
+/// that returns without one leaves the player unable to click anything until
+/// the next server packet happens to arrive. Every early return in a request
+/// handler owes the client one of these.
+///
+/// [`send_sm_and_action_failed`] is the variant that explains *why* first.
+pub(crate) fn send_action_failed(world: &World, client_id: u32) {
+    send_to_client(world, client_id, server_packets::action_failed());
+}
+
 /// Send a `SystemMessage` + `ActionFailed` to one client — the standard
 /// "request rejected" reply shape all over `Player.useMagic` /
 /// `SkillCaster.checkUseConditions`.

@@ -4,6 +4,7 @@
 use crate::data::GameData;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{BaseStats, PlayerVitals, StatModifiers, Vitals};
 use crate::model::stats::{BaseStat, MoveType, Stat};
@@ -90,9 +91,11 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         ) else {
             continue;
         };
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::status_update(object_id, &updates));
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::status_update(object_id, &updates),
+        );
         super::party::notify_party_vitals(world, object_id);
     }
 }
