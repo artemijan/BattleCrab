@@ -243,7 +243,27 @@ fn register_cube(world: &mut World, cube: i32) {
     t.type_name = "Folk".into();
     world.data.npc_data.insert_for_test(t);
 }
+fn insert_positions_for(world: &mut World, npc_id: i32) -> Vec<(i32, i32, i32)> {
+    let mut out = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(n, p)| {
+            if n.npc_id == npc_id {
+                out.push((p.x, p.y, p.z));
+            }
+        });
+    out
+}
 
+fn find_npc_object_id(world: &mut World, npc_id: i32) -> Option<i32> {
+    let mut f = None;
+    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+        if n.npc_id == npc_id {
+            f = Some(n.object_id);
+        }
+    });
+    f
+}
 fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
 }

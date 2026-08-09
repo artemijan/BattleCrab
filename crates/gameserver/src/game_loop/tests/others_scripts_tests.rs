@@ -131,20 +131,6 @@ fn multisell_bypass_refuses_a_foreign_npc() {
     );
 }
 
-// --- The Mammons -----------------------------------------------------------
-
-fn mammon_positions(world: &mut World, npc_id: i32) -> Vec<(i32, i32, i32)> {
-    let mut out = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(n, p)| {
-            if n.npc_id == npc_id {
-                out.push((p.x, p.y, p.z));
-            }
-        });
-    out
-}
-
 fn register_mammon_templates(world: &mut World) {
     for npc_id in [MERCHANT_OF_MAMMON, BLACKSMITH_OF_MAMMON, PRIEST_OF_MAMMON] {
         let mut t = crate::data::npc_data::default_template(npc_id);
@@ -163,7 +149,7 @@ fn mammons_spawn_at_boot_and_relocate_without_duplicating() {
     area_npcs::spawn_at_boot(&mut world);
     for npc_id in [MERCHANT_OF_MAMMON, BLACKSMITH_OF_MAMMON, PRIEST_OF_MAMMON] {
         assert_eq!(
-            mammon_positions(&mut world, npc_id).len(),
+            insert_positions_for(&mut world, npc_id).len(),
             1,
             "exactly one {npc_id} after boot"
         );
@@ -172,7 +158,7 @@ fn mammons_spawn_at_boot_and_relocate_without_duplicating() {
     for _ in 0..5 {
         area_npcs::relocate_mammon(&mut world, MERCHANT_OF_MAMMON);
         assert_eq!(
-            mammon_positions(&mut world, MERCHANT_OF_MAMMON).len(),
+            insert_positions_for(&mut world, MERCHANT_OF_MAMMON).len(),
             1,
             "relocation never duplicates the Merchant"
         );
@@ -200,7 +186,7 @@ fn relocating_the_priest_leaves_static_spawns_alone() {
 
     area_npcs::spawn_at_boot(&mut world);
     assert_eq!(
-        mammon_positions(&mut world, PRIEST_OF_MAMMON).len(),
+        insert_positions_for(&mut world, PRIEST_OF_MAMMON).len(),
         2,
         "the static Priest plus the script's own"
     );
@@ -208,7 +194,7 @@ fn relocating_the_priest_leaves_static_spawns_alone() {
     for _ in 0..3 {
         area_npcs::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
         assert_eq!(
-            mammon_positions(&mut world, PRIEST_OF_MAMMON).len(),
+            insert_positions_for(&mut world, PRIEST_OF_MAMMON).len(),
             2,
             "still the static Priest plus exactly one script copy"
         );

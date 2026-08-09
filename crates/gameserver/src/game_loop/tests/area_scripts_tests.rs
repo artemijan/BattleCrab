@@ -11,18 +11,6 @@ const TOMA_LOCS: [(i32, i32, i32); 3] = [
     (178834, -184336, -355),
 ];
 
-fn toma_positions(world: &mut World) -> Vec<(i32, i32, i32)> {
-    let mut out = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(n, p)| {
-            if n.npc_id == TOMA {
-                out.push((p.x, p.y, p.z));
-            }
-        });
-    out
-}
-
 /// Toma is script-owned (not in the spawn data): boot places exactly one at
 /// one of his three haunts, and the 30-minute beat moves him — never
 /// duplicates him.
@@ -34,14 +22,14 @@ fn toma_spawns_at_boot_and_relocates_without_duplicating() {
     world.data.npc_data.insert_for_test(t);
 
     area_npcs::spawn_at_boot(&mut world);
-    let at_boot = toma_positions(&mut world);
+    let at_boot = insert_positions_for(&mut world, TOMA);
     assert_eq!(at_boot.len(), 1, "exactly one Toma after boot");
     assert!(TOMA_LOCS.contains(&at_boot[0]), "on a known haunt");
 
     // The beat fires (directly — the scheduled path is the same fn).
     for _ in 0..5 {
         area_npcs::relocate_toma(&mut world);
-        let now = toma_positions(&mut world);
+        let now = insert_positions_for(&mut world, TOMA);
         assert_eq!(now.len(), 1, "relocation never duplicates him");
         assert!(TOMA_LOCS.contains(&now[0]));
     }
@@ -371,15 +359,7 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
 
     // Night again, but this time he is fighting at daybreak.
     area_npcs::eilhalder_on_day_night_change(&mut world, true);
-    let oid = {
-        let mut found = None;
-        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
-            if n.npc_id == EILHALDER {
-                found = Some(n.object_id);
-            }
-        });
-        found.unwrap()
-    };
+    let oid = find_npc_object_id(&mut world, EILHALDER).unwrap();
     let mut aggro = crate::model::npc::AggroList::default();
     aggro.0.insert(
         5001,

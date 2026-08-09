@@ -68,16 +68,6 @@ fn hp(world: &World, oid: i32) -> f64 {
     world.objects.get_component::<Vitals>(&oid).unwrap().cur_hp
 }
 
-fn find(world: &mut World, npc_id: i32) -> Option<i32> {
-    let mut f = None;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
-        if n.npc_id == npc_id {
-            f = Some(n.object_id);
-        }
-    });
-    f
-}
-
 /// The Queen brings out her larva when she spawns — it is script-spawned, not
 /// a minion, so nothing else would place it.
 #[test]
@@ -86,7 +76,10 @@ fn the_queen_spawns_her_larva() {
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
 
     crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
-    assert!(find(&mut world, LARVA).is_some(), "the larva is out");
+    assert!(
+        find_npc_object_id(&mut world, LARVA).is_some(),
+        "the larva is out"
+    );
 }
 
 /// Regression: the Queen must bring her **escort** — Java `spawnMinions
@@ -135,7 +128,7 @@ fn the_queen_spawns_her_nurses_and_royal_guards() {
     assert_eq!(count(&mut world, ROYAL_GUARD), 8, "eight royal guards");
 
     // The nurses are the Queen's minions, so the heal rotation finds them.
-    let a_nurse = find(&mut world, NURSE).unwrap();
+    let a_nurse = find_npc_object_id(&mut world, NURSE).unwrap();
     assert_eq!(
         world
             .objects
@@ -170,13 +163,13 @@ fn the_larva_takes_priority_over_the_queen() {
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
     spawn_nurse(&mut world, QUEEN_OID + 1, QUEEN_OID);
-    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
-    let larva = find(&mut world, LARVA).unwrap();
+    queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    let larva = find_npc_object_id(&mut world, LARVA).unwrap();
 
     let queen_before = wound_to_half(&mut world, QUEEN_OID);
     let larva_before = wound_to_half(&mut world, larva);
 
-    crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
+    queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -192,8 +185,8 @@ fn killing_the_larva_frees_the_nurses_for_the_queen() {
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
     spawn_nurse(&mut world, QUEEN_OID + 1, QUEEN_OID);
-    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
-    let larva = find(&mut world, LARVA).unwrap();
+    queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    let larva = find_npc_object_id(&mut world, LARVA).unwrap();
 
     let wounded = wound_to_half(&mut world, QUEEN_OID);
     world
@@ -202,7 +195,7 @@ fn killing_the_larva_frees_the_nurses_for_the_queen() {
         .unwrap()
         .dead = true;
 
-    crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
+    queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -241,8 +234,8 @@ fn a_nurse_of_another_master_does_not_heal_this_queen() {
 fn the_larva_is_immobilized_and_undying() {
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
-    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
-    let larva = find(&mut world, LARVA).unwrap();
+    queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    let larva = find_npc_object_id(&mut world, LARVA).unwrap();
     let flags = world
         .objects
         .get_component::<crate::model::components::AdminFlags>(&larva)
@@ -256,15 +249,15 @@ fn the_larva_is_immobilized_and_undying() {
 fn the_larva_is_removed_when_the_queen_dies() {
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
-    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
     assert!(
-        find(&mut world, LARVA).is_some(),
+        find_npc_object_id(&mut world, LARVA).is_some(),
         "larva out during the fight"
     );
 
-    crate::game_loop::queen_ant::on_queen_killed(&mut world);
+    queen_ant::on_queen_killed(&mut world);
     assert!(
-        find(&mut world, LARVA).is_none(),
+        find_npc_object_id(&mut world, LARVA).is_none(),
         "the larva fell with its mistress"
     );
 }
