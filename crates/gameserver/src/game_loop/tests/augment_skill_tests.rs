@@ -559,11 +559,7 @@ fn a_multisell_consuming_a_worn_ingredient_takes_its_option_back() {
         },
     );
 
-    crate::game_loop::multisell::handle_multi_sell_choose(
-        &mut world,
-        CID,
-        &multisell_choose_body(LIST_ID, 1, 1),
-    );
+    multisell::handle_multi_sell_choose(&mut world, CID, &multisell_choose_body(LIST_ID, 1, 1));
 
     assert!(
         world
@@ -573,24 +569,8 @@ fn a_multisell_consuming_a_worn_ingredient_takes_its_option_back() {
         "the worn ingredient was consumed"
     );
     assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        known_skill_level(&world, PLAYER, ACTIVE),
         None,
         "and its option went with it"
     );
-}
-
-/// `MultiSellChoose` body — list id, entry id, amount, then the tail the
-/// server ignores.
-fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_i32(list_id);
-    w.write_i32(entry_id);
-    w.write_i64(amount);
-    w.write_i16(0);
-    w.write_i32(0);
-    w.write_i32(0);
-    for _ in 0..8 {
-        w.write_i16(0);
-    }
-    w.into_bytes()
 }

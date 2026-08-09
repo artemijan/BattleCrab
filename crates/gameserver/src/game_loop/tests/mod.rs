@@ -264,6 +264,22 @@ fn find_npc_object_id(world: &mut World, npc_id: i32) -> Option<i32> {
     });
     f
 }
+/// `MultiSellChoose` body — list id, entry id, amount, then the tail the
+/// server ignores.
+fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(entry_id);
+    w.write_i64(amount);
+    w.write_i16(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    for _ in 0..8 {
+        w.write_i16(0);
+    }
+    w.into_bytes()
+}
+
 fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
 }

@@ -319,20 +319,6 @@ fn insert_taxed_multisell(world: &mut World, list_id: i32, adena_cost: i64, appl
     });
 }
 
-fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_i32(list_id);
-    w.write_i32(entry_id);
-    w.write_i64(amount);
-    w.write_i16(0); // enchant level
-    w.write_i32(0); // augment 1
-    w.write_i32(0); // augment 2
-    for _ in 0..8 {
-        w.write_i16(0); // attack element + six defences
-    }
-    w.into_bytes()
-}
-
 /// **A taxed multisell charges the castle's cut on its adena ingredient and
 /// pays it into the vault.** Java rounds here (`Math.round`) instead of
 /// truncating like the shop, so 100 adena at Gludio's neutral 15 % costs
@@ -348,7 +334,7 @@ fn a_taxed_multisell_feeds_the_treasury() {
     insert_tax_zone(&mut world, GLUDIO);
     insert_taxed_multisell(&mut world, 9001, 100, true);
 
-    crate::game_loop::multisell::separate_and_send(&mut world, 1, 3001, Some(NPC_OID), 9001, false);
+    multisell::separate_and_send(&mut world, 1, 3001, Some(NPC_OID), 9001, false);
     assert_eq!(
         world
             .objects

@@ -668,22 +668,6 @@ fn load_real_multisell_data(world: &mut World) {
     world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data);
 }
 
-/// Build a `MultiSellChoose` body (list id, entry id, amount + the ignored
-/// enchant/augment/elemental tail).
-fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_i32(list_id);
-    w.write_i32(entry_id);
-    w.write_i64(amount);
-    w.write_i16(0); // enchant level
-    w.write_i32(0); // augment 1
-    w.write_i32(0); // augment 2
-    for _ in 0..8 {
-        w.write_i16(0); // attack element + six defences
-    }
-    w.into_bytes()
-}
-
 #[test]
 fn merchant_multisell_opens_the_exchange_window() {
     let (mut world, ..) = test_world();
