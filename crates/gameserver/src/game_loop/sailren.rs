@@ -14,7 +14,7 @@
 //! time-out/decay and the respawn lock remain a later slice.
 //!
 //! [`SailrenWaveMob`]: crate::model::components::SailrenWaveMob
-
+use crate::game_loop::common::near_leader;
 use crate::model::components::{AdminFlags, Immobilized, SailrenWaveMob, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -32,8 +32,6 @@ const GAZKH: i32 = 8784;
 
 /// Where the admitted party lands (Java `teleToLocation(27549, -6638, -2008)`).
 const ENTER_LOC: (i32, i32, i32) = (27549, -6638, -2008);
-/// Gather range for the leader's party (Java `isInsideRadius3D(npc, 1000)`).
-const GATHER_RANGE: f64 = 1000.0;
 /// Java delays the first wave 60 s after the party enters.
 const FIRST_WAVE_MS: u64 = 60_000;
 
@@ -110,13 +108,6 @@ fn fight_active(world: &mut World) -> bool {
             }
         });
     active
-}
-
-fn near_leader(world: &World, leader: i32, member: i32) -> bool {
-    if leader == member {
-        return true;
-    }
-    crate::geo::distance::within_2d(world, leader, member, GATHER_RANGE)
 }
 
 fn gazkh_count(world: &World, oid: i32) -> i64 {

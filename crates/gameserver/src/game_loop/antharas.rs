@@ -9,6 +9,7 @@
 //! walk with its `BOMBER`/invisible-NPC decorations, and the `onSpellFinished`
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
+use crate::game_loop::common::near_leader;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::set_position;
@@ -333,8 +334,6 @@ fn broadcast_to_lair(world: &World, pkt: &[u8]) {
 const MAX_PEOPLE: usize = 200;
 /// `STONE` — Portal Stone, the entry ticket.
 pub const PORTAL_STONE: i32 = 3865;
-/// Members must be within this of the Heart to be brought along.
-const GATHER_RANGE: f64 = 1000.0;
 /// `antaras_no_restart` (`no_restart.xml`) — Java's `getZoneById(70050,
 /// NoRestartZone.class)`, the "Antharas Nest" the script broadcasts to and
 /// counts occupancy against. (The old `12016` was a Talking Island script zone;
@@ -438,13 +437,6 @@ fn has_stone(world: &World, oid: i32) -> bool {
         .objects
         .get_component::<crate::model::inventory::Inventory>(&oid)
         .is_some_and(|inv| inv.count_of(PORTAL_STONE) > 0)
-}
-
-fn near_leader(world: &World, leader: i32, member: i32) -> bool {
-    if leader == member {
-        return true;
-    }
-    crate::geo::distance::within_2d(world, leader, member, GATHER_RANGE)
 }
 
 fn players_in_lair(world: &World) -> usize {
