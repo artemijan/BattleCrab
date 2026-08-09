@@ -8,8 +8,9 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
-use crate::model::components::{AutoPlaySettings, GroundItem, Position, Vitals};
+use crate::model::components::{AutoPlaySettings, GroundItem, Position};
 use crate::world::World;
 
 use super::helpers::client_for_player;
@@ -398,11 +399,7 @@ fn mode_allows(world: &World, player_oid: i32, other: i32, mode: i32) -> bool {
     else {
         return false;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&other)
-        .is_some_and(|v| v.dead)
-    {
+    if is_dead(world, other) {
         return false;
     }
     let Some(t) = world.data.npc_data.get(npc.npc_id) else {
@@ -428,11 +425,7 @@ fn is_busy_with_someone_else(world: &World, other: i32, player_oid: i32) -> bool
 }
 
 fn target_still_valid(world: &World, player_oid: i32, target: i32, mode: i32) -> bool {
-    if world
-        .objects
-        .get_component::<Vitals>(&target)
-        .is_some_and(|v| v.dead)
-    {
+    if is_dead(world, target) {
         return false;
     }
     mode_allows(world, player_oid, target, mode)

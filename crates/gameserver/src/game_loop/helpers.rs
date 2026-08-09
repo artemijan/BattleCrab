@@ -514,7 +514,7 @@ pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[
 /// click. No-op while still busy (casting or mid-swing) or dead — the slot
 /// stays for the later stop.
 pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
-    use crate::model::components::{AttackState, Casting, QueuedAction, Vitals};
+    use crate::model::components::{AttackState, Casting, QueuedAction};
     let Some(&action) = world.objects.get_component::<QueuedAction>(&object_id) else {
         return;
     };
@@ -523,10 +523,7 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
             .objects
             .get_component::<AttackState>(&object_id)
             .is_some_and(|st| st.attack_end_tick > world.tick)
-        || world
-            .objects
-            .get_component::<Vitals>(&object_id)
-            .is_some_and(|v| v.dead)
+        || is_dead(world, object_id)
     {
         return;
     }

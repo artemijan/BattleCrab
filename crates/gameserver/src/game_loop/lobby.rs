@@ -2,6 +2,7 @@
 //! (character list, name check, create/delete/restore/select).
 
 use crate::game_loop::clans::clan_name_or_empty;
+use crate::game_loop::helpers::is_dead;
 use tracing::info;
 
 use crate::db::{self, NewCharacter};
@@ -769,10 +770,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.
-    if world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_some_and(|v| v.dead)
+    if is_dead(world, object_id)
         && let Some(cs) = world.clients.get(&client_id)
     {
         // Java re-sends the same `Die` the death itself built, so a character

@@ -2,11 +2,11 @@
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::geo::worker::{PathEvent, PathRequest};
 use crate::model::Player;
 use crate::model::components::{
     AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds,
-    Vitals,
 };
 use crate::model::movement::GeoPath;
 use crate::network::client_packets as cp;
@@ -113,11 +113,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         return;
     }
     // Dead players can't move at all (`isMovementDisabled`).
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_some_and(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -543,10 +539,7 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     };
 
     // Move gates re-checked after the round-trip (same set as the click).
-    let is_dead = world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_some_and(|v| v.dead);
+    let is_dead = is_dead(world, object_id);
     if world.objects.has_component::<Casting>(&object_id) || is_dead {
         if is_player && let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());

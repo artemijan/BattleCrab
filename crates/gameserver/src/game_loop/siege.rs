@@ -17,6 +17,7 @@
 use crate::db::DbCommand;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
 use crate::model::components::{AdvancedHeadquarter, Position};
 use crate::model::door::Door;
@@ -153,10 +154,7 @@ pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
         world.siege_fame_armed.remove(&player_oid);
         return;
     }
-    let dead = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&player_oid)
-        .is_some_and(|v| v.dead);
+    let dead = is_dead(world, player_oid);
     let detached = crate::game_loop::helpers::client_for_player(world, player_oid).is_none();
     let paid = !(dead && !world.cfg.character.fame_for_dead_players)
         && !(detached && !world.cfg.offline_trade.fame);

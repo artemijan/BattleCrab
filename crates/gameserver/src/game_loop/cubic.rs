@@ -84,11 +84,7 @@ pub(crate) fn summon_cubic(world: &mut World, owner_oid: i32, cubic_id: i32, cub
     {
         return;
     }
-    if world
-        .objects
-        .get_component::<Vitals>(&owner_oid)
-        .is_some_and(|v| v.dead)
-    {
+    if is_dead(world, owner_oid) {
         return;
     }
     let Some(template) = world.data.cubic_data.get(cubic_id, cubic_level).cloned() else {

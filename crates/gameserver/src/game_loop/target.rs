@@ -4,6 +4,7 @@
 
 use crate::data::htm_cache::read_htm;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -678,10 +679,7 @@ pub(crate) fn interact_with_npc(
     if t.is_auto_attackable()
         || super::siege::attackable_siege_guard(world, npc_object_id, object_id)
     {
-        let dead = world
-            .objects
-            .get_component::<Vitals>(&object_id)
-            .is_some_and(|v| v.dead);
+        let dead = is_dead(world, object_id);
         if !dead {
             // No dontMove for melee: Java's `onAction` path has no shift
             // to carry (case 1 goes to `onActionShift`), and `AttackRequest`

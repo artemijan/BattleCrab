@@ -10,6 +10,7 @@
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
@@ -229,10 +230,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
         (Some(b), Some(o)) => b.distance_2d(o) > MAX_DISTANCE_FROM_OWNER,
         _ => true,
     };
-    let owner_dead = world
-        .objects
-        .get_component::<Vitals>(&owner)
-        .is_some_and(|v| v.dead);
+    let owner_dead = is_dead(world, owner);
     let beast_casting = world
         .objects
         .has_component::<crate::model::components::Casting>(&beast_oid);

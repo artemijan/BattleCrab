@@ -5,6 +5,7 @@
 //! Out of scope (PLAN_G10_SOCIAL.md): command channels, matching rooms,
 //! tactical signs, pets/servitors, duels, block list.
 
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
 use crate::model::components::{
     PartyRef, PendingRequest, PlayerVitals, Position, RequestKind, Vitals,
@@ -321,11 +322,7 @@ pub(crate) fn char_info_state(world: &World, object_id: i32) -> server_packets::
         in_combat: super::combat::has_attack_stance(world, object_id),
         // Java gates the byte on `!isInOlympiadMode()` so a downed Olympiad
         // fighter keeps standing until the match ends.
-        alike_dead: !world.olympiad.is_in_competition(object_id)
-            && world
-                .objects
-                .get_component::<Vitals>(&object_id)
-                .is_some_and(|v| v.dead),
+        alike_dead: !world.olympiad.is_in_competition(object_id) && is_dead(world, object_id),
         cursed_weapon_level: p
             .filter(|p| p.cursed_weapon_equipped_id != 0)
             .and_then(|p| {

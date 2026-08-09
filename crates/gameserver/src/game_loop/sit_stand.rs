@@ -21,6 +21,7 @@
 //! sit-on-arrival `NextAction`, which needs an AI next-action slot.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
 use crate::network::server_packets;
@@ -179,10 +180,7 @@ pub(crate) fn stand_up(world: &mut World, object_id: i32) {
             .objects
             .get_component::<Player>(&object_id)
             .is_some_and(|p| p.store_type != 0)
-        || world
-            .objects
-            .get_component::<crate::model::components::Vitals>(&object_id)
-            .is_some_and(|v| v.dead);
+        || is_dead(world, object_id);
     if refuses {
         return;
     }
