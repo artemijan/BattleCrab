@@ -21,7 +21,7 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
-use super::spawn_data::{Territory, ZoneForm};
+use super::spawn_data::Territory;
 use crate::data::xml::{attr_i32, attr_str};
 
 /// Java `ZoneManager.SHIFT_BY` (15) — zone-grid cells are one map tile, not
@@ -634,7 +634,8 @@ fn parse_file(
             Event::End(e) => {
                 if e.name().as_ref() == b"zone"
                     && let Some(p) = cur.take()
-                    && let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad)
+                    && let Some(form) =
+                        super::spawn_data::build_zone_form(&p.shape, p.xs, p.ys, p.rad)
                 {
                     let effect = (p.kind == ZoneKind::Effect).then_some(EffectZoneParams {
                         skills: p.skills,
@@ -804,28 +805,10 @@ fn parse_file(
     }
 }
 
-/// Same shape-construction rules as `spawn_data::finish_territory`.
-fn build_form(shape: &str, xs: Vec<i32>, ys: Vec<i32>, rad: Option<i32>) -> Option<ZoneForm> {
-    match shape {
-        "Cuboid" if xs.len() >= 2 && ys.len() >= 2 => Some(ZoneForm::Cuboid {
-            x1: xs[0].min(xs[1]),
-            x2: xs[0].max(xs[1]),
-            y1: ys[0].min(ys[1]),
-            y2: ys[0].max(ys[1]),
-        }),
-        "Cylinder" if !xs.is_empty() && !ys.is_empty() => Some(ZoneForm::Cylinder {
-            x: xs[0],
-            y: ys[0],
-            rad: rad.unwrap_or(0),
-        }),
-        _ if xs.len() >= 3 => Some(ZoneForm::NPoly { xs, ys }),
-        _ => None,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::spawn_data::ZoneForm;
 
     #[test]
     fn loads_real_dist_files() {

@@ -93,6 +93,39 @@ pub enum ZoneForm {
     Cylinder { x: i32, y: i32, rad: i32 },
 }
 
+/// Build a [`ZoneForm`] from the raw `<node>` coordinates a datapack zone
+/// element carries — the one rule set shared by `spawns.xml`, `zones/*.xml` and
+/// `mapregion/*.xml`, all three of which describe zones the same way.
+///
+/// `None` for a degenerate shape: a Cuboid or Cylinder missing its points, or a
+/// polygon with fewer than three. Callers drop the territory rather than store
+/// something nothing can be randomized inside.
+///
+/// The Cuboid arm normalizes the corners (`min`/`max`) because the datapack
+/// does not guarantee which corner comes first.
+pub(crate) fn build_zone_form(
+    shape: &str,
+    xs: Vec<i32>,
+    ys: Vec<i32>,
+    rad: Option<i32>,
+) -> Option<ZoneForm> {
+    match shape {
+        "Cuboid" if xs.len() >= 2 && ys.len() >= 2 => Some(ZoneForm::Cuboid {
+            x1: xs[0].min(xs[1]),
+            x2: xs[0].max(xs[1]),
+            y1: ys[0].min(ys[1]),
+            y2: ys[0].max(ys[1]),
+        }),
+        "Cylinder" if !xs.is_empty() && !ys.is_empty() => Some(ZoneForm::Cylinder {
+            x: xs[0],
+            y: ys[0],
+            rad: rad.unwrap_or(0),
+        }),
+        _ if xs.len() >= 3 => Some(ZoneForm::NPoly { xs, ys }),
+        _ => None,
+    }
+}
+
 impl Territory {
     /// Bounding box (`Polygon.getBounds()` / the cuboid / the circle box).
     pub fn bounds(&self) -> (i32, i32, i32, i32) {
@@ -421,20 +454,9 @@ fn finish_territory(
     else {
         return;
     };
-    let form = match shape.as_str() {
-        "Cuboid" if xs.len() >= 2 && ys.len() >= 2 => ZoneForm::Cuboid {
-            x1: xs[0].min(xs[1]),
-            x2: xs[0].max(xs[1]),
-            y1: ys[0].min(ys[1]),
-            y2: ys[0].max(ys[1]),
-        },
-        "Cylinder" if !xs.is_empty() && !ys.is_empty() => ZoneForm::Cylinder {
-            x: xs[0],
-            y: ys[0],
-            rad: rad.unwrap_or(0),
-        },
-        _ if xs.len() >= 3 => ZoneForm::NPoly { xs, ys },
-        _ => return, // degenerate polygon — nothing sane to randomize inside
+    // Degenerate shape — nothing sane to randomize inside, so drop it.
+    let Some(form) = build_zone_form(&shape, xs, ys, rad) else {
+        return;
     };
     let territory = Territory { form, min_z, max_z };
     if in_group {
