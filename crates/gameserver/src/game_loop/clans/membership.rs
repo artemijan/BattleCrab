@@ -600,12 +600,7 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
         send_sm_with(world, player, sm_ids::YOU_CANNOT_DISMISS_YOURSELF, &[]);
         return;
     }
-    let Some(member) = clan
-        .members
-        .iter()
-        .find(|m| m.name.eq_ignore_ascii_case(&target_name))
-        .cloned()
-    else {
+    let Some(member) = clan.member_by_name(&target_name).cloned() else {
         warn!("Oust target ({target_name}) is not a member of clan {clan_id}.");
         return;
     };

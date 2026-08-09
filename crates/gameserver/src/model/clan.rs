@@ -113,6 +113,45 @@ impl Clan {
         self.members.iter().find(|m| m.char_id == char_id)
     }
 
+    /// The roster entry for `name`, matched **case-insensitively** — Java
+    /// `Clan.getClanMember(String)`.
+    ///
+    /// The case-folding is the same rule [`crate::game_loop::clans::by_name`]
+    /// applies to clan names, and for the same reason: every caller is a chat
+    /// command or a pledge-window bypass carrying a name the player typed, and
+    /// an exact match would refuse an ordinary mis-capitalisation as "not in
+    /// the roster".
+    ///
+    /// Keyed by name rather than by [`member`](Self::member)'s char id because
+    /// these packets carry no id — the client sends what is drawn in the list.
+    pub fn member_by_name(&self, name: &str) -> Option<&ClanMember> {
+        self.members
+            .iter()
+            .find(|m| m.name.eq_ignore_ascii_case(name))
+    }
+
+    /// A member eligible to be appointed captain of a sub-unit — Java's
+    /// `CreateSubPledgeLeader` / `AssignSubPledgeLeader` guard.
+    ///
+    /// Three conditions, and all three matter: the name has to resolve, the
+    /// member must sit in the **main** pledge (`pledge_type == 0` — someone
+    /// already in a royal guard or knight order cannot captain another), and
+    /// they must not already captain one. Both appointment paths check exactly
+    /// this, and both answer a failure with the same pair of system messages.
+    pub fn eligible_subunit_captain(&self, name: &str) -> Option<&ClanMember> {
+        self.member_by_name(name)
+            .filter(|m| m.pledge_type == 0)
+            .filter(|m| self.leader_sub_pledge_of(m.char_id) == 0)
+    }
+
+    /// The sub-unit holding `name`, matched case-insensitively like
+    /// [`member_by_name`](Self::member_by_name).
+    pub fn sub_pledge_by_name(&self, name: &str) -> Option<&SubPledge> {
+        self.sub_pledges
+            .values()
+            .find(|sp| sp.name.eq_ignore_ascii_case(name))
+    }
+
     /// The pledge class a member of this clan holds — Java
     /// `ClanMember.calculatePledgeClass`, a direct port of its per-level nested
     /// switch on `player.getPledgeType()` (own sub-unit membership) and

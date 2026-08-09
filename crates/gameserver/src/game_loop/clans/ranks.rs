@@ -398,10 +398,7 @@ fn clan_member_by_name(
 ) -> Option<(i32, crate::model::clan::ClanMember)> {
     let clan_id = crate::game_loop::guard::clan_of(world, player)?;
     let clan = world.clans.get(&clan_id)?;
-    clan.members
-        .iter()
-        .find(|m| m.name.eq_ignore_ascii_case(name))
-        .map(|m| (clan_id, m.clone()))
+    clan.member_by_name(name).map(|m| (clan_id, m.clone()))
 }
 
 /// `RequestPledgeMemberPowerInfo` (ex 0x14): one member's rank + that rank's
@@ -600,20 +597,10 @@ pub(crate) fn handle_request_pledge_reorganize_member(
         return;
     }
     let leader_id = clan.leader_id;
-    let Some(m1) = clan
-        .members
-        .iter()
-        .find(|m| m.name.eq_ignore_ascii_case(&member_name))
-        .cloned()
-    else {
+    let Some(m1) = clan.member_by_name(&member_name).cloned() else {
         return;
     };
-    let Some(m2) = clan
-        .members
-        .iter()
-        .find(|m| m.name.eq_ignore_ascii_case(&selected_member))
-        .cloned()
-    else {
+    let Some(m2) = clan.member_by_name(&selected_member).cloned() else {
         return;
     };
     if m1.char_id == leader_id || m2.char_id == leader_id {

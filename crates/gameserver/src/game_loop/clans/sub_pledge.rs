@@ -55,11 +55,10 @@ fn create_sub_pledge(
     }
     // Java scans every clan's sub-pledges for a name clash; the port's
     // `ClanTable` equivalent is `World.clans`.
-    let name_taken = world.clans.values().any(|c| {
-        c.sub_pledges
-            .values()
-            .any(|sp| sp.name.eq_ignore_ascii_case(name))
-    });
+    let name_taken = world
+        .clans
+        .values()
+        .any(|c| c.sub_pledge_by_name(name).is_some());
     if name_taken {
         if requested_type == SUBUNIT_ACADEMY {
             send_sm_with(
@@ -84,13 +83,7 @@ fn create_sub_pledge(
         let Some(leader_name) = leader_name else {
             return;
         };
-        let eligible = clan
-            .members
-            .iter()
-            .find(|m| m.name.eq_ignore_ascii_case(leader_name))
-            .filter(|m| m.pledge_type == 0)
-            .filter(|m| clan.leader_sub_pledge_of(m.char_id) == 0);
-        let Some(member) = eligible else {
+        let Some(member) = clan.eligible_subunit_captain(leader_name) else {
             let sm = if requested_type >= SUBUNIT_KNIGHT1 {
                 sm_ids::THE_CAPTAIN_OF_THE_ORDER_OF_KNIGHTS_CANNOT_BE_APPOINTED
             } else {
@@ -346,11 +339,7 @@ pub(crate) fn handle_assign_subpledge_leader(
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    let Some(sub_pledge) = clan
-        .sub_pledges
-        .values()
-        .find(|sp| sp.name.eq_ignore_ascii_case(unit_name))
-    else {
+    let Some(sub_pledge) = clan.sub_pledge_by_name(unit_name) else {
         send_sm(world, client_id, sm_ids::CLAN_NAME_IS_INVALID);
         return;
     };
@@ -359,13 +348,7 @@ pub(crate) fn handle_assign_subpledge_leader(
         return;
     }
     let sub_pledge_id = sub_pledge.id;
-    let eligible = clan
-        .members
-        .iter()
-        .find(|m| m.name.eq_ignore_ascii_case(member_name))
-        .filter(|m| m.pledge_type == 0)
-        .filter(|m| clan.leader_sub_pledge_of(m.char_id) == 0);
-    let Some(member) = eligible.cloned() else {
+    let Some(member) = clan.eligible_subunit_captain(member_name).cloned() else {
         let sm = if sub_pledge_id >= SUBUNIT_KNIGHT1 {
             sm_ids::THE_CAPTAIN_OF_THE_ORDER_OF_KNIGHTS_CANNOT_BE_APPOINTED
         } else {
