@@ -17,6 +17,7 @@
 //! ported, but no NPC on this dist carries a resurrect skill in its
 //! `<skillList>`.
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use commons::util::rnd;
 
@@ -478,10 +479,7 @@ pub(crate) fn resolve_npc_cast_target(
     // `Target.java`, `Enemy.java` and `EnemyOnly.java`. `canSeeTarget` short-
     // circuits to true for a door (a closed gate occludes the ray to its own
     // centre), matching `GeoEngine.canSeeTarget(asker, target)`.
-    let (Some(from), Some(to)) = (
-        world.objects.get_component::<Position>(&npc_oid).copied(),
-        world.objects.get_component::<Position>(&resolved).copied(),
-    ) else {
+    let (Some(from), Some(to)) = (position(world, npc_oid), position(world, resolved)) else {
         return None;
     };
     let target_is_door = world
@@ -819,7 +817,7 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
     };
     let (Some(mine), Some(pos), Some(region)) = (
         world.data.npc_data.get(npc_id),
-        world.objects.get_component::<Position>(&npc_oid).copied(),
+        position(world, npc_oid),
         region_cell_of(world, npc_oid),
     ) else {
         return Vec::new();

@@ -1,11 +1,12 @@
 //! Movement/position handlers (`MoveBackwardToLocation`, `RequestStopMove`,
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
+use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::geo::worker::{PathEvent, PathRequest};
 use crate::model::Player;
 use crate::model::components::{
     AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds,
-    Vitals,
 };
 use crate::model::movement::GeoPath;
 use crate::network::client_packets as cp;
@@ -36,7 +37,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     if world.objects.get_component::<Player>(&object_id).is_none() {
         return;
     }
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(cur) = position(world, object_id) else {
         return;
     };
 
@@ -112,11 +113,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         return;
     }
     // Dead players can't move at all (`isMovementDisabled`).
-    if world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_some_and(|v| v.dead)
-    {
+    if is_dead(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -222,7 +219,7 @@ fn take_admin_tele_mode(
             // `FlyToLocation` constructor reads the *destination* as its origin
             // — the client flies to `dest` regardless, so the port keeps that
             // ordering rather than "fixing" the origin.
-            let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+            let Some(pos) = position(world, object_id) else {
                 return true;
             };
             let skill_use = world
@@ -287,7 +284,7 @@ fn slide_to(
     dest: (i32, i32, i32),
     fly_type: server_packets::FlyType,
 ) {
-    let Some(from) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(from) = position(world, object_id) else {
         return;
     };
     let (x, y, z) = dest;
@@ -325,7 +322,7 @@ pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(cur) = position(world, object_id) else {
         return;
     };
 
@@ -542,17 +539,14 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     };
 
     // Move gates re-checked after the round-trip (same set as the click).
-    let is_dead = world
-        .objects
-        .get_component::<Vitals>(&object_id)
-        .is_some_and(|v| v.dead);
+    let is_dead = is_dead(world, object_id);
     if world.objects.has_component::<Casting>(&object_id) || is_dead {
         if is_player && let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
         return;
     }
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(cur) = position(world, object_id) else {
         return;
     };
 

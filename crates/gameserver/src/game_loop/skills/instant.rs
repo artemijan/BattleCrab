@@ -789,10 +789,7 @@ pub(super) fn open_chest(world: &mut World, ctx: &CastCtx) {
         .get_component::<crate::model::npc::Npc>(&target_oid)
         .and_then(|n| world.data.npc_data.get(n.npc_id))
         .is_some_and(|t| t.type_name == "Chest");
-    let dead = world
-        .objects
-        .get_component::<Vitals>(&target_oid)
-        .is_some_and(|v| v.dead);
+    let dead = is_dead(world, target_oid);
     if !is_chest
         || dead
         || crate::game_loop::helpers::instance_of(world, caster_oid)

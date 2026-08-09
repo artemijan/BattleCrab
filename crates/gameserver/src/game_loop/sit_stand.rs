@@ -20,9 +20,10 @@
 //! range, and no throne/bench is interactive on this dist; and the queued
 //! sit-on-arrival `NextAction`, which needs an AI next-action slot.
 
+use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
-use crate::model::components::Position;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -179,10 +180,7 @@ pub(crate) fn stand_up(world: &mut World, object_id: i32) {
             .objects
             .get_component::<Player>(&object_id)
             .is_some_and(|p| p.store_type != 0)
-        || world
-            .objects
-            .get_component::<crate::model::components::Vitals>(&object_id)
-            .is_some_and(|v| v.dead);
+        || is_dead(world, object_id);
     if refuses {
         return;
     }
@@ -255,7 +253,7 @@ fn set_action_block(world: &mut World, object_id: i32, blocked: bool) {
 }
 
 fn broadcast_wait_type(world: &World, object_id: i32, wait_type: i32) {
-    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(pos) = position(world, object_id) else {
         return;
     };
     let pkt = server_packets::change_wait_type(object_id, wait_type, pos.x, pos.y, pos.z);

@@ -26,6 +26,7 @@
 //! `OnAttackableFactionCall` script event's two listeners on this dist —
 //! Queen Ant's nurses and Orfen's minions — via `on_faction_call_script`.
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::pos_of;
 use std::collections::HashSet;
@@ -432,10 +433,7 @@ pub(crate) fn stop_npc(world: &mut World, npc_oid: i32) {
         return;
     }
     world.objects.remove_component::<Movement>(&npc_oid);
-    if let (Some(pos), Some(region)) = (
-        world.objects.get_component::<Position>(&npc_oid).copied(),
-        region_cell_of(world, npc_oid),
-    ) {
+    if let (Some(pos), Some(region)) = (position(world, npc_oid), region_cell_of(world, npc_oid)) {
         broadcast_near_region_in(
             world,
             region,
@@ -942,13 +940,8 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     // route), then returns. Without this gate a mob whose hated target
     // climbed to another level engages straight through the geometry.
     {
-        let (Some(npos), Some(tpos)) = (
-            world.objects.get_component::<Position>(&npc_oid).copied(),
-            world
-                .objects
-                .get_component::<Position>(&target_oid)
-                .copied(),
-        ) else {
+        let (Some(npos), Some(tpos)) = (position(world, npc_oid), position(world, target_oid))
+        else {
             return;
         };
         if !world
@@ -1049,10 +1042,8 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     // In reach: stop and swing.
     if world.objects.has_component::<Movement>(&npc_oid) {
         world.objects.remove_component::<Movement>(&npc_oid);
-        let (Some(pos), Some(region)) = (
-            world.objects.get_component::<Position>(&npc_oid).copied(),
-            region_cell_of(world, npc_oid),
-        ) else {
+        let (Some(pos), Some(region)) = (position(world, npc_oid), region_cell_of(world, npc_oid))
+        else {
             return;
         };
         broadcast_near_region_in(
@@ -1393,10 +1384,8 @@ fn aggro_range_candidates(world: &mut World, npc_oid: i32) -> Vec<i32> {
         return Vec::new();
     }
     let range = template.aggro_range as f64;
-    let (Some(pos), Some(region)) = (
-        world.objects.get_component::<Position>(&npc_oid).copied(),
-        region_cell_of(world, npc_oid),
-    ) else {
+    let (Some(pos), Some(region)) = (position(world, npc_oid), region_cell_of(world, npc_oid))
+    else {
         return Vec::new();
     };
     // Index-derived like the aggro scan, but deliberately without the LOS and
@@ -1642,7 +1631,7 @@ fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Op
         else {
             return;
         };
-        let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else {
+        let Some(pos) = position(world, npc_oid) else {
             return;
         };
         let Some(region) = region_cell_of(world, npc_oid) else {
@@ -1940,11 +1929,7 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
     let target_is_player = world
         .objects
         .has_component::<crate::model::Player>(&target_oid);
-    let Some(target_pos) = world
-        .objects
-        .get_component::<Position>(&target_oid)
-        .copied()
-    else {
+    let Some(target_pos) = position(world, target_oid) else {
         return;
     };
 
@@ -2019,11 +2004,7 @@ pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: 
         return;
     }
 
-    let Some(killer_pos) = world
-        .objects
-        .get_component::<Position>(&killer_oid)
-        .copied()
-    else {
+    let Some(killer_pos) = position(world, killer_oid) else {
         return;
     };
 
@@ -2054,10 +2035,7 @@ fn faction_recruits(
 ) -> Vec<i32> {
     let (Some(caller_id), Some(pos), Some(region)) = (
         npc_id_of(world, caller_oid),
-        world
-            .objects
-            .get_component::<Position>(&caller_oid)
-            .copied(),
+        position(world, caller_oid),
         region_cell_of(world, caller_oid),
     ) else {
         return Vec::new();
@@ -2074,7 +2052,7 @@ fn faction_recruits(
 
     let mut recruits: Vec<i32> = Vec::new();
     for other in nearby {
-        let Some(opos) = world.objects.get_component::<Position>(&other).copied() else {
+        let Some(opos) = position(world, other) else {
             continue;
         };
         if is_dead(world, other) {

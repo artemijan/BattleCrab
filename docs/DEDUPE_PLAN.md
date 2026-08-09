@@ -34,10 +34,36 @@ What the estimate got wrong, and why it is worth knowing:
   (`antharas::group_of`, phase 3) — recorded as `TODO(antharas-cc)` rather than
   quietly implemented.
 
-Still open, carried from phase 2: **28 inline `is_some_and(|v| v.dead)`
-chains** across 23 files. These are the permissive spelling of the dead check
-and each needs the same per-site audit the six `is_dead` helpers got; flipping
-them unexamined is exactly the silent semantic change phase 2 existed to avoid.
+### Follow-up pass — what the eight phases missed
+
+The phase-8 sign-off above was premature. A user spotted a live duplicate in
+`clans/alliance.rs` immediately afterwards, and two separate causes came out:
+
+- **The phase-7 verification filter only kept clones spanning *both* files of a
+  named twin pair**, so a file duplicating *itself* was discarded. That is what
+  hid the alliance one.
+- **The scanner cannot see constant-only differences.** It abstracts variable
+  names but keeps `SCREAMING_CASE` verbatim, and those three blocks differed
+  only in which `ALLY_PENALTY_TYPE_*` they wrote. RustRover *did* flag the
+  pair; it was dismissed on the strength of the bad filter.
+
+The scanner now has a variant that abstracts constants too. Re-run **both**,
+and do not filter to cross-file clones.
+
+Closed in the follow-up: `clans::leave_alliance`, `points::announce`,
+32 `player_name` chains, 177 `Position .copied()` chains (a fourth private
+`position` copy fell out of that in `admin/geo_editor.rs`), and the 28 dead
+checks below.
+
+**Four permissive dead checks are left permissive on purpose.** Every other
+site uses the answer as a refusal, where failing closed on a departed object is
+safer; these four *require* the target to be dead, or act punitively, so
+flipping them would be wrong rather than safer:
+`skills/cast.rs` ×2 (corpse-target, resurrect), `admin/vitals.rs` (`//res`),
+`pet_evolve.rs` (punishes an "exploit"), `duel.rs` (awards the match).
+
+`admin/vitals.rs` is worth singling out: the mechanical sweep converted it, and
+only auditing the sweep's own output caught it. Do not trust the regex here.
 
 ### Re-running the analysis
 

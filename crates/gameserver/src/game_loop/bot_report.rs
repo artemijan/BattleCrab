@@ -18,6 +18,7 @@
 //! `isFakePlayer()` NPC whose template is `fakePlayerTalkable`, and merely
 //! counts the report without punishing since the punish path needs a `Player`).
 
+use crate::game_loop::helpers::player_name_or_empty;
 use std::collections::HashMap;
 
 use crate::config::bot_report::BotReportConfig;
@@ -166,11 +167,7 @@ pub(crate) fn report_bot(world: &mut World, client_id: u32, reporter_oid: i32) -
         rep.points
     };
 
-    let bot_name = world
-        .objects
-        .get_component::<Player>(&target_oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let bot_name = player_name_or_empty(world, target_oid);
     crate::game_loop::helpers::send_sm_to_player(
         world,
         reporter_oid,

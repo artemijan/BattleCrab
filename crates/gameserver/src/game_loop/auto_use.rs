@@ -14,6 +14,7 @@
 //! or the skill unknown, so the panel self-cleans rather than accumulating
 //! dead entries.
 
+use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, AutoUseSettings, SkillBook, Vitals, ZoneFlags};
 use crate::model::inventory::Inventory;
@@ -47,10 +48,7 @@ fn run_for_player(world: &mut World, player_oid: i32) {
         .objects
         .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.sitting || p.is_mounted())
-        || world
-            .objects
-            .get_component::<Vitals>(&player_oid)
-            .is_some_and(|v| v.dead)
+        || is_dead(world, player_oid)
         || super::abnormal::is_blocked_from_actions(world, player_oid)
         || super::abnormal::is_control_blocked(world, player_oid);
     if blocked {
@@ -169,10 +167,7 @@ fn cast_attack_skills(world: &mut World, player_oid: i32) {
         return;
     };
     if target == player_oid
-        || world
-            .objects
-            .get_component::<Vitals>(&target)
-            .is_some_and(|v| v.dead)
+        || is_dead(world, target)
         || world
             .objects
             .get_component::<ZoneFlags>(&target)

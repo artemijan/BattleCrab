@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
 
 /// XP/SP shares from the aggro list + drops to the top damage dealer.
@@ -898,11 +899,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
                 .collect()
         })
         .unwrap_or_default();
-    let Some(pos) = world
-        .objects
-        .get_component::<Position>(&victim_oid)
-        .copied()
-    else {
+    let Some(pos) = position(world, victim_oid) else {
         return;
     };
 

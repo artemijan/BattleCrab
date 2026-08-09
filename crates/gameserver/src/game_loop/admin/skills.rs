@@ -4,6 +4,7 @@
 use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{Buffs, SkillBook};
 use crate::network::server_packets::sm_ids;
@@ -61,11 +62,7 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
             &format!("Admin gave you the skill {skill_name}."),
         );
     }
-    let target_name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let target_name = player_name_or_empty(world, target);
     send_message(
         world,
         client_id,

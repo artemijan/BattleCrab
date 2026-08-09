@@ -3,6 +3,7 @@
 //! end), plus cast aborts.
 
 use crate::game_loop::common::maybe_distance_too_far;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::{
     broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action,
@@ -560,11 +561,7 @@ pub(super) fn op_exist_npc_around(
     let Some(region) = region_cell_of(world, caster_oid) else {
         return false;
     };
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&caster_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, caster_oid) else {
         return false;
     };
     let range = cond.range as f64;
@@ -619,7 +616,7 @@ pub(crate) fn handle_request_magic_skill_use_ground(
             (pkt.y - pos.y) as f64,
         );
     }
-    if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
+    if let Some(pos) = position(world, object_id) {
         // `Broadcast.toKnownPlayers(player, new ValidateLocation(player))` —
         // bystanders only, the caster's own client already turned.
         crate::game_loop::helpers::broadcast_to_others(
@@ -803,7 +800,7 @@ pub(crate) fn use_magic_on(
         // animation without drawing a cast bar.
         if let (Some(caster), Some(pos)) = (
             world.objects.get_component::<Player>(&object_id),
-            world.objects.get_component::<Position>(&object_id).copied(),
+            position(world, object_id),
         ) {
             let pkt = server_packets::magic_skill_use(
                 caster,
@@ -872,7 +869,7 @@ pub(crate) fn use_magic_on(
 
     // Target validity first, like Java (`useMagic` resolves and checks the
     // target before the queue/MP decisions).
-    let Some(caster_pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(caster_pos) = position(world, object_id) else {
         return;
     };
     let caster_target = forced_target.or_else(|| {
@@ -1353,11 +1350,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         let Some(player) = world.objects.get_component::<Player>(&player_object_id) else {
             return;
         };
-        let Some(pos) = world
-            .objects
-            .get_component::<Position>(&player_object_id)
-            .copied()
-        else {
+        let Some(pos) = position(world, player_object_id) else {
             return;
         };
         match resolve_cast_target(
@@ -1399,11 +1392,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
                 .insert(player_object_id);
         }
     }
-    let Some(caster_pos) = world
-        .objects
-        .get_component::<Position>(&player_object_id)
-        .copied()
-    else {
+    let Some(caster_pos) = position(world, player_object_id) else {
         return;
     };
     let scoped = Skill {
@@ -1420,7 +1409,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         }
         // Java's per-target gates: `checkIfInRange(effectRange, …, true)` +
         // `canSeeTarget(channelizer, creature)`.
-        let Some(pos) = world.objects.get_component::<Position>(&target).copied() else {
+        let Some(pos) = position(world, target) else {
             continue;
         };
         if skill.effect_range > 0 {
@@ -1576,11 +1565,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
     }
 
     if skill.effect_range > 0 && cast.target_object_id != player_object_id {
-        let Some(caster_pos) = world
-            .objects
-            .get_component::<Position>(&player_object_id)
-            .copied()
-        else {
+        let Some(caster_pos) = position(world, player_object_id) else {
             return;
         };
         if !in_cast_range(
@@ -1738,10 +1723,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // happened to satisfy quest 350 (a single-target cast on the mob it
     // watches) and so looked correct.
     const SKILL_SEE_RANGE: f64 = 1000.0;
-    let caster_pos = world
-        .objects
-        .get_component::<Position>(&player_object_id)
-        .copied();
+    let caster_pos = position(world, player_object_id);
     let caster_region = region_cell_of(world, player_object_id);
     let skill_see_witnesses: Vec<i32> = match (caster_pos, caster_region) {
         (Some(pos), Some(region)) => world

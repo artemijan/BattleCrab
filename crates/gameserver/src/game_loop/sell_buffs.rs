@@ -17,6 +17,7 @@
 //! A seller too low on MP is refused with a message rather than the cast
 //! silently failing.
 
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::network::server_packets as sp;
@@ -154,10 +155,7 @@ fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
     let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
         return false;
     };
-    let dead = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&player_oid)
-        .is_some_and(|v| v.dead);
+    let dead = is_dead(world, player_oid);
     if dead {
         return refuse("You can't sell buffs in fake death!");
     }

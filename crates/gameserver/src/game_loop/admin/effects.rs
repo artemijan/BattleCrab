@@ -9,6 +9,7 @@
 //! carries the full `MovieHolder` bookkeeping (see [`admin_playmovie`]).
 
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{self, sm_ids};
@@ -84,8 +85,7 @@ pub(super) fn admin_social(world: &mut World, client_id: u32, object_id: i32, ar
                     );
                 }
             } else if let Ok(radius) = who.parse::<i32>() {
-                let Some(center) = world.objects.get_component::<Position>(&object_id).copied()
-                else {
+                let Some(center) = position(world, object_id) else {
                     return;
                 };
                 for oid in creatures_in_range(world, &center, radius, object_id) {
@@ -178,10 +178,8 @@ pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, ar
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     }
-    let (Some(src_pos), Some(gm_pos)) = (
-        world.objects.get_component::<Position>(&source).copied(),
-        world.objects.get_component::<Position>(&object_id).copied(),
-    ) else {
+    let (Some(src_pos), Some(gm_pos)) = (position(world, source), position(world, object_id))
+    else {
         return;
     };
     let packet = server_packets::magic_skill_use_raw(
@@ -214,7 +212,7 @@ pub(super) fn admin_earthquake(world: &mut World, client_id: u32, object_id: i32
         );
         return;
     };
-    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(pos) = position(world, object_id) else {
         return;
     };
     let packet = server_packets::earthquake(pos.x, pos.y, pos.z, intensity, duration);
@@ -300,7 +298,7 @@ pub(super) fn admin_setteam(
             .get(1)
             .and_then(|r| r.parse::<i32>().ok())
             .unwrap_or(400) as f64;
-        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else {
+        let Some(origin) = position(world, object_id) else {
             return;
         };
         players_in_radius(world, &origin, radius)
@@ -328,7 +326,7 @@ pub(super) fn admin_setteam(
 
 /// `//clearteams` — every visible player back to NONE.
 pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(origin) = position(world, object_id) else {
         return;
     };
     // "Visible" ≈ the same broadcast radius the packet fan-out uses; a large
@@ -400,7 +398,7 @@ pub(super) fn admin_para(
     };
     let ave = crate::model::skill::abnormal_visual_client_id(ave_name).expect("known AVE");
     let targets: Vec<i32> = if all {
-        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else {
+        let Some(origin) = position(world, object_id) else {
             return;
         };
         players_in_radius(world, &origin, 10_000.0)

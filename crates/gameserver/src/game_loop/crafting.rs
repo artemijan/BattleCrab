@@ -16,6 +16,7 @@
 
 use super::helpers::{adena, player_of};
 use crate::data::recipe_data::RecipeList;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
@@ -314,11 +315,7 @@ pub(crate) fn open_manage(world: &mut World, client_id: u32) {
     let Some(oid) = player_of(world, client_id) else {
         return;
     };
-    if world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .is_some_and(|v| v.dead)
-    {
+    if is_dead(world, oid) {
         return;
     }
     // Leaving a different store type when opening the manage window.

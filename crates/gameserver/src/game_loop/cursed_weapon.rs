@@ -14,6 +14,7 @@
 //! slice. There is no HP decay to port: Java's only HP touch is the full heal
 //! `activate` gives the new wielder.
 
+use crate::game_loop::guard::position;
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
@@ -66,11 +67,7 @@ pub(crate) fn on_monster_killed(world: &mut World, monster_oid: i32, killer_oid:
     if !ordinary {
         return;
     }
-    let Some(pos) = world
-        .objects
-        .get_component::<Position>(&monster_oid)
-        .copied()
-    else {
+    let Some(pos) = position(world, monster_oid) else {
         return;
     };
 
@@ -96,16 +93,12 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
     // RedSky + Earthquake at the drop site (Java `dropIt`, fromMonster branch).
     broadcast_to_all(world, &server_packets::ex_red_sky(10));
     let quake = {
-        let p = world
-            .objects
-            .get_component::<Position>(&killer)
-            .copied()
-            .unwrap_or(Position {
-                x,
-                y,
-                z,
-                heading: 0,
-            });
+        let p = position(world, killer).unwrap_or(Position {
+            x,
+            y,
+            z,
+            heading: 0,
+        });
         server_packets::earthquake(p.x, p.y, p.z, 14, 3)
     };
     broadcast_to_all(world, &quake);
@@ -307,16 +300,8 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
             cw.player_pk_kills,
         )
     };
-    let pos = world
-        .objects
-        .get_component::<Position>(&victim_oid)
-        .copied()
-        .or_else(|| {
-            world
-                .objects
-                .get_component::<Position>(&killer_oid)
-                .copied()
-        })
+    let pos = position(world, victim_oid)
+        .or_else(|| position(world, killer_oid))
         .unwrap_or(Position {
             x: 0,
             y: 0,

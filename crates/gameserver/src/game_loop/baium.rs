@@ -20,6 +20,7 @@
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
 use super::helpers::pos_of;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Immobilized, Position, Vitals};
 use crate::model::grand_boss::GrandBoss;
@@ -497,7 +498,7 @@ fn has_living_player_target(world: &World, angel: i32) -> bool {
 
 /// The nearest living in-zone player within `range` (3D) of the archangel.
 fn nearest_player_in_range(world: &mut World, angel: i32, range: f64) -> Option<i32> {
-    let origin = world.objects.get_component::<Position>(&angel).copied()?;
+    let origin = position(world, angel)?;
     let World { objects, data, .. } = &mut *world;
     let zone = data.zone_data.by_id(BAIUM_ZONE_ID);
     let mut best: Option<(i32, f64)> = None;

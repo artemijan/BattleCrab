@@ -14,6 +14,7 @@
 //! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) and the
 //! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -303,10 +304,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
     // No target: a 1-in-10 chance to roam within ±1400, else idle.
     if victim == 0 {
         if world.roll(10) == 0
-            && let Some(p) = world
-                .objects
-                .get_component::<Position>(&valakas_oid)
-                .copied()
+            && let Some(p) = position(world, valakas_oid)
         {
             let x = p.x + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
             let y = p.y + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
@@ -328,7 +326,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
         super::boss_threat::cast_boss_skill(world, valakas_oid, victim, skill_id, false);
     } else {
         // FOLLOW — close the distance before the next beat.
-        if let Some(p) = world.objects.get_component::<Position>(&victim).copied() {
+        if let Some(p) = position(world, victim) {
             crate::game_loop::npc_ai::move_npc_to(world, valakas_oid, p.x, p.y, p.z);
         }
     }
@@ -376,11 +374,7 @@ fn random_target_in_lair(world: &mut World) -> i32 {
 
 /// How many players sit within `range` (2D) of Valakas.
 fn players_within(world: &World, valakas_oid: i32, range: f64) -> usize {
-    let Some(origin) = world
-        .objects
-        .get_component::<Position>(&valakas_oid)
-        .copied()
-    else {
+    let Some(origin) = position(world, valakas_oid) else {
         return 0;
     };
     players_in_lair_oids(world)
@@ -396,13 +390,7 @@ fn players_within(world: &World, valakas_oid: i32, range: f64) -> usize {
 
 /// Is `oid` within `range` (2D) of Valakas?
 fn within(world: &World, valakas_oid: i32, oid: i32, range: f64) -> bool {
-    let (Some(a), Some(b)) = (
-        world
-            .objects
-            .get_component::<Position>(&valakas_oid)
-            .copied(),
-        world.objects.get_component::<Position>(&oid).copied(),
-    ) else {
+    let (Some(a), Some(b)) = (position(world, valakas_oid), position(world, oid)) else {
         return false;
     };
     a.distance_2d(&b) <= range

@@ -15,11 +15,11 @@
 //!   Concentration (`ReduceCancel`), and Life Cubic (`SummonCubic`, cubics
 //!   unported). The remaining buffs and the animation land normally.
 
+use crate::game_loop::guard::position;
 use tracing::warn;
 
 use crate::game_loop::skills::effects::apply_skill_effects;
 use crate::model::Player;
-use crate::model::components::Position;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -186,14 +186,8 @@ pub(crate) fn cast_from_npc(
     };
     // Animation: MagicSkillUse from the NPC onto the target (Java's
     // `broadcastPacket(new MagicSkillUse(...))` inside triggerCast).
-    let npc_pos = world
-        .objects
-        .get_component::<Position>(&npc_object_id)
-        .copied();
-    let target_pos = world
-        .objects
-        .get_component::<Position>(&target_oid)
-        .copied();
+    let npc_pos = position(world, npc_object_id);
+    let target_pos = position(world, target_oid);
     if let (Some(np), Some(tp)) = (npc_pos, target_pos) {
         let pkt = server_packets::magic_skill_use_raw(
             (npc_object_id, np.x, np.y, np.z),

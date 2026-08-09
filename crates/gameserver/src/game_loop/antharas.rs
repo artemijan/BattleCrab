@@ -9,6 +9,7 @@
 //! walk with its `BOMBER`/invisible-NPC decorations, and the `onSpellFinished`
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -144,10 +145,7 @@ pub(crate) fn handle_wave(world: &mut World, antharas_oid: i32) {
         });
     }
 
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&antharas_oid)
-        .copied();
+    let pos = position(world, antharas_oid);
     if let Some(p) = pos {
         for npc_id in &spawned {
             crate::model::npc::spawn_npc_at(world, *npc_id, p.x, p.y, p.z, 0);

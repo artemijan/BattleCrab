@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
@@ -206,11 +207,7 @@ pub(crate) fn revive_request(
     // Java's `ConfirmDlg(C1_IS_ATTEMPTING_TO_DO_A_RESURRECTION_THAT_RESTORES_S2_S3_XP_ACCEPT)`.
     // This port has only the generic text dialog, so the message is rendered
     // rather than composed from the client's string table.
-    let reviver_name = world
-        .objects
-        .get_component::<crate::model::Player>(&reviver_oid)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let reviver_name = player_name_or_empty(world, reviver_oid);
     if let Some(cid) = client_for_player(world, target_oid)
         && let Some(cs) = world.clients.get(&cid)
     {

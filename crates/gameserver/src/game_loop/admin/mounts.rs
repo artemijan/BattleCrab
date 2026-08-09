@@ -14,8 +14,9 @@
 //! fields.
 
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
 use crate::model::Player;
-use crate::model::components::{Collision, Position};
+use crate::model::components::Collision;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::OperateType;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -240,7 +241,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     {
         return;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&target).copied() else {
+    let Some(pos) = position(world, target) else {
         return;
     };
     // Java: with no water 300 below, a dismount hanging in the sky (z > 10000
@@ -331,7 +332,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
 fn broadcast_ride(world: &World, target: i32, mounted: bool) {
     let (Some(p), Some(pos)) = (
         world.objects.get_component::<Player>(&target),
-        world.objects.get_component::<Position>(&target).copied(),
+        position(world, target),
     ) else {
         return;
     };

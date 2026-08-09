@@ -17,6 +17,7 @@ use super::helpers::send_sm_to_client as send_sm;
 use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{Casting, Position};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -396,11 +397,7 @@ fn channel_leave(world: &mut World, client_id: u32, object_id: i32) {
     let Some(cc_id) = super::command_channel::cc_id_of_party(world, party_id) else {
         return;
     };
-    let leader_name = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let leader_name = player_name_or_empty(world, object_id);
     // Java: the leaving party's leader is told, and the channel is told whose
     // party left — both *before* the party is unhooked.
     send_sm(

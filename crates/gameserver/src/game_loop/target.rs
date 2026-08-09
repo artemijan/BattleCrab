@@ -3,6 +3,8 @@
 //! to a targeted NPC opens its chat window.
 
 use crate::data::htm_cache::read_htm;
+use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -523,7 +525,7 @@ pub(crate) fn set_target(
     }
     let viewer_level = player.level;
 
-    let Some(ppos) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(ppos) = position(world, object_id) else {
         return;
     };
     // Prevents /target exploiting: reject targets too far away in Z.
@@ -622,11 +624,7 @@ pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
     {
         t.0 = None;
     }
-    let Some(pos) = world
-        .objects
-        .get_component::<Position>(&holder_object_id)
-        .copied()
-    else {
+    let Some(pos) = position(world, holder_object_id) else {
         return;
     };
     let pkt = server_packets::target_unselected(holder_object_id, pos.x, pos.y, pos.z);
@@ -681,10 +679,7 @@ pub(crate) fn interact_with_npc(
     if t.is_auto_attackable()
         || super::siege::attackable_siege_guard(world, npc_object_id, object_id)
     {
-        let dead = world
-            .objects
-            .get_component::<Vitals>(&object_id)
-            .is_some_and(|v| v.dead);
+        let dead = is_dead(world, object_id);
         if !dead {
             // No dontMove for melee: Java's `onAction` path has no shift
             // to carry (case 1 goes to `onActionShift`), and `AttackRequest`

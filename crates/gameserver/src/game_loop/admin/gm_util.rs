@@ -10,8 +10,10 @@
 //! server has not ported.
 
 use crate::game_loop::guard;
+use crate::game_loop::guard::position;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
-use crate::model::components::{AdminFlags, PartyRef, Position};
+use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
@@ -78,11 +80,7 @@ pub(super) fn admin_worldchat(world: &mut World, client_id: u32, object_id: i32,
                 send_message(world, client_id, "Usage: //worldchat shout <message>");
                 return;
             }
-            let name = world
-                .objects
-                .get_component::<Player>(&object_id)
-                .map(|p| p.name.clone())
-                .unwrap_or_default();
+            let name = player_name_or_empty(world, object_id);
             broadcast_text(world, &format!("{name}: {text}"));
         }
         _ => send_message(world, client_id, "Usage: //worldchat shout <message>"),
@@ -434,7 +432,7 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
 
 /// Teleport each of `members` to the GM's position.
 fn recall_all(world: &mut World, gm_oid: i32, members: &[i32]) {
-    let Some(pos) = world.objects.get_component::<Position>(&gm_oid).copied() else {
+    let Some(pos) = position(world, gm_oid) else {
         return;
     };
     for &oid in members {

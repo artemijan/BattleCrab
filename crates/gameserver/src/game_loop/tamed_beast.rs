@@ -9,6 +9,8 @@
 //! minutes. A 5 s `CheckOwnerBuffs` beat keeps the tamer buffed from the
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
+use crate::game_loop::guard::position;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
@@ -163,7 +165,7 @@ pub(crate) fn handle_follow(world: &mut World, beast_oid: i32) {
     let owner_pos = world
         .objects
         .get_component::<crate::model::Player>(&owner)
-        .and_then(|_| world.objects.get_component::<Position>(&owner).copied());
+        .and_then(|_| position(world, owner));
     let Some(owner_pos) = owner_pos else {
         // Owner no longer in the world.
         despawn_beast(world, beast_oid);
@@ -228,10 +230,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
         (Some(b), Some(o)) => b.distance_2d(o) > MAX_DISTANCE_FROM_OWNER,
         _ => true,
     };
-    let owner_dead = world
-        .objects
-        .get_component::<Vitals>(&owner)
-        .is_some_and(|v| v.dead);
+    let owner_dead = is_dead(world, owner);
     let beast_casting = world
         .objects
         .has_component::<crate::model::components::Casting>(&beast_oid);
@@ -290,7 +289,7 @@ pub(crate) fn handle_mad_cow_polymorph(world: &mut World, cow_oid: i32, feeder_o
     let Some(next_id) = crate::scripts::feedable_beasts::mad_cow_reverts_to(npc_id) else {
         return;
     };
-    let Some(pos) = world.objects.get_component::<Position>(&cow_oid).copied() else {
+    let Some(pos) = position(world, cow_oid) else {
         return;
     };
     despawn_beast(world, cow_oid);

@@ -1,6 +1,7 @@
 //! Gear equip/unequip handlers (`UseItem`, `RequestUnEquipItem`) and the
 //! `EtcItem` "use" dispatch (`ExtractableItems` for pack/box items).
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use tracing::warn;
 
@@ -1415,10 +1416,7 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
             .objects
             .get_component::<crate::model::Player>(&object_id)
             .cloned();
-        let pos = world
-            .objects
-            .get_component::<crate::model::components::Position>(&object_id)
-            .copied();
+        let pos = position(world, object_id);
         p.zip(pos)
     }) else {
         return;
@@ -1564,7 +1562,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     };
     use crate::game_loop::skills::effects::apply_skill_effects;
     use crate::model::Player;
-    use crate::model::components::{Casting, Position, TargetRef};
+    use crate::model::components::{Casting, TargetRef};
     use crate::model::skill::TargetType;
 
     let (item_skills, immediate_effect, ex_immediate_effect, default_action) = {
@@ -1626,7 +1624,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
                 let Some(player) = world.objects.get_component::<Player>(&object_id) else {
                     continue;
                 };
-                let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+                let Some(pos) = position(world, object_id) else {
                     continue;
                 };
                 let target_ref = world

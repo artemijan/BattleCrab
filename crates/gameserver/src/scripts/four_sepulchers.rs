@@ -2,6 +2,7 @@
 //! run machinery lives in [`crate::game_loop::four_sepulchers`].
 
 use crate::game_loop::four_sepulchers as fs;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
@@ -354,7 +355,7 @@ pub(crate) fn handle_victim_flee(world: &mut crate::world::World, npc_oid: i32) 
     if !alive {
         return;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else {
+    let Some(pos) = position(world, npc_oid) else {
         return;
     };
     let dx = world.roll(801) - 400;

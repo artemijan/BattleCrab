@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::stat_mul;
 
 /// The continuous half of Java `Skill.applyEffects` — everything that turns a
@@ -500,11 +501,7 @@ pub(crate) fn refresh_abnormal_visuals(world: &World, object_id: i32) {
 /// pose, sent to observers **and** the player themselves (Java's `Player`
 /// override makes `broadcastPacket` include self).
 pub(crate) fn broadcast_change_wait_type(world: &mut World, object_id: i32, move_type: i32) {
-    let Some(pos) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&object_id)
-        .copied()
-    else {
+    let Some(pos) = position(world, object_id) else {
         return;
     };
     let pkt = server_packets::change_wait_type(object_id, move_type, pos.x, pos.y, pos.z);

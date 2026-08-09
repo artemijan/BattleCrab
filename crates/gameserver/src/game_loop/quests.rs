@@ -10,6 +10,7 @@
 //! then build a [`QuestCtx`] around `&mut World` and hand that to the
 //! script. Scripts are stateless; all state flows through the ctx.
 
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -1614,11 +1615,7 @@ impl<'w> QuestCtx<'w> {
             return;
         }
         for oid in [self.player, self.npc] {
-            let pos = self
-                .world
-                .objects
-                .get_component::<crate::model::components::Position>(&oid)
-                .copied();
+            let pos = position(self.world, oid);
             let region = self
                 .world
                 .objects

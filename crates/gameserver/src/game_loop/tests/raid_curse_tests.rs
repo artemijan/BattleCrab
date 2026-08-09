@@ -1,6 +1,7 @@
 //! The raid curse — G23's named gate clause.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 const PLAYER: i32 = 9950;
 const CID: u32 = 1;
@@ -57,13 +58,6 @@ fn curse_world() -> (
             });
     }
     (world, db, l)
-}
-
-fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
 }
 
 fn set_level(world: &mut World, oid: i32, level: i32) {

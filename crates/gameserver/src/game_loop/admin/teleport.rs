@@ -6,6 +6,7 @@
 use crate::enums::AdminTeleportType;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::Speeds;
 use crate::model::npc::Npc;
@@ -206,11 +207,7 @@ pub(super) fn admin_teleportto(world: &mut World, client_id: u32, object_id: i32
         );
         return;
     }
-    let target_name = world
-        .objects
-        .get_component::<Player>(&target)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let target_name = player_name_or_empty(world, target);
     super::death::teleport_to_object(world, object_id, target);
     send_message(
         world,

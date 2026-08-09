@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 use commons::system_messages::generated::{
     C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
 };
@@ -4205,13 +4206,6 @@ fn buff_skill_level(world: &World, oid: i32, skill_id: i32) -> i32 {
         .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id))
         .map(|x| x.skill_level)
         .unwrap_or(0)
-}
-
-fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
 }
 
 /// Same abnormal type: a lower-level cast is refused (no downgrade, no second

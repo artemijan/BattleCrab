@@ -29,6 +29,7 @@
 //! (`occupied_player_cells`) and the teleport-home check still distinguish
 //! connected players, and each says why at its site.
 
+use crate::game_loop::helpers::player_name_or_empty;
 use tracing::info;
 
 use crate::db;
@@ -202,11 +203,7 @@ pub(crate) fn enter_offline_mode(world: &mut World, client_id: u32) -> bool {
     }
     super::net::store_player_now(world, object_id); // `player.storeMe()`
 
-    let name = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, object_id);
     info!("GameLoop: '{name}' entered offline shop mode.");
     true
 }

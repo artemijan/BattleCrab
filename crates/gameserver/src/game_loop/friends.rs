@@ -4,6 +4,7 @@
 //! (PLAN_G10_SOCIAL.md §4).
 
 use crate::character::FriendInfo;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{Friends, PendingRequest, RequestKind};
 use crate::network::client_packets as cp;
@@ -70,11 +71,7 @@ pub(crate) fn on_enter_world(world: &World, object_id: i32) {
     let Some(friends) = world.objects.get_component::<Friends>(&object_id) else {
         return;
     };
-    let name = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, object_id);
     let sm = server_packets::system_message_with(
         sm_ids::YOUR_FRIEND_S1_JUST_LOGGED_IN,
         &[SmParam::Text(name.clone())],
@@ -94,11 +91,7 @@ pub(crate) fn on_leave_world(world: &World, object_id: i32) {
     let Some(friends) = world.objects.get_component::<Friends>(&object_id) else {
         return;
     };
-    let name = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let name = player_name_or_empty(world, object_id);
     let status = server_packets::friend_status(friend_status_mode::OFFLINE, &name, object_id);
     for f in &friends.0 {
         if f.char_id != object_id && is_online(world, f.char_id) {
@@ -181,11 +174,7 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
         RequestKind::FriendInvite,
         REQUEST_TIMEOUT_TICKS,
     );
-    let requestor_name = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let requestor_name = player_name_or_empty(world, player);
     send_to_player(
         world,
         friend,
@@ -230,11 +219,7 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
             .get_component::<Friends>(&requestor)
             .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == player));
     if already {
-        let name = world
-            .objects
-            .get_component::<Player>(&player)
-            .map(|p| p.name.clone())
-            .unwrap_or_default();
+        let name = player_name_or_empty(world, player);
         send_sm(
             world,
             requestor,
@@ -350,11 +335,7 @@ pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body:
 
     // The (online) ex-friend's side updates too.
     if is_online(world, friend.char_id) {
-        let player_name = world
-            .objects
-            .get_component::<Player>(&player)
-            .map(|p| p.name.clone())
-            .unwrap_or_default();
+        let player_name = player_name_or_empty(world, player);
         if let Some(fl) = world.objects.get_component_mut::<Friends>(&friend.char_id) {
             fl.0.retain(|f| f.char_id != player);
         }
@@ -408,11 +389,7 @@ pub(crate) fn handle_request_send_friend_msg(world: &mut World, client_id: u32, 
         send_sm(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
         return;
     };
-    let sender_name = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.name.clone())
-        .unwrap_or_default();
+    let sender_name = player_name_or_empty(world, player);
     send_to_player(
         world,
         receiver,

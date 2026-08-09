@@ -2,6 +2,7 @@
 //! items and presses OK → when both confirm, the items swap. One active trade
 //! per player; items stay in the owner's inventory until the swap.
 
+use crate::game_loop::helpers::player_name_or_empty;
 use commons::network::PacketReader;
 
 use super::helpers::{player_of, send_to_player as send};
@@ -79,11 +80,7 @@ pub(crate) fn handle_request(world: &mut World, client_id: u32, body: &[u8]) {
     // Java `TradeRequest`: `BlockList.isBlocked(partner, player)`, right after
     // the trade-refusal check and before the 150-unit range test.
     if crate::game_loop::block_list::is_blocked(world, target, from) {
-        let partner_name = world
-            .objects
-            .get_component::<crate::model::Player>(&target)
-            .map(|p| p.name.clone())
-            .unwrap_or_default();
+        let partner_name = player_name_or_empty(world, target);
         send(
             world,
             from,

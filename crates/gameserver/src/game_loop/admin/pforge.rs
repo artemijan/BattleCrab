@@ -18,6 +18,7 @@
 //! port deferred it; without this note the refusal reads as a porting gap and
 //! invites someone to "finish" a feature that does not exist.
 
+use crate::game_loop::guard::position;
 use commons::network::PacketWriter;
 
 use crate::world::World;
@@ -185,8 +186,7 @@ fn big_integer_bytes(value: &str) -> Option<Vec<u8>> {
 /// a player's *current* boat is not tracked, so both resolve to Java's
 /// no-boat answer, `0` — the same value a GM standing on land would get.
 fn substitute(world: &World, gm_oid: i32, token: &str) -> Option<String> {
-    use crate::model::components::Position;
-    let pos = |oid: i32| world.objects.get_component::<Position>(&oid).copied();
+    let pos = |oid: i32| position(world, oid);
     let target = || -> Option<i32> {
         world
             .objects

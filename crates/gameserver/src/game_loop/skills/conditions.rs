@@ -34,9 +34,9 @@
 //! remainder from being forgotten.
 
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
-use crate::model::components::Position;
 use crate::model::components::{OlympiadObserver, PartyRef, Vitals, ZoneFlags};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::{AffectType, MountKind, Skill, SkillCondition, Vital};
@@ -720,7 +720,7 @@ fn siege_deployable(world: &World, caster: i32) -> bool {
     // Here the standing-in-a-residence half is the `SiegeZone` the caster is
     // inside, which carries the `castle_id` the siege is keyed by. Forts have
     // no port, so only the castle leg exists.
-    let Some(pos) = world.objects.get_component::<Position>(&caster).copied() else {
+    let Some(pos) = position(world, caster) else {
         return false;
     };
     world

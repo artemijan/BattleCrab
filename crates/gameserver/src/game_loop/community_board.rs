@@ -1521,10 +1521,7 @@ fn is_busy(world: &World, object_id: i32) -> bool {
         .objects
         .get_component::<crate::model::components::PvpState>(&object_id)
         .is_some_and(|s| s.flag > 0);
-    let dead = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
-        .is_some_and(|v| v.dead);
+    let dead = is_dead(world, object_id);
     // `isInCombat()` — the 15 s attack stance, not merely mid-swing.
     let in_combat = world
         .objects

@@ -54,14 +54,11 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
                 }
                 let value = value.max(0);
                 set_points(world, target, value);
-                send_player_message(
-                    world,
-                    target,
-                    &format!("Admin set your PC Cafe point(s) to {value}!"),
-                );
-                send_message(
+                announce(
                     world,
                     client_id,
+                    target,
+                    &format!("Admin set your PC Cafe point(s) to {value}!"),
                     &format!("You set {value} PC Cafe point(s) to player {name}"),
                 );
                 send_pccafe_packet(world, target, value, value);
@@ -79,14 +76,11 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
                 let new_count =
                     (cur as i64 + value as i64).clamp(0, max_points(world) as i64) as i32;
                 set_points(world, target, new_count);
-                send_player_message(
-                    world,
-                    target,
-                    &format!("Admin increased your PC Cafe point(s) by {value}!"),
-                );
-                send_message(
+                announce(
                     world,
                     client_id,
+                    target,
+                    &format!("Admin increased your PC Cafe point(s) by {value}!"),
                     &format!("You increased PC Cafe point(s) of {name} by {value}"),
                 );
                 send_pccafe_packet(world, target, new_count, value);
@@ -103,14 +97,11 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
                 }
                 let new_count = (cur - value).max(0);
                 set_points(world, target, new_count);
-                send_player_message(
-                    world,
-                    target,
-                    &format!("Admin decreased your PC Cafe point(s) by {value}!"),
-                );
-                send_message(
+                announce(
                     world,
                     client_id,
+                    target,
+                    &format!("Admin decreased your PC Cafe point(s) by {value}!"),
                     &format!("You decreased PC Cafe point(s) of {name} by {value}"),
                 );
                 send_pccafe_packet(world, target, points_of(world, target), -value);
@@ -199,14 +190,11 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
             "set" => {
                 set_prime(world, target, value);
                 let stored = value.max(0);
-                send_player_message(
-                    world,
-                    target,
-                    &format!("Admin set your Prime Point(s) to {stored}!"),
-                );
-                send_message(
+                announce(
                     world,
                     client_id,
+                    target,
+                    &format!("Admin set your Prime Point(s) to {stored}!"),
                     &format!("You set {stored} Prime Point(s) to player {name}"),
                 );
             }
@@ -222,14 +210,11 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
                 }
                 let new_count = (cur as i64 + value as i64).clamp(0, i32::MAX as i64) as i32;
                 set_prime(world, target, new_count);
-                send_player_message(
-                    world,
-                    target,
-                    &format!("Admin increase your Prime Point(s) by {value}!"),
-                );
-                send_message(
+                announce(
                     world,
                     client_id,
+                    target,
+                    &format!("Admin increase your Prime Point(s) by {value}!"),
                     &format!("You increased Prime Point(s) of {name} by {value}"),
                 );
             }
@@ -245,14 +230,11 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
                 }
                 let new_count = (cur - value).max(0);
                 set_prime(world, target, new_count);
-                send_player_message(
-                    world,
-                    target,
-                    &format!("Admin decreased your Prime Point(s) by {value}!"),
-                );
-                send_message(
+                announce(
                     world,
                     client_id,
+                    target,
+                    &format!("Admin decreased your Prime Point(s) by {value}!"),
                     &format!("You decreased Prime Point(s) of {name} by {value}"),
                 );
             }
@@ -380,6 +362,15 @@ fn set_points(world: &mut World, target: i32, value: i32) {
 
 /// Java `target.sendMessage(...)` — a system message to the target player (the
 /// GM themselves when self-targeted).
+/// Tell the target what a GM just did to them, and confirm it back to the GM.
+///
+/// Every `set` / `increase` / `decrease` arm of both point commands sends this
+/// pair; only the two message texts differ.
+fn announce(world: &World, client_id: u32, target: i32, to_target: &str, to_gm: &str) {
+    send_player_message(world, target, to_target);
+    send_message(world, client_id, to_gm);
+}
+
 fn send_player_message(world: &World, target: i32, text: &str) {
     if let Some(cid) = super::helpers::client_for_player(world, target) {
         send_message(world, cid, text);
