@@ -20,7 +20,6 @@ use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_millis};
@@ -91,7 +90,7 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
     let oid = spawn_ground_item(world, item_id, 1, 0, x, y, z, 0, DropSource::CursedWeapon);
 
     // RedSky + Earthquake at the drop site (Java `dropIt`, fromMonster branch).
-    broadcast_to_all(world, &server_packets::ex_red_sky(10));
+    world.broadcast_to_all_online(&server_packets::ex_red_sky(10));
     let quake = {
         let p = position(world, killer).unwrap_or(Position {
             x,
@@ -101,7 +100,7 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
         });
         server_packets::earthquake(p.x, p.y, p.z, 14, 3)
     };
-    broadcast_to_all(world, &quake);
+    world.broadcast_to_all_online(&quake);
 
     // Java's `checkDrop` arms the life task for the FULL duration (not
     // durationLost) — the ground weapon lives just as long as a wielded one.
@@ -122,7 +121,7 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
         sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION,
         &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
     arm_expiry(world, idx);
 }
 
@@ -370,7 +369,7 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
         sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION,
         &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
 }
 
 // ---------------------------------------------------------------------------
@@ -423,7 +422,7 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
         sm_ids::S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION,
         &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
 
     // "$s1 has $s2 minute(s) of usage time remaining." to the wielder alone.
     let minutes = (world.cursed_weapons[idx].time_left(now_millis()) / MILLIS_PER_MINUTE) as i32;
@@ -631,15 +630,6 @@ pub(crate) fn handle_expiry(world: &mut World, item_id: i32) {
         }
     }
     end_of_life(world, idx);
-}
-
-/// Broadcast `pkt` to every online player (Java `Broadcast.toAllOnlinePlayers`).
-fn broadcast_to_all(world: &World, pkt: &[u8]) {
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.to_vec());
-        }
-    }
 }
 
 // ---------------------------------------------------------------------------

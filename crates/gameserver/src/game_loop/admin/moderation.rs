@@ -62,11 +62,7 @@ pub(super) fn admin_announce(world: &mut World, client_id: u32, args: &[&str]) {
         sm_ids::S1_TEXT,
         &[server_packets::SmParam::Text(args.join(" "))],
     );
-    for cs in world.clients.values() {
-        if matches!(cs, ClientSession::InGame(_)) {
-            cs.send(packet.clone());
-        }
-    }
+    world.broadcast_to_all_online(&packet);
 }
 
 /// `AdminGmChat`'s `//gmchat <message>` — broadcast to every online GM

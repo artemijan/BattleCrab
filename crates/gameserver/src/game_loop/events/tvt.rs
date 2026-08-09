@@ -30,7 +30,6 @@ use crate::model::event::TvtPhase;
 use crate::model::npc::spawn_npc_at;
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 /// The event's registry name (Java `params.set("Name", "Team Vs Team")`; the
@@ -1281,11 +1280,7 @@ fn send_player_message(world: &World, client_id: u32, text: &str) {
 /// every in-game player.
 fn announce(world: &World, text: &str) {
     let pkt = sp::creature_say(0, ChatType::Announcement, "", text, None);
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.clone());
-        }
-    }
+    world.broadcast_to_all_online(&pkt);
 }
 
 /// `AntiFeedManager.tryAddPlayer(L2EVENT_ID, player, DUALBOX_CHECK_MAX_L2EVENT_

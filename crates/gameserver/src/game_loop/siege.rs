@@ -24,7 +24,6 @@ use crate::model::door::Door;
 use crate::model::siege::{SiegeClanType, SiegeSpawn};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::send_sm_bare_to_client as send_sm_to;
@@ -60,7 +59,7 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
 
     // "The <castle> siege has started." + the siege sound, to everyone.
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_STARTED, castle_id);
-    broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.17"));
+    world.broadcast_to_all_online(&server_packets::play_sound("systemmsg_eu.17"));
 
     // Auto-end after the siege length (Java `ScheduleEndSiegeTask`).
     let fire_at = world.tick + ms_to_ticks(SIEGE_LENGTH_MIN * 60 * 1000);
@@ -233,7 +232,7 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     }
 
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_FINISHED, castle_id);
-    broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.18"));
+    world.broadcast_to_all_online(&server_packets::play_sound("systemmsg_eu.18"));
 
     // The winner is whoever owns the castle at the end (an attacker only owns it
     // if they captured it mid-siege via `capture`).
@@ -249,7 +248,7 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
                 sm_ids::CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE,
                 &[SmParam::Text(owner_name), SmParam::CastleName(castle_id)],
             );
-            broadcast_to_all(world, &pkt);
+            world.broadcast_to_all_online(&pkt);
             // Java: owner unchanged (`clan.getId() == _firstOwnerClanId`) → the
             // defenders held → blood-alliance reward; owner changed → an attacker
             // captured it → the castle's mercenary ticket count is cleared.
@@ -1105,16 +1104,7 @@ pub(crate) fn oust_all_players(world: &mut World, castle_id: i32) {
 /// Broadcast `SystemMessage(id, castleName = castle_id)` to every online player.
 fn broadcast_sm(world: &World, message_id: i16, castle_id: i32) {
     let pkt = server_packets::system_message_with(message_id, &[SmParam::CastleName(castle_id)]);
-    broadcast_to_all(world, &pkt);
-}
-
-/// Java `Broadcast.toAllOnlinePlayers`.
-fn broadcast_to_all(world: &World, pkt: &[u8]) {
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.to_vec());
-        }
-    }
+    world.broadcast_to_all_online(&pkt);
 }
 
 // ---------------------------------------------------------------------------

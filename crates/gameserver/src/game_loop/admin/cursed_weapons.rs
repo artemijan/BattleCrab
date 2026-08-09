@@ -21,7 +21,6 @@ use crate::model::Player;
 use crate::model::components::Position;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, SmParam, sm_ids};
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::send_message;
@@ -410,7 +409,7 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         sm_ids::THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION,
         &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
     // Arming the `RemoveTask` is the caller's job (Java `reActivate`), since it
     // must happen *after* `//cw_add` has set the end time — arming here would
     // schedule against a stale (or zero) deadline and fire immediately.
@@ -492,7 +491,7 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
         sm_ids::S1_HAS_DISAPPEARED,
         &[SmParam::ItemName(item_id)],
     );
-    broadcast_to_all(world, &announce);
+    world.broadcast_to_all_online(&announce);
     let _ = name;
 
     world.cursed_weapons[idx].reset();
@@ -535,15 +534,6 @@ fn broadcast_to_visible(world: &World, subject: i32, pkt: &[u8]) {
         if let Some(cid) = super::helpers::client_for_player(world, oid)
             && let Some(cs) = world.clients.get(&cid)
         {
-            cs.send(pkt.to_vec());
-        }
-    }
-}
-
-/// Broadcast `pkt` to every online player (Java `CursedWeaponsManager.announce`).
-fn broadcast_to_all(world: &World, pkt: &[u8]) {
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
             cs.send(pkt.to_vec());
         }
     }

@@ -390,11 +390,7 @@ pub(crate) fn handle_cinematic_step(world: &mut World, step: u8) {
 
 /// The awakening is shown to the lair, like the other bosses' cinematics.
 fn broadcast_to_lair(world: &World, pkt: &[u8]) {
-    for cs in world.clients.values() {
-        if let crate::session::ClientSession::InGame(_) = cs {
-            cs.send(pkt.to_vec());
-        }
-    }
+    world.broadcast_to_all_online(pkt);
 }
 
 /// `getZoneById(70051)` — `baium_no_restart`, the boss-room zone (z 10061 –

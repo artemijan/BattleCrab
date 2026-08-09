@@ -455,11 +455,7 @@ fn broadcast_text(world: &World, text: &str) {
 /// Send one prebuilt packet to every online player (Java
 /// `Broadcast.toAllOnlinePlayers`).
 fn broadcast_packet(world: &World, packet: Vec<u8>) {
-    for cs in world.clients.values() {
-        if matches!(cs, ClientSession::InGame(_)) {
-            cs.send(packet.clone());
-        }
-    }
+    world.broadcast_to_all_online(&packet);
 }
 
 /// The clean logout teardown for a player (Java `Disconnection.of`): persist,

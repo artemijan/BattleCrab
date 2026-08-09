@@ -16,7 +16,6 @@ use crate::model::lottery::LotteryRow;
 use crate::network::enter_world as ew;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 const MINUTE_MILLIS: i64 = 60_000;
@@ -354,11 +353,7 @@ fn schedule_in(world: &mut World, delay_millis: i64, task: ScheduledTask) {
 /// Java `Broadcast.toAllOnlinePlayers` — an announcement line to every player.
 fn announce(world: &World, text: &str) {
     let pkt = server_packets::creature_say(0, ChatType::Announcement, "", text, None);
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.clone());
-        }
-    }
+    world.broadcast_to_all_online(&pkt);
 }
 
 // ---------------------------------------------------------------------------

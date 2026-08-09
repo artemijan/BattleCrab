@@ -576,11 +576,7 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
         sm_ids::ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED,
         &[SmParam::Int(world.olympiad.current_cycle)],
     );
-    for cs in world.clients.values() {
-        if matches!(cs, crate::session::ClientSession::InGame(_)) {
-            cs.send(announce.clone());
-        }
-    }
+    world.broadcast_to_all_online(&announce);
 
     let now = commons::util::now_millis();
     world.olympiad.validation_end = now + VALIDATION_PERIOD_MS;

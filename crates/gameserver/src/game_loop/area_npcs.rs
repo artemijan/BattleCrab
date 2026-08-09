@@ -205,11 +205,7 @@ fn nearest_castle_name(world: &World, x: i32, y: i32, z: i32) -> String {
 /// Java `Broadcast.toAllOnlinePlayers(text, false)`.
 fn announce_to_all(world: &World, text: &str) {
     let pkt = server_packets::creature_say(0, ChatType::Announcement, "", text, None);
-    for cs in world.clients.values() {
-        if let ClientSession::InGame(_) = cs {
-            cs.send(pkt.clone());
-        }
-    }
+    world.broadcast_to_all_online(&pkt);
 }
 
 // ---------------------------------------------------------------------------

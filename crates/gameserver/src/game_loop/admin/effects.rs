@@ -247,11 +247,7 @@ pub(super) fn admin_atmosphere(world: &mut World, client_id: u32, args: &[&str])
         send_message(world, client_id, usage);
         return;
     };
-    for cs in world.clients.values() {
-        if matches!(cs, ClientSession::InGame(_)) {
-            cs.send(packet.clone());
-        }
-    }
+    world.broadcast_to_all_online(&packet);
 }
 
 /// `AdminEffects`' `//play_sound <name>` — play a client sound for the GM and
