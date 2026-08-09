@@ -495,14 +495,15 @@ pub(crate) async fn run(
                         .exec(&db)
                         .await,
                 );
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Reputation, reputation.into())
-                        .col_expr(characters::Column::Pkkills, pk_kills.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_cols(
+                    &db,
+                    char_id,
+                    vec![
+                        (characters::Column::Reputation, reputation.into()),
+                        (characters::Column::Pkkills, pk_kills.into()),
+                    ],
+                )
+                .await;
                 if !skill_ids.is_empty() {
                     warn_err(
                         character_skills::Entity::delete_many()
@@ -1021,43 +1022,45 @@ pub(crate) async fn run(
                 char_penalty_expiry_time,
                 dissolving_expiry_time,
             } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(
+                set_clan_cols(
+                    &db,
+                    clan_id,
+                    vec![
+                        (
                             clan_data::Column::CharPenaltyExpiryTime,
                             char_penalty_expiry_time.into(),
-                        )
-                        .col_expr(
+                        ),
+                        (
                             clan_data::Column::DissolvingExpiryTime,
                             dissolving_expiry_time.into(),
-                        )
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                        ),
+                    ],
+                )
+                .await;
             }
             DbCommand::RemoveClanMember {
                 char_id,
                 clan_join_expiry,
                 clan_create_expiry,
             } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Clanid, 0.into())
-                        .col_expr(characters::Column::Title, "".into())
-                        .col_expr(characters::Column::ClanPrivs, 0.into())
-                        .col_expr(
+                set_char_cols(
+                    &db,
+                    char_id,
+                    vec![
+                        (characters::Column::Clanid, 0.into()),
+                        (characters::Column::Title, "".into()),
+                        (characters::Column::ClanPrivs, 0.into()),
+                        (
                             characters::Column::ClanJoinExpiryTime,
                             clan_join_expiry.into(),
-                        )
-                        .col_expr(
+                        ),
+                        (
                             characters::Column::ClanCreateExpiryTime,
                             clan_create_expiry.into(),
-                        )
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                        ),
+                    ],
+                )
+                .await;
             }
             DbCommand::SaveClanRankPrivs {
                 clan_id,
@@ -1103,19 +1106,20 @@ pub(crate) async fn run(
                 penalty_expiry,
                 penalty_type,
             } => {
-                warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::AllyId, ally_id.into())
-                        .col_expr(clan_data::Column::AllyName, ally_name.into())
-                        .col_expr(
+                set_clan_cols(
+                    &db,
+                    clan_id,
+                    vec![
+                        (clan_data::Column::AllyId, ally_id.into()),
+                        (clan_data::Column::AllyName, ally_name.into()),
+                        (
                             clan_data::Column::AllyPenaltyExpiryTime,
                             penalty_expiry.into(),
-                        )
-                        .col_expr(clan_data::Column::AllyPenaltyType, penalty_type.into())
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
-                        .exec(&db)
-                        .await,
-                );
+                        ),
+                        (clan_data::Column::AllyPenaltyType, penalty_type.into()),
+                    ],
+                )
+                .await;
             }
             DbCommand::InsertSubPledge {
                 clan_id,
@@ -1167,14 +1171,15 @@ pub(crate) async fn run(
                 apprentice,
                 sponsor,
             } => {
-                warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Apprentice, apprentice.into())
-                        .col_expr(characters::Column::Sponsor, sponsor.into())
-                        .filter(characters::Column::CharId.eq(char_id))
-                        .exec(&db)
-                        .await,
-                );
+                set_char_cols(
+                    &db,
+                    char_id,
+                    vec![
+                        (characters::Column::Apprentice, apprentice.into()),
+                        (characters::Column::Sponsor, sponsor.into()),
+                    ],
+                )
+                .await;
             }
             DbCommand::UpdateCharPledgeType {
                 char_id,
@@ -2263,8 +2268,10 @@ pub(crate) async fn run(
     info!("DB thread: stopped.");
 }
 
-/// `UPDATE <E> SET col = val WHERE key = id` — the shape twenty-odd of the
-/// single-field `DbCommand` arms above reduce to.
+/// `UPDATE <E> SET … WHERE key = id` — the shape most of the `DbCommand` arms
+/// above reduce to. **One statement**, however many columns are passed: the
+/// arms that set several fields set them together, and issuing a statement per
+/// column would make a half-applied write visible.
 ///
 /// `update_many` rather than a loaded `ActiveModel`: the game thread already
 /// holds the authoritative value, so re-reading the row first would be a round
@@ -2272,9 +2279,20 @@ pub(crate) async fn run(
 /// swallowed by [`warn_err`], like every other write on this thread — the DB
 /// mirrors live state rather than owning it, so a lost write must not take the
 /// server down with it.
-///
-/// Arms that set *several* columns keep their own `update_many` chain: that is
-/// one statement, and calling this once per column would make it several.
+async fn set_cols<E: EntityTrait>(
+    db: &DatabaseConnection,
+    key: E::Column,
+    id: i32,
+    cols: Vec<(E::Column, SimpleExpr)>,
+) {
+    let mut q = E::update_many();
+    for (col, val) in cols {
+        q = q.col_expr(col, val);
+    }
+    warn_err(q.filter(key.eq(id)).exec(db).await);
+}
+
+/// [`set_cols`] for the one-column case, which is most of them.
 async fn set_col<E: EntityTrait>(
     db: &DatabaseConnection,
     key: E::Column,
@@ -2282,13 +2300,7 @@ async fn set_col<E: EntityTrait>(
     col: E::Column,
     val: SimpleExpr,
 ) {
-    warn_err(
-        E::update_many()
-            .col_expr(col, val)
-            .filter(key.eq(id))
-            .exec(db)
-            .await,
-    );
+    set_cols::<E>(db, key, id, vec![(col, val)]).await;
 }
 
 /// [`set_col`] on `characters`, keyed by `char_id`.
@@ -2298,7 +2310,25 @@ async fn set_char_col(
     col: characters::Column,
     val: SimpleExpr,
 ) {
-    set_col::<characters::Entity>(db, characters::Column::CharId, char_id, col, val).await;
+    set_char_cols(db, char_id, vec![(col, val)]).await;
+}
+
+/// [`set_cols`] on `characters`, keyed by `char_id`.
+async fn set_char_cols(
+    db: &DatabaseConnection,
+    char_id: i32,
+    cols: Vec<(characters::Column, SimpleExpr)>,
+) {
+    set_cols::<characters::Entity>(db, characters::Column::CharId, char_id, cols).await;
+}
+
+/// [`set_cols`] on `clan_data`, keyed by `clan_id`.
+async fn set_clan_cols(
+    db: &DatabaseConnection,
+    clan_id: i32,
+    cols: Vec<(clan_data::Column, SimpleExpr)>,
+) {
+    set_cols::<clan_data::Entity>(db, clan_data::Column::ClanId, clan_id, cols).await;
 }
 
 /// [`set_col`] on `clan_data`, keyed by `clan_id`.
@@ -2308,7 +2338,7 @@ async fn set_clan_col(
     col: clan_data::Column,
     val: SimpleExpr,
 ) {
-    set_col::<clan_data::Entity>(db, clan_data::Column::ClanId, clan_id, col, val).await;
+    set_clan_cols(db, clan_id, vec![(col, val)]).await;
 }
 
 /// [`set_col`] on `castle`, keyed by `castle_id`.
