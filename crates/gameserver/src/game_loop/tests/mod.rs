@@ -289,6 +289,16 @@ fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
     w.into_bytes()
 }
 
+fn npc_count(world: &mut World, npc_id: i32) -> usize {
+    let mut n = 0;
+    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+        if x.npc_id == npc_id {
+            n += 1;
+        }
+    });
+    n
+}
+
 fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
 }
