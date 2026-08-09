@@ -14,10 +14,11 @@
 //! or the skill unknown, so the panel self-cleans rather than accumulating
 //! dead entries.
 
+use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
-use crate::model::components::{AutoPlaySettings, AutoUseSettings, SkillBook, Vitals, ZoneFlags};
+use crate::model::components::{AutoPlaySettings, AutoUseSettings, SkillBook, ZoneFlags};
 use crate::model::inventory::Inventory;
 use crate::world::World;
 
@@ -105,11 +106,7 @@ fn use_potion(world: &mut World, player_oid: i32) {
     if percent <= 0 {
         return;
     }
-    let Some((cur, max)) = world
-        .objects
-        .get_component::<Vitals>(&player_oid)
-        .map(|v| (v.cur_hp, v.max_hp as f64))
-    else {
+    let Some((cur, max)) = hp_pair(world, player_oid) else {
         return;
     };
     if max <= 0.0 || (cur / max) * 100.0 >= percent as f64 {

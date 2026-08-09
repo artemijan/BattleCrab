@@ -193,6 +193,40 @@ pub(crate) fn in_zone(world: &World, object_id: i32, zone: &crate::data::zone_da
         .is_some_and(|p| zone.contains(p.x, p.y, p.z))
 }
 
+/// A creature's `(current, maximum)` HP, the maximum widened to `f64` so the
+/// pair can be divided or compared without a cast at every use.
+///
+/// `None` once the object has left the world. Callers that only want the ratio
+/// should take [`hp_fraction`], which also handles a zero maximum.
+pub(crate) fn hp_pair(world: &World, object_id: i32) -> Option<(f64, f64)> {
+    world
+        .objects
+        .get_component::<Vitals>(&object_id)
+        .map(|v| (v.cur_hp, v.max_hp as f64))
+}
+
+/// A creature's HP as a fraction of its maximum, `0.0..=1.0` — Java's
+/// `getCurrentHp() / getMaxHp()`, the number behind every "below N%" gate.
+///
+/// `None` for a departed object **and** for a zero maximum. That second case is
+/// not paranoia: `max_hp` is 0 between an NPC's spawn and its first stat
+/// recompute, and dividing there yields a `NaN` that compares `false` against
+/// every threshold — so a boss script silently behaves as though the mob were
+/// at full health. Every caller guarded it separately, in four different ways,
+/// and one had missed it.
+///
+/// The fraction is canonical rather than a percentage on purpose: what each
+/// caller does with a missing answer is *theirs*. `npc_cast` treats it as
+/// "healthy, don't heal", `cubic` as "dead, skip", and those are opposite
+/// defaults that must not be folded into one helper.
+pub(crate) fn hp_fraction(world: &World, object_id: i32) -> Option<f64> {
+    world
+        .objects
+        .get_component::<Vitals>(&object_id)
+        .filter(|v| v.max_hp > 0)
+        .map(|v| v.cur_hp / v.max_hp as f64)
+}
+
 /// Whether a creature counts as dead — **`true` when it has no [`Vitals`] at
 /// all**.
 ///

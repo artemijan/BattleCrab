@@ -687,18 +687,11 @@ fn collision_radius(world: &World, oid: i32) -> f64 {
         .unwrap_or(0.0)
 }
 
+/// `100.0` when the answer is unavailable — a departed target or one whose
+/// stats have not been computed yet reads as *healthy*, so the heal and
+/// self-buff gates below it decline rather than fire blind.
 fn hp_percent(world: &World, oid: i32) -> f64 {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| {
-            if v.max_hp > 0 {
-                v.cur_hp / v.max_hp as f64 * 100.0
-            } else {
-                100.0
-            }
-        })
-        .unwrap_or(100.0)
+    crate::game_loop::helpers::hp_fraction(world, oid).map_or(100.0, |f| f * 100.0)
 }
 
 /// `EffectList.hasAbnormalType(type, i -> i.getSkill().getAbnormalLevel() >= level)`

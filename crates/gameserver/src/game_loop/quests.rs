@@ -11,6 +11,7 @@
 //! script. Scripts are stateless; all state flows through the ctx.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::hp_fraction;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_action_failed;
@@ -1621,12 +1622,7 @@ impl<'w> QuestCtx<'w> {
     /// health, so an HP *threshold* test fails closed rather than firing on
     /// every NPC the script cannot see.
     pub fn npc_hp_ratio(&self) -> f64 {
-        self.world
-            .objects
-            .get_component::<crate::model::components::Vitals>(&self.npc)
-            .filter(|v| v.max_hp > 0)
-            .map(|v| v.cur_hp / f64::from(v.max_hp))
-            .unwrap_or(1.0)
+        hp_fraction(self.world, self.npc).unwrap_or(1.0)
     }
 
     /// `npc.setTarget(target); npc.doCast(skill)` — a **real** cast by an NPC,

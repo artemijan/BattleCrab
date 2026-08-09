@@ -16,6 +16,7 @@
 
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::set_position;
@@ -187,11 +188,7 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
     }
 
     // Otherwise refresh the recovery buff at the level his health calls for.
-    if let Some((cur, max)) = world
-        .objects
-        .get_component::<Vitals>(&valakas_oid)
-        .map(|v| (v.cur_hp, v.max_hp as f64))
-    {
+    if let Some((cur, max)) = hp_pair(world, valakas_oid) {
         let level = regen_level(cur, max);
         if let Some(skill) = skill_by_id(world, VALAKAS_REGENERATION, level) {
             crate::game_loop::skills::effects::apply_continuous_effects(
@@ -331,11 +328,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
 /// `getRandomSkill`: Lava Skin when hurt-and-lucky (and not already up), a mass
 /// spell when surrounded, otherwise the HP-banded pool.
 fn choose_skill(world: &mut World, valakas_oid: i32) -> i32 {
-    let (cur, max) = world
-        .objects
-        .get_component::<Vitals>(&valakas_oid)
-        .map(|v| (v.cur_hp, v.max_hp as f64))
-        .unwrap_or((1.0, 1.0));
+    let (cur, max) = hp_pair(world, valakas_oid).unwrap_or((1.0, 1.0));
     let hp_ratio = (cur / max) * 100.0;
 
     // Lava Skin has priority: below 75% HP, a 1-in-150 roll, not already active.
