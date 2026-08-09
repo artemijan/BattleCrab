@@ -19,6 +19,7 @@
 //! counts the report without punishing since the punish path needs a `Player`).
 
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashMap;
 
 use crate::config::bot_report::BotReportConfig;
@@ -381,7 +382,7 @@ fn handle_report(world: &mut World, bot_oid: i32) {
         .collect();
 
     for (skill_id, skill_level, sys_message_id) in to_apply {
-        let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+        let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
             tracing::warn!(
                 "BotReport: could not punish with skill {skill_id}-{skill_level}: no such skill."
             );

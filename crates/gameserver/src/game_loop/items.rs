@@ -3,6 +3,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::skill_by_id;
 use tracing::warn;
 
 use crate::data::item_data::ItemHandler;
@@ -1609,7 +1610,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     // the per-skill `continue`s, so a skill that never fires still counts.
     let mut has_consume_skill = false;
     for (skill_id, skill_level) in item_skills {
-        let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+        let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
         if skill.item_consume_id > 0 {

@@ -6,6 +6,7 @@
 //! simply shoved 500 units away on landing and again on every 5-tick beat.
 
 use super::*;
+use crate::game_loop::helpers::skill_by_id;
 
 use crate::model::components::{Movement, Position};
 use crate::model::npc::{NpcAi, NpcIntention};
@@ -68,12 +69,7 @@ fn fear_skill(id: i32) -> Skill {
 }
 
 fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world
-        .data
-        .skill_data
-        .get(skill_id, 1)
-        .cloned()
-        .expect("registered");
+    let skill = skill_by_id(world, skill_id, 1).expect("registered");
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 

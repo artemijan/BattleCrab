@@ -19,6 +19,23 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
     world.clients.client_of_player(player_object_id)
 }
 
+/// Java `SkillData.getSkill(id, level)` — a datapack skill, **cloned**.
+///
+/// The clone is not incidental. Every `apply_*` in the skill pipeline wants
+/// `&mut World`, so a borrow of `world.data.skill_data` cannot survive the
+/// call; sixty-odd lookup sites all cloned immediately, and each spelled the
+/// four-segment path out by hand. This is that, said once.
+///
+/// Enchanted sub-levels go through `SkillData::get_enchanted` instead — they
+/// are a different lookup, not a defaulted argument.
+pub(crate) fn skill_by_id(
+    world: &World,
+    id: i32,
+    level: i32,
+) -> Option<crate::model::skill::Skill> {
+    world.data.skill_data.get(id, level).cloned()
+}
+
 /// The object id of the player driven by `client_id`, or `None` when that
 /// session is not `InGame` (still logging in, in the lobby, or already gone).
 ///

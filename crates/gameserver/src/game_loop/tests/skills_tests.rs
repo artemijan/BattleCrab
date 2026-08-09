@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::skill_by_id;
 use commons::system_messages::generated::{
     C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
 };
@@ -6191,12 +6192,7 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
             v.max_hp = 1_000_000;
             v.cur_hp = 1_000_000.0;
         }
-        let skill = world
-            .data
-            .skill_data
-            .get(skill_id, 1)
-            .cloned()
-            .expect("skill");
+        let skill = skill_by_id(world, skill_id, 1).expect("skill");
         world.forced_rolls.clear();
         world.forced_rolls.extend([50; 12]);
         crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, npc, &skill);

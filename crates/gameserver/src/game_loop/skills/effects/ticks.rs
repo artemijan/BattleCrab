@@ -3,6 +3,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::skill_by_id;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
 /// `power * getTicksMultiplier()` from `caster` to `target` for each of the
@@ -29,7 +30,7 @@ pub(crate) fn handle_dam_over_time_tick(
     if is_dead(world, target_oid) {
         return;
     }
-    let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
         return;
     };
     // Effector name for the damage message (`Player.sendDamageMessage`); empty
@@ -356,12 +357,7 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         let called = Skill {
             self_continuous: false,
             effects: end_effects,
-            ..world
-                .data
-                .skill_data
-                .get(skill_id, 1)
-                .cloned()
-                .unwrap_or_default()
+            ..skill_by_id(world, skill_id, 1).unwrap_or_default()
         };
         apply_skill_effects(world, player_object_id, player_object_id, &called);
     }
@@ -537,12 +533,11 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
         }
     }
     // `MagicMpCost.onExit` / `Reuse.onExit`.
-    if let Some(skill) = world
-        .data
-        .skill_data
-        .get(skill_id, buff_level(world, player_object_id, skill_id))
-        .cloned()
-    {
+    if let Some(skill) = skill_by_id(
+        world,
+        skill_id,
+        buff_level(world, player_object_id, skill_id),
+    ) {
         remove_skill_rates(world, player_object_id, &skill);
     }
     // Did the buff about to go carry a visual? If not, the set can't change and

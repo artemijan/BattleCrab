@@ -26,6 +26,7 @@
 //! its own skill ladder.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::skill_by_id;
 use crate::world::World;
 
 /// `getRandom(3000)` — the jitter added to every stored threat value.
@@ -239,7 +240,7 @@ pub(crate) fn cast_boss_skill(
     skill_id: i32,
     on_self: bool,
 ) -> bool {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, 1) else {
         return false;
     };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, boss_oid, &skill) {

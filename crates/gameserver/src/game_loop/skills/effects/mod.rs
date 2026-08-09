@@ -22,6 +22,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
@@ -682,7 +683,7 @@ pub(crate) fn apply_skill_effects(
                 if *chance < 100 && world.roll(100) > *chance {
                     continue;
                 }
-                let Some(called) = world.data.skill_data.get(*skill_id, *skill_level).cloned()
+                let Some(called) = skill_by_id(world, *skill_id, *skill_level)
                 else {
                     continue;
                 };

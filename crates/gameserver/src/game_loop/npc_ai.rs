@@ -29,6 +29,7 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashSet;
 
 use commons::util::rnd;
@@ -2123,7 +2124,7 @@ fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, 
         .get_component::<Vitals>(&caller_oid)
         .map(|v| (v.cur_hp, v.max_hp as f64));
     let cast = |world: &mut World, target: i32, (id, lvl): (i32, i32)| {
-        if let Some(skill) = world.data.skill_data.get(id, lvl).cloned()
+        if let Some(skill) = skill_by_id(world, id, lvl)
             && crate::game_loop::npc_cast::check_use_conditions_pub(world, recruit_oid, &skill)
         {
             crate::game_loop::npc_cast::start_cast(world, recruit_oid, target, &skill);

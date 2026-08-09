@@ -7,6 +7,7 @@ use crate::enums::AdminTeleportType;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
 use crate::model::components::Speeds;
 use crate::model::npc::Npc;
@@ -478,7 +479,7 @@ pub(super) fn admin_superhaste(world: &mut World, client_id: u32, object_id: i32
     if level == 0 {
         return;
     }
-    let Some(skill) = world.data.skill_data.get(SUPER_HASTE_ID, level).cloned() else {
+    let Some(skill) = skill_by_id(world, SUPER_HASTE_ID, level) else {
         send_message(world, client_id, "Super-haste skill not found.");
         return;
     };

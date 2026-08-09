@@ -17,6 +17,7 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;
 use crate::model::components::{AdminFlags, Movement, Position};
@@ -1253,7 +1254,7 @@ fn play_song(world: &mut World, instance_id: i32) {
         // — the song's matching debuff lands on everyone (the animation above is
         // the 5007 half). Applied directly, since the cast is one-per-target.
         let level = n as i32 + 1;
-        if let Some(skill) = world.data.skill_data.get(SONG_EFFECT_SKILL, level).cloned() {
+        if let Some(skill) = skill_by_id(world, SONG_EFFECT_SKILL, level) {
             for player in instance_members(world, instance_id) {
                 crate::game_loop::skills::effects::apply_skill_effects(
                     world, frintezza, player, &skill,
@@ -1400,7 +1401,7 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
     let (skill_id, level) = pick_daemon_skill(world, instance_id, npc_id);
     let range = skill_range(skill_id);
     if let Some(target) = pick_target_in_range(world, instance_id, scarlet, range)
-        && let Some(skill) = world.data.skill_data.get(skill_id, level).cloned()
+        && let Some(skill) = skill_by_id(world, skill_id, level)
     {
         crate::game_loop::npc_cast::start_cast(world, scarlet, target, &skill);
     }

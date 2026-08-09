@@ -5,6 +5,7 @@
 use crate::game_loop::common::maybe_distance_too_far;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{
     broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action,
     send_sm_and_action_failed,
@@ -1484,7 +1485,7 @@ fn apply_channeled_skill(world: &mut World, channelizer: i32, target: i32, skill
     if current.is_some_and(|lvl| lvl >= level) {
         return;
     }
-    let Some(channeled) = world.data.skill_data.get(channeled_id, level).cloned() else {
+    let Some(channeled) = skill_by_id(world, channeled_id, level) else {
         // Java logs and aborts the cast on a missing channeled skill.
         tracing::warn!(
             "Channeling: skill {} names a non-existent channeling skill {channeled_id}.",

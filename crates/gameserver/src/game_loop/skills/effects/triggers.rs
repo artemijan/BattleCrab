@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::skill_by_id;
 
 /// `TriggerSkillByDamage`'s `onDamageReceivedEvent` — the mirror of
 /// [`fire_attack_triggers`], evaluated for every hit the **bearer takes**.
@@ -49,7 +50,7 @@ pub(crate) fn fire_damage_received_triggers(
 
     let mut fired: Vec<(i32, i32, bool)> = Vec::new();
     for (skill_id, skill_level) in known {
-        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+        let Some(carrier) = skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
         for effect in &carrier.effects {
@@ -96,12 +97,7 @@ pub(crate) fn fire_damage_received_triggers(
     }
 
     for (trigger_id, trigger_level, on_attacker) in fired {
-        let Some(trigger) = world
-            .data
-            .skill_data
-            .get(trigger_id, trigger_level)
-            .cloned()
-        else {
+        let Some(trigger) = skill_by_id(world, trigger_id, trigger_level) else {
             continue;
         };
         // `targetType`: ENEMY casts back at whoever hit you, SELF on yourself.
@@ -152,7 +148,7 @@ pub(crate) fn fire_magic_type_triggers(
 
     let mut fired: Vec<(i32, i32, bool)> = Vec::new();
     for (skill_id, skill_level) in known {
-        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+        let Some(carrier) = skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
         for effect in &carrier.effects {
@@ -180,12 +176,7 @@ pub(crate) fn fire_magic_type_triggers(
     }
 
     for (trigger_id, trigger_level, on_party) in fired {
-        let Some(trigger) = world
-            .data
-            .skill_data
-            .get(trigger_id, trigger_level)
-            .cloned()
-        else {
+        let Some(trigger) = skill_by_id(world, trigger_id, trigger_level) else {
             continue;
         };
         // Java resolves the trigger's own `targetType` against the *triggering
@@ -248,7 +239,7 @@ pub(crate) fn fire_attack_triggers(
 
     let mut fired: Vec<(i32, i32, bool)> = Vec::new();
     for (skill_id, skill_level) in known {
-        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+        let Some(carrier) = skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
         for effect in &carrier.effects {
@@ -281,12 +272,7 @@ pub(crate) fn fire_attack_triggers(
     }
 
     for (trigger_id, trigger_level, on_party) in fired {
-        let Some(trigger) = world
-            .data
-            .skill_data
-            .get(trigger_id, trigger_level)
-            .cloned()
-        else {
+        let Some(trigger) = skill_by_id(world, trigger_id, trigger_level) else {
             continue;
         };
         // `targetType`: SELF or MY_PARTY. The party case reduces to the caster
@@ -370,7 +356,7 @@ fn fire_option_triggers(
         }
     }
     for (skill_id, skill_level) in fired {
-        let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+        let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
         // `SkillCaster.triggerCast(this, target, skill, null, false)` — the

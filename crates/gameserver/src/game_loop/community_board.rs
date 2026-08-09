@@ -40,6 +40,7 @@
 //! links here — ported per the config-disabled rule.
 
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::skill_by_id;
 use tracing::warn;
 
 use crate::model::Player;
@@ -652,7 +653,7 @@ fn do_buff(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         if !world.cfg.community_board.available_buffs.contains(&id) {
             continue; // anti-exploit whitelist (Java `COMMUNITY_AVAILABLE_BUFFS`)
         }
-        let Some(skill) = world.data.skill_data.get(id, lvl).cloned() else {
+        let Some(skill) = skill_by_id(world, id, lvl) else {
             warn!("CommunityBoard: buff skill {id}/{lvl} missing from skill data.");
             continue;
         };
@@ -967,7 +968,7 @@ pub(crate) fn apply_scheme(
         let Some(level) = world.data.scheme_buffer.level_of(*skill_id) else {
             continue;
         };
-        let Some(skill) = world.data.skill_data.get(*skill_id, level).cloned() else {
+        let Some(skill) = skill_by_id(world, *skill_id, level) else {
             warn!("CommunityBoard: scheme buff {skill_id}/{level} missing from skill data.");
             continue;
         };

@@ -3,6 +3,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::skill_by_id;
 
 use crate::game_loop::abnormal;
 use crate::game_loop::helpers::stat_add;
@@ -70,12 +71,7 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
 /// Land a CC skill straight onto `target`, bypassing the cast pipeline (which
 /// the affect/cast tests already cover) so these cases isolate the state.
 fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world
-        .data
-        .skill_data
-        .get(skill_id, 1)
-        .cloned()
-        .expect("registered");
+    let skill = skill_by_id(world, skill_id, 1).expect("registered");
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 
@@ -385,12 +381,7 @@ fn a_stun_broadcasts_magic_skill_canceled_to_stop_the_animation() {
     // The same for a *monster* mid-cast — the case that shows up as a slept mob
     // that keeps playing its spell animation.
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
-    let mob_skill = world
-        .data
-        .skill_data
-        .get(91, 1)
-        .cloned()
-        .expect("registered");
+    let mob_skill = skill_by_id(&world, 91, 1).expect("registered");
     crate::game_loop::npc_cast::start_cast(&mut world, NPC_OID, CASTER, &mob_skill);
     assert!(
         world.objects.has_component::<Casting>(&NPC_OID),
@@ -631,7 +622,7 @@ fn debuff_block_refuses_incoming_debuffs() {
     );
 
     // A *buff* still lands (1068 is the Might-like buff, not a debuff).
-    let buff = world.data.skill_data.get(1068, 1).cloned().expect("might");
+    let buff = skill_by_id(&world, 1068, 1).expect("might");
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
     assert!(
         has_buff(&world, VICTIM, 1068),
@@ -834,7 +825,7 @@ fn buffs_without_a_visual_send_no_visual_packet() {
     drain(&mut vout);
 
     // 1068 is the Might-like stat buff from `cast_test_world` — no visual.
-    let buff = world.data.skill_data.get(1068, 1).cloned().expect("might");
+    let buff = skill_by_id(&world, 1068, 1).expect("might");
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
 
     let pkts = drain(&mut vout);

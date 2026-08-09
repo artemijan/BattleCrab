@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::skill_by_id;
 
 /// The clan's member object-ids that are currently online (leader included).
 pub(crate) fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
@@ -25,12 +26,7 @@ pub(crate) fn apply_clan_advent(world: &mut World, object_id: i32) {
     if already {
         return;
     }
-    let Some(skill) = world
-        .data
-        .skill_data
-        .get(CLAN_ADVENT_SKILL_ID, CLAN_ADVENT_SKILL_LEVEL)
-        .cloned()
-    else {
+    let Some(skill) = skill_by_id(world, CLAN_ADVENT_SKILL_ID, CLAN_ADVENT_SKILL_LEVEL) else {
         return;
     };
     crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);

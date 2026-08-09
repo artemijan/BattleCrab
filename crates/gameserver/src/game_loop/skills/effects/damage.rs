@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::stat_add;
 
 /// `calcShldUse` applied to a **skill's** defence term (Java's
@@ -231,7 +232,7 @@ pub(crate) fn calc_counter_attack(
     if is_dot {
         return;
     }
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, 1) else {
         return;
     };
     if skill.magic_type == 1 || skill.cast_range > MELEE_ATTACK_RANGE {

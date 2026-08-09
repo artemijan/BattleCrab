@@ -2,6 +2,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::skill_by_id;
 
 use crate::game_loop::helpers::stat_mul;
 use crate::model::components::PlayerVitals;
@@ -69,12 +70,7 @@ fn periodic_skill(id: i32, effects: Vec<SkillEffect>, toggle: bool) -> Skill {
 }
 
 fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world
-        .data
-        .skill_data
-        .get(skill_id, 1)
-        .cloned()
-        .expect("registered");
+    let skill = skill_by_id(world, skill_id, 1).expect("registered");
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 
@@ -285,12 +281,7 @@ fn heal_effect_scales_received_healing() {
             .unwrap()
             .cur_hp = 1.0;
         // 1015 is `cast_test_world`'s Battle-Heal-like skill.
-        let skill = world
-            .data
-            .skill_data
-            .get(1015, 1)
-            .cloned()
-            .expect("heal skill");
+        let skill = skill_by_id(world, 1015, 1).expect("heal skill");
         crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, CASTER, &skill);
         hp(world, CASTER) - 1.0
     };

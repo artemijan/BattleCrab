@@ -18,6 +18,7 @@ use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Casting, Position};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -155,14 +156,14 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
 
     if is_gm {
         // GM: the stock 1-second escape.
-        if let Some(skill) = world.data.skill_data.get(GM_ESCAPE_SKILL_ID, 1).cloned() {
+        if let Some(skill) = skill_by_id(world, GM_ESCAPE_SKILL_ID, 1) {
             super::skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
         } else {
             super::admin::send_message(world, client_id, "You use Escape: 1 second.");
         }
         return;
     }
-    let Some(mut skill) = world.data.skill_data.get(ESCAPE_SKILL_ID, 1).cloned() else {
+    let Some(mut skill) = skill_by_id(world, ESCAPE_SKILL_ID, 1) else {
         return;
     };
     if interval == 300 {

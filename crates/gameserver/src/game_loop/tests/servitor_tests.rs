@@ -7,6 +7,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::skill_by_id;
 
 use crate::model::components::ServitorOf;
 use crate::model::skill::SkillEffect;
@@ -4797,7 +4798,7 @@ fn sharing_world() -> (
 }
 
 fn land_on(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world.data.skill_data.get(skill_id, 1).cloned().unwrap();
+    let skill = skill_by_id(world, skill_id, 1).unwrap();
     crate::game_loop::skills::effects::apply_skill_effects(world, target, target, &skill);
 }
 

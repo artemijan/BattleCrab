@@ -11,6 +11,7 @@
 //! - `RandomWalkingGuards` — the five village guards Java lets wander even
 //!   though `Guard`s have random walking off by default.
 
+use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
 
@@ -134,7 +135,7 @@ fn send_no_adena(ctx: &QuestCtx) {
 /// `SkillCaster.triggerCast(npc, player, skill)` / `npc.doCast` — the NPC casts
 /// on the player with no cast time.
 fn trigger_cast(ctx: &mut QuestCtx, skill_id: i32) {
-    let Some(skill) = ctx.world.data.skill_data.get(skill_id, 1).cloned() else {
+    let Some(skill) = skill_by_id(ctx.world, skill_id, 1) else {
         return;
     };
     crate::game_loop::npc_cast::start_cast(ctx.world, ctx.npc, ctx.player, &skill);

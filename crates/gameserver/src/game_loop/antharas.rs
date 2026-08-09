@@ -11,6 +11,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::skill_by_id;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -761,7 +762,7 @@ pub(crate) fn on_antharas_damage(
         .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
     if on_strider
         && !crate::game_loop::abnormal::has_buff(world, attacker_oid, ANTI_STRIDER)
-        && let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned()
+        && let Some(skill) = skill_by_id(world, ANTI_STRIDER, 1)
         && crate::game_loop::npc_cast::check_use_conditions_pub(world, antharas_oid, &skill)
     {
         crate::game_loop::npc_cast::start_cast(world, antharas_oid, attacker_oid, &skill);

@@ -5,6 +5,7 @@
 //! `model/actor/instance/EffectPoint.java` (the fixed-rate `union_skill` cast
 //! task + the despawn schedule); both halves live here.
 
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{SummonerRef, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -162,7 +163,7 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
     else {
         return;
     };
-    if let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() {
+    if let Some(skill) = skill_by_id(world, skill_id, skill_level) {
         super::npc_cast::start_cast(world, npc_oid, npc_oid, &skill);
     }
     world.scheduler.schedule(

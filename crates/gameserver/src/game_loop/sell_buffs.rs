@@ -19,6 +19,7 @@
 
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::skill_by_id;
 use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::world::World;
@@ -436,7 +437,7 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
         send_buff_menu(world, client_id, buyer_oid, seller_oid, index);
         return;
     };
-    let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() else {
+    let Some(skill) = skill_by_id(world, skill_id, level) else {
         return;
     };
     let mp_cost = (skill.mp_consume * world.cfg.sell_buffs.mp_multiplier) as f64;
