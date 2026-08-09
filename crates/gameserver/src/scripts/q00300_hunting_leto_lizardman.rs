@@ -5,7 +5,6 @@
 //! or 50 Animal Bone (25%). Repeatable. Per-mob drop chances are out of 1000.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 const RATH: i32 = 30126;
 const BRACELET_OF_LIZARDMAN: i32 = 7139;
@@ -93,12 +92,7 @@ impl QuestScript for Q00300HuntingLetoLizardman {
     /// `getRandom(1000) < chance`; the **60th** flips cond to 2.
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if ctx.has_qs() && ctx.is_cond(1) && ctx.roll(1000) < drop_chance(ctx.npc_id) {
-            ctx.give_items(BRACELET_OF_LIZARDMAN, 1);
-            if ctx.quest_items_count(BRACELET_OF_LIZARDMAN) == REQUIRED_BRACELET_COUNT {
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
+            ctx.collect_toward(BRACELET_OF_LIZARDMAN, REQUIRED_BRACELET_COUNT, 2);
         }
     }
 

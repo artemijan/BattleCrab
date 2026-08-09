@@ -2,7 +2,6 @@
 //! wants 20 Starstones off the Whinstone Golems for 2 Gatekeeper Tokens.
 //! Repeatable, level 15–21; the min-level check is in the start event.
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 const WIRPHY: i32 = 30540;
 const WHINSTONE_GOLEM: i32 = 20521;
 const STARSTONE: i32 = 1573;
@@ -47,13 +46,8 @@ impl QuestScript for Q00297GatekeepersFavor {
         None
     }
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_started() && ctx.quest_items_count(STARSTONE) < STARSTONE_COUNT {
-            ctx.give_items(STARSTONE, 1);
-            if ctx.quest_items_count(STARSTONE) >= STARSTONE_COUNT {
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
+        if ctx.has_qs() && ctx.is_started() {
+            ctx.collect_capped(STARSTONE, STARSTONE_COUNT, 2);
         }
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

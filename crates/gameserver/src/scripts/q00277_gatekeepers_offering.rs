@@ -5,7 +5,6 @@
 //! minimum-level check lives in the **start event**, not the talk.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 const TAMIL: i32 = 30576;
 const GREYSTONE_GOLEM: i32 = 20333;
@@ -57,13 +56,8 @@ impl QuestScript for Q00277GatekeepersOffering {
     }
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_started() && ctx.quest_items_count(STARSTONE) < STARSTONE_COUNT {
-            ctx.give_items(STARSTONE, 1);
-            if ctx.quest_items_count(STARSTONE) >= STARSTONE_COUNT {
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
+        if ctx.has_qs() && ctx.is_started() {
+            ctx.collect_capped(STARSTONE, STARSTONE_COUNT, 2);
         }
     }
 

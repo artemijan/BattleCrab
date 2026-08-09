@@ -78,8 +78,7 @@ impl QuestScript for Q00374WhisperOfDreamsPart1 {
 
     /// `addCondLevel(56, 66, "30938-02.html")` — a two-sided level gate.
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
-        (ctx.player_level() < MIN_LEVEL || ctx.player_level() > MAX_LEVEL)
-            .then(|| "30938-02.html".to_string())
+        ctx.cond_level(MIN_LEVEL, MAX_LEVEL, "30938-02.html")
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

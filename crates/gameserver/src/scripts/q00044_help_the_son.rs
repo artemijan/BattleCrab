@@ -4,7 +4,6 @@
 //! appraises, for a Pet Ticket.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 // NPCs
 const LUNDY: i32 = 30827;
@@ -100,12 +99,7 @@ impl QuestScript for Q00044HelpTheSon {
         if !ctx.has_qs() || !ctx.is_cond(2) {
             return;
         }
-        ctx.give_items(GEMSTONE_FRAGMENT, 1);
-        if ctx.quest_items_count(GEMSTONE_FRAGMENT) == 30 {
-            ctx.set_cond(3, true);
-        } else {
-            ctx.play_sound(quest_sounds::ITEMGET);
-        }
+        ctx.collect_toward(GEMSTONE_FRAGMENT, 30, 3);
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

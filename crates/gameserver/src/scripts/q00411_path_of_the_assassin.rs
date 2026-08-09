@@ -29,7 +29,6 @@
 //! yields the tears.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 const TRISKEL: i32 = 30416;
 const GUARD_LEIKAN: i32 = 30382;
@@ -172,12 +171,7 @@ impl QuestScript for Q00411PathOfTheAssassin {
                 {
                     return;
                 }
-                ctx.give_items(MOONSTONE_BEASTS_MOLAR, 1);
-                if ctx.quest_items_count(MOONSTONE_BEASTS_MOLAR) == MOLARS_NEEDED {
-                    ctx.set_cond(4, true);
-                } else {
-                    ctx.play_sound(quest_sounds::ITEMGET);
-                }
+                ctx.collect_toward(MOONSTONE_BEASTS_MOLAR, MOLARS_NEEDED, 4);
             }
             // Note: no note/token gate here at all — Java only checks that the
             // tears aren't already held.

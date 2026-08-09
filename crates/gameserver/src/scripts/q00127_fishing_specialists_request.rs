@@ -40,8 +40,7 @@ impl QuestScript for Q00127FishingSpecialistsRequest {
 
     /// `addCondLevel(20, 75, "30013-00.htm")` — a two-sided level gate.
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
-        (ctx.player_level() < MIN_LEVEL || ctx.player_level() > MAX_LEVEL)
-            .then(|| "30013-00.htm".to_string())
+        ctx.cond_level(MIN_LEVEL, MAX_LEVEL, "30013-00.htm")
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

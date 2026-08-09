@@ -21,7 +21,6 @@
 //! It is the weapon gate, not a rate, that makes the stage slow.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 use crate::scripts::quest_common;
 
 const MASTER_AURON: i32 = 30010;
@@ -154,12 +153,7 @@ impl QuestScript for Q00401PathOfTheWarrior {
                     && ctx.quest_items_count(RUSTED_BRONZE_SWORD1) < 10
                     && ctx.roll(10) < 4
                 {
-                    ctx.give_items(RUSTED_BRONZE_SWORD1, 1);
-                    if ctx.quest_items_count(RUSTED_BRONZE_SWORD1) == 10 {
-                        ctx.set_cond(3, true);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
+                    ctx.collect_toward(RUSTED_BRONZE_SWORD1, 10, 3);
                 }
             }
             // No chance roll here — the weapon/solo tag *is* the gate.
@@ -167,12 +161,7 @@ impl QuestScript for Q00401PathOfTheWarrior {
                 if ctx.quest_items_count(VENOMOUS_SPIDERS_LEG) < 20
                     && quest_common::is_tag_qualified(ctx) =>
             {
-                ctx.give_items(VENOMOUS_SPIDERS_LEG, 1);
-                if ctx.quest_items_count(VENOMOUS_SPIDERS_LEG) == 20 {
-                    ctx.set_cond(6, true);
-                } else {
-                    ctx.play_sound(quest_sounds::ITEMGET);
-                }
+                ctx.collect_toward(VENOMOUS_SPIDERS_LEG, 20, 6);
             }
             _ => {}
         }

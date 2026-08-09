@@ -91,6 +91,22 @@ fn siege_in_progress(ctx: &QuestCtx) -> bool {
     castle_id(ctx).is_some_and(|id| ctx.world.sieges.get(&id).is_some_and(|s| s.in_progress))
 }
 
+/// `inProgress && controlTowerCount == 0` — the castle's control towers have
+/// all fallen mid-siege.
+///
+/// Two things read this and both matter to the defenders: the teleporter's
+/// warning page, and the mass-teleport arming delay, which jumps from 30
+/// seconds to 8 minutes once the towers are gone. Losing the towers is what
+/// strands the defenders, so the two must agree on when that has happened.
+fn towers_down(ctx: &QuestCtx) -> bool {
+    castle_id(ctx).is_some_and(|id| {
+        ctx.world
+            .sieges
+            .get(&id)
+            .is_some_and(|s| s.in_progress && s.control_tower_count == 0)
+    })
+}
+
 /// `player.getSiegeState() == 2` — a defender: the flag Java stamps on the
 /// owner clan and the approved defender clans while their siege runs.
 fn is_defender(ctx: &QuestCtx) -> bool {
@@ -637,14 +653,8 @@ impl QuestScript for CastleTeleporter {
             if ctx.npc_script_value() != 0 {
                 return Some("CastleTeleporter-06.html".to_string());
             }
-            let towers_down = castle_id(ctx).is_some_and(|id| {
-                ctx.world
-                    .sieges
-                    .get(&id)
-                    .is_some_and(|s| s.in_progress && s.control_tower_count == 0)
-            });
             return Some(
-                if towers_down {
+                if towers_down(ctx) {
                     "CastleTeleporter-05.html"
                 } else {
                     "CastleTeleporter-04.html"
@@ -678,13 +688,7 @@ impl QuestScript for CastleTeleporter {
             // `(inProgress && controlTowerCount == 0) ? 480000 : 30000`).
             "CastleTeleporter-06.html" => {
                 if ctx.npc_script_value() == 0 {
-                    let towers_down = castle_id(ctx).is_some_and(|id| {
-                        ctx.world
-                            .sieges
-                            .get(&id)
-                            .is_some_and(|s| s.in_progress && s.control_tower_count == 0)
-                    });
-                    let delay_ms = if towers_down { 480_000 } else { 30_000 };
+                    let delay_ms = if towers_down(ctx) { 480_000 } else { 30_000 };
                     crate::game_loop::area_npcs::arm_castle_mass_teleport(
                         ctx.world, ctx.npc, delay_ms,
                     );

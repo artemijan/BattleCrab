@@ -329,12 +329,7 @@ impl QuestScript for Q00213TrialOfTheSeeker {
             ),
             MEDUSA => {
                 if has(ctx, VIKTORS_REQUEST) && ctx.quest_items_count(MEDUSA_SCALES) < 10 {
-                    ctx.give_items(MEDUSA_SCALES, 1);
-                    if ctx.quest_items_count(MEDUSA_SCALES) == 10 {
-                        ctx.set_cond(10, true);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
+                    ctx.collect_toward(MEDUSA_SCALES, 10, 10);
                 }
             }
             NEER_GHOUL_BERSERKER => {

@@ -4,7 +4,6 @@
 //! Galladucci reads, for a Pet Ticket.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 // NPCs
 const COOPER: i32 = 30829;
@@ -114,12 +113,7 @@ impl QuestScript for Q00043HelpTheSister {
         if !ctx.has_qs() || !ctx.is_cond(2) {
             return;
         }
-        ctx.give_items(MAP_PIECE, 1);
-        if ctx.quest_items_count(MAP_PIECE) == 30 {
-            ctx.set_cond(3, true);
-        } else {
-            ctx.play_sound(quest_sounds::ITEMGET);
-        }
+        ctx.collect_toward(MAP_PIECE, 30, 3);
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

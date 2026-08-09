@@ -393,12 +393,7 @@ impl QuestScript for Q00214TrialOfTheScholar {
                     && has(ctx, CRERAS_PAINTING3)
                     && ctx.quest_items_count(BROWN_SCROLL_SCRAP) < 5
                 {
-                    ctx.give_items(BROWN_SCROLL_SCRAP, 1);
-                    if ctx.quest_items_count(BROWN_SCROLL_SCRAP) == 5 {
-                        ctx.set_cond(12, true);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
+                    ctx.collect_toward(BROWN_SCROLL_SCRAP, 5, 12);
                 }
             }
             MONSTER_EYE_DESTREOYER => jurek_kill(ctx, MONSTER_EYE_DESTROYER_SKIN, 5),

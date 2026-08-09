@@ -178,12 +178,7 @@ impl QuestScript for Q00413PathOfTheShillienOracle {
             {
                 return;
             }
-            ctx.give_items(ASHEN_BONES, 1);
-            if ctx.quest_items_count(ASHEN_BONES) == BONES_NEEDED {
-                ctx.set_cond(6, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
+            ctx.collect_toward(ASHEN_BONES, BONES_NEEDED, 6);
             return;
         }
         if npc_id == DARK_SUCCUBUS && self.has(ctx, BLANK_SHEET) {

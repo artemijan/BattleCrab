@@ -4,7 +4,6 @@
 //! total); each registered monster drops its own item at 50%.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 const KAYLEEN: i32 = 30346;
 const ORC_AMULET: i32 = 1116;
@@ -73,13 +72,7 @@ impl QuestScript for Q00263OrcSubjugation {
             return;
         }
         if ctx.roll(10) > 4 {
-            let item = MONSTERS
-                .iter()
-                .find(|(id, _)| *id == ctx.npc_id)
-                .map(|(_, i)| *i)
-                .unwrap_or(ORC_AMULET);
-            ctx.give_items(item, 1);
-            ctx.play_sound(quest_sounds::ITEMGET);
+            ctx.give_table_drop(&MONSTERS, ORC_AMULET);
         }
     }
 

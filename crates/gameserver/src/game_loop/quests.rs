@@ -947,6 +947,74 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
+    /// Hand over one `item_id` and advance to `next_cond` once `target` of them
+    /// have been collected — the body of every "kill things until you have N"
+    /// quest's `onKill`.
+    ///
+    /// The sound is the tell that this is one pattern rather than a dozen
+    /// similar ones: `ITEMGET` plays on every drop **except** the last, because
+    /// [`set_cond`](Self::set_cond) plays `MIDDLE` itself and Java never stacks
+    /// the two. A hand-written copy that plays `ITEMGET` unconditionally is
+    /// audibly wrong at exactly one moment per quest, which is precisely the
+    /// kind of thing that survives review.
+    ///
+    /// The `==` is Java's, not a `>=`: an inventory already over the target
+    /// (a second quest that shares the item, a GM `//give`) does not advance
+    /// the condition here.
+    pub fn collect_toward(&mut self, item_id: i32, target: i64, next_cond: i32) {
+        self.give_items(item_id, 1);
+        if self.quest_items_count(item_id) == target {
+            self.set_cond(next_cond, true);
+        } else {
+            self.play_sound(quest_sounds::ITEMGET);
+        }
+    }
+
+    /// [`collect_toward`](Self::collect_toward) with a cap: nothing is handed
+    /// over once the player already holds `target`, and the condition advances
+    /// on `>=` rather than `==`.
+    ///
+    /// The two differences travel together, which is why this is a separate
+    /// method rather than a flag. Java writes these quests with the cap test in
+    /// the `onKill` guard itself; that makes an exact `==` the wrong
+    /// comparison, because a player who arrived over the target — a shared drop
+    /// from another quest — would never see the count *land* on it.
+    pub fn collect_capped(&mut self, item_id: i32, target: i64, next_cond: i32) {
+        if self.quest_items_count(item_id) >= target {
+            return;
+        }
+        self.give_items(item_id, 1);
+        if self.quest_items_count(item_id) >= target {
+            self.set_cond(next_cond, true);
+        } else {
+            self.play_sound(quest_sounds::ITEMGET);
+        }
+    }
+
+    /// Give one of whatever a `(npc_id, item_id)` table yields for the NPC that
+    /// just died, then play the pickup sound.
+    ///
+    /// `fallback` is Java's `else` branch: these quests register more kill
+    /// targets than they tabulate drops for, and every untabled one yields the
+    /// quest's staple item.
+    pub fn give_table_drop(&mut self, table: &[(i32, i32)], fallback: i32) {
+        let item = table
+            .iter()
+            .find(|(id, _)| *id == self.npc_id)
+            .map_or(fallback, |(_, item)| *item);
+        self.give_items(item, 1);
+        self.play_sound(quest_sounds::ITEMGET);
+    }
+
+    /// Java `addCondLevel(min, max, html)` — a two-sided level gate, shaped as
+    /// the `Some(html)` a `start_condition_html` returns when the gate refuses.
+    ///
+    /// Both bounds are inclusive, matching Java.
+    pub fn cond_level(&self, min: i32, max: i32, html: &str) -> Option<String> {
+        let level = self.player_level();
+        (level < min || level > max).then(|| html.to_string())
+    }
+
     /// Java `isOwningClan` — the player's clan is `owner_id`.
     ///
     /// `owner_id == 0` means *unowned*, and nobody's clan owns an unowned

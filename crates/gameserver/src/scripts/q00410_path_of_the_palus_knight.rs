@@ -167,12 +167,7 @@ impl QuestScript for Q00410PathOfThePalusKnight {
                 {
                     return;
                 }
-                ctx.give_items(LYCANTHROPE_SKULL, 1);
-                if ctx.quest_items_count(LYCANTHROPE_SKULL) == SKULLS_NEEDED {
-                    ctx.set_cond(2, true);
-                } else {
-                    ctx.play_sound(quest_sounds::ITEMGET);
-                }
+                ctx.collect_toward(LYCANTHROPE_SKULL, SKULLS_NEEDED, 2);
             }
             VENOMOUS_SPIDER => {
                 if !self.has(ctx, MORTE_TALISMAN) || self.has(ctx, VENOMOUS_SPIDERS_CARAPACE) {
