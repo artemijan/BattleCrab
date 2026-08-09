@@ -94,6 +94,16 @@ pub(crate) fn handle_confirm_refiner(world: &mut World, client_id: u32, body: &[
     send(world, client_id, packet);
 }
 
+fn refresh_slot_if_equipped(world: &mut World, player: i32, target_obj: i32, client_id: u32) {
+    if world
+        .objects
+        .get_component::<Inventory>(&player)
+        .is_some_and(|inv| inv.paperdoll_slot_of(target_obj).is_some())
+    {
+        super::items::finish_equip_change(world, client_id, player, &[target_obj]);
+    }
+}
+
 /// `RequestRefine` (Ex 0x3E): roll the augment, consume the life stone +
 /// gemstones, and stamp the variation onto the weapon.
 pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
@@ -187,13 +197,7 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
     );
     refresh(world, client_id, player);
     // If the weapon is equipped, its equip-slot augment display must refresh.
-    if world
-        .objects
-        .get_component::<Inventory>(&player)
-        .is_some_and(|inv| inv.paperdoll_slot_of(target_obj).is_some())
-    {
-        super::items::finish_equip_change(world, client_id, player, &[target_obj]);
-    }
+    refresh_slot_if_equipped(world, player, target_obj, client_id);
 }
 
 /// `RequestRefineCancel` (Ex 0x40): strip a weapon's augment for the adena
@@ -241,13 +245,7 @@ pub(crate) fn handle_refine_cancel(world: &mut World, client_id: u32, body: &[u8
     }
     send(world, client_id, sp::ex_variation_cancel_result(true));
     refresh(world, client_id, player);
-    if world
-        .objects
-        .get_component::<Inventory>(&player)
-        .is_some_and(|inv| inv.paperdoll_slot_of(target_obj).is_some())
-    {
-        super::items::finish_equip_change(world, client_id, player, &[target_obj]);
-    }
+    refresh_slot_if_equipped(world, player, target_obj, client_id);
 }
 
 fn refresh(world: &World, client_id: u32, player: i32) {

@@ -242,6 +242,16 @@ pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
         .is_none_or(|v| v.dead)
 }
 
+pub(crate) fn refresh_inventory(world: &World, client_id: u32, player: i32) {
+    if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
+        send_to_client(
+            world,
+            client_id,
+            crate::network::enter_world::item_list(inv, &world.data, false),
+        );
+    }
+}
+
 /// A player's [`Vitals`] and `PlayerVitals`, both copied out.
 ///
 /// `None` unless **both** are present, which is what every caller wants: they
