@@ -1436,7 +1436,7 @@ fn quest_test_world() -> (
     tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, db_rx, link_rx) = combat_test_world();
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     // Class-transfer scripts route through the G17 mechanic, which refuses a
     // class id with no template, and `combat_test_world` registers only class
     // 0. Register the whole Interlude class range rather than an enumerated
@@ -2040,8 +2040,7 @@ pub(crate) fn admin_world() -> (
     tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, db_tx, db_rx, link_rx) = test_world();
-    world.data.admin =
-        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     (world, db_tx, db_rx, link_rx)
 }
 

@@ -308,7 +308,7 @@ fn shutdown_flushes_living_boss_hp() {
 
 #[test]
 fn real_dist_flags_raid_bosses_as_db_save() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let spawns = crate::data::SpawnData::load_from(DIST);
     let db_save_count: usize = spawns
         .spawns

@@ -276,7 +276,7 @@ fn siege_status_needs_a_noble_leader_in_a_siege() {
 
     // Give the clan a running siege it is attacking.
     world.clans.insert(10, mk_clan(10, "Mine", 0, ""));
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     let mut siege = crate::model::siege::Siege::new(1);
     siege.in_progress = true;
     siege.clans.push(crate::model::siege::SiegeClan {

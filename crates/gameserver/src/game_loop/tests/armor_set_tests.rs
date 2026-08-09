@@ -39,7 +39,7 @@ fn armor_set_world() -> (
     tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, db, l) = combat_test_world();
-    let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let root = crate::data::DIST_GAME;
     world.data.item_data = crate::data::ItemData::load_from(root);
     world.data.armor_sets = crate::data::armor_set_data::ArmorSetData::load_from(root);
     world.data.skill_data = crate::data::SkillData::load_from(root);

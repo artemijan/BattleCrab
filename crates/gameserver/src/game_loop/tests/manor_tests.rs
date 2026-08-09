@@ -1386,7 +1386,7 @@ fn the_manor_admin_page_reports_the_period_and_the_costs() {
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
     // The page is a real dist html, so the datapack root has to be set.
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
     world.cfg.general.allow_manor = true;
     // Two castles, deliberately inserted out of id order.
     let castle = |id: i32, name: &str| crate::model::castle::Castle {

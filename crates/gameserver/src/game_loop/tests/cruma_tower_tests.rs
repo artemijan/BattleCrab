@@ -15,7 +15,7 @@
 
 use super::*;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 const CARSUS_ID: i32 = 30483;
 const IAN_ID: i32 = 30486;

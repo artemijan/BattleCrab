@@ -227,7 +227,7 @@ pub const WALKER_COMMAND_LIST: [&str; 8] = [
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// The dist's values, which are the specification. `BankingEnabled` and
     /// `EnableOnlineCommand` both differ from Java's code default, so reading

@@ -22,7 +22,7 @@ use crate::world::World;
 
 /// Datapack root of this repo's `dist` (trailing slash — the loaders append
 /// `data/...` directly, same shape `main::resolve_datapack_root` produces).
-pub const DIST_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+pub const DIST_ROOT: &str = crate::data::DIST_GAME;
 
 /// A `World` plus the channel ends the real services would hold. The
 /// receivers must stay alive so `Session::send` / DB commands don't hit a

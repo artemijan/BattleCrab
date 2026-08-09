@@ -397,7 +397,7 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// Every class ships **both** collision boxes and they differ, so reading
     /// the male one for a female character is a visible error — collision feeds

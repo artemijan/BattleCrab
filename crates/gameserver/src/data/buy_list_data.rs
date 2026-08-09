@@ -193,7 +193,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_files() {
-        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let root = crate::data::DIST_GAME;
         let items = ItemData::load_from(root);
         let data = BuyListData::load_from(root, &items);
         // 338 regular merchant lists + 143 custom (GM shop) lists.

@@ -249,7 +249,7 @@ mod tests {
 
     #[test]
     fn loads_the_real_dist_file() {
-        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let root = crate::data::DIST_GAME;
         let data = SoulCrystalData::load_from(root);
         // The Red/Green/Blue stage-0 crystals and a well-known leveling mob.
         assert_eq!(data.crystal(4629).unwrap().level, 0); // Red 0

@@ -71,8 +71,7 @@ mod tests {
 
     #[test]
     fn dist_list_loads() {
-        let data =
-            SellBuffData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = SellBuffData::load_from(crate::data::DIST_GAME);
         assert_eq!(data.len(), 149, "every `<skill id=…>` in the file");
         assert!(data.allows(264), "the lowest id");
         assert!(data.allows(11612), "and the highest");

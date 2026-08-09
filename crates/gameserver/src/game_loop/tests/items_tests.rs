@@ -2348,8 +2348,7 @@ fn auto_soulshot_toggle_activates_and_recharges() {
 #[test]
 fn destroy_item_removes_from_inventory() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
     drain(&mut rx);
@@ -2403,8 +2402,7 @@ fn destroy_item_removes_from_inventory() {
 #[test]
 fn giving_adena_refreshes_the_adena_counter() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
     drain(&mut rx);
@@ -2436,8 +2434,7 @@ fn giving_adena_refreshes_the_adena_counter() {
 #[test]
 fn drop_and_pickup_ground_item() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9200, 0);
     drain(&mut rx);
@@ -2524,8 +2521,7 @@ fn drop_and_pickup_ground_item() {
 #[test]
 fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9200, 0);
     drain(&mut rx);
@@ -2658,8 +2654,7 @@ fn give_adena(world: &mut World, player_oid: i32, count: i64) -> i32 {
 #[test]
 fn dropped_item_lands_at_the_requested_location() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
@@ -2698,8 +2693,7 @@ fn dropped_item_lands_at_the_requested_location() {
 #[test]
 fn drop_beyond_150_units_is_refused() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
@@ -2734,8 +2728,7 @@ fn drop_beyond_150_units_is_refused() {
 #[test]
 fn drop_more_than_50_units_below_is_refused() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
@@ -2779,8 +2772,7 @@ fn drop_more_than_50_units_below_is_refused() {
 #[test]
 fn drop_inside_a_no_item_drop_zone_is_refused() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
@@ -2840,8 +2832,7 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
 fn drop_while_casting_a_known_skill_is_refused_by_name() {
     const WIND_STRIKE: i32 = 1177;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     world
         .data
@@ -2904,8 +2895,7 @@ fn drop_while_casting_a_known_skill_is_refused_by_name() {
 #[test]
 fn drop_of_more_than_is_held_is_refused() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
@@ -2944,8 +2934,7 @@ fn drop_of_more_than_is_held_is_refused() {
 fn bound_item_cannot_be_discarded() {
     const BOUND_BOX: i32 = 15195;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
@@ -3004,8 +2993,7 @@ fn bound_item_cannot_be_discarded() {
 fn distant_ground_item_is_walked_to_before_pickup() {
     use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9400, 0);
     let start = *world.objects.get_component::<Position>(&9400).unwrap();
@@ -3086,8 +3074,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
 fn seated_player_cannot_pick_up() {
     use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9401, 0);
     let start = *world.objects.get_component::<Position>(&9401).unwrap();
@@ -3134,8 +3121,7 @@ fn seated_player_cannot_pick_up() {
 #[test]
 fn ground_item_decays_after_lifetime() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     // Enable player-drop auto-destroy (General.ini `AutoDestroyDroppedItemAfter`
     // + `DestroyPlayerDroppedItem`); the dist default keeps player drops.
     world.cfg.general.autodestroy_item_after = 600;
@@ -3176,8 +3162,7 @@ fn ground_item_decays_after_lifetime() {
 #[test]
 fn player_ground_item_persists_when_destroy_player_dropped_off() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.cfg.general.autodestroy_item_after = 600;
     world.cfg.general.destroy_dropped_player_item = false; // dist default
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -3229,8 +3214,7 @@ fn npc_ground_item_decays_regardless_of_player_flag() {
 fn warehouse_deposit_withdraw_and_persist() {
     use crate::model::inventory::{Inventory, Warehouse};
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9400, 0);
     drain(&mut rx);
@@ -3309,8 +3293,7 @@ fn warehouse_deposit_withdraw_and_persist() {
 fn crystallize_item_yields_crystals_when_skilled() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     // Leather Boots (40): D-grade with a crystal count.
     let cc = world.data.item_data.get(40).unwrap().crystal_count;
@@ -3371,8 +3354,7 @@ fn crystallize_item_yields_crystals_when_skilled() {
 fn private_store_sell_and_buy() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut seller_rx = ingame_player_access(&mut world, 1, 9600, 0);
     let mut buyer_rx = ingame_player_access(&mut world, 2, 9601, 0);
@@ -3483,8 +3465,7 @@ fn private_store_sell_and_buy() {
 fn player_trade_swaps_items() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut a_rx = ingame_player_access(&mut world, 1, 9700, 0);
     let mut b_rx = ingame_player_access(&mut world, 2, 9701, 0);
@@ -3604,7 +3585,7 @@ fn player_trade_swaps_items() {
 fn enchant_scroll_success_and_failure() {
     use crate::model::components::EnchantRequest;
     use crate::model::inventory::Inventory;
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.item_data = crate::data::ItemData::load_from(DIST);
     world.data.enchant = crate::data::EnchantData::load_from(DIST);
@@ -3753,8 +3734,7 @@ fn enchant_scroll_success_and_failure() {
 fn enchant_support_item_bonus_and_consume() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.data.enchant = crate::data::EnchantData::load_from(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
@@ -3876,8 +3856,7 @@ fn enchant_support_item_bonus_and_consume() {
 fn freight_withdraw_and_persist() {
     use crate::model::inventory::{Freight, Inventory};
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9600, 0);
     drain(&mut rx);
@@ -3947,8 +3926,7 @@ fn freight_withdraw_and_persist() {
 fn augment_make_and_cancel() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.data.variations = crate::data::VariationData::load_from(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
@@ -4109,8 +4087,7 @@ fn store_sell_body(store_player: i32, lines: &[(i32, i32, i64, i64)]) -> Vec<u8>
 fn private_buy_store_takes_items_and_pays_out() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut owner_rx = ingame_player_access(&mut world, 1, 9610, 0);
     let mut seller_rx = ingame_player_access(&mut world, 2, 9611, 0);
@@ -4220,8 +4197,7 @@ fn private_buy_store_takes_items_and_pays_out() {
 #[test]
 fn private_buy_store_refuses_an_unaffordable_list() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9612, 0);
     drain(&mut rx);
@@ -4252,8 +4228,7 @@ fn private_buy_store_refuses_an_unaffordable_list() {
 #[test]
 fn private_buy_store_enforces_the_slot_limit() {
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9613, 0);
     drain(&mut rx);
@@ -4419,8 +4394,7 @@ fn package_store_is_all_or_nothing() {
     use crate::model::inventory::Inventory;
 
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4300_0000..0x4300_0200;
     let mut seller_rx = ingame_player_access(&mut world, 1, 9700, 0);
     let mut buyer_rx = ingame_player_access(&mut world, 2, 9701, 0);
@@ -4596,8 +4570,7 @@ fn freight_send_delivers_to_an_offline_character() {
     use crate::model::inventory::Inventory;
 
     let (mut world, mut db, _link) = quest_test_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4400_0000..0x4400_0200;
 
     // The sender, with a second character (9902 "Alt") on the account.
@@ -4707,8 +4680,7 @@ fn freight_send_refuses_bad_items_and_strangers() {
     use crate::model::inventory::Inventory;
 
     let (mut world, _db, _link) = quest_test_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4500_0000..0x4500_0200;
     let chr = dummy_char(9903, "Sender");
     let bundle = crate::model::Player::from_char(&world.data, &chr);
@@ -4938,8 +4910,7 @@ fn the_augment_window_confirms_each_slot() {
     use crate::model::inventory::Inventory;
 
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.data.variations = crate::data::VariationData::load_from(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
@@ -5137,8 +5108,7 @@ fn herbs_decay_on_their_own_shorter_clock() {
     use crate::model::components::GroundItem;
 
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.cfg.general.autodestroy_item_after = 600;
     world.cfg.general.herb_auto_destroy_time = 60;
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -5175,8 +5145,7 @@ fn herbs_decay_even_with_the_ordinary_destroyer_off() {
     use crate::model::components::GroundItem;
 
     let (mut world, ..) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.cfg.general.autodestroy_item_after = 0; // ordinary destroyer off
     world.cfg.general.herb_auto_destroy_time = 60;
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -5318,7 +5287,7 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
 #[test]
 fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
     use crate::model::inventory::Inventory;
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     const SCROLL: i32 = 33808; // Giant's Scroll: Enchant Weapon (B-grade)
     const SWORD: i32 = 78; // Great Sword — B-grade weapon
     const PLAYER: i32 = 9801;
@@ -5436,7 +5405,7 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
 fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
     use crate::model::components::EnchantRequest;
     use crate::model::inventory::Inventory;
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     const PLAYER: i32 = 9805;
 
     let (mut world, ..) = admin_world();

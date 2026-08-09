@@ -64,7 +64,7 @@ mod tests {
 
     #[test]
     fn loads_siege_towers_from_dist() {
-        let towers = load_siege_towers(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let towers = load_siege_towers(crate::data::DIST_GAME);
         // Giran (castle 3) has both control (13002) and flame (13004) towers.
         let giran = towers.get(&3).expect("Giran towers");
         assert!(giran.iter().any(|s| s.npc_id == 13002), "a control tower");

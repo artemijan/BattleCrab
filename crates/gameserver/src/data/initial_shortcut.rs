@@ -231,7 +231,7 @@ mod tests {
     use super::*;
 
     fn real() -> InitialShortcutData {
-        InitialShortcutData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"))
+        InitialShortcutData::load_from(crate::data::DIST_GAME)
     }
 
     #[test]

@@ -237,8 +237,7 @@ fn a_full_hp_mob_broadcasts_nothing() {
 /// The regen values come from the datapack, so check a real one.
 #[test]
 fn real_dist_templates_carry_regen() {
-    let data =
-        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
     let with_regen = data.all().filter(|t| t.base_hp_reg > 0.0).count();
     assert!(
         with_regen > 10_000,

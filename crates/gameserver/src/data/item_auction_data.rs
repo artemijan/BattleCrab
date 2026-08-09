@@ -182,8 +182,7 @@ mod tests {
     /// The dist ships every instance commented out → nothing loads.
     #[test]
     fn dist_file_is_empty() {
-        let data =
-            ItemAuctionData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = ItemAuctionData::load_from(crate::data::DIST_GAME);
         assert!(data.is_empty(), "ItemAuctions.xml ships with no instances");
     }
 

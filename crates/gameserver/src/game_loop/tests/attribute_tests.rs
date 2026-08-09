@@ -14,7 +14,7 @@ use crate::model::stats::{Element, Stat, StatModifierType};
 
 const CASTER: i32 = 2001;
 const CID: u32 = 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// A template with a chosen fire resistance, sturdy enough to survive the
 /// comparisons (deep HP, real m.def so a test nuke doesn't one-shot).

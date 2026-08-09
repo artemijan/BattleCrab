@@ -81,8 +81,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_file() {
-        let data =
-            StaticObjectData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = StaticObjectData::load_from(crate::data::DIST_GAME);
         // 159 <object> lines, 73 of them commented out ("custom static
         // objects" missing from the NA/EU client) — Java's DOM parse loads 86.
         assert_eq!(data.objects.len(), 86);

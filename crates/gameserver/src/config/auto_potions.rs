@@ -88,8 +88,7 @@ mod tests {
 
     #[test]
     fn dist_values_load() {
-        let cfg =
-            AutoPotionsConfig::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let cfg = AutoPotionsConfig::load_from(crate::data::DIST_GAME);
         assert!(cfg.enabled, "AutoPotionsEnabled = True");
         assert!(!cfg.in_olympiad, "and off during a match");
         assert_eq!(cfg.minimum_level, 1);

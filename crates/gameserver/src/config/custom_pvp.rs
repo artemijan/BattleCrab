@@ -223,7 +223,7 @@ impl CustomNpcConfig {
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     #[test]
     fn dist_values_load() {

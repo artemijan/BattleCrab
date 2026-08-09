@@ -9,7 +9,7 @@
 use crate::model::formulas::{self, MagicFailure};
 use crate::model::skill::SkillEffect;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 // ---------------------------------------------------------------------------
 // calcManaDam

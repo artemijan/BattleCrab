@@ -14,7 +14,7 @@ use crate::model::stats::Stat;
 
 const ATTACKER: i32 = 4001;
 const CID: u32 = 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn hp(world: &World, oid: i32) -> f64 {
     world.objects.get_component::<Vitals>(&oid).unwrap().cur_hp

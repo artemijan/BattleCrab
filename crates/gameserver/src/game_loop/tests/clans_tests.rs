@@ -301,8 +301,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::inventory::Inventory;
     let (mut world, _tx, mut db_rx, _lrx) = admin_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut leader_rx = ingame_player_access(&mut world, 1, 3001, 0);
     let mut member_rx = ingame_player_access(&mut world, 2, 3002, 0);
@@ -4199,7 +4198,7 @@ fn recruit_open_joining_sign_in() {
 // Residential (castle) skills
 // ---------------------------------------------------------------------------
 
-const DIST_RES: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST_RES: &str = crate::data::DIST_GAME;
 
 /// Build a clan that owns `castle` with a single online member `leader`.
 #[cfg(test)]
@@ -4460,8 +4459,7 @@ fn joining_the_academy_records_the_joining_level() {
 #[test]
 fn graduating_pays_the_clan_and_frees_the_graduate() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world
         .data
         .categories

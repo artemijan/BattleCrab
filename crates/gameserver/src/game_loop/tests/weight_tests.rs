@@ -9,7 +9,7 @@ use crate::model::inventory::Inventory;
 
 const PLAYER: i32 = 4400;
 const CID: u32 = 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 /// A heavy, stackable, non-quest item to load the character up with.
 const BRICK: i32 = 9600;
 

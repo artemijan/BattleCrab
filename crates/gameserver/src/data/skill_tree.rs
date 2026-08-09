@@ -621,7 +621,7 @@ mod tests {
     /// which skill or why.
     #[test]
     fn only_the_two_recorded_gaps_are_reachable_from_a_skill_tree() {
-        const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        const DIST: &str = crate::data::DIST_GAME;
         let trees = SkillTreeData::load_from(DIST);
         let skills = crate::data::SkillData::load_from(DIST);
         let learnable = trees.all_learnable_skill_ids();
@@ -917,7 +917,7 @@ mod tests {
     /// its own Whirlwind (36), an ancestor skill, and the common Expertise (239).
     #[test]
     fn dist_warlord_inherits_ancestor_and_common_skills() {
-        const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        const DIST: &str = crate::data::DIST_GAME;
         let data = SkillTreeData::load_from(DIST);
         let warlord: HashMap<i32, i32> = data
             .all_available_skills(3, 80, &HashMap::new(), true, true)
@@ -952,7 +952,7 @@ mod tests {
     /// in a class tree costs an item.
     #[test]
     fn dist_divine_inspiration_carries_its_ancient_books() {
-        const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        const DIST: &str = crate::data::DIST_GAME;
         // The books, in skill-level order (8618/8619 in 2ndClass, 8620/8621 in
         // 3rdClass — the same skill re-declared per class tree).
         const BOOKS: [i32; 4] = [8618, 8619, 8620, 8621];

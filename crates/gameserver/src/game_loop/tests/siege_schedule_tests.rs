@@ -8,7 +8,7 @@ use crate::model::castle::{Castle, CastleSide};
 use crate::model::siege::Siege;
 use crate::scheduler::ScheduledTask;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 const DAY_MS: i64 = 86_400_000;
 const HOUR_MS: i64 = 3_600_000;
 
@@ -400,7 +400,7 @@ fn a_participant_standing_in_the_siege_zone_earns_fame_until_they_leave() {
     use crate::model::siege::{Siege, SiegeClanType};
     use crate::network::server_packets::sm_ids;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
     const POS: (i32, i32, i32) = (-17964, 110730, -1000);
     const PLAYER: i32 = 6101;
     const CASTLE: i32 = 1;

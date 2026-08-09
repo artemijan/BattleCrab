@@ -17,7 +17,7 @@ use crate::model::skill::{Skill, SkillEffect, TargetType};
 
 const CASTER: i32 = 7001;
 const CID: u32 = 1;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// A skill of `magic_type` costing `mp_consume` MP with a `reuse_delay` ms
 /// cooldown — the *victim* of the rates, not a carrier of them.

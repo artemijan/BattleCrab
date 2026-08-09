@@ -253,7 +253,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     #[test]
     fn loads_real_dist_roxxy() {

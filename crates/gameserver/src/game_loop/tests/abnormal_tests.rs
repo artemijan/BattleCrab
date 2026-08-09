@@ -1483,8 +1483,7 @@ fn the_shield_angle_flag_lets_a_shield_block_from_behind() {
 #[test]
 fn irreplacable_buffs_survive_death_like_stay_after_death_ones() {
     const TRANSFORM_GRAIL_APOSTLE: i32 = 541;
-    let sd =
-        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let sd = crate::data::SkillData::load_from(crate::data::DIST_GAME);
     assert!(
         sd.get(TRANSFORM_GRAIL_APOSTLE, 1)
             .expect("Transform Grail Apostle 1")
@@ -2006,8 +2005,7 @@ fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
     // for every stat, which makes "which BaseStat was selected" unobservable —
     // exactly the property under test. One dist load, reused for all four
     // measurements below.
-    world.data.stat_bonus =
-        crate::data::StatBonus::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.stat_bonus = crate::data::StatBonus::load_from(crate::data::DIST_GAME);
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     // A lopsided stat spread, so "which BaseStat" is observable: huge INT,

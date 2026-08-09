@@ -1,6 +1,6 @@
 //! `ScriptZone` support — the groundwork every `ai/bosses` script needs.
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 /// Queen Ant's lair, the zone `QueenAnt.java` opens with
 /// `ZoneManager.getZoneById(12012)`.
 const QUEEN_ANT_ZONE: i32 = 12012;

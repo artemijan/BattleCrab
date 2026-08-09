@@ -28,7 +28,7 @@ const PANTHER: i32 = 14799;
 /// fixture NPC placed there silently *replaces* the servitor. Three tests
 /// failed on exactly that before this constant existed.
 const FOE: i32 = NPC_OID + 10;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn servitor_world() -> (
     World,
@@ -4633,8 +4633,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
 fn a_pet_ticket_exchanges_for_a_collar() {
     let (mut world, ..) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    world.data.item_data =
-        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4500_0000..0x4500_0100;
 
     // No ticket → nothing.

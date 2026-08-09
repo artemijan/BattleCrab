@@ -11,7 +11,7 @@ use super::*;
 use crate::model::formulas::{MagicSuccess, calc_magic_success_rate};
 use crate::model::stats::Stat;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn dist_skills() -> crate::data::skill_data::SkillData {
     crate::data::skill_data::SkillData::load_from(DIST)

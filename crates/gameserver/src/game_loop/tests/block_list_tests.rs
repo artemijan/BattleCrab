@@ -132,8 +132,7 @@ fn the_block_refusals_each_have_their_own_answer() {
     // A GM cannot be blocked. `GameData::for_test` ships `AdminData::empty()`,
     // where *no* access level is a GM — so the real table has to be loaded or
     // this case silently exercises the ordinary-player path instead.
-    world.data.admin =
-        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     world
         .objects
         .get_component_mut::<Player>(&2002)

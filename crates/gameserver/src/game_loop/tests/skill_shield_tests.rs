@@ -19,7 +19,7 @@ use crate::model::skill::SkillEffect;
 const CASTER: i32 = 3001;
 const CID: u32 = 1;
 const SHIELD_ID: i32 = 7700;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
     ItemTemplate {

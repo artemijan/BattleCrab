@@ -19,7 +19,7 @@ const CID: u32 = 1;
 const MOB_ID: i32 = 45000;
 const RAID_ID: i32 = 45001;
 const MOB_OID: i32 = NPC_OID;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// An aggressive monster that would notice anyone in range.
 fn aggressive_template(id: i32, type_name: &str) -> crate::data::npc_data::NpcTemplate {

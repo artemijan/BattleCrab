@@ -7,7 +7,7 @@ use super::*;
 use crate::data::multisell_data::MultisellData;
 use crate::model::inventory::Inventory;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// Shadow Item Exchange Coupon (D-Grade) / (C-Grade).
 const COUPON_D: i32 = 8869;

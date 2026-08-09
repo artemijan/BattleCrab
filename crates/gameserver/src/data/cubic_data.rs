@@ -257,7 +257,7 @@ impl CubicData {
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// The real datapack parses, and the first Storm Cubic level carries the
     /// values the XML shows — a guard on the whole attribute set at once.

@@ -17,7 +17,7 @@ use crate::model::skill::{SkillEffect, TraitType, WeaknessTrait, WeaponTrait};
 
 const ATTACKER: i32 = 5001;
 const TARGET: i32 = 5002;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn two_players() -> World {
     let (mut world, _db, _l) = combat_test_world();

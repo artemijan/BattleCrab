@@ -350,7 +350,7 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     #[test]
     fn loads_real_dist_and_maps_giran() {

@@ -9,7 +9,7 @@ use super::*;
 use crate::geo::{NSWE_ALL, NSWE_NORTH, synthetic_region};
 use crate::model::components::{Position, TargetRef};
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// Region 20_18 covers world x,y ∈ [0, 32768): flat-ish ground at z = 0, with
 /// local cell column x == 10 walled off (no exits at all), so the panels have

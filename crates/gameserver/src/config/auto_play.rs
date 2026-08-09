@@ -93,8 +93,7 @@ mod tests {
 
     #[test]
     fn dist_values_load() {
-        let cfg =
-            AutoPlayConfig::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let cfg = AutoPlayConfig::load_from(crate::data::DIST_GAME);
         assert!(cfg.enabled, "EnableAutoPlay = True");
         assert!(cfg.potion && cfg.skill && cfg.item, "all three sub-panels");
         assert!(!cfg.resume, "a logout stops the loop");

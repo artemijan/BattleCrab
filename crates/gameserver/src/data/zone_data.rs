@@ -812,7 +812,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_files() {
-        let data = ZoneData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = ZoneData::load_from(crate::data::DIST_GAME);
         // 134 peace + 423 water + 47 no_restart + 12 pvp + 9 siege + 218 effect
         // + 35 damage + 20 swamp.
         //
@@ -965,7 +965,7 @@ mod tests {
 mod effect_zone_tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     #[test]
     fn parses_effect_zones_from_dist() {
@@ -1074,7 +1074,7 @@ mod hq_zone_tests {
     /// the gate that reads it had nothing to find.
     #[test]
     fn dist_castle_hq_zones_load_with_their_castle_ids() {
-        const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        const DIST: &str = crate::data::DIST_GAME;
         let data = ZoneData::load_from(DIST);
         let hq: Vec<&Zone> = data
             .zones

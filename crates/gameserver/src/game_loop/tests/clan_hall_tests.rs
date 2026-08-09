@@ -7,7 +7,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::data::clan_hall_data::load_clan_halls;
 use crate::model::clan_hall::{ClanHallGrade, ClanHallType};
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// **All 48 clan halls load, with their auction terms, agents and doors.**
 /// Onyx Hall (id 27) is the fixture — a Gludin GRADE_B auctionable hall.

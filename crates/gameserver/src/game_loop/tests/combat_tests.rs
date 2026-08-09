@@ -1267,7 +1267,7 @@ fn siege_start_evicts_non_owners_to_town() {
     use crate::model::castle::{Castle, CastleSide};
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::siege::Siege;
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = test_world();
     world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
     insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
@@ -2849,7 +2849,7 @@ fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
     use crate::model::castle::{Castle, CastleSide};
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::siege::{Siege, SiegeClanType, SiegeSpawn};
-    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const ROOT: &str = crate::data::DIST_GAME;
 
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
     // The eviction lands the player in a town, so the real region table has to

@@ -603,7 +603,7 @@ fn a_ward_carrier_cannot_teleport() {
 #[test]
 fn the_noble_list_page_gates_on_nobless() {
     let (mut world, mut rx) = teleporter_world(0);
-    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.data.root = crate::data::DIST_GAME.to_string();
 
     handle_request_bypass_to_server(
         &mut world,
@@ -643,7 +643,7 @@ fn the_noble_list_page_gates_on_nobless() {
 // `Teleporter.showChatWindow` — the castle-ground gate
 // ---------------------------------------------------------------------------
 
-const TELE_DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const TELE_DIST: &str = crate::data::DIST_GAME;
 
 /// Roxxy's real Talking Island spawn (`spawns/Gludio/Gludio.xml`).
 const ROXXY: (i32, i32, i32) = (-84108, 244604, -3729);

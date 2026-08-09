@@ -21,7 +21,7 @@ const CASTER: i32 = 6001;
 const TARGET: i32 = 6002;
 const CID: u32 = 1;
 const TCID: u32 = 2;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn dist_skills() -> crate::data::skill_data::SkillData {
     crate::data::skill_data::SkillData::load_from(DIST)

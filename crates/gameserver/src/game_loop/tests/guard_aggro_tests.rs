@@ -463,8 +463,7 @@ fn a_gm_kill_calls_nobody() {
     // `!killer.getActingPlayer().isGM()` — a GM clearing a spawn must not leave
     // the whole camp aggroed behind them.
     let (mut world, _db, _l) = guard_world();
-    world.data.admin =
-        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     world
         .objects

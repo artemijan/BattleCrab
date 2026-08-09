@@ -17,7 +17,7 @@ const CASTER: i32 = 2001;
 const BYSTANDER: i32 = 2002;
 const CID: u32 = 1;
 const BID: u32 = 2;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// Fixture ids well away from anything real.
 const TOTEM_NPC: i32 = 91300;

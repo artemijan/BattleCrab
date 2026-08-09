@@ -11,7 +11,7 @@ use crate::network::server_packets::sm_ids;
 const NOW: i64 = 1_700_000_000_000;
 /// The real datapack — the test catalogue is empty, and the item packets need
 /// real templates to serialize anything.
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn put_mail(world: &mut World, id: i32, sender: i32, receiver: i32, subject: &str) {
     world.mail.insert(Message::new_player_mail(

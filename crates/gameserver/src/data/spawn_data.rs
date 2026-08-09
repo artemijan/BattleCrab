@@ -483,7 +483,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_files() {
-        let data = SpawnData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = SpawnData::load_from(crate::data::DIST_GAME);
         // Java startup: "SpawnData: Loaded 27155 spawns" (npc lines).
         let lines = data.npc_line_count();
         assert!(lines > 25_000, "expected >25k spawn lines, got {lines}");

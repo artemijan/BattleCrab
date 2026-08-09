@@ -9,7 +9,7 @@ use crate::game_loop::community_board::handle_parse_command;
 use crate::model::components::{Buffs, Position, Vitals};
 use crate::model::skill::ActiveBuff;
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 /// Point the world at the real dist htmls and load the real community-board
 /// config (custom board, buff/teleport whitelists).

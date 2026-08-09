@@ -94,6 +94,18 @@ pub use variation_data::VariationData;
 pub use xp_lost::PlayerXpPercentLostData;
 pub use zone_data::ZoneData;
 
+/// The in-repo datapack root, for the tests that load the real XML rather than
+/// a synthetic fixture.
+///
+/// `CARGO_MANIFEST_DIR` resolves at compile time, so this holds regardless of
+/// which directory the test binary is run from — and unlike the `DATAPACK_ROOT`
+/// override, it cannot be pointed somewhere else, which is the property the
+/// loader tests need. Integration tests and the `tools` crate spell their own
+/// out: `CARGO_MANIFEST_DIR` is per-crate, so this exact relative path only
+/// means "the repo's datapack" from inside `crates/gameserver`.
+#[cfg(test)]
+pub(crate) const DIST_GAME: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
 /// The static game data bundle owned by the game thread (Java: the swarm of
 /// `*Data.getInstance()` singletons, here a plain struct — decision #4).
 /// `Character.ini` stat ceilings + the flat run-speed boost — the tuning values

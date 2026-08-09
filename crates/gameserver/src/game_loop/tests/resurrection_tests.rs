@@ -17,7 +17,7 @@ const REVIVER: i32 = 9601;
 const CORPSE: i32 = 9602;
 const CID: u32 = 1;
 const TCID: u32 = 2;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn kill(world: &mut World, oid: i32, lost_exp: i64) {
     world

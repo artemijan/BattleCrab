@@ -1017,7 +1017,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_files() {
-        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = NpcData::load_from(crate::data::DIST_GAME);
         // Java startup: "NpcData: Loaded ~13k NPCs" — pin a floor, not the
         // exact count, so datapack tweaks don't churn the test.
         assert!(
@@ -1142,7 +1142,7 @@ mod tests {
     /// The one dist file with `<group chance>` drops (Primeval Isle mobs).
     #[test]
     fn grouped_drops_parse() {
-        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = NpcData::load_from(crate::data::DIST_GAME);
         let t = data
             .get(22119)
             .or_else(|| data.get(22100))
@@ -1160,7 +1160,7 @@ mod tests {
 
     #[test]
     fn drop_index_inverts_drops_and_excludes_adena() {
-        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = NpcData::load_from(crate::data::DIST_GAME);
         let index = data.drop_index();
         // Adena (57) is on the block list — never indexed.
         assert!(
@@ -1188,7 +1188,7 @@ mod tests {
 
     #[test]
     fn status_flags_parse() {
-        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = NpcData::load_from(crate::data::DIST_GAME);
         // Npc 101: <status attackable="false" canMove="false"/>.
         let t = data.get(101).expect("npc 101");
         assert!(!t.attackable);
@@ -1203,7 +1203,7 @@ mod tests {
     /// a 15-line drop list.
     #[test]
     fn npc_with_nested_minions_keeps_its_body_and_drops() {
-        let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = NpcData::load_from(crate::data::DIST_GAME);
 
         let boss = data
             .get(3404)
@@ -1228,7 +1228,7 @@ mod tests {
 mod clan_tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// The `<minions>` parse, against the real datapack.
     #[test]
@@ -1282,7 +1282,7 @@ mod clan_tests {
 mod race_tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// `<race>` parses to the `Race` ordinal for both the five playable races
     /// (the Newbie Guides' own-race gate reads this field) and the

@@ -561,7 +561,7 @@ mod tests {
         ItemKind, SLOT_FULL_ARMOR, SLOT_HEAD, SLOT_R_HAND, TYPE2_SHIELD_ARMOR, TYPE2_WEAPON,
     };
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// Minimal template carrying only the fields the enchant resolver reads
     /// (item id, body part, type2, grade).
@@ -701,7 +701,7 @@ mod tests {
 mod random_range_tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// The dist's own ranges, and the invariant every scroll must satisfy.
     ///

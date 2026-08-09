@@ -17,7 +17,7 @@ const MOB_ID: i32 = 48000;
 const MOB_OID: i32 = NPC_OID;
 const CARRIER: i32 = 9900;
 const TRIGGERED: i32 = 9901;
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const DIST: &str = crate::data::DIST_GAME;
 
 fn trigger_world() -> (
     World,

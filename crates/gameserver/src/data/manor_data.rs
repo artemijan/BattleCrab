@@ -188,7 +188,7 @@ fn parse(content: &str) -> HashMap<i32, Vec<Seed>> {
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     /// The dist `Seeds.xml` loads: all 9 castles offer a manor, and Gludio's
     /// first seed carries its full crop/reward/limit fields.

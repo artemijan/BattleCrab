@@ -172,7 +172,7 @@ fn attr_i(e: &quick_xml::events::BytesStart, key: &[u8]) -> i32 {
 mod tests {
     use super::*;
 
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    const DIST: &str = crate::data::DIST_GAME;
 
     #[test]
     fn loads_real_dist_routes() {
