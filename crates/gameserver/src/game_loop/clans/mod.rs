@@ -66,6 +66,35 @@ pub(crate) use wars::*;
 // re-exported here rather than imported once per file.
 pub(crate) use commons::util::now_millis;
 
+/// Java `ClanTable.getClanByName` — the clan holding `name`, matched
+/// **case-insensitively**.
+///
+/// The case-folding is the whole point of naming this. Clan names are stored as
+/// the founder typed them and looked up as another player spells them, so a war
+/// declared on `dragonslayers` has to find the clan called `DragonSlayers`. A
+/// plain `==` here fails only for the players who get the case wrong — most of
+/// them — and it fails as "no such clan", which nobody reports as a bug.
+///
+/// Linear in the number of clans, as Java's own `ClanTable` scan is; every
+/// caller is a chat command typing a name by hand.
+pub(crate) fn by_name<'w>(world: &'w World, name: &str) -> Option<&'w Clan> {
+    world
+        .clans
+        .values()
+        .find(|c| c.name.eq_ignore_ascii_case(name))
+}
+
+/// Whether a clan already holds `name` — the uniqueness gate on creation.
+///
+/// Deliberately [`by_name`] rather than its own scan: a name that cannot be
+/// created must be exactly a name that can be found. Letting the two drift
+/// apart is how you end up able to found `dragonslayers` alongside
+/// `DragonSlayers` and then have every war and alliance command reach only
+/// whichever one the hash map happens to yield first.
+pub(crate) fn name_taken(world: &World, name: &str) -> bool {
+    by_name(world, name).is_some()
+}
+
 /// `DaysBeforeCreateAClan = 10` on this dist → the recreate cooldown in millis.
 pub(crate) const CLAN_CREATE_COOLDOWN_MS: i64 = 10 * 86_400_000;
 
@@ -142,11 +171,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         );
         return None;
     }
-    if world
-        .clans
-        .values()
-        .any(|c| c.name.eq_ignore_ascii_case(&name))
-    {
+    if name_taken(world, &name) {
         send_to_client(
             world,
             leader_client,

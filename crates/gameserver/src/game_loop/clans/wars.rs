@@ -182,11 +182,7 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
         );
         return;
     }
-    let Some(target) = world
-        .clans
-        .values()
-        .find(|c| c.name.eq_ignore_ascii_case(&name))
-    else {
+    let Some(target) = by_name(world, &name) else {
         send_sm_with(world, player, sm_ids::CLAN_WAR_TARGET_DOES_NOT_EXIST, &[]);
         return;
     };
@@ -332,11 +328,7 @@ pub(crate) fn handle_request_stop_pledge_war(world: &mut World, client_id: u32, 
     let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
     };
-    let Some(target) = world
-        .clans
-        .values()
-        .find(|c| c.name.eq_ignore_ascii_case(&name))
-    else {
+    let Some(target) = by_name(world, &name) else {
         send_sm_with(
             world,
             player,
@@ -433,11 +425,7 @@ pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: 
         );
         return;
     }
-    let Some(target) = world
-        .clans
-        .values()
-        .find(|c| c.name.eq_ignore_ascii_case(&name))
-    else {
+    let Some(target) = by_name(world, &name) else {
         send_sm_with(
             world,
             player,

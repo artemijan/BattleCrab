@@ -626,11 +626,7 @@ pub(crate) fn handle_ally_dismiss(world: &mut World, client_id: u32, body: &[u8]
         );
         return;
     }
-    let Some(target) = world
-        .clans
-        .values()
-        .find(|c| c.name.eq_ignore_ascii_case(&name))
-    else {
+    let Some(target) = by_name(world, &name) else {
         send_sm_with(world, player, sm_ids::THAT_CLAN_DOES_NOT_EXIST, &[]);
         return;
     };
