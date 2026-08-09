@@ -284,15 +284,10 @@ fn try_pickup(world: &mut World, player_oid: i32) -> bool {
     ) else {
         return false;
     };
-    let candidates: Vec<(i32, Position, i32)> = (-1..=1)
-        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-        .filter_map(|(dx, dy)| {
-            world
-                .ground_item_regions
-                .get(&(region.0 + dx, region.1 + dy))
-        })
-        .flatten()
-        .filter_map(|&oid| {
+    let candidates: Vec<(i32, Position, i32)> = world
+        .ground_items_visible_from(region)
+        .into_iter()
+        .filter_map(|oid| {
             let g = world.objects.get_component::<GroundItem>(&oid)?;
             let p = world.objects.get_component::<Position>(&oid)?;
             Some((oid, *p, g.owner_id))
@@ -336,12 +331,7 @@ fn find_target(world: &World, player_oid: i32, s: &AutoPlaySettings) -> Option<i
         LONG_RANGE
     };
     let mut best: Option<(i32, f64)> = None;
-    let npcs: Vec<i32> = (-1..=1)
-        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
-        .flatten()
-        .copied()
-        .collect();
+    let npcs = world.npcs_visible_from(region);
     for other in npcs {
         if !mode_allows(world, player_oid, other, s.next_target_mode) {
             continue;

@@ -1214,13 +1214,7 @@ pub(crate) fn is_manufacture_owner(world: &World, oid: i32) -> bool {
 /// `Util.checkIfInRange(range, a, b, includeZBAxis=true)`: 3D distance vs
 /// `range + a.collisionRadius + b.collisionRadius`.
 fn in_range(world: &World, a: i32, b: i32, range: i32) -> bool {
-    use crate::model::components::{Collision, Position};
-    let (Some(pa), Some(pb)) = (
-        world.objects.get_component::<Position>(&a),
-        world.objects.get_component::<Position>(&b),
-    ) else {
-        return false;
-    };
+    use crate::model::components::Collision;
     let ra = world
         .objects
         .get_component::<Collision>(&a)
@@ -1231,11 +1225,8 @@ fn in_range(world: &World, a: i32, b: i32, range: i32) -> bool {
         .get_component::<Collision>(&b)
         .map(|c| c.radius)
         .unwrap_or(0.0);
+    // Java widens the gate by both collision radii before comparing, so this
+    // cannot be a plain `within_3d`.
     let reach = range as f64 + ra + rb;
-    let (dx, dy, dz) = (
-        (pa.x - pb.x) as f64,
-        (pa.y - pb.y) as f64,
-        (pa.z - pb.z) as f64,
-    );
-    dx * dx + dy * dy + dz * dz <= reach * reach
+    crate::geo::distance::distance_3d(world, a, b).is_some_and(|d| d <= reach)
 }

@@ -21,6 +21,28 @@ pub fn distance_3d(world: &World, a: i32, b: i32) -> Option<f64> {
     Some(dist3d_xyz(ax, ay, az, bx, by, bz))
 }
 
+/// `Util.checkIfInRange(range, a, b, includeZAxis = false)` — the flat-range
+/// gate, **inclusive** of `range`.
+///
+/// `false` when either object has left the world, which every caller wants: a
+/// departed object is not in range of anything.
+///
+/// Note the axis: this deliberately ignores z, so a target directly overhead
+/// counts as near. Reach for [`within_3d`] where height matters.
+pub fn within_2d(world: &World, a: i32, b: i32, range: f64) -> bool {
+    distance_2d(world, a, b).is_some_and(|d| d <= range)
+}
+
+/// `Util.checkIfInRange(range, a, b, includeZAxis = true)` — the [`within_2d`]
+/// counterpart that measures height too, inclusive of `range`.
+///
+/// Callers needing a *strict* `<` keep their own comparison: Java is not
+/// consistent about the boundary, and `death::resurrect` in particular ports
+/// `calculateDistance3D(this) < ALT_PARTY_RANGE`.
+pub fn within_3d(world: &World, a: i32, b: i32, range: f64) -> bool {
+    distance_3d(world, a, b).is_some_and(|d| d <= range)
+}
+
 pub fn dist3d_xyz(x1: i32, y1: i32, z1: i32, x2: i32, y2: i32, z2: i32) -> f64 {
     (((x2 - x1) as f64).powi(2) + ((y2 - y1) as f64).powi(2) + ((z2 - z1) as f64).powi(2)).sqrt()
 }

@@ -1573,18 +1573,7 @@ pub(crate) fn split_exp_with_pet(
 }
 
 fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
-    let (Some(pa), Some(pb)) = (
-        world.objects.get_component::<Position>(&a),
-        world.objects.get_component::<Position>(&b),
-    ) else {
-        return false;
-    };
-    let (dx, dy, dz) = (
-        (pa.x - pb.x) as f64,
-        (pa.y - pb.y) as f64,
-        (pa.z - pb.z) as f64,
-    );
-    (dx * dx + dy * dy + dz * dz).sqrt() <= range
+    crate::geo::distance::within_3d(world, a, b, range)
 }
 
 /// Java `PetStat.addExpAndSp` — award the pet its cut and level it up.

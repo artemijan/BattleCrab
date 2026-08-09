@@ -1103,11 +1103,9 @@ fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_oid: i32) -
     let Some(region) = region_cell_of(world, npc_oid) else {
         return false;
     };
-    let crowder = (-1..=1)
-        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
-        .flatten()
-        .copied()
+    let crowder = world
+        .npcs_visible_from(region)
+        .into_iter()
         .filter(|&other| other != npc_oid && other != target_oid)
         .filter(|&other| {
             world
@@ -2042,11 +2040,9 @@ fn faction_recruits(
     };
 
     // Candidate clan-mates: NPCs in this and the neighbouring regions.
-    let nearby: Vec<i32> = (-1..=1)
-        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
-        .flatten()
-        .copied()
+    let nearby: Vec<i32> = world
+        .npcs_visible_from(region)
+        .into_iter()
         .filter(|&other| other != caller_oid)
         .collect();
 

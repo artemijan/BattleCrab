@@ -126,15 +126,7 @@ pub(crate) fn on_skill_cast_near_raid(world: &mut World, caster_oid: i32, skill_
 const PARTY_RANGE: f64 = 1500.0;
 
 fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
-    use crate::model::components::Position;
-    let (Some(pa), Some(pb)) = (
-        world.objects.get_component::<Position>(&a),
-        world.objects.get_component::<Position>(&b),
-    ) else {
-        return false;
-    };
-    let (dx, dy) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64);
-    (dx * dx + dy * dy).sqrt() <= range
+    crate::geo::distance::within_2d(world, a, b, range)
 }
 
 /// A boss only curses while it is actually fighting (`isInCombat`).
