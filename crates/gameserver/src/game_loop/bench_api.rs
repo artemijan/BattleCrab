@@ -8,6 +8,7 @@
 //! normal build; none of it is API.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::set_position;
 use std::sync::Arc;
 
 use crate::character::CharData;
@@ -142,11 +143,7 @@ pub fn begin_move(world: &mut World, client_id: u32, object_id: i32, dest: (i32,
 /// Move an object to (x, y, z) maintaining the region index + zone flags —
 /// the invariant-preserving form of "write Position directly".
 pub fn relocate(world: &mut World, object_id: i32, x: i32, y: i32, z: i32) {
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
-        pos.x = x;
-        pos.y = y;
-        pos.z = z;
-    }
+    set_position(world, object_id, (x, y, z));
     super::visibility::update_region(world, object_id);
     super::zones::revalidate_zone(world, object_id, true);
 }

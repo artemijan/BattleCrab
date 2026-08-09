@@ -5,6 +5,22 @@
 //! only the content.
 
 pub mod alliance;
+
+/// The 60 village masters that the clan and alliance dialogs both attach to —
+/// Java's identical `NPCS` array in `ClanMaster` and `AllianceMaster`.
+///
+/// One list, because it is one fact: these are *the village masters*. Both
+/// scripts serve every one of them from a single page set numbered against a
+/// virtual npc id (`9000-NN` / `9001-NN`), so a master present in one list and
+/// absent from the other would answer one dialog and silently ignore the other.
+pub(crate) const VILLAGE_MASTERS: [i32; 60] = [
+    30026, 30031, 30037, 30066, 30070, 30109, 30115, 30120, 30154, 30174, //
+    30175, 30176, 30187, 30191, 30195, 30288, 30289, 30290, 30297, 30358, //
+    30373, 30462, 30474, 30498, 30499, 30500, 30503, 30504, 30505, 30508, //
+    30511, 30512, 30513, 30520, 30525, 30565, 30594, 30595, 30676, 30677, //
+    30681, 30685, 30687, 30689, 30694, 30699, 30704, 30845, 30847, 30849, //
+    30854, 30857, 30862, 30865, 30894, 30897, 30900, 30905, 30910, 30913,
+];
 pub mod alliance_master;
 pub mod antharas_heart;
 pub mod baium;

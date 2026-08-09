@@ -4,6 +4,8 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::set_position;
+use crate::game_loop::helpers::set_position_heading;
 use crate::geo::worker::{PathEvent, PathRequest};
 use crate::model::Player;
 use crate::model::components::{
@@ -279,11 +281,7 @@ fn slide_to(
         return;
     };
     let (x, y, z) = dest;
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
-        pos.x = x;
-        pos.y = y;
-        pos.z = z;
-    }
+    set_position(world, object_id, (x, y, z));
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.blink_active = true;
     }
@@ -790,12 +788,7 @@ pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body
     }
 
     // `clientStopMoving(location)`: land where the client says it stopped.
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
-        pos.x = x;
-        pos.y = y;
-        pos.z = z;
-        pos.heading = heading;
-    }
+    set_position_heading(world, object_id, (x, y, z), heading);
     super::zones::revalidate_zone(world, object_id, true);
     broadcast_including_self(
         world,

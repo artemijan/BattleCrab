@@ -1,10 +1,11 @@
 //! NPC walking routes (G21 slice 10) — `WalkingManager` / `WalkInfo`.
 
 use super::*;
+use crate::game_loop::helpers::set_position;
 
 use crate::data::route_data::{RepeatStyle, RouteData, WalkNode, WalkRoute};
 use crate::game_loop::walkers::WalkState;
-use crate::model::components::{Movement, Position, Vitals};
+use crate::model::components::{Movement, Vitals};
 
 const WALKER_ID: i32 = 46000;
 const WALKER: i32 = NPC_OID;
@@ -71,11 +72,7 @@ fn walk_one_leg(world: &mut World) {
     crate::game_loop::walkers::walker_tick(world);
     if let Some(mv) = world.objects.get_component::<Movement>(&WALKER).cloned() {
         let (dx, dy, dz) = (mv.0.dest_x, mv.0.dest_y, mv.0.dest_z);
-        if let Some(p) = world.objects.get_component_mut::<Position>(&WALKER) {
-            p.x = dx;
-            p.y = dy;
-            p.z = dz;
-        }
+        set_position(world, WALKER, (dx, dy, dz));
         world.objects.remove_component::<Movement>(&WALKER);
     }
     // The arrival sweep: notices the Movement is gone and banks the delay.

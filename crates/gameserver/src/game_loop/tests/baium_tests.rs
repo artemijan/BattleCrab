@@ -2,6 +2,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::helpers::set_position;
 
 use crate::game_loop::baium::{ARCHANGEL, BAIUM};
 
@@ -819,14 +820,7 @@ fn an_archangel_abandons_a_target_that_left_the_zone() {
     );
 
     // The player jumps down to 13F.
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&500)
-    {
-        p.x = 114_804;
-        p.y = 16_197;
-        p.z = 9_208;
-    }
+    set_position(&mut world, 500, (114_804, 16_197, 9_208));
     crate::game_loop::baium::handle_select_target(&mut world);
     assert!(
         world

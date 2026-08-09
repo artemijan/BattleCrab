@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::set_position;
 
 /// A GM's `//serverinfo` runs and answers with server-info text lines.
 #[test]
@@ -1372,14 +1373,7 @@ fn admin_recall_brings_player_to_gm() {
     drain(&mut gm_rx);
     drain(&mut other_rx);
 
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&7105)
-    {
-        p.x = 500;
-        p.y = 600;
-        p.z = 700;
-    }
+    set_position(&mut world, 7105, (500, 600, 700));
     on_packet(&mut world, 1, build_admin("recall P7106"));
     let pos = *world
         .objects
@@ -1405,11 +1399,7 @@ fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
     drain(&mut gm_rx);
     drain(&mut other_rx);
 
-    if let Some(p) = world.objects.get_component_mut::<Position>(&7306) {
-        p.x = 1500;
-        p.y = 1600;
-        p.z = 1700;
-    }
+    set_position(&mut world, 7306, (1500, 1600, 1700));
     // Nothing selected on the GM: the button follows the name, not a target.
     assert!(
         world
@@ -1427,11 +1417,7 @@ fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
     );
 
     // A stale target must not win over the name argument either.
-    if let Some(p) = world.objects.get_component_mut::<Position>(&7306) {
-        p.x = 2500;
-        p.y = 2600;
-        p.z = 2700;
-    }
+    set_position(&mut world, 7306, (2500, 2600, 2700));
     world
         .objects
         .add_components(&7305, crate::model::components::TargetRef(Some(7305)));
@@ -2006,14 +1992,7 @@ fn admin_spawn_creates_npc_at_gm() {
     world.data.npc_data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7604, 100);
     drain(&mut gm_rx);
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&7604)
-    {
-        p.x = 100;
-        p.y = 200;
-        p.z = 300;
-    }
+    set_position(&mut world, 7604, (100, 200, 300));
 
     let npc_oid = world.next_npc_object_id;
     on_packet(&mut world, 1, build_admin("spawn 30001")); // Lector, a Merchant (non-monster)
@@ -3042,11 +3021,7 @@ fn bare_teleto_still_teleports_to_the_target() {
     let mut other_rx = ingame_player_access(&mut world, 2, 8923, 0);
     drain(&mut gm_rx);
     drain(&mut other_rx);
-    if let Some(p) = world.objects.get_component_mut::<Position>(&8923) {
-        p.x = 2500;
-        p.y = 2600;
-        p.z = 2700;
-    }
+    set_position(&mut world, 8923, (2500, 2600, 2700));
     world
         .objects
         .add_components(&8922, crate::model::components::TargetRef(Some(8923)));
@@ -3078,11 +3053,7 @@ fn admin_walk_walks_instead_of_teleporting() {
         speeds.run_spd = 120.0;
         speeds.running = true;
     }
-    if let Some(p) = world.objects.get_component_mut::<Position>(&8924) {
-        p.x = 1000;
-        p.y = 1000;
-        p.z = 0;
-    }
+    set_position(&mut world, 8924, (1000, 1000, 0));
     drain(&mut gm_rx);
 
     on_packet(&mut world, 1, build_admin("walk 1300 1000 0"));
@@ -6570,11 +6541,7 @@ fn cw_goto_falls_through_from_the_holder_to_the_dropped_item() {
     let _item_rx = ingame_player_access(&mut world, 3, GROUND_ITEM, 0);
     // The holder is flagged but has NO position — the case that must fall through.
     world.objects.remove_component::<Position>(&HOLDER);
-    if let Some(p) = world.objects.get_component_mut::<Position>(&GROUND_ITEM) {
-        p.x = 84_000;
-        p.y = 148_000;
-        p.z = -3400;
-    }
+    set_position(&mut world, GROUND_ITEM, (84_000, 148_000, -3400));
     world.cursed_weapons[0].is_activated = true;
     world.cursed_weapons[0].player_id = HOLDER;
     world.cursed_weapons[0].is_dropped = true;

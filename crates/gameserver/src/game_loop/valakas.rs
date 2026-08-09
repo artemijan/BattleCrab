@@ -17,6 +17,7 @@
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -162,11 +163,11 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
         .get_component::<ValakasCombat>(&valakas_oid)
         .is_some_and(|c| world.tick.saturating_sub(c.last_attack_tick) >= INACTIVITY_TICKS);
     if idle {
-        if let Some(p) = world.objects.get_component_mut::<Position>(&valakas_oid) {
-            p.x = VALAKAS_HOME.0;
-            p.y = VALAKAS_HOME.1;
-            p.z = VALAKAS_HOME.2;
-        }
+        set_position(
+            world,
+            valakas_oid,
+            (VALAKAS_HOME.0, VALAKAS_HOME.1, VALAKAS_HOME.2),
+        );
         if let Some(a) = world
             .objects
             .get_component_mut::<crate::model::npc::AggroList>(&valakas_oid)
@@ -467,11 +468,11 @@ const CINEMATIC: [(u64, Option<[i32; 11]>); 10] = [
 /// and 9), and a chain of relative delays would be far easier to get subtly
 /// wrong.
 pub(crate) fn begin_cinematic(world: &mut World, valakas_oid: i32) {
-    if let Some(p) = world.objects.get_component_mut::<Position>(&valakas_oid) {
-        p.x = VALAKAS_LAIR.0;
-        p.y = VALAKAS_LAIR.1;
-        p.z = VALAKAS_LAIR.2;
-    }
+    set_position(
+        world,
+        valakas_oid,
+        (VALAKAS_LAIR.0, VALAKAS_LAIR.1, VALAKAS_LAIR.2),
+    );
     // `"broadcast_spawn"`, which Java arms 100 ms in: the lair theme plus
     // Valakas' roar animation, to everyone inside. A hundred milliseconds is
     // under one tick here, so it goes out inline rather than through a task

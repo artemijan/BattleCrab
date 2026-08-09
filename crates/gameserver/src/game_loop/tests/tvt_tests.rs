@@ -3,6 +3,7 @@
 //! scoring + respawn, and EndFight (winner reward / tie, forfeit, teardown).
 
 use super::*;
+use crate::game_loop::helpers::set_position;
 
 use crate::data::instance_data::{ExitType, InstanceTemplate};
 use crate::game_loop::events::tvt;
@@ -688,11 +689,7 @@ fn the_enemy_headquarters_kicks_intruders_out() {
     let blue = world.events.tvt.blue_team[0];
 
     // Blue player walks into the *red* headquarters.
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
-        pos.x = 151_500;
-        pos.y = 46_500;
-        pos.z = -3400;
-    }
+    set_position(&mut world, blue, (151_500, 46_500, -3400));
     revalidate_zone(&mut world, blue, true);
 
     let pos = *world.objects.get_component::<Position>(&blue).unwrap();
@@ -708,7 +705,6 @@ fn the_enemy_headquarters_kicks_intruders_out() {
 #[test]
 fn idling_in_your_headquarters_eventually_kicks_you() {
     use crate::game_loop::zones::revalidate_zone;
-    use crate::model::components::Position;
 
     let (mut world, _oids) = fighting_arena(4);
     register_hq_zones(&mut world);
@@ -724,21 +720,13 @@ fn idling_in_your_headquarters_eventually_kicks_you() {
     };
 
     // Stand in the blue headquarters → warning + kick armed.
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
-        pos.x = 147_500;
-        pos.y = 46_500;
-        pos.z = -3400;
-    }
+    set_position(&mut world, blue, (147_500, 46_500, -3400));
     revalidate_zone(&mut world, blue, true);
     assert_eq!(pending(&world), 2, "warning + kick armed");
     let seq = *world.events.tvt.inactivity_seq.get(&blue).unwrap();
 
     // Walk out → the pair is retired (the tasks stay queued but go quiet).
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
-        pos.x = 149_500;
-        pos.y = 46_500;
-        pos.z = -3400;
-    }
+    set_position(&mut world, blue, (149_500, 46_500, -3400));
     revalidate_zone(&mut world, blue, true);
     assert_ne!(
         *world.events.tvt.inactivity_seq.get(&blue).unwrap(),

@@ -11,6 +11,7 @@
 //!   it teleports to its "home" spawn point, once per life.
 
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -160,11 +161,7 @@ fn try_half_hp_relocation(world: &mut World, orfen_oid: i32) -> bool {
     {
         a.0.clear();
     }
-    if let Some(p) = world.objects.get_component_mut::<Position>(&orfen_oid) {
-        p.x = HOME.0;
-        p.y = HOME.1;
-        p.z = HOME.2;
-    }
+    set_position(world, orfen_oid, (HOME.0, HOME.1, HOME.2));
     true
 }
 

@@ -23,6 +23,7 @@
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::set_position_heading;
 use crate::model::Player;
 use crate::model::components::{
     BaseStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook, Speeds,
@@ -424,12 +425,7 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
         instance_of(world, npc_oid),
         &server_packets::delete_object(npc_oid),
     );
-    if let Some(p) = world.objects.get_component_mut::<Position>(&npc_oid) {
-        p.x = x;
-        p.y = y;
-        p.z = z;
-        p.heading = heading;
-    }
+    set_position_heading(world, npc_oid, (x, y, z), heading);
     if old_region != new_region {
         if let Some(ids) = world.npc_regions.get_mut(&old_region) {
             ids.retain(|&id| id != npc_oid);

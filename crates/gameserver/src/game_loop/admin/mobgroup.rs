@@ -7,7 +7,8 @@
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::nth_arg;
-use crate::model::components::{AdminFlags, Position};
+use crate::game_loop::helpers::set_position;
+use crate::model::components::AdminFlags;
 use crate::model::mob_group::{Controllable, MobGroup, MobGroupState};
 use crate::model::npc::Npc;
 use crate::world::World;
@@ -208,11 +209,7 @@ pub(super) fn admin_mobgroup_teleport(
         world
             .objects
             .remove_component::<crate::model::components::Movement>(&oid);
-        if let Some(p) = world.objects.get_component_mut::<Position>(&oid) {
-            p.x = gm.x;
-            p.y = gm.y;
-            p.z = gm.z;
-        }
+        set_position(world, oid, (gm.x, gm.y, gm.z));
         super::visibility::update_npc_region(world, oid);
     }
     send_message(

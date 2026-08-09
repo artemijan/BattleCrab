@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::set_position;
 
 /// Port of `clientpackets/RequestRestartPoint`: pick the respawn point for the
 /// requested restart type — the siege "to castle"/"to siege HQ" cases when the
@@ -373,11 +374,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     }
     // Java `Player.setTeleporting(true)` arms the watchdog here.
     arm_teleport_watchdog(world, player_oid);
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&player_oid) {
-        pos.x = x;
-        pos.y = y;
-        pos.z = z;
-    }
+    set_position(world, player_oid, (x, y, z));
     // Through `World`, not the component directly, so `player_regions` moves
     // with the cell (an untracked teleport would leave the player receiving
     // broadcasts for the region they left).

@@ -5,6 +5,7 @@
 //! honoured. Before S1 every one of these casts succeeded.
 
 use super::*;
+use crate::game_loop::helpers::set_position;
 use crate::game_loop::skills::cast::handle_request_magic_skill_use;
 use crate::model::components::{SkillBook, Vitals};
 use crate::model::inventory::Inventory;
@@ -441,11 +442,7 @@ fn summon_friend_charges_the_target_prompts_them_and_teleports_on_accept() {
             world.objects.add_components(&TARGET, inv);
         }
         // Somewhere distinct, so a teleport is visible.
-        if let Some(p) = world.objects.get_component_mut::<Position>(&CASTER) {
-            p.x = 15_000;
-            p.y = 15_000;
-            p.z = -2_000;
-        }
+        set_position(&mut world, CASTER, (15_000, 15_000, -2_000));
         (world, crx, trx)
     };
     let at_caster = |w: &World| {

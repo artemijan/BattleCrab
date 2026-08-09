@@ -58,6 +58,50 @@ pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
     crate::geo::distance::position_of(world, object_id)
 }
 
+/// Java `Creature.setXYZ` — put an object at `(x, y, z)` by writing its
+/// [`Position`] outright.
+///
+/// **Teleport semantics, not movement.** This changes where the object *is* and
+/// nothing else: no region re-index, no knownlist update, no packet. Every
+/// caller pairs it with the rest — `set_player_region` /
+/// `visibility::update_npc_region`, a `TeleportToLocation` or `FlyToLocation`
+/// broadcast, sometimes an instance change — and dropping one of those is how
+/// an object ends up visible to the wrong people or invisible to everyone.
+/// [`crate::game_loop::position`] is where movement the world watches happen
+/// lives.
+///
+/// A no-op for an object that has left the world.
+pub(crate) fn set_position(world: &mut World, object_id: i32, (x, y, z): (i32, i32, i32)) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&object_id)
+    {
+        p.x = x;
+        p.y = y;
+        p.z = z;
+    }
+}
+
+/// [`set_position`] that also faces the object — Java's
+/// `setXYZ` + `setHeading` pair, which the respawn and summon paths do
+/// together because a creature placed without a heading faces due east.
+pub(crate) fn set_position_heading(
+    world: &mut World,
+    object_id: i32,
+    (x, y, z): (i32, i32, i32),
+    heading: i32,
+) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&object_id)
+    {
+        p.x = x;
+        p.y = y;
+        p.z = z;
+        p.heading = heading;
+    }
+}
+
 /// Halt a creature mid-path and tell everyone where it stopped — Java
 /// `Creature.stopMove` followed by the `StopMove` broadcast.
 ///

@@ -11,6 +11,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -291,14 +292,7 @@ pub(crate) fn handle_social(world: &mut World, antharas_oid: i32) {
 /// `START_MOVE` — the cinematic is over: Antharas takes his AI back and walks
 /// into the lair.
 fn start_move(world: &mut World, antharas_oid: i32) {
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&antharas_oid)
-    {
-        p.x = MOVE_TO.0;
-        p.y = MOVE_TO.1;
-        p.z = MOVE_TO.2;
-    }
+    set_position(world, antharas_oid, (MOVE_TO.0, MOVE_TO.1, MOVE_TO.2));
     // The waves only start once he is actually fighting.
     begin_waves(world, antharas_oid);
     // The regen and inactivity beats start with the fight (Java arms SET_REGEN
@@ -853,14 +847,11 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
 
     if idle >= RESET_IDLE_TICKS {
         // Park Antharas at his resting spot and forget everyone.
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::components::Position>(&antharas_oid)
-        {
-            p.x = ANTHARAS_HOME.0;
-            p.y = ANTHARAS_HOME.1;
-            p.z = ANTHARAS_HOME.2;
-        }
+        set_position(
+            world,
+            antharas_oid,
+            (ANTHARAS_HOME.0, ANTHARAS_HOME.1, ANTHARAS_HOME.2),
+        );
         if let Some(a) = world
             .objects
             .get_component_mut::<crate::model::npc::AggroList>(&antharas_oid)

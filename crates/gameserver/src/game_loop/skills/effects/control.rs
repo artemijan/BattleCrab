@@ -7,6 +7,7 @@ use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::set_position;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
@@ -956,14 +957,7 @@ pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid:
             server_packets::FlyType::Dummy,
         ),
     );
-    if let Some(pos) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&caster_oid)
-    {
-        pos.x = dest.0;
-        pos.y = dest.1;
-        pos.z = dest.2;
-    }
+    set_position(world, caster_oid, (dest.0, dest.1, dest.2));
     world.set_player_region(caster_oid, crate::world::region_of(dest.0, dest.1));
     crate::game_loop::helpers::broadcast_including_self(
         world,
@@ -1058,14 +1052,7 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
         ),
     );
 
-    if let Some(pos) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&target_oid)
-    {
-        pos.x = dest.x;
-        pos.y = dest.y;
-        pos.z = dest.z;
-    }
+    set_position(world, target_oid, (dest.x, dest.y, dest.z));
     // Same reason as the respawn teleport: the region index has to move with
     // the cell. No-op on the index for a non-player target.
     world.set_player_region(target_oid, crate::world::region_of(dest.x, dest.y));

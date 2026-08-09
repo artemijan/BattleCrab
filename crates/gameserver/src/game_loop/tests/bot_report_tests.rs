@@ -5,6 +5,7 @@ use super::*;
 use crate::config::bot_report::{BotReportConfig, BotReportPunishment};
 use crate::config::chat_filter::ChatFilterConfig;
 use crate::game_loop::bot_report::{self, DAILY_POINTS};
+use crate::game_loop::helpers::set_position;
 use crate::model::components::TargetRef;
 use commons::config::PropertiesParser;
 
@@ -162,11 +163,7 @@ fn a_target_in_a_peace_zone_cannot_be_reported() {
     let Some((x, y, z)) = first_peace_zone_point(&world) else {
         return; // the synthetic test datapack has no zones — nothing to assert
     };
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&6002) {
-        pos.x = x;
-        pos.y = y;
-        pos.z = z;
-    }
+    set_position(&mut world, 6002, (x, y, z));
     assert!(
         !bot_report::report_bot(&mut world, 1, 6001),
         "a suspect standing in town cannot be reported"

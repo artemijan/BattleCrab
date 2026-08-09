@@ -21,6 +21,7 @@
 
 use crate::enums::ChatType;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::set_position;
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
 use crate::model::components::{Position, RegionCell};
@@ -670,11 +671,7 @@ pub(crate) fn handle_arrive(world: &mut World, boat_oid: i32) {
         .get_component::<Boat>(&boat_oid)
         .map(|b| b.heading)
         .unwrap_or(0);
-    if let Some(p) = world.objects.get_component_mut::<Position>(&boat_oid) {
-        p.x = target.x;
-        p.y = target.y;
-        p.z = target.z;
-    }
+    set_position(world, boat_oid, (target.x, target.y, target.z));
     if let Some(cell) = world.objects.get_component_mut::<RegionCell>(&boat_oid) {
         cell.0 = region_of(target.x, target.y);
     }
@@ -710,11 +707,7 @@ fn move_passengers(world: &mut World, boat_oid: i32, bx: i32, by: i32, bz: i32) 
             }
         });
     for (player_oid, (sx, sy, sz)) in riders {
-        if let Some(p) = world.objects.get_component_mut::<Position>(&player_oid) {
-            p.x = bx + sx;
-            p.y = by + sy;
-            p.z = bz + sz;
-        }
+        set_position(world, player_oid, (bx + sx, by + sy, bz + sz));
     }
 }
 
@@ -747,11 +740,7 @@ pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i
             seat_z: seat.2,
         },
     );
-    if let Some(p) = world.objects.get_component_mut::<Position>(&player) {
-        p.x = bx + seat.0;
-        p.y = by + seat.1;
-        p.z = bz + seat.2;
-    }
+    set_position(world, player, (bx + seat.0, by + seat.1, bz + seat.2));
     let pkt = sp::get_on_vehicle(player, boat_oid, seat.0, seat.1, seat.2);
     crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
 }
@@ -769,11 +758,7 @@ pub(crate) fn disembark(world: &mut World, player: i32, boat_oid: i32, exit: (i3
         return;
     }
     world.objects.remove_component::<InVehicle>(&player);
-    if let Some(p) = world.objects.get_component_mut::<Position>(&player) {
-        p.x = exit.0;
-        p.y = exit.1;
-        p.z = exit.2;
-    }
+    set_position(world, player, (exit.0, exit.1, exit.2));
     let pkt = sp::get_off_vehicle(player, boat_oid, exit.0, exit.1, exit.2);
     crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
 }
