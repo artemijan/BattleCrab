@@ -27,6 +27,8 @@
 //! Queen Ant's nurses and Orfen's minions — via `on_faction_call_script`.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::hp_fraction;
+use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::pos_of;
@@ -1223,12 +1225,7 @@ fn raid_target_chaos(world: &mut World, npc_oid: i32) -> bool {
         ai.chaos_time += 1;
         ai.chaos_time
     };
-    let hp_fraction = world
-        .objects
-        .get_component::<Vitals>(&npc_oid)
-        .filter(|v| v.max_hp > 0)
-        .map(|v| v.cur_hp / v.max_hp as f64)
-        .unwrap_or(1.0);
+    let hp_fraction = hp_fraction(world, npc_oid).unwrap_or(1.0);
 
     let cfg = &world.cfg.npc;
     // Java's ladder: GrandBoss first only because `instanceof RaidBoss` is
@@ -2097,10 +2094,7 @@ fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, 
     if world.objects.has_component::<Casting>(&recruit_oid) {
         return;
     }
-    let caller_hp = world
-        .objects
-        .get_component::<Vitals>(&caller_oid)
-        .map(|v| (v.cur_hp, v.max_hp as f64));
+    let caller_hp = hp_pair(world, caller_oid);
     let cast = |world: &mut World, target: i32, (id, lvl): (i32, i32)| {
         if let Some(skill) = skill_by_id(world, id, lvl)
             && crate::game_loop::npc_cast::check_use_conditions_pub(world, recruit_oid, &skill)

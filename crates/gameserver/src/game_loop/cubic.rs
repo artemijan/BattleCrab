@@ -371,18 +371,12 @@ fn heal_target(world: &mut World, owner_oid: i32, _template: &CubicTemplate) -> 
         .min_by(|a, b| hp_percent(world, *a).total_cmp(&hp_percent(world, *b)))
 }
 
+/// `0.0` when the answer is unavailable — the opposite default to
+/// `npc_cast::hp_percent`, and deliberately so: this one picks the *most hurt*
+/// ally to heal, and an unreadable candidate must not win that comparison by
+/// looking healthy.
 fn hp_percent(world: &World, oid: i32) -> f64 {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| {
-            if v.max_hp > 0 {
-                v.cur_hp / v.max_hp as f64 * 100.0
-            } else {
-                0.0
-            }
-        })
-        .unwrap_or(0.0)
+    crate::game_loop::helpers::hp_fraction(world, oid).map_or(0.0, |f| f * 100.0)
 }
 
 fn in_range(world: &World, owner_oid: i32, target: i32, template: &CubicTemplate) -> bool {

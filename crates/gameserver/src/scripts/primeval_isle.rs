@@ -440,12 +440,14 @@ fn cast(ctx: &mut QuestCtx, npc: i32, target: i32, skill_id: i32, level: i32) {
     }
 }
 
+/// `100.0` when the answer is unavailable, as in `npc_cast`.
+///
+/// This copy had no zero-maximum guard and divided anyway, yielding a `NaN`.
+/// All three callers below compare with `<` or `<=`, and `NaN` fails both, so
+/// the effect was already "treat as full health" — the same answer this now
+/// gives on purpose rather than by accident.
 fn hp_percent(ctx: &QuestCtx, oid: i32) -> f64 {
-    ctx.world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| v.cur_hp / v.max_hp as f64 * 100.0)
-        .unwrap_or(100.0)
+    crate::game_loop::helpers::hp_fraction(ctx.world, oid).map_or(100.0, |f| f * 100.0)
 }
 
 fn most_hated(ctx: &QuestCtx, oid: i32) -> Option<i32> {

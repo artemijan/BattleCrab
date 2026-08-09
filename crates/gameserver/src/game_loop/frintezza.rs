@@ -15,6 +15,7 @@
 //! is abbreviated throughout.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
@@ -966,11 +967,7 @@ pub(crate) fn on_scarlet_attack(world: &mut World, scarlet_oid: i32, npc_id: i32
     if npc_id != SCARLET1 {
         return; // only the first form morphs
     }
-    let Some((cur, max)) = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&scarlet_oid)
-        .map(|v| (v.cur_hp, v.max_hp as f64))
-    else {
+    let Some((cur, max)) = hp_pair(world, scarlet_oid) else {
         return;
     };
     let sv = world

@@ -11,6 +11,7 @@
 
 use crate::game_loop::common::near_leader;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::set_position;
@@ -546,12 +547,7 @@ pub(crate) fn choose_skill(
     antharas_oid: i32,
     target_oid: i32,
 ) -> Option<Choice> {
-    let (cur, max) = {
-        let v = world
-            .objects
-            .get_component::<crate::model::components::Vitals>(&antharas_oid)?;
-        (v.cur_hp, v.max_hp as f64)
-    };
+    let (cur, max) = hp_pair(world, antharas_oid)?;
     let (dist, angle) = {
         let a = world
             .objects
@@ -769,11 +765,7 @@ pub(crate) fn handle_set_regen(world: &mut World, antharas_oid: i32) {
     if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(IN_FIGHT) {
         return;
     }
-    if let Some((cur, max)) = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&antharas_oid)
-        .map(|v| (v.cur_hp, v.max_hp as f64))
-    {
+    if let Some((cur, max)) = hp_pair(world, antharas_oid) {
         let skill_id = REGEN_SKILLS[regen_band(cur, max)];
         // Java `!isAffectedBySkill`, and don't stomp an in-progress cast.
         if !crate::game_loop::abnormal::has_buff(world, antharas_oid, skill_id)

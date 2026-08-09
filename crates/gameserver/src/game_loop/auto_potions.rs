@@ -14,6 +14,7 @@
 //! while a player carrying none is told once a second, forever. Ported
 //! verbatim, because the alternative silently changes what an operator sees.
 
+use crate::game_loop::helpers::hp_pair;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
 use crate::world::World;
@@ -82,10 +83,7 @@ pub(crate) fn tick(world: &mut World) {
 
 /// The three pools, in Java's order: HP, then CP, then MP.
 fn run_for_player(world: &mut World, player_oid: i32, cfg: &crate::config::AutoPotionsConfig) {
-    let hp = world
-        .objects
-        .get_component::<Vitals>(&player_oid)
-        .map(|v| (v.cur_hp, v.max_hp as f64));
+    let hp = hp_pair(world, player_oid);
     let mp = world
         .objects
         .get_component::<Vitals>(&player_oid)

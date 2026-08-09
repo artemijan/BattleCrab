@@ -26,6 +26,7 @@
 //! its own skill ladder.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::skill_by_id;
 use crate::world::World;
 
@@ -80,12 +81,7 @@ pub(crate) fn weighted_damage(
     damage: i32,
     is_melee: bool,
 ) -> Option<i32> {
-    let (cur, max) = {
-        let v = world
-            .objects
-            .get_component::<crate::model::components::Vitals>(&boss_oid)?;
-        (v.cur_hp, v.max_hp as f64)
-    };
+    let (cur, max) = hp_pair(world, boss_oid)?;
     Some(if is_melee {
         damage * 1000
     } else if cur < max * 0.25 {
