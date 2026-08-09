@@ -171,6 +171,28 @@ pub(crate) fn is_gm(world: &World, object_id: i32) -> bool {
         .is_some_and(|p| p.is_gm(&world.data))
 }
 
+/// Whether an object currently stands inside `zone` — Java
+/// `ZoneType.isInsideZone(object)`.
+///
+/// `false` for an object that has left the world. Every caller is sweeping a
+/// boss lair for "who is in here", and something with no position is not in
+/// here.
+///
+/// Takes a resolved `&Zone` rather than a zone id because the callers are
+/// filters over a region's worth of objects: the lookup is hoisted out of the
+/// loop, which is also what makes the missing-zone case theirs to decide. Those
+/// that keep an id-based check split on it deliberately —
+/// `is_some_and` for "is this player in the boss zone?" (no zone ⇒ no) against
+/// `is_none_or` for "has the boss left its lair?" (no zone ⇒ don't drag it
+/// back) — so folding them in here would have to pick one and silently change
+/// the other.
+pub(crate) fn in_zone(world: &World, object_id: i32, zone: &crate::data::zone_data::Zone) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Position>(&object_id)
+        .is_some_and(|p| zone.contains(p.x, p.y, p.z))
+}
+
 /// Whether a creature counts as dead — **`true` when it has no [`Vitals`] at
 /// all**.
 ///

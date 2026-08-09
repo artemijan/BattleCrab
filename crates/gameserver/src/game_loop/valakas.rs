@@ -16,6 +16,7 @@
 
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
@@ -686,12 +687,7 @@ fn players_in_lair_oids(world: &World) -> Vec<i32> {
     };
     world
         .in_game_player_oids()
-        .filter(|oid| {
-            world
-                .objects
-                .get_component::<Position>(oid)
-                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
-        })
+        .filter(|oid| in_zone(world, *oid, zone))
         .collect()
 }
 
@@ -705,10 +701,7 @@ fn broadcast_to_lair(world: &World, pkt: &[u8]) {
     for cs in world.clients.values() {
         if let crate::session::ClientSession::InGame(s) = cs {
             let oid = s.player_object_id();
-            let inside = world
-                .objects
-                .get_component::<Position>(&oid)
-                .is_some_and(|p| zone.contains(p.x, p.y, p.z));
+            let inside = in_zone(world, oid, zone);
             if inside {
                 cs.send(pkt.to_vec());
             }
