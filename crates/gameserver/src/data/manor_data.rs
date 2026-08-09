@@ -3,6 +3,7 @@
 //! (Java `model/Seed`). Manor is gated by `AllowManor` (off on this dist), but
 //! the data is loaded regardless so it works the moment an operator enables it.
 
+use crate::data::xml::attr_i32_trimmed as attr_i32;
 use std::collections::HashMap;
 
 use quick_xml::Reader;
@@ -138,14 +139,6 @@ impl ManorData {
     pub fn insert_for_test(&mut self, seed: Seed) {
         self.by_castle.entry(seed.castle_id).or_default().push(seed);
     }
-}
-
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key)
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
-        .and_then(|s| s.trim().parse().ok())
 }
 
 fn parse(content: &str) -> HashMap<i32, Vec<Seed>> {

@@ -187,10 +187,7 @@ impl SpawnData {
     pub fn load_from(file_path: &str) -> Self {
         let mut spawns = Vec::new();
         let dir = std::path::PathBuf::from(format!("{file_path}{SPAWNS_DIR}"));
-        let mut paths = Vec::new();
-        collect_xml_files(&dir, &mut paths);
-        paths.sort();
-        for path in &paths {
+        for path in &super::xml::xml_files_under(&dir) {
             parse_file(path, &relative_spawn_path(&dir, path), &mut spawns);
         }
         info!(
@@ -213,20 +210,6 @@ impl SpawnData {
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self { spawns: Vec::new() }
-    }
-}
-
-fn collect_xml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            collect_xml_files(&path, out);
-        } else if path.extension().and_then(|e| e.to_str()) == Some("xml") {
-            out.push(path);
-        }
     }
 }
 

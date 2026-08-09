@@ -104,13 +104,7 @@ pub struct TeleporterData {
 impl TeleporterData {
     pub fn load_from(file_path: &str) -> Self {
         let mut teleporters = HashMap::new();
-        let mut files = Vec::new();
-        collect_xml_files(
-            std::path::Path::new(&format!("{file_path}{TELEPORTERS_DIR}")),
-            &mut files,
-        );
-        files.sort();
-        for path in &files {
+        for path in &super::xml::xml_files_under(format!("{file_path}{TELEPORTERS_DIR}")) {
             parse_file(path, &mut teleporters);
         }
         info!(
@@ -142,20 +136,6 @@ impl TeleporterData {
 
     pub fn teleporter_count(&self) -> usize {
         self.teleporters.len()
-    }
-}
-
-fn collect_xml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            collect_xml_files(&path, out);
-        } else if path.extension().and_then(|e| e.to_str()) == Some("xml") {
-            out.push(path);
-        }
     }
 }
 

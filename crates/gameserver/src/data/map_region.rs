@@ -82,14 +82,8 @@ impl MapRegionData {
     pub fn load_from(file_path: &str) -> Self {
         let mut regions = Vec::new();
         let dir = format!("{file_path}{MAPREGION_DIR}");
-        if let Ok(entries) = std::fs::read_dir(&dir) {
-            let mut paths: Vec<_> = entries
-                .flatten()
-                .map(|e| e.path())
-                .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
-                .collect();
-            paths.sort();
-            for path in paths {
+        {
+            for path in super::xml::xml_files_in(&dir) {
                 parse_file(&path, &mut regions);
             }
         }

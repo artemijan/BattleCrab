@@ -7,6 +7,7 @@
 //! The retail `SchemeBuffer` NPC also uses this table's price/category/desc
 //! columns; the custom community board does not, so only `id → level` is kept.
 
+use crate::data::xml::attr_i32_trimmed as attr;
 use std::collections::HashMap;
 
 use quick_xml::Reader;
@@ -48,14 +49,6 @@ impl SchemeBufferData {
     }
 }
 
-fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<i32> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key.as_bytes())
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
-        .and_then(|s| s.trim().parse().ok())
-}
-
 fn parse(content: &str) -> HashMap<i32, i32> {
     let mut reader = Reader::from_str(content);
     let mut out = HashMap::new();
@@ -63,7 +56,7 @@ fn parse(content: &str) -> HashMap<i32, i32> {
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"buff" => {
-                if let (Some(id), Some(level)) = (attr(&e, "id"), attr(&e, "level")) {
+                if let (Some(id), Some(level)) = (attr(&e, b"id"), attr(&e, b"level")) {
                     out.insert(id, level);
                 }
             }

@@ -12,6 +12,55 @@
 //! decide what a datapack file means, so each keeps its own reader.
 
 use quick_xml::events::BytesStart;
+use std::path::{Path, PathBuf};
+
+/// Every `.xml` file directly inside `dir`, **sorted by path**.
+///
+/// Sorted because `read_dir` order is filesystem-dependent while the load order
+/// is not free: the loaders that keep the first entry for a duplicate id (Java's
+/// `putIfAbsent`) would otherwise pick a different one per machine. Every
+/// caller sorted already; doing it here is what makes them one function.
+///
+/// A missing or unreadable directory yields an empty list — the datapack ships
+/// some of these directories only on certain dists, and a loader with nothing
+/// to read is not an error.
+pub(crate) fn xml_files_in(dir: impl AsRef<Path>) -> Vec<PathBuf> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut paths: Vec<PathBuf> = entries
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
+        .collect();
+    paths.sort();
+    paths
+}
+
+/// Every `.xml` file under `dir` **recursively**, sorted by path.
+///
+/// The [`xml_files_in`] counterpart for the datapack trees that nest by region
+/// (`spawns/`, `teleporters/`). Same sort rationale, and unreadable
+/// subdirectories are skipped rather than failing the load.
+pub(crate) fn xml_files_under(dir: impl AsRef<Path>) -> Vec<PathBuf> {
+    fn walk(dir: &Path, out: &mut Vec<PathBuf>) {
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                walk(&path, out);
+            } else if path.extension().and_then(|e| e.to_str()) == Some("xml") {
+                out.push(path);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(dir.as_ref(), &mut out);
+    out.sort();
+    out
+}
 
 /// The raw text of attribute `key`, or `None` when the element does not carry
 /// it. Invalid UTF-8 is replaced rather than rejected (`from_utf8_lossy`):

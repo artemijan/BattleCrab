@@ -931,14 +931,8 @@ impl ItemData {
         let mut weapon_shots = HashMap::new();
         let mut icons = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
-        if let Ok(entries) = std::fs::read_dir(&dir) {
-            let mut paths: Vec<_> = entries
-                .flatten()
-                .map(|e| e.path())
-                .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
-                .collect();
-            paths.sort();
-            for path in paths {
+        {
+            for path in super::xml::xml_files_in(&dir) {
                 parse_file(
                     &path,
                     &mut by_id,

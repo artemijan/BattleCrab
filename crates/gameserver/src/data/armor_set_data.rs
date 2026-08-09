@@ -143,17 +143,10 @@ impl ArmorSetData {
 
     pub fn load_from(file_path: &str) -> Self {
         let mut by_id: HashMap<i32, ArmorSet> = HashMap::new();
-        if let Ok(dir) = std::fs::read_dir(format!("{file_path}{ARMOR_SET_DIR}")) {
-            let mut paths: Vec<_> = dir
-                .flatten()
-                .map(|e| e.path())
-                .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
-                .collect();
-            // Directory order is filesystem-dependent; Java's `putIfAbsent`
-            // makes the *first* file to claim an id win, so sort for a stable
-            // outcome rather than inheriting readdir order.
-            paths.sort();
-            for path in paths {
+        {
+            // Sorted by `xml_files_in`: Java's `putIfAbsent` makes the *first*
+            // file to claim an id win, so readdir order must not decide it.
+            for path in super::xml::xml_files_in(format!("{file_path}{ARMOR_SET_DIR}")) {
                 let Ok(content) = std::fs::read_to_string(&path) else {
                     continue;
                 };

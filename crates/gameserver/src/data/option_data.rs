@@ -75,17 +75,7 @@ impl OptionData {
     pub fn load_from(file_path: &str) -> Self {
         let mut by_id = HashMap::new();
         let dir = format!("{file_path}{OPTIONS_DIR}");
-        let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(&dir)
-            .map(|entries| {
-                entries
-                    .flatten()
-                    .map(|e| e.path())
-                    .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
-                    .collect()
-            })
-            .unwrap_or_default();
-        files.sort();
-        for file in &files {
+        for file in &super::xml::xml_files_in(&dir) {
             parse_file(file, &mut by_id);
         }
         let with_skills = by_id
