@@ -24,6 +24,7 @@
 use super::helpers::send_sm_to_player as send_sm;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -242,7 +243,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
         },
     );
     let challenger_name = player_name_or_empty(world, challenger);
-    send_to(
+    send_to_player(
         world,
         target,
         server_packets::ex_duel_ask_start(&challenger_name, 0),
@@ -375,7 +376,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
         },
     );
     let challenger_name = player_name_or_empty(world, challenger);
-    send_to(
+    send_to_player(
         world,
         leader_b,
         server_packets::ex_duel_ask_start(&challenger_name, 1),
@@ -604,23 +605,23 @@ fn start_duel(world: &mut World, duel_id: u32) {
         // Each member gets the ready/start pair and every opponent's duel bar.
         for (mine, theirs) in [(&team_a, &team_b), (&team_b, &team_a)] {
             for &oid in mine {
-                send_to(world, oid, server_packets::ex_duel_ready(flag));
-                send_to(world, oid, server_packets::ex_duel_start(flag));
+                send_to_player(world, oid, server_packets::ex_duel_ready(flag));
+                send_to_player(world, oid, server_packets::ex_duel_start(flag));
                 for &opponent in theirs {
                     if let Some(pkt) = duel_user_info(world, opponent) {
-                        send_to(world, oid, pkt);
+                        send_to_player(world, oid, pkt);
                     }
                 }
             }
         }
     } else {
         for oid in [a, b] {
-            send_to(world, oid, server_packets::ex_duel_ready(flag));
-            send_to(world, oid, server_packets::ex_duel_start(flag));
+            send_to_player(world, oid, server_packets::ex_duel_ready(flag));
+            send_to_player(world, oid, server_packets::ex_duel_start(flag));
             // Java broadcasts the opponent's duel HP/MP/CP bar to each side.
             let opponent = if oid == a { b } else { a };
             if let Some(pkt) = duel_user_info(world, opponent) {
-                send_to(world, oid, pkt);
+                send_to_player(world, oid, pkt);
             }
         }
     }
@@ -716,7 +717,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
 
     for &oid in &everyone {
         world.objects.remove_component::<DuelRef>(&oid);
-        send_to(world, oid, server_packets::ex_duel_end(flag));
+        send_to_player(world, oid, server_packets::ex_duel_end(flag));
     }
 
     match result {
@@ -862,10 +863,6 @@ fn distance(world: &World, a: i32, b: i32) -> f64 {
     };
     let (dx, dy) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64);
     (dx * dx + dy * dy).sqrt()
-}
-
-fn send_to(world: &World, oid: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, oid, packet);
 }
 
 /// Java `PlayerCondition.restoreCondition` — put a duellist's HP, MP and CP

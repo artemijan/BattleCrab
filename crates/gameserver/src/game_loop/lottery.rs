@@ -3,6 +3,7 @@
 //! dialog. The round lifecycle + `lottery`-table persistence, ticket purchase,
 //! the two-phase draw, and prize claim.
 
+use crate::game_loop::helpers::send_to_client;
 use commons::util::rnd;
 use tracing::info;
 
@@ -514,7 +515,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32) -> Option<()> {
         }
     }
 
-    send_pkt(
+    send_to_client(
         world,
         client_id,
         server_packets::system_message_with(
@@ -593,7 +594,7 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
         ticket.custom_type2,
     );
 
-    send_pkt(
+    send_to_client(
         world,
         client_id,
         server_packets::system_message_with(
@@ -671,8 +672,4 @@ fn send_html(world: &World, client_id: u32, npc_oid: i32, content: String) {
         cs.send(server_packets::npc_html_message(npc_oid, &content));
         cs.send(server_packets::action_failed());
     }
-}
-
-fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {
-    crate::game_loop::helpers::send_to_client(world, client_id, pkt);
 }

@@ -7,6 +7,7 @@
 
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
 use crate::model::components::{
     PartyRef, PendingRequest, PlayerVitals, Position, RequestKind, Vitals,
@@ -108,10 +109,6 @@ fn summon_views(
         })
     })
     .collect()
-}
-
-fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
 }
 
 /// `Party.broadcastPacket` — every member, or all but `exclude`.

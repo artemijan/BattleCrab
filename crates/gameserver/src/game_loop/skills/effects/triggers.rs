@@ -106,19 +106,9 @@ pub(crate) fn fire_damage_received_triggers(
         } else {
             victim_oid
         };
-        let already = world
-            .objects
-            .get_component::<Buffs>(&target)
-            .is_some_and(|b| {
-                b.0.iter()
-                    .any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level)
-            });
-        if already {
-            continue;
-        }
         // Java's `triggerCast(event.getAttacker(), target, skill)` — note the
         // *attacker* is the caster of the counter-trigger, not the bearer.
-        apply_skill_effects(world, attacker_oid, target, &trigger);
+        cast_trigger_on(world, attacker_oid, &[target], &trigger);
     }
 }
 
@@ -187,16 +177,7 @@ pub(crate) fn fire_magic_type_triggers(
         } else {
             vec![cast_target_oid]
         };
-        for t in targets {
-            let already = world.objects.get_component::<Buffs>(&t).is_some_and(|b| {
-                b.0.iter()
-                    .any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level)
-            });
-            if already {
-                continue;
-            }
-            apply_skill_effects(world, caster_oid, t, &trigger);
-        }
+        cast_trigger_on(world, caster_oid, &targets, &trigger);
     }
 }
 
@@ -283,20 +264,32 @@ pub(crate) fn fire_attack_triggers(
             // party of one, which is also what `skills::affect` does.
             targets = crate::game_loop::party::group_or_self(world, attacker_oid);
         }
-        for t in targets {
-            // Java's refresh guard: `if (buffInfo == null || buffInfo.getSkill()
-            // .getLevel() < triggerSkill.getLevel())` — don't re-cast while the
-            // same buff is already up at that level or higher.
-            let already = world.objects.get_component::<Buffs>(&t).is_some_and(|b| {
-                b.0.iter()
-                    .any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level)
-            });
-            if already {
-                continue;
-            }
-            // `SkillCaster.triggerCast` — no cast time, no MP, no reuse.
-            apply_skill_effects(world, attacker_oid, t, &trigger);
+        cast_trigger_on(world, attacker_oid, &targets, &trigger);
+    }
+}
+
+/// Cast `trigger` on each of `targets`, skipping anyone already carrying it at
+/// that level or higher.
+///
+/// That skip is Java's refresh guard — `if (buffInfo == null || buffInfo
+/// .getSkill().getLevel() < triggerSkill.getLevel())` — and it is the whole
+/// reason this is a function rather than three loops: getting it wrong the
+/// permissive way re-casts an equal-level buff and resets its duration on every
+/// swing, which reads as "the buff never expires" rather than as a bug.
+///
+/// `SkillCaster.triggerCast`: no cast time, no MP, no reuse. The caster is
+/// passed in because it is not always the bearer — the counter-trigger fires
+/// with the *attacker* as caster.
+fn cast_trigger_on(world: &mut World, caster_oid: i32, targets: &[i32], trigger: &Skill) {
+    for &t in targets {
+        let already = world.objects.get_component::<Buffs>(&t).is_some_and(|b| {
+            b.0.iter()
+                .any(|x| x.skill_id == trigger.id && x.skill_level >= trigger.level)
+        });
+        if already {
+            continue;
         }
+        apply_skill_effects(world, caster_oid, t, trigger);
     }
 }
 

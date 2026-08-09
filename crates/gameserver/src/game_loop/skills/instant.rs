@@ -18,10 +18,10 @@ use crate::world::World;
 
 use super::effects::{
     SkillHit, apply_skill_damage, attribute_mod, broadcast_social_action, broadcast_vitals,
-    calc_general_trait_bonus, caster_display_name, caster_level, confuse_chance_passes,
-    creature_level, defence_after_shield, handle_buff_expire, max_recoverable, pvp_pve_bonus,
-    roll_magic_failure, send_sm, servitor_owner_of, skill_power_mul, skill_trait_mod, target_m_def,
-    target_p_def,
+    calc_general_trait_bonus, caster_display_name, caster_level, caster_m_atk,
+    confuse_chance_passes, creature_level, defence_after_shield, handle_buff_expire,
+    max_recoverable, pvp_pve_bonus, roll_magic_failure, send_sm, servitor_owner_of,
+    skill_power_mul, skill_trait_mod, target_m_def, target_p_def,
 };
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_mul;
@@ -81,11 +81,7 @@ fn magic_damage(
         magic_shots_bonus,
         ..
     } = *ctx;
-    let m_atk = world
-        .objects
-        .get_component::<CombatStats>(&caster_oid)
-        .map(|c| c.m_atk)
-        .unwrap_or(0.0);
+    let m_atk = caster_m_atk(world, caster_oid);
     let failure = roll_magic_failure(world, caster_oid, target_oid, skill, is_drain);
     formulas::calc_magic_dam(
         m_atk,
@@ -217,11 +213,7 @@ pub(super) fn magical_attack_mp(
     if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
         return;
     }
-    let m_atk = world
-        .objects
-        .get_component::<CombatStats>(&caster_oid)
-        .map(|c| c.m_atk)
-        .unwrap_or(0.0);
+    let m_atk = caster_m_atk(world, caster_oid);
     let m_def = target_m_def(world, target_oid);
     // `calcMagicAffected`: `defence` is the target's mDef only for
     // an *active bad* skill — all four of these are.
@@ -956,11 +948,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         caster_is_player,
         ..
     } = *ctx;
-    let m_atk = world
-        .objects
-        .get_component::<CombatStats>(&caster_oid)
-        .map(|c| c.m_atk)
-        .unwrap_or(0.0);
+    let m_atk = caster_m_atk(world, caster_oid);
     let mut amount = formulas::calc_heal(
         power,
         m_atk,

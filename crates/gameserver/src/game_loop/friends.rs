@@ -5,6 +5,7 @@
 
 use crate::character::FriendInfo;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
 use crate::model::components::{Friends, PendingRequest, RequestKind};
 use crate::network::client_packets as cp;
@@ -15,10 +16,6 @@ use super::helpers::{client_for_player, send_sm_to_player as send_sm};
 use super::party::{
     REQUEST_TIMEOUT_TICKS, clear_linked_request, find_player_by_name, install_request,
 };
-
-fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
 
 fn is_online(world: &World, object_id: i32) -> bool {
     client_for_player(world, object_id).is_some()

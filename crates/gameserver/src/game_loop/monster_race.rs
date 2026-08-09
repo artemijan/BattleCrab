@@ -4,6 +4,7 @@
 //! `mdt_history`/`mdt_bets` persistence, and the RaceManager betting dialog
 //! (buy a lane ticket, view odds/history, cash a winning ticket out).
 
+use crate::game_loop::helpers::send_to_client;
 use std::collections::HashMap;
 
 use commons::util::rnd;
@@ -468,7 +469,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
         let pooled = world.monster_race.bets.get(&lane).copied().unwrap_or(price);
         let _ = world.db.send(DbCommand::SaveMdtBet { lane, bet: pooled });
 
-        send_pkt(
+        send_to_client(
             world,
             client_id,
             server_packets::system_message_with(
@@ -739,8 +740,4 @@ fn finalize(world: &World, client_id: u32, npc_oid: i32, html: String) {
 /// Java `super.onBypassFeedback(player, "Chat 0")` — fall back to the default page.
 fn chat0(world: &mut World, client_id: u32, npc_oid: i32) {
     crate::game_loop::target::show_chat_window(world, client_id, npc_oid, 0);
-}
-
-fn send_pkt(world: &World, client_id: u32, pkt: Vec<u8>) {
-    crate::game_loop::helpers::send_to_client(world, client_id, pkt);
 }

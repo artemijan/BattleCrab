@@ -7,6 +7,7 @@
 use crate::db::DbCommand;
 use crate::enums::ChatType;
 use crate::game_loop::helpers::is_gm;
+use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
 use crate::model::petition::{PetitionState, PetitionType};
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
@@ -21,10 +22,6 @@ use crate::game_loop::helpers::player_name_or_empty;
 const MAX_CONTENT_LEN: usize = 255;
 
 // --- small send helpers -----------------------------------------------------
-
-fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
-    crate::game_loop::helpers::send_to_player(world, object_id, packet);
-}
 
 fn is_online(world: &World, object_id: i32) -> bool {
     client_for_player(world, object_id).is_some()
@@ -257,9 +254,9 @@ pub(crate) fn send_active_petition_message(world: &mut World, speaker: i32, text
         p.log.push(cs.clone());
         (p.petitioner, p.responder)
     };
-    send_to(world, petitioner, cs.clone());
+    send_to_player(world, petitioner, cs.clone());
     if let Some(r) = responder {
-        send_to(world, r, cs);
+        send_to_player(world, r, cs);
     }
     true
 }
@@ -381,7 +378,7 @@ pub(crate) fn view_petition(world: &World, gm: i32, id: i32) {
         ptype = p.ptype.as_label(),
         content = p.content,
     );
-    send_to(world, gm, sp::npc_html_message(0, &html));
+    send_to_player(world, gm, sp::npc_html_message(0, &html));
 }
 
 /// Java `PetitionManager.sendPendingPetitionList`: the GM's pending-petition
@@ -417,7 +414,7 @@ pub(crate) fn send_pending_list(world: &World, gm: i32) {
         }
     }
     body.push_str("</body></html>");
-    send_to(world, gm, sp::npc_html_message(0, &body));
+    send_to_player(world, gm, sp::npc_html_message(0, &body));
 }
 
 // --- shared internals -------------------------------------------------------
@@ -495,7 +492,7 @@ fn end_consultation(world: &mut World, id: i32, end_state: PetitionState) {
             sm_ids::THIS_ENDS_THE_GM_PETITION_CONSULTATION,
             &[],
         );
-        send_to(world, petitioner, sp::petition_vote());
+        send_to_player(world, petitioner, sp::petition_vote());
     }
 
     world.petitions.completed.insert(id, petition);

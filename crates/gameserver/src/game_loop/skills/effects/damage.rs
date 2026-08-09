@@ -171,6 +171,20 @@ fn element_stat(
     base * mul + add
 }
 
+/// The caster's magic attack — the `mAtk` term of every magic formula
+/// (`calcMagicDam`, `calcMagicAffected`, `calcHeal`).
+///
+/// `0.0` for an object with no `CombatStats`, which is what the formulas want:
+/// a caster that has left the world contributes nothing rather than panicking
+/// mid-cast. The [`target_m_def`] counterpart.
+pub(crate) fn caster_m_atk(world: &World, caster_oid: i32) -> f64 {
+    world
+        .objects
+        .get_component::<CombatStats>(&caster_oid)
+        .map(|c| c.m_atk)
+        .unwrap_or(0.0)
+}
+
 pub(crate) fn target_m_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
         // Players + NPCs: memoized at spawn through the MDefenseFinalizer shape.
