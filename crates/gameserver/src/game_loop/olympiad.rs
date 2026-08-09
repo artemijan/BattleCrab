@@ -1317,7 +1317,7 @@ fn send_sm_c1(world: &World, object_id: i32, sm_id: i16, name: &str) {
 // ---------------------------------------------------------------------------
 
 use super::helpers::send_sm_bare_to_player as send_sm;
-use crate::model::components::{OlympiadObserver, Position};
+use crate::model::components::OlympiadObserver;
 
 /// The spectator stand — midway between the two arena spawns. (Java draws a
 /// random point from the zone's `spectatorSpawns`; the port has one arena, so a
@@ -1368,11 +1368,7 @@ pub(crate) fn enter_observer(world: &mut World, client_id: u32, player_oid: i32,
     // On first entry, remember where to return to (Java `setLastLocation`).
     let already = world.objects.has_component::<OlympiadObserver>(&player_oid);
     if !already {
-        let return_pos = world
-            .objects
-            .get_component::<Position>(&player_oid)
-            .map(|p| (p.x, p.y, p.z))
-            .unwrap_or(OBSERVE_SPAWN);
+        let return_pos = pos_of(world, player_oid).unwrap_or(OBSERVE_SPAWN);
         world
             .objects
             .add_components(&player_oid, OlympiadObserver { return_pos, arena });

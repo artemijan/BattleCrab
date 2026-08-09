@@ -5,6 +5,7 @@
 //! `model/actor/instance/EffectPoint.java` (the fixed-rate `union_skill` cast
 //! task + the despawn schedule); both halves live here.
 
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{SummonerRef, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -147,20 +148,15 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
     if !alive {
         return;
     }
-    let Some((skill_id, skill_level, delay_ms)) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
-        .and_then(|t| {
-            t.ai_skill_params.get("union_skill").map(|&(id, lvl)| {
-                (
-                    id,
-                    lvl,
-                    (t.ai_param_f64("skill_delay", 2.0) * 1000.0) as i32,
-                )
-            })
+    let Some((skill_id, skill_level, delay_ms)) = npc_template(world, npc_oid).and_then(|t| {
+        t.ai_skill_params.get("union_skill").map(|&(id, lvl)| {
+            (
+                id,
+                lvl,
+                (t.ai_param_f64("skill_delay", 2.0) * 1000.0) as i32,
+            )
         })
-    else {
+    }) else {
         return;
     };
     if let Some(skill) = skill_by_id(world, skill_id, skill_level) {

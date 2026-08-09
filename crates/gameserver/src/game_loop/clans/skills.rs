@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_client;
@@ -76,12 +77,7 @@ pub(crate) fn apply_clan_advent_on_login(world: &mut World, clan_id: i32, object
 /// leader qualifies with **no** online check of their own — they are plainly
 /// online to have changed profession at all. Clanless is a no-op.
 pub(crate) fn reapply_clan_advent_on_profession_change(world: &mut World, object_id: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, object_id) else {
         return;
     };
     let Some(leader_id) = world.clans.get(&clan_id).map(|c| c.leader_id) else {

@@ -3,6 +3,8 @@
 //! and its eyes (18812–18814) have no spawns, so only the orcs are live
 //! content.
 
+use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
@@ -216,12 +218,7 @@ fn cast_vanish(ctx: &mut QuestCtx) {
 /// Java drops ten separate stacks on the ground (`npc.dropItem` × 10, no
 /// auto-loot branch), each protected for the rescuer.
 fn drop_adena(ctx: &mut QuestCtx, per_stack: i64) {
-    let Some((x, y, z)) = ctx
-        .world
-        .objects
-        .get_component::<crate::model::components::Position>(&ctx.npc)
-        .map(|p| (p.x, p.y, p.z))
-    else {
+    let Some((x, y, z)) = pos_of(ctx.world, ctx.npc) else {
         return;
     };
     let npc = ctx.npc;
@@ -238,13 +235,6 @@ fn drop_adena(ctx: &mut QuestCtx, per_stack: i64) {
             npc,
             crate::game_loop::ground_items::DropSource::Npc,
         );
-        if let Some(g) = ctx
-            .world
-            .objects
-            .get_component_mut::<crate::model::components::GroundItem>(&ground_oid)
-        {
-            g.owner_id = player;
-            g.owner_until_tick = ctx.world.tick + 150;
-        }
+        reserve_for(ctx.world, ground_oid, player, LOOT_PROTECTION_TICKS);
     }
 }

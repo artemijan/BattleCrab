@@ -14,6 +14,7 @@
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
 use super::helpers::send_sm_to_client as send_sm;
+use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
@@ -271,12 +272,7 @@ fn party_info(world: &World, client_id: u32, object_id: i32) {
 /// ones; the port filters `World.clan_wars` the same way. Each row is one
 /// system message naming the other clan, with its alliance when it has one.
 fn clan_wars_list(world: &World, client_id: u32, object_id: i32, command_id: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, object_id) else {
         send_sm(world, client_id, sm_ids::NOT_JOINED_IN_ANY_CLAN, &[]);
         return;
     };

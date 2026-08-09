@@ -27,6 +27,7 @@
 //! the reference build never sends the buy/sell *display* packets (`BuyListSeed`
 //! /`ExShowSellCropList` are dead), so the trader window is client-native.
 
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use commons::network::PacketReader;
@@ -36,7 +37,6 @@ use crate::model::Player;
 use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::components::LastFolkNpc;
 use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
-use crate::model::npc::Npc;
 use crate::network::server_packets::{
     self, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry, SeedSettingEntry,
     SmParam, sm_ids,
@@ -934,11 +934,7 @@ fn manor_manager_castle(world: &World, player_oid: i32) -> Option<i32> {
     {
         return None;
     }
-    let castle = world
-        .objects
-        .get_component::<Npc>(&npc)
-        .and_then(|n| n.template(world))
-        .map(|t| t.ai_param_i32("manor_id", -1))?;
+    let castle = npc_template(world, npc).map(|t| t.ai_param_i32("manor_id", -1))?;
     (castle >= 0).then_some(castle)
 }
 

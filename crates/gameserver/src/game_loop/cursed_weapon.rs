@@ -15,6 +15,7 @@
 //! `activate` gives the new wielder.
 
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
@@ -59,10 +60,7 @@ pub(crate) fn on_monster_killed(world: &mut World, monster_oid: i32, killer_oid:
     }
     // Ordinary monster only — `is_monster()` covers the Monster subtree
     // (including raids/feedable beasts), so subtract the excluded kinds.
-    let ordinary = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&monster_oid)
-        .and_then(|n| n.template(world))
+    let ordinary = npc_template(world, monster_oid)
         .is_some_and(|t| t.is_monster() && !t.is_raid() && t.type_name != "FeedableBeast");
     if !ordinary {
         return;

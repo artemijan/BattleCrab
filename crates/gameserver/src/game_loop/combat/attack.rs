@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::position;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_client;
@@ -400,11 +401,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
             continue;
         }
         // Only auto-attackable creatures are swept up (Java `isAutoAttackable`).
-        let attackable = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&candidate)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_auto_attackable());
+        let attackable = npc_template(world, candidate).is_some_and(|t| t.is_auto_attackable());
         if !attackable {
             continue;
         }
@@ -604,11 +601,7 @@ pub(crate) fn attacker_display_name(world: &World, attacker: i32) -> SmParam {
         .get_component::<crate::model::Player>(&attacker)
     {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&attacker)
-        .and_then(|n| n.template(world))
-    {
+    } else if let Some(t) = npc_template(world, attacker) {
         SmParam::NpcName(t.id)
     } else {
         SmParam::Text(String::new())

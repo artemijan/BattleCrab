@@ -2,6 +2,7 @@
 //! (character list, name check, create/delete/restore/select).
 
 use crate::game_loop::clans::clan_name_or_empty;
+use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
 use tracing::info;
@@ -830,12 +831,7 @@ pub(crate) fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) 
 /// its notice enabled gets `clanNotice.htm` as a popup, newlines folded to
 /// `<br>` exactly as Java does.
 fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, object_id) else {
         return;
     };
     let Some((true, text)) = world.clan_notices.get(&clan_id).cloned() else {

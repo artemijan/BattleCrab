@@ -12,6 +12,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
@@ -1771,11 +1772,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return None;
         }
-        let (mut x, mut y, z) = self
-            .world
-            .objects
-            .get_component::<crate::model::components::Position>(&self.npc)
-            .map(|p| (p.x, p.y, p.z))?;
+        let (mut x, mut y, z) = pos_of(self.world, self.npc)?;
         if random_offset {
             for axis in [&mut x, &mut y] {
                 let offset = self.world.roll(51) + 50; // Rnd.get(50, 100)

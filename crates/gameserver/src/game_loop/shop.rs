@@ -4,6 +4,7 @@
 //! the weight/capacity gates (no `maxLoad`/slot enforcement exists yet — a G5
 //! deferral) are out of scope.
 
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use tracing::warn;
 
@@ -27,10 +28,7 @@ const MAX_ADENA: i64 = 99_999_999_999;
 /// `Merchant`/`Fisherman` instance classes; the `type` attribute stands in
 /// for the class hierarchy, like the VillageMaster check).
 pub(crate) fn is_merchant(world: &World, npc_object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_object_id)
-        .and_then(|n| n.template(world))
+    npc_template(world, npc_object_id)
         .is_some_and(|t| t.type_name == "Merchant" || t.type_name == "Fisherman")
 }
 

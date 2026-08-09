@@ -12,6 +12,7 @@
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::pos_of;
 use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
@@ -277,12 +278,7 @@ pub(super) fn admin_list_spawns(
     let live: Vec<(i32, i32, i32)> = all_npc_ids(world)
         .into_iter()
         .filter(|oid| npc_id_of(world, *oid) == Some(npc_id))
-        .filter_map(|oid| {
-            world
-                .objects
-                .get_component::<Position>(&oid)
-                .map(|p| (p.x, p.y, p.z))
-        })
+        .filter_map(|oid| pos_of(world, oid))
         .collect();
 
     // For `//list_positions`, resolve an entry to the nearest live NPC's current

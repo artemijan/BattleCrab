@@ -5,6 +5,7 @@
 use crate::data::htm_cache::read_htm;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
@@ -54,10 +55,7 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
     // flags and stationed guards keep their own relations below — Java gates
     // those through `Npc.isAutoAttackable`'s clan checks, not through
     // `Monster`.
-    let attacker_is_wild_monster = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&attacker_oid)
-        .and_then(|n| n.template(world))
+    let attacker_is_wild_monster = npc_template(world, attacker_oid)
         .is_some_and(|t| t.is_monster())
         // A summon/pet is an NPC here but `isSummon()` in Java, and Java's
         // `Npc.isAutoAttackable` lets summons attack NPCs outright.
@@ -69,11 +67,7 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
             .has_component::<crate::model::components::PetOf>(&attacker_oid);
 
     (!attacker_is_wild_monster
-        && world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&target_oid)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_auto_attackable()))
+        && npc_template(world, target_oid).is_some_and(|t| t.is_auto_attackable()))
         || super::siege::attackable_siege_tower(world, target_oid)
         || super::siege::attackable_siege_flag(world, target_oid)
         || super::siege::attackable_siege_guard(world, target_oid, attacker_oid)

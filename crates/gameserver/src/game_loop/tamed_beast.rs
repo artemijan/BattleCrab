@@ -12,6 +12,7 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
@@ -241,10 +242,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
 
     // The template's buffs: `<skillList>` entries that parse to a continuous
     // non-debuff skill.
-    let buffs: Vec<(i32, i32)> = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&beast_oid)
-        .and_then(|n| n.template(world))
+    let buffs: Vec<(i32, i32)> = npc_template(world, beast_oid)
         .map(|t| {
             t.skill_list
                 .iter()

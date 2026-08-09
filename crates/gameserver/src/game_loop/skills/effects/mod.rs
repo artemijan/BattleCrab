@@ -22,6 +22,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
@@ -423,10 +424,7 @@ pub(crate) fn apply_skill_effects(
                 }
                 // GROUND skills spawn at the stored world position; everything
                 // else at the effected creature (`SummonNpc.instant`).
-                let fallback = world
-                    .objects
-                    .get_component::<crate::model::components::Position>(&target_oid)
-                    .map(|p| (p.x, p.y, p.z))
+                let fallback = pos_of(world, target_oid)
                     .unwrap_or((0, 0, 0));
                 let (x, y, z) = if skill.target_type == crate::model::skill::TargetType::Ground {
                     world

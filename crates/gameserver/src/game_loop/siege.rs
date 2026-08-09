@@ -18,6 +18,7 @@ use crate::db::DbCommand;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{AdvancedHeadquarter, Position};
@@ -601,10 +602,7 @@ fn teleport_to_town(world: &mut World, targets: Vec<i32>) {
 
 /// A control or flame tower, by template type.
 fn is_siege_tower(world: &World, npc_oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
+    npc_template(world, npc_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"))
 }
 
@@ -674,10 +672,7 @@ fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[SiegeSpawn]) {
 /// Whether an NPC is a siege tower (control / flame) standing in an active
 /// siege zone — attackable so attackers can tear it down.
 pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
-    let is_tower = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
+    let is_tower = npc_template(world, npc_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"));
     if !is_tower {
         return false;
@@ -694,11 +689,7 @@ pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
 /// Java `Siege.killedCT` — a control tower fell; decrement its castle's live
 /// count. At 0 the defenders lose their castle respawn.
 pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
-    let is_ct = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.type_name == "ControlTower");
+    let is_ct = npc_template(world, npc_oid).is_some_and(|t| t.type_name == "ControlTower");
     if !is_ct {
         return;
     }

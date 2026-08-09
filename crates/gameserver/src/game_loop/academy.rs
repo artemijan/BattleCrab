@@ -29,6 +29,7 @@
 //! SUBPLEDGE arm rather than deferred — it is a *verified skip*, not a
 //! gap).
 
+use crate::game_loop::guard::clan_of;
 use tracing::info;
 
 use crate::db::DbCommand;
@@ -221,12 +222,7 @@ pub(crate) fn handle_set_academy_master(world: &mut World, client_id: u32, body:
     else {
         return;
     };
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&player_oid)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = clan_of(world, player_oid) else {
         return;
     };
     // `ClanPrivilege.CL_APPRENTICE`.

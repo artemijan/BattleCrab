@@ -5,6 +5,7 @@
 use crate::game_loop::common::maybe_distance_too_far;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
@@ -276,11 +277,7 @@ pub(crate) fn resolve_cast_target(
             // is permissive and leans on the client to demand Ctrl for a good
             // skill on a hostile creature; we enforce it server-side so buffing
             // a mob needs a deliberate force-pick, matching the real client.
-            let is_monster = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&t)
-                .and_then(|n| n.template(world))
-                .is_some_and(|tm| tm.is_auto_attackable());
+            let is_monster = npc_template(world, t).is_some_and(|tm| tm.is_auto_attackable());
             if is_monster && !ctrl {
                 return Err(sm_ids::INVALID_TARGET);
             }
@@ -1796,11 +1793,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .objects
             .get_component::<crate::model::npc::NpcAi>(&witness)
             .is_some_and(|ai| ai.intention == crate::model::npc::NpcIntention::Attack)
-            && world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&witness)
-                .and_then(|n| n.template(world))
-                .is_some_and(|tpl| tpl.is_auto_attackable());
+            && npc_template(world, witness).is_some_and(|tpl| tpl.is_auto_attackable());
         if skill.effect_point > 0 && fighting {
             let npc_target = world
                 .objects
@@ -1810,11 +1803,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
                 .iter()
                 .any(|&t| Some(t) == npc_target || t == witness);
             if relevant {
-                let level = world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&witness)
-                    .and_then(|n| n.template(world))
-                    .map_or(1, |tpl| tpl.level);
+                let level = npc_template(world, witness).map_or(1, |tpl| tpl.level);
                 let hate = f64::from(skill.effect_point) * 150.0 / f64::from(level + 7);
                 crate::game_loop::minions::add_hate(world, witness, player_object_id, hate);
             }
@@ -1938,11 +1927,7 @@ fn matchup_effects(
     if world.objects.has_component::<Player>(&target_oid) {
         return Some(skill.pvp_effects.clone());
     }
-    let attackable = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_attackable_class());
+    let attackable = npc_template(world, target_oid).is_some_and(|t| t.is_attackable_class());
     attackable.then(|| skill.pve_effects.clone())
 }
 
@@ -1966,11 +1951,7 @@ fn apply_cast_consequences(
     // Monster proxy: an NPC whose template is auto-attackable (same test the
     // targeting code uses for "is this a monster").
     let target_is_monster = !target_is_player
-        && world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&target_oid)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_auto_attackable());
+        && npc_template(world, target_oid).is_some_and(|t| t.is_auto_attackable());
     if skill.is_bad() {
         // Bad skill on a player → flag the caster against that target
         // (`updatePvPStatus(target)`). Monsters take hate + an AI wake, no flag.

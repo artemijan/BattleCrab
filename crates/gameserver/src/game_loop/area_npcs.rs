@@ -10,6 +10,7 @@
 
 use crate::enums::ChatType;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -234,12 +235,7 @@ pub(crate) fn arm_castle_mass_teleport(world: &mut World, npc_oid: i32, delay_ms
 /// gatekeeper so it can be armed again.
 pub(crate) fn handle_castle_mass_teleport(world: &mut World, npc_oid: i32) {
     let Some((npc_id, x, y, z)) = npc_id_of(world, npc_oid)
-        .zip(
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(&npc_oid)
-                .map(|p| (p.x, p.y, p.z)),
-        )
+        .zip(pos_of(world, npc_oid))
         .map(|(id, (x, y, z))| (id, x, y, z))
     else {
         return; // the gatekeeper died/despawned before the timer fired

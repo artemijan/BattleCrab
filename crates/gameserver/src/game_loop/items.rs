@@ -3,6 +3,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
@@ -1507,11 +1508,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     };
     // Must be a live, `canBeSown` monster that isn't already seeded.
-    let can_be_sown = world
-        .objects
-        .get_component::<Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.can_be_sown);
+    let can_be_sown = npc_template(world, target_oid).is_some_and(|t| t.can_be_sown);
     let dead = world
         .objects
         .get_component::<crate::model::components::Vitals>(&target_oid)

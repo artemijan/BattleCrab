@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::ground_items::reserve_for;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
@@ -196,14 +197,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
                     npc_oid,
                     crate::game_loop::ground_items::DropSource::Npc,
                 );
-                if owner_id != 0
-                    && let Some(g) = world
-                        .objects
-                        .get_component_mut::<crate::model::components::GroundItem>(&ground_oid)
-                {
-                    g.owner_id = owner_id;
-                    g.owner_until_tick = world.tick + protect_ticks;
-                }
+                reserve_for(world, ground_oid, owner_id, protect_ticks);
                 continue;
             }
             match party_id {

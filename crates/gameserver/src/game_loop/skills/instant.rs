@@ -8,6 +8,7 @@
 
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{BaseStats, Buffs, CombatStats, Vitals};
 use crate::model::formulas;
@@ -407,11 +408,7 @@ pub(super) fn blow(
                     .get(p.class_id)
                     .map_or(4.0, |t| t.base_crit_rate as f64)
             } else {
-                world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&caster_oid)
-                    .and_then(|n| n.template(world))
-                    .map_or(4.0, |t| t.base_crit_rate)
+                npc_template(world, caster_oid).map_or(4.0, |t| t.base_crit_rate)
             }
         })
     };
@@ -513,11 +510,7 @@ pub(super) fn lethal(
     // constructors, and the `NonLethalableNpcs` script sets it on the siege
     // Headquarters. `is_raid()` matches the `GrandBoss` type name as well as
     // `RaidBoss`, so the grand bosses need no separate test.
-    let is_raid = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_raid());
+    let is_raid = npc_template(world, target_oid).is_some_and(|t| t.is_raid());
     if is_raid
         || world
             .objects

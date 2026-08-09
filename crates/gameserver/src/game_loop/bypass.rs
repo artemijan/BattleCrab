@@ -16,6 +16,7 @@
 //!   `item_`, menu/manor selects and the rest of the prefix zoo wait for
 //!   their systems).
 
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
@@ -502,9 +503,5 @@ fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
 }
 
 fn is_village_master(world: &World, npc_object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_object_id)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.type_name.starts_with("VillageMaster"))
+    npc_template(world, npc_object_id).is_some_and(|t| t.type_name.starts_with("VillageMaster"))
 }

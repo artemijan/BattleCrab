@@ -28,6 +28,30 @@ const DROP_RADIUS: i64 = 150;
 /// tolerance on that same request, so a drop can't be aimed off a ledge.
 const DROP_MAX_Z_DIFF: i32 = 50;
 
+/// `ItemData.createItem("loot")`'s ordinary drop protection: 15 s (150 ticks)
+/// during which only the killer and their party may pick the stack up.
+///
+/// Raid drops use `RaidLootRightsInterval` instead — a config value, and a
+/// different owner (the privileged command channel's leader) — so they pass
+/// their own window to [`reserve_for`] rather than this.
+pub(crate) const LOOT_PROTECTION_TICKS: u64 = 150;
+
+/// Reserve a freshly dropped stack for `owner_oid` for `ticks`.
+///
+/// A no-op when `owner_oid` is 0 — Java's "owned by nobody", which is what a
+/// raid drop with no active command-channel claim gets, and which must not be
+/// confused with "owned by object 0".
+pub(crate) fn reserve_for(world: &mut World, ground_oid: i32, owner_oid: i32, ticks: u64) {
+    if owner_oid == 0 {
+        return;
+    }
+    let until = world.tick + ticks;
+    if let Some(g) = world.objects.get_component_mut::<GroundItem>(&ground_oid) {
+        g.owner_id = owner_oid;
+        g.owner_until_tick = until;
+    }
+}
+
 /// Who dropped a ground item — Java gates auto-destroy differently for the two
 /// (`Player.dropItem` vs `Npc.dropItem`).
 #[derive(Clone, Copy, PartialEq, Eq)]

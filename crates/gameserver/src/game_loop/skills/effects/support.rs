@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_mul;
 pub(crate) use crate::game_loop::helpers::{
@@ -164,11 +165,7 @@ pub(crate) fn magic_success_input<'a>(
     // `isAutoAttackable` — a peaceful Folk on either side takes the PvP branch.
     let is_attackable = |oid: i32| {
         crate::game_loop::combat::is_npc_oid(oid)
-            && world
-                .objects
-                .get_component::<Npc>(&oid)
-                .and_then(|n| n.template(world))
-                .is_some_and(|t| t.is_attackable_class())
+            && npc_template(world, oid).is_some_and(|t| t.is_attackable_class())
     };
 
     let caster_player_level = world
@@ -179,11 +176,7 @@ pub(crate) fn magic_success_input<'a>(
     // `target.isRaid() || target.isRaidMinion()` — a minion counts as a raid
     // only when its leader is one (Java sets `_isRaidMinion` from the spawning
     // raid boss, not from the minion's own template).
-    let target_is_raid = world
-        .objects
-        .get_component::<Npc>(&target_oid)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_raid())
+    let target_is_raid = npc_template(world, target_oid).is_some_and(|t| t.is_raid())
         || world
             .objects
             .get_component::<crate::game_loop::minions::MinionOf>(&target_oid)

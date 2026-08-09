@@ -20,6 +20,7 @@
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_name_or_empty;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
 
@@ -30,11 +31,7 @@ use crate::world::World;
 
 /// `instanceof Teleporter` stand-in (same pattern as `is_village_master`).
 pub(crate) fn is_teleporter(world: &World, npc_object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_object_id)
-        .and_then(|n| n.template(world))
-        .is_some_and(|t| t.type_name == "Teleporter")
+    npc_template(world, npc_object_id).is_some_and(|t| t.type_name == "Teleporter")
 }
 
 /// The `Teleporter.onBypassFeedback` verbs this slice serves. Returns `false`
@@ -108,11 +105,7 @@ pub(crate) fn handle_bypass(
 }
 
 fn npc_template_id(world: &World, npc_object_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_object_id)
-        .and_then(|n| n.template(world))
-        .map(|t| t.id)
+    npc_template(world, npc_object_id).map(|t| t.id)
 }
 
 fn holder<'a>(world: &'a World, npc_object_id: i32, list_name: &str) -> Option<&'a TeleportHolder> {

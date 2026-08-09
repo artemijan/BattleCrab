@@ -28,6 +28,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashSet;
@@ -949,11 +950,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
             .geo
             .can_see_target(npos.x, npos.y, npos.z, tpos.x, tpos.y, tpos.z)
         {
-            let can_move = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&npc_oid)
-                .and_then(|n| n.template(world))
-                .is_some_and(|t| t.can_move);
+            let can_move = npc_template(world, npc_oid).is_some_and(|t| t.can_move);
             if can_move {
                 move_npc_to(world, npc_oid, tpos.x, tpos.y, tpos.z);
             }
@@ -1059,10 +1056,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
 
 /// `npc.getAiType()`, defaulting to `FIGHTER` for a template we can't read.
 fn ai_type_of(world: &World, npc_oid: i32) -> AiType {
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
+    npc_template(world, npc_oid)
         .map(|t| t.ai_type)
         .unwrap_or(AiType::Fighter)
 }
@@ -1071,11 +1065,7 @@ fn ai_type_of(world: &World, npc_oid: i32) -> AiType {
 /// it (root/stun/sleep/paralysis) *or* a template that cannot move at all.
 fn movement_disabled(world: &World, npc_oid: i32) -> bool {
     super::abnormal::is_movement_disabled(world, npc_oid)
-        || !world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.can_move)
+        || !npc_template(world, npc_oid).is_some_and(|t| t.can_move)
 }
 
 /// `thinkAttack`'s "In case many mobs are trying to hit from same place, move a
@@ -1215,11 +1205,7 @@ fn archer_backs_off(world: &mut World, npc_oid: i32, target_oid: i32) -> bool {
 /// i.e. ten thinks, ten seconds). A successful swap resets the counter and ends
 /// the think. Returns whether the think ends here.
 fn raid_target_chaos(world: &mut World, npc_oid: i32) -> bool {
-    let Some(template) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
-    else {
+    let Some(template) = npc_template(world, npc_oid) else {
         return false;
     };
     let (is_raid, is_grand) = (template.is_raid(), template.type_name == "GrandBoss");
@@ -1372,11 +1358,7 @@ fn target_reconsider_random(world: &mut World, npc_oid: i32) -> Option<i32> {
 /// The "if npc is aggressive, add characters within aggro range too" leg of
 /// both `targetReconsider` arms. Empty for a passive mob.
 fn aggro_range_candidates(world: &mut World, npc_oid: i32) -> Vec<i32> {
-    let Some(template) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| n.template(world))
-    else {
+    let Some(template) = npc_template(world, npc_oid) else {
         return Vec::new();
     };
     if !template.is_aggressive {
@@ -1787,11 +1769,7 @@ pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bo
         return false;
     }
     if flags & effect_flag::SILENT_MOVE != 0 {
-        let is_raid = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
-            .and_then(|n| n.template(world))
-            .is_some_and(|t| t.is_raid());
+        let is_raid = npc_template(world, npc_oid).is_some_and(|t| t.is_raid());
         if !is_raid {
             return false;
         }
