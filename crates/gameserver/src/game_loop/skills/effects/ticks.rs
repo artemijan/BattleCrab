@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_bare_to_player;
@@ -20,10 +21,7 @@ pub(crate) fn handle_dam_over_time_tick(
     skill_level: i32,
 ) {
     // Buff gone (expired / removed / dispelled) → end the tick chain.
-    let buff_present = world
-        .objects
-        .get_component::<Buffs>(&target_oid)
-        .is_some_and(|b| b.0.iter().any(|entry| entry.skill_id == skill_id));
+    let buff_present = has_buff(world, target_oid, skill_id);
     if !buff_present {
         return;
     }
@@ -340,10 +338,7 @@ pub(crate) fn expire_active_buffs(world: &mut World, object_id: i32) -> usize {
 pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill_id: i32) {
     // Read before the removal — the buff has to still be there to know whether
     // this call is the one that actually took it off.
-    let was_active = world
-        .objects
-        .get_component::<Buffs>(&player_object_id)
-        .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
+    let was_active = has_buff(world, player_object_id, skill_id);
     let end_effects = world
         .data
         .skill_data
@@ -377,10 +372,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     // buff before its timer. The natural-timeout path gates on `expires_at_tick`
     // at the scheduler dispatch so a stale `BuffExpire` from a re-cast can't drop
     // the refreshed buff early.
-    let still_active = world
-        .objects
-        .get_component::<Buffs>(&player_object_id)
-        .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
+    let still_active = has_buff(world, player_object_id, skill_id);
     if !still_active {
         return;
     }

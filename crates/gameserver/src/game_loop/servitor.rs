@@ -15,6 +15,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
@@ -925,12 +926,7 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
         .map(|v| (v.cur_hp, v.cur_mp))
         .unwrap_or((0.0, 0.0));
     // Java stores `getName()`, which for an unnamed pet is the template name.
-    let name = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&pet_oid)
-        .and_then(|n| n.template(world))
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let name = npc_name_or_empty(world, pet_oid);
     let row = crate::db::PetRow {
         collar_object_id: pet.collar_object_id,
         name,

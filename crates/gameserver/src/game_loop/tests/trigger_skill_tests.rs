@@ -6,6 +6,7 @@
 //! were passives whose on-hit half did nothing.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::model::components::{Buffs, SkillBook};
 use crate::model::skill::SkillEffect;
@@ -126,10 +127,7 @@ fn know(world: &mut World, oid: i32) {
 }
 
 fn triggered(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == TRIGGERED))
+    has_buff(world, oid, TRIGGERED)
 }
 
 /// Land one normal hit of `damage`, critical or not.

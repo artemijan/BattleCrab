@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::send_sm_to_player;
 
@@ -191,10 +192,7 @@ pub(crate) fn is_lucky(world: &World, player_oid: i32) -> bool {
         .objects
         .get_component::<crate::model::Player>(&player_oid)
         .is_some_and(|p| p.level <= 9)
-        && world
-            .objects
-            .get_component::<crate::model::components::Buffs>(&player_oid)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == LUCKY_SKILL_ID))
+        && has_buff(world, player_oid, LUCKY_SKILL_ID)
 }
 
 /// `Player.calculateDeathExpPenalty` + `PlayableStat.removeExp` (with the

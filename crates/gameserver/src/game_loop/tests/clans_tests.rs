@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 /// The `create_clan` bypass: Java's guard matrix (SM ids in `ClanTable.
 /// createClan` order), then the success path — clan registered + persisted,
@@ -631,12 +632,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
             .clan_id = clan_id;
     }
 
-    let has_advent = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Buffs>(&oid)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 19009))
-    };
+    let has_advent = |world: &World, oid: i32| has_buff(world, oid, 19009);
 
     // Leader logs in → the aura lands on every online member (leader + 3002).
     crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
@@ -737,12 +733,7 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
             .unwrap()
             .clan_id = clan_id;
     }
-    let has_advent = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Buffs>(&oid)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 19009))
-    };
+    let has_advent = |world: &World, oid: i32| has_buff(world, oid, 19009);
     let relight = |world: &mut World, oid: i32| {
         crate::game_loop::clans::skills::reapply_clan_advent_on_profession_change(world, oid)
     };

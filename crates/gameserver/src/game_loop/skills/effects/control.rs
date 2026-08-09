@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 
@@ -632,12 +633,7 @@ pub(crate) fn creature_level_for_test(world: &World, oid: i32) -> i32 {
 /// landed/resisted caster line — an NPC's template name or the player's name.
 pub(crate) fn creature_name(world: &World, oid: i32) -> String {
     if crate::game_loop::combat::is_npc_oid(oid) {
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&oid)
-            .and_then(|n| n.template(world))
-            .map(|t| t.name.clone())
-            .unwrap_or_default()
+        npc_name_or_empty(world, oid)
     } else {
         player_name_or_empty(world, oid)
     }

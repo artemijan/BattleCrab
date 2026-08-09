@@ -20,6 +20,7 @@
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
 use super::helpers::pos_of;
+use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{Immobilized, Position, Vitals};
@@ -584,10 +585,7 @@ pub(crate) fn on_baium_attacked(world: &mut World, baium_oid: i32, attacker_oid:
     if !on_strider {
         return;
     }
-    let already = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&attacker_oid)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == ANTI_STRIDER));
+    let already = has_buff(world, attacker_oid, ANTI_STRIDER);
     if already {
         return;
     }

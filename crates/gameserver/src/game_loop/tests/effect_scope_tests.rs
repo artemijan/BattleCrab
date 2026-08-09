@@ -5,8 +5,8 @@
 //! Vengeance 368's immobilise sat in `<selfEffects>` and did nothing.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
-use crate::model::components::Buffs;
 use crate::model::skill::{SkillEffect, effect_flag};
 use crate::model::stats::Stat;
 
@@ -207,10 +207,7 @@ fn self_scope_buffs_use_the_normal_pipeline() {
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &skill);
 
     assert!(
-        world
-            .objects
-            .get_component::<Buffs>(&CASTER)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9951)),
+        has_buff(&world, CASTER, 9951),
         "it lands as an ordinary timed buff"
     );
 }

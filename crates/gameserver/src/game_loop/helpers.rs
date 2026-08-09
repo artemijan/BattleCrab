@@ -109,6 +109,20 @@ pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)
         .map(|r| r.0)
 }
 
+/// An NPC's template name, empty when the object is gone or has no template.
+///
+/// The NPC counterpart of [`player_name_or_empty`] — the pet/servitor persist
+/// paths and the summon UI all want a `String` and treat "no template" as no
+/// name.
+pub(crate) fn npc_name_or_empty(world: &World, object_id: i32) -> String {
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&object_id)
+        .and_then(|n| n.template(world))
+        .map(|t| t.name.clone())
+        .unwrap_or_default()
+}
+
 /// A player's character name, or `None` once the object has left the world.
 ///
 /// Prefer this whenever the caller can say something useful about a missing

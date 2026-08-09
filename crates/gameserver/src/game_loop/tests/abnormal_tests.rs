@@ -2,6 +2,7 @@
 //! and root actually do something.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::game_loop::abnormal;
 use crate::game_loop::helpers::stat_add;
@@ -633,10 +634,7 @@ fn debuff_block_refuses_incoming_debuffs() {
     let buff = world.data.skill_data.get(1068, 1).cloned().expect("might");
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
     assert!(
-        world
-            .objects
-            .get_component::<Buffs>(&VICTIM)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 1068)),
+        has_buff(&world, VICTIM, 1068),
         "debuff block does not stop buffs"
     );
 }
@@ -1334,20 +1332,14 @@ fn buff_block_refuses_buffs_and_lets_debuffs_through() {
 
     land(&mut world, 9324, CASTER);
     assert!(
-        !world
-            .objects
-            .get_component::<Buffs>(&CASTER)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9324)),
+        !has_buff(&world, CASTER, 9324),
         "a buff cannot land on a buff-blocked target — not even their own"
     );
 
     // A debuff is explicitly *not* blocked by this flag.
     land(&mut world, ROOT_ID, CASTER);
     assert!(
-        world
-            .objects
-            .get_component::<Buffs>(&CASTER)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == ROOT_ID)),
+        has_buff(&world, CASTER, ROOT_ID),
         "a debuff still lands — `!skill.isBad()` is the gate, not `isDebuff()`"
     );
 }
@@ -1998,12 +1990,7 @@ fn dispel_by_slot_myself_spares_irreplacable_buffs() {
     land(&mut world, 9382, CASTER);
     land(&mut world, 9383, CASTER);
 
-    let has = |world: &World, id: i32| {
-        world
-            .objects
-            .get_component::<Buffs>(&CASTER)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id))
-    };
+    let has = |world: &World, id: i32| has_buff(world, CASTER, id);
     assert!(!has(&world, 9381), "the ordinary MAGICAL_STANCE buff goes");
     assert!(
         has(&world, 9382),
@@ -3087,12 +3074,7 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     carrier.target_type = crate::model::skill::TargetType::Self_;
     world.data.skill_data.insert_for_test(carrier);
 
-    let has = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Buffs>(&oid)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9416))
-    };
+    let has = |world: &World, oid: i32| has_buff(world, oid, 9416);
 
     // Not cast yet: nothing to listen, so nothing triggers. (Java attaches the
     // listener to the *buff*, which is why this is the meaningful negative —
@@ -3144,12 +3126,7 @@ fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
     world.data.skill_data.insert_for_test(carrier);
     land(&mut world, 9417, CASTER);
 
-    let has = |world: &World| {
-        world
-            .objects
-            .get_component::<Buffs>(&CASTER)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9418))
-    };
+    let has = |world: &World| has_buff(world, CASTER, 9418);
 
     // A cast whose magicType is *not* listed changes nothing.
     crate::game_loop::skills::effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 7);
@@ -3299,10 +3276,7 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
     land(&mut world, 294, CASTER);
     // The buff is up either way; only the clock decides.
     assert!(
-        world
-            .objects
-            .get_component::<Buffs>(&CASTER)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 294)),
+        has_buff(&world, CASTER, 294),
         "the buff lands regardless of the hour"
     );
 
@@ -3659,12 +3633,7 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
     stun.activate_rate = 100;
     world.data.skill_data.insert_for_test(stun.clone());
 
-    let stunned = |world: &World| {
-        world
-            .objects
-            .get_component::<Buffs>(&victim)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9452))
-    };
+    let stunned = |world: &World| has_buff(world, victim, 9452);
 
     // Not casting: the stun lands.
     world.forced_rolls.clear();
@@ -3750,12 +3719,7 @@ fn an_end_effect_call_skill_lands_on_expiry() {
     }];
     world.data.skill_data.insert_for_test(first.clone());
 
-    let has = |world: &World, id: i32| {
-        world
-            .objects
-            .get_component::<Buffs>(&victim)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id))
-    };
+    let has = |world: &World, id: i32| has_buff(world, victim, id);
 
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &first);
     assert!(has(&world, 9460), "the first stage is up");

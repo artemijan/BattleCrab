@@ -6,6 +6,7 @@
 //! shows a servitor to *other* players are separate slices.
 
 use super::*;
+use crate::game_loop::abnormal::has_buff;
 
 use crate::model::components::ServitorOf;
 use crate::model::skill::SkillEffect;
@@ -4273,7 +4274,6 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
 /// `getPet()`/`getServitors()`), not the player; with no summon it refuses.
 #[test]
 fn community_board_pet_buffer_targets_the_summon() {
-    use crate::model::components::Buffs;
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
@@ -4285,12 +4285,7 @@ fn community_board_pet_buffer_targets_the_summon() {
         .buffer_schemes
         .insert(OWNER, vec![("s".to_string(), vec![1068])]);
 
-    let has_buff = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Buffs>(&oid)
-            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 1068))
-    };
+    let has_buff = |world: &World, oid: i32| has_buff(world, oid, 1068);
 
     crate::game_loop::community_board::apply_scheme(&mut world, CID, OWNER, "s", true)
         .expect("applied to the summon");
