@@ -180,7 +180,8 @@ pub(crate) fn in_zone(world: &World, obj_id: i32, zone_kind: ZoneKind) -> bool {
     })
 }
 pub(crate) fn position(world: &World, object_id: i32) -> Position {
-    maybe_position(world, object_id).expect(&format!("object {} must have position", object_id))
+    maybe_position(world, object_id)
+        .unwrap_or_else(|| panic!("object {} must have position", object_id))
 }
 
 pub(crate) fn target_is_chest(world: &World, target_oid: i32) -> bool {
