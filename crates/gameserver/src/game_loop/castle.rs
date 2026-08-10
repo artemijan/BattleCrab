@@ -463,12 +463,7 @@ pub(crate) fn apply_door_upgrades_at_boot(world: &mut World) {
             .get(door_id)
             .map(|t| t.hp_max)
             .unwrap_or(0);
-        let oid = world.door_regions.values().flatten().copied().find(|oid| {
-            world
-                .objects
-                .get_component::<crate::model::door::Door>(oid)
-                .is_some_and(|d| d.door_id == door_id)
-        });
+        let oid = find_upgradable_door(world, door_id);
         if let Some(oid) = oid
             && let Some(d) = world
                 .objects

@@ -1048,16 +1048,7 @@ fn insert_tax_zone_for(world: &mut World, castle_id: i32) {
         id: 0,
         name: format!("test_tax_{castle_id}"),
         kind: crate::data::zone_data::ZoneKind::Tax,
-        territory: crate::data::spawn_data::Territory {
-            form: crate::data::spawn_data::ZoneForm::Cuboid {
-                x1: -500,
-                x2: 500,
-                y1: -500,
-                y2: 500,
-            },
-            min_z: -1000,
-            max_z: 1000,
-        },
+        territory: test_territory(),
         castle_id,
         clan_hall_id: 0,
         effect: None,

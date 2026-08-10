@@ -80,16 +80,7 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
         id: 0,
         name: "test_effect_zone".into(),
         kind: ZoneKind::Effect,
-        territory: crate::data::spawn_data::Territory {
-            form: crate::data::spawn_data::ZoneForm::Cuboid {
-                x1: -500,
-                x2: 500,
-                y1: -500,
-                y2: 500,
-            },
-            min_z: -1000,
-            max_z: 1000,
-        },
+        territory: test_territory(),
         castle_id: 0,
         clan_hall_id: 0,
         effect: Some(p),

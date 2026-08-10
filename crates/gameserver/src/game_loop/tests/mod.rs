@@ -14,6 +14,7 @@ use super::target::*;
 use super::*;
 use crate::character::CharData;
 use crate::character::FriendInfo;
+use crate::data::spawn_data::Territory;
 use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::Player;
@@ -301,6 +302,18 @@ fn npc_count(world: &mut World, npc_id: i32) -> usize {
 
 fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
+}
+fn test_territory() -> Territory {
+    Territory {
+        form: crate::data::spawn_data::ZoneForm::Cuboid {
+            x1: -500,
+            x2: 500,
+            y1: -500,
+            y2: 500,
+        },
+        min_z: -1000,
+        max_z: 1000,
+    }
 }
 /// Make player 100 the leader of clan 500 owning `castle_id` (Java
 /// `isOwnerClan`: leader of the residence's owner clan).
