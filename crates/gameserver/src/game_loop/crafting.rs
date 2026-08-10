@@ -14,7 +14,7 @@
 //! so they stay `+0`. `Stat.RECIPE_DWARVEN/COMMON` (Expand Dwarven/Common
 //! Craft, G19 `EnlargeSlot`) *is* wired — see `learn_recipe`'s limit lookup.
 
-use super::helpers::{adena, player_of};
+use super::helpers::{adena, player_of, send_inventory_item_list};
 use crate::data::recipe_data::RecipeList;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
@@ -966,9 +966,9 @@ fn settle_and_reward(
         recipe.is_dwarven,
         success,
     );
-    refresh_inventory(world, customer);
+    send_inventory_item_list(world, customer);
     if crafter != customer && price > 0 {
-        refresh_inventory(world, crafter);
+        send_inventory_item_list(world, crafter);
     }
 }
 
@@ -1154,12 +1154,6 @@ fn send_crafter_mp(world: &World, crafter: i32) {
             ],
         ),
     );
-}
-
-fn refresh_inventory(world: &World, oid: i32) {
-    if let Some(inv) = world.objects.get_component::<Inventory>(&oid) {
-        send_to_player(world, oid, ew::item_list(inv, &world.data, false));
-    }
 }
 
 /// The seller's active manufacture list `(recipe_id, cost)`, filtered to the

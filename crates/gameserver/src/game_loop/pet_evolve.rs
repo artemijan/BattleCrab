@@ -35,7 +35,7 @@
 use crate::game_loop::guard::position;
 use tracing::warn;
 
-use super::helpers::send_to_client as send;
+use super::helpers::{send_inventory_item_list, send_to_client as send};
 use crate::game_loop::helpers::item_id_of;
 use crate::model::Player;
 use crate::model::inventory::Inventory;
@@ -124,7 +124,7 @@ pub(crate) fn handle_exchange(
         inv.remove_item(ticket, 1);
     }
     let _ = super::items::add_inventory_item(world, player_oid, collar, 1);
-    refresh_inventory(world, player_oid);
+    send_inventory_item_list(world, player_oid);
 }
 
 /// `Evolve.doEvolve`: the summoned pet becomes its evolved form.
@@ -335,21 +335,7 @@ fn destroy_collar(world: &mut World, player_oid: i32, collar_object_id: i32) {
     let _ = world
         .db
         .send(crate::db::DbCommand::DeletePetRow { collar_object_id });
-    refresh_inventory(world, player_oid);
-}
-
-/// Resend the inventory window after a collar/ticket swap.
-fn refresh_inventory(world: &World, player_oid: i32) {
-    if let (Some(cid), Some(inv)) = (
-        super::helpers::client_for_player(world, player_oid),
-        world.objects.get_component::<Inventory>(&player_oid),
-    ) {
-        send(
-            world,
-            cid,
-            crate::network::enter_world::item_list(inv, &world.data, false),
-        );
-    }
+    send_inventory_item_list(world, player_oid);
 }
 
 /// The shared tail of both flows: seed the saved row so the normal summon path

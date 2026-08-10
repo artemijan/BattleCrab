@@ -38,7 +38,7 @@ use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, enchant_result};
 use crate::world::World;
 
-use super::helpers::{player_of, refresh_inventory, send_to_client as send};
+use super::helpers::{player_of, send_inventory_item_list, send_to_client as send};
 use super::items::finish_equip_change;
 
 /// Facts about an inventory item the enchant flow needs (item id + current
@@ -573,7 +573,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
         q.processing = false;
     }
-    refresh_inventory(world, client_id, player);
+    send_inventory_item_list(world, player);
 }
 
 /// Success: raise the enchant by `step` (Java's `Rnd.get(randomMin, randomMax)`,

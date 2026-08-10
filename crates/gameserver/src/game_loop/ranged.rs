@@ -258,7 +258,7 @@ fn consume_one(world: &mut World, object_id: i32, ammo_object_id: i32) {
             .get_component_mut::<Inventory>(&object_id)
             .map(|inv| inv.remove_item(item_id, 1))
             .unwrap_or_default();
-        if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
+        if let Some(client_id) = client_for_player(world, object_id) {
             let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
             crate::game_loop::helpers::send_inventory_update(world, client_id, object_id, iu);
         }
@@ -268,7 +268,7 @@ fn consume_one(world: &mut World, object_id: i32, ammo_object_id: i32) {
     // The last arrow: the quiver leaves the left hand, so this takes the
     // destroy protocol (paperdoll, options, stats) like any other worn item.
     let changes = crate::game_loop::items::destroy_item_by_id(world, object_id, item_id, 1);
-    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
+    if let Some(client_id) = client_for_player(world, object_id) {
         let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
         crate::game_loop::helpers::send_inventory_update(world, client_id, object_id, iu);
     }

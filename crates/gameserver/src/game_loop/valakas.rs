@@ -17,12 +17,12 @@
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::common::players_in_lair_oids;
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
-use crate::model::components::{Position, Vitals};
+use crate::game_loop::helpers::{hp_pair, restore_hp_mp};
+use crate::model::components::Position;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -180,10 +180,7 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
         if let Some(b) = world.grand_bosses.get_mut(&VALAKAS) {
             b.status = DORMANT;
         }
-        if let Some(v) = world.objects.get_component_mut::<Vitals>(&valakas_oid) {
-            v.cur_hp = v.max_hp as f64;
-            v.cur_mp = v.max_mp as f64;
-        }
+        restore_hp_mp(world, valakas_oid);
         handle_remove_players(world);
         return; // don't re-arm; the reset ends the fight
     }

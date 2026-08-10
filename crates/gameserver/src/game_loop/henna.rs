@@ -8,7 +8,7 @@
 //! scheduler + `HennaDuration` character variables are out of scope; dye
 //! `<skill>` grants (none on Interlude dyes) are likewise skipped.
 
-use super::helpers::{adena, refresh_inventory};
+use super::helpers::{adena, send_inventory_item_list};
 use super::helpers::{player_of, send_to_client as send};
 use crate::data::henna_data::HennaStatSums;
 use crate::game_loop::helpers::class_level;
@@ -252,7 +252,7 @@ pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
     }
 
     apply_henna_change(world, client_id, oid);
-    refresh_inventory(world, client_id, oid);
+    send_inventory_item_list(world, oid);
     send(
         world,
         client_id,
@@ -316,7 +316,7 @@ pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
     }
 
     apply_henna_change(world, client_id, oid);
-    refresh_inventory(world, client_id, oid);
+    send_inventory_item_list(world, oid);
     send(
         world,
         client_id,

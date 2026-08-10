@@ -15,7 +15,7 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{is_friend, send_to_client};
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -697,11 +697,11 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
 /// sender). Only the friend bit (0x01) is representable so far — the
 /// clan/mentor/ally bits need their systems.
 fn whisper_relation_mask(world: &World, sender_oid: i32, receiver_oid: i32) -> u8 {
-    let is_friend = world
-        .objects
-        .get_component::<crate::model::components::Friends>(&receiver_oid)
-        .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == sender_oid));
-    if is_friend { 0x01 } else { 0 }
+    if is_friend(world, sender_oid, receiver_oid) {
+        0x01
+    } else {
+        0
+    }
 }
 
 /// Java `Player.broadcastSnoop`: send a `Snoop` line to every GM currently

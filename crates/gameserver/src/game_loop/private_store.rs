@@ -9,7 +9,9 @@
 //! and its title rides `ExPrivateStoreSetWholeMsg` instead of
 //! `PrivateStoreMsgSell`. Manufacture (workshop) stores belong to `crafting`.
 
-use super::helpers::{adena, player_of, send_sm_bare_to_client as send_sm};
+use super::helpers::{
+    adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
+};
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{PrivateStore, StoreItem};
@@ -364,8 +366,8 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     super::items::add_inventory_item(world, seller, ADENA_ID, total);
 
     // Refresh both inventories.
-    refresh_inventory(world, buyer);
-    refresh_inventory(world, seller);
+    send_inventory_item_list(world, buyer);
+    send_inventory_item_list(world, seller);
     let _ = seller_changes;
 
     // Close the store if empty, else re-show the buyer view.
@@ -449,21 +451,6 @@ fn close_store(world: &mut World, owner: i32) {
     // Java `Player.setPrivateStoreType(NONE)` → `OFFLINE_DISCONNECT_FINISHED`:
     // an unattended shop that sold out leaves the world.
     super::offline_trade::on_store_type_cleared(world, owner);
-}
-
-/// Resend a player's inventory window after a store transaction.
-fn refresh_inventory(world: &World, oid: i32) {
-    if let (Some(cid), Some(inv)) = (
-        super::helpers::client_for_player(world, oid),
-        world.objects.get_component::<Inventory>(&oid),
-    ) && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(crate::network::enter_world::item_list(
-            inv,
-            &world.data,
-            false,
-        ));
-    }
 }
 
 /// Whether the object is a store owner (for `Action` routing).
@@ -881,8 +868,8 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
     }
     super::items::add_inventory_item(world, seller, ADENA_ID, total);
 
-    refresh_inventory(world, seller);
-    refresh_inventory(world, owner);
+    send_inventory_item_list(world, seller);
+    send_inventory_item_list(world, owner);
 
     let empty = world
         .objects

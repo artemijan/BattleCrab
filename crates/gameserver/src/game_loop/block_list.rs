@@ -24,7 +24,7 @@
 //! `character_friends` stores friends at `relation = 0` and blocks at
 //! `relation = 1`.
 
-use super::helpers::send_sm_bare_to_client as send_sm;
+use super::helpers::{is_friend, send_sm_bare_to_client as send_sm};
 use crate::game_loop::helpers::is_gm;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::AdminFlags;
@@ -240,13 +240,6 @@ fn set_block_all(world: &mut World, client_id: u32, owner_oid: i32, on: bool) {
 /// Java `CharInfoTable.getIdByName` — works for offline characters.
 fn resolve(world: &World, name: &str) -> Option<i32> {
     super::mail::char_id_by_name(world, name)
-}
-
-fn is_friend(world: &World, owner_oid: i32, target_oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::Friends>(&owner_oid)
-        .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == target_oid))
 }
 
 fn client_of(world: &World, object_id: i32) -> Option<u32> {

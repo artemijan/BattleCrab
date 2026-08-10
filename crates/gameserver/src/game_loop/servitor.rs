@@ -12,7 +12,6 @@
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_name_or_empty;
@@ -20,6 +19,7 @@ use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{is_dead, restore_hp_mp};
 use crate::game_loop::items::item_skills;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
@@ -113,10 +113,7 @@ pub(crate) fn summon_servitor(
         },
     );
     // `summon.setCurrentHp(getMaxHp()); setCurrentMp(getMaxMp())`.
-    if let Some(v) = world.objects.get_component_mut::<Vitals>(&servitor_oid) {
-        v.cur_hp = v.max_hp as f64;
-        v.cur_mp = v.max_mp as f64;
-    }
+    restore_hp_mp(world, servitor_oid);
     set_summon_link(world, owner_oid, Some(servitor_oid), None, false);
     // Java arms `_summonLifeTask` at a fixed 5 s period.
     world.scheduler.schedule(

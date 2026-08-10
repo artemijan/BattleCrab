@@ -241,12 +241,35 @@ pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
         .get_component::<Vitals>(&object_id)
         .is_none_or(|v| v.dead)
 }
+pub(crate) fn is_friend(world: &World, owner_oid: i32, target_oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Friends>(&owner_oid)
+        .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == target_oid))
+}
 
-pub(crate) fn refresh_inventory(world: &World, client_id: u32, player: i32) {
+pub(crate) fn restore_hp_mp(world: &mut World, object_id: i32) {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&object_id) {
+        v.cur_hp = v.max_hp as f64;
+        v.cur_mp = v.max_mp as f64;
+    }
+}
+
+pub(crate) fn send_inventory_item_list(world: &World, player: i32) {
+    // if let (Some(inv), Some(client_id)) = (
+    //     world.objects.get_component::<Inventory>(&player),
+    //     client_for_player(world, player),
+    // ) {
+    //     send_to_client(
+    //         world,
+    //         client_id,
+    //         crate::network::enter_world::item_list(inv, &world.data, false),
+    //     );
+    // }
     if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
-        send_to_client(
+        send_to_player(
             world,
-            client_id,
+            player,
             crate::network::enter_world::item_list(inv, &world.data, false),
         );
     }

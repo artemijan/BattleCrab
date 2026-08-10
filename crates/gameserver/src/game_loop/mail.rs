@@ -7,7 +7,7 @@
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
 pub(crate) use super::helpers::{send_sm_to_player as send_sm, send_to_player as send};
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{send_inventory_item_list, send_to_client};
 use crate::model::Player;
 use crate::model::components::{Trade, ZoneFlags};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -989,14 +989,7 @@ fn grant_attachments(world: &mut World, player: i32, message_id: i32) {
     }
     persist_flags(world, message_id);
     persist_attachments(world, message_id);
-    refresh_inventory(world, player);
-}
-
-fn refresh_inventory(world: &World, player: i32) {
-    if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
-        let packet = crate::network::enter_world::item_list(inv, &world.data, false);
-        send(world, player, packet);
-    }
+    send_inventory_item_list(world, player);
 }
 
 /// ex 0x67 `RequestPostAttachment` — take the items, paying any COD price.
@@ -1105,7 +1098,7 @@ pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[
 fn pay_sender(world: &mut World, sender_id: i32, adena: i64) {
     if world.objects.has_component::<Inventory>(&sender_id) {
         super::items::add_inventory_item(world, sender_id, ADENA_ID, adena);
-        refresh_inventory(world, sender_id);
+        send_inventory_item_list(world, sender_id);
         return;
     }
     let Some(message_id) = world.alloc_object_id() else {

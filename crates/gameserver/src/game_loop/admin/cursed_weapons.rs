@@ -17,10 +17,9 @@
 
 use crate::db::DbCommand;
 use crate::game_loop::guard;
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{send_inventory_item_list, send_to_client};
 use crate::model::Player;
 use crate::model::components::Position;
-use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
@@ -459,7 +458,7 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
         // worn, so this runs the destroy protocol (paperdoll, options, stats).
         crate::game_loop::items::destroy_item_by_id(world, player_id, item_id, 1);
         if let Some(tc) = target_client {
-            refresh_inventory(world, tc, player_id);
+            send_inventory_item_list(world, player_id);
             // The bag list is only half of `unEquipItemInBodySlot` +
             // `destroyItemByItemId`: the client's own paperdoll rides
             // `ExUserInfoEquipSlot`, so without this the freed player keeps
@@ -516,18 +515,6 @@ pub(crate) fn curse_granted_skill_ids(world: &World, idx: usize, item_id: i32) -
     ids.sort_unstable();
     ids.dedup();
     ids
-}
-
-/// Send the target's item list + adena counter (Java `sendItemList(false)`).
-fn refresh_inventory(world: &World, client_id: u32, target: i32) {
-    if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
-        let list = crate::network::enter_world::item_list(inv, &world.data, false);
-        let adena = crate::network::enter_world::ex_adena_inven_count(inv);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(list);
-            cs.send(adena);
-        }
-    }
 }
 
 /// Send `pkt` to the subject's own client plus every player in visibility range

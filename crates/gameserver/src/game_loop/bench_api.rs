@@ -8,7 +8,7 @@
 //! normal build; none of it is API.
 
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::helpers::{restore_hp_mp, set_position};
 use std::sync::Arc;
 
 use crate::character::CharData;
@@ -97,10 +97,7 @@ impl BenchWorld {
 
 /// Set an object's HP/MP (and CP for players) to max.
 pub fn fill_vitals(world: &mut World, object_id: i32) {
-    if let Some(v) = world.objects.get_component_mut::<Vitals>(&object_id) {
-        v.cur_hp = v.max_hp as f64;
-        v.cur_mp = v.max_mp as f64;
-    }
+    restore_hp_mp(world, object_id);
     if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&object_id) {
         pv.cur_cp = pv.max_cp as f64;
     }

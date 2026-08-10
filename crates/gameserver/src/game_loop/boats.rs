@@ -21,7 +21,7 @@
 
 use crate::enums::ChatType;
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::helpers::{client_for_player, set_position};
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
 use crate::model::components::{Position, RegionCell};
@@ -576,7 +576,7 @@ fn pay_for_ride(world: &mut World, boat_oid: i32, fare: Fare) {
                 sp::sm_ids::YOU_DO_NOT_POSSESS_THE_CORRECT_TICKET,
             );
             oust_rider(world, player, boat_oid, fare);
-        } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
+        } else if let Some(cid) = client_for_player(world, player) {
             let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
             crate::game_loop::helpers::send_inventory_update(world, cid, player, iu);
         }
