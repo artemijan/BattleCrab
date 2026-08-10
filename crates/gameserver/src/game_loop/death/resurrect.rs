@@ -3,6 +3,8 @@ use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::vitals_pair;
 
 /// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
@@ -209,13 +211,13 @@ pub(crate) fn revive_request(
     // This port has only the generic text dialog, so the message is rendered
     // rather than composed from the client's string table.
     let reviver_name = player_name_or_empty(world, reviver_oid);
-    if let Some(cid) = client_for_player(world, target_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::confirm_dlg_text(&format!(
-                "{reviver_name} is attempting to resurrect you, restoring {restore_exp} XP ({restore_percent:.0}%). Accept?"
-            )));
-    }
+    send_to_player(
+        world,
+        target_oid,
+        server_packets::confirm_dlg_text(&format!(
+            "{reviver_name} is attempting to resurrect you, restoring {restore_exp} XP ({restore_percent:.0}%). Accept?"
+        )),
+    );
 }
 
 /// `Player.reviveAnswer` — the corpse's `ConfirmDlg` reply.
@@ -512,11 +514,11 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
         if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&m) {
             p.raidboss_points += each;
         }
-        if let Some(cs) = client_for_player(world, m).and_then(|c| world.clients.get(&c)) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_HAVE_EARNED_S1_RAID_POINTS,
-                &[SmParam::Int(each)],
-            ));
-        }
+        send_sm_to_player(
+            world,
+            m,
+            sm_ids::YOU_HAVE_EARNED_S1_RAID_POINTS,
+            &[SmParam::Int(each)],
+        );
     }
 }

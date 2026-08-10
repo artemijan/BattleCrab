@@ -22,7 +22,7 @@ use crate::model::components::{Vitals, WaterTask};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
-use super::helpers::client_for_player;
+use super::helpers::{send_sm_to_player, send_to_player};
 
 /// `SetupGauge`'s cyan bar (`new SetupGauge(objectId, 2, …)`) — the breath
 /// meter. 0-blue, 1-red, 2-cyan, 3-green.
@@ -101,13 +101,11 @@ pub(crate) fn start_water_task(world: &mut World, object_id: i32) {
     world
         .objects
         .add_components(&object_id, WaterTask { next_damage_tick });
-    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::setup_gauge(
-            object_id,
-            GAUGE_CYAN,
-            breath as i32,
-        ));
-    }
+    send_to_player(
+        world,
+        object_id,
+        server_packets::setup_gauge(object_id, GAUGE_CYAN, breath as i32),
+    );
 }
 
 /// Java `Player.stopWaterTask()`: cancel and blank the gauge. The zero-length
@@ -118,9 +116,11 @@ pub(crate) fn stop_water_task(world: &mut World, object_id: i32) {
         return;
     }
     world.objects.remove_component::<WaterTask>(&object_id);
-    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::setup_gauge(object_id, GAUGE_CYAN, 0));
-    }
+    send_to_player(
+        world,
+        object_id,
+        server_packets::setup_gauge(object_id, GAUGE_CYAN, 0),
+    );
 }
 
 /// `WaterTask.run()` for everyone whose breath has run out — 1% of max HP a
@@ -157,11 +157,11 @@ pub(crate) fn drown_tick(world: &mut World) {
         // player-damage path would have let a full CP bar hold its breath
         // indefinitely.
         super::combat::player_receive_damage_ex(world, oid, oid, reduce_hp, true);
-        if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_HAVE_TAKEN_S1_DAMAGE_BECAUSE_YOU_WERE_UNABLE_TO_BREATHE,
-                &[SmParam::Int(reduce_hp as i32)],
-            ));
-        }
+        send_sm_to_player(
+            world,
+            oid,
+            sm_ids::YOU_HAVE_TAKEN_S1_DAMAGE_BECAUSE_YOU_WERE_UNABLE_TO_BREATHE,
+            &[SmParam::Int(reduce_hp as i32)],
+        );
     }
 }

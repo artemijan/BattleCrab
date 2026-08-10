@@ -290,10 +290,8 @@ pub(crate) fn pickup_ground_item(
                 &[SmParam::ItemName(g.item_id)],
             )
         };
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-            cs.send(sm);
-        }
+        send_action_failed(world, client_id);
+        send_to_client(world, client_id, sm);
         return;
     }
     super::helpers::broadcast_near_region(

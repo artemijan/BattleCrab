@@ -5,7 +5,7 @@
 
 use crate::game_loop::frintezza::{self, CUBE, GUIDE, SCARLET1, SCARLET2};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::{self, sm_ids};
+use crate::network::server_packets::sm_ids;
 
 /// Frintezza's Magic Force Field Removal Scroll — the entry ticket.
 const FRINTEZZA_SCROLL: i32 = 8073;
@@ -70,11 +70,12 @@ impl QuestScript for LastImperialTomb {
             if ctx.quest_items_count(FRINTEZZA_SCROLL) > 0 {
                 let player = ctx.player;
                 frintezza::try_enter(ctx.world, player);
-            } else if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
-                cs.send(server_packets::system_message_with(
+            } else {
+                crate::game_loop::helpers::send_sm_bare_to_client(
+                    ctx.world,
+                    ctx.client_id,
                     sm_ids::YOU_DO_NOT_HAVE_ENOUGH_REQUIRED_ITEMS,
-                    &[],
-                ));
+                );
             }
         } else if ctx.npc_id == CUBE {
             let player = ctx.player;

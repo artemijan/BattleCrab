@@ -4,6 +4,7 @@
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::set_position_heading;
 use crate::geo::worker::{PathEvent, PathRequest};
@@ -46,16 +47,12 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
 
     if pkt.target_x == pkt.origin_x && pkt.target_y == pkt.origin_y && pkt.target_z == pkt.origin_z
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::stop_move(
-                object_id,
-                cur.x,
-                cur.y,
-                cur.z,
-                cur.heading,
-            ));
-            cs.send(server_packets::action_failed());
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading),
+        );
+        send_action_failed(world, client_id);
         return;
     }
 
@@ -91,16 +88,12 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // Stunned/asleep/paralyzed or rooted players can't move either — the rest
     // of `isMovementDisabled`'s effect-driven terms.
     if super::abnormal::is_movement_disabled(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::stop_move(
-                object_id,
-                cur.x,
-                cur.y,
-                cur.z,
-                cur.heading,
-            ));
-            cs.send(server_packets::action_failed());
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading),
+        );
+        send_action_failed(world, client_id);
         return;
     }
     // `PlayerAI.onIntentionMoveTo`'s first branch: `if (getIntention() ==
@@ -516,8 +509,8 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     let points = match path {
         Some(p) if p.len() > 1 => p,
         _ => {
-            if is_player && let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
+            if is_player {
+                send_action_failed(world, client_id);
             }
             return;
         }
@@ -526,8 +519,8 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     // Move gates re-checked after the round-trip (same set as the click).
     let is_dead = is_dead(world, object_id);
     if world.objects.has_component::<Casting>(&object_id) || is_dead {
-        if is_player && let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
+        if is_player {
+            send_action_failed(world, client_id);
         }
         return;
     }
@@ -616,10 +609,8 @@ pub(crate) fn start_move(
     );
     // The mover's own copy (Java's `includeSelf` override on `Player`); an NPC
     // has no client, and `broadcast_to_others` covers the onlookers either way.
-    if world.objects.has_component::<Player>(&object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(move_pkt.clone());
+    if world.objects.has_component::<Player>(&object_id) {
+        send_to_client(world, client_id, move_pkt.clone());
     }
     broadcast_to_others(world, object_id, &move_pkt);
 }

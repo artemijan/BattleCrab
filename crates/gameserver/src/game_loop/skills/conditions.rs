@@ -37,6 +37,7 @@ use crate::data::zone_data::ZoneKind;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_gm;
+use crate::game_loop::helpers::{send_action_failed, send_sm_bare_to_client, send_sm_to_client};
 use crate::model::Player;
 use crate::model::components::{OlympiadObserver, PartyRef, Vitals, ZoneFlags};
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -163,27 +164,28 @@ pub(crate) fn send_refusal(
     target_oid: i32,
     refusal: &Refusal,
 ) {
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
     match &refusal.0 {
-        Some(RefusalLine::Sm(sm)) => cs.send(server_packets::system_message_with(*sm, &[])),
-        Some(RefusalLine::Text(text)) => cs.send(server_packets::system_message_with(
+        Some(RefusalLine::Sm(sm)) => send_sm_bare_to_client(world, client_id, *sm),
+        Some(RefusalLine::Text(text)) => send_sm_to_client(
+            world,
+            client_id,
             sm_ids::S1_TEXT,
             &[server_packets::SmParam::Text((*text).into())],
-        )),
+        ),
         None => {}
     }
     if !(caster_oid == target_oid && skill.is_bad()) {
-        cs.send(server_packets::system_message_with(
+        send_sm_to_client(
+            world,
+            client_id,
             sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS,
             &[server_packets::SmParam::SkillName {
                 id: skill.id,
                 level: skill.level,
             }],
-        ));
+        );
     }
-    cs.send(server_packets::action_failed());
+    send_action_failed(world, client_id);
 }
 
 /// `skill` is deliberately unused: every ported condition reads world state

@@ -523,10 +523,6 @@ fn broadcast_to_visible(world: &World, subject: i32, pkt: &[u8]) {
     let targets = std::iter::once(subject)
         .chain(super::creatures_in_range(world, subject, 1400, true, false));
     for oid in targets {
-        if let Some(cid) = super::helpers::client_for_player(world, oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(pkt.to_vec());
-        }
+        super::helpers::send_to_player(world, oid, pkt.to_vec());
     }
 }

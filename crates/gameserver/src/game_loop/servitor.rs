@@ -17,9 +17,12 @@ use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{is_dead, restore_hp_mp};
 use crate::game_loop::helpers::{item_id_of, send_inventory_update};
+use crate::game_loop::helpers::{send_action_failed, send_sm_and_action_failed};
+use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_player};
 use crate::game_loop::items::item_skills;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
@@ -45,8 +48,6 @@ const LEASH_DISTANCE: f64 = 2000.0;
 /// The Sin Eater's display id — the one species Java summons at its *owner's*
 /// level rather than its template level (`Pet`'s three-arg constructor).
 const SIN_EATER_DISPLAY_ID: i32 = 12564;
-
-use super::helpers::client_for_player;
 
 /// Java `Player.getServitors()` — this port scans rather than caching a second
 /// index, because a player has at most one servitor on this dist.
@@ -158,16 +159,10 @@ pub(crate) enum PetInfoKind {
 /// slice, so a servitor is currently visible only to the player who summoned
 /// it. That is a deliberate, documented narrowing, not an oversight.
 pub(crate) fn send_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInfoKind) {
-    let Some(client_id) = client_for_player(world, owner_oid) else {
-        return;
-    };
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
     let Some(pkt) = build_pet_info(world, owner_oid, servitor_oid, kind) else {
         return;
     };
-    cs.send(pkt);
+    send_to_player(world, owner_oid, pkt);
 }
 
 fn build_pet_info(
@@ -548,13 +543,12 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
                     .get_component::<crate::model::Player>(&owner_oid)
                     .is_some_and(|p| p.mount_type == MOUNT_WYVERN)
             {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::action_failed());
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::YOU_ARE_NOT_ALLOWED_TO_DISMOUNT_IN_THIS_LOCATION,
-                        &[],
-                    ));
-                }
+                send_action_failed(world, client_id);
+                send_sm_bare_to_client(
+                    world,
+                    client_id,
+                    sm_ids::YOU_ARE_NOT_ALLOWED_TO_DISMOUNT_IN_THIS_LOCATION,
+                );
                 return;
             }
             // Java's other refusal, ported for shape: a hungry mount cannot be
@@ -562,13 +556,12 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
             // pet and `mount()` unsummons it (see `mounts::is_hungry`) — but a
             // silently-omitted branch is how parity bugs start.
             if crate::game_loop::admin::mounts::is_hungry(world, owner_oid) {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::action_failed());
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::A_HUNGRY_STRIDER_CANNOT_BE_MOUNTED_OR_DISMOUNTED,
-                        &[],
-                    ));
-                }
+                send_action_failed(world, client_id);
+                send_sm_bare_to_client(
+                    world,
+                    client_id,
+                    sm_ids::A_HUNGRY_STRIDER_CANNOT_BE_MOUNTED_OR_DISMOUNTED,
+                );
                 return;
             }
             crate::game_loop::admin::mounts::dismount(world, owner_oid);
@@ -591,13 +584,12 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
             & crate::model::skill::effect_flag::BETRAYED
             != 0
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOUR_SERVITOR_IS_UNRESPONSIVE_AND_WILL_NOT_OBEY_ANY_ORDERS,
-                &[],
-            ));
-            cs.send(server_packets::action_failed());
-        }
+        send_sm_and_action_failed(
+            world,
+            client_id,
+            sm_ids::YOUR_SERVITOR_IS_UNRESPONSIVE_AND_WILL_NOT_OBEY_ANY_ORDERS,
+            &[],
+        );
         return;
     }
     if let Some(skill_id) = servitor_skill {
@@ -763,14 +755,11 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     // 3. The remaining-time bar.
     if link.life_time_secs > 0 {
         let remaining = (link.expires_at_tick.saturating_sub(world.tick) / TICKS_PER_SECOND) as i32;
-        if let Some(cid) = client_for_player(world, owner)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::set_summon_remain_time(
-                link.life_time_secs,
-                remaining,
-            ));
-        }
+        send_to_player(
+            world,
+            owner,
+            server_packets::set_summon_remain_time(link.life_time_secs, remaining),
+        );
     }
 
     // 4. The leash — "using same task to check if owner is in visible range".
@@ -805,13 +794,7 @@ fn notify_owner(
     sm: i16,
     params: &[crate::network::server_packets::SmParam],
 ) {
-    let Some(cid) = client_for_player(world, owner_oid) else {
-        return;
-    };
-    let Some(cs) = world.clients.get(&cid) else {
-        return;
-    };
-    cs.send(server_packets::system_message_with(sm, params));
+    send_sm_to_player(world, owner_oid, sm, params);
 }
 
 /// The owner left the world (logout/disconnect) — their servitor goes with
@@ -1266,19 +1249,17 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
 /// `PetItemList` for the owner — the pet's inventory is only ever shown to the
 /// player who owns it.
 pub(crate) fn send_pet_item_list(world: &World, owner_oid: i32) {
-    let Some(client_id) = client_for_player(world, owner_oid) else {
-        return;
-    };
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
     let Some(pi) = world
         .objects
         .get_component::<crate::model::inventory::PetInventory>(&owner_oid)
     else {
         return;
     };
-    cs.send(server_packets::pet_item_list(&pi.0, &world.data));
+    send_to_player(
+        world,
+        owner_oid,
+        server_packets::pet_item_list(&pi.0, &world.data),
+    );
 }
 
 /// Run one food skill's effects on the pet. Only `Feed` is meaningful today;
@@ -2390,14 +2371,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         {
             Some(t) => t,
             None => {
-                if let Some(cs) =
-                    client_for_player(world, owner_oid).and_then(|c| world.clients.get(&c))
-                {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::INVALID_TARGET,
-                        &[],
-                    ));
-                }
+                send_sm_bare_to_player(world, owner_oid, sm_ids::INVALID_TARGET);
                 return;
             }
         }

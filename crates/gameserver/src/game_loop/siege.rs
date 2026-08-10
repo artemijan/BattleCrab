@@ -29,7 +29,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::helpers::send_sm_bare_to_client as send_sm_to;
-use super::helpers::{client_for_player, ms_to_ticks};
+use super::helpers::{ms_to_ticks, send_sm_bare_to_player, send_sm_to_client};
 use crate::game_loop::helpers::region_cell_of;
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
@@ -759,14 +759,7 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32, advanced: boo
     // (`isInsideZone(ZoneId.HQ)`, `castle_hq.xml` — 19 patches across the
     // castles). Without it a base camp could be planted in the courtyard.
     if world.data.zone_data.hq_castle_at(x, y, z) != Some(castle_id) {
-        if let Some(cs) =
-            client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid))
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOU_CAN_T_BUILD_HEADQUARTERS_HERE,
-                &[],
-            ));
-        }
+        send_sm_bare_to_player(world, player_oid, sm_ids::YOU_CAN_T_BUILD_HEADQUARTERS_HERE);
         return false;
     }
     // Plant it at z+50 (Java `spawnMe(x, y, z + 50)`) and register it.
@@ -1694,14 +1687,14 @@ fn send_register_outcome(world: &World, client_id: u32, castle_id: i32, outcome:
                 .find(|c| c.id == castle_id)
                 .map(|c| c.name.clone())
                 .unwrap_or_default();
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::server_packets::system_message_with(
-                    sm_ids::S1_TEXT,
-                    &[commons::system_messages::SmParam::Text(format!(
-                        "You cannot register as a defender because {name} is owned by NPC."
-                    ))],
-                ));
-            }
+            send_sm_to_client(
+                world,
+                client_id,
+                sm_ids::S1_TEXT,
+                &[commons::system_messages::SmParam::Text(format!(
+                    "You cannot register as a defender because {name} is owned by NPC."
+                ))],
+            );
         }
         other => {
             if let Some(sm) = outcome_sm(other) {

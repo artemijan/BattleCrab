@@ -104,13 +104,12 @@ pub(crate) fn start_attack_intent(
     if target_is_playable
         && crate::game_loop::pvp::protection_blessing_blocks(world, object_id, target_object_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::THAT_IS_AN_INCORRECT_TARGET,
-                &[],
-            ));
-            cs.send(server_packets::action_failed());
-        }
+        crate::game_loop::helpers::send_sm_and_action_failed(
+            world,
+            client_id,
+            sm_ids::THAT_IS_AN_INCORRECT_TARGET,
+            &[],
+        );
         return;
     }
     let target_is_player = world
@@ -559,14 +558,13 @@ fn maybe_move_to_pawn(
             .and_then(|p| world.data.transforms.get(p.transform_id))
             .is_some_and(|tr| !tr.combat);
         if non_combat_form {
-            if let Some(cs) = crate::game_loop::helpers::client_for_player(world, object_id)
-                .and_then(|cid| world.clients.get(&cid))
-            {
-                cs.send(crate::network::server_packets::system_message_with(
+            if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
+                crate::game_loop::helpers::send_sm_and_action_failed(
+                    world,
+                    cid,
                     crate::network::server_packets::sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
                     &[],
-                ));
-                cs.send(crate::network::server_packets::action_failed());
+                );
             }
             return true;
         }
@@ -932,20 +930,16 @@ pub(crate) fn start_pickup_intent(world: &mut World, object_id: i32, item_object
     // `if (getIntention() == AI_INTENTION_REST) { clientActionFailed(); return; }`
     // — loot stays on the floor until the player stands up.
     if crate::game_loop::sit_stand::is_resting(world, object_id) {
-        if let Some(client_id) = client_for_player(world, object_id)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::action_failed());
+        if let Some(client_id) = client_for_player(world, object_id) {
+            send_action_failed(world, client_id);
         }
         return;
     }
     // `if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())` — same
     // refusal, same bare ActionFailed.
     if world.objects.has_component::<Casting>(&object_id) {
-        if let Some(client_id) = client_for_player(world, object_id)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::action_failed());
+        if let Some(client_id) = client_for_player(world, object_id) {
+            send_action_failed(world, client_id);
         }
         return;
     }

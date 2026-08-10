@@ -348,15 +348,11 @@ fn transfer_side(world: &mut World, from: i32, to: i32) {
 }
 
 fn refresh(world: &World, oid: i32) {
-    if let (Some(cid), Some(inv)) = (
-        super::helpers::client_for_player(world, oid),
-        world.objects.get_component::<Inventory>(&oid),
-    ) && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(crate::network::enter_world::item_list(
-            inv,
-            &world.data,
-            false,
-        ));
+    if let Some(inv) = world.objects.get_component::<Inventory>(&oid) {
+        send(
+            world,
+            oid,
+            crate::network::enter_world::item_list(inv, &world.data, false),
+        );
     }
 }

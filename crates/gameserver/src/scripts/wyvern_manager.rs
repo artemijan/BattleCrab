@@ -16,7 +16,7 @@
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::components::Position;
-use crate::network::server_packets::{SmParam, sm_ids, system_message_with};
+use crate::network::server_packets::{SmParam, sm_ids};
 
 pub struct WyvernManager;
 
@@ -124,14 +124,14 @@ impl QuestScript for WyvernManager {
                         && (manager_in_siege(ctx) || player_in_siege(ctx))
                     {
                         // Java `player.sendMessage(...)` — the plain-text SM.
-                        if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
-                            cs.send(system_message_with(
-                                sm_ids::S1_TEXT,
-                                &[SmParam::Text(
-                                    "You cannot summon wyvern while in siege.".to_string(),
-                                )],
-                            ));
-                        }
+                        crate::game_loop::helpers::send_sm_to_client(
+                            ctx.world,
+                            ctx.client_id,
+                            sm_ids::S1_TEXT,
+                            &[SmParam::Text(
+                                "You cannot summon wyvern while in siege.".to_string(),
+                            )],
+                        );
                         return None;
                     }
                     if manager_type(ctx.npc_id) == ManagerType::Castle {

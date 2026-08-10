@@ -735,11 +735,15 @@ pub(crate) fn handle_cancel_clan_leader_change(
             new_leader_id: 0,
         });
         send_clan_master_html(world, client_id, npc_oid, "9000-07-canceled.htm");
-    } else if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(
-            npc_oid,
-            "<html><body>You don't have clan leader delegation applications submitted yet!</body></html>",
-        ));
+    } else {
+        send_to_client(
+            world,
+            client_id,
+            server_packets::npc_html_message(
+                npc_oid,
+                "<html><body>You don't have clan leader delegation applications submitted yet!</body></html>",
+            ),
+        );
     }
 }
 

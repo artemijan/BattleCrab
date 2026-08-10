@@ -333,11 +333,7 @@ pub(crate) fn claim_hero(world: &mut World, object_id: i32) {
             &[SmParam::Text(name), SmParam::Int(points)],
         );
         for member in super::clans::online_members(world, clan_id) {
-            if let Some(cid) = super::helpers::client_for_player(world, member)
-                && let Some(cs) = world.clients.get(&cid)
-            {
-                cs.send(sm.clone());
-            }
+            super::helpers::send_to_player(world, member, sm.clone());
         }
     }
 

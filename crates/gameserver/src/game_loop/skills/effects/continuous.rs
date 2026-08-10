@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::stat_mul;
 
@@ -218,11 +219,7 @@ pub(crate) fn apply_continuous_effects(
             } else {
                 S1_LANDED_ON_C2_CHANCE_WAS_S3::new(spell, target_name, chance)
             };
-            if let Some(client_id) = client_for_player(world, caster_oid)
-                && let Some(cs) = world.clients.get(&client_id)
-            {
-                cs.send(server_packets::system_message(&message));
-            }
+            send_to_player(world, caster_oid, server_packets::system_message(&message));
         }
         if resisted {
             return false;
@@ -389,13 +386,12 @@ pub(crate) fn apply_continuous_effects(
             );
         }
         let now = world.tick;
-        if let Some(client_id) = client_for_player(world, target_oid)
-            && let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(crate::network::enter_world::abnormal_status_update(
-                buffs, now,
-            ));
+        if let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid) {
+            send_to_player(
+                world,
+                target_oid,
+                crate::network::enter_world::abnormal_status_update(buffs, now),
+            );
         }
         // Max HP/MP/CP live on a separate path from `recalculate_stats`; fold
         // the buff's MaxHp/MaxMp/MaxCp modifiers into them too (e.g. a +MP buff).

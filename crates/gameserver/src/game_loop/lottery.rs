@@ -3,6 +3,7 @@
 //! dialog. The round lifecycle + `lottery`-table persistence, ticket purchase,
 //! the two-phase draw, and prize claim.
 
+use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use commons::util::rnd;
 use tracing::info;
@@ -665,8 +666,10 @@ fn page(world: &World, npc_id: i32, page: i32) -> String {
 
 fn send_html(world: &World, client_id: u32, npc_oid: i32, content: String) {
     let content = content.replace("%objectId%", &npc_oid.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_oid, &content));
-        cs.send(server_packets::action_failed());
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_oid, &content),
+    );
+    send_action_failed(world, client_id);
 }

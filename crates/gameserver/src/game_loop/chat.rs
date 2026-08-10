@@ -423,24 +423,28 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             // Relation mask: bit 0x01 = sender on the receiver's friend list
             // (wired with the friend system); other bits need clans/mentors.
             let mask = whisper_relation_mask(world, sender_oid, receiver_oid);
-            if let Some(rcs) = world.clients.get(&receiver_cid) {
-                rcs.send(server_packets::creature_say(
+            send_to_client(
+                world,
+                receiver_cid,
+                server_packets::creature_say(
                     sender_oid,
                     chat_type,
                     &sender_name,
                     &pkt.text,
                     Some((mask, sender_level)),
-                ));
-            }
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::creature_say(
+                ),
+            );
+            send_to_client(
+                world,
+                client_id,
+                server_packets::creature_say(
                     sender_oid,
                     chat_type,
                     &format!("->{receiver_name}"),
                     &pkt.text,
                     Some((mask, sender_level)),
-                ));
-            }
+                ),
+            );
         }
         ChatType::Party => {
             // ChatParty — `party.broadcastCreatureSay` (speaker included).
@@ -719,11 +723,7 @@ fn broadcast_snoop(
     };
     let snoop = server_packets::snoop(speaker, speaker_name, chat_type, speaker_name, text);
     for gm in listeners {
-        if let Some(cs) =
-            super::helpers::client_for_player(world, gm).and_then(|c| world.clients.get(&c))
-        {
-            cs.send(snoop.clone());
-        }
+        super::helpers::send_to_player(world, gm, snoop.clone());
     }
 }
 

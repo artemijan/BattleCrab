@@ -381,11 +381,11 @@ fn send_player_message(world: &World, target: i32, text: &str) {
 /// Push an `ExPCCafePointInfo` to the target player so the client updates its
 /// point display (`time = 1`, matching the Java admin handler).
 fn send_pccafe_packet(world: &World, target: i32, points: i32, add: i32) {
-    if let Some(cid) = super::helpers::client_for_player(world, target)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(server_packets::ex_pccafe_point_info(points, add, 1));
-    }
+    super::helpers::send_to_player(
+        world,
+        target,
+        server_packets::ex_pccafe_point_info(points, add, 1),
+    );
 }
 
 /// `Util.formatAdena` — group digits into thousands with commas (`200000` →

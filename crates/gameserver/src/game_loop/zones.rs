@@ -14,7 +14,7 @@ use crate::model::components::{Speeds, ZoneFlags};
 use crate::network::server_packets::{self, compass_zone};
 use crate::world::World;
 
-use super::helpers::client_for_player;
+use super::helpers::{send_sm_bare_to_player, send_to_player};
 
 /// Java `Creature.revalidateZone(force)` for a player. Recomputes the
 /// membership mask at the current position and applies the enter/exit
@@ -65,11 +65,12 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         f.last_compass = compass;
     }
 
-    if compass_changed
-        && let Some(cs) =
-            client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid))
-    {
-        cs.send(server_packets::ex_set_compass_zone_code(compass));
+    if compass_changed {
+        send_to_player(
+            world,
+            object_id,
+            server_packets::ex_set_compass_zone_code(compass),
+        );
     }
 
     // `SiegeZone.onEnter` → `startFameTask` for a registered participant. The
@@ -184,11 +185,11 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         if let Some(f) = world.objects.get_component_mut::<ZoneFlags>(&object_id) {
             f.fishing_available = fishing_avail;
         }
-        if let Some(cs) =
-            client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid))
-        {
-            cs.send(server_packets::ex_auto_fish_available(fishing_avail));
-        }
+        send_to_player(
+            world,
+            object_id,
+            server_packets::ex_auto_fish_available(fishing_avail),
+        );
     }
 
     // Peace/NoRestart have no enter/exit side effects — membership itself is
@@ -224,9 +225,7 @@ pub(crate) fn refresh_siege_zone_flag(world: &mut World, object_id: i32) {
     } else {
         server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE
     };
-    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::system_message_with(msg, &[]));
-    }
+    send_sm_bare_to_player(world, object_id, msg);
     if now_active_siege {
         dismount_for_siege(world, object_id);
     }

@@ -166,11 +166,13 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
     // Confirmation dialog (Java `AdminData.requireConfirm`): prompt and defer
     // the real execution to the `DlgAnswer` reply (handled in `handle_dlg_answer`).
     if use_confirm && world.data.admin.require_confirm(&command) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::confirm_dlg_text(&format!(
+        send_to_client(
+            world,
+            client_id,
+            server_packets::confirm_dlg_text(&format!(
                 "Are you sure you want to execute command '{display}' ?"
-            )));
-        }
+            )),
+        );
         if let Some(ClientSession::InGame(session)) = world.clients.get_mut(&client_id) {
             session.set_admin_confirm(full.to_string());
         }

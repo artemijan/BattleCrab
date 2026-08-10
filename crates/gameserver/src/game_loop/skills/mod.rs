@@ -7,6 +7,7 @@ pub(crate) mod conditions;
 pub(crate) mod effects;
 pub(crate) mod instant;
 
+use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -230,21 +231,23 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             if !super::quests::take_items(world, client_id, object_id, item_id, count) {
                 continue;
             }
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(if count > 1 {
-                    server_packets::system_message_with(
-                        server_packets::sm_ids::S2_S1_S_DISAPPEARED,
-                        &[
-                            server_packets::SmParam::ItemName(item_id),
-                            server_packets::SmParam::Long(count),
-                        ],
-                    )
-                } else {
-                    server_packets::system_message_with(
-                        server_packets::sm_ids::S1_DISAPPEARED,
-                        &[server_packets::SmParam::ItemName(item_id)],
-                    )
-                });
+            if count > 1 {
+                send_sm_to_client(
+                    world,
+                    client_id,
+                    server_packets::sm_ids::S2_S1_S_DISAPPEARED,
+                    &[
+                        server_packets::SmParam::ItemName(item_id),
+                        server_packets::SmParam::Long(count),
+                    ],
+                );
+            } else {
+                send_sm_to_client(
+                    world,
+                    client_id,
+                    server_packets::sm_ids::S1_DISAPPEARED,
+                    &[server_packets::SmParam::ItemName(item_id)],
+                );
             }
         }
     }

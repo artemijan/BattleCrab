@@ -28,8 +28,8 @@ use crate::model::clan::{
     CS_DISMISS, CS_MANAGE_SIEGE, CS_MANOR_ADMIN, CS_OPEN_DOOR, CS_SET_FUNCTIONS, CS_TAXES,
     CS_USE_FUNCTIONS,
 };
+use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
-use crate::network::server_packets::{SmParam, system_message_with};
 
 /// `Inventory.ADENA_ID`.
 const ADENA_ID: i32 = 57;
@@ -226,11 +226,12 @@ fn deposit(ctx: &mut QuestCtx, amount: i64) -> Option<String> {
             if let Some(castle_id) = chamberlain_castle_id(ctx.npc_id) {
                 add_to_treasury_no_tax(ctx.world, castle_id, amount);
             }
-        } else if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
-            cs.send(system_message_with(
+        } else {
+            crate::game_loop::helpers::send_sm_bare_to_client(
+                ctx.world,
+                ctx.client_id,
                 sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
-                &[],
-            ));
+            );
         }
     }
     Some("chamberlain-01.html".to_string())
@@ -274,12 +275,12 @@ fn castle_treasury(ctx: &QuestCtx) -> i64 {
 /// the player just gets the "deactivated" chat line.
 fn manor(ctx: &mut QuestCtx) -> Option<String> {
     if !ctx.world.cfg.general.allow_manor {
-        if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
-            cs.send(system_message_with(
-                sm_ids::S1_TEXT,
-                &[SmParam::Text("Manor system is deactivated.".to_string())],
-            ));
-        }
+        crate::game_loop::helpers::send_sm_to_client(
+            ctx.world,
+            ctx.client_id,
+            sm_ids::S1_TEXT,
+            &[SmParam::Text("Manor system is deactivated.".to_string())],
+        );
         return None;
     }
     Some(

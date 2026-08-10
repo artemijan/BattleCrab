@@ -4,6 +4,7 @@
 //! `mdt_history`/`mdt_bets` persistence, and the RaceManager betting dialog
 //! (buy a lane ticket, view odds/history, cash a winning ticket out).
 
+use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use std::collections::HashMap;
 
@@ -728,10 +729,12 @@ fn finalize(world: &World, client_id: u32, npc_oid: i32, html: String) {
     let content = html
         .replace("1race", &world.monster_race.race_number.to_string())
         .replace("%objectId%", &npc_oid.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_oid, &content));
-        cs.send(server_packets::action_failed());
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_oid, &content),
+    );
+    send_action_failed(world, client_id);
 }
 
 /// Java `super.onBypassFeedback(player, "Chat 0")` — fall back to the default page.

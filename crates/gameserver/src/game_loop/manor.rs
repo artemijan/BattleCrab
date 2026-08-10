@@ -29,6 +29,8 @@
 
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
 use commons::network::PacketReader;
 use tracing::warn;
@@ -761,11 +763,7 @@ fn notify_leader(world: &World, castle_id: i32, message_id: i16) {
     else {
         return;
     };
-    if let Some(cs) = super::helpers::client_for_player(world, leader_oid)
-        .and_then(|client_id| world.clients.get(&client_id))
-    {
-        cs.send(server_packets::system_message_with(message_id, &[]));
-    }
+    send_sm_bare_to_player(world, leader_oid, message_id);
 }
 
 /// Java `RequestSetSeed`/`RequestSetCrop`'s shared owner gate. Returns the
@@ -1071,13 +1069,13 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         super::castle::add_to_treasury_no_tax(world, manor_id, total_price);
     }
     super::helpers::send_inventory_update(world, player_oid, added);
-    if total_price > 0
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::system_message_with(
+    if total_price > 0 {
+        send_sm_to_client(
+            world,
+            client_id,
             sm_ids::S1_ADENA_DISAPPEARED,
             &[SmParam::Long(total_price)],
-        ));
+        );
     }
 }
 

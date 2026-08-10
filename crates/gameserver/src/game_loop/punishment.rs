@@ -11,12 +11,12 @@ use crate::model::Player;
 use crate::model::punishment::{
     IllegalActionPunishment, Punishment, PunishmentAffect, PunishmentType,
 };
-use crate::network::server_packets::{self as sp, SmParam, sm_ids};
+use crate::network::server_packets::{SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::helpers::client_for_player;
+use super::helpers::{client_for_player, send_sm_to_player};
 
 const TICKS_PER_SECOND: u64 = 10;
 
@@ -727,12 +727,12 @@ pub(crate) fn on_illegal_action_punish(
 
 /// Send a plain-text system line to a player's client (Java `sendMessage`).
 fn send_text(world: &World, player_oid: i32, text: &str) {
-    if let Some(cs) = client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(sp::system_message_with(
-            sm_ids::S1_TEXT,
-            &[SmParam::Text(text.to_string())],
-        ));
-    }
+    send_sm_to_player(
+        world,
+        player_oid,
+        sm_ids::S1_TEXT,
+        &[SmParam::Text(text.to_string())],
+    );
 }
 
 /// Redraw the chat-block icon (Java `sendPacket(new EtcStatusUpdate(this))`) —

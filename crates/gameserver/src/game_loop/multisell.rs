@@ -94,10 +94,8 @@ pub(crate) fn separate_and_send(
     };
 
     let pages = build_pages(list, &rows, &world.data.item_data, tax_rate);
-    if let Some(cs) = world.clients.get(&client_id) {
-        for page in pages {
-            cs.send(page);
-        }
+    for page in pages {
+        send_to_client(world, client_id, page);
     }
     world.objects.add_components(
         &player,

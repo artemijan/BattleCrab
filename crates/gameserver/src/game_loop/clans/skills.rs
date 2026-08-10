@@ -4,6 +4,7 @@ use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
 
 /// The clan's member object-ids that are currently online (leader included).
@@ -162,11 +163,8 @@ fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
 
 /// Resend a member's merged `SkillList` (own skills + clan skills).
 fn refresh_member_skill_list(world: &World, member_oid: i32) {
-    if let Some(cid) = client_for_player(world, member_oid)
-        && let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, member_oid)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(pkt);
+    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, member_oid) {
+        send_to_player(world, member_oid, pkt);
     }
 }
 
@@ -426,18 +424,20 @@ pub(crate) fn add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, lev
             continue;
         }
         apply_clan_skill_to_member(world, oid, skill_id, level);
-        if let Some(cid) = client_for_player(world, oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::pledge_skill_list_add(skill_id, level));
-            cs.send(server_packets::system_message_with(
-                sm_ids::THE_CLAN_SKILL_S1_HAS_BEEN_ADDED,
-                &[SmParam::SkillName {
-                    id: skill_id,
-                    level,
-                }],
-            ));
-        }
+        send_to_player(
+            world,
+            oid,
+            server_packets::pledge_skill_list_add(skill_id, level),
+        );
+        send_sm_to_player(
+            world,
+            oid,
+            sm_ids::THE_CLAN_SKILL_S1_HAS_BEEN_ADDED,
+            &[SmParam::SkillName {
+                id: skill_id,
+                level,
+            }],
+        );
         refresh_member_skill_list(world, oid);
     }
 }
@@ -512,11 +512,7 @@ pub(crate) fn give_clan_skills(world: &mut World, clan_id: i32, include_squad: b
     // Java broadcasts the full `PledgeSkillList` to online members afterward.
     let pkt = server_packets::pledge_skill_list(&clan_skill_pairs(world, clan_id));
     for oid in online_members(world, clan_id) {
-        if let Some(cid) = client_for_player(world, oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(pkt.clone());
-        }
+        send_to_player(world, oid, pkt.clone());
     }
     // Report the clan's total (non-residence) skill count now in force, not just
     // the newly-added ones — a re-run on an already-stocked clan then reports the

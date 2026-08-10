@@ -251,10 +251,7 @@ fn remove_option_skills(world: &mut World, player_oid: i32, option_id: i32) {
 /// `player.sendSkillList()`, which both halves of `Options` end with — the
 /// client only shows a granted active once the list is resent.
 fn send_skill_list(world: &World, player_oid: i32) {
-    if let Some(pkt) = super::helpers::skill_list_packet(world, player_oid)
-        && let Some(cs) =
-            super::helpers::client_for_player(world, player_oid).and_then(|c| world.clients.get(&c))
-    {
-        cs.send(pkt);
+    if let Some(pkt) = super::helpers::skill_list_packet(world, player_oid) {
+        super::helpers::send_to_player(world, player_oid, pkt);
     }
 }

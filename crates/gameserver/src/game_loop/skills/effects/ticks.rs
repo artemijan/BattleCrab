@@ -3,6 +3,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
@@ -636,14 +637,11 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     if had_visuals {
         refresh_abnormal_visuals(world, player_object_id);
     }
-    let Some(client_id) = client_for_player(world, player_object_id) else {
-        return;
-    };
-    if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(crate::network::enter_world::abnormal_status_update(
-            buffs, now,
-        ));
+    if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id) {
+        send_to_player(
+            world,
+            player_object_id,
+            crate::network::enter_world::abnormal_status_update(buffs, now),
+        );
     }
 }

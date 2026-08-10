@@ -15,6 +15,7 @@ use crate::game_loop::guard;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_to_client;
 use crate::model::components::ZoneFlags;
 use crate::model::door::Door;
 use crate::network::server_packets;
@@ -119,17 +120,23 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
     else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        // Java `AdminShop`: `new BuyList(buyList, activeChar, 0)` — no castle tax.
-        cs.send(trade::buy_list(list, inventory, &world.data, 0.0));
-        cs.send(trade::ex_buy_sell_list_sell(
+    // Java `AdminShop`: `new BuyList(buyList, activeChar, 0)` — no castle tax.
+    send_to_client(
+        world,
+        client_id,
+        trade::buy_list(list, inventory, &world.data, 0.0),
+    );
+    send_to_client(
+        world,
+        client_id,
+        trade::ex_buy_sell_list_sell(
             inventory,
             &refund_items,
             &world.data,
             false,
             crate::game_loop::servitor::active_pet_collar(world, object_id),
-        ));
-    }
+        ),
+    );
 }
 
 /// `AdminClan`'s `//clan_info` — dump the targeted player's clan (name, leader,

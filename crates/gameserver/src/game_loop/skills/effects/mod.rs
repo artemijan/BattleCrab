@@ -38,6 +38,8 @@ use crate::world::World;
 use super::instant;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_client};
 
 mod continuous;
 pub(crate) mod control;
@@ -855,15 +857,15 @@ pub(crate) fn apply_skill_effects(
                 }
                 // `setCharges` restarts the decay clock.
                 arm_charge_decay(world, target_oid);
-                if let Some(cs) = world.clients.get(&client_id) {
-                    if new_charge == max {
-                        cs.send(server_packets::system_message_with(sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY, &[]));
-                    } else {
-                        cs.send(server_packets::system_message_with(
-                            sm_ids::YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1,
-                            &[SmParam::Int(new_charge)],
-                        ));
-                    }
+                if new_charge == max {
+                    send_sm_bare_to_client(world, client_id, sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY);
+                } else {
+                    send_sm_to_client(
+                        world,
+                        client_id,
+                        sm_ids::YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1,
+                        &[SmParam::Int(new_charge)],
+                    );
                 }
                 crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
             }
@@ -1572,10 +1574,8 @@ fn set_skill(world: &mut World, player_oid: i32, skill_id: i32, skill_level: i32
     book.0.insert(skill_id, skill_level);
     // A granted passive has to start contributing now, not at the next login.
     crate::game_loop::passive_skills::recompute_conditioned_passives(world, player_oid);
-    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid)
-        && let Some(cs) = client_for_player(world, player_oid).and_then(|c| world.clients.get(&c))
-    {
-        cs.send(pkt);
+    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid) {
+        send_to_player(world, player_oid, pkt);
     }
 }
 

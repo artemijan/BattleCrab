@@ -7,6 +7,7 @@ use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::set_position;
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
@@ -846,14 +847,16 @@ pub(crate) fn call_pc_player(
             z,
         });
     }
-    if let Some(cs) = client_for_player(world, target_oid).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::confirm_dlg_with(
+    send_to_player(
+        world,
+        target_oid,
+        server_packets::confirm_dlg_with(
             sm_ids::C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT as i32,
             &[SmParam::Text(name), SmParam::ZoneName { x, y, z }],
             30_000,
             caster_oid,
-        ));
-    }
+        ),
+    );
 }
 
 /// The `DlgAnswer` leg. Returns true when the reply was a summon answer, so the

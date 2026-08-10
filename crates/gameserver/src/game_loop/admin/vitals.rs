@@ -65,11 +65,7 @@ pub(crate) fn heal_creature(world: &mut World, target: i32) {
     }
     let packet = server_packets::status_update(target, &updates);
     if is_player {
-        if let Some(cid) = super::helpers::client_for_player(world, target)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(packet);
-        }
+        super::helpers::send_to_player(world, target, packet);
         super::party::notify_party_vitals(world, target);
     } else if let Some(region) = region_cell_of(world, target) {
         super::helpers::broadcast_near_region(world, region, &packet);
@@ -182,11 +178,7 @@ fn full_restore(world: &mut World, target: i32) {
         ]
     };
     let packet = server_packets::status_update(target, &updates);
-    if let Some(cid) = super::helpers::client_for_player(world, target)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    super::helpers::send_to_player(world, target, packet);
     super::party::notify_party_vitals(world, target);
 }
 
@@ -240,11 +232,7 @@ pub(super) fn set_vital(
         }
     };
     let packet = server_packets::status_update(target, &[update]);
-    if let Some(cid) = super::helpers::client_for_player(world, target)
-        && let Some(cs) = world.clients.get(&cid)
-    {
-        cs.send(packet);
-    }
+    super::helpers::send_to_player(world, target, packet);
     super::party::notify_party_vitals(world, target);
 }
 

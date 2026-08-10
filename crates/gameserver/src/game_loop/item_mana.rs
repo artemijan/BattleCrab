@@ -64,7 +64,7 @@
 //! is null, so `run` throws it away — and without it a relog inside the beat
 //! window would leave two beats racing on one item, draining it twice as fast.
 
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
 use tracing::warn;
 
 use crate::model::inventory::Inventory;
@@ -188,10 +188,8 @@ pub(crate) fn decrease_mana(
         1 => Some(sm_ids::S1_S_REMAINING_MANA_IS_NOW_1_IT_WILL_DISAPPEAR_SOON),
         _ => None,
     };
-    if let Some(sm) = warning
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(sp::system_message_with(sm, &[SmParam::ItemName(item_id)]));
+    if let Some(sm) = warning {
+        send_sm_to_client(world, client_id, sm, &[SmParam::ItemName(item_id)]);
     }
 
     if left > 0 {

@@ -1,6 +1,9 @@
 use super::*;
 use crate::game_loop::helpers::vitals_pair;
-use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player};
+use crate::game_loop::helpers::{
+    send_sm_bare_to_client, send_sm_bare_to_player, send_sm_to_client, send_sm_to_player,
+    send_to_client,
+};
 
 /// `Attackable.calculateOverhitExp` — the bonus XP a killing `<overHit>` blow
 /// earns, and the "over-hit!" notice that goes with it.
@@ -175,16 +178,17 @@ fn apply_level_change(world: &mut World, player_oid: i32, old_level: i32, new_le
     let Some(client_id) = client_for_player(world, player_oid) else {
         return;
     };
-    if let (Some(v), Some(cs)) = (
-        crate::model::PlayerView::of_world(world, player_oid),
-        world.clients.get(&client_id),
-    ) {
-        cs.send(crate::network::user_info::user_info(
-            &v,
-            &world.data,
-            &world.cfg.character,
-            crate::game_loop::party::calculate_relation(world, v.p),
-        ));
+    if let Some(v) = crate::model::PlayerView::of_world(world, player_oid) {
+        send_to_client(
+            world,
+            client_id,
+            crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                crate::game_loop::party::calculate_relation(world, v.p),
+            ),
+        );
     }
 }
 
@@ -304,27 +308,25 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     // Java `PlayerStat.addLevel` → `PartySmallWindowUpdate(this, true)`.
     crate::game_loop::party::notify_party_all(world, player_oid);
     if let Some(client_id) = client_for_player(world, player_oid)
-        && let (Some(v), Some(cs)) = (
-            crate::model::PlayerView::of_world(world, player_oid),
-            world.clients.get(&client_id),
-        )
+        && let Some(v) = crate::model::PlayerView::of_world(world, player_oid)
     {
         if leveled_up {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOUR_LEVEL_HAS_INCREASED,
-                &[],
-            ));
+            send_sm_bare_to_client(world, client_id, sm_ids::YOUR_LEVEL_HAS_INCREASED);
         }
-        cs.send(crate::network::user_info::user_info(
-            &v,
-            &world.data,
-            &world.cfg.character,
-            crate::game_loop::party::calculate_relation(world, v.p),
-        ));
+        send_to_client(
+            world,
+            client_id,
+            crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                crate::game_loop::party::calculate_relation(world, v.p),
+            ),
+        );
         let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid) else {
             return;
         };
-        cs.send(pkt);
+        send_to_client(world, client_id, pkt);
     }
 }
 
@@ -406,7 +408,6 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
     }
     if world.cfg.character.auto_learn_skills
         && let Some(client_id) = client_for_player(world, player_oid)
-        && let Some(cs) = world.clients.get(&client_id)
     {
         let count = granted
             .iter()
@@ -417,14 +418,16 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
             .objects
             .get_component::<crate::model::components::Shortcuts>(&player_oid)
         {
-            cs.send(server_packets::shortcut_init(shortcuts));
+            send_to_client(world, client_id, server_packets::shortcut_init(shortcuts));
         }
-        cs.send(server_packets::system_message_with(
+        send_sm_to_client(
+            world,
+            client_id,
             sm_ids::S1_TEXT,
             &[SmParam::Text(format!(
                 "You have learned {count} new skills."
             ))],
-        ));
+        );
     }
 }
 

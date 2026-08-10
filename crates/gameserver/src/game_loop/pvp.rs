@@ -16,6 +16,7 @@ use crate::world::{World, regions_adjacent};
 use super::helpers::{broadcast_including_self, client_for_player};
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::send_to_client;
 
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
 const RELATION_INSIEGE: i32 = 0x200;
@@ -406,7 +407,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
     let Some(my_region) = region_cell_of(world, object_id) else {
         return;
     };
-    let my_client = client_for_player(world, object_id).and_then(|c| world.clients.get(&c));
+    let my_client = client_for_player(world, object_id);
     let (my_rep, my_flag) = relation_parts(world, object_id);
     for cs in world.clients.values() {
         let ClientSession::InGame(s) = cs else {
@@ -435,15 +436,19 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         // The reverse, so `object_id`'s own client sees the viewer too.
         if let Some(mc) = my_client {
             let (v_rep, v_flag) = relation_parts(world, viewer);
-            mc.send(server_packets::relation_changed(
-                viewer,
-                super::party::relation_to(world, viewer, object_id)
-                    | siege_relation_bits(world, viewer, object_id)
-                    | super::clans::war_relation_bits(world, viewer, object_id),
-                is_player_auto_attackable(world, object_id, viewer),
-                v_rep,
-                v_flag,
-            ));
+            send_to_client(
+                world,
+                mc,
+                server_packets::relation_changed(
+                    viewer,
+                    super::party::relation_to(world, viewer, object_id)
+                        | siege_relation_bits(world, viewer, object_id)
+                        | super::clans::war_relation_bits(world, viewer, object_id),
+                    is_player_auto_attackable(world, object_id, viewer),
+                    v_rep,
+                    v_flag,
+                ),
+            );
         }
     }
 }

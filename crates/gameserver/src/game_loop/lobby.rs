@@ -776,13 +776,15 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.
-    if is_dead(world, object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
+    if is_dead(world, object_id) {
         // Java re-sends the same `Die` the death itself built, so a character
         // who logged out dead comes back to the *same* restart buttons.
         let opts = super::death::die_options(world, object_id);
-        cs.send(crate::network::server_packets::die(object_id, opts));
+        send_to_client(
+            world,
+            client_id,
+            crate::network::server_packets::die(object_id, opts),
+        );
     }
 }
 

@@ -114,12 +114,7 @@ fn inventory_under_80(ctx: &QuestCtx) -> bool {
 }
 
 fn send_sm(ctx: &QuestCtx, sm_id: i16) {
-    if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
-        cs.send(crate::network::server_packets::system_message_with(
-            sm_id,
-            &[],
-        ));
-    }
+    crate::game_loop::helpers::send_sm_bare_to_client(ctx.world, ctx.client_id, sm_id);
 }
 
 /// `calculatePointsDone`: convert the banked points to Marks of Battle

@@ -238,18 +238,22 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
-    cs.send(ew::item_list(inventory, &world.data, true));
-    cs.send(ew::ex_quest_item_list(inventory, &world.data));
-    cs.send(ew::ex_adena_inven_count(inventory));
-    cs.send(ew::ex_user_info_inven_weight(
-        object_id,
-        inventory,
-        &world.data,
-        max_load,
-    ));
+    send_to_client(
+        world,
+        client_id,
+        ew::item_list(inventory, &world.data, true),
+    );
+    send_to_client(
+        world,
+        client_id,
+        ew::ex_quest_item_list(inventory, &world.data),
+    );
+    send_to_client(world, client_id, ew::ex_adena_inven_count(inventory));
+    send_to_client(
+        world,
+        client_id,
+        ew::ex_user_info_inven_weight(object_id, inventory, &world.data, max_load),
+    );
 }
 
 /// Port of `clientpackets/UseItem.runImpl`: right-clicking a `Weapon`/`Armor`
@@ -966,18 +970,22 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::ex_user_info_equip_slot(
-            object_id, inventory,
-        ));
-        if let Some(v) = crate::model::PlayerView::of_world(world, object_id) {
-            cs.send(crate::network::user_info::user_info(
+    send_to_client(
+        world,
+        client_id,
+        crate::network::enter_world::ex_user_info_equip_slot(object_id, inventory),
+    );
+    if let Some(v) = crate::model::PlayerView::of_world(world, object_id) {
+        send_to_client(
+            world,
+            client_id,
+            crate::network::user_info::user_info(
                 &v,
                 &world.data,
                 &world.cfg.character,
                 super::party::calculate_relation(world, v.p),
-            ));
-        }
+            ),
+        );
     }
 }
 
@@ -1061,11 +1069,8 @@ pub(crate) fn charge_shot(
     };
     let client_id = crate::game_loop::helpers::client_for_player(world, object_id);
     let send = |world: &World, msg: i16| {
-        if !auto
-            && let Some(cid) = client_id
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::system_message_with(msg, &[]));
+        if !auto && let Some(cid) = client_id {
+            crate::game_loop::helpers::send_sm_bare_to_client(world, cid, msg);
         }
     };
 
@@ -1815,20 +1820,18 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
             warn!("ExtractableItems: object-id pool exhausted, dropping {item_id}x{amount}");
             continue;
         };
-        if let Some(cs) = world.clients.get(&client_id) {
-            let sm = if amount > 1 {
-                server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-                    &[SmParam::ItemName(item_id), SmParam::Long(amount)],
-                )
-            } else {
-                server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_OBTAINED_S1,
-                    &[SmParam::ItemName(item_id)],
-                )
-            };
-            cs.send(sm);
-        }
+        let sm = if amount > 1 {
+            server_packets::system_message_with(
+                sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+                &[SmParam::ItemName(item_id), SmParam::Long(amount)],
+            )
+        } else {
+            server_packets::system_message_with(
+                sm_ids::YOU_HAVE_OBTAINED_S1,
+                &[SmParam::ItemName(item_id)],
+            )
+        };
+        send_to_client(world, client_id, sm);
         super::helpers::send_inventory_update(world, object_id, changes);
     }
 }

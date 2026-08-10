@@ -194,11 +194,7 @@ pub(crate) fn broadcast_to_instance(world: &World, instance_id: i32, packet: &[u
         return;
     };
     for &member in inst.members.keys() {
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, member)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(packet.to_vec());
-        }
+        crate::game_loop::helpers::send_to_player(world, member, packet.to_vec());
     }
 }
 

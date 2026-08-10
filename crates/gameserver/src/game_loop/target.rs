@@ -7,6 +7,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
@@ -146,13 +147,12 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             .objects
             .has_component::<crate::model::npc::Npc>(&pkt.object_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::server_packets::system_message_with(
-                crate::network::server_packets::sm_ids::FAILED_TO_CHANGE_ENMITY,
-                &[],
-            ));
-            cs.send(crate::network::server_packets::action_failed());
-        }
+        send_sm_and_action_failed(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::FAILED_TO_CHANGE_ENMITY,
+            &[],
+        );
         return;
     }
     if world
@@ -204,13 +204,12 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         })()
         .is_some();
         if ticket_refused {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::server_packets::system_message_with(
-                    crate::network::server_packets::sm_ids::YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING,
-                    &[],
-                ));
-                cs.send(crate::network::server_packets::action_failed());
-            }
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                crate::network::server_packets::sm_ids::YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING,
+                &[],
+            );
         } else if !world
             .objects
             .get_component::<crate::model::Player>(&object_id)
@@ -524,42 +523,46 @@ pub(crate) fn set_target(
         let Some(info) = target_info(world, viewer_level, t) else {
             return;
         };
-        if let Some(cs) = world.clients.get(&client_id) {
-            // Java sends ValidateLocation for any creature target; the
-            // player→player path predates it and skips the (cosmetic)
-            // correction, so it stays NPC-only here.
-            if info.is_npc {
-                cs.send(server_packets::validate_location(
-                    t,
-                    info.x,
-                    info.y,
-                    info.z,
-                    info.heading,
-                ));
-            }
-            cs.send(server_packets::my_target_selected(t, info.color));
-            cs.send(server_packets::status_update(
+        // Java sends ValidateLocation for any creature target; the
+        // player→player path predates it and skips the (cosmetic)
+        // correction, so it stays NPC-only here.
+        if info.is_npc {
+            send_to_client(
+                world,
+                client_id,
+                server_packets::validate_location(t, info.x, info.y, info.z, info.heading),
+            );
+        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::my_target_selected(t, info.color),
+        );
+        send_to_client(
+            world,
+            client_id,
+            server_packets::status_update(
                 t,
                 &[
                     (server_packets::status_update_type::MAX_HP, info.max_hp),
                     (server_packets::status_update_type::CUR_HP, info.cur_hp),
                 ],
-            ));
-            // Populate the target window's buff row if the new target already
-            // carries (non-passive) buffs — Java sends this on the next
-            // `updateEffectIcons`; we send it up front on select.
-            let now = world.tick;
-            if let Some(buffs) = world
-                .objects
-                .get_component::<crate::model::components::Buffs>(&t)
-                && buffs.0.iter().any(|b| !b.passive)
-            {
-                cs.send(
-                    crate::network::enter_world::ex_abnormal_status_update_from_target(
-                        t, buffs, now,
-                    ),
-                );
-            }
+            ),
+        );
+        // Populate the target window's buff row if the new target already
+        // carries (non-passive) buffs — Java sends this on the next
+        // `updateEffectIcons`; we send it up front on select.
+        let now = world.tick;
+        if let Some(buffs) = world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&t)
+            && buffs.0.iter().any(|b| !b.passive)
+        {
+            send_to_client(
+                world,
+                client_id,
+                crate::network::enter_world::ex_abnormal_status_update_from_target(t, buffs, now),
+            );
         }
         broadcast_to_others(
             world,
@@ -607,11 +610,7 @@ pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
         return;
     };
     let pkt = server_packets::target_unselected(holder_object_id, pos.x, pos.y, pos.z);
-    if let Some(cs) = super::helpers::client_for_player(world, holder_object_id)
-        .and_then(|cid| world.clients.get(&cid))
-    {
-        cs.send(pkt.clone());
-    }
+    super::helpers::send_to_player(world, holder_object_id, pkt.clone());
     broadcast_to_others(world, holder_object_id, &pkt);
 }
 
@@ -737,10 +736,12 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
             ))
         {
             let html = html.replace("%objectId%", &npc_object_id.to_string());
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::npc_html_message(npc_object_id, &html));
-                cs.send(server_packets::action_failed());
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::npc_html_message(npc_object_id, &html),
+            );
+            send_action_failed(world, client_id);
             return;
         }
     }

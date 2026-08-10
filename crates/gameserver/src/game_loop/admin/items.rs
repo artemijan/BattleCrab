@@ -64,10 +64,8 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
     {
         let list = crate::network::enter_world::item_list(inv, &world.data, false);
         let adena = crate::network::enter_world::ex_adena_inven_count(inv);
-        if let Some(cs) = world.clients.get(&tcid) {
-            cs.send(list);
-            cs.send(adena);
-        }
+        send_to_client(world, tcid, list);
+        send_to_client(world, tcid, adena);
     }
     let target_name = player_name_or_empty(world, target);
     send_message(

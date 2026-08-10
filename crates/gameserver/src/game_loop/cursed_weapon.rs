@@ -546,11 +546,9 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
             &world.data,
             max_load,
         );
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(list);
-            cs.send(adena);
-            cs.send(weight);
-        }
+        send_to_client(world, client_id, list);
+        send_to_client(world, client_id, adena);
+        send_to_client(world, client_id, weight);
     }
     // A stray weapon can still be *worn* — and `EnterWorld` already sent its
     // `ExUserInfoEquipSlot` before this sweep runs, so the client would render

@@ -37,6 +37,7 @@ use crate::world::{World, regions_adjacent};
 
 use super::helpers::{
     broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
+    send_to_client,
 };
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
@@ -348,14 +349,12 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
         if let (Some(client_id), Some(pos)) = (
             client_for_player(world, watcher_oid),
             position(world, watcher_oid),
-        ) && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::target_unselected(
-                watcher_oid,
-                pos.x,
-                pos.y,
-                pos.z,
-            ));
+        ) {
+            send_to_client(
+                world,
+                client_id,
+                server_packets::target_unselected(watcher_oid, pos.x, pos.y, pos.z),
+            );
         }
     }
 }

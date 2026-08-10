@@ -263,10 +263,8 @@ fn party_info(world: &World, client_id: u32, object_id: i32) {
         });
     }
     messages.push(sm_ids::EMPTY_3);
-    if let Some(cs) = world.clients.get(&client_id) {
-        for id in messages {
-            cs.send(server_packets::system_message_with(id, &[]));
-        }
+    for id in messages {
+        send_sm(world, client_id, id, &[]);
     }
 }
 
@@ -307,10 +305,7 @@ fn clan_wars_list(world: &World, client_id: u32, object_id: i32, command_id: i32
     } else {
         sm_ids::CLANS_THAT_HAVE_DECLARED_WAR_ON_YOU
     };
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
-    cs.send(server_packets::system_message_with(header, &[]));
+    send_sm(world, client_id, header, &[]);
     for other in others {
         let Some(clan) = world.clans.get(&other) else {
             continue;
@@ -329,9 +324,9 @@ fn clan_wars_list(world: &World, client_id: u32, object_id: i32, command_id: i32
                 &[SmParam::Text(clan.name.clone())],
             )
         };
-        cs.send(packet);
+        send_to_client(world, client_id, packet);
     }
-    cs.send(server_packets::system_message_with(sm_ids::EMPTY_3, &[]));
+    send_sm(world, client_id, sm_ids::EMPTY_3, &[]);
 }
 
 /// Port of `usercommandhandlers/InstanceZone.java` — `ExInzoneWaiting`, the
@@ -736,10 +731,8 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     };
 
     let refuse = |world: &World, sm: i16| {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-            cs.send(server_packets::system_message_with(sm, &[]));
-        }
+        send_action_failed(world, client_id);
+        send_sm(world, client_id, sm, &[]);
     };
     let dead = |world: &World, oid: i32| is_dead(world, oid);
     if dead(world, object_id) {

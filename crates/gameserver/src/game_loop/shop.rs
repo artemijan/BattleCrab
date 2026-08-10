@@ -79,16 +79,22 @@ pub(crate) fn show_buy_window_taxed(
     let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(trade::buy_list(list, inventory, &world.data, tax_rate));
-        cs.send(trade::ex_buy_sell_list_sell(
+    helpers::send_to_client(
+        world,
+        client_id,
+        trade::buy_list(list, inventory, &world.data, tax_rate),
+    );
+    helpers::send_to_client(
+        world,
+        client_id,
+        trade::ex_buy_sell_list_sell(
             inventory,
             &refund_items,
             &world.data,
             false,
             crate::game_loop::servitor::active_pet_collar(world, player),
-        ));
-    }
+        ),
+    );
     // Java `Merchant.showBuyWindow` calls `setInventoryBlockingStatus(true)`
     // just before these sends. It runs after them here only because `list`
     // borrows `world.data` — and the ordering is unobservable, since the flag
@@ -297,20 +303,23 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
 
     let refund_items = refund_items_of(world, player);
     helpers::send_inventory_update(world, player, added);
-    if let (Some(inventory), Some(cs)) = (
-        world.objects.get_component::<Inventory>(&player),
-        world.clients.get(&client_id),
-    ) {
-        cs.send(trade::ex_buy_sell_list_sell(
-            inventory,
-            &refund_items,
-            &world.data,
-            true,
-            crate::game_loop::servitor::active_pet_collar(world, player),
-        ));
-        cs.send(crate::network::enter_world::system_message(
-            sm_ids::EXCHANGE_IS_SUCCESSFUL,
-        ));
+    if let Some(inventory) = world.objects.get_component::<Inventory>(&player) {
+        helpers::send_to_client(
+            world,
+            client_id,
+            trade::ex_buy_sell_list_sell(
+                inventory,
+                &refund_items,
+                &world.data,
+                true,
+                crate::game_loop::servitor::active_pet_collar(world, player),
+            ),
+        );
+        helpers::send_to_client(
+            world,
+            client_id,
+            crate::network::enter_world::system_message(sm_ids::EXCHANGE_IS_SUCCESSFUL),
+        );
     }
 }
 

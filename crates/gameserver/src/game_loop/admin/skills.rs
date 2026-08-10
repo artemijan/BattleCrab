@@ -168,12 +168,13 @@ fn give_clan_skills(
         .get(&clan_id)
         .map(|c| c.leader_id != target)
         .unwrap_or(true)
-        && let Some(cs) = world.clients.get(&client_id)
     {
-        cs.send(crate::network::server_packets::system_message_with(
+        helpers::send_sm_to_client(
+            world,
+            client_id,
             sm_ids::S1_IS_NOT_A_CLAN_LEADER,
             &[SmParam::Text(target_name.clone())],
-        ));
+        );
     }
     let count = crate::game_loop::clans::give_clan_skills(world, clan_id, include_squad);
     let clan_name = clan_name_or_empty(world, clan_id);

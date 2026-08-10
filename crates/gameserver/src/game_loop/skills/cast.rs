@@ -11,7 +11,7 @@ use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{
     broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action,
-    send_sm_and_action_failed,
+    send_sm_and_action_failed, send_sm_to_client, send_to_player,
 };
 use crate::model::Player;
 use crate::model::components::{
@@ -1195,20 +1195,20 @@ pub(crate) fn start_casting(
             ),
         );
     }
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(
-            sm_ids::YOU_USE_S1,
-            &[SmParam::SkillName {
-                id: skill.id,
-                level: skill.level,
-            }],
-        ));
-        cs.send(server_packets::setup_gauge(
-            object_id,
-            0,
-            displayed_cast_time,
-        ));
-    }
+    send_sm_to_client(
+        world,
+        client_id,
+        sm_ids::YOU_USE_S1,
+        &[SmParam::SkillName {
+            id: skill.id,
+            level: skill.level,
+        }],
+    );
+    send_to_client(
+        world,
+        client_id,
+        server_packets::setup_gauge(object_id, 0, displayed_cast_time),
+    );
 
     let cast_seq = {
         let Some(player) = world.objects.get_component_mut::<Player>(&object_id) else {
@@ -1288,26 +1288,25 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
             return;
         };
         if vitals.cur_mp < skill.mp_per_channeling as f64 {
-            if let Some(cid) = client_id
-                && let Some(cs) = world.clients.get(&cid)
-            {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
-                    &[],
-                ));
-            }
+            send_sm_bare_to_player(
+                world,
+                player_object_id,
+                sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
+            );
             abort_cast(world, player_object_id);
             return;
         }
         vitals.cur_mp -= skill.mp_per_channeling as f64;
         let mp = vitals.cur_mp as i32;
-        if let Some(cid) = client_id
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(server_packets::status_update(
-                player_object_id,
-                &[(server_packets::status_update_type::CUR_MP, mp)],
-            ));
+        if let Some(cid) = client_id {
+            send_to_client(
+                world,
+                cid,
+                server_packets::status_update(
+                    player_object_id,
+                    &[(server_packets::status_update_type::CUR_MP, mp)],
+                ),
+            );
         }
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
@@ -1648,10 +1647,12 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         }
     }
     if !updates.is_empty() {
-        if let Some(client_id) = client_id
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::status_update(player_object_id, &updates));
+        if let Some(client_id) = client_id {
+            send_to_client(
+                world,
+                client_id,
+                server_packets::status_update(player_object_id, &updates),
+            );
         }
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
@@ -2119,11 +2120,7 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
         object_id,
         &server_packets::magic_skill_canceld(object_id),
     );
-    if let Some(client_id) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::action_failed());
-    }
+    send_to_player(world, object_id, server_packets::action_failed());
     // Java `stopCasting(true)` also ends with `EVT_FINISH_CASTING`, so an
     // interrupted cast still releases the click it held back.
     stop_casting(world, object_id);
@@ -2153,11 +2150,7 @@ pub(crate) fn abort_all_skill_casters(world: &mut World, object_id: i32) {
     );
     // `caster.sendPacket(ActionFailed)` — a no-op for an NPC caster, which is
     // why this is not gated on the victim being a player.
-    if let Some(client_id) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::action_failed());
-    }
+    send_to_player(world, object_id, server_packets::action_failed());
     stop_casting(world, object_id);
 }
 
@@ -2194,11 +2187,7 @@ pub(crate) fn abort_cast_when_untargeted(world: &mut World, object_id: i32) {
         object_id,
         &server_packets::magic_skill_canceld(object_id),
     );
-    if let Some(client_id) = client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(server_packets::action_failed());
-    }
+    send_to_player(world, object_id, server_packets::action_failed());
     stop_casting(world, object_id);
 }
 

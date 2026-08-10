@@ -270,9 +270,6 @@ pub(crate) fn handle_request_ex_pledge_crest_large(world: &World, client_id: u32
     let Some(data) = world.crests.get(&crest_id).map(|c| c.data.clone()) else {
         return;
     };
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
     const CHUNK: usize = 14_336;
     for i in 0..5 {
         let start = CHUNK * i;
@@ -280,12 +277,11 @@ pub(crate) fn handle_request_ex_pledge_crest_large(world: &World, client_id: u32
             continue;
         }
         let end = (start + CHUNK).min(data.len());
-        cs.send(server_packets::ex_pledge_emblem(
-            clan_id,
-            crest_id,
-            i as i32,
-            &data[start..end],
-        ));
+        send_to_client(
+            world,
+            client_id,
+            server_packets::ex_pledge_emblem(clan_id, crest_id, i as i32, &data[start..end]),
+        );
     }
 }
 

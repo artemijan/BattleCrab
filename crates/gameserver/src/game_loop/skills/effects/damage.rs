@@ -3,6 +3,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::stat_add;
 
@@ -369,21 +370,19 @@ pub(crate) fn apply_skill_damage(
             .and_then(|d| world.data.door_data.get(d.door_id))
             .map(|t| t.name.clone())
             .unwrap_or_default();
-        if let Some(client_id) = client_for_player(world, caster_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            if crit {
-                cs.send(crit_message(is_magic, caster_name));
-            }
-            cs.send(server_packets::system_message_with(
-                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                &[
-                    SmParam::PlayerName(caster_name.to_string()),
-                    SmParam::Text(door_name),
-                    SmParam::Int(damage as i32),
-                ],
-            ));
+        if crit {
+            send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
         }
+        send_sm_to_player(
+            world,
+            caster_oid,
+            sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+            &[
+                SmParam::PlayerName(caster_name.to_string()),
+                SmParam::Text(door_name),
+                SmParam::Int(damage as i32),
+            ],
+        );
         crate::game_loop::combat::apply_door_damage(world, target_oid, damage as i32);
         return;
     }
@@ -400,28 +399,26 @@ pub(crate) fn apply_skill_damage(
     };
     let dmg_int = damage as i32;
 
-    if let Some(client_id) = client_for_player(world, caster_oid)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        if crit {
-            cs.send(crit_message(is_magic, caster_name));
-        }
-        cs.send(server_packets::system_message_with(
-            sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-            &[
-                SmParam::PlayerName(caster_name.to_string()),
-                target_param,
-                SmParam::Int(dmg_int),
-                // `sendDamageMessage`'s `addPopup(target, attacker, -damage)`
-                // — the on-screen floating damage number over the target.
-                SmParam::Popup {
-                    target: target_oid,
-                    attacker: caster_oid,
-                    damage: -dmg_int,
-                },
-            ],
-        ));
+    if crit {
+        send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
     }
+    send_sm_to_player(
+        world,
+        caster_oid,
+        sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+        &[
+            SmParam::PlayerName(caster_name.to_string()),
+            target_param,
+            SmParam::Int(dmg_int),
+            // `sendDamageMessage`'s `addPopup(target, attacker, -damage)`
+            // — the on-screen floating damage number over the target.
+            SmParam::Popup {
+                target: target_oid,
+                attacker: caster_oid,
+                damage: -dmg_int,
+            },
+        ],
+    );
 
     // Victim-side application: CP soak/HP/death/cast-break for players
     // (including the C1_HAS_RECEIVED message), hate + AI wake + death for
@@ -508,11 +505,7 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
             }
         });
     for oid in observers {
-        if let Some(cid) = client_for_player(world, oid)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(pkt.clone());
-        }
+        send_to_player(world, oid, pkt.clone());
     }
 }
 
@@ -681,20 +674,18 @@ pub(crate) fn broadcast_vitals_for(world: &World, target_oid: i32) {
 }
 
 pub(crate) fn broadcast_vitals(world: &World, target_oid: i32) {
-    if let Some(client_id) = client_for_player(world, target_oid)
-        && let Some((v, cs)) = world
-            .objects
-            .get_component::<Vitals>(&target_oid)
-            .copied()
-            .zip(world.clients.get(&client_id))
-    {
-        cs.send(server_packets::status_update(
+    if let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() {
+        send_to_player(
+            world,
             target_oid,
-            &[
-                (server_packets::status_update_type::CUR_HP, v.cur_hp as i32),
-                (server_packets::status_update_type::CUR_MP, v.cur_mp as i32),
-            ],
-        ));
+            server_packets::status_update(
+                target_oid,
+                &[
+                    (server_packets::status_update_type::CUR_HP, v.cur_hp as i32),
+                    (server_packets::status_update_type::CUR_MP, v.cur_mp as i32),
+                ],
+            ),
+        );
     }
     crate::game_loop::party::notify_party_vitals(world, target_oid);
 }

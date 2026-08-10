@@ -24,7 +24,7 @@
 //! case — parity, not a narrowing. The one Java gate without a port
 //! equivalent is the subclass lock (see [`busy_for_enchant`]).
 
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_client, send_to_client};
 use crate::model::Player;
 use crate::model::components::{SkillBook, SkillEnchants};
 use crate::network::server_packets;
@@ -345,44 +345,47 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
         }
     }
 
-    if let Some(cs) = world.clients.get(&client_id) {
-        if success {
-            let sm = if ty == CHANGE {
-                sm_ids::ENCHANT_SKILL_ROUTE_CHANGE_WAS_SUCCESSFUL
-            } else {
-                sm_ids::SKILL_ENCHANT_WAS_SUCCESSFUL_S1_HAS_BEEN_ENCHANTED
-            };
-            cs.send(server_packets::system_message_with(
-                sm,
-                &[SmParam::SkillName {
-                    id: skill_id,
-                    level,
-                }],
-            ));
-        } else if ty == BLESSED || ty == IMMORTAL {
-            cs.send(server_packets::system_message_with(
-                sm_ids::SKILL_ENCHANT_FAILED_CURRENT_LEVEL_WILL_REMAIN_UNCHANGED,
-                &[SmParam::SkillName {
-                    id: skill_id,
-                    level,
-                }],
-            ));
+    if success {
+        let sm = if ty == CHANGE {
+            sm_ids::ENCHANT_SKILL_ROUTE_CHANGE_WAS_SUCCESSFUL
         } else {
-            cs.send(server_packets::system_message_with(
-                sm_ids::SKILL_ENCHANT_FAILED_THE_SKILL_WILL_BE_INITIALIZED,
-                &[],
-            ));
-        }
-        cs.send(crate::network::enter_world::ex_enchant_skill_result(
-            success,
-        ));
+            sm_ids::SKILL_ENCHANT_WAS_SUCCESSFUL_S1_HAS_BEEN_ENCHANTED
+        };
+        send_sm_to_client(
+            world,
+            client_id,
+            sm,
+            &[SmParam::SkillName {
+                id: skill_id,
+                level,
+            }],
+        );
+    } else if ty == BLESSED || ty == IMMORTAL {
+        send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::SKILL_ENCHANT_FAILED_CURRENT_LEVEL_WILL_REMAIN_UNCHANGED,
+            &[SmParam::SkillName {
+                id: skill_id,
+                level,
+            }],
+        );
+    } else {
+        send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::SKILL_ENCHANT_FAILED_THE_SKILL_WILL_BE_INITIALIZED,
+        );
     }
+    send_to_client(
+        world,
+        client_id,
+        crate::network::enter_world::ex_enchant_skill_result(success),
+    );
 
     // `broadcastUserInfo()` + `sendSkillList()`.
     super::party::broadcast_user_info(world, object_id);
-    if let Some(pkt) = super::helpers::skill_list_packet(world, object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(pkt);
+    if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
+        send_to_client(world, client_id, pkt);
     }
 }

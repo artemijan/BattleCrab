@@ -605,8 +605,8 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
                 other_client,
                 server_packets::delete_object(object_id),
             );
-            if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
-                cs.send(server_packets::delete_object(other_id));
+            if let Some(cid) = my_client {
+                send_to_client(world, cid, server_packets::delete_object(other_id));
             }
         }
     }

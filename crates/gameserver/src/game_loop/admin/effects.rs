@@ -591,8 +591,12 @@ pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) 
         .objects
         .get_component::<Player>(&object_id)
         .is_some_and(|p| p.teleporting);
-    if !teleporting && let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::ex_start_scene_player(movie_id));
+    if !teleporting {
+        send_to_client(
+            world,
+            client_id,
+            crate::network::enter_world::ex_start_scene_player(movie_id),
+        );
     }
 }
 

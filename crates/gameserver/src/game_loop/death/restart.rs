@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::set_position;
+use crate::game_loop::helpers::{send_to_client, send_to_player};
 
 /// Port of `clientpackets/RequestRestartPoint`: pick the respawn point for the
 /// requested restart type — the siege "to castle"/"to siege HQ" cases when the
@@ -346,9 +347,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // the cast animation; a skill that teleports on landing (`/unstuck`'s
     // Escape, Recall) would otherwise leave the FX playing at the destination
     // for the client's own skill duration.
-    if let Some(cs) = client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::action_failed());
-    }
+    send_to_player(world, player_oid, server_packets::action_failed());
     crate::game_loop::skills::cast::abort_cast_when_untargeted(world, player_oid);
     crate::game_loop::target::drop_target_notify(world, player_oid);
     let Some(heading) = world
@@ -382,11 +381,11 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // "Send teleport finished packet to player" (Java, right after `setXYZ`):
     // the client sits on the black loading screen until this arrives, then
     // loads the destination and answers with `Appearing`.
-    if let Some(cs) = client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::ex_teleport_to_location_activate(
-            player_oid, x, y, z, heading,
-        ));
-    }
+    send_to_player(
+        world,
+        player_oid,
+        server_packets::ex_teleport_to_location_activate(player_oid, x, y, z, heading),
+    );
     // Java: `if (!isPlayer() || client.isDetached()) onTeleported()` — with no
     // client to answer `Appearing`, the teleport is completed inline. Offline
     // traders are the case that reaches this, and without it they stay
@@ -455,16 +454,20 @@ fn on_teleported(world: &mut World, client_id: Option<u32>, object_id: i32) {
     // character too: the destination's zone membership is what later decides
     // whether the shop is still allowed to be there.
     crate::game_loop::zones::revalidate_zone(world, object_id, true);
-    if let (Some(v), Some(cs)) = (
+    if let (Some(v), Some(cid)) = (
         crate::model::PlayerView::of_world(world, object_id),
-        client_id.and_then(|cid| world.clients.get(&cid)),
+        client_id,
     ) {
-        cs.send(crate::network::user_info::user_info(
-            &v,
-            &world.data,
-            &world.cfg.character,
-            crate::game_loop::party::calculate_relation(world, v.p),
-        ));
+        send_to_client(
+            world,
+            cid,
+            crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                crate::game_loop::party::calculate_relation(world, v.p),
+            ),
+        );
     }
 }
 

@@ -130,12 +130,11 @@ fn inventory_under_80(ctx: &QuestCtx) -> bool {
 }
 
 fn send_inventory_full(ctx: &QuestCtx) {
-    if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
-        cs.send(crate::network::server_packets::system_message_with(
-            sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
-            &[],
-        ));
-    }
+    crate::game_loop::helpers::send_sm_bare_to_client(
+        ctx.world,
+        ctx.client_id,
+        sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
+    );
 }
 
 /// `heroWeapon`: a hero opens the Infinity-weapon list (or the "already have

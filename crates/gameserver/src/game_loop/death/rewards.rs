@@ -3,6 +3,7 @@ use crate::game_loop::ground_items::reserve_for;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
 
 /// XP/SP shares from the aggro list + drops to the top damage dealer.
 /// Party members pool shares and split via `Party.distributeXpAndSp` (G10).
@@ -735,24 +736,27 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     let Some(client_id) = client_for_player(world, player_oid) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        let sm = if item_id == ADENA_ID {
-            server_packets::system_message_with(
-                sm_ids::YOU_HAVE_OBTAINED_S1_ADENA,
-                &[SmParam::Long(count)],
-            )
-        } else if count > 1 {
-            server_packets::system_message_with(
-                sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-                &[SmParam::ItemName(item_id), SmParam::Long(count)],
-            )
-        } else {
-            server_packets::system_message_with(
-                sm_ids::YOU_HAVE_OBTAINED_S1,
-                &[SmParam::ItemName(item_id)],
-            )
-        };
-        cs.send(sm);
+    if item_id == ADENA_ID {
+        send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_HAVE_OBTAINED_S1_ADENA,
+            &[SmParam::Long(count)],
+        );
+    } else if count > 1 {
+        send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+            &[SmParam::ItemName(item_id), SmParam::Long(count)],
+        );
+    } else {
+        send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_HAVE_OBTAINED_S1,
+            &[SmParam::ItemName(item_id)],
+        );
     }
     // Java `Player.addItem` funnels through `PlayerInventory.addItem` →
     // `sendInventoryUpdate`, so the status-bar adena counter and weight bar
@@ -969,14 +973,12 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
     if dropped > 0
         && let Some(client_id) = client_for_player(world, victim_oid)
     {
-        if let Some(v) = crate::model::PlayerView::of_world(world, victim_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(crate::network::enter_world::item_list(
-                v.inventory,
-                &world.data,
-                false,
-            ));
+        if let Some(v) = crate::model::PlayerView::of_world(world, victim_oid) {
+            send_to_client(
+                world,
+                client_id,
+                crate::network::enter_world::item_list(v.inventory, &world.data, false),
+            );
         }
         // Anything that came off the paperdoll needs the client's own equip
         // snapshot resent, or the corpse keeps rendering gear it just scattered

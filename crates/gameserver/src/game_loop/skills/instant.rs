@@ -26,7 +26,9 @@ use super::effects::{
 };
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_mul;
-use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player};
+use crate::game_loop::helpers::{
+    send_sm_bare_to_client, send_sm_bare_to_player, send_sm_to_client, send_sm_to_player,
+};
 use crate::network::server_packets::{SmParam, sm_ids};
 
 /// The per-cast state the instant effects share, computed once by
@@ -554,13 +556,8 @@ pub(super) fn lethal(
             v.cur_hp = 1.0;
         }
         broadcast_vitals(world, target_oid);
-        if let Some(client_id) = caster_client
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::system_message_with(
-                sm_ids::HIT_WITH_LETHAL_STRIKE,
-                &[],
-            ));
+        if let Some(client_id) = caster_client {
+            send_sm_bare_to_client(world, client_id, sm_ids::HIT_WITH_LETHAL_STRIKE);
         }
     } else if world.roll(100) < ((half_lethal) * lethal_amod) as i32 {
         if is_player_target {
@@ -570,25 +567,20 @@ pub(super) fn lethal(
             {
                 v.cur_cp = 1.0;
             }
-            if let Some(client_id) = client_for_player(world, target_oid)
-                && let Some(cs) = world.clients.get(&client_id)
-            {
-                cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
-                cs.send(server_packets::system_message_with(
-                    sm_ids::YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL,
-                    &[],
-                ));
-            }
+            send_sm_bare_to_player(world, target_oid, sm_ids::HALF_KILL);
+            send_sm_bare_to_player(
+                world,
+                target_oid,
+                sm_ids::YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL,
+            );
         } else if crate::game_loop::combat::is_npc_oid(target_oid)
             && let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid)
         {
             v.cur_hp *= 0.5;
         }
         broadcast_vitals(world, target_oid);
-        if let Some(client_id) = caster_client
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
+        if let Some(client_id) = caster_client {
+            send_sm_bare_to_client(world, client_id, sm_ids::HALF_KILL);
         }
     }
     // "No matter if lethal succeeded or not, its reflected." — Java's own
@@ -906,31 +898,37 @@ fn notify_heal(world: &mut World, caster_oid: i32, target_oid: i32, healed: f64)
     let Some(client_id) = client_for_player(world, target_oid) else {
         return;
     };
-    if let Some(cs) = world.clients.get(&client_id) {
-        if target_oid != caster_oid {
-            cs.send(server_packets::system_message_with(
-                sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
-                &[
-                    SmParam::PlayerName(caster_name),
-                    SmParam::Int(healed as i32),
-                ],
-            ));
-        } else {
-            cs.send(server_packets::system_message_with(
-                sm_ids::S1_HP_HAS_BEEN_RESTORED,
-                &[SmParam::Int(healed as i32)],
-            ));
-        }
-        let cur_hp = world
-            .objects
-            .get_component::<Vitals>(&target_oid)
-            .map(|v| v.cur_hp as i32)
-            .unwrap_or(0);
-        cs.send(server_packets::status_update(
+    if target_oid != caster_oid {
+        send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::S2_HP_HAS_BEEN_RESTORED_BY_C1,
+            &[
+                SmParam::PlayerName(caster_name),
+                SmParam::Int(healed as i32),
+            ],
+        );
+    } else {
+        send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::S1_HP_HAS_BEEN_RESTORED,
+            &[SmParam::Int(healed as i32)],
+        );
+    }
+    let cur_hp = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.cur_hp as i32)
+        .unwrap_or(0);
+    send_to_client(
+        world,
+        client_id,
+        server_packets::status_update(
             target_oid,
             &[(server_packets::status_update_type::CUR_HP, cur_hp)],
-        ));
-    }
+        ),
+    );
     crate::game_loop::party::notify_party_vitals(world, target_oid);
 }
 

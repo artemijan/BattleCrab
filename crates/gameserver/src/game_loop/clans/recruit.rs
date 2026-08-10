@@ -438,9 +438,11 @@ pub(crate) fn handle_request_pledge_waiting_apply(
         message,
     };
     if add_player_application(world, clan_id, info) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::ex_pledge_recruit_apply_info(4)); // ClanEntryStatus::WAITING
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::ex_pledge_recruit_apply_info(4),
+        ); // ClanEntryStatus::WAITING
         let leader_id = world.clans.get(&clan_id).map(|c| c.leader_id).unwrap_or(0);
         send_to_member(
             world,
@@ -481,8 +483,10 @@ pub(crate) fn handle_request_pledge_waiting_applied(world: &World, client_id: u3
         return;
     };
     let recruit = world.recruit_clans.get(&clan_id);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_pledge_waiting_list_applied(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_pledge_waiting_list_applied(
             clan.id,
             &clan.name,
             clan.leader_name(),
@@ -491,8 +495,8 @@ pub(crate) fn handle_request_pledge_waiting_applied(world: &World, client_id: u3
             recruit.map(|r| r.karma).unwrap_or(0),
             recruit.map(|r| r.information.as_str()).unwrap_or(""),
             &app.message,
-        ));
-    }
+        ),
+    );
 }
 
 /// `RequestPledgeWaitingList` (ex 0xD9): the clan's applicant queue.
@@ -519,9 +523,11 @@ fn send_waiting_list(world: &World, client_id: u32, clan_id: i32) {
                 .collect()
         })
         .unwrap_or_default();
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::ex_pledge_waiting_list(&rows));
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::ex_pledge_waiting_list(&rows),
+    );
 }
 
 /// `RequestPledgeWaitingUser` (ex 0xDA): one applicant's detail, or the whole
@@ -544,12 +550,11 @@ pub(crate) fn handle_request_pledge_waiting_user(world: &World, client_id: u32, 
         .and_then(|m| m.get(&player_id))
     {
         Some(app) => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_pledge_waiting_user(
-                    app.player_id,
-                    &app.message,
-                ));
-            }
+            send_to_client(
+                world,
+                client_id,
+                server_packets::ex_pledge_waiting_user(app.player_id, &app.message),
+            );
         }
         None => send_waiting_list(world, client_id, clan_id),
     }

@@ -1020,24 +1020,25 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     };
     let list = list.clone();
     let refund_items = crate::game_loop::shop::refund_items_of(world, object_id);
-    if let Some(inv) = world.objects.get_component::<Inventory>(&object_id)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
+    if let Some(inv) = world.objects.get_component::<Inventory>(&object_id) {
         // Java `HomeBoard`: `new BuyList(…, player, 0)` — the board shop is
         // npc-less, so no castle takes a cut.
-        cs.send(crate::network::trade::buy_list(
-            &list,
-            inv,
-            &world.data,
-            0.0,
-        ));
-        cs.send(crate::network::trade::ex_buy_sell_list_sell(
-            inv,
-            &refund_items,
-            &world.data,
-            false,
-            crate::game_loop::servitor::active_pet_collar(world, object_id),
-        ));
+        send_to_client(
+            world,
+            client_id,
+            crate::network::trade::buy_list(&list, inv, &world.data, 0.0),
+        );
+        send_to_client(
+            world,
+            client_id,
+            crate::network::trade::ex_buy_sell_list_sell(
+                inv,
+                &refund_items,
+                &world.data,
+                false,
+                crate::game_loop::servitor::active_pet_collar(world, object_id),
+            ),
+        );
     }
 }
 
@@ -1402,11 +1403,9 @@ fn do_npc_trace(world: &mut World, client_id: u32, params: &[&str]) {
         return;
     }
     let (x, y, z) = locs[world.roll(locs.len() as i32) as usize];
-    if let Some(cs) = world.clients.get(&client_id) {
-        // `Radar.addMarker` sends the pair (showRadar=2, type=2) then (0, 1).
-        cs.send(sp::radar_control(2, 2, x, y, z));
-        cs.send(sp::radar_control(0, 1, x, y, z));
-    }
+    // `Radar.addMarker` sends the pair (showRadar=2, type=2) then (0, 1).
+    send_to_client(world, client_id, sp::radar_control(2, 2, x, y, z));
+    send_to_client(world, client_id, sp::radar_control(0, 1, x, y, z));
 }
 
 /// Re-render a Custom sub-page after an action (the `page` tail the action
@@ -1612,11 +1611,8 @@ fn send_message(world: &World, client_id: u32, text: &str) {
 /// and send each as a `ShowBoard`. Split by char boundaries (htmls are ASCII,
 /// so this matches Java's UTF-16-length branches for the content we serve).
 pub(crate) fn send_cb_html(world: &World, client_id: u32, html: &str) {
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
     for packet in build_cb_packets(html) {
-        cs.send(packet);
+        send_to_client(world, client_id, packet);
     }
 }
 

@@ -1016,10 +1016,8 @@ fn refresh_quest_journal(world: &mut World, target: i32, quest: &str) {
         .quest_id(quest)
         .filter(|&id| id > 0 && cond > 0)
         .map(|id| crate::network::server_packets::ex_show_quest_mark(id, cond));
-    if let Some(cs) = world.clients.get(&target_cid) {
-        cs.send(list);
-        if let Some(mark) = mark {
-            cs.send(mark);
-        }
+    send_to_client(world, target_cid, list);
+    if let Some(mark) = mark {
+        send_to_client(world, target_cid, mark);
     }
 }

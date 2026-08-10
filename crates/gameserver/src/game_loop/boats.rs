@@ -829,11 +829,7 @@ pub(crate) fn move_in_vehicle(
             .map(|p| p.heading)
             .unwrap_or(0);
         let stop = sp::stop_move_in_vehicle(player, boat_oid, dest.0, dest.1, dest.2, heading);
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(stop);
-        }
+        crate::game_loop::helpers::send_to_player(world, player, stop);
         return;
     }
 

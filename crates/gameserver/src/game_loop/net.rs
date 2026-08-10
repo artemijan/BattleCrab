@@ -838,9 +838,7 @@ pub(crate) fn handle_player_auth_response(world: &mut World, account: String, au
         }
     } else {
         warn!("GameLoop: session key incorrect, closing connection for account {account}.");
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::login_fail(0, 1)); // SYSTEM_ERROR_LOGIN_LATER
-        }
+        send_to_client(world, client_id, server_packets::login_fail(0, 1)); // SYSTEM_ERROR_LOGIN_LATER
         world.login.accounts_in_gameserver.remove(&account);
         world.clients.remove(&client_id); // disconnect after the queued packet
         let _ = world

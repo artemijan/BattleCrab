@@ -2228,9 +2228,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        if let Some(cs) = self.world.clients.get(&self.client_id) {
-            cs.send(pkt);
-        }
+        send_to_client(self.world, self.client_id, pkt);
     }
 
     /// Push a fresh `QuestList` (Java sends it after every state/cond
@@ -2553,10 +2551,12 @@ fn show_quest_choose_window(
         format!("<html><body>{started}{can_start}{cant_start}{completed}</body></html>")
     };
     let content = content.replace("%objectId%", &npc_oid.to_string());
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_oid, &content));
-        cs.send(server_packets::action_failed());
-    }
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_oid, &content),
+    );
+    send_action_failed(world, client_id);
 }
 
 /// `QuestLink.showQuestWindow(player, npc, questId)` → `Quest.notifyTalk`:
@@ -3038,10 +3038,12 @@ fn show_result(
             .replace("%objectId%", &npc_oid.to_string())
             .replace("%playername%", &player_name)
             .replace("%questname%", script.name());
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::npc_html_message(npc_oid, &content));
-            cs.send(server_packets::action_failed());
-        }
+        send_to_client(
+            world,
+            client_id,
+            server_packets::npc_html_message(npc_oid, &content),
+        );
+        send_action_failed(world, client_id);
     } else {
         warn!(
             "Quest {}: plain-message result [{res}] (sendMessage unported).",
@@ -3074,16 +3076,20 @@ fn show_html_file(
         // `%questname%` so one html set serves all 31 Sagas.
         .replace("%questname%", script.name());
     let id = script.id();
-    if let Some(cs) = world.clients.get(&client_id) {
-        if quest_window && id > 0 && id < 20000 && id != 999 {
-            cs.send(server_packets::ex_npc_quest_html_message(
-                npc_oid, &content, id,
-            ));
-        } else {
-            cs.send(server_packets::npc_html_message(npc_oid, &content));
-        }
-        cs.send(server_packets::action_failed());
+    if quest_window && id > 0 && id < 20000 && id != 999 {
+        send_to_client(
+            world,
+            client_id,
+            server_packets::ex_npc_quest_html_message(npc_oid, &content, id),
+        );
+    } else {
+        send_to_client(
+            world,
+            client_id,
+            server_packets::npc_html_message(npc_oid, &content),
+        );
     }
+    send_action_failed(world, client_id);
 }
 
 /// `Quest.getHtm`: the script's own folder, then the

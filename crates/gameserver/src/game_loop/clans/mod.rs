@@ -26,7 +26,7 @@
 //!   list and applications.
 
 pub(crate) use crate::game_loop::helpers::class_level;
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{send_to_client, send_to_player};
 use commons::network::PacketReader;
 use tracing::warn;
 
@@ -253,15 +253,22 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         p.pledge_class = clan.pledge_class_of(leader_oid); // 0 at level 0
     }
 
-    if let Some(cs) = world.clients.get(&leader_client) {
-        cs.send(server_packets::pledge_show_info_update(&clan));
-        cs.send(server_packets::pledge_show_member_list_all(
-            &clan,
-            &world.objects,
-        ));
-        if let Some(m) = clan.member(leader_oid) {
-            cs.send(server_packets::pledge_show_member_list_update(m, true));
-        }
+    send_to_client(
+        world,
+        leader_client,
+        server_packets::pledge_show_info_update(&clan),
+    );
+    send_to_client(
+        world,
+        leader_client,
+        server_packets::pledge_show_member_list_all(&clan, &world.objects),
+    );
+    if let Some(m) = clan.member(leader_oid) {
+        send_to_client(
+            world,
+            leader_client,
+            server_packets::pledge_show_member_list_update(m, true),
+        );
     }
     send_sm(world, leader_client, sm_ids::YOUR_CLAN_HAS_BEEN_CREATED);
     world.clans.insert(clan_id, clan);
@@ -393,11 +400,7 @@ pub(crate) fn destroy_clan(world: &mut World, clan_id: i32) {
             // the aura and the pledge skills must drop.
             remove_clan_advent(world, *oid);
             remove_clan_skills_from_member(world, *oid);
-            if let Some(cid) = client_for_player(world, *oid)
-                && let Some(cs) = world.clients.get(&cid)
-            {
-                cs.send(delete_all.clone());
-            }
+            send_to_player(world, *oid, delete_all.clone());
         }
     }
     world.clans.remove(&clan_id);
@@ -531,11 +534,9 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
         m.level = level;
     }
     let clan = world.clans.get(&clan_id).expect("checked above");
-    if let Some(cs) = world.clients.get(&client_id) {
-        // Java `sendAllTo`: one tab per sub-unit, main pledge last.
-        for pkt in server_packets::pledge_show_member_list_all_tabs(clan, &world.objects) {
-            cs.send(pkt);
-        }
+    // Java `sendAllTo`: one tab per sub-unit, main pledge last.
+    for pkt in server_packets::pledge_show_member_list_all_tabs(clan, &world.objects) {
+        send_to_client(world, client_id, pkt);
     }
     notify_members(world, clan_id, object_id, true);
     // Clan Advent (skill 19009) — Java `ClanMaster.onPlayerLogin`.
@@ -583,11 +584,7 @@ fn notify_members(world: &World, clan_id: i32, subject: i32, online: bool) {
         if m.char_id == subject {
             continue;
         }
-        if let Some(cid) = client_for_player(world, m.char_id)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(pkt.clone());
-        }
+        send_to_player(world, m.char_id, pkt.clone());
     }
 }
 
@@ -598,11 +595,7 @@ pub(crate) fn broadcast_to_clan(world: &World, clan_id: i32, pkt: &[u8]) {
         return;
     };
     for m in &clan.members {
-        if let Some(cid) = client_for_player(world, m.char_id)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(pkt.to_vec());
-        }
+        send_to_player(world, m.char_id, pkt.to_vec());
     }
 }
 
@@ -619,9 +612,7 @@ pub(crate) const CLAN_DISSOLVE_DELAY_MS: i64 = 7 * 86_400_000;
 pub(crate) const MS_PER_TICK: i64 = 100;
 
 pub(crate) fn send_to_member(world: &World, oid: i32, pkt: Vec<u8>) {
-    if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(pkt);
-    }
+    send_to_player(world, oid, pkt);
 }
 
 /// `oid`'s standing in their clan: the clan id, their privilege mask, and

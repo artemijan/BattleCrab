@@ -12,6 +12,7 @@
 //! [`super::expertise::refresh_expertise_penalty`], and it is built the same
 //! way — swap a passive buff, then resend `EtcStatusUpdate` + `UserInfo`.
 
+use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::{
     BaseStats, Buffs, CombatStats, Speeds, StatModifiers, WeightPenalty,
@@ -247,16 +248,18 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
             super::party::calculate_relation(world, view.p),
         );
         let charges = view.p.charges;
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::enter_world::etc_status_update(
+        send_to_client(
+            world,
+            client_id,
+            crate::network::enter_world::etc_status_update(
                 charges,
                 level,
                 ep.weapon,
                 ep.armor,
                 flags.silence,
-            ));
-            cs.send(user_info);
-        }
+            ),
+        );
+        send_to_client(world, client_id, user_info);
     }
     // The weight bar itself rides in `ExUserInfoInvenWeight`, which the
     // inventory-update helper already sends on every item change.

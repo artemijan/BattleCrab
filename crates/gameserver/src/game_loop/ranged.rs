@@ -124,21 +124,18 @@ pub(crate) fn prepare_ranged_shot(
             ready_at_tick: world.tick + super::helpers::ms_to_ticks(reuse_ms),
         },
     );
-    if let Some(client_id) = client_for_player(world, attacker_oid)
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        if is_crossbow(weapon_type) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOUR_CROSSBOW_IS_PREPARING_TO_FIRE,
-                &[],
-            ));
-        }
-        cs.send(server_packets::setup_gauge(
+    if is_crossbow(weapon_type) {
+        super::helpers::send_sm_bare_to_player(
+            world,
             attacker_oid,
-            GAUGE_RED,
-            reuse_ms,
-        ));
+            sm_ids::YOUR_CROSSBOW_IS_PREPARING_TO_FIRE,
+        );
     }
+    super::helpers::send_to_player(
+        world,
+        attacker_oid,
+        server_packets::setup_gauge(attacker_oid, GAUGE_RED, reuse_ms),
+    );
     Ok(())
 }
 

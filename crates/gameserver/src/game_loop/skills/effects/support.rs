@@ -105,27 +105,25 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
         // Snapshot after the enchant stamp, so the packet carries the `+N`.
         let changes = crate::game_loop::helpers::added_changes(world, target_oid, &added);
         if let Some(client_id) = client_for_player(world, target_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
-                // single enchanted → "obtained a +S1 S2"; else "obtained S1".
-                let sm = if amount > 1 {
-                    server_packets::system_message_with(
-                        sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-                        &[SmParam::ItemName(item_id), SmParam::Long(amount)],
-                    )
-                } else if enchant > 0 {
-                    server_packets::system_message_with(
-                        sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
-                        &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
-                    )
-                } else {
-                    server_packets::system_message_with(
-                        sm_ids::YOU_HAVE_OBTAINED_S1,
-                        &[SmParam::ItemName(item_id)],
-                    )
-                };
-                cs.send(sm);
-            }
+            // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
+            // single enchanted → "obtained a +S1 S2"; else "obtained S1".
+            let sm = if amount > 1 {
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+                    &[SmParam::ItemName(item_id), SmParam::Long(amount)],
+                )
+            } else if enchant > 0 {
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
+                    &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
+                )
+            } else {
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_S1,
+                    &[SmParam::ItemName(item_id)],
+                )
+            };
+            crate::game_loop::helpers::send_to_client(world, client_id, sm);
             crate::game_loop::helpers::send_inventory_update(world, target_oid, changes);
         }
     }
@@ -275,11 +273,11 @@ pub(crate) fn roll_magic_failure(
                     creature_name(world, target_oid),
                     creature_name(world, caster_oid),
                 );
-                if let Some(client_id) = client_for_player(world, caster_oid)
-                    && let Some(cs) = world.clients.get(&client_id)
-                {
-                    cs.send(server_packets::system_message(&message));
-                }
+                crate::game_loop::helpers::send_to_player(
+                    world,
+                    caster_oid,
+                    server_packets::system_message(&message),
+                );
             }
             formulas::MagicFailure::Half
         } else {

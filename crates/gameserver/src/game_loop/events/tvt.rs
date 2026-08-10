@@ -745,23 +745,21 @@ pub(crate) fn inactivity_tick(world: &mut World, player: i32, warning: bool, seq
 
 /// A screen banner for one player (Java `sendScreenMessage`).
 fn send_screen(world: &World, player: i32, text: &str, secs: i32) {
-    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
-        .and_then(|cid| world.clients.get(&cid))
-    {
-        cs.send(sp::ex_show_screen_message(text, TOP_CENTER, secs * 1000));
-    }
+    crate::game_loop::helpers::send_to_player(
+        world,
+        player,
+        sp::ex_show_screen_message(text, TOP_CENTER, secs * 1000),
+    );
 }
 
 /// Java `player.sendMessage(...)` — the plain white chat line.
 fn send_message(world: &World, player: i32, text: &str) {
-    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
-        .and_then(|cid| world.clients.get(&cid))
-    {
-        cs.send(sp::system_message_with(
-            sp::sm_ids::S1_TEXT,
-            &[sp::SmParam::Text(text.to_string())],
-        ));
-    }
+    crate::game_loop::helpers::send_sm_to_player(
+        world,
+        player,
+        sp::sm_ids::S1_TEXT,
+        &[sp::SmParam::Text(text.to_string())],
+    );
 }
 
 /// Java `TvT.onEvent(event, npc, player)` for the manager's bypass buttons.
@@ -855,11 +853,7 @@ fn buff_heal(world: &mut World, player: i32) {
         pv.cur_cp = f64::from(pv.max_cp);
         updates.push((sp::status_update_type::CUR_CP, pv.max_cp));
     }
-    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
-        .and_then(|cid| world.clients.get(&cid))
-    {
-        cs.send(sp::status_update(player, &updates));
-    }
+    crate::game_loop::helpers::send_to_player(world, player, sp::status_update(player, &updates));
     crate::game_loop::party::notify_party_vitals(world, player);
 }
 

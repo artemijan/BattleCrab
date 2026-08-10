@@ -2,7 +2,9 @@ use super::*;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_sm_bare_to_client;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::stat_add;
 
@@ -548,35 +550,34 @@ pub(crate) fn handle_attack_hit(
             .objects
             .get_component::<crate::model::components::AdminFlags>(&target)
             .is_some_and(|f| f.invul);
-        if let Some(cs) = world.clients.get(&client_id) {
-            if crit {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::C1_LANDED_A_CRITICAL_HIT,
-                    &[SmParam::PlayerName(attacker_name.clone())],
-                ));
-            }
-            if target_blocked {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED,
-                    &[],
-                ));
-            } else {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                    &[
-                        SmParam::PlayerName(attacker_name),
-                        target_name,
-                        SmParam::Int(damage),
-                        // `sendDamageMessage`'s `addPopup(target, attacker,
-                        // -damage)` — the on-screen floating damage number.
-                        SmParam::Popup {
-                            target,
-                            attacker,
-                            damage: -damage,
-                        },
-                    ],
-                ));
-            }
+        if crit {
+            send_sm_to_client(
+                world,
+                client_id,
+                sm_ids::C1_LANDED_A_CRITICAL_HIT,
+                &[SmParam::PlayerName(attacker_name.clone())],
+            );
+        }
+        if target_blocked {
+            send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
+        } else {
+            send_sm_to_client(
+                world,
+                client_id,
+                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+                &[
+                    SmParam::PlayerName(attacker_name),
+                    target_name,
+                    SmParam::Int(damage),
+                    // `sendDamageMessage`'s `addPopup(target, attacker,
+                    // -damage)` — the on-screen floating damage number.
+                    SmParam::Popup {
+                        target,
+                        attacker,
+                        damage: -damage,
+                    },
+                ],
+            );
         }
     }
 

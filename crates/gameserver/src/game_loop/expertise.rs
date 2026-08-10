@@ -118,16 +118,18 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
             super::party::calculate_relation(world, view.p),
         );
         let charges = view.p.charges;
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::enter_world::etc_status_update(
+        crate::game_loop::helpers::send_to_client(
+            world,
+            client_id,
+            crate::network::enter_world::etc_status_update(
                 charges,
                 weight_penalty,
                 weapon_penalty,
                 armor_penalty,
                 silence,
-            ));
-            cs.send(user_info);
-        }
+            ),
+        );
+        crate::game_loop::helpers::send_to_client(world, client_id, user_info);
     }
 }
 

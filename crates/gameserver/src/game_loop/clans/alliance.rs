@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::{send_sm_to_client, send_to_client, send_to_player};
 
 use crate::model::clan::{
     ALLY_PENALTY_TYPE_CLAN_DISMISSED, ALLY_PENALTY_TYPE_CLAN_LEAVED,
@@ -436,19 +437,20 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
         crate::model::components::RequestKind::AllyInvite { ally_id },
         crate::game_loop::party::REQUEST_TIMEOUT_TICKS,
     );
-    if let Some(cs) = client_for_player(world, target_oid).and_then(|cid| world.clients.get(&cid)) {
-        cs.send(server_packets::system_message_with(
-            sm_ids::S1_LEADER_S2_HAS_REQUESTED_AN_ALLIANCE,
-            &[
-                SmParam::Text(ally_name),
-                SmParam::Text(player_name_or_empty(world, player)),
-            ],
-        ));
-        cs.send(server_packets::ask_join_ally(
-            player,
-            &player_name_or_empty(world, player),
-        ));
-    }
+    send_sm_with(
+        world,
+        target_oid,
+        sm_ids::S1_LEADER_S2_HAS_REQUESTED_AN_ALLIANCE,
+        &[
+            SmParam::Text(ally_name),
+            SmParam::Text(player_name_or_empty(world, player)),
+        ],
+    );
+    send_to_player(
+        world,
+        target_oid,
+        server_packets::ask_join_ally(player, &player_name_or_empty(world, player)),
+    );
 }
 
 /// `RequestAnswerJoinAlly` (0x8D): the invited clan leader answered.
@@ -717,62 +719,73 @@ pub(crate) fn handle_request_ally_info(world: &World, client_id: u32) {
             )
         })
         .unwrap_or_default();
-    let Some(cs) = world.clients.get(&client_id) else {
-        return;
-    };
-    cs.send(server_packets::alliance_info(
-        &ally_name,
-        total,
-        online,
-        &leader_clan_name,
-        &leader_player_name,
-        &rows,
-    ));
-    cs.send(server_packets::system_message_with(
-        sm_ids::ALLIANCE_INFORMATION,
-        &[],
-    ));
-    cs.send(server_packets::system_message_with(
+    send_to_client(
+        world,
+        client_id,
+        server_packets::alliance_info(
+            &ally_name,
+            total,
+            online,
+            &leader_clan_name,
+            &leader_player_name,
+            &rows,
+        ),
+    );
+    send_sm(world, client_id, sm_ids::ALLIANCE_INFORMATION);
+    send_sm_to_client(
+        world,
+        client_id,
         sm_ids::ALLIANCE_NAME_S1,
         &[SmParam::Text(ally_name)],
-    ));
-    cs.send(server_packets::system_message_with(
+    );
+    send_sm_to_client(
+        world,
+        client_id,
         sm_ids::ALLIANCE_LEADER_S2_OF_S1,
         &[
             SmParam::Text(leader_clan_name),
             SmParam::Text(leader_player_name),
         ],
-    ));
-    cs.send(server_packets::system_message_with(
+    );
+    send_sm_to_client(
+        world,
+        client_id,
         sm_ids::CONNECTION_S1_TOTAL_S2,
         &[SmParam::Int(online), SmParam::Int(total)],
-    ));
-    cs.send(server_packets::system_message_with(
+    );
+    send_sm_to_client(
+        world,
+        client_id,
         sm_ids::AFFILIATED_CLANS_TOTAL_S1_CLAN_S,
         &[SmParam::Int(rows.len() as i32)],
-    ));
+    );
     for (name, level, leader, c_total, c_online) in &rows {
-        cs.send(server_packets::system_message_with(
-            sm_ids::CLAN_INFORMATION,
-            &[],
-        ));
-        cs.send(server_packets::system_message_with(
+        send_sm(world, client_id, sm_ids::CLAN_INFORMATION);
+        send_sm_to_client(
+            world,
+            client_id,
             sm_ids::CLAN_NAME_S1,
             &[SmParam::Text(name.clone())],
-        ));
-        cs.send(server_packets::system_message_with(
+        );
+        send_sm_to_client(
+            world,
+            client_id,
             sm_ids::CLAN_LEADER_S1,
             &[SmParam::Text(leader.clone())],
-        ));
-        cs.send(server_packets::system_message_with(
+        );
+        send_sm_to_client(
+            world,
+            client_id,
             sm_ids::CLAN_LEVEL_S1,
             &[SmParam::Int(*level)],
-        ));
-        cs.send(server_packets::system_message_with(
+        );
+        send_sm_to_client(
+            world,
+            client_id,
             sm_ids::CONNECTION_S1_TOTAL_S2,
             &[SmParam::Int(*c_online), SmParam::Int(*c_total)],
-        ));
-        cs.send(server_packets::system_message_with(sm_ids::EMPTY_4, &[]));
+        );
+        send_sm(world, client_id, sm_ids::EMPTY_4);
     }
 }
 

@@ -124,12 +124,11 @@ impl QuestScript for ArenaManager {
 
 /// `SystemMessageId.YOU_DO_NOT_HAVE_ENOUGH_ADENA`.
 fn send_no_adena(ctx: &QuestCtx) {
-    if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
-        cs.send(crate::network::server_packets::system_message_with(
-            crate::network::server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
-            &[],
-        ));
-    }
+    crate::game_loop::helpers::send_sm_bare_to_client(
+        ctx.world,
+        ctx.client_id,
+        crate::network::server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
+    );
 }
 
 /// `SkillCaster.triggerCast(npc, player, skill)` / `npc.doCast` — the NPC casts

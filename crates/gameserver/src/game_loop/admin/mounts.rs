@@ -189,18 +189,20 @@ fn disarm_hands(world: &mut World, target: i32) -> bool {
             .map(|inv| inv.unequip_item(item_object_id))
             .unwrap_or_default();
         crate::game_loop::items::finish_equip_change(world, client_id, target, &changed);
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(if enchant > 0 {
-                server_packets::system_message_with(
-                    sm_ids::THE_EQUIPMENT_S1_S2_HAS_BEEN_REMOVED,
-                    &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
-                )
-            } else {
-                server_packets::system_message_with(
-                    sm_ids::S1_HAS_BEEN_UNEQUIPPED,
-                    &[SmParam::ItemName(item_id)],
-                )
-            });
+        if enchant > 0 {
+            super::helpers::send_sm_to_client(
+                world,
+                client_id,
+                sm_ids::THE_EQUIPMENT_S1_S2_HAS_BEEN_REMOVED,
+                &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
+            );
+        } else {
+            super::helpers::send_sm_to_client(
+                world,
+                client_id,
+                sm_ids::S1_HAS_BEEN_UNEQUIPPED,
+                &[SmParam::ItemName(item_id)],
+            );
         }
     }
     true
@@ -311,11 +313,11 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     // `stopFeed()` + `SetupGauge(3, 0, 0)`: blank the bar. Sent by hand rather
     // than through `set_current_feed`, which needs the (now cleared) mount to
     // resolve its level row.
-    if let Some(cs) =
-        super::helpers::client_for_player(world, target).and_then(|cid| world.clients.get(&cid))
-    {
-        cs.send(server_packets::setup_gauge_range(target, GAUGE_GREEN, 0, 0));
-    }
+    super::helpers::send_to_player(
+        world,
+        target,
+        server_packets::setup_gauge_range(target, GAUGE_GREEN, 0, 0),
+    );
     super::transforms::restore_class_collision(world, target);
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, false);
@@ -408,11 +410,6 @@ pub(crate) fn set_current_feed(world: &mut World, target: i32, feed: i32) {
 /// feed buys one 10 s tick, so `feed * 10000 / consume` ms.
 fn send_feed_gauge(world: &World, target: i32, feed: i32, max: i32) {
     let consume = feed_consume(world, target).max(1);
-    let Some(cs) =
-        super::helpers::client_for_player(world, target).and_then(|cid| world.clients.get(&cid))
-    else {
-        return;
-    };
     // **Java bug, not reproduced.** All four feed call sites read
     // `new SetupGauge(3, cur, max)` — the *three*-argument constructor, whose
     // first parameter is the **object id**. Mobius added `objectId` to the
@@ -420,12 +417,16 @@ fn send_feed_gauge(world: &World, target: i32, feed: i32, max: i32) {
     // `objectId = 3, colour = cur`: garbage the client cannot draw. Every other
     // `SetupGauge` call site passes `getObjectId()` first, which is what the
     // four-argument form here does.
-    cs.send(server_packets::setup_gauge_range(
+    super::helpers::send_to_player(
+        world,
         target,
-        GAUGE_GREEN,
-        feed * 10000 / consume,
-        max * 10000 / consume,
-    ));
+        server_packets::setup_gauge_range(
+            target,
+            GAUGE_GREEN,
+            feed * 10000 / consume,
+            max * 10000 / consume,
+        ),
+    );
 }
 
 /// Java `PetFeedTask.run`: burn one tick's feed, or force-dismount when the bar
