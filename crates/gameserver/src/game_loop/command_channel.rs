@@ -15,8 +15,8 @@
 //! accept path sends on top of the constructor/`addParty` broadcasts, and the
 //! roster query answering for any party with no shared-channel check.
 
-use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::helpers::{get_others_in_matching_room, send_to_client};
 use crate::model::Player;
 use crate::model::command_channel::CommandChannel;
 use crate::model::components::{PartyRef, PendingRequest, RequestKind};
@@ -290,17 +290,7 @@ pub(crate) fn create_channel(world: &mut World, leader: i32, leader_party: u32) 
 /// `CommandChannel.addParty` — announce to the existing channel first (the
 /// joining party must not receive its own add), then attach and greet.
 pub(crate) fn add_party_to_channel(world: &mut World, cc_id: u32, party_id: u32) {
-    let (leader_name, leader_oid, member_count) = world
-        .parties
-        .get(&party_id)
-        .map(|p| {
-            (
-                player_name_or_empty(world, p.leader()),
-                p.leader(),
-                p.members.len() as i32,
-            )
-        })
-        .unwrap_or_default();
+    let (leader_name, leader_oid, member_count) = get_party_info(world, party_id);
     broadcast_to_cc(
         world,
         cc_id,
@@ -437,17 +427,7 @@ pub(crate) fn remove_party_from_channel(world: &mut World, cc_id: u32, party_id:
         disband_channel(world, cc_id);
         return;
     }
-    let (leader_name, leader_oid, member_count) = world
-        .parties
-        .get(&party_id)
-        .map(|p| {
-            (
-                player_name_or_empty(world, p.leader()),
-                p.leader(),
-                p.members.len() as i32,
-            )
-        })
-        .unwrap_or_default();
+    let (leader_name, leader_oid, member_count) = get_party_info(world, party_id);
     broadcast_to_cc(
         world,
         cc_id,
@@ -797,16 +777,7 @@ pub(crate) fn cc_room_add_member(world: &mut World, room_id: i32, player: i32) -
         .unwrap_or_default();
     let location = super::party_room::location_of(world, player);
     let joiner_type = cc_room_member_type(world, room_id, player);
-    let others: Vec<i32> = world
-        .matching_rooms
-        .get(room_id)
-        .map(|r| {
-            r.all_members()
-                .into_iter()
-                .filter(|&o| o != player)
-                .collect()
-        })
-        .unwrap_or_default();
+    let others: Vec<i32> = get_others_in_matching_room(world, room_id, player);
     // Java's `notifyNewMember` bug sends each existing member *their own* row
     // here (`ExManageMpccRoomMember(member, ...)`, line 64) — the port sends
     // the joiner's row, which is what the add mode means.
@@ -1200,4 +1171,18 @@ pub(crate) fn is_in_looter_party(world: &World, picker: i32, owner: i32) -> bool
         .parties
         .get(&picker_party)
         .is_some_and(|p| p.contains(owner))
+}
+
+fn get_party_info(world: &World, party_id: u32) -> (String, i32, i32) {
+    world
+        .parties
+        .get(&party_id)
+        .map(|p| {
+            (
+                player_name_or_empty(world, p.leader()),
+                p.leader(),
+                p.members.len() as i32,
+            )
+        })
+        .unwrap_or_default()
 }

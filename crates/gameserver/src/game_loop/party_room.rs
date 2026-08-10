@@ -11,7 +11,9 @@
 //! membership is derived from the room registry rather than mirrored on the
 //! player (Java's `Player._matchingRoom`), so the two can never disagree.
 
-use super::helpers::{send_sm_to_player as send_sm, send_to_player as send};
+use super::helpers::{
+    get_others_in_matching_room, send_sm_to_player as send_sm, send_to_player as send,
+};
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
@@ -441,16 +443,7 @@ fn add_member_party(world: &mut World, room_id: i32, player: i32) -> bool {
 
     // Everyone already in the room learns about the newcomer...
     let name = player_name_or_empty(world, player);
-    let others: Vec<i32> = world
-        .matching_rooms
-        .get(room_id)
-        .map(|r| {
-            r.all_members()
-                .into_iter()
-                .filter(|&o| o != player)
-                .collect()
-        })
-        .unwrap_or_default();
+    let others: Vec<i32> = get_others_in_matching_room(world, room_id, player);
     let views = member_views(world, room_id);
     for oid in others {
         let pkt =

@@ -442,6 +442,22 @@ pub(crate) fn count_of(world: &World, player_oid: i32, item_id: i32) -> i64 {
         .get_component::<Inventory>(&player_oid)
         .map_or(0, |inv| inv.count_of(item_id))
 }
+pub(crate) fn get_others_in_matching_room(
+    world: &World,
+    room_id: i32,
+    player_oid: i32,
+) -> Vec<i32> {
+    world
+        .matching_rooms
+        .get(room_id)
+        .map(|r| {
+            r.all_members()
+                .into_iter()
+                .filter(|&o| o != player_oid)
+                .collect()
+        })
+        .unwrap_or_default()
+}
 /// How much adena `object_id` is carrying — Java `Inventory.getAdena`. Zero for
 /// anything with no [`Inventory`] at all, which is what every caller wants.
 pub(crate) fn adena(world: &World, object_id: i32) -> i64 {

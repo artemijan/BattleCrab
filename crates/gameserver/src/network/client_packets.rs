@@ -908,12 +908,13 @@ pub struct RequestExAskJoinMpcc {
     pub name: String,
 }
 
+pub(crate) fn read_named<T>(body: &[u8], ctor: impl FnOnce(String) -> T) -> Option<T> {
+    PacketReader::new(body).read_string().map(ctor)
+}
+
 impl RequestExAskJoinMpcc {
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
-        let mut r = PacketReader::new(body_after_opcode);
-        Some(Self {
-            name: r.read_string()?,
-        })
+        read_named(body_after_opcode, |name| Self { name })
     }
 }
 
@@ -939,10 +940,7 @@ pub struct RequestExOustFromMpcc {
 
 impl RequestExOustFromMpcc {
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
-        let mut r = PacketReader::new(body_after_opcode);
-        Some(Self {
-            name: r.read_string()?,
-        })
+        read_named(body_after_opcode, |name| Self { name })
     }
 }
 
