@@ -30,6 +30,7 @@
 //! test reports any file this affects rather than silently writing a wrong
 //! `.dat`.
 
+use crate::common::read_dir;
 use crate::dat_schema::{Count, Field, Layout, Node};
 use std::collections::HashMap;
 
@@ -598,9 +599,7 @@ pub fn pack_dir(
     out_dir: &std::path::Path,
     chronicle: Option<&str>,
 ) -> Result<Vec<(String, Option<String>)>, String> {
-    let mut files: Vec<std::path::PathBuf> = std::fs::read_dir(in_dir)
-        .map_err(|e| format!("cannot read {}: {e}", in_dir.display()))?
-        .filter_map(|e| e.ok().map(|e| e.path()))
+    let mut files: Vec<std::path::PathBuf> = read_dir(in_dir)
         .filter(|p| p.to_string_lossy().ends_with(".dat.txt"))
         .collect();
     files.sort();

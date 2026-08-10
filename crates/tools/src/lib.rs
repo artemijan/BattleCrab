@@ -10,6 +10,7 @@
 
 pub mod client_dat;
 pub mod client_files;
+mod common;
 pub mod dat_pack;
 pub mod dat_roundtrip;
 pub mod dat_schema;

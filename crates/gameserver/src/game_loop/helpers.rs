@@ -436,7 +436,12 @@ pub(crate) fn format_amount(value: i64) -> String {
     }
     out
 }
-
+pub(crate) fn count_of(world: &World, player_oid: i32, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .map_or(0, |inv| inv.count_of(item_id))
+}
 /// How much adena `object_id` is carrying — Java `Inventory.getAdena`. Zero for
 /// anything with no [`Inventory`] at all, which is what every caller wants.
 pub(crate) fn adena(world: &World, object_id: i32) -> i64 {

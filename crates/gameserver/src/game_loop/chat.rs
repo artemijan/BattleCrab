@@ -15,7 +15,7 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::{is_friend, send_to_client};
+use crate::game_loop::helpers::{count_of, is_friend, send_to_client};
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -549,12 +549,7 @@ pub(crate) fn world_chat_points_left(world: &World, player_oid: i32) -> i32 {
     if p.level < world.cfg.general.world_chat_min_level {
         return 0;
     }
-    let used = world
-        .objects
-        .get_component::<crate::model::components::PlayerVariables>(&player_oid)
-        .map_or(0, |v| {
-            v.get_int(crate::model::components::WORLD_CHAT_USED, 0)
-        });
+    let used = get_used_world_chat(world, player_oid);
     (world.cfg.general.world_chat_points_per_day - used).max(0)
 }
 
@@ -620,12 +615,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         return;
     }
 
-    let used = world
-        .objects
-        .get_component::<crate::model::components::PlayerVariables>(&sender_oid)
-        .map_or(0, |v| {
-            v.get_int(crate::model::components::WORLD_CHAT_USED, 0)
-        });
+    let used = get_used_world_chat(world, sender_oid);
     if used >= world.cfg.general.world_chat_points_per_day {
         send_sm(
             world,
@@ -907,12 +897,6 @@ fn handle_voiced_online(world: &World, client_id: u32) {
 /// is memory-first and the inventory flushes on the next autosave.
 fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, command: &str) {
     let (adena, goldbars) = (world.cfg.banking.adena, world.cfg.banking.goldbars);
-    let count_of = |world: &World, item_id: i32| {
-        world
-            .objects
-            .get_component::<Inventory>(&player_oid)
-            .map_or(0, |inv| inv.count_of(item_id))
-    };
     match command {
         "bank" => {
             let text = format!(
@@ -922,7 +906,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
             crate::game_loop::admin::send_message(world, client_id, &text);
         }
         "deposit" => {
-            if count_of(world, ADENA_ITEM_ID) < adena {
+            if count_of(world, player_oid, ADENA_ITEM_ID) < adena {
                 let text = format!(
                     "You do not have enough Adena to convert to Goldbar(s), \
                      you need {adena} Adena."
@@ -937,7 +921,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
             crate::game_loop::admin::send_message(world, client_id, &text);
         }
         "withdraw" => {
-            if count_of(world, GOLDBAR_ITEM_ID) < goldbars {
+            if count_of(world, player_oid, GOLDBAR_ITEM_ID) < goldbars {
                 let text = format!("You do not have any Goldbars to turn into {adena} Adena.");
                 crate::game_loop::admin::send_message(world, client_id, &text);
                 return;
@@ -983,4 +967,12 @@ fn handle_voiced_chat_admin(
         }
         _ => super::admin::moderation::admin_unban_chat(world, client_id, &args),
     }
+}
+fn get_used_world_chat(world: &World, player_oid: i32) -> i32 {
+    world
+        .objects
+        .get_component::<crate::model::components::PlayerVariables>(&player_oid)
+        .map_or(0, |v| {
+            v.get_int(crate::model::components::WORLD_CHAT_USED, 0)
+        })
 }

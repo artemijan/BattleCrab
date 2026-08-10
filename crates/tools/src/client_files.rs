@@ -22,6 +22,7 @@
 //! records all of that in [`MANIFEST_NAME`]; `encrypt` reads it back and
 //! refuses anything it cannot place.
 
+use crate::common::read_dir;
 use crate::dat_schema::{Layout, SchemaSet};
 use crate::{client_dat, dat_pack, dat_text};
 use serde::{Deserialize, Serialize};
@@ -117,9 +118,7 @@ fn in_scope(path: &Path) -> bool {
 }
 
 fn list(dir: &Path) -> Result<Vec<PathBuf>, String> {
-    let mut files: Vec<PathBuf> = std::fs::read_dir(dir)
-        .map_err(|e| format!("cannot read {}: {e}", dir.display()))?
-        .filter_map(|e| e.ok().map(|e| e.path()))
+    let mut files: Vec<PathBuf> = read_dir(dir)
         .filter(|p| p.is_file() && in_scope(p))
         .collect();
     files.sort();

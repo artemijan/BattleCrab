@@ -2,6 +2,7 @@
 //! price/count gates, the transaction, and who pays what.
 
 use super::*;
+use crate::game_loop::helpers::count_of;
 
 use crate::model::components::{SkillBook, Vitals};
 use crate::model::inventory::Inventory;
@@ -167,11 +168,6 @@ fn buying_a_buff_moves_money_mana_and_the_skill() {
             .unwrap()
             .add_item(&data.item_data, 0x4A00_0050, ADENA, 2000);
     }
-    let adena_of = |w: &World, oid: i32| {
-        w.objects
-            .get_component::<Inventory>(&oid)
-            .map_or(0, |i| i.count_of(ADENA))
-    };
     let mp_of = |w: &World| w.objects.get_component::<Vitals>(&SELLER).unwrap().cur_mp;
 
     drain(&mut buyer_rx);
@@ -180,9 +176,8 @@ fn buying_a_buff_moves_money_mana_and_the_skill() {
         2,
         &format!("sellbuffbuyskill {SELLER} {BUFF} 0"),
     );
-
-    assert_eq!(adena_of(&world, BUYER), 1500, "the buyer paid");
-    assert_eq!(adena_of(&world, SELLER), 500, "the seller was paid");
+    assert_eq!(count_of(&world, BUYER, ADENA), 1500, "the buyer paid");
+    assert_eq!(count_of(&world, SELLER, ADENA), 500, "the seller was paid");
     assert_eq!(mp_of(&world), 450.0, "the seller paid the MP");
 
     // A seller out of mana refuses with a message rather than casting.
