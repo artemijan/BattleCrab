@@ -81,8 +81,8 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
     use server_packets::{SmParam, sm_ids};
 
     for &(item_id, amount, enchant) in grants {
-        let Some(changed_oids) =
-            crate::game_loop::items::add_inventory_item(world, target_oid, item_id, amount)
+        let Some(added) =
+            crate::game_loop::items::add_inventory_item_tracked(world, target_oid, item_id, amount)
         else {
             continue;
         };
@@ -98,19 +98,13 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
                 .unwrap_or(false)
             && let Some(inv) = world.objects.get_component_mut::<Inventory>(&target_oid)
         {
-            for &oid in &changed_oids {
+            for &(oid, _) in &added {
                 inv.set_item_enchant(oid, enchant);
             }
         }
-        let Some(inventory) = world.objects.get_component::<Inventory>(&target_oid) else {
-            continue;
-        };
+        // Snapshot after the enchant stamp, so the packet carries the `+N`.
+        let changes = crate::game_loop::helpers::added_changes(world, target_oid, &added);
         if let Some(client_id) = client_for_player(world, target_oid) {
-            let iu = crate::network::enter_world::inventory_update(
-                inventory,
-                &world.data,
-                &changed_oids,
-            );
             if let Some(cs) = world.clients.get(&client_id) {
                 // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
                 // single enchanted → "obtained a +S1 S2"; else "obtained S1".
@@ -132,7 +126,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
                 };
                 cs.send(sm);
             }
-            crate::game_loop::helpers::send_inventory_update(world, client_id, target_oid, iu);
+            crate::game_loop::helpers::send_inventory_update(world, target_oid, changes);
         }
     }
 }

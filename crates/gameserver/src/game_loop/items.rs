@@ -64,7 +64,8 @@ pub(crate) fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {
 ///
 /// and the distinction is load-bearing — change type 1 (add) tells the client
 /// to create the inventory slot, change type 2 (modify) only refreshes one it
-/// already has. See [`crate::network::enter_world::inventory_update_added`].
+/// already has. See [`crate::network::enter_world::inventory_update_changes`]
+/// and the [`super::helpers::added_changes`] adapter that feeds it.
 pub(crate) fn add_inventory_item_tracked(
     world: &mut World,
     player_oid: i32,
@@ -544,8 +545,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     // No explicit audit call here: `remove_by_object_id` noted the loss, and
     // `drain_item_audit` turns it into a record on the next tick. Recording it
     // here as well would double-count exactly the destroys people look at most.
-    let packet = ew::inventory_update_changes(&world.data, &[change]);
-    super::helpers::send_inventory_update(world, client_id, object_id, packet);
+    super::helpers::send_inventory_update(world, object_id, vec![change]);
 }
 
 /// The `Crystallize` common skill (`CommonSkill.CRYSTALLIZE`).
@@ -664,8 +664,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     {
         changes.push(crate::model::inventory::ItemChange::Modified(*stack));
     }
-    let packet = ew::inventory_update_changes(&world.data, &changes);
-    super::helpers::send_inventory_update(world, client_id, player_oid, packet);
+    super::helpers::send_inventory_update(world, player_oid, changes);
 }
 
 /// Send a bare `$s1` system-message line to one client.
@@ -738,13 +737,10 @@ pub(crate) fn finish_equip_change(
     }
     apply_paperdoll_change(world, client_id, object_id, changed);
 
-    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
-        return;
-    };
-    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
     // …and finally Java's `sendInventoryUpdate` — the `InventoryUpdate` plus the
     // adena counter and weight bar it always drags along.
-    super::helpers::send_inventory_update(world, client_id, object_id, iu);
+    let changes = super::helpers::modified_changes(world, object_id, changed);
+    super::helpers::send_inventory_update(world, object_id, changes);
     refresh_after_paperdoll_change(world, object_id);
     // NB: no shadow-item mana is spent here. Java burns a point in
     // `Player.useEquipableItem` alone — for the one item the player clicked —
@@ -1168,11 +1164,8 @@ pub(crate) fn charge_shot(
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.charge_shot(shot_type);
     }
-    if !changes.is_empty()
-        && let Some(cid) = client_id
-    {
-        let iu = ew::inventory_update_changes(&world.data, &changes);
-        super::helpers::send_inventory_update(world, cid, object_id, iu);
+    if !changes.is_empty() {
+        super::helpers::send_inventory_update(world, object_id, changes);
     }
     send(
         world,
@@ -1415,11 +1408,8 @@ pub(crate) fn charge_fish_shot(world: &mut World, object_id: i32, shot_item_id: 
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.charge_shot(ShotType::FishSoulshots);
     }
-    if !changes.is_empty()
-        && let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
-    {
-        let iu = ew::inventory_update_changes(&world.data, &changes);
-        super::helpers::send_inventory_update(world, cid, object_id, iu);
+    if !changes.is_empty() {
+        super::helpers::send_inventory_update(world, object_id, changes);
     }
     true
 }
@@ -1684,7 +1674,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     }
 
     if used && check_consume(default_action, has_consume_skill, immediate_effect) {
-        destroy_used_item(world, client_id, object_id, item_object_id);
+        destroy_used_item(world, object_id, item_object_id);
     }
 }
 
@@ -1715,7 +1705,7 @@ fn check_consume(
 
 /// Destroys one unit of a used etc item and notifies the client — the
 /// consume tail shared by `ExtractableItems` and `ItemSkills`.
-fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
+fn destroy_used_item(world: &mut World, object_id: i32, item_object_id: i32) {
     let Some(destroyed) = ({
         let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
             return;
@@ -1726,8 +1716,7 @@ fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_obj
     };
     // Memory-first: the count decrement / removal already applied to the
     // `Inventory` component; it persists on the next flush.
-    let iu = ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed));
-    super::helpers::send_inventory_update(world, client_id, object_id, iu);
+    super::helpers::send_inventory_update(world, object_id, vec![destroyed]);
 }
 
 /// Port of `handlers/itemhandlers/ExtractableItems.useItem`: destroys the
@@ -1784,7 +1773,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         return;
     }
 
-    destroy_used_item(world, client_id, object_id, item_object_id);
+    destroy_used_item(world, object_id, item_object_id);
 
     let mut granted: Vec<(i32, i64)> = Vec::new();
     for _ in 0..1000 {
@@ -1820,14 +1809,12 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     }
 
     for (item_id, amount) in granted {
-        let Some(changed_oids) = add_inventory_item(world, object_id, item_id, amount) else {
+        let Some(changes) =
+            super::helpers::add_inventory_item_changes(world, object_id, item_id, amount)
+        else {
             warn!("ExtractableItems: object-id pool exhausted, dropping {item_id}x{amount}");
             continue;
         };
-        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
-            continue;
-        };
-        let iu = ew::inventory_update(inventory, &world.data, &changed_oids);
         if let Some(cs) = world.clients.get(&client_id) {
             let sm = if amount > 1 {
                 server_packets::system_message_with(
@@ -1842,6 +1829,6 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
             };
             cs.send(sm);
         }
-        super::helpers::send_inventory_update(world, client_id, object_id, iu);
+        super::helpers::send_inventory_update(world, object_id, changes);
     }
 }

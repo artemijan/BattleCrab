@@ -1,6 +1,7 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
 use crate::game_loop::guard::position;
+use crate::model;
 use crate::model::Player;
 use crate::model::components::{Movement, RegionCell, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
@@ -505,22 +506,29 @@ pub(crate) fn stat_mul(world: &World, object_id: i32, stat: Stat) -> f64 {
 /// weight bar (`ExUserInfoInvenWeight`), so any inventory change refreshes both.
 /// Ported paths that only sent the bare `InventoryUpdate` left the adena display
 /// stale (e.g. `//create_coin Adena`). `iu` is the already-built InventoryUpdate.
-pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i32, iu: Vec<u8>) {
-    let max_load = crate::game_loop::weight::max_load(world, object_id);
-    let extras = world
-        .objects
-        .get_component::<Inventory>(&object_id)
-        .map(|inv| {
-            (
-                crate::network::enter_world::ex_adena_inven_count(inv),
-                crate::network::enter_world::ex_user_info_inven_weight(
-                    object_id,
-                    inv,
-                    &world.data,
-                    max_load,
-                ),
-            )
-        });
+pub(crate) fn send_inventory_update(
+    world: &World,
+    player_id: i32,
+    changes: Vec<model::inventory::ItemChange>,
+) {
+    let Some(client_id) = client_for_player(world, player_id) else {
+        return;
+    };
+    let max_load = crate::game_loop::weight::max_load(world, player_id);
+    let inventory = world.objects.get_component::<Inventory>(&player_id);
+    let iu =
+        crate::network::enter_world::inventory_update_changes(&world.data, inventory, &changes);
+    let extras = inventory.map(|inv| {
+        (
+            crate::network::enter_world::ex_adena_inven_count(inv),
+            crate::network::enter_world::ex_user_info_inven_weight(
+                player_id,
+                inv,
+                &world.data,
+                max_load,
+            ),
+        )
+    });
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(iu);
         if let Some((adena, weight)) = extras {
@@ -528,6 +536,67 @@ pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i3
             cs.send(weight);
         }
     }
+}
+
+/// Snapshot still-carried instances as [`ItemChange::Modified`] — the adapter
+/// for the paths that know their delta only as object ids of items that stayed
+/// in the bag (equip/unequip, an enchant landing, a mana tick). Ids no longer
+/// in the inventory are skipped: nothing coherent can be told to the client
+/// about an instance this path believes still exists.
+pub(crate) fn modified_changes(
+    world: &World,
+    owner: i32,
+    object_ids: &[i32],
+) -> Vec<model::inventory::ItemChange> {
+    let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
+        return Vec::new();
+    };
+    object_ids
+        .iter()
+        .filter_map(|oid| inv.by_object_id(*oid))
+        .map(|item| model::inventory::ItemChange::Modified(*item))
+        .collect()
+}
+
+/// Snapshot the result of `add_inventory_item_tracked` as [`ItemChange`]s:
+/// a freshly minted instance becomes `Added` (the client must create the
+/// slot), a grown stack `Modified`. Taken *after* any post-add stamping
+/// (quest/skill grants set the enchant level between the add and the send),
+/// so the packet carries the final state.
+pub(crate) fn added_changes(
+    world: &World,
+    owner: i32,
+    added: &[(i32, bool)],
+) -> Vec<model::inventory::ItemChange> {
+    let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
+        return Vec::new();
+    };
+    added
+        .iter()
+        .filter_map(|&(oid, is_new)| {
+            inv.by_object_id(oid).map(|item| {
+                if is_new {
+                    model::inventory::ItemChange::Added(*item)
+                } else {
+                    model::inventory::ItemChange::Modified(*item)
+                }
+            })
+        })
+        .collect()
+}
+
+/// `add_inventory_item_tracked` + [`added_changes`] in one step, for the
+/// gain paths with nothing to stamp between the add and the
+/// `InventoryUpdate`. `None` means the add itself failed (object-id pool
+/// exhausted), exactly as `add_inventory_item` reports it.
+pub(crate) fn add_inventory_item_changes(
+    world: &mut World,
+    owner: i32,
+    item_id: i32,
+    count: i64,
+) -> Option<Vec<model::inventory::ItemChange>> {
+    let added = crate::game_loop::items::add_inventory_item_tracked(world, owner, item_id, count)?;
+    Some(added_changes(world, owner, &added))
 }
 
 /// The full `SkillList` packet for an in-world player — their skill book plus

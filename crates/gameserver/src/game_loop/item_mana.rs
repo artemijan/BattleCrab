@@ -68,7 +68,6 @@ use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
 
 use crate::model::inventory::Inventory;
-use crate::network::enter_world as ew;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -204,13 +203,8 @@ pub(crate) fn decrease_mana(
         }
         // Java's `_loc != WAREHOUSE` guard: only an inventory item refreshes
         // the client. Ours only ever ticks inventory items.
-        let iu = world
-            .objects
-            .get_component::<Inventory>(&player_oid)
-            .map(|inv| ew::inventory_update(inv, &world.data, &[item_oid]));
-        if let Some(iu) = iu {
-            super::helpers::send_inventory_update(world, client_id, player_oid, iu);
-        }
+        let changes = super::helpers::modified_changes(world, player_oid, &[item_oid]);
+        super::helpers::send_inventory_update(world, player_oid, changes);
         return;
     }
 
@@ -243,8 +237,7 @@ pub(crate) fn decrease_mana(
         warn!("item_mana: {item_oid} vanished before its mana-0 destroy.");
         return;
     };
-    let packet = ew::inventory_update_changes(&world.data, &[change]);
-    super::helpers::send_inventory_update(world, client_id, player_oid, packet);
+    super::helpers::send_inventory_update(world, player_oid, vec![change]);
 }
 
 /// Java `Player.useEquipableItem`'s equip branch: "Consume mana - will start a

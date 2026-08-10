@@ -544,8 +544,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     else {
         return;
     };
-    let packet = crate::network::enter_world::inventory_update_changes(&world.data, &[change]);
-    super::helpers::send_inventory_update(world, client_id, player_oid, packet);
+    super::helpers::send_inventory_update(world, player_oid, vec![change]);
     // `Item.dropMe` → `GeoEngine.getValidLocation(dropper, x, y, z)`: walk the
     // cell line from the dropper to the requested point and stop at the last
     // walkable cell, so the item lands short of a wall/closed door rather than

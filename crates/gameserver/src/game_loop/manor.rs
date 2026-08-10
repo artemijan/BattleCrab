@@ -1053,14 +1053,15 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
     }
 
     // Deliver: decrement each seed's stock and add it to the buyer.
-    let mut added: Vec<i32> = Vec::new();
+    let mut added: Vec<crate::model::inventory::ItemChange> = Vec::new();
     for &(item_id, cnt) in &items {
         // A concurrent overdraw can't happen on the single game thread, but the
         // `decrease_amount` guard mirrors Java's per-line refund-on-failure.
         if world.manor.decrease_seed_amount(manor_id, item_id, cnt)
-            && let Some(oids) = super::items::add_inventory_item(world, player_oid, item_id, cnt)
+            && let Some(changes) =
+                super::helpers::add_inventory_item_changes(world, player_oid, item_id, cnt)
         {
-            added.extend(oids);
+            added.extend(changes);
         }
     }
     // Java: the sale price goes to the castle's vault, untaxed. An unowned
@@ -1069,15 +1070,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
     if total_price > 0 {
         super::castle::add_to_treasury_no_tax(world, manor_id, total_price);
     }
-    let iu = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&player_oid)
-        .map(|inventory| {
-            crate::network::enter_world::inventory_update(inventory, &world.data, &added)
-        });
-    if let Some(iu) = iu {
-        super::helpers::send_inventory_update(world, client_id, player_oid, iu);
-    }
+    super::helpers::send_inventory_update(world, player_oid, added);
     if total_price > 0
         && let Some(cs) = world.clients.get(&client_id)
     {
@@ -1151,7 +1144,7 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
 
     // Loop 2: execute, skipping (with a message) lines that can't pay out.
     let mut crop_changes = Vec::new();
-    let mut reward_oids: Vec<i32> = Vec::new();
+    let mut reward_changes: Vec<crate::model::inventory::ItemChange> = Vec::new();
     for &(obj_id, crop_id, item_manor, cnt) in &items {
         let (price, reward_type) = world
             .manor
@@ -1219,28 +1212,19 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
         {
             crop_changes.push(change);
         }
-        if let Some(oids) =
-            super::items::add_inventory_item(world, player_oid, reward_id, reward_count)
+        if let Some(changes) =
+            super::helpers::add_inventory_item_changes(world, player_oid, reward_id, reward_count)
         {
-            reward_oids.extend(oids);
+            reward_changes.extend(changes);
         }
     }
 
     // Reflect the sold crops and the received rewards.
     if !crop_changes.is_empty() {
-        let iu = crate::network::enter_world::inventory_update_changes(&world.data, &crop_changes);
-        super::helpers::send_inventory_update(world, client_id, player_oid, iu);
+        super::helpers::send_inventory_update(world, player_oid, crop_changes);
     }
-    if !reward_oids.is_empty() {
-        let iu = world
-            .objects
-            .get_component::<Inventory>(&player_oid)
-            .map(|inventory| {
-                crate::network::enter_world::inventory_update(inventory, &world.data, &reward_oids)
-            });
-        if let Some(iu) = iu {
-            super::helpers::send_inventory_update(world, client_id, player_oid, iu);
-        }
+    if !reward_changes.is_empty() {
+        super::helpers::send_inventory_update(world, player_oid, reward_changes);
     }
 }
 

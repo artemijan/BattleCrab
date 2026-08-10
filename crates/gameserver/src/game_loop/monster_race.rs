@@ -16,7 +16,6 @@ use crate::enums::ChatType;
 use crate::model::components::{Position, RaceTicket};
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::model::monster_race::{HistoryInfo, LANES, RaceState};
-use crate::network::enter_world as ew;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
@@ -363,7 +362,7 @@ pub(crate) fn race_bypass(
         "ShowInfo" => show_info(world, client_id, npc_oid),
         "ShowTickets" => show_tickets(world, client_id, player, npc_oid),
         "ShowTicket" => show_ticket(world, client_id, player, npc_oid, command),
-        "CalculateWin" => calculate_win(world, client_id, player, command),
+        "CalculateWin" => calculate_win(world, player, command),
         "ViewHistory" => view_history(world, client_id, npc_oid),
         _ => {}
     }
@@ -480,8 +479,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
                 ],
             ),
         );
-        let iu = ew::inventory_update_changes(&world.data, &changes);
-        super::helpers::send_inventory_update(world, client_id, player, iu);
+        super::helpers::send_inventory_update(world, player, changes);
         chat0(world, client_id, npc_oid);
     }
 }
@@ -585,7 +583,7 @@ fn show_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, com
 
 /// Java `CalculateWin <oid>`: destroy the ticket and pay its winnings —
 /// `bet * (lane == winner ? oddRate : 0.01)`.
-fn calculate_win(world: &mut World, client_id: u32, player: i32, command: &str) {
+fn calculate_win(world: &mut World, player: i32, command: &str) {
     if !world.cfg.general.allow_race {
         return;
     }
@@ -625,8 +623,7 @@ fn calculate_win(world: &mut World, client_id: u32, player: i32, command: &str) 
     {
         changes.push(ItemChange::Modified(*it));
     }
-    let iu = ew::inventory_update_changes(&world.data, &changes);
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    super::helpers::send_inventory_update(world, player, changes);
 }
 
 /// Java `ViewHistory` (page 9): the last seven finished races.

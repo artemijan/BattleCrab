@@ -23,7 +23,6 @@ use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModi
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
 use crate::network::client_packets as cp;
-use crate::network::enter_world as ew;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids, status_update_type};
 use crate::world::World;
 
@@ -252,8 +251,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         .get_component_mut::<Inventory>(&object_id)
         .and_then(|inv| inv.remove_by_object_id(item_object_id, 1))
     {
-        let iu = ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed));
-        super::helpers::send_inventory_update(world, client_id, object_id, iu);
+        super::helpers::send_inventory_update(world, object_id, vec![destroyed]);
     }
     send(
         world,

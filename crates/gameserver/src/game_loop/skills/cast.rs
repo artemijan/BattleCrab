@@ -1680,15 +1680,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             stop_casting(world, player_object_id);
             return;
         };
-        if let Some(client_id) = client_id {
-            let iu = crate::network::enter_world::inventory_update_changes(&world.data, &[change]);
-            crate::game_loop::helpers::send_inventory_update(
-                world,
-                client_id,
-                player_object_id,
-                iu,
-            );
-        }
+        crate::game_loop::helpers::send_inventory_update(world, player_object_id, vec![change]);
     }
 
     // `Skill.forEachTargetAffected` — expand the primary target through the

@@ -95,14 +95,28 @@ impl ItemInstance {
     }
 }
 
-/// What `remove_item` did to one instance — the Java `InventoryUpdate`
-/// change types this slice can produce (2 = modified, 3 = removed; adds go
-/// through the modified-only `inventory_update` like before). `Removed`
-/// carries the final snapshot because the instance is gone from the list.
+/// One inventory mutation, as the Java `InventoryUpdate` change types
+/// (1 = added, 2 = modified, 3 = removed). The variant is decided at the
+/// mutation site, where the information lives: `addItem` knows whether it
+/// minted a fresh instance (`Added` — the client must create the slot) or
+/// grew an existing stack (`Modified`); `remove_item` knows whether the
+/// stack survived. Every variant carries a snapshot taken *after* the
+/// mutation — for `Removed` because the instance is gone from the list,
+/// for the others so the packet shows the post-change state.
 #[derive(Debug, Clone, Copy)]
 pub enum ItemChange {
+    Added(ItemInstance),
     Modified(ItemInstance),
     Removed(ItemInstance),
+}
+
+impl ItemChange {
+    /// The snapshot inside, whichever way the instance changed.
+    pub fn instance(&self) -> &ItemInstance {
+        match self {
+            ItemChange::Added(i) | ItemChange::Modified(i) | ItemChange::Removed(i) => i,
+        }
+    }
 }
 
 /// Port of `PlayerRefund`: the merchant buy-back window. Items sold to a

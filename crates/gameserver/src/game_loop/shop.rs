@@ -9,6 +9,7 @@ use crate::game_loop::helpers::send_action_failed;
 use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::helpers;
 use crate::model::components::TargetRef;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -277,12 +278,12 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     }
 
     // Deliver.
-    let mut added: Vec<i32> = Vec::new();
+    let mut added: Vec<crate::model::inventory::ItemChange> = Vec::new();
     for line in &pkt.items {
-        if let Some(oids) =
-            super::items::add_inventory_item(world, player, line.item_id, line.count)
+        if let Some(changes) =
+            helpers::add_inventory_item_changes(world, player, line.item_id, line.count)
         {
-            added.extend(oids);
+            added.extend(changes);
         }
     }
     // Java `merchant.handleTaxPayment(subTotal * castleTaxRate)` — the castle
@@ -295,15 +296,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     );
 
     let refund_items = refund_items_of(world, player);
-    let iu = world
-        .objects
-        .get_component::<Inventory>(&player)
-        .map(|inventory| {
-            crate::network::enter_world::inventory_update(inventory, &world.data, &added)
-        });
-    if let Some(iu) = iu {
-        super::helpers::send_inventory_update(world, client_id, player, iu);
-    }
+    helpers::send_inventory_update(world, player, added);
     if let (Some(inventory), Some(cs)) = (
         world.objects.get_component::<Inventory>(&player),
         world.clients.get(&client_id),
@@ -398,6 +391,8 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
                         sold.push(refund_inst);
                     }
                 }
+                // `remove_by_object_id` never produces an `Added`.
+                crate::model::inventory::ItemChange::Added(_) => {}
             }
             changes.push(change);
         }
@@ -437,10 +432,9 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     if changes.is_empty() {
         return;
     }
-    let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
     let refund_items = refund_items_of(world, player);
     let collar = crate::game_loop::servitor::active_pet_collar(world, player);
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    helpers::send_inventory_update(world, player, changes);
     if let Some((cs, inv)) = world
         .clients
         .get(&client_id)
@@ -548,10 +542,9 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         .into_iter()
         .map(crate::model::inventory::ItemChange::Modified)
         .collect();
-    let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
     let refund_items = refund_items_of(world, player);
     let collar = crate::game_loop::servitor::active_pet_collar(world, player);
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    helpers::send_inventory_update(world, player, changes);
     if let Some((cs, inv)) = world
         .clients
         .get(&client_id)

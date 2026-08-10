@@ -32,7 +32,6 @@ use crate::data::multisell_data::{MultisellEntry, MultisellList, PAGE_SIZE};
 use crate::model::components::{ActiveMultisell, PreparedRow};
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::network::client_packets as cp;
-use crate::network::enter_world as ew;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::world::World;
 
@@ -537,8 +536,7 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
     }
 
     // One InventoryUpdate + adena/weight refresh for the whole exchange.
-    let iu = ew::inventory_update_changes(&world.data, &changes);
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    super::helpers::send_inventory_update(world, player, changes);
 
     // "Finally, give the tax to the castle": the tax slice of every adena
     // ingredient, times the amount exchanged. Only the *tax* part is paid —

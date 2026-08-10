@@ -14,7 +14,6 @@ use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::LotoPicks;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::model::lottery::LotteryRow;
-use crate::network::enter_world as ew;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -523,8 +522,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32) -> Option<()> {
             &[SmParam::ItemName(TICKET_ITEM)],
         ),
     );
-    let iu = ew::inventory_update_changes(&world.data, &changes);
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    super::helpers::send_inventory_update(world, player, changes);
     Some(())
 }
 
@@ -616,8 +614,7 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
     {
         changes.push(ItemChange::Modified(*it));
     }
-    let iu = ew::inventory_update_changes(&world.data, &changes);
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    super::helpers::send_inventory_update(world, player, changes);
 }
 
 fn picks(world: &World, player: i32) -> [i32; 5] {

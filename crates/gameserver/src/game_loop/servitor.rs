@@ -12,7 +12,6 @@
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
@@ -20,6 +19,7 @@ use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{is_dead, restore_hp_mp};
+use crate::game_loop::helpers::{item_id_of, send_inventory_update};
 use crate::game_loop::items::item_skills;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
@@ -738,11 +738,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
                 .get_component_mut::<Inventory>(&owner)
                 .map(|inv| inv.remove_item(link.consume_item_id, link.consume_item_count))
                 .unwrap_or_default();
-            if let Some(cid) = client_for_player(world, owner) {
-                let iu =
-                    crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-                crate::game_loop::helpers::send_inventory_update(world, cid, owner, iu);
-            }
+            send_inventory_update(world, owner, changes);
             notify_owner(
                 world,
                 owner,
@@ -1365,8 +1361,7 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     if let Some(pi) = objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
         pi.0.add_item(&data.item_data, next_oid, item_id, count);
     }
-    let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-    crate::game_loop::helpers::send_inventory_update(world, client_id, owner, packet);
+    send_inventory_update(world, owner, changes);
     send_pet_item_list(world, owner);
 }
 
@@ -1421,8 +1416,7 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
-    let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-    crate::game_loop::helpers::send_inventory_update(world, client_id, owner, packet);
+    send_inventory_update(world, owner, changes);
     send_pet_item_list(world, owner);
 }
 
@@ -1988,11 +1982,8 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
         .objects
         .get_component_mut::<crate::model::inventory::Inventory>(&owner)
         .and_then(|inv| inv.remove_by_object_id(collar, 1));
-    if let Some(change) = removed
-        && let Some(cid) = client_for_player(world, owner)
-    {
-        let packet = crate::network::enter_world::inventory_update_changes(&world.data, &[change]);
-        crate::game_loop::helpers::send_inventory_update(world, cid, owner, packet);
+    if let Some(change) = removed {
+        send_inventory_update(world, owner, vec![change]);
     }
     world
         .objects
@@ -2087,11 +2078,7 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
             .get_component_mut::<crate::model::inventory::Inventory>(&owner)
             .map(|inv| inv.remove_item(item_id, per_hit))
             .unwrap_or_default();
-        if let Some(cid) = client_for_player(world, owner) {
-            let packet =
-                crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-            crate::game_loop::helpers::send_inventory_update(world, cid, owner, packet);
-        }
+        send_inventory_update(world, owner, changes);
         if world
             .objects
             .get_component::<ChargedShots>(&summon_oid)
@@ -2478,11 +2465,7 @@ pub(crate) fn recharge_spiritshots(world: &mut World, summon_oid: i32) -> bool {
             .get_component_mut::<crate::model::inventory::Inventory>(&owner)
             .map(|inv| inv.remove_item(item_id, per_hit))
             .unwrap_or_default();
-        if let Some(cid) = client_for_player(world, owner) {
-            let packet =
-                crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-            crate::game_loop::helpers::send_inventory_update(world, cid, owner, packet);
-        }
+        send_inventory_update(world, owner, changes);
         if world
             .objects
             .get_component::<ChargedShots>(&summon_oid)

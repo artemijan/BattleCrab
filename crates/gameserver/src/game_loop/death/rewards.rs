@@ -724,8 +724,8 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     if !world.cfg.character.auto_loot {
         return; // ground-drop path unported (see PROGRESS G9 notes).
     }
-    let Some(changed_oids) =
-        crate::game_loop::items::add_inventory_item(world, player_oid, item_id, count)
+    let Some(changes) =
+        crate::game_loop::helpers::add_inventory_item_changes(world, player_oid, item_id, count)
     else {
         tracing::warn!("give_item: object-id pool exhausted, dropping loot {item_id}×{count}");
         return;
@@ -735,13 +735,6 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     let Some(client_id) = client_for_player(world, player_oid) else {
         return;
     };
-    let Some(inventory) = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&player_oid)
-    else {
-        return;
-    };
-    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, &changed_oids);
     if let Some(cs) = world.clients.get(&client_id) {
         let sm = if item_id == ADENA_ID {
             server_packets::system_message_with(
@@ -765,7 +758,7 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     // `sendInventoryUpdate`, so the status-bar adena counter and weight bar
     // refresh with the loot. Sending the bare `InventoryUpdate` left the bar
     // stale until the next relog/item-list.
-    crate::game_loop::helpers::send_inventory_update(world, client_id, player_oid, iu);
+    crate::game_loop::helpers::send_inventory_update(world, player_oid, changes);
 }
 
 // ---------------------------------------------------------------------------

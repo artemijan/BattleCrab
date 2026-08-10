@@ -2300,9 +2300,8 @@ pub(crate) fn give_item_with_earned_message_enchanted(
             inv.set_enchant_level(oid, enchant);
         }
     }
-    let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
-        return;
-    };
+    // Snapshot after the enchant stamp, so the packet carries the `+N`.
+    let changes = super::helpers::added_changes(world, player, &added);
     let sm = if item_id == ADENA_ID {
         server_packets::system_message_with(
             sm_ids::YOU_HAVE_EARNED_S1_ADENA,
@@ -2319,11 +2318,10 @@ pub(crate) fn give_item_with_earned_message_enchanted(
             &[SmParam::ItemName(item_id)],
         )
     };
-    let iu = ew::inventory_update_added(inventory, &world.data, &added);
     send_to_client(world, client_id, sm);
     // `InventoryUpdate` + adena counter + weight bar (Java `sendInventoryUpdate`),
     // so the status-bar adena count refreshes on adena gains (`//create_coin`).
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    super::helpers::send_inventory_update(world, player, changes);
 }
 
 /// The game-loop half of `takeItems`: `Inventory::remove_item` + DB deletes/
@@ -2363,8 +2361,7 @@ pub(crate) fn take_items(
     // As in `give_item_with_earned_message`, no bare `ExQuestItemList` — Java's
     // `takeItems` → `destroyItemByItemId` sends only the `InventoryUpdate`, and
     // the change-type-3 entries below are what retire the client's rows.
-    let iu = ew::inventory_update_changes(&world.data, &changes);
-    super::helpers::send_inventory_update(world, client_id, player, iu);
+    super::helpers::send_inventory_update(world, player, changes);
     true
 }
 

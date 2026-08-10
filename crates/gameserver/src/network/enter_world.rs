@@ -109,72 +109,25 @@ pub fn gm_view_item_list(
     w.into_bytes()
 }
 
-/// `InventoryUpdate` (0x21). `change=2` (modify) for every entry: equip/unequip
-/// only moves an existing `Item` between `INVENTORY`/`PAPERDOLL`, it never
-/// creates or destroys the object (matches Java's `addItems`/plain `ItemInfo`).
-pub fn inventory_update(
-    inventory: &crate::model::inventory::Inventory,
-    data: &GameData,
-    changed_object_ids: &[i32],
-) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_u8(0x21);
-    w.write_i16(changed_object_ids.len() as i16);
-    for &object_id in changed_object_ids {
-        let Some(item) = inventory.by_object_id(object_id) else {
-            continue;
-        };
-        let Some(template) = data.item_data.get(item.item_id) else {
-            continue;
-        };
-        let equipped = inventory.paperdoll_slot_of(object_id).is_some();
-        w.write_i16(2); // change type: modify
-        write_item_entry(&mut w, item, template, equipped);
-    }
-    w.into_bytes()
-}
-
-/// `InventoryUpdate` (0x21) for an item *gain*, where each entry carries
-/// whether the instance was newly created. Java picks the change type per
-/// entry in `PlayerInventory.addItem`:
+/// `InventoryUpdate` (0x21) from [`ItemChange`]s — the one builder every
+/// inventory delta goes through. The change type is the variant (1 = added,
+/// 2 = modified, 3 = removed), decided where the mutation happened; Java picks
+/// the same way in `PlayerInventory.addItem`:
 ///
 /// ```java
 /// if (item.isStackable() && (item.getCount() > count)) playerIU.addModifiedItem(item);
 /// else                                                 playerIU.addNewItem(item);
 /// ```
 ///
-/// `addNewItem` writes change type **1**, `addModifiedItem` **2**. The plain
-/// [`inventory_update`] above hard-codes 2, which is right for equip/unequip
-/// (the instance already exists client-side) but wrong for a first-time gain:
-/// a modify names an object id the client has no slot for.
-pub fn inventory_update_added(
-    inventory: &crate::model::inventory::Inventory,
-    data: &GameData,
-    added: &[(i32, bool)],
-) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_u8(0x21);
-    w.write_i16(added.len() as i16);
-    for &(object_id, is_new) in added {
-        let Some(item) = inventory.by_object_id(object_id) else {
-            continue;
-        };
-        let Some(template) = data.item_data.get(item.item_id) else {
-            continue;
-        };
-        let equipped = inventory.paperdoll_slot_of(object_id).is_some();
-        w.write_i16(if is_new { 1 } else { 2 });
-        write_item_entry(&mut w, item, template, equipped);
-    }
-    w.into_bytes()
-}
-
-/// `InventoryUpdate` (0x21) from explicit [`ItemChange`]s — the shape quest
-/// `takeItems` needs: modified stacks write their new count, removed
-/// instances write change type 3 from the final snapshot (`remove_item`
-/// returns it; the instance no longer exists in the inventory).
+/// and the add/modify distinction is load-bearing — type 1 tells the client to
+/// create the inventory slot, type 2 only refreshes one it already has.
+/// `inventory` supplies the equipped flag (an arrow stack still on the
+/// paperdoll, an enchant landing on a worn piece); a `Removed` instance is by
+/// definition off the paperdoll, and the entry falls back to unequipped when
+/// the owner has no inventory at all.
 pub fn inventory_update_changes(
     data: &GameData,
+    inventory: Option<&crate::model::inventory::Inventory>,
     changes: &[crate::model::inventory::ItemChange],
 ) -> Vec<u8> {
     use crate::model::inventory::ItemChange;
@@ -183,14 +136,17 @@ pub fn inventory_update_changes(
     w.write_i16(changes.len() as i16);
     for change in changes {
         let (kind, item) = match change {
+            ItemChange::Added(item) => (1i16, item),
             ItemChange::Modified(item) => (2i16, item),
             ItemChange::Removed(item) => (3i16, item),
         };
         let Some(template) = data.item_data.get(item.item_id) else {
             continue;
         };
+        let equipped = kind != 3
+            && inventory.is_some_and(|inv| inv.paperdoll_slot_of(item.object_id).is_some());
         w.write_i16(kind);
-        write_item_entry(&mut w, item, template, false);
+        write_item_entry(&mut w, item, template, equipped);
     }
     w.into_bytes()
 }

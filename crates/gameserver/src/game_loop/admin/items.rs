@@ -218,8 +218,8 @@ pub(super) fn admin_destroy_items(
         send_message(world, client_id, "No items to destroy.");
         return;
     }
-    let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-    super::helpers::send_inventory_update(world, client_id, object_id, packet);
+    let changes_cnt = changes.len();
+    super::helpers::send_inventory_update(world, object_id, changes);
     // Equipment/appearance may have changed (equipped gear destroyed). The
     // GM's own paperdoll comes from `ExUserInfoEquipSlot`, which neither the
     // `InventoryUpdate` above nor `broadcastUserInfo` carries.
@@ -230,7 +230,7 @@ pub(super) fn admin_destroy_items(
     send_message(
         world,
         client_id,
-        &format!("Destroyed {} item(s).", changes.len()),
+        &format!("Destroyed {} item(s).", changes_cnt),
     );
 }
 
@@ -283,13 +283,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     };
     // The owner's own client needs the InventoryUpdate; the GM gets the same
     // refreshed item list Java answers with.
-    if let Some(owner_cid) = super::helpers::client_for_player(world, owner) {
-        let packet = crate::network::enter_world::inventory_update_changes(
-            &world.data,
-            std::slice::from_ref(&change),
-        );
-        super::helpers::send_inventory_update(world, owner_cid, owner, packet);
-    }
+    super::helpers::send_inventory_update(world, owner, vec![change]);
     if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
         let name = player_name_or_empty(world, owner);
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
@@ -375,10 +369,7 @@ pub(super) fn admin_delete_quest_item(
         send_message(world, client_id, "Item could not be destroyed.");
         return;
     }
-    if let Some(target_cid) = super::helpers::client_for_player(world, target) {
-        let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-        super::helpers::send_inventory_update(world, target_cid, target, packet);
-    }
+    super::helpers::send_inventory_update(world, target, changes);
     if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
         send_to_client(world, client_id, pkt);
