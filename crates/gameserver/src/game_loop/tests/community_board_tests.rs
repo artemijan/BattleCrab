@@ -655,7 +655,6 @@ fn delete_favorite_removes_and_writes_through() {
 
 // --- Merchant (multisell) ---------------------------------------------------
 
-use crate::data::MultisellData;
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::multisell::handle_multi_sell_choose;
 use crate::model::components::ActiveMultisell;
