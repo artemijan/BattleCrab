@@ -353,7 +353,7 @@ fn nurse_faction_call_heals_the_hurt_caller() {
     let _rx = ingame_caster(&mut world, 1, 3001, 200, 0);
 
     // Caller at full HP: the listener does nothing.
-    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
+    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
     assert!(
         !world.objects.has_component::<Casting>(&nurse),
         "a healthy caller gets no heal"
@@ -361,7 +361,7 @@ fn nurse_faction_call_heals_the_hurt_caller() {
 
     // Wound the queen: the recruited nurse opens with Recovery.
     wound_to_half(&mut world, queen);
-    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
+    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
     assert!(
         world.objects.has_component::<Casting>(&nurse),
         "the faction-called nurse heals the hurt queen"

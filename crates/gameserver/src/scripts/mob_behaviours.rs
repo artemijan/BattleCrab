@@ -13,6 +13,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Immobilized, Position, Vitals};
 
@@ -450,7 +451,7 @@ impl QuestScript for FleeMonsters {
         {
             ai.intention = crate::model::npc::NpcIntention::MoveTo;
         }
-        crate::game_loop::npc_ai::move_npc_to(ctx.world, ctx.npc, vx, vy, vz);
+        ai::move_npc_to(ctx.world, ctx.npc, vx, vy, vz);
     }
 }
 
@@ -536,7 +537,7 @@ impl QuestScript for FairyTrees {
             if ctx.roll(2) == 0
                 && let Some(skill) = skill_by_id(ctx.world, VENOMOUS_POISON.0, VENOMOUS_POISON.1)
             {
-                crate::game_loop::npc_cast::start_cast(ctx.world, guardian, killer, &skill);
+                crate::game_loop::npc::cast::start_cast(ctx.world, guardian, killer, &skill);
             }
         }
     }

@@ -464,7 +464,7 @@ fn champion_passive_stops_the_aggro_scan() {
         .global_aggro = 0;
 
     // Aggressive and not a champion: hate is seeded.
-    crate::game_loop::npc_ai::npc_ai_tick(&mut world);
+    crate::game_loop::ai::npc_ai_tick(&mut world);
     let hated = world
         .objects
         .get_component::<crate::model::npc::AggroList>(&MOB)
@@ -497,7 +497,7 @@ fn champion_passive_stops_the_aggro_scan() {
         ai.global_aggro = 0;
         ai.intention = crate::model::npc::NpcIntention::Active;
     }
-    crate::game_loop::npc_ai::npc_ai_tick(&mut world);
+    crate::game_loop::ai::npc_ai_tick(&mut world);
     assert!(
         world
             .objects

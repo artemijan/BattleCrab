@@ -1400,7 +1400,7 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
     if let Some(target) = pick_target_in_range(world, instance_id, scarlet, range)
         && let Some(skill) = skill_by_id(world, skill_id, level)
     {
-        crate::game_loop::npc_cast::start_cast(world, scarlet, target, &skill);
+        crate::game_loop::npc::cast::start_cast(world, scarlet, target, &skill);
     }
     schedule_scarlet(world, instance_id);
 }

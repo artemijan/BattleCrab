@@ -453,7 +453,7 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
         })
         .collect();
     for npc_oid in departed {
-        super::npc_ai::on_forget_object(world, npc_oid, object_id);
+        super::ai::on_forget_object(world, npc_oid, object_id);
     }
 
     // NPC deltas: NpcInfo for NPCs entering the 3×3 block, DeleteObject for
@@ -648,7 +648,7 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
     // `EVT_FORGET_OBJECT` at the surrounding NPCs' AI — logging out mid-fight
     // is the other way a mob loses its target. See `npc_ai::on_forget_object`.
     for npc_oid in world.npcs_visible_from(region) {
-        super::npc_ai::on_forget_object(world, npc_oid, object_id);
+        super::ai::on_forget_object(world, npc_oid, object_id);
     }
 }
 
@@ -782,7 +782,7 @@ pub(crate) fn movement_tick(world: &mut World) {
         if ai.intention == crate::model::npc::NpcIntention::MoveTo {
             ai.intention = crate::model::npc::NpcIntention::Active;
         }
-        super::npc_ai::on_npc_arrived(world, *id);
+        super::ai::on_npc_arrived(world, *id);
     }
     // Route advances need a `MoveToLocation` for the new segment — unlike
     // plain moves, the client only knows the previous segment's endpoint

@@ -345,7 +345,7 @@ pub(crate) fn servitor_follow_tick(world: &mut World, servitor_oid: i32) {
     if (dx * dx + dy * dy).sqrt() <= FOLLOW_RANGE {
         return;
     }
-    crate::game_loop::npc_ai::move_npc_to(world, servitor_oid, owner.x, owner.y, owner.z);
+    crate::game_loop::ai::move_npc_to(world, servitor_oid, owner.x, owner.y, owner.z);
 }
 
 /// `ServitorAttack` (action 22) — order the servitor onto the owner's target.
@@ -2377,10 +2377,10 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         }
     };
 
-    if !crate::game_loop::npc_cast::check_use_conditions_pub(world, servitor_oid, &skill) {
+    if !crate::game_loop::npc::cast::check_use_conditions_pub(world, servitor_oid, &skill) {
         return;
     }
-    crate::game_loop::npc_cast::start_cast(world, servitor_oid, target_oid, &skill);
+    crate::game_loop::npc::cast::start_cast(world, servitor_oid, target_oid, &skill);
 }
 
 /// Charge a summon's Beast Spiritshot from its owner — the magic counterpart of

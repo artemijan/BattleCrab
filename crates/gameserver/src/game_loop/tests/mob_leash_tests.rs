@@ -90,7 +90,7 @@ fn a_mob_dragged_past_the_leash_teleports_home_at_full_hp() {
     place_dragged_mob(&mut world, "Monster", (2000, 0), (0, 0, 0), 0);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_eq!(pos_of(&world, MOB), (0, 0, 0), "teleported onto its spawn");
     let v = world.objects.get_component::<Vitals>(&MOB).unwrap();
@@ -122,7 +122,7 @@ fn a_mob_inside_the_leash_keeps_chasing() {
     place_dragged_mob(&mut world, "Monster", (1000, 0), (0, 0, 0), 0);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_ne!(pos_of(&world, MOB), (0, 0, 0), "not sent home");
     assert_eq!(hate_count(&world, MOB), 1, "still hates the player");
@@ -141,7 +141,7 @@ fn a_spawn_line_chase_range_widens_the_leash() {
     place_dragged_mob(&mut world, "Monster", (4000, 0), (0, 0, 0), 5000);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_ne!(
         pos_of(&world, MOB),
@@ -162,7 +162,7 @@ fn a_chase_range_under_the_drift_radius_is_floored_at_it() {
     place_dragged_mob(&mut world, "Monster", (250, 0), (0, 0, 0), 100);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_ne!(
         pos_of(&world, MOB),
@@ -184,7 +184,7 @@ fn a_grand_boss_is_never_leashed() {
     place_dragged_mob(&mut world, "GrandBoss", (8000, 0), (0, 0, 0), 0);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_ne!(pos_of(&world, MOB), (0, 0, 0), "grand boss exempt");
     assert_eq!(hate_count(&world, MOB), 1, "keeps its hate");
@@ -199,12 +199,12 @@ fn a_raid_leashes_only_when_the_raid_flag_is_set() {
     place_dragged_mob(&mut world, "RaidBoss", (5000, 0), (0, 0, 0), 0);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
     assert_ne!(pos_of(&world, MOB), (0, 0, 0), "raids exempt by default");
 
     // Turn the flag on: 5000 is past the 3000 raid range.
     world.cfg.npc.aggro_distance_check_raids = true;
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
     assert_eq!(pos_of(&world, MOB), (0, 0, 0), "raid leashed once enabled");
 }
 
@@ -227,7 +227,7 @@ fn a_route_walker_is_never_leashed() {
     );
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_ne!(pos_of(&world, MOB), (0, 0, 0), "walker exempt");
 }
@@ -241,7 +241,7 @@ fn restore_life_off_sends_the_mob_home_hurt() {
     place_dragged_mob(&mut world, "Monster", (2000, 0), (0, 0, 0), 0);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_eq!(pos_of(&world, MOB), (0, 0, 0), "still goes home");
     assert_eq!(
@@ -260,7 +260,7 @@ fn the_leash_can_be_switched_off() {
     place_dragged_mob(&mut world, "Monster", (2000, 0), (0, 0, 0), 0);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_ne!(pos_of(&world, MOB), (0, 0, 0), "leash disabled");
     assert_eq!(hate_count(&world, MOB), 1, "keeps its hate");
@@ -291,7 +291,7 @@ fn a_leashed_mob_clears_the_selection_ring_it_leaves_behind() {
     drain(&mut rx);
     drain(&mut idle_rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_eq!(pos_of(&world, MOB), (0, 0, 0), "leashed home");
     assert_eq!(
@@ -371,7 +371,7 @@ fn the_escort_returns_home_with_its_leader() {
     }
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_eq!(pos_of(&world, MOB), (0, 0, 0), "leader went home");
     for oid in escort {

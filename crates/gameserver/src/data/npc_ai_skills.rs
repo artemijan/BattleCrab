@@ -22,7 +22,7 @@ use super::skill_data::SkillData;
 
 /// Java `enums/AISkillScope`. `RES`, `NEGATIVE` and `SUICIDE` are populated
 /// but not yet consumed by the ported think ladder — see the module docs on
-/// [`crate::game_loop::npc_cast`].
+/// [`crate::game_loop::npc::cast`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AiSkillScope {
     Buff,

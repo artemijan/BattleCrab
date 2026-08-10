@@ -88,7 +88,7 @@ fn a_mob_attacks_on_the_tick_it_arrives_in_range() {
     drain(&mut rx);
 
     // One AI think starts the chase — the mob is out of attack range.
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
     assert!(
         world.objects.has_component::<Movement>(&MOB),
         "the mob is out of range and started closing"
@@ -135,7 +135,7 @@ fn arrival_does_not_think_while_the_mob_is_casting() {
     mob_chasing_player(&mut world, (0, 0));
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
     assert!(world.objects.has_component::<Movement>(&MOB));
 
     world.objects.add_components(
@@ -173,7 +173,7 @@ fn arrival_does_not_think_in_an_inactive_region() {
     mob_chasing_player(&mut world, (0, 0));
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
     assert!(world.objects.has_component::<Movement>(&MOB));
 
     // Everyone logs out mid-chase: nothing keeps the mob's region active.

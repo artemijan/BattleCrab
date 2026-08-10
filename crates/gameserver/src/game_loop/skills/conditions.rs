@@ -38,6 +38,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_gm;
 use crate::game_loop::helpers::{send_action_failed, send_sm_bare_to_client, send_sm_to_client};
+use crate::game_loop::npc::lvl_of_npc;
 use crate::model::Player;
 use crate::model::components::{OlympiadObserver, PartyRef, Vitals, ZoneFlags};
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -467,11 +468,7 @@ fn level_of(world: &World, object_id: i32) -> Option<i32> {
     if let Some(p) = player(world, object_id) {
         return Some(p.level);
     }
-    world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&object_id)
-        .and_then(|n| world.data.npc_data.get(n.npc_id))
-        .map(|t| t.level)
+    lvl_of_npc(world, object_id)
 }
 
 /// `(equipped weapon's type mask, is it two-handed)` — Java's

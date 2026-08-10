@@ -324,7 +324,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 200, 0);
 
     // Healthy Orfen: nothing, no roll consumed.
-    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(!world.objects.has_component::<Casting>(&riba));
 
     // Half-dead Orfen, roll 9 (>= chance 9): the 1-in-10 miss.
@@ -336,7 +336,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
         v.cur_hp = v.max_hp as f64 * 0.3;
     }
     world.forced_rolls.push_back(9);
-    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(
         !world.objects.has_component::<Casting>(&riba),
         "roll 9 misses the 9-in-10 chance"
@@ -344,7 +344,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
 
     // Roll 0: the heal fires.
     world.forced_rolls.push_back(0);
-    crate::game_loop::npc_ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(
         world.objects.has_component::<Casting>(&riba),
         "the recruited Riba Iren heals the half-dead Orfen"

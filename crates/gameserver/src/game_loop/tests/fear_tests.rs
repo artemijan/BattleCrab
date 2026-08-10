@@ -101,9 +101,9 @@ fn advance_moving(world: &mut World, n: u64) {
         apply_due_tasks(world);
         if world
             .tick
-            .is_multiple_of(crate::game_loop::npc_ai::NPC_THINK_PERIOD)
+            .is_multiple_of(crate::game_loop::ai::NPC_THINK_PERIOD)
         {
-            crate::game_loop::npc_ai::npc_ai_tick(world);
+            crate::game_loop::ai::npc_ai_tick(world);
         }
         crate::game_loop::visibility::movement_tick(world);
     }

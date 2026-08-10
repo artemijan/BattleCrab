@@ -304,7 +304,7 @@ fn fighter_mob_without_the_roll_does_not_cast_while_moving() {
         }),
     );
 
-    let cast_started = crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
+    let cast_started = crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
     assert!(!cast_started, "a moving non-mage must not cast");
 }
@@ -340,7 +340,7 @@ fn mage_mob_does_not_cast_while_running() {
         }),
     );
 
-    crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
+    crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
     assert!(
         !world.objects.has_component::<Casting>(&NPC_OID),
@@ -360,7 +360,7 @@ fn mage_mob_does_not_cast_while_running() {
         .objects
         .remove_component::<crate::model::components::Movement>(&NPC_OID);
 
-    crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
+    crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
     assert!(
         world.objects.has_component::<Casting>(&NPC_OID),
@@ -407,7 +407,7 @@ fn a_mob_with_a_cast_in_flight_does_not_chase() {
         }),
     );
 
-    crate::game_loop::npc_ai::npc_ai_tick(&mut world);
+    crate::game_loop::ai::npc_ai_tick(&mut world);
 
     assert!(
         !world
@@ -421,7 +421,7 @@ fn a_mob_with_a_cast_in_flight_does_not_chase() {
     // was never going to move.
     world.objects.remove_component::<Casting>(&NPC_OID);
 
-    crate::game_loop::npc_ai::npc_ai_tick(&mut world);
+    crate::game_loop::ai::npc_ai_tick(&mut world);
 
     assert!(
         world
@@ -464,7 +464,7 @@ fn mob_does_not_recast_a_buff_it_already_has() {
         }]),
     );
 
-    let cast_started = crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
+    let cast_started = crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
     assert!(
         !cast_started,
@@ -489,7 +489,7 @@ fn mob_without_the_mp_does_not_cast() {
         .unwrap()
         .cur_mp = 10.0;
 
-    let cast_started = crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
+    let cast_started = crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
     assert!(!cast_started, "not enough MP");
 }
@@ -511,7 +511,7 @@ fn heal_is_skipped_at_full_hp_and_taken_when_wounded() {
 
     // Full HP: `checkSkillTarget` rejects a heal on an undamaged target.
     assert!(
-        !crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER),
+        !crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER),
         "a healthy mob must not waste its heal"
     );
 
@@ -522,7 +522,7 @@ fn heal_is_skipped_at_full_hp_and_taken_when_wounded() {
         v.cur_hp = v.max_hp as f64 * 0.1;
     }
     assert!(
-        crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER),
+        crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER),
         "at 10 % HP the heal chance is 135 % — the mob must heal itself"
     );
     assert!(
@@ -542,11 +542,11 @@ fn a_mob_mid_cast_does_not_start_a_second_one() {
     engage(&mut world);
 
     assert!(
-        crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER),
+        crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER),
         "first cast starts"
     );
     assert!(
-        !crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER),
+        !crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER),
         "a mob already casting must not start another spell"
     );
 }
@@ -581,7 +581,7 @@ fn a_self_target_skill_is_cast_at_the_caster_not_the_hated_player() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world); // mob at x=100, player at the origin
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, NPC_OID, PLAYER
     ));
 
@@ -609,7 +609,7 @@ fn an_enemy_skill_is_still_cast_at_the_hated_player() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, NPC_OID, PLAYER
     ));
     assert_eq!(
@@ -639,7 +639,7 @@ fn an_enemy_skill_is_refused_against_a_fellow_monster() {
     add_test_npc(&mut world, bystander, MAGE_NPC, "Monster", 5, 140, 0, 0);
 
     assert!(
-        !crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, bystander),
+        !crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, bystander),
         "ENEMY is not auto-attackable between two monsters"
     );
 }
@@ -897,7 +897,7 @@ fn a_mob_measures_its_cast_range_in_3d() {
             pos.z = target_z;
         }
         engage(&mut world);
-        crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER)
+        crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER)
     }
 
     assert!(
@@ -956,7 +956,7 @@ fn suicide_skill_detonates_only_below_thirty_percent() {
 
     // Full HP: the suicide block is skipped (and the mob has nothing else to
     // cast, so no cast starts at all).
-    assert!(!crate::game_loop::npc_cast::try_cast(
+    assert!(!crate::game_loop::npc::cast::try_cast(
         &mut world, npc, PLAYER
     ));
     assert!(!world.objects.has_component::<Casting>(&npc));
@@ -966,7 +966,7 @@ fn suicide_skill_detonates_only_below_thirty_percent() {
         let v = world.objects.get_component_mut::<Vitals>(&npc).unwrap();
         v.cur_hp = v.max_hp as f64 * 0.2;
     }
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, npc, PLAYER
     ));
     assert!(

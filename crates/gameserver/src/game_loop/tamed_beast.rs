@@ -182,13 +182,7 @@ pub(crate) fn handle_follow(world: &mut World, beast_oid: i32) {
         .get_component::<Vitals>(&beast_oid)
         .is_some_and(|v| !v.dead);
     if alive && !near {
-        crate::game_loop::npc_ai::move_npc_to(
-            world,
-            beast_oid,
-            owner_pos.x,
-            owner_pos.y,
-            owner_pos.z,
-        );
+        crate::game_loop::ai::move_npc_to(world, beast_oid, owner_pos.x, owner_pos.y, owner_pos.z);
     }
     world.scheduler.schedule(
         world.tick + FOLLOW_TICKS,
@@ -274,7 +268,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
     if (buffs.len() * 2) / 3 > on_owner
         && let Some(skill) = skill_by_id(world, pick.0, pick.1)
     {
-        crate::game_loop::npc_cast::start_cast(world, beast_oid, owner, &skill);
+        crate::game_loop::npc::cast::start_cast(world, beast_oid, owner, &skill);
     }
 }
 
@@ -300,6 +294,6 @@ pub(crate) fn handle_mad_cow_polymorph(world: &mut World, cow_oid: i32, feeder_o
         {
             n.vars.insert("feeder".into(), feeder_oid);
         }
-        crate::game_loop::npc_ai::seed_attack(world, next, feeder_oid);
+        crate::game_loop::ai::seed_attack(world, next, feeder_oid);
     }
 }

@@ -299,7 +299,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
         {
             let x = p.x + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
             let y = p.y + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
-            crate::game_loop::npc_ai::move_npc_to(world, valakas_oid, x, y, p.z);
+            crate::game_loop::ai::move_npc_to(world, valakas_oid, x, y, p.z);
         }
         return;
     }
@@ -318,7 +318,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
     } else {
         // FOLLOW — close the distance before the next beat.
         if let Some(p) = position(world, victim) {
-            crate::game_loop::npc_ai::move_npc_to(world, valakas_oid, p.x, p.y, p.z);
+            crate::game_loop::ai::move_npc_to(world, valakas_oid, p.x, p.y, p.z);
         }
     }
 }

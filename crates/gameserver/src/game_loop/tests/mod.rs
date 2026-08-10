@@ -1267,8 +1267,8 @@ fn advance_world(world: &mut World, n: u64) {
         apply_due_tasks(world);
         visibility::movement_tick(world);
         combat::player_combat_tick(world);
-        if world.tick.is_multiple_of(npc_ai::NPC_THINK_PERIOD) {
-            npc_ai::npc_ai_tick(world);
+        if world.tick.is_multiple_of(ai::NPC_THINK_PERIOD) {
+            ai::npc_ai_tick(world);
             combat::stance_tick(world);
         }
     }

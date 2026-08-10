@@ -149,9 +149,9 @@ fn cast_buff(ctx: &mut QuestCtx, skill_id: i32) {
     let npc = ctx.npc;
     let player = ctx.player;
     if let Some(skill) = skill_by_id(ctx.world, skill_id, 1)
-        && crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill)
+        && crate::game_loop::npc::cast::check_use_conditions_pub(ctx.world, npc, &skill)
     {
-        crate::game_loop::npc_cast::start_cast(ctx.world, npc, player, &skill);
+        crate::game_loop::npc::cast::start_cast(ctx.world, npc, player, &skill);
     }
     if let Some(v) = ctx
         .world

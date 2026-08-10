@@ -3407,18 +3407,18 @@ fn an_npc_skill_on_cooldown_cannot_be_recast() {
     };
 
     assert!(
-        crate::game_loop::npc_cast::check_use_conditions_for_test(&world, FOE, &skill),
+        crate::game_loop::npc::cast::check_use_conditions_for_test(&world, FOE, &skill),
         "ready before the first cast"
     );
     crate::game_loop::skills::cast::set_skill_reuse(&mut world, FOE, &skill);
     assert!(
-        !crate::game_loop::npc_cast::check_use_conditions_for_test(&world, FOE, &skill),
+        !crate::game_loop::npc::cast::check_use_conditions_for_test(&world, FOE, &skill),
         "refused while on cooldown"
     );
 
     world.tick += 10_000 / 100 + 1; // past the 10 s reuse
     assert!(
-        crate::game_loop::npc_cast::check_use_conditions_for_test(&world, FOE, &skill),
+        crate::game_loop::npc::cast::check_use_conditions_for_test(&world, FOE, &skill),
         "ready again once it expires"
     );
 }

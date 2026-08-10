@@ -200,7 +200,7 @@ fn a_healer_heals_its_wounded_faction_mate_not_itself() {
     wound(&mut world, ALLY, 50.0); // 5 % — heal chance 142 %, certain
 
     assert!(
-        crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER),
+        crate::game_loop::npc::cast::try_cast(&mut world, HEALER, PLAYER),
         "a cast starts"
     );
 
@@ -220,7 +220,7 @@ fn a_healer_picks_the_worst_off_of_several_allies() {
     wound(&mut world, ALLY, 400.0); // 40 %
     wound(&mut world, STRANGER, 60.0); // 6 % — worse
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, HEALER, PLAYER
     ));
 
@@ -239,7 +239,7 @@ fn a_healer_still_heals_itself_when_it_is_the_worst_off() {
     wound(&mut world, ALLY, 900.0); // 90 %
     wound(&mut world, HEALER, 40.0); // 4 %
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, HEALER, PLAYER
     ));
 
@@ -258,7 +258,7 @@ fn a_different_faction_is_not_healed() {
     wound(&mut world, ALLY, 50.0); // badly hurt, but LIZARDMAN
     wound(&mut world, HEALER, 500.0); // 50 %
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, HEALER, PLAYER
     ));
 
@@ -284,7 +284,7 @@ fn a_wounded_player_is_never_healed() {
         v.cur_hp = 1.0; // far worse off than the healer
     }
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, HEALER, PLAYER
     ));
 
@@ -305,7 +305,7 @@ fn an_ally_out_of_range_is_not_considered() {
     wound(&mut world, ALLY, 50.0);
     wound(&mut world, HEALER, 500.0);
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, HEALER, PLAYER
     ));
 
@@ -323,7 +323,7 @@ fn a_healthy_pack_casts_no_heal() {
     scene(&mut world, Some(ALLY_ID), ALLY, 200);
     // Everyone at full HP: `checkSkillTarget` rejects a heal on an undamaged
     // target, so the ladder should fall through to the buff step instead.
-    let cast = crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER);
+    let cast = crate::game_loop::npc::cast::try_cast(&mut world, HEALER, PLAYER);
 
     if cast {
         let target = cast_target(&world).expect("a target");
@@ -367,7 +367,7 @@ fn a_buff_goes_to_a_faction_mate_that_lacks_it() {
         }]),
     );
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, HEALER, PLAYER
     ));
 
@@ -392,7 +392,7 @@ fn a_clanless_mob_only_ever_targets_itself() {
     wound(&mut world, ALLY, 50.0);
     wound(&mut world, HEALER, 500.0);
 
-    assert!(crate::game_loop::npc_cast::try_cast(
+    assert!(crate::game_loop::npc::cast::try_cast(
         &mut world, HEALER, PLAYER
     ));
 

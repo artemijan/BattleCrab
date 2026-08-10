@@ -384,7 +384,7 @@ pub(crate) fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate:
         .get_component::<NpcAi>(&npc_oid)
         .is_some_and(|ai| ai.intention != NpcIntention::Attack)
     {
-        super::npc_ai::set_running(world, npc_oid);
+        super::ai::set_running(world, npc_oid);
         if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
             ai.intention = NpcIntention::Attack;
             ai.attack_timeout_tick = world.tick + super::combat::ATTACK_TIMEOUT_TICKS;

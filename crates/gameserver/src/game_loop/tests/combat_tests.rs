@@ -751,7 +751,7 @@ fn idle_monster_random_walks_near_spawn() {
     // Force the walk-rate hit (0) and a delta landing well within drift (300):
     // deltaX = 500, deltaY = 500 + 83 = 583 → √(583²−500²) ≈ 299 → (200, −1).
     world.forced_rolls.extend([0, 500, 83]);
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     let mv = world
         .objects
@@ -805,7 +805,7 @@ fn idle_npc_plays_random_social_animation() {
         .next_animation_tick = Some(50);
     drain(&mut a_rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     let packets = drain(&mut a_rx);
     let social = packets
@@ -874,7 +874,7 @@ fn moving_npc_skips_random_animation() {
     );
     drain(&mut a_rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     let packets = drain(&mut a_rx);
     assert!(
@@ -2490,7 +2490,7 @@ fn siege_guard_aggros_intruding_attacker() {
         .unwrap()
         .global_aggro = 0;
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert!(
         world

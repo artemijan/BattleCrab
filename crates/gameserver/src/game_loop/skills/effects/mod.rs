@@ -1405,7 +1405,7 @@ pub(crate) fn apply_skill_effects(
                 if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) {
                     aggro.0.clear();
                 }
-                crate::game_loop::npc_ai::set_active(world, target_oid);
+                crate::game_loop::ai::set_active(world, target_oid);
             }
             // `DeleteHateOfMe.instant` — chance-rolled: `stopHating` just the
             // caster's own entry, but Java disengages the AI wholesale
@@ -1419,7 +1419,7 @@ pub(crate) fn apply_skill_effects(
                     && let Some(entry) = aggro.0.get_mut(&caster_oid) {
                         entry.hate = 0.0;
                     }
-                crate::game_loop::npc_ai::set_active(world, target_oid);
+                crate::game_loop::ai::set_active(world, target_oid);
             }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.

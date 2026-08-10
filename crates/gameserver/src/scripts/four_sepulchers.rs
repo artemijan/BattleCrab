@@ -8,6 +8,7 @@ use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_say;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{AdminFlags, Position, Vitals};
 
@@ -236,7 +237,7 @@ impl QuestScript for FourSepulchers {
                     },
                 );
                 if let Some(skill) = skill_by_id(ctx.world, PETRIFY, 1) {
-                    crate::game_loop::npc_cast::start_cast(ctx.world, npc, npc, &skill);
+                    crate::game_loop::npc::cast::start_cast(ctx.world, npc, npc, &skill);
                 }
                 ctx.world.scheduler.schedule(
                     ctx.world.tick + 5 * 60 * 10,
@@ -356,7 +357,7 @@ pub(crate) fn handle_victim_flee(world: &mut crate::world::World, npc_oid: i32) 
     };
     let dx = world.roll(801) - 400;
     let dy = world.roll(801) - 400;
-    crate::game_loop::npc_ai::move_npc_to(world, npc_oid, pos.x + dx, pos.y + dy, pos.z);
+    ai::move_npc_to(world, npc_oid, pos.x + dx, pos.y + dy, pos.z);
     let msg = VICTIM_MSG[world.roll(3) as usize];
     if let Some(npc_id) = npc_id_of(world, npc_oid) {
         let pkt = crate::network::server_packets::npc_say(npc_oid, npc_id, msg);

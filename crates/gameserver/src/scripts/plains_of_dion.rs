@@ -4,6 +4,7 @@
 
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_say_param;
+use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::AggroList;
@@ -123,7 +124,7 @@ impl QuestScript for PlainsOfDion {
             if !sees {
                 continue;
             }
-            crate::game_loop::npc_ai::seed_attack(ctx.world, helper, ctx.player);
+            ai::seed_attack(ctx.world, helper, ctx.player);
             let assist = ASSIST_MSG[ctx.roll(3) as usize];
             npc_say_param(ctx.world, helper, assist, None);
         }

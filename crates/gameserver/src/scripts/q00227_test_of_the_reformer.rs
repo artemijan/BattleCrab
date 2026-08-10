@@ -12,6 +12,7 @@
 //! Crimson Werewolf flees ("coward!") unless engaged with a mage attack skill,
 //! and is only credited to the player who last hit it with one.
 
+use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
 
@@ -196,7 +197,7 @@ impl QuestScript for Q00227TestOfTheReformer {
                     let pilgrim = ctx.spawn_bystander_at(OL_MAHUM_PILGRIM, -9282, -89975, -2331);
                     let wolf = ctx.spawn_bystander_at(CRIMSON_WEREWOLF, -9382, -89852, -2333);
                     if let (Some(pilgrim), Some(wolf)) = (pilgrim, wolf) {
-                        crate::game_loop::npc_ai::seed_attack(ctx.world, wolf, pilgrim);
+                        ai::seed_attack(ctx.world, wolf, pilgrim);
                     }
                 }
                 Some(event.to_string())
@@ -209,7 +210,7 @@ impl QuestScript for Q00227TestOfTheReformer {
                     let pilgrim = ctx.spawn_bystander_at(OL_MAHUM_PILGRIM, 125947, -180049, -1778);
                     let lizard = ctx.spawn_bystander_at(KRUDEL_LIZARDMAN, 126019, -179983, -1781);
                     if let (Some(pilgrim), Some(lizard)) = (pilgrim, lizard) {
-                        crate::game_loop::npc_ai::seed_attack(ctx.world, lizard, pilgrim);
+                        ai::seed_attack(ctx.world, lizard, pilgrim);
                     }
                 }
                 Some(event.to_string())

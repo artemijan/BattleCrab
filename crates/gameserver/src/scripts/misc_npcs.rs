@@ -137,7 +137,7 @@ fn trigger_cast(ctx: &mut QuestCtx, skill_id: i32) {
     let Some(skill) = skill_by_id(ctx.world, skill_id, 1) else {
         return;
     };
-    crate::game_loop::npc_cast::start_cast(ctx.world, ctx.npc, ctx.player, &skill);
+    crate::game_loop::npc::cast::start_cast(ctx.world, ctx.npc, ctx.player, &skill);
 }
 
 /// `player.isInsideZone(ZoneId.PVP)`.

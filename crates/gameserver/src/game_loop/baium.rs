@@ -444,7 +444,7 @@ pub(crate) fn handle_select_target(world: &mut World) {
             }
             None => {
                 if let Some((x, y, z)) = baium_pos {
-                    crate::game_loop::npc_ai::move_npc_to(world, angel, x, y, z);
+                    crate::game_loop::ai::move_npc_to(world, angel, x, y, z);
                 }
             }
         }
@@ -589,10 +589,10 @@ pub(crate) fn on_baium_attacked(world: &mut World, baium_oid: i32, attacker_oid:
     let Some(skill) = skill_by_id(world, ANTI_STRIDER, 1) else {
         return;
     };
-    if !crate::game_loop::npc_cast::check_use_conditions_pub(world, baium_oid, &skill) {
+    if !crate::game_loop::npc::cast::check_use_conditions_pub(world, baium_oid, &skill) {
         return;
     }
-    crate::game_loop::npc_cast::start_cast(world, baium_oid, attacker_oid, &skill);
+    crate::game_loop::npc::cast::start_cast(world, baium_oid, attacker_oid, &skill);
 }
 
 // ---------------------------------------------------------------------------

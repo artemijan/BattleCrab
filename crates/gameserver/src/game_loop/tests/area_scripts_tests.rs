@@ -1594,7 +1594,7 @@ fn dinosaur_low_hp_pops_the_selfbuff_once() {
         v.cur_hp = 250.0; // 25% — under both bands
     }
     // Seed some hate so `getMostHated` resolves to the striker.
-    crate::game_loop::npc_ai::seed_attack(&mut world, NPC_OID + 700, 5001);
+    crate::game_loop::ai::seed_attack(&mut world, NPC_OID + 700, 5001);
 
     // Both specials miss their rolls (99 > prob × 2).
     world.forced_rolls.push_back(99);

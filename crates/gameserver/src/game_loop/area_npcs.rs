@@ -431,7 +431,7 @@ pub(crate) fn handle_guard_random_walk(world: &mut World, npc_oid: i32) {
         let (vx, vy, vz) = world
             .geo
             .get_valid_location(spawn.0, spawn.1, spawn.2, dest_x, dest_y, spawn.2);
-        crate::game_loop::npc_ai::move_npc_to(world, npc_oid, vx, vy, vz);
+        crate::game_loop::ai::move_npc_to(world, npc_oid, vx, vy, vz);
     }
     arm_guard_walk(world, npc_oid);
 }

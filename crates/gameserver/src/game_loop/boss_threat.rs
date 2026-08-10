@@ -239,10 +239,10 @@ pub(crate) fn cast_boss_skill(
     let Some(skill) = skill_by_id(world, skill_id, 1) else {
         return false;
     };
-    if !crate::game_loop::npc_cast::check_use_conditions_pub(world, boss_oid, &skill) {
+    if !crate::game_loop::npc::cast::check_use_conditions_pub(world, boss_oid, &skill) {
         return false;
     }
     let target = if on_self { boss_oid } else { target_oid };
-    crate::game_loop::npc_cast::start_cast(world, boss_oid, target, &skill);
+    crate::game_loop::npc::cast::start_cast(world, boss_oid, target, &skill);
     true
 }

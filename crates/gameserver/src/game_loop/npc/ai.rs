@@ -11,7 +11,7 @@
 //!
 //! Idle random walk and random social animations
 //! (`RandomAnimationTaskManager`), NPC skill casting (see
-//! [`super::npc_cast`]), town-guard PK aggro, clan/faction help calls,
+//! [`super::cast`]), town-guard PK aggro, clan/faction help calls,
 //! `thinkAttack`'s line-of-sight gate (a mob that cannot see its target
 //! walks a geo-validated route instead of engaging), geodata-clamped
 //! chasing, `checkHate` aggro decay and the teleport-home attack timeout are
@@ -46,10 +46,13 @@ use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::network::server_packets;
 use crate::world::{World, regions_adjacent};
 
-use super::combat::{self, ATTACK_TIMEOUT_TICKS};
-use super::helpers::{broadcast_near_region_in, instance_of};
+use crate::game_loop::combat::{self, ATTACK_TIMEOUT_TICKS};
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
+use crate::game_loop::minions::{MinionOf, Minions};
+use crate::game_loop::walkers::WalkState;
+use crate::game_loop::{abnormal, death, minions, pvp, servitor, siege, spawn_scripts, target};
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;
@@ -121,7 +124,7 @@ fn random_animation_think(world: &mut World, npc_oid: i32) {
     // Both flags are memoized on the core at spawn — no template lookup here.
     let attackable = npc.attackable(world);
     let enabled =
-        super::spawn_scripts::random_animation_enabled(world, npc_oid, npc.random_animation(world));
+        spawn_scripts::random_animation_enabled(world, npc_oid, npc.random_animation(world));
     let (min_s, max_s) = if attackable {
         (
             world.cfg.npc.min_monster_animation,
@@ -260,7 +263,7 @@ fn think(world: &mut World, npc_oid: i32) {
     // short-circuits `AttackableAI.onEvtThink`. A *rooted* one still thinks
     // (it can attack an adjacent target); the movement primitives refuse the
     // chase leg on their own.
-    if super::abnormal::is_blocked_from_actions(world, npc_oid) {
+    if abnormal::is_blocked_from_actions(world, npc_oid) {
         return;
     }
     // GM-controlled mobs run their own state machine (which itself reuses the
@@ -280,8 +283,7 @@ fn think(world: &mut World, npc_oid: i32) {
     // against attackers. Both facts are memoized on the `Npc` core — no
     // template lookup on the every-NPC-every-second path.
     if !npc.attackable_ai(world)
-        && !(npc.is_defender(world)
-            && super::siege::active_siege_guard_castle(world, npc_oid).is_some())
+        && !(npc.is_defender(world) && siege::active_siege_guard_castle(world, npc_oid).is_some())
     {
         return;
     }
@@ -293,7 +295,7 @@ fn think(world: &mut World, npc_oid: i32) {
         .objects
         .has_component::<crate::model::components::ServitorOf>(&npc_oid)
     {
-        super::servitor::servitor_follow_tick(world, npc_oid);
+        servitor::servitor_follow_tick(world, npc_oid);
         if world
             .objects
             .get_component::<NpcAi>(&npc_oid)
@@ -606,7 +608,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
                 // Java `Monster.isAggressive()`'s second term: a monster under
                 // the `PASSIVE` flag (Veil 106, Requiem 1049) stops aggroing
                 // whatever its template says (G34 S3).
-                && !super::abnormal::is_pacified(world, npc_oid),
+                && !abnormal::is_pacified(world, npc_oid),
             t.map(|t| t.aggro_range).unwrap_or(0),
         )
     };
@@ -689,7 +691,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
     // stock guards); the enemy filter (anyone but a defender of this castle) is
     // `attackable_siege_guard`.
     if aggro_range > 0
-        && let Some(_castle) = super::siege::active_siege_guard_castle(world, npc_oid)
+        && let Some(_castle) = siege::active_siege_guard_castle(world, npc_oid)
     {
         let (nx, ny, nz) = {
             let pos = world
@@ -700,7 +702,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
         };
         let mut in_range = players_in_range_los(world, region, nx, ny, nz, aggro_range as f64);
         // Keep only actual enemies (attackers / non-defenders).
-        in_range.retain(|&pid| super::siege::attackable_siege_guard(world, npc_oid, pid));
+        in_range.retain(|&pid| siege::attackable_siege_guard(world, npc_oid, pid));
         in_range.retain(|&pid| notices_target(world, npc_oid, pid));
         if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
             for player_oid in in_range {
@@ -775,7 +777,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
         // route targets that clear it at runtime aren't in the monster slice).
         let random_walk = t.map(|t| t.random_walk).unwrap_or(false);
         // `ai/others/Spawns/NoRandomActivity` can clear it per NPC.
-        let random_walk = super::spawn_scripts::random_walk_enabled(world, npc_oid, random_walk);
+        let random_walk = spawn_scripts::random_walk_enabled(world, npc_oid, random_walk);
         (
             pos.x,
             pos.y,
@@ -910,7 +912,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
                 .get_component::<Position>(&npc_oid)
                 .map(|p| p.heading)
                 .unwrap_or(0);
-            super::death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
+            death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
         }
         return;
     }
@@ -981,7 +983,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     // Cast before closing distance — Java's "Cast skills" block sits between
     // the target checks and the range/move tail, so a caster that launched a
     // spell this think neither chases nor swings.
-    if super::npc_cast::try_cast(world, npc_oid, target_oid) {
+    if super::cast::try_cast(world, npc_oid, target_oid) {
         return;
     }
 
@@ -1066,7 +1068,7 @@ fn ai_type_of(world: &World, npc_oid: i32) -> AiType {
 /// `Creature.isMovementDisabled()` for a monster: the abnormal states that pin
 /// it (root/stun/sleep/paralysis) *or* a template that cannot move at all.
 fn movement_disabled(world: &World, npc_oid: i32) -> bool {
-    super::abnormal::is_movement_disabled(world, npc_oid)
+    abnormal::is_movement_disabled(world, npc_oid)
         || !npc_template(world, npc_oid).is_some_and(|t| t.can_move)
 }
 
@@ -1211,9 +1213,7 @@ fn raid_target_chaos(world: &mut World, npc_oid: i32) -> bool {
         return false;
     };
     let (is_raid, is_grand) = (template.is_raid(), template.type_name == "GrandBoss");
-    let is_minion = world
-        .objects
-        .has_component::<super::minions::MinionOf>(&npc_oid);
+    let is_minion = world.objects.has_component::<MinionOf>(&npc_oid);
     if !is_raid && !is_grand && !is_minion {
         return false;
     }
@@ -1239,7 +1239,7 @@ fn raid_target_chaos(world: &mut World, npc_oid: i32) -> bool {
         // `hasMinions() ? 200 : 100` — a boss with an escort shuffles sooner.
         let multiplier = if world
             .objects
-            .get_component::<super::minions::Minions>(&npc_oid)
+            .get_component::<Minions>(&npc_oid)
             .is_some_and(|m| !m.0.is_empty())
         {
             200.0
@@ -1311,7 +1311,7 @@ fn check_target(world: &World, npc_oid: i32, target_oid: i32) -> bool {
             return false;
         }
     }
-    super::target::is_auto_attackable(world, npc_oid, target_oid)
+    target::is_auto_attackable(world, npc_oid, target_oid)
 }
 
 /// `AttackableAI.targetReconsider(false)` — the most hated attacker that still
@@ -1472,7 +1472,7 @@ fn npc_leash_return_home(world: &mut World, npc_oid: i32) -> bool {
     leash_send_home(world, npc_oid, spawn);
     // "Minions should return as well" — Java walks the leader's escort back to
     // the *leader's* spawn point, not each minion's own.
-    for minion_oid in super::minions::live_pack(world, npc_oid) {
+    for minion_oid in minions::live_pack(world, npc_oid) {
         leash_send_home(world, minion_oid, spawn);
     }
     true
@@ -1495,10 +1495,7 @@ fn leash_home_point(world: &World, npc_oid: i32) -> Option<(i32, i32, i32)> {
     }
     let is_raid = t.is_raid();
     // `!npc.isWalker()` — a route NPC's "home" is wherever its route has it.
-    if world
-        .objects
-        .has_component::<super::walkers::WalkState>(&npc_oid)
-    {
+    if world.objects.has_component::<WalkState>(&npc_oid) {
         return None;
     }
     if is_raid && !world.cfg.npc.aggro_distance_check_raids {
@@ -1543,7 +1540,7 @@ fn leash_send_home(world: &mut World, npc_oid: i32, spawn: (i32, i32, i32)) {
         .get_component::<Position>(&npc_oid)
         .map(|p| p.heading)
         .unwrap_or(0);
-    super::death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
+    death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
 }
 
 /// `moveToPawn` for a chasing NPC: walk to the edge of attack reach,
@@ -1598,7 +1595,7 @@ pub(crate) fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i3
 fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Option<PawnRef>) {
     // `Creature.moveToLocation` bails on `isMovementDisabled()` — a rooted mob
     // stays put (and a stunned one never gets here; `think` already returned).
-    if super::abnormal::is_movement_disabled(world, npc_oid) {
+    if abnormal::is_movement_disabled(world, npc_oid) {
         return;
     }
     let (speed, start, region) = {
@@ -1749,6 +1746,7 @@ fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Op
 /// Java's third gate here, `player.isRecentFakeDeath()` (a grace window after
 /// standing up), is inert on this dist: `PlayerFakeDeathUpProtection = 0`.
 pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bool {
+    use crate::game_loop::abnormal;
     use crate::model::skill::effect_flag;
     // `//invis`: an invisible GM is never noticed — Java's `AttackableAI`
     // drops invisible targets and `OnCreatureSee` never fires for them
@@ -1760,7 +1758,7 @@ pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bo
     {
         return false;
     }
-    let flags = super::abnormal::flags_of(world, target_oid);
+    let flags = abnormal::flags_of(world, target_oid);
     // `isAlikeDead()` — a fake-dead player is, for aggro purposes, a corpse.
     if flags & effect_flag::FAKE_DEATH != 0 {
         return false;
@@ -1923,7 +1921,7 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
         // full hate. Either way the recruit switches to the attack loop.
         let added = if target_is_player { 1.0 } else { hate };
         recruit_to_attack(world, other, target_oid, added);
-        let attacker = super::pvp::acting_player(world, target_oid);
+        let attacker = pvp::acting_player(world, target_oid);
         on_faction_call_script(world, other, npc_oid, attacker);
     }
 }
@@ -1958,7 +1956,7 @@ pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: 
         return;
     }
     // `!killer.getActingPlayer().isGM()` — a GM cleaning up a spawn is ignored.
-    let actor = super::pvp::acting_player(world, killer_oid);
+    let actor = pvp::acting_player(world, killer_oid);
     if world
         .objects
         .get_component::<crate::model::Player>(&actor)
@@ -1986,7 +1984,7 @@ pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: 
     // object (a summon aggroes the pack on itself, exactly as in Java).
     for other in faction_recruits(world, npc_oid, help_range as f64, killer_pos.z, false) {
         recruit_to_attack(world, other, killer_oid, 1.0);
-        let attacker = super::pvp::acting_player(world, killer_oid);
+        let attacker = pvp::acting_player(world, killer_oid);
         on_faction_call_script(world, other, npc_oid, attacker);
     }
 }
@@ -2097,9 +2095,9 @@ fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, 
     let caller_hp = hp_pair(world, caller_oid);
     let cast = |world: &mut World, target: i32, (id, lvl): (i32, i32)| {
         if let Some(skill) = skill_by_id(world, id, lvl)
-            && crate::game_loop::npc_cast::check_use_conditions_pub(world, recruit_oid, &skill)
+            && crate::game_loop::npc::cast::check_use_conditions_pub(world, recruit_oid, &skill)
         {
-            crate::game_loop::npc_cast::start_cast(world, recruit_oid, target, &skill);
+            crate::game_loop::npc::cast::start_cast(world, recruit_oid, target, &skill);
         }
     };
     match recruit_id {

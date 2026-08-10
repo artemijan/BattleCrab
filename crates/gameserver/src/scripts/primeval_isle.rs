@@ -13,6 +13,7 @@ use crate::game_loop::guard::position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::AggroList;
@@ -165,7 +166,7 @@ impl QuestScript for PrimevalIsle {
                 if let Some(a) = ctx.world.objects.get_component_mut::<AggroList>(&npc) {
                     a.0.entry(target).or_default().hate += 555.0;
                 }
-                crate::game_loop::npc_ai::seed_attack(ctx.world, npc, target);
+                ai::seed_attack(ctx.world, npc, target);
             }
         }
     }
@@ -200,7 +201,7 @@ fn egg_on_attack(ctx: &mut QuestCtx) {
         // whatever landed the kill, pet included.
         if ctx.roll(2) == 0 {
             let target = ctx.killing_playable();
-            crate::game_loop::npc_ai::seed_attack(ctx.world, mob, target);
+            ai::seed_attack(ctx.world, mob, target);
         }
     }
 }
@@ -288,7 +289,7 @@ fn monster_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
             at.x + (dx / len * 3000.0) as i32,
             at.y + (dy / len * 3000.0) as i32,
         );
-        crate::game_loop::npc_ai::move_npc_to(ctx.world, npc, nx, ny, at.z);
+        ai::move_npc_to(ctx.world, npc, nx, ny, at.z);
         return;
     }
     let Some(tpl) = ctx.world.data.npc_data.get(ctx.npc_id) else {
@@ -329,7 +330,7 @@ fn trex_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
     let npc = ctx.npc;
     cast(ctx, npc, creature, CREW_SKILL, 1);
     set_running(ctx, npc);
-    crate::game_loop::npc_ai::seed_attack(ctx.world, npc, creature);
+    ai::seed_attack(ctx.world, npc, creature);
 }
 
 /// Java `onAttack`'s ordinary-dinosaur block: set `SKILL_MULTIPLER` from the
@@ -358,7 +359,7 @@ fn monster_on_attack(ctx: &mut QuestCtx) {
             cast(ctx, npc, npc, id, lvl);
             set_running(ctx, npc);
             if let Some(t) = target {
-                crate::game_loop::npc_ai::seed_attack(ctx.world, npc, t);
+                ai::seed_attack(ctx.world, npc, t);
             }
         }
     }
@@ -434,9 +435,9 @@ fn set_npc_var(ctx: &mut QuestCtx, name: &str, value: i32) {
 
 fn cast(ctx: &mut QuestCtx, npc: i32, target: i32, skill_id: i32, level: i32) {
     if let Some(skill) = skill_by_id(ctx.world, skill_id, level)
-        && crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill)
+        && crate::game_loop::npc::cast::check_use_conditions_pub(ctx.world, npc, &skill)
     {
-        crate::game_loop::npc_cast::start_cast(ctx.world, npc, target, &skill);
+        crate::game_loop::npc::cast::start_cast(ctx.world, npc, target, &skill);
     }
 }
 
@@ -477,9 +478,9 @@ pub(crate) fn handle_sprigant_trap(world: &mut crate::world::World, npc_oid: i32
         DEADLY_POISON
     };
     if let Some(skill) = skill_by_id(world, skill_id, 1)
-        && crate::game_loop::npc_cast::check_use_conditions_pub(world, npc_oid, &skill)
+        && crate::game_loop::npc::cast::check_use_conditions_pub(world, npc_oid, &skill)
     {
-        crate::game_loop::npc_cast::start_cast(world, npc_oid, npc_oid, &skill);
+        crate::game_loop::npc::cast::start_cast(world, npc_oid, npc_oid, &skill);
     }
     world.scheduler.schedule(
         world.tick + 150,
@@ -508,9 +509,9 @@ pub(crate) fn handle_trex_attack(world: &mut crate::world::World, trex_oid: i32,
         return;
     }
     if let Some(skill) = skill_by_id(world, LONG_RANGE_STUN, 1)
-        && crate::game_loop::npc_cast::check_use_conditions_pub(world, trex_oid, &skill)
+        && crate::game_loop::npc::cast::check_use_conditions_pub(world, trex_oid, &skill)
     {
-        crate::game_loop::npc_cast::start_cast(world, trex_oid, player_oid, &skill);
+        crate::game_loop::npc::cast::start_cast(world, trex_oid, player_oid, &skill);
     }
-    crate::game_loop::npc_ai::seed_attack(world, trex_oid, player_oid);
+    ai::seed_attack(world, trex_oid, player_oid);
 }

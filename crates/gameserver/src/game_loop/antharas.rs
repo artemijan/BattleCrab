@@ -730,9 +730,9 @@ pub(crate) fn on_antharas_damage(
     if on_strider
         && !crate::game_loop::abnormal::has_buff(world, attacker_oid, ANTI_STRIDER)
         && let Some(skill) = skill_by_id(world, ANTI_STRIDER, 1)
-        && crate::game_loop::npc_cast::check_use_conditions_pub(world, antharas_oid, &skill)
+        && crate::game_loop::npc::cast::check_use_conditions_pub(world, antharas_oid, &skill)
     {
-        crate::game_loop::npc_cast::start_cast(world, antharas_oid, attacker_oid, &skill);
+        crate::game_loop::npc::cast::start_cast(world, antharas_oid, attacker_oid, &skill);
     }
 
     super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);

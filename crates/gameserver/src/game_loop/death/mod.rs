@@ -155,7 +155,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // the AI think tick, so this is the only one that fires when a mob is
     // one-shot — without it `[G]` packs never retaliate for a mob that dropped
     // before it could think.
-    super::npc_ai::faction_call_on_kill(world, npc_oid, killer_oid);
+    super::ai::faction_call_on_kill(world, npc_oid, killer_oid);
 
     // `CursedWeaponsManager.checkDrop`: an ordinary monster slain by an
     // un-cursed player has a tiny chance to drop a cursed weapon.

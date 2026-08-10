@@ -108,7 +108,7 @@ pub(crate) fn handle_distance_check(world: &mut World, queen_oid: i32) {
         {
             aggro.0.clear();
         }
-        crate::game_loop::npc_ai::move_npc_to(
+        crate::game_loop::ai::move_npc_to(
             world,
             queen_oid,
             QUEEN_HOME.0,
@@ -196,8 +196,8 @@ fn cast_heal(world: &mut World, nurse_oid: i32, target_oid: i32, skill_id: i32) 
     let Some(skill) = skill_by_id(world, skill_id, 1) else {
         return;
     };
-    if !crate::game_loop::npc_cast::check_use_conditions_pub(world, nurse_oid, &skill) {
+    if !crate::game_loop::npc::cast::check_use_conditions_pub(world, nurse_oid, &skill) {
         return;
     }
-    crate::game_loop::npc_cast::start_cast(world, nurse_oid, target_oid, &skill);
+    crate::game_loop::npc::cast::start_cast(world, nurse_oid, target_oid, &skill);
 }

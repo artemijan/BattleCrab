@@ -16,7 +16,7 @@ use crate::data::GameData;
 use crate::db;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::Player;
-use crate::model::components::{PlayerVitals, Position, Vitals};
+use crate::model::components::{PlayerVitals, Position};
 use crate::model::npc::Npc;
 use crate::session::{ClientSession, Session, SessionKey};
 use crate::world::World;
@@ -152,7 +152,7 @@ pub fn movement_tick(world: &mut World) {
 }
 
 pub fn npc_ai_tick(world: &mut World) {
-    super::npc_ai::npc_ai_tick(world);
+    super::ai::npc_ai_tick(world);
 }
 
 pub fn stance_tick(world: &mut World) {

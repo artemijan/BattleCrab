@@ -45,8 +45,8 @@ fn infect(ctx: &mut QuestCtx, disease_id: i32) {
     };
     let npc = ctx.npc;
     let player = ctx.player;
-    if crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill) {
-        crate::game_loop::npc_cast::start_cast(ctx.world, npc, player, &skill);
+    if crate::game_loop::npc::cast::check_use_conditions_pub(ctx.world, npc, &skill) {
+        crate::game_loop::npc::cast::start_cast(ctx.world, npc, player, &skill);
     }
 }
 

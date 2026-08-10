@@ -383,7 +383,7 @@ fn a_stun_broadcasts_magic_skill_canceled_to_stop_the_animation() {
     // that keeps playing its spell animation.
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
     let mob_skill = skill_by_id(&world, 91, 1).expect("registered");
-    crate::game_loop::npc_cast::start_cast(&mut world, NPC_OID, CASTER, &mob_skill);
+    crate::game_loop::npc::cast::start_cast(&mut world, NPC_OID, CASTER, &mob_skill);
     assert!(
         world.objects.has_component::<Casting>(&NPC_OID),
         "the mob is mid-cast"

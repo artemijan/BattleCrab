@@ -63,7 +63,7 @@ fn requests(rx: &std::sync::mpsc::Receiver<PathRequest>) -> Vec<PathRequest> {
 fn a_clear_line_moves_straight_without_asking_the_path_worker() {
     let (mut world, rx, oid) = path_world();
 
-    crate::game_loop::npc_ai::move_npc_to(
+    crate::game_loop::ai::move_npc_to(
         &mut world,
         oid,
         GIRAN.0 + CLEAR_DELTA.0,
@@ -88,7 +88,7 @@ fn a_blocked_line_asks_the_path_worker_instead_of_walking_through_the_wall() {
         GIRAN.2,
     );
 
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
 
     let reqs = requests(&rx);
     assert_eq!(
@@ -125,9 +125,9 @@ fn a_second_think_does_not_queue_a_duplicate_request() {
         GIRAN.2,
     );
 
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
 
     assert_eq!(requests(&rx).len(), 1, "one outstanding request per mob");
 }
@@ -142,7 +142,7 @@ fn the_reply_starts_a_route_move_for_an_npc() {
         GIRAN.1 + BLOCKED_DELTA.1,
         GIRAN.2,
     );
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
     let req = requests(&rx).pop().expect("request queued");
 
     crate::game_loop::position::handle_path_result(
@@ -178,7 +178,7 @@ fn a_route_that_cannot_be_found_leaves_the_npc_still() {
         GIRAN.1 + BLOCKED_DELTA.1,
         GIRAN.2,
     );
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
     let req = requests(&rx).pop().expect("request queued");
 
     crate::game_loop::position::handle_path_result(
@@ -210,7 +210,7 @@ fn a_reply_for_a_mob_that_died_meanwhile_is_dropped() {
         GIRAN.1 + BLOCKED_DELTA.1,
         GIRAN.2,
     );
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
     let req = requests(&rx).pop().expect("request queued");
     world
         .objects
@@ -245,7 +245,7 @@ fn pathfinding_disabled_falls_back_to_the_old_straight_move() {
         GIRAN.2,
     );
 
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
+    crate::game_loop::ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
 
     assert!(
         requests(&rx).is_empty(),
@@ -269,7 +269,7 @@ fn the_npc_takes_the_geodata_corrected_z() {
     let (mut world, _rx, oid) = path_world();
     let absurd_z = GIRAN.2 + 5000;
 
-    crate::game_loop::npc_ai::move_npc_to(
+    crate::game_loop::ai::move_npc_to(
         &mut world,
         oid,
         GIRAN.0 + CLEAR_DELTA.0,
@@ -318,7 +318,7 @@ fn a_rooted_mob_still_refuses_to_move() {
         }]),
     );
 
-    crate::game_loop::npc_ai::move_npc_to(
+    crate::game_loop::ai::move_npc_to(
         &mut world,
         oid,
         GIRAN.0 + CLEAR_DELTA.0,

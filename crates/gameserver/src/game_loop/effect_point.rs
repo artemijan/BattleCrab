@@ -13,6 +13,7 @@ use crate::world::World;
 
 use super::helpers::ms_to_ticks;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::npc::cast;
 
 /// The `SummonNpc` effect's `EffectPoint` branch: spawn the totem at the
 /// point, link it to its owner, title it with the owner's name, and arm the
@@ -160,7 +161,7 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
         return;
     };
     if let Some(skill) = skill_by_id(world, skill_id, skill_level) {
-        super::npc_cast::start_cast(world, npc_oid, npc_oid, &skill);
+        cast::start_cast(world, npc_oid, npc_oid, &skill);
     }
     world.scheduler.schedule(
         world.tick + ms_to_ticks(delay_ms.max(100)),

@@ -215,7 +215,7 @@ reaches these call sites without `Vitals` has been despawned, and every one of
 these is a "may I act on this target?" guard where failing closed is correct.
 
 **Before flipping**, read the three `is_some_and` sites — `tvt.rs` decides round
-scoring, `npc_cast.rs` gates AI casting, `olympiad.rs` decides match outcome. If
+scoring, `cast` gates AI casting, `olympiad.rs` decides match outcome. If
 any of them depends on the current permissive answer, that is a real bug and
 should be its own commit with a test.
 

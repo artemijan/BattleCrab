@@ -7,7 +7,7 @@
 //! [`handle_npc_view_bypass`] (the button router).
 //!
 //! The **GM** branch of `NpcActionShift` (the admin `npcinfo.htm` window) is
-//! the sibling [`admin::npc_info`](super::admin::npc_info); `handle_action`
+//! the sibling [`admin::npc_info`](npc_info); `handle_action`
 //! picks between the two exactly like Java's `isGM()` test.
 //!
 //! All four verbs are handled: `view` (Info.htm), `skills` (Skills.htm),
@@ -23,12 +23,13 @@
 //!   `Util.sendCBHtml`, the chunked community-board channel that `DropList.htm`
 //!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
-use crate::game_loop::guard;
 use crate::game_loop::helpers::{format_amount, send_to_client};
+use crate::game_loop::{community_board, guard};
 use crate::network::server_packets;
 use crate::world::World;
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
+use crate::game_loop::admin::npc_info;
 
 const DROP_LIST_ITEMS_PER_PAGE: usize = 10;
 
@@ -480,7 +481,7 @@ fn send_npc_drop_list(
     // an NPC dialog: DropList.htm is laid out for the wide board window, and
     // the 16000-char budget above is sized for the chunked `ShowBoard` channel
     // rather than `NpcHtmlMessage`'s much smaller ceiling.
-    super::community_board::send_cb_html(world, client_id, &html);
+    community_board::send_cb_html(world, client_id, &html);
 }
 
 /// Java `DecimalFormat("0.00##")` — at least 2 decimals, at most 4, with the
@@ -497,7 +498,7 @@ fn format_chance(value: f64) -> String {
 
 /// `Creature.getAttackType`: the equipped weapon's type, else `FIST`,
 /// formatted like Java `CommonUtil.capitalizeFirst(name.toLowerCase())`.
-pub(super) fn attack_type_name(world: &World, t: &NpcTemplate) -> String {
+pub(in crate::game_loop) fn attack_type_name(world: &World, t: &NpcTemplate) -> String {
     use crate::data::item_data::WeaponType;
     let wt = if t.rhand != 0 {
         world.data.item_data.weapon_type(t.rhand)

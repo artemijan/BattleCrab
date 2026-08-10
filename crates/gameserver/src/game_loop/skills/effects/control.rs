@@ -320,7 +320,7 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
         {
             ai.intention = crate::model::npc::NpcIntention::MoveTo;
         }
-        crate::game_loop::npc_ai::move_npc_to(world, effected, vx, vy, vz);
+        crate::game_loop::ai::move_npc_to(world, effected, vx, vy, vz);
     }
 }
 

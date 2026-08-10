@@ -82,9 +82,7 @@ mod net;
 // re-exported rather than opening the whole module up.
 pub use net::register_metrics;
 pub(crate) mod night_stats;
-pub(crate) mod npc_ai;
-pub(crate) mod npc_cast;
-mod npc_view;
+pub mod npc;
 pub(crate) mod offline_trade;
 pub(crate) mod olympiad;
 mod options;
@@ -152,6 +150,7 @@ use crate::world::World;
 
 use crate::game_loop::helpers::region_cell_of;
 use net::handle_game_event;
+use npc::ai;
 use regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};
 use skills::cast::{handle_cast_end, handle_skill_finish, handle_skill_launch};
 use skills::effects::handle_buff_expire;
@@ -353,10 +352,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         if world.tick.is_multiple_of(walkers::WALKER_PERIOD) {
             timed!("walkers", walkers::walker_tick(&mut world));
         }
-        if world.tick.is_multiple_of(npc_ai::NPC_THINK_PERIOD) {
+        if world.tick.is_multiple_of(ai::NPC_THINK_PERIOD) {
             // AttackableAI think (1 s) + the combat-stance sweep (15 s
             // timeouts, checked at the same 1 s cadence as Java).
-            timed!("npc_ai", npc_ai::npc_ai_tick(&mut world));
+            timed!("npc_ai", ai::npc_ai_tick(&mut world));
             timed!("stance", combat::stance_tick(&mut world));
             timed!("pvp_flags", pvp::pvp_flag_tick(&mut world));
         }
@@ -887,7 +886,7 @@ fn apply_due_tasks(world: &mut World) {
                 helpers::run_queued_action(world, object_id);
             }
             ScheduledTask::NpcAttackReady { npc_oid } => {
-                npc_ai::on_npc_attack_ready(world, npc_oid);
+                ai::on_npc_attack_ready(world, npc_oid);
             }
             ScheduledTask::GroundItemDecay { item_object_id } => {
                 ground_items::handle_ground_item_decay(world, item_object_id);

@@ -893,7 +893,7 @@ fn idle_monster_without_random_walk_stays_put() {
 
     // Even if a 0 were queued, the random_walk gate short-circuits before it.
     world.forced_rolls.extend([0, 0, 0]);
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert!(
         !world.objects.has_component::<Movement>(&npc_oid),

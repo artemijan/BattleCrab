@@ -4843,7 +4843,7 @@ fn npc_aggro_ignores_hidden_gm() {
     drain(&mut gm_rx);
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 10, 100, 0, 0);
     assert!(
-        crate::game_loop::npc_ai::notices_target(&world, NPC_OID, 7131),
+        crate::game_loop::ai::notices_target(&world, NPC_OID, 7131),
         "a visible player is noticed"
     );
     let mut flags = world
@@ -4854,7 +4854,7 @@ fn npc_aggro_ignores_hidden_gm() {
     flags.hidden = true;
     world.objects.add_components(&7131, flags);
     assert!(
-        !crate::game_loop::npc_ai::notices_target(&world, NPC_OID, 7131),
+        !crate::game_loop::ai::notices_target(&world, NPC_OID, 7131),
         "a hidden GM is never noticed"
     );
 }

@@ -24,6 +24,7 @@ use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
+use crate::game_loop::{abnormal, combat, servitor};
 use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
 use crate::model::components::{Casting, Position, Vitals};
 use crate::model::npc::AggroList;
@@ -32,11 +33,12 @@ use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use super::helpers::ms_to_ticks;
-use super::helpers::{broadcast_near_region_in, instance_of};
-use super::skills::cast::set_skill_reuse;
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
+use crate::game_loop::skills::cast;
+use crate::game_loop::skills::cast::set_skill_reuse;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.
 const SHORT_RANGE: f64 = 150.0;
@@ -239,13 +241,13 @@ fn check_use_conditions(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     }
     // A muted NPC can't cast — the same abnormal gate players go through.
     if skill.magic_type == 1 {
-        if super::abnormal::is_muted(world, npc_oid) {
+        if abnormal::is_muted(world, npc_oid) {
             return false;
         }
-    } else if super::abnormal::is_physical_muted(world, npc_oid) {
+    } else if abnormal::is_physical_muted(world, npc_oid) {
         return false;
     }
-    if super::abnormal::is_blocked_from_actions(world, npc_oid) {
+    if abnormal::is_blocked_from_actions(world, npc_oid) {
         return false;
     }
     if let Some(reuses) = world
@@ -339,20 +341,21 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
 ///
 /// `sendMessage` is false for every AI cast, so no arm has a message to send.
 ///
-/// [`skills::cast::resolve_cast_target`]: super::skills::cast::resolve_cast_target
+/// [`skills::cast::resolve_cast_target`]: cast::resolve_cast_target
 pub(crate) fn resolve_npc_cast_target(
     world: &World,
     npc_oid: i32,
     selected_oid: i32,
     skill: &Skill,
 ) -> Option<i32> {
+    use crate::game_loop::{abnormal, servitor, target, zones};
     use crate::model::skill::TargetType;
 
     // Java passes `getActiveChar().isMovementDisabled()` as `dontMove`, which
     // turns the TARGET/ENEMY handlers' "walk into cast range" into a refusal —
     // a rooted mob can't close, so an out-of-range skill is dropped instead of
     // being cast from where it stands.
-    let dont_move = super::abnormal::is_movement_disabled(world, npc_oid);
+    let dont_move = abnormal::is_movement_disabled(world, npc_oid);
 
     let resolved = match skill.target_type {
         // `None.java`: the caster outright, with no peace-zone gate.
@@ -383,7 +386,7 @@ pub(crate) fn resolve_npc_cast_target(
         // reason to pick a lock, so this is inert on both sides.
         TargetType::DoorTreasure => return None,
         // `Summon.java`: the caster's own servitor.
-        TargetType::Summon => super::servitor::servitor_of(world, npc_oid)?,
+        TargetType::Summon => servitor::servitor_of(world, npc_oid)?,
         // `Target.java`: any creature, self included (self returns early and
         // skips every gate — "you can always target yourself").
         TargetType::Target => {
@@ -406,7 +409,7 @@ pub(crate) fn resolve_npc_cast_target(
             if is_dead(world, selected_oid) && !skill.stay_after_death {
                 return None;
             }
-            if !super::target::is_auto_attackable(world, npc_oid, selected_oid) {
+            if !target::is_auto_attackable(world, npc_oid, selected_oid) {
                 return None;
             }
             if dont_move && !within_cast_range(world, npc_oid, selected_oid, skill) {
@@ -421,7 +424,7 @@ pub(crate) fn resolve_npc_cast_target(
             if selected_oid == npc_oid {
                 return Some(npc_oid);
             }
-            if super::target::is_auto_attackable(world, npc_oid, selected_oid) {
+            if target::is_auto_attackable(world, npc_oid, selected_oid) {
                 return None;
             }
             selected_oid
@@ -499,7 +502,7 @@ pub(crate) fn resolve_npc_cast_target(
     // a monster caster — ported for shape and for the servitor casts that do
     // reach this path.
     if matches!(skill.target_type, TargetType::Enemy | TargetType::EnemyOnly)
-        && super::zones::is_inside_peace_zone(world, npc_oid, resolved)
+        && zones::is_inside_peace_zone(world, npc_oid, resolved)
     {
         return None;
     }
@@ -572,13 +575,13 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     // distinct ids) or in any datapack script's `getSkill(...)`. So the
     // unconditional stop is not merely exact for today's callers — there is no
     // data on this dist that can reach the other branch.
-    super::npc_ai::stop_npc(world, npc_oid);
+    super::ai::stop_npc(world, npc_oid);
 
     // Java `Summon.doCast` → `rechargeShots(false, true, false)`: a summon
     // charges its magic shot before casting, the mirror of the soulshot charge
     // the attack loop does before swinging. No-op for a plain monster.
     if skill.magic_type == 1 {
-        super::servitor::recharge_spiritshots(world, npc_oid);
+        servitor::recharge_spiritshots(world, npc_oid);
     }
     let Some((tx, ty, tz)) = position_of(world, target_oid) else {
         return;
@@ -682,7 +685,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 }
 
 fn collision_radius(world: &World, oid: i32) -> f64 {
-    super::combat::combatant(world, oid)
+    combat::combatant(world, oid)
         .map(|c| c.collision_radius)
         .unwrap_or(0.0)
 }

@@ -127,7 +127,7 @@ pub(crate) fn walker_tick(world: &mut World) {
             .and_then(|r| r.nodes.get(next))
             .map(|n| (n.x, n.y, n.z));
         if let Some((x, y, z)) = dest {
-            super::npc_ai::move_npc_to(world, oid, x, y, z);
+            super::ai::move_npc_to(world, oid, x, y, z);
         }
     }
 }

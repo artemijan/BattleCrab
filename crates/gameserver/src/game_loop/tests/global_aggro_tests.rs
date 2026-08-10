@@ -76,7 +76,7 @@ fn a_calm_mob_ignores_hate_it_already_carries() {
     mob_hating_player(&mut world, 100.0);
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_eq!(global_aggro(&world), -9, "the counter ticked one step");
     assert_eq!(
@@ -97,7 +97,7 @@ fn hate_takes_effect_once_the_calm_window_closes() {
 
     // 10 thinks to walk -10 up to 0, and one more to act on it.
     for _ in 0..11 {
-        npc_ai::npc_ai_tick(&mut world);
+        ai::npc_ai_tick(&mut world);
     }
 
     assert_eq!(global_aggro(&world), 0, "window closed");
@@ -124,7 +124,7 @@ fn a_calm_mob_still_drifts_back_towards_its_spawn() {
     }
     drain(&mut rx);
 
-    npc_ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert_eq!(intention(&world), NpcIntention::Active, "still calm");
     assert!(

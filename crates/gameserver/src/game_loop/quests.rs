@@ -33,6 +33,7 @@ use crate::world::World;
 use super::death::ADENA_ID;
 use super::helpers::client_for_player;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::npc::cast;
 
 /// One compiled-in script (Java: a `Quest` subclass). Implementations are
 /// stateless — everything they touch goes through the [`QuestCtx`]. `id() >
@@ -1398,7 +1399,7 @@ impl<'w> QuestCtx<'w> {
         target_oid: i32,
     ) -> Option<i32> {
         let spawned = self.spawn_near_npc(npc_id, random_offset)?;
-        super::npc_ai::seed_attack(self.world, spawned, target_oid);
+        super::ai::seed_attack(self.world, spawned, target_oid);
         Some(spawned)
     }
 
@@ -1513,7 +1514,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        super::npc_ai::seed_attack(self.world, self.npc, target_oid);
+        super::ai::seed_attack(self.world, self.npc, target_oid);
     }
 
     /// `Attackable.addAbsorber(caster)`: record the acting player as an absorber
@@ -1614,7 +1615,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        super::npc_ai::seed_attack(self.world, npc_oid, target_oid);
+        super::ai::seed_attack(self.world, npc_oid, target_oid);
     }
 
     /// `npc.getCurrentHp() / npc.getMaxHp()` for the in-context NPC, as a
@@ -1653,10 +1654,10 @@ impl<'w> QuestCtx<'w> {
         let Some(skill) = skill_by_id(self.world, skill_id, level) else {
             return false;
         };
-        if !super::npc_cast::check_use_conditions_pub(self.world, caster_oid, &skill) {
+        if !cast::check_use_conditions_pub(self.world, caster_oid, &skill) {
             return false;
         }
-        super::npc_cast::start_cast(self.world, caster_oid, target_oid, &skill);
+        cast::start_cast(self.world, caster_oid, target_oid, &skill);
         true
     }
 
@@ -1755,7 +1756,7 @@ impl<'w> QuestCtx<'w> {
         let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
         super::death::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
-        super::npc_ai::seed_attack(self.world, spawned, self.player);
+        super::ai::seed_attack(self.world, spawned, self.player);
         Some(spawned)
     }
 

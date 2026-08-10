@@ -5,7 +5,7 @@
 //! `Npc.onActionShift` → `NpcActionShift`, whose first branch (`player.isGM()`)
 //! targets the NPC and serves the admin html; only a non-GM falls through to
 //! the `ALT_GAME_VIEWNPC` player view
-//! ([`npc_view`](crate::game_loop::npc_view)).
+//! ([`npc_view`](crate::game_loop::npc::view)).
 //!
 //! Scope vs. Java, all of it html-cosmetic:
 //! - `%mpReward*%` — the MP-reward system is Goddess-era; no Interlude npc
@@ -20,7 +20,7 @@
 //! Every button on the window is live: `Kill`/`Delete`/`Recall`/`Buffs` reach
 //! their admin commands, `Quests` is `AdminQuest`'s `//show_quests` (the NPC
 //! script listing — *not* `//charquestmenu`), and `NpcView`/`Skills`/
-//! `AggroList` bypass into [`npc_view`](crate::game_loop::npc_view).
+//! `AggroList` bypass into [`npc_view`](crate::game_loop::npc::view).
 
 use crate::data::npc_data::{AiType, NpcTemplate};
 use crate::model::components::{CombatStats, Position, Speeds, Vitals};
@@ -118,7 +118,7 @@ pub(crate) fn send_npc_info(
         ("cspd", stats.m_atk_spd.to_string()),
         (
             "atkType",
-            crate::game_loop::npc_view::attack_type_name(world, t),
+            crate::game_loop::npc::view::attack_type_name(world, t),
         ),
         ("atkRng", t.base_atk_range.to_string()),
         ("str", t.base_str.to_string()),

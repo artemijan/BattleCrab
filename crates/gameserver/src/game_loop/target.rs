@@ -9,6 +9,7 @@ use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::npc::view;
 use crate::model::components::{Intent, Position, QueuedAction, TargetRef, Vitals};
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -298,7 +299,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             } else if shift && world.cfg.npc.alt_game_view_npc {
                 // `NpcActionShift`: set the target, then open the info window.
                 set_target(world, client_id, object_id, Some(pkt.object_id));
-                super::npc_view::send_npc_view(world, client_id, pkt.object_id);
+                view::send_npc_view(world, client_id, pkt.object_id);
             } else {
                 let already_targeted = world
                     .objects
