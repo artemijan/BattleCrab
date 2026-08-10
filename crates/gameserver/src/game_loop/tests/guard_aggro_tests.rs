@@ -64,15 +64,6 @@ fn guard_world() -> (
     (world, db, l)
 }
 
-fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
-    world
-        .objects
-        .get_component::<AggroList>(&npc)
-        .and_then(|a| a.0.get(&target))
-        .map(|i| i.hate)
-        .unwrap_or(0.0)
-}
-
 fn set_reputation(world: &mut World, oid: i32, rep: i32) {
     world
         .objects

@@ -90,15 +90,6 @@ fn minions_of(world: &mut World, master: i32) -> Vec<i32> {
     out
 }
 
-fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
-    world
-        .objects
-        .get_component::<AggroList>(&npc)
-        .and_then(|a| a.0.get(&target))
-        .map(|i| i.hate)
-        .unwrap_or(0.0)
-}
-
 fn kill(world: &mut World, oid: i32) {
     let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
     v.cur_hp = 0.0;

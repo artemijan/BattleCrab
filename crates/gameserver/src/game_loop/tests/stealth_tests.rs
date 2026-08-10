@@ -11,7 +11,6 @@
 use super::*;
 
 use crate::model::components::Buffs;
-use crate::model::npc::AggroList;
 use crate::model::skill::{SkillEffect, effect_flag};
 
 const PLAYER: i32 = 5001;
@@ -57,15 +56,6 @@ fn stealth_world() -> (
 /// existence before it notices anybody. (Guards are exempt: their PK scan isn't
 /// gated on it, which is why the guard tests elsewhere get away with 20.)
 const AGGRO_WARMUP: u64 = 120;
-
-fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
-    world
-        .objects
-        .get_component::<AggroList>(&npc)
-        .and_then(|a| a.0.get(&target))
-        .map(|i| i.hate)
-        .unwrap_or(0.0)
-}
 
 /// Stamp a buff carrying `flags` straight onto the player — the state the
 /// aggro gate reads, without needing a real cast.

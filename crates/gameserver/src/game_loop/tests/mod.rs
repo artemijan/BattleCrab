@@ -29,6 +29,7 @@ use crate::model::components::{Macros, Shortcuts};
 use crate::model::components::{PartyRef, PendingRequest};
 use crate::model::formulas;
 use crate::model::inventory::Inventory;
+use crate::model::npc::AggroList;
 use crate::model::party::LootRule;
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
@@ -356,6 +357,14 @@ fn own_castle(world: &mut World, castle_id: i32) {
 fn load_real_multisell_data(world: &mut World, dist_loc: &str) {
     world.data.item_data = crate::data::ItemData::load_from(dist_loc);
     world.data.multisells = MultisellData::load_from(dist_loc, &world.data.item_data);
+}
+fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
+    world
+        .objects
+        .get_component::<AggroList>(&npc)
+        .and_then(|a| a.0.get(&target))
+        .map(|i| i.hate)
+        .unwrap_or(0.0)
 }
 fn pbuffs(world: &World, oid: i32) -> usize {
     world
