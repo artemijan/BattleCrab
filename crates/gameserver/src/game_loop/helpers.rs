@@ -257,16 +257,6 @@ pub(crate) fn restore_hp_mp(world: &mut World, object_id: i32) {
 }
 
 pub(crate) fn send_inventory_item_list(world: &World, player: i32) {
-    // if let (Some(inv), Some(client_id)) = (
-    //     world.objects.get_component::<Inventory>(&player),
-    //     client_for_player(world, player),
-    // ) {
-    //     send_to_client(
-    //         world,
-    //         client_id,
-    //         crate::network::enter_world::item_list(inv, &world.data, false),
-    //     );
-    // }
     if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
         send_to_player(
             world,

@@ -18,8 +18,8 @@
 
 use commons::network::PacketReader;
 
-use super::helpers::send_sm_bare_to_client as send_sm;
 use super::helpers::{player_of, send_to_client as send};
+use super::helpers::{send_inventory_item_list, send_sm_bare_to_client as send_sm};
 use crate::game_loop::helpers::item_id_of;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -195,7 +195,7 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
         client_id,
         sp::ex_variation_result(option1, option2, true),
     );
-    refresh(world, client_id, player);
+    send_inventory_item_list(world, player);
     // If the weapon is equipped, its equip-slot augment display must refresh.
     refresh_slot_if_equipped(world, player, target_obj, client_id);
 }
@@ -244,23 +244,9 @@ pub(crate) fn handle_refine_cancel(world: &mut World, client_id: u32, body: &[u8
         inv.remove_augmentation(target_obj);
     }
     send(world, client_id, sp::ex_variation_cancel_result(true));
-    refresh(world, client_id, player);
+    send_inventory_item_list(world, player);
     refresh_slot_if_equipped(world, player, target_obj, client_id);
 }
-
-fn refresh(world: &World, client_id: u32, player: i32) {
-    if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
-        send(
-            world,
-            client_id,
-            crate::network::enter_world::item_list(inv, &world.data, false),
-        );
-    }
-}
-
-// ---------------------------------------------------------------------------
-// The augment window's confirm steps (ex 0x26 / 0x28 / 0x3F — row 11)
-// ---------------------------------------------------------------------------
 
 /// `RequestConfirmTargetItem` (ex 0x26): the player dropped a weapon into the
 /// augment window's first slot. Java validates that the item *has* fee data

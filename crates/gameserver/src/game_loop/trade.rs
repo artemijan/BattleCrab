@@ -2,8 +2,8 @@
 //! items and presses OK → when both confirm, the items swap. One active trade
 //! per player; items stay in the owner's inventory until the swap.
 
-use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{player_name_or_empty, send_inventory_item_list};
 use commons::network::PacketReader;
 
 use super::helpers::{player_of, send_to_player as send};
@@ -305,7 +305,7 @@ fn execute(world: &mut World, a: i32, b: i32) {
     for oid in [a, b] {
         world.objects.remove_component::<Trade>(&oid);
         send(world, oid, sp::trade_done(true));
-        refresh(world, oid);
+        send_inventory_item_list(world, oid);
     }
 }
 
@@ -344,15 +344,5 @@ fn transfer_side(world: &mut World, from: i32, to: i32) {
                 -1,
             );
         }
-    }
-}
-
-fn refresh(world: &World, oid: i32) {
-    if let Some(inv) = world.objects.get_component::<Inventory>(&oid) {
-        send(
-            world,
-            oid,
-            crate::network::enter_world::item_list(inv, &world.data, false),
-        );
     }
 }
