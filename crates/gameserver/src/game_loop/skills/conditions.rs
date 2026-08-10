@@ -396,12 +396,7 @@ fn owns_residence(
     residence: crate::model::skill::ResidenceType,
 ) -> bool {
     use crate::model::skill::ResidenceType;
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&caster)
-        .map(|p| p.clan_id)
-        .filter(|id| *id != 0)
-    else {
+    let Some(clan_id) = crate::game_loop::guard::clan_of(world, caster) else {
         return false;
     };
     match residence {
