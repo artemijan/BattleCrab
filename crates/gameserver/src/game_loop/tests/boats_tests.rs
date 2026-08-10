@@ -14,7 +14,7 @@ use crate::model::components::Position;
 fn boat_announced(packets: &[Vec<u8>], msg_id: u32) -> bool {
     packets.iter().any(|p| {
         p.len() >= 17
-            && p[0] == crate::network::server_packets::opcodes::SAY2
+            && p[0] == server_packets::opcodes::SAY2
             && i32::from_le_bytes([p[5], p[6], p[7], p[8]])
                 == crate::enums::ChatType::Boat.client_id()
             && i32::from_le_bytes([p[13], p[14], p[15], p[16]]) == msg_id as i32
@@ -103,7 +103,7 @@ fn ferry_cycles_through_its_waypoints() {
 #[test]
 fn all_four_ferries_spawn_docked() {
     let (mut world, _tx, _db, _l) = test_world();
-    crate::game_loop::boats::spawn_boats(&mut world);
+    boats::spawn_boats(&mut world);
 
     // Collect every spawned ferry's route.
     let mut routes: Vec<RouteId> = Vec::new();
@@ -296,7 +296,7 @@ fn departing_ferry_collects_tickets_and_ousts_stowaways() {
     );
     let tickets_left = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&100)
+        .get_component::<Inventory>(&100)
         .unwrap()
         .count_of(BOAT_TICKET);
     assert_eq!(tickets_left, 0, "the ticket was collected");
@@ -318,11 +318,11 @@ fn walking_on_deck_moves_the_seat_and_broadcasts() {
 
     // Board the anchored ferry at seat origin, then drain the boarding packets.
     let boat = spawn_on(&mut world, route(test_dock_sched()));
-    crate::game_loop::boats::board(&mut world, 100, boat, (0, 0, 0));
+    boats::board(&mut world, 100, boat, (0, 0, 0));
     let _ = drain(&mut rx);
 
     // Walk across the deck: seat origin (0,0,0) → (50, -20, 0).
-    crate::game_loop::boats::move_in_vehicle(&mut world, 100, boat, (50, -20, 0), (0, 0, 0));
+    boats::move_in_vehicle(&mut world, 100, boat, (50, -20, 0), (0, 0, 0));
     let iv = world.objects.get_component::<InVehicle>(&100).unwrap();
     assert_eq!(
         (iv.seat_x, iv.seat_y, iv.seat_z),
@@ -339,7 +339,7 @@ fn walking_on_deck_moves_the_seat_and_broadcasts() {
     );
 
     // A zero-length move is a stop request → StopMoveInVehicle, seat unchanged.
-    crate::game_loop::boats::move_in_vehicle(&mut world, 100, boat, (50, -20, 0), (50, -20, 0));
+    boats::move_in_vehicle(&mut world, 100, boat, (50, -20, 0), (50, -20, 0));
     let iv = world.objects.get_component::<InVehicle>(&100).unwrap();
     assert_eq!(
         (iv.seat_x, iv.seat_y),
@@ -411,7 +411,7 @@ fn in_transit_arrival_shout_fires_while_sailing_then_stops_once_docked() {
     if let Some(b) = world.objects.get_component_mut::<Boat>(&boat) {
         b.moving = false;
     }
-    crate::game_loop::boats::handle_voyage_shout(&mut world, boat, 0, 0);
+    boats::handle_voyage_shout(&mut world, boat, 0, 0);
     let p = drain(&mut rx);
     assert!(
         !boat_announced(&p, 8001),

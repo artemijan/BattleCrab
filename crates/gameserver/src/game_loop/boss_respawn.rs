@@ -16,24 +16,13 @@
 //! the DB) while preserving the "DB wins" rule.
 //!
 //! [`spawn_all`]: crate::model::npc::spawn_all
-
+use crate::data::spawn_data;
 use crate::db::{DbCommand, NpcRespawnRow};
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
-
-/// Java stores absolute unix millis in `npc_respawns.respawnTime`, with 0
-/// meaning "alive". The world clock is a tick counter, so the two are bridged
-/// here at boot (and only here).
-fn now_millis() -> i64 {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_millis() as i64)
-        .unwrap_or(0)
-}
 
 /// `DBSpawnManager.load` + the deferred half of `NpcSpawnTemplate.spawnNpc`:
 /// settle every `dbSave` spawn against its stored row.
@@ -52,15 +41,7 @@ pub(crate) fn resolve_boot(world: &mut World, rows: Vec<NpcRespawnRow>) {
     let mut scheduled = 0usize;
 
     for spawn_ref in pending {
-        let Some(npc_id) = world
-            .data
-            .spawn_data
-            .spawns
-            .get(spawn_ref.0)
-            .and_then(|t| t.groups.get(spawn_ref.1))
-            .and_then(|g| g.npcs.get(spawn_ref.2))
-            .map(|d| d.npc_id)
-        else {
+        let Some(npc_id) = npc_spawn_def(world, spawn_ref).map(|d| d.npc_id) else {
             continue;
         };
         let row = rows.iter().find(|r| r.npc_id == npc_id).copied();
@@ -152,17 +133,9 @@ pub(crate) fn persist_death_at(world: &World, npc_id: i32, pos: Position, respaw
         cur_mp: 0.0,
     });
 }
-
 /// Is this NPC one the DB owns? (`NpcSpawnDef.db_save` on its spawn line.)
 pub(crate) fn is_db_saved(world: &World, spawn_ref: (usize, usize, usize)) -> bool {
-    world
-        .data
-        .spawn_data
-        .spawns
-        .get(spawn_ref.0)
-        .and_then(|t| t.groups.get(spawn_ref.1))
-        .and_then(|g| g.npcs.get(spawn_ref.2))
-        .is_some_and(|d| d.db_save)
+    npc_spawn_def(world, spawn_ref).is_some_and(|d| d.db_save)
 }
 
 /// `ScheduledTask::BossRespawn` — a boss whose stored respawn time came due
@@ -193,4 +166,28 @@ pub(crate) fn save_all_bosses(world: &mut World) {
             persist_alive(world, npc_id, oid);
         }
     }
+}
+
+fn npc_spawn_def(
+    world: &World,
+    spawn_ref: (usize, usize, usize),
+) -> Option<&spawn_data::NpcSpawnDef> {
+    world
+        .data
+        .spawn_data
+        .spawns
+        .get(spawn_ref.0)
+        .and_then(|t| t.groups.get(spawn_ref.1))
+        .and_then(|g| g.npcs.get(spawn_ref.2))
+}
+
+/// Java stores absolute unix millis in `npc_respawns.respawnTime`, with 0
+/// meaning "alive". The world clock is a tick counter, so the two are bridged
+/// here at boot (and only here).
+fn now_millis() -> i64 {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
 }
