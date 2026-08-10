@@ -6,10 +6,6 @@ use crate::model::Player;
 
 const SNOOP_OPCODE: u8 = 0xDB;
 
-fn has_opcode(pkts: &[Vec<u8>], op: u8) -> bool {
-    pkts.iter().any(|p| p.first() == Some(&op))
-}
-
 #[test]
 fn snoop_mirrors_the_targets_chat_to_the_gm() {
     let (mut world, ..) = admin_world();

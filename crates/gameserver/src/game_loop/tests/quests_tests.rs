@@ -20575,52 +20575,34 @@ fn fishing_zone_toggles_auto_fish_available() {
 /// harbor, and step off.
 #[test]
 fn ferry_ride_board_travel_disembark() {
-    use crate::model::boat::{InVehicle, VehiclePathPoint};
+    use crate::model::boat::{InVehicle, RouteDef, VehiclePathPoint};
     use crate::model::components::Position;
 
     // A there-and-back route with docks at both ends; the ferry spawns docked
-    // at the last waypoint (dock A, 1000,1000).
-    const RIDE_ROUTE: &[VehiclePathPoint] = &[
-        VehiclePathPoint {
-            x: 1400,
-            y: 1000,
-            z: -3600,
-            move_speed: 200,
-            rotation_speed: 800,
-            dock: false,
-            schedule: None,
-        }, // mid
-        VehiclePathPoint {
-            x: 1800,
-            y: 1000,
-            z: -3600,
-            move_speed: 200,
-            rotation_speed: 800,
-            dock: true,
-            schedule: None,
-        }, // dock B
-        VehiclePathPoint {
-            x: 1400,
-            y: 1000,
-            z: -3600,
-            move_speed: 200,
-            rotation_speed: 800,
-            dock: false,
-            schedule: None,
-        }, // mid
-        VehiclePathPoint {
-            x: 1000,
-            y: 1000,
-            z: -3600,
-            move_speed: 200,
-            rotation_speed: 800,
-            dock: true,
-            schedule: None,
-        }, // dock A (start)
-    ];
+    // at the last waypoint (dock A, 1000,1000). Docks carry no schedule, so
+    // the dwell is the silent default.
+    let wp = |x: i32, dock: bool| VehiclePathPoint {
+        x,
+        y: 1000,
+        z: -3600,
+        move_speed: 200,
+        rotation_speed: 800,
+        dock,
+        schedule: None,
+    };
+    let ride_route = RouteDef {
+        waypoints: vec![
+            wp(1400, false), // mid
+            wp(1800, true),  // dock B
+            wp(1400, false), // mid
+            wp(1000, true),  // dock A (start)
+        ],
+        schedules: vec![],
+    };
 
     let (mut world, _db, _l) = quest_test_world();
-    let boat = crate::game_loop::boats::spawn_boat(&mut world, RIDE_ROUTE);
+    let route = world.boat_routes.register(ride_route);
+    let boat = crate::game_loop::boats::spawn_boat(&mut world, route);
     let _rx = ingame_player(&mut world, 1, 3001, 1000, 1000, -3600); // standing on dock A
 
     let ppos = |w: &World| -> (i32, i32) {

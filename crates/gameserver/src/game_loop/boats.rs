@@ -23,7 +23,9 @@ use crate::enums::ChatType;
 use crate::game_loop::guard::position;
 use crate::game_loop::helpers::{send_inventory_update, set_position};
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
-use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
+use crate::model::boat::{
+    Boat, DockSchedule, DwellStage, Fare, InVehicle, RouteDef, RouteId, VehiclePathPoint,
+};
 use crate::model::components::{Position, RegionCell};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
@@ -32,7 +34,7 @@ use crate::world::{World, region_of};
 use super::helpers::broadcast_near_region;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
-const fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
+fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
     VehiclePathPoint {
         x,
         y,
@@ -44,16 +46,17 @@ const fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> Veh
     }
 }
 
-/// A harbor waypoint with a staged departure-announcement schedule. (Every
-/// harbor on the four Interlude ferries has one; a dock without a schedule
-/// would fall back to a silent `DWELL_MS` dwell.)
-const fn dka(
+/// A harbor waypoint with a staged departure-announcement schedule, by index
+/// into the route's `schedules`. (Every harbor on the four Interlude ferries
+/// has one; a dock without a schedule would fall back to a silent `DWELL_MS`
+/// dwell.)
+fn dka(
     x: i32,
     y: i32,
     z: i32,
     move_speed: i32,
     rotation_speed: i32,
-    schedule: &'static DockSchedule,
+    schedule: u16,
 ) -> VehiclePathPoint {
     VehiclePathPoint {
         x,
@@ -74,62 +77,57 @@ const DWELL_MS: u64 = 60_000;
 /// passes `801` to every `new CreatureSay(ChatType.BOAT, 801, …)`).
 const BOAT_CHAR_ID: i32 = 801;
 
+/// One dwell stage: shout `messages`, then wait `then_ms`.
+fn stage(messages: &[u32], then_ms: u64) -> DwellStage {
+    DwellStage {
+        messages: messages.to_vec(),
+        then_ms,
+    }
+}
+
+/// A literal shout table in owned `DockSchedule.voyage` form.
+fn shouts(list: &[(u64, &[u32])]) -> Vec<(u64, Vec<u32>)> {
+    list.iter()
+        .map(|&(delay, ids)| (delay, ids.to_vec()))
+        .collect()
+}
+
 /// The standard 10-minute harbor dwell shared by the Talking/Gludin/Giran
 /// ferries (Java `case` cadence 5 min → 4 min → 40 s → 20 s): the "arrived"
 /// lines, then the 5-minute / 1-minute / "leaving soon" warnings, then the
 /// "leaving now" shout after which the ferry departs.
-macro_rules! ten_minute_dwell {
-    ($fare:expr, $voyage:expr, $arrival:expr, $leave_5min:expr, $leave_1min:expr, $leaving_soon:expr, $leaving_now:expr) => {
-        DockSchedule {
-            char_id: 801,
-            fare: $fare,
-            voyage: $voyage,
-            stages: &[
-                DwellStage {
-                    messages: $arrival,
-                    then_ms: 300_000,
-                },
-                DwellStage {
-                    messages: $leave_5min,
-                    then_ms: 240_000,
-                },
-                DwellStage {
-                    messages: $leave_1min,
-                    then_ms: 40_000,
-                },
-                DwellStage {
-                    messages: $leaving_soon,
-                    then_ms: 20_000,
-                },
-                DwellStage {
-                    messages: $leaving_now,
-                    then_ms: 0,
-                },
-            ],
-        }
-    };
+fn ten_minute_dwell(
+    fare: Fare,
+    voyage: &[(u64, &[u32])],
+    arrival: &[u32],
+    leave_5min: &[u32],
+    leave_1min: &[u32],
+    leaving_soon: &[u32],
+    leaving_now: &[u32],
+) -> DockSchedule {
+    DockSchedule {
+        char_id: BOAT_CHAR_ID,
+        fare,
+        voyage: shouts(voyage),
+        stages: vec![
+            stage(arrival, 300_000),
+            stage(leave_5min, 240_000),
+            stage(leave_1min, 40_000),
+            stage(leaving_soon, 20_000),
+            stage(leaving_now, 0),
+        ],
+    }
 }
 
 /// The 3-minute dwell of the Rune ↔ Primeval ferry (Java `BoatRunePrimeval`):
 /// the "arrived" lines, then after 3 minutes the "now departing" shout + depart.
-macro_rules! three_minute_dwell {
-    ($fare:expr, $arrival:expr, $leaving:expr) => {
-        DockSchedule {
-            char_id: 801,
-            fare: $fare,
-            voyage: &[], // Rune↔Primeval makes no in-transit announcements
-            stages: &[
-                DwellStage {
-                    messages: $arrival,
-                    then_ms: 180_000,
-                },
-                DwellStage {
-                    messages: $leaving,
-                    then_ms: 0,
-                },
-            ],
-        }
-    };
+fn three_minute_dwell(fare: Fare, arrival: &[u32], leaving: &[u32]) -> DockSchedule {
+    DockSchedule {
+        char_id: BOAT_CHAR_ID,
+        fare,
+        voyage: Vec::new(), // Rune↔Primeval makes no in-transit announcements
+        stages: vec![stage(arrival, 180_000), stage(leaving, 0)],
+    }
 }
 
 /// A boat-ticket fare (`payForRide(itemId, 1, oustX, oustY, oustZ)`).
@@ -168,211 +166,230 @@ const V_INNADRIL_TOUR: &[(u64, &[u32])] = &[
     (1_790_000, &[1175]),
 ];
 
-// Talking Island ↔ Gludin (`BoatTalkingGludin`). 983 = "make haste to board".
-static TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
-    fare(1074, -96777, 258970, -3623),
-    V_TALKING_TO_GLUDIN,
-    &[979, 980],
-    &[981],
-    &[982, 983],
-    &[984],
-    &[985]
-); // leaves for Gludin
-static GLUDIN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
-    fare(1075, -90015, 150422, -3610),
-    V_GLUDIN_TO_TALKING,
-    &[986, 987],
-    &[988],
-    &[989, 983],
-    &[990],
-    &[991]
-); // leaves for Talking
-
-// Giran ↔ Talking Island (`BoatGiranTalking`) — no "make haste" line.
-static GT_GIRAN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
-    fare(3946, 46763, 187041, -3451),
-    V_GIRAN_TO_TALKING,
-    &[992, 987],
-    &[988],
-    &[989],
-    &[990],
-    &[991]
-); // leaves for Talking
-static GT_TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
-    fare(3945, -96777, 258970, -3623),
-    V_TALKING_TO_GIRAN,
-    &[979, 993],
-    &[994],
-    &[995],
-    &[996],
-    &[997]
-); // leaves for Giran
-
-// Innadril pleasure boat (`BoatInnadrilTour`) — a single-harbor scenic loop,
-// free passage (ticket id 0).
-static INNADRIL_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
-    fare(0, 107092, 219098, -3952),
-    V_INNADRIL_TOUR,
-    &[998],
-    &[999],
-    &[1000],
-    &[1001],
-    &[1002]
-);
-
-// Rune Harbor ↔ Primeval Isle (`BoatRunePrimeval`). 1620 = "Welcome to Rune Harbor".
-static RUNE_DOCK_SCHED: DockSchedule =
-    three_minute_dwell!(fare(8925, 34513, -38009, -3640), &[1620, 1989], &[1992]); // leaves for Primeval
-static PRIMEVAL_DOCK_SCHED: DockSchedule =
-    three_minute_dwell!(fare(8924, 10447, -24982, -3664), &[1988, 1991], &[1990]); // leaves for Rune
-
 /// The Talking Island ↔ Gludin ferry (Java `BoatTalkingGludin`), all legs
 /// flattened into one cycle: Talking → Gludin dock → Gludin → Talking dock.
-const TALKING_GLUDIN: &[VehiclePathPoint] = &[
-    vp(-121385, 261660, -3610, 180, 800),
-    vp(-127694, 253312, -3610, 200, 800),
-    vp(-129274, 237060, -3610, 250, 800),
-    vp(-114688, 139040, -3610, 200, 800),
-    vp(-109663, 135704, -3610, 180, 800),
-    vp(-102151, 135704, -3610, 180, 800),
-    vp(-96686, 140595, -3610, 180, 800),
-    vp(-95686, 147718, -3610, 180, 800),
-    vp(-95686, 148718, -3610, 180, 800),
-    vp(-95686, 149718, -3610, 150, 800),
-    dka(-95686, 150514, -3610, 150, 800, &GLUDIN_DOCK_SCHED), // Gludin dock
-    vp(-95686, 155514, -3610, 180, 800),
-    vp(-95686, 185514, -3610, 250, 800),
-    vp(-60136, 238816, -3610, 200, 800),
-    vp(-60520, 259609, -3610, 180, 1800),
-    vp(-65344, 261460, -3610, 180, 1800),
-    vp(-83344, 261560, -3610, 180, 1800),
-    vp(-88344, 261660, -3610, 180, 1800),
-    vp(-92344, 261660, -3610, 150, 1800),
-    vp(-94242, 261659, -3610, 150, 1800),
-    dka(-96622, 261660, -3610, 150, 1800, &TALKING_DOCK_SCHED), // Talking dock
-];
+/// 983 = "make haste to board".
+fn talking_gludin() -> RouteDef {
+    let gludin = ten_minute_dwell(
+        fare(1075, -90015, 150422, -3610),
+        V_GLUDIN_TO_TALKING,
+        &[986, 987],
+        &[988],
+        &[989, 983],
+        &[990],
+        &[991],
+    ); // leaves for Talking
+    let talking = ten_minute_dwell(
+        fare(1074, -96777, 258970, -3623),
+        V_TALKING_TO_GLUDIN,
+        &[979, 980],
+        &[981],
+        &[982, 983],
+        &[984],
+        &[985],
+    ); // leaves for Gludin
+    RouteDef {
+        waypoints: vec![
+            vp(-121385, 261660, -3610, 180, 800),
+            vp(-127694, 253312, -3610, 200, 800),
+            vp(-129274, 237060, -3610, 250, 800),
+            vp(-114688, 139040, -3610, 200, 800),
+            vp(-109663, 135704, -3610, 180, 800),
+            vp(-102151, 135704, -3610, 180, 800),
+            vp(-96686, 140595, -3610, 180, 800),
+            vp(-95686, 147718, -3610, 180, 800),
+            vp(-95686, 148718, -3610, 180, 800),
+            vp(-95686, 149718, -3610, 150, 800),
+            dka(-95686, 150514, -3610, 150, 800, 0), // Gludin dock
+            vp(-95686, 155514, -3610, 180, 800),
+            vp(-95686, 185514, -3610, 250, 800),
+            vp(-60136, 238816, -3610, 200, 800),
+            vp(-60520, 259609, -3610, 180, 1800),
+            vp(-65344, 261460, -3610, 180, 1800),
+            vp(-83344, 261560, -3610, 180, 1800),
+            vp(-88344, 261660, -3610, 180, 1800),
+            vp(-92344, 261660, -3610, 150, 1800),
+            vp(-94242, 261659, -3610, 150, 1800),
+            dka(-96622, 261660, -3610, 150, 1800, 1), // Talking dock
+        ],
+        schedules: vec![gludin, talking],
+    }
+}
 
-/// Giran <-> Talking Island ferry (`BoatGiranTalking`).
-const GIRAN_TALKING: &[VehiclePathPoint] = &[
-    vp(51914, 189023, -3610, 150, 800),
-    vp(60567, 189789, -3610, 150, 800),
-    vp(63732, 197457, -3610, 200, 800),
-    vp(63732, 219946, -3610, 250, 800),
-    vp(62008, 222240, -3610, 250, 1200),
-    vp(56115, 226791, -3610, 250, 1200),
-    vp(40384, 226432, -3610, 300, 800),
-    vp(37760, 226432, -3610, 300, 800),
-    vp(27153, 226791, -3610, 300, 800),
-    vp(12672, 227535, -3610, 300, 800),
-    vp(-1808, 228280, -3610, 300, 800),
-    vp(-22165, 230542, -3610, 300, 800),
-    vp(-42523, 235205, -3610, 300, 800),
-    vp(-68451, 259560, -3610, 250, 800),
-    vp(-70848, 261696, -3610, 200, 800),
-    vp(-83344, 261610, -3610, 200, 800),
-    vp(-88344, 261660, -3610, 180, 800),
-    vp(-92344, 261660, -3610, 180, 800),
-    vp(-94242, 261659, -3610, 150, 800),
-    dka(-96622, 261660, -3610, 150, 800, &GT_TALKING_DOCK_SCHED), // Talking dock (→ Giran)
-    vp(-113925, 261660, -3610, 150, 800),
-    vp(-126107, 249116, -3610, 180, 800),
-    vp(-126107, 234499, -3610, 180, 800),
-    vp(-126107, 219882, -3610, 180, 800),
-    vp(-109414, 204914, -3610, 180, 800),
-    vp(-92807, 204914, -3610, 180, 800),
-    vp(-80425, 216450, -3610, 250, 800),
-    vp(-68043, 227987, -3610, 250, 800),
-    vp(-63744, 231168, -3610, 250, 800),
-    vp(-60844, 231369, -3610, 250, 1800),
-    vp(-44915, 231369, -3610, 200, 800),
-    vp(-28986, 231369, -3610, 200, 800),
-    vp(8233, 207624, -3610, 200, 800),
-    vp(21470, 201503, -3610, 180, 800),
-    vp(40058, 195383, -3610, 180, 800),
-    vp(43022, 193793, -3610, 150, 800),
-    vp(45986, 192203, -3610, 150, 800),
-    dka(48950, 190613, -3610, 150, 800, &GT_GIRAN_DOCK_SCHED), // Giran dock (→ Talking)
-];
+/// Giran <-> Talking Island ferry (`BoatGiranTalking`) — no "make haste" line.
+fn giran_talking() -> RouteDef {
+    let talking = ten_minute_dwell(
+        fare(3945, -96777, 258970, -3623),
+        V_TALKING_TO_GIRAN,
+        &[979, 993],
+        &[994],
+        &[995],
+        &[996],
+        &[997],
+    ); // leaves for Giran
+    let giran = ten_minute_dwell(
+        fare(3946, 46763, 187041, -3451),
+        V_GIRAN_TO_TALKING,
+        &[992, 987],
+        &[988],
+        &[989],
+        &[990],
+        &[991],
+    ); // leaves for Talking
+    RouteDef {
+        waypoints: vec![
+            vp(51914, 189023, -3610, 150, 800),
+            vp(60567, 189789, -3610, 150, 800),
+            vp(63732, 197457, -3610, 200, 800),
+            vp(63732, 219946, -3610, 250, 800),
+            vp(62008, 222240, -3610, 250, 1200),
+            vp(56115, 226791, -3610, 250, 1200),
+            vp(40384, 226432, -3610, 300, 800),
+            vp(37760, 226432, -3610, 300, 800),
+            vp(27153, 226791, -3610, 300, 800),
+            vp(12672, 227535, -3610, 300, 800),
+            vp(-1808, 228280, -3610, 300, 800),
+            vp(-22165, 230542, -3610, 300, 800),
+            vp(-42523, 235205, -3610, 300, 800),
+            vp(-68451, 259560, -3610, 250, 800),
+            vp(-70848, 261696, -3610, 200, 800),
+            vp(-83344, 261610, -3610, 200, 800),
+            vp(-88344, 261660, -3610, 180, 800),
+            vp(-92344, 261660, -3610, 180, 800),
+            vp(-94242, 261659, -3610, 150, 800),
+            dka(-96622, 261660, -3610, 150, 800, 0), // Talking dock (→ Giran)
+            vp(-113925, 261660, -3610, 150, 800),
+            vp(-126107, 249116, -3610, 180, 800),
+            vp(-126107, 234499, -3610, 180, 800),
+            vp(-126107, 219882, -3610, 180, 800),
+            vp(-109414, 204914, -3610, 180, 800),
+            vp(-92807, 204914, -3610, 180, 800),
+            vp(-80425, 216450, -3610, 250, 800),
+            vp(-68043, 227987, -3610, 250, 800),
+            vp(-63744, 231168, -3610, 250, 800),
+            vp(-60844, 231369, -3610, 250, 1800),
+            vp(-44915, 231369, -3610, 200, 800),
+            vp(-28986, 231369, -3610, 200, 800),
+            vp(8233, 207624, -3610, 200, 800),
+            vp(21470, 201503, -3610, 180, 800),
+            vp(40058, 195383, -3610, 180, 800),
+            vp(43022, 193793, -3610, 150, 800),
+            vp(45986, 192203, -3610, 150, 800),
+            dka(48950, 190613, -3610, 150, 800, 1), // Giran dock (→ Talking)
+        ],
+        schedules: vec![talking, giran],
+    }
+}
 
-/// Innadril scenic tour (`BoatInnadrilTour`) — a single-harbor loop.
-const INNADRIL_TOUR: &[VehiclePathPoint] = &[
-    vp(105129, 226240, -3610, 150, 800),
-    vp(90604, 238797, -3610, 150, 800),
-    vp(74853, 237943, -3610, 150, 800),
-    vp(68207, 235399, -3610, 150, 800),
-    vp(63226, 230487, -3610, 150, 800),
-    vp(61843, 224797, -3610, 150, 800),
-    vp(61822, 203066, -3610, 150, 800),
-    vp(59051, 197685, -3610, 150, 800),
-    vp(54048, 195298, -3610, 150, 800),
-    vp(41609, 195687, -3610, 150, 800),
-    vp(35821, 200284, -3610, 150, 800),
-    vp(35567, 205265, -3610, 150, 800),
-    vp(35617, 222471, -3610, 150, 800),
-    vp(37932, 226588, -3610, 150, 800),
-    vp(42932, 229394, -3610, 150, 800),
-    vp(74324, 245231, -3610, 150, 800),
-    vp(81872, 250314, -3610, 150, 800),
-    vp(101692, 249882, -3610, 150, 800),
-    vp(107907, 256073, -3610, 150, 800),
-    vp(112317, 257133, -3610, 150, 800),
-    vp(126273, 255313, -3610, 150, 800),
-    vp(128067, 250961, -3610, 150, 800),
-    vp(128520, 238249, -3610, 150, 800),
-    vp(126428, 235072, -3610, 150, 800),
-    vp(121843, 234656, -3610, 150, 800),
-    vp(120096, 234268, -3610, 150, 800),
-    vp(118572, 233046, -3610, 150, 800),
-    vp(117671, 228951, -3610, 150, 800),
-    vp(115936, 226540, -3610, 150, 800),
-    vp(113628, 226240, -3610, 150, 800),
-    vp(111300, 226240, -3610, 150, 800),
-    dka(111264, 226240, -3610, 150, 800, &INNADRIL_DOCK_SCHED), // Innadril dock
-];
+/// Innadril scenic tour (`BoatInnadrilTour`) — a single-harbor loop, free
+/// passage (ticket id 0).
+fn innadril_tour() -> RouteDef {
+    let innadril = ten_minute_dwell(
+        fare(0, 107092, 219098, -3952),
+        V_INNADRIL_TOUR,
+        &[998],
+        &[999],
+        &[1000],
+        &[1001],
+        &[1002],
+    );
+    RouteDef {
+        waypoints: vec![
+            vp(105129, 226240, -3610, 150, 800),
+            vp(90604, 238797, -3610, 150, 800),
+            vp(74853, 237943, -3610, 150, 800),
+            vp(68207, 235399, -3610, 150, 800),
+            vp(63226, 230487, -3610, 150, 800),
+            vp(61843, 224797, -3610, 150, 800),
+            vp(61822, 203066, -3610, 150, 800),
+            vp(59051, 197685, -3610, 150, 800),
+            vp(54048, 195298, -3610, 150, 800),
+            vp(41609, 195687, -3610, 150, 800),
+            vp(35821, 200284, -3610, 150, 800),
+            vp(35567, 205265, -3610, 150, 800),
+            vp(35617, 222471, -3610, 150, 800),
+            vp(37932, 226588, -3610, 150, 800),
+            vp(42932, 229394, -3610, 150, 800),
+            vp(74324, 245231, -3610, 150, 800),
+            vp(81872, 250314, -3610, 150, 800),
+            vp(101692, 249882, -3610, 150, 800),
+            vp(107907, 256073, -3610, 150, 800),
+            vp(112317, 257133, -3610, 150, 800),
+            vp(126273, 255313, -3610, 150, 800),
+            vp(128067, 250961, -3610, 150, 800),
+            vp(128520, 238249, -3610, 150, 800),
+            vp(126428, 235072, -3610, 150, 800),
+            vp(121843, 234656, -3610, 150, 800),
+            vp(120096, 234268, -3610, 150, 800),
+            vp(118572, 233046, -3610, 150, 800),
+            vp(117671, 228951, -3610, 150, 800),
+            vp(115936, 226540, -3610, 150, 800),
+            vp(113628, 226240, -3610, 150, 800),
+            vp(111300, 226240, -3610, 150, 800),
+            dka(111264, 226240, -3610, 150, 800, 0), // Innadril dock
+        ],
+        schedules: vec![innadril],
+    }
+}
 
-/// Rune <-> Primeval Isle ferry (`BoatRunePrimeval`).
-const RUNE_PRIMEVAL: &[VehiclePathPoint] = &[
-    vp(32750, -39300, -3610, 180, 800),
-    vp(27440, -39328, -3610, 250, 1000),
-    vp(19616, -39360, -3610, 270, 1000),
-    vp(3840, -38528, -3610, 270, 1000),
-    vp(1664, -37120, -3610, 270, 1000),
-    vp(896, -34560, -3610, 180, 1800),
-    vp(832, -31104, -3610, 180, 180),
-    vp(2240, -29132, -3610, 150, 1800),
-    vp(4160, -27828, -3610, 150, 1800),
-    vp(5888, -27279, -3610, 150, 1800),
-    vp(7000, -27279, -3610, 150, 1800),
-    dka(10342, -27279, -3610, 150, 1800, &PRIMEVAL_DOCK_SCHED), // Primeval dock (→ Rune)
-    vp(15528, -27279, -3610, 180, 800),
-    vp(22304, -29664, -3610, 290, 800),
-    vp(33824, -26880, -3610, 290, 800),
-    vp(38848, -21792, -3610, 240, 1200),
-    vp(43424, -22080, -3610, 180, 1800),
-    vp(44320, -25152, -3610, 180, 1800),
-    vp(40576, -31616, -3610, 250, 800),
-    vp(36819, -35315, -3610, 220, 800),
-    dka(34381, -37680, -3610, 220, 800, &RUNE_DOCK_SCHED), // Rune dock (→ Primeval)
-];
+/// Rune <-> Primeval Isle ferry (`BoatRunePrimeval`). 1620 = "Welcome to Rune
+/// Harbor".
+fn rune_primeval() -> RouteDef {
+    let primeval = three_minute_dwell(fare(8924, 10447, -24982, -3664), &[1988, 1991], &[1990]); // leaves for Rune
+    let rune = three_minute_dwell(fare(8925, 34513, -38009, -3640), &[1620, 1989], &[1992]); // leaves for Primeval
+    RouteDef {
+        waypoints: vec![
+            vp(32750, -39300, -3610, 180, 800),
+            vp(27440, -39328, -3610, 250, 1000),
+            vp(19616, -39360, -3610, 270, 1000),
+            vp(3840, -38528, -3610, 270, 1000),
+            vp(1664, -37120, -3610, 270, 1000),
+            vp(896, -34560, -3610, 180, 1800),
+            vp(832, -31104, -3610, 180, 180),
+            vp(2240, -29132, -3610, 150, 1800),
+            vp(4160, -27828, -3610, 150, 1800),
+            vp(5888, -27279, -3610, 150, 1800),
+            vp(7000, -27279, -3610, 150, 1800),
+            dka(10342, -27279, -3610, 150, 1800, 0), // Primeval dock (→ Rune)
+            vp(15528, -27279, -3610, 180, 800),
+            vp(22304, -29664, -3610, 290, 800),
+            vp(33824, -26880, -3610, 290, 800),
+            vp(38848, -21792, -3610, 240, 1200),
+            vp(43424, -22080, -3610, 180, 1800),
+            vp(44320, -25152, -3610, 180, 1800),
+            vp(40576, -31616, -3610, 250, 800),
+            vp(36819, -35315, -3610, 220, 800),
+            dka(34381, -37680, -3610, 220, 800, 1), // Rune dock (→ Primeval)
+        ],
+        schedules: vec![primeval, rune],
+    }
+}
 
 /// `BoatManager.load` — spawn the four Interlude ferries at boot and set them
 /// on their routes.
 pub(crate) fn spawn_boats(world: &mut World) {
-    for route in [TALKING_GLUDIN, GIRAN_TALKING, INNADRIL_TOUR, RUNE_PRIMEVAL] {
+    for def in [
+        talking_gludin(),
+        giran_talking(),
+        innadril_tour(),
+        rune_primeval(),
+    ] {
+        let route = world.boat_routes.register(def);
         spawn_boat(world, route);
     }
 }
 
 /// Spawn one ferry docked at its last waypoint and set it sailing; returns the
 /// boat's object id.
-pub(crate) fn spawn_boat(world: &mut World, route: &'static [VehiclePathPoint]) -> i32 {
+pub(crate) fn spawn_boat(world: &mut World, route: RouteId) -> i32 {
     let oid = world.next_npc_object_id;
     world.next_npc_object_id += 1;
     // Start at the last waypoint. If it's a harbor, anchor there (leg points at
     // that dock so its dwell schedule resolves) and depart toward index 0;
     // otherwise the boat is mid-route and heads for index 0 at once.
-    let last = route.len() - 1;
-    let start = route[last];
+    let waypoints = &world.boat_routes.get(route).waypoints;
+    let last = waypoints.len() - 1;
+    let start = waypoints[last];
     let leg = if start.dock { last } else { 0 };
     world.objects.spawn(
         oid,
@@ -403,14 +420,23 @@ pub(crate) fn spawn_boat(world: &mut World, route: &'static [VehiclePathPoint]) 
     oid
 }
 
+/// The waypoint the ferry is currently sailing toward (or anchored at).
+fn target_of(world: &World, boat_oid: i32) -> Option<VehiclePathPoint> {
+    let b = world.objects.get_component::<Boat>(&boat_oid)?;
+    Some(b.target(world.boat_routes.get(b.route)))
+}
+
+/// Advance the ferry to the next waypoint of its cycle.
+fn advance_boat(world: &mut World, boat_oid: i32) {
+    if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
+        b.advance(world.boat_routes.get(b.route));
+    }
+}
+
 /// Begin the harbor dwell: run the announcement schedule if the anchored dock
-/// (`boat.target()`) has one, otherwise dwell silently for the default period.
+/// has one, otherwise dwell silently for the default period.
 fn begin_dwell(world: &mut World, boat_oid: i32) {
-    let has_schedule = world
-        .objects
-        .get_component::<Boat>(&boat_oid)
-        .map(|b| b.target().schedule.is_some())
-        .unwrap_or(false);
+    let has_schedule = target_of(world, boat_oid).is_some_and(|wp| wp.schedule.is_some());
     if has_schedule {
         run_dwell_stage(world, boat_oid, 0);
     } else {
@@ -424,9 +450,10 @@ fn begin_dwell(world: &mut World, boat_oid: i32) {
 /// its own dock.
 fn next_dock(world: &World, boat_oid: i32) -> Option<(i32, i32)> {
     let boat = world.objects.get_component::<Boat>(&boat_oid)?;
-    let n = boat.route.len();
+    let waypoints = &world.boat_routes.get(boat.route).waypoints;
+    let n = waypoints.len();
     (1..=n)
-        .map(|i| boat.route[(boat.leg + i) % n])
+        .map(|i| waypoints[(boat.leg + i) % n])
         .find(|wp| wp.dock)
         .map(|wp| (wp.x, wp.y))
 }
@@ -435,20 +462,21 @@ fn next_dock(world: &World, boat_oid: i32) -> Option<(i32, i32)> {
 /// harbor and the destination harbor), then schedule the next stage — or depart
 /// after the last one.
 fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
-    let Some((dock, sched)) = world
-        .objects
-        .get_component::<Boat>(&boat_oid)
-        .and_then(|b| b.target().schedule.map(|s| (b.target(), s)))
-    else {
+    let Some(boat) = world.objects.get_component::<Boat>(&boat_oid) else {
         return;
     };
-    let Some(stage) = sched.stages.get(stage_idx).copied() else {
+    let route = world.boat_routes.get(boat.route);
+    let dock = boat.target(route);
+    let Some(sched) = route.schedule_of(&dock) else {
+        return;
+    };
+    let Some(stage) = sched.stages.get(stage_idx) else {
         return;
     };
 
     let here = region_of(dock.x, dock.y);
     let there = next_dock(world, boat_oid).map(|(x, y)| region_of(x, y));
-    for &mid in stage.messages {
+    for &mid in &stage.messages {
         let say = sp::creature_say_system(ChatType::Boat, sched.char_id, mid as i32);
         broadcast_near_region(world, here, &say);
         if let Some(there) = there
@@ -457,9 +485,11 @@ fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
             broadcast_near_region(world, there, &say);
         }
     }
+    let then_ms = stage.then_ms;
+    let is_last = stage_idx + 1 >= sched.stages.len();
 
-    if stage_idx + 1 < sched.stages.len() {
-        let fire_at = world.tick + stage.then_ms.div_ceil(100);
+    if !is_last {
+        let fire_at = world.tick + then_ms.div_ceil(100);
         world.scheduler.schedule(
             fire_at,
             ScheduledTask::BoatDwellStage {
@@ -492,43 +522,60 @@ fn schedule_depart(world: &mut World, boat_oid: i32) {
 /// (before `move_to_next` sets `moving`), matching Java's `payForRide` in the
 /// same `case` that departs.
 fn depart(world: &mut World, boat_oid: i32) {
-    // Capture the departing dock's schedule before advancing off it.
-    let sched = world
+    // Capture the departing dock's fare and voyage shout delays (by schedule
+    // index, for the scheduler tasks) before advancing off it.
+    let dock_info: Option<(u16, Fare, Vec<u64>)> = world
         .objects
         .get_component::<Boat>(&boat_oid)
-        .and_then(|b| b.target().schedule);
-    if let Some(fare) = sched.map(|s| s.fare) {
-        pay_for_ride(world, boat_oid, fare);
+        .and_then(|b| {
+            let route = world.boat_routes.get(b.route);
+            b.target(route).schedule.map(|si| {
+                let s = &route.schedules[si as usize];
+                (
+                    si,
+                    s.fare,
+                    s.voyage.iter().map(|&(delay, _)| delay).collect(),
+                )
+            })
+        });
+    if let Some((_, fare, _)) = &dock_info {
+        pay_for_ride(world, boat_oid, *fare);
     }
-    if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
-        b.advance();
-    }
+    advance_boat(world, boat_oid);
     move_to_next(world, boat_oid);
     // Schedule the in-transit "arriving in ~N minutes" shouts for this leg.
-    if let Some(voyage) = sched.map(|s| s.voyage) {
-        for &(delay_ms, messages) in voyage {
+    if let Some((schedule, _, delays)) = dock_info {
+        for (shout, delay_ms) in delays.into_iter().enumerate() {
             let fire_at = world.tick + delay_ms.div_ceil(100);
             world.scheduler.schedule(
                 fire_at,
                 ScheduledTask::BoatVoyageShout {
                     boat_object_id: boat_oid,
-                    messages,
+                    schedule,
+                    shout: shout as u16,
                 },
             );
         }
     }
 }
 
-/// The `BoatVoyageShout` task: an in-transit arrival announcement. Skipped if
-/// the ferry has already docked (a late shout from the previous leg).
-pub(crate) fn handle_voyage_shout(world: &mut World, boat_oid: i32, messages: &'static [u32]) {
-    let moving = world
-        .objects
-        .get_component::<Boat>(&boat_oid)
-        .is_some_and(|b| b.moving);
-    if !moving {
+/// The `BoatVoyageShout` task: an in-transit arrival announcement, resolved by
+/// schedule/shout index into the boat's route. Skipped if the ferry has already
+/// docked (a late shout from the previous leg).
+pub(crate) fn handle_voyage_shout(world: &mut World, boat_oid: i32, schedule: u16, shout: u16) {
+    let Some(boat) = world.objects.get_component::<Boat>(&boat_oid) else {
+        return;
+    };
+    if !boat.moving {
         return;
     }
+    let route = world.boat_routes.get(boat.route);
+    let Some(sched) = route.schedules.get(schedule as usize) else {
+        return;
+    };
+    let Some((_, messages)) = sched.voyage.get(shout as usize) else {
+        return;
+    };
     for &mid in messages {
         let say = sp::creature_say_system(ChatType::Boat, BOAT_CHAR_ID, mid as i32);
         broadcast_to_route_docks(world, boat_oid, &say);
@@ -542,7 +589,8 @@ fn broadcast_to_route_docks(world: &World, boat_oid: i32, packet: &[u8]) {
         return;
     };
     let mut regions: Vec<(i32, i32)> = Vec::new();
-    for wp in boat.route.iter().filter(|w| w.dock) {
+    let waypoints = &world.boat_routes.get(boat.route).waypoints;
+    for wp in waypoints.iter().filter(|w| w.dock) {
         let r = region_of(wp.x, wp.y);
         if !regions.contains(&r) {
             regions.push(r);
@@ -617,11 +665,7 @@ pub(crate) fn handle_depart(world: &mut World, boat_oid: i32) {
 /// `Boat.moveToNextRoutePoint`: head for the current waypoint — face it,
 /// broadcast the move order, and schedule arrival by travel time.
 fn move_to_next(world: &mut World, boat_oid: i32) {
-    let Some((target, cur)) = ({
-        let boat = world.objects.get_component::<Boat>(&boat_oid);
-        let pos = position(world, boat_oid);
-        boat.map(|b| b.target()).zip(pos)
-    }) else {
+    let Some((target, cur)) = target_of(world, boat_oid).zip(position(world, boat_oid)) else {
         return;
     };
     let heading = heading_toward(cur.x, cur.y, target.x, target.y);
@@ -658,11 +702,7 @@ fn move_to_next(world: &mut World, boat_oid: i32) {
 /// The `BoatArrive` task: snap to the waypoint, broadcast the position, then set
 /// sail for the next one.
 pub(crate) fn handle_arrive(world: &mut World, boat_oid: i32) {
-    let Some(target) = world
-        .objects
-        .get_component::<Boat>(&boat_oid)
-        .map(|b| b.target())
-    else {
+    let Some(target) = target_of(world, boat_oid) else {
         return;
     };
     let heading = world
@@ -688,9 +728,7 @@ pub(crate) fn handle_arrive(world: &mut World, boat_oid: i32) {
         }
         begin_dwell(world, boat_oid);
     } else {
-        if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
-            b.advance();
-        }
+        advance_boat(world, boat_oid);
         move_to_next(world, boat_oid);
     }
 }

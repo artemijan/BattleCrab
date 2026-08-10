@@ -213,7 +213,10 @@ pub enum ScheduledTask {
     /// at a fixed offset after departure (only while the boat is still sailing).
     BoatVoyageShout {
         boat_object_id: i32,
-        messages: &'static [u32],
+        /// Index into the boat's route `schedules` of the departed harbor.
+        schedule: u16,
+        /// Index into that schedule's `voyage` shout list.
+        shout: u16,
     },
     /// Olympiad (G25): the daily competition window opens (18:00 on a
     /// competition day) — registration/matches allowed until it closes.

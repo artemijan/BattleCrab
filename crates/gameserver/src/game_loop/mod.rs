@@ -787,9 +787,10 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::BoatVoyageShout {
                 boat_object_id,
-                messages,
+                schedule,
+                shout,
             } => {
-                boats::handle_voyage_shout(world, boat_object_id, messages);
+                boats::handle_voyage_shout(world, boat_object_id, schedule, shout);
             }
             ScheduledTask::OlympiadCompStart => olympiad::handle_comp_start(world),
             ScheduledTask::OlympiadCompEnd => olympiad::handle_comp_end(world),

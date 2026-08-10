@@ -1392,7 +1392,7 @@ fn ex_packet(sub: u16, body: &[u8]) -> Vec<u8> {
     out.extend_from_slice(body);
     out
 }
-
+/// True if `packets` contains one whose first byte is `opcode`.
 fn has_opcode(pkts: &[Vec<u8>], opcode: u8) -> bool {
     pkts.iter().any(|p| p[0] == opcode)
 }

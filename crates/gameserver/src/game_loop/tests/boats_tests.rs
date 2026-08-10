@@ -3,7 +3,9 @@
 
 use super::*;
 
-use crate::model::boat::{Boat, DockSchedule, DwellStage, InVehicle, VehiclePathPoint};
+use crate::model::boat::{
+    Boat, DockSchedule, DwellStage, Fare, InVehicle, RouteDef, RouteId, VehiclePathPoint,
+};
 use crate::model::components::Position;
 
 /// Scan `packets` for a ferry `CreatureSay` (SAY2, `ChatType::Boat`) carrying
@@ -19,42 +21,57 @@ fn boat_announced(packets: &[Vec<u8>], msg_id: u32) -> bool {
     })
 }
 
+/// A non-dock waypoint at `(x, y)` with test-scale speeds.
+fn wp(x: i32, y: i32) -> VehiclePathPoint {
+    VehiclePathPoint {
+        x,
+        y,
+        z: -3600,
+        move_speed: 200,
+        rotation_speed: 800,
+        dock: false,
+        schedule: None,
+    }
+}
+
+/// A harbor waypoint at `(x, y)` carrying the route's schedule 0.
+fn dock(x: i32, y: i32) -> VehiclePathPoint {
+    VehiclePathPoint {
+        dock: true,
+        schedule: Some(0),
+        ..wp(x, y)
+    }
+}
+
+/// Register `def` and spawn a ferry on it.
+fn spawn_on(world: &mut World, def: RouteDef) -> i32 {
+    let route = world.boat_routes.register(def);
+    boats::spawn_boat(world, route)
+}
+
+/// A free (no-fare) harbor.
+fn free_fare() -> Fare {
+    Fare {
+        ticket_item_id: 0,
+        oust_x: 0,
+        oust_y: 0,
+        oust_z: 0,
+    }
+}
+
 /// A short synthetic route (the real ferry legs are thousands of units apart,
 /// so their travel times would need thousands of test ticks).
-const TEST_ROUTE: &[VehiclePathPoint] = &[
-    VehiclePathPoint {
-        x: 1200,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: false,
-        schedule: None,
-    },
-    VehiclePathPoint {
-        x: 1400,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: false,
-        schedule: None,
-    },
-    VehiclePathPoint {
-        x: 1600,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: false,
-        schedule: None,
-    },
-];
+fn test_route() -> RouteDef {
+    RouteDef {
+        waypoints: vec![wp(1200, 1000), wp(1400, 1000), wp(1600, 1000)],
+        schedules: vec![],
+    }
+}
 
 #[test]
 fn ferry_cycles_through_its_waypoints() {
     let (mut world, _tx, _db, _l) = test_world();
-    let boat = crate::game_loop::boats::spawn_boat(&mut world, TEST_ROUTE);
+    let boat = spawn_on(&mut world, test_route());
 
     let pos = |w: &World| -> (i32, i32) {
         let p = w.objects.get_component::<Position>(&boat).unwrap();
@@ -89,25 +106,35 @@ fn all_four_ferries_spawn_docked() {
     crate::game_loop::boats::spawn_boats(&mut world);
 
     // Collect every spawned ferry's route.
-    let mut routes: Vec<&'static [VehiclePathPoint]> = Vec::new();
+    let mut routes: Vec<RouteId> = Vec::new();
     world.objects.for_each_mut::<&Boat>(|boat| {
-        // Each ferry begins anchored at a harbor (its last waypoint is a dock),
-        // so it is boardable at boot.
+        // Each ferry begins anchored at a harbor, so it is boardable at boot.
         assert!(!boat.moving, "ferry starts anchored at a dock");
-        assert!(
-            boat.route[boat.route.len() - 1].dock,
-            "every route ends at a dock"
-        );
         routes.push(boat.route);
     });
 
     assert_eq!(routes.len(), 4, "all four Interlude ferries spawn");
 
+    for &id in &routes {
+        assert!(
+            world.boat_routes.get(id).waypoints.last().unwrap().dock,
+            "every route ends at a dock (the ferry spawns anchored there)"
+        );
+    }
+
     // The three point-to-point ferries have two harbors; the Innadril scenic
     // tour loops through a single harbor. Match the multiset of dock counts.
     let mut dock_counts: Vec<usize> = routes
         .iter()
-        .map(|r| r.iter().filter(|p| p.dock).count())
+        .map(|&id| {
+            world
+                .boat_routes
+                .get(id)
+                .waypoints
+                .iter()
+                .filter(|p| p.dock)
+                .count()
+        })
         .collect();
     dock_counts.sort_unstable();
     assert_eq!(
@@ -118,10 +145,11 @@ fn all_four_ferries_spawn_docked() {
 
     // Every harbor on every ferry now carries a departure-announcement schedule
     // whose final stage departs silently (empty) — never; it always shouts.
-    for route in &routes {
-        for wp in route.iter().filter(|p| p.dock) {
-            let sched = wp
-                .schedule
+    for &id in &routes {
+        let def = world.boat_routes.get(id);
+        for dock_wp in def.waypoints.iter().filter(|p| p.dock) {
+            let sched = def
+                .schedule_of(dock_wp)
                 .expect("every ferry dock has an announcement schedule");
             assert!(
                 sched.stages.len() >= 2,
@@ -140,55 +168,37 @@ fn all_four_ferries_spawn_docked() {
     }
 }
 
-/// A route whose dock carries a short (test-scale) announcement schedule so the
-/// staged dwell can be driven in a handful of ticks instead of ten minutes.
-static TEST_DOCK_SCHED: DockSchedule = DockSchedule {
-    char_id: 801,
-    fare: crate::model::boat::Fare {
-        ticket_item_id: 0, // free passage — no fare interaction in this test
-        oust_x: 0,
-        oust_y: 0,
-        oust_z: 0,
-    },
-    voyage: &[],
-    stages: &[
-        DwellStage {
-            messages: &[7001, 7002], // arrival shout
-            then_ms: 500,
-        },
-        DwellStage {
-            messages: &[7003], // "leaving soon"
-            then_ms: 300,
-        },
-        DwellStage {
-            messages: &[7004], // "leaving now" → depart
-            then_ms: 0,
-        },
-    ],
-};
+/// A dock schedule short enough (test-scale) that the staged dwell can be
+/// driven in a handful of ticks instead of ten minutes.
+fn test_dock_sched() -> DockSchedule {
+    DockSchedule {
+        char_id: 801,
+        fare: free_fare(), // free passage — no fare interaction in this test
+        voyage: vec![],
+        stages: vec![
+            DwellStage {
+                messages: vec![7001, 7002], // arrival shout
+                then_ms: 500,
+            },
+            DwellStage {
+                messages: vec![7003], // "leaving soon"
+                then_ms: 300,
+            },
+            DwellStage {
+                messages: vec![7004], // "leaving now" → depart
+                then_ms: 0,
+            },
+        ],
+    }
+}
 
-const SCHED_ROUTE: &[VehiclePathPoint] = &[
-    // A mid-route waypoint the ferry sails to after leaving the dock.
-    VehiclePathPoint {
-        x: 1200,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: false,
-        schedule: None,
-    },
-    // The harbor with the staged departure schedule (spawn anchors here).
-    VehiclePathPoint {
-        x: 1000,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: true,
-        schedule: Some(&TEST_DOCK_SCHED),
-    },
-];
+/// A two-waypoint route whose harbor (1000, 1000) carries `sched`.
+fn route(sched: DockSchedule) -> RouteDef {
+    RouteDef {
+        waypoints: vec![wp(1200, 1000), dock(1000, 1000)],
+        schedules: vec![sched],
+    }
+}
 
 #[test]
 fn dock_dwell_announces_each_stage_then_departs() {
@@ -196,7 +206,7 @@ fn dock_dwell_announces_each_stage_then_departs() {
     // A player waiting at the harbor hears the ferry announcements.
     let mut rx = ingame_player(&mut world, 42, 500, 1000, 1000, -3600);
 
-    let boat = crate::game_loop::boats::spawn_boat(&mut world, SCHED_ROUTE);
+    let boat = spawn_on(&mut world, route(test_dock_sched()));
 
     let moving = |w: &World| w.objects.get_component::<Boat>(&boat).unwrap().moving;
 
@@ -228,49 +238,30 @@ fn dock_dwell_announces_each_stage_then_departs() {
 /// "Boat Ticket: Talking Island to Gludin" — a real EtcItem used as the fare.
 const BOAT_TICKET: i32 = 1074;
 
-/// A route whose harbor charges a boat ticket on departure and puts ticketless
-/// riders ashore at (900, 900).
-static FARE_DOCK_SCHED: DockSchedule = DockSchedule {
-    char_id: 801,
-    fare: crate::model::boat::Fare {
-        ticket_item_id: BOAT_TICKET,
-        oust_x: 900,
-        oust_y: 900,
-        oust_z: -3600,
-    },
-    voyage: &[],
-    stages: &[
-        DwellStage {
-            messages: &[7001],
-            then_ms: 300,
+/// A dock schedule whose harbor charges a boat ticket on departure and puts
+/// ticketless riders ashore at (900, 900).
+fn fare_dock_sched() -> DockSchedule {
+    DockSchedule {
+        char_id: 801,
+        fare: Fare {
+            ticket_item_id: BOAT_TICKET,
+            oust_x: 900,
+            oust_y: 900,
+            oust_z: -3600,
         },
-        DwellStage {
-            messages: &[7002],
-            then_ms: 0,
-        },
-    ],
-};
-
-const FARE_ROUTE: &[VehiclePathPoint] = &[
-    VehiclePathPoint {
-        x: 1200,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: false,
-        schedule: None,
-    },
-    VehiclePathPoint {
-        x: 1000,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: true,
-        schedule: Some(&FARE_DOCK_SCHED),
-    },
-];
+        voyage: vec![],
+        stages: vec![
+            DwellStage {
+                messages: vec![7001],
+                then_ms: 300,
+            },
+            DwellStage {
+                messages: vec![7002],
+                then_ms: 0,
+            },
+        ],
+    }
+}
 
 #[test]
 fn departing_ferry_collects_tickets_and_ousts_stowaways() {
@@ -281,14 +272,13 @@ fn departing_ferry_collects_tickets_and_ousts_stowaways() {
     {
         let World { data, objects, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&100)
+            .get_component_mut::<Inventory>(&100)
             .unwrap()
             .add_item(&data.item_data, 9_000_100, BOAT_TICKET, 1);
     }
-
-    let boat = crate::game_loop::boats::spawn_boat(&mut world, FARE_ROUTE);
-    crate::game_loop::boats::board(&mut world, 100, boat, (0, 0, 0));
-    crate::game_loop::boats::board(&mut world, 200, boat, (0, 0, 0));
+    let boat = spawn_on(&mut world, route(fare_dock_sched()));
+    boats::board(&mut world, 100, boat, (0, 0, 0));
+    boats::board(&mut world, 200, boat, (0, 0, 0));
     assert!(world.objects.get_component::<InVehicle>(&100).is_some());
     assert!(world.objects.get_component::<InVehicle>(&200).is_some());
 
@@ -320,11 +310,6 @@ fn departing_ferry_collects_tickets_and_ousts_stowaways() {
     assert_eq!((pos.x, pos.y), (900, 900), "stowaway teleported ashore");
 }
 
-/// True if `packets` contains one whose first byte is `opcode`.
-fn has_opcode(packets: &[Vec<u8>], opcode: u8) -> bool {
-    packets.iter().any(|p| p.first() == Some(&opcode))
-}
-
 #[test]
 fn walking_on_deck_moves_the_seat_and_broadcasts() {
     use crate::network::server_packets::opcodes;
@@ -332,7 +317,7 @@ fn walking_on_deck_moves_the_seat_and_broadcasts() {
     let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, -3600);
 
     // Board the anchored ferry at seat origin, then drain the boarding packets.
-    let boat = crate::game_loop::boats::spawn_boat(&mut world, SCHED_ROUTE);
+    let boat = spawn_on(&mut world, route(test_dock_sched()));
     crate::game_loop::boats::board(&mut world, 100, boat, (0, 0, 0));
     let _ = drain(&mut rx);
 
@@ -374,55 +359,38 @@ fn walking_on_deck_moves_the_seat_and_broadcasts() {
 
 /// A dock whose ferry, after departing, shouts an in-transit arrival message
 /// 200 ms into the voyage.
-static VOYAGE_DOCK_SCHED: DockSchedule = DockSchedule {
-    char_id: 801,
-    fare: crate::model::boat::Fare {
-        ticket_item_id: 0,
-        oust_x: 0,
-        oust_y: 0,
-        oust_z: 0,
-    },
-    voyage: &[(200, &[8001])],
-    stages: &[
-        DwellStage {
-            messages: &[7001],
-            then_ms: 100,
-        },
-        DwellStage {
-            messages: &[7002],
-            then_ms: 0,
-        },
-    ],
-};
+fn voyage_dock_sched() -> DockSchedule {
+    DockSchedule {
+        char_id: 801,
+        fare: free_fare(),
+        voyage: vec![(200, vec![8001])],
+        stages: vec![
+            DwellStage {
+                messages: vec![7001],
+                then_ms: 100,
+            },
+            DwellStage {
+                messages: vec![7002],
+                then_ms: 0,
+            },
+        ],
+    }
+}
 
-const VOYAGE_ROUTE: &[VehiclePathPoint] = &[
-    // A distant waypoint so the ferry is still sailing when the shout fires.
-    VehiclePathPoint {
-        x: 3000,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: false,
-        schedule: None,
-    },
-    VehiclePathPoint {
-        x: 1000,
-        y: 1000,
-        z: -3600,
-        move_speed: 200,
-        rotation_speed: 800,
-        dock: true,
-        schedule: Some(&VOYAGE_DOCK_SCHED),
-    },
-];
+fn voyage_route() -> RouteDef {
+    RouteDef {
+        // A distant waypoint so the ferry is still sailing when the shout fires.
+        waypoints: vec![wp(3000, 1000), dock(1000, 1000)],
+        schedules: vec![voyage_dock_sched()],
+    }
+}
 
 #[test]
 fn in_transit_arrival_shout_fires_while_sailing_then_stops_once_docked() {
     let (mut world, _tx, _db, _l) = test_world();
     let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, -3600);
 
-    let boat = crate::game_loop::boats::spawn_boat(&mut world, VOYAGE_ROUTE);
+    let boat = spawn_on(&mut world, voyage_route());
     // Drain the arrival dwell shout; advance through the 100 ms dwell → depart.
     let _ = drain(&mut rx);
     advance_ticks(&mut world, 2);
@@ -443,10 +411,10 @@ fn in_transit_arrival_shout_fires_while_sailing_then_stops_once_docked() {
     if let Some(b) = world.objects.get_component_mut::<Boat>(&boat) {
         b.moving = false;
     }
-    crate::game_loop::boats::handle_voyage_shout(&mut world, boat, &[8002]);
+    crate::game_loop::boats::handle_voyage_shout(&mut world, boat, 0, 0);
     let p = drain(&mut rx);
     assert!(
-        !boat_announced(&p, 8002),
+        !boat_announced(&p, 8001),
         "no in-transit shout once the ferry has docked"
     );
 }

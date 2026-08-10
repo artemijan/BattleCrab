@@ -229,6 +229,10 @@ pub struct World {
     pub starting_adena: i64,
     /// Static game data (templates, experience table, …).
     pub data: GameData,
+    /// Ferry route definitions (waypoints + dock schedules), registered by
+    /// `boats::spawn_boats` at boot (tests register synthetic routes). `Boat`
+    /// components and boat scheduler tasks refer to these by `RouteId`.
+    pub boat_routes: crate::model::boat::BoatRoutes,
     /// Geodata queries (LOS, walkability, heights). Constructed empty
     /// (`NullRegion` behaviour everywhere) and replaced with the loaded
     /// engine at boot — tests install synthetic regions instead. Shared with
@@ -591,6 +595,7 @@ impl World {
             delete_days,
             starting_adena,
             data,
+            boat_routes: Default::default(),
             geo: std::sync::Arc::new(GeoEngine::empty()),
             path_finding: 2,
             path: std::sync::mpsc::channel().0,

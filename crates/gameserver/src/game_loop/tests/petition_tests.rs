@@ -35,10 +35,6 @@ fn feedback_body(rate: i32, message: &str) -> Vec<u8> {
     w.into_bytes()
 }
 
-fn has_opcode(pkts: &[Vec<u8>], op: u8) -> bool {
-    pkts.iter().any(|p| p.first() == Some(&op))
-}
-
 #[test]
 fn submit_creates_a_pending_petition_and_pings_gms() {
     let (mut world, _tx, _rx, _link) = admin_world();
