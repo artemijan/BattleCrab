@@ -6,6 +6,7 @@
 //! loop's `continue` (skip to the next effect) rewritten as `return`, which is
 //! equivalent because the match was the last statement in the effect loop.
 
+use crate::game_loop::guard::target_is_chest;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
@@ -735,13 +736,8 @@ pub(super) fn open_chest(world: &mut World, ctx: &CastCtx) {
         target_oid,
         ..
     } = *ctx;
-    let is_chest = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| world.data.npc_data.get(n.npc_id))
-        .is_some_and(|t| t.type_name == "Chest");
     let dead = is_dead(world, target_oid);
-    if !is_chest
+    if !target_is_chest(world, target_oid)
         || dead
         || crate::game_loop::helpers::instance_of(world, caster_oid)
             != crate::game_loop::helpers::instance_of(world, target_oid)

@@ -3,7 +3,7 @@
 //! end), plus cast aborts.
 
 use crate::game_loop::common::maybe_distance_too_far;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::{position, target_is_chest};
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
@@ -403,12 +403,7 @@ pub(crate) fn resolve_cast_target(
         TargetType::DoorTreasure => {
             let t = caster_target.ok_or(sm_ids::THAT_IS_AN_INCORRECT_TARGET)?;
             let is_door = world.objects.has_component::<crate::model::door::Door>(&t);
-            let is_chest = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&t)
-                .and_then(|n| world.data.npc_data.get(n.npc_id))
-                .is_some_and(|tpl| tpl.type_name == "Chest");
-            if !is_door && !is_chest {
+            if !is_door && !target_is_chest(world, t) {
                 return Err(sm_ids::THAT_IS_AN_INCORRECT_TARGET);
             }
             t

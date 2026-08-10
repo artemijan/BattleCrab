@@ -169,3 +169,11 @@ pub(crate) fn clan_of_or_zero(world: &World, player_object_id: i32) -> i32 {
 pub(crate) fn position(world: &World, object_id: i32) -> Option<Position> {
     world.objects.get_component::<Position>(&object_id).copied()
 }
+
+pub(crate) fn target_is_chest(world: &World, target_oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+        .is_some_and(|tpl| tpl.type_name == "Chest")
+}
