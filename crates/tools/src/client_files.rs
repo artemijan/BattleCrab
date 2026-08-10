@@ -129,7 +129,7 @@ fn file_content(
     name: String,
     entries: &mut Vec<Entry>,
 ) -> Result<Vec<u8>, std::io::Error> {
-    match std::fs::read(&path) {
+    match std::fs::read(path) {
         Ok(d) => Ok(d),
         Err(e) => {
             entries.push(Entry {
