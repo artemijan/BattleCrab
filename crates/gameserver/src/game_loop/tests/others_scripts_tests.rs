@@ -3,7 +3,6 @@
 
 use super::*;
 
-use crate::data::MultisellData;
 use crate::data::zone_data::ZoneData;
 use crate::game_loop::area_npcs::{
     self, BLACKSMITH_OF_MAMMON, MERCHANT_OF_MAMMON, PRIEST_OF_MAMMON,
@@ -16,18 +15,13 @@ const DIST: &str = crate::data::DIST_GAME;
 /// i.e. openable *only* from him.
 const BLACKSMITH_LIST: i32 = 31126001;
 
-fn load_real_multisell_data(world: &mut World) {
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
-    world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data);
-}
-
 /// `bypass -h npc_<oid>_multisell 31126001` on the Blacksmith of Mammon opens
 /// the window: the list is npc-restricted, so this only works because the
 /// bypass passes the NPC through to `separateAndSend`.
 #[test]
 fn multisell_bypass_opens_an_npc_restricted_list() {
     let (mut world, ..) = test_world();
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     add_test_npc(
         &mut world,
         NPC_OID,
@@ -69,7 +63,7 @@ fn multisell_bypass_opens_an_npc_restricted_list() {
 #[test]
 fn npc_restricted_list_is_refused_without_an_npc() {
     let (mut world, ..) = test_world();
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     let mut rx = ingame_player(&mut world, 1, 8802, 0, 0, 0);
     drain(&mut rx);
 
@@ -102,7 +96,7 @@ fn npc_restricted_list_is_refused_without_an_npc() {
 #[test]
 fn multisell_bypass_refuses_a_foreign_npc() {
     let (mut world, ..) = test_world();
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     // The Merchant of Mammon is not on 31126001's allow-list.
     add_test_npc(
         &mut world,
@@ -1486,7 +1480,7 @@ fn choose_body(list_id: i32, entry_id: i32, amount: i64, enchant: i16) -> Vec<u8
 /// player 8801.
 fn mammon_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     add_test_npc(
         &mut world,
         NPC_OID,
@@ -1654,7 +1648,7 @@ fn a_mismatched_echo_is_refused() {
 #[test]
 fn maintain_enchantment_carries_the_enchant_over() {
     let (mut world, ..) = test_world();
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     // Pinter (30298) is on list 1005's `<npcs>` allow-list.
     add_test_npc(&mut world, NPC_OID, 30298, "Merchant", 70, 100, 0, 0);
     world.id_pool = 0x7000_0000..0x7000_1000;

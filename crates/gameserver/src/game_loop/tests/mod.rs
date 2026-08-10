@@ -14,6 +14,7 @@ use super::target::*;
 use super::*;
 use crate::character::CharData;
 use crate::character::FriendInfo;
+use crate::data::MultisellData;
 use crate::data::spawn_data::Territory;
 use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
@@ -350,6 +351,12 @@ fn own_castle(world: &mut World, castle_id: i32) {
     p.clan_id = clan_id;
 }
 
+/// Load the real item catalog + multisell lists (the empty test data has no
+/// lists, and the loader validates ingredients/products against item templates).
+fn load_real_multisell_data(world: &mut World, dist_loc: &str) {
+    world.data.item_data = crate::data::ItemData::load_from(dist_loc);
+    world.data.multisells = MultisellData::load_from(dist_loc, &world.data.item_data);
+}
 fn pbuffs(world: &World, oid: i32) -> usize {
     world
         .objects

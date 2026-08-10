@@ -295,12 +295,7 @@ fn mpcc_room_lifecycle() {
     for rx in &mut rxs {
         drain(rx);
     }
-    drain(&mut solo_rx);
-
-    // A channelled non-CC-leader may not use the matching screen.
-    on_packet(
-        &mut world,
-        3,
+    fn req_party_match_cfg() -> Vec<u8> {
         [vec![cop::REQUEST_PARTY_MATCH_CONFIG], {
             let mut w = PacketWriter::new();
             w.write_i32(1);
@@ -308,25 +303,18 @@ fn mpcc_room_lifecycle() {
             w.write_i32(1);
             w.into_bytes()
         }]
-        .concat(),
-    );
+        .concat()
+    }
+    drain(&mut solo_rx);
+
+    // A channelled non-CC-leader may not use the matching screen.
+    on_packet(&mut world, 3, req_party_match_cfg());
     assert!(sm_ids_of(&drain(&mut rxs[2])).contains(
         &sm_ids::THE_COMMAND_CHANNEL_AFFILIATED_PARTY_S_PARTY_MEMBER_CANNOT_USE_THE_MATCHING_SCREEN
     ));
 
     // The CC leader opening the board creates the MPCC room.
-    on_packet(
-        &mut world,
-        1,
-        [vec![cop::REQUEST_PARTY_MATCH_CONFIG], {
-            let mut w = PacketWriter::new();
-            w.write_i32(1);
-            w.write_i32(-1);
-            w.write_i32(1);
-            w.into_bytes()
-        }]
-        .concat(),
-    );
+    on_packet(&mut world, 1, req_party_match_cfg());
     let leader_pkts = drain(&mut rxs[0]);
     assert!(
         sm_ids_of(&leader_pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CREATED)

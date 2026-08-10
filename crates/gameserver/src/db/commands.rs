@@ -1482,22 +1482,9 @@ pub(crate) async fn run(
                 );
                 for it in &items {
                     warn_err(
-                        items::Entity::insert(items::ActiveModel {
-                            owner_id: Set(Some(clan_id)),
-                            object_id: Set(it.object_id),
-                            item_id: Set(Some(it.item_id)),
-                            count: Set(it.count),
-                            enchant_level: Set(Some(it.enchant_level)),
-                            loc: Set(Some(it.loc.clone())),
-                            loc_data: Set(Some(it.loc_data)),
-                            custom_type1: Set(Some(it.custom_type1)),
-                            custom_type2: Set(Some(it.custom_type2)),
-                            mana_left: Set(it.mana_left),
-                            time: Set(it.time.into()),
-                            ..Default::default()
-                        })
-                        .exec(&db)
-                        .await,
+                        items::Entity::insert(item_row_model(clan_id, it, None))
+                            .exec(&db)
+                            .await,
                     );
                 }
             }
@@ -1650,38 +1637,25 @@ pub(crate) async fn run(
             DbCommand::StoreOfflineWarehouseItems { owner_id, items } => {
                 for it in &items {
                     warn_err(
-                        items::Entity::insert(items::ActiveModel {
-                            owner_id: Set(Some(owner_id)),
-                            object_id: Set(it.object_id),
-                            item_id: Set(Some(it.item_id)),
-                            count: Set(it.count),
-                            enchant_level: Set(Some(it.enchant_level)),
-                            loc: Set(Some("WAREHOUSE".to_string())),
-                            loc_data: Set(Some(0)),
-                            custom_type1: Set(Some(it.custom_type1)),
-                            custom_type2: Set(Some(it.custom_type2)),
-                            mana_left: Set(it.mana_left),
-                            time: Set(it.time.into()),
-                            ..Default::default()
-                        })
-                        .on_conflict(
-                            OnConflict::column(items::Column::ObjectId)
-                                .update_columns([
-                                    items::Column::OwnerId,
-                                    items::Column::ItemId,
-                                    items::Column::Count,
-                                    items::Column::EnchantLevel,
-                                    items::Column::Loc,
-                                    items::Column::LocData,
-                                    items::Column::CustomType1,
-                                    items::Column::CustomType2,
-                                    items::Column::ManaLeft,
-                                    items::Column::Time,
-                                ])
-                                .to_owned(),
-                        )
-                        .exec(&db)
-                        .await,
+                        items::Entity::insert(item_row_model(owner_id, it, Some(("WAREHOUSE", 0))))
+                            .on_conflict(
+                                OnConflict::column(items::Column::ObjectId)
+                                    .update_columns([
+                                        items::Column::OwnerId,
+                                        items::Column::ItemId,
+                                        items::Column::Count,
+                                        items::Column::EnchantLevel,
+                                        items::Column::Loc,
+                                        items::Column::LocData,
+                                        items::Column::CustomType1,
+                                        items::Column::CustomType2,
+                                        items::Column::ManaLeft,
+                                        items::Column::Time,
+                                    ])
+                                    .to_owned(),
+                            )
+                            .exec(&db)
+                            .await,
                     );
                 }
             }
@@ -1693,20 +1667,11 @@ pub(crate) async fn run(
                 clear_mail_items(&db, message_id).await;
                 for it in &items {
                     warn_err(
-                        items::Entity::insert(items::ActiveModel {
-                            owner_id: Set(Some(owner_id)),
-                            object_id: Set(it.object_id),
-                            item_id: Set(Some(it.item_id)),
-                            count: Set(it.count),
-                            enchant_level: Set(Some(it.enchant_level)),
-                            loc: Set(Some("MAIL".to_string())),
-                            loc_data: Set(Some(message_id)),
-                            custom_type1: Set(Some(it.custom_type1)),
-                            custom_type2: Set(Some(it.custom_type2)),
-                            mana_left: Set(it.mana_left),
-                            time: Set(it.time.into()),
-                            ..Default::default()
-                        })
+                        items::Entity::insert(item_row_model(
+                            owner_id,
+                            it,
+                            Some(("MAIL", message_id)),
+                        ))
                         .exec(&db)
                         .await,
                     );

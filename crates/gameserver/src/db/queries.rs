@@ -1653,6 +1653,34 @@ pub(crate) fn warn_err<T>(res: Result<T, DbErr>) {
     }
 }
 
+/// One `items` row as every container flush writes it (player inventory, clan
+/// warehouse, offline warehouse, mail attachments). `loc_override` replaces the
+/// row's own `(loc, loc_data)` for containers that store a fixed location.
+pub(crate) fn item_row_model(
+    owner_id: i32,
+    it: &ItemRow,
+    loc_override: Option<(&str, i32)>,
+) -> items::ActiveModel {
+    let (loc, loc_data) = match loc_override {
+        Some((loc, loc_data)) => (loc.to_string(), loc_data),
+        None => (it.loc.clone(), it.loc_data),
+    };
+    items::ActiveModel {
+        owner_id: Set(Some(owner_id)),
+        object_id: Set(it.object_id),
+        item_id: Set(Some(it.item_id)),
+        count: Set(it.count),
+        enchant_level: Set(Some(it.enchant_level)),
+        loc: Set(Some(loc)),
+        loc_data: Set(Some(loc_data)),
+        custom_type1: Set(Some(it.custom_type1)),
+        custom_type2: Set(Some(it.custom_type2)),
+        mana_left: Set(it.mana_left),
+        time: Set(it.time.into()),
+        ..Default::default()
+    }
+}
+
 pub(crate) async fn create_character(
     db: &DatabaseConnection,
     next_id: &mut i64,
@@ -1910,22 +1938,9 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         .exec(&tx)
         .await?;
     for it in &s.items {
-        items::Entity::insert(items::ActiveModel {
-            owner_id: Set(Some(char_id)),
-            object_id: Set(it.object_id),
-            item_id: Set(Some(it.item_id)),
-            count: Set(it.count),
-            enchant_level: Set(Some(it.enchant_level)),
-            loc: Set(Some(it.loc.clone())),
-            loc_data: Set(Some(it.loc_data)),
-            custom_type1: Set(Some(it.custom_type1)),
-            custom_type2: Set(Some(it.custom_type2)),
-            mana_left: Set(it.mana_left),
-            time: Set(it.time.into()),
-            ..Default::default()
-        })
-        .exec(&tx)
-        .await?;
+        items::Entity::insert(item_row_model(char_id, it, None))
+            .exec(&tx)
+            .await?;
     }
 
     // Augmentations, keyed to the item rows just written (the old statement

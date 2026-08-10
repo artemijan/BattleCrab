@@ -661,18 +661,11 @@ use crate::game_loop::multisell::handle_multi_sell_choose;
 use crate::model::components::ActiveMultisell;
 use crate::model::inventory::Inventory;
 
-/// Load the real item catalog + multisell lists (the empty test data has no
-/// lists, and the loader validates ingredients/products against item templates).
-fn load_real_multisell_data(world: &mut World) {
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
-    world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data);
-}
-
 #[test]
 fn merchant_multisell_opens_the_exchange_window() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     let mut rx = ingame_player(&mut world, 1, 7205, 0, 0, 0);
     drain(&mut rx);
 
@@ -706,7 +699,7 @@ fn merchant_multisell_opens_the_exchange_window() {
 fn multisell_choose_exchanges_adena_for_the_product() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7206, 0, 0, 0);
     // 600026 entry 1: 50,000,000 adena → 1 Cloth Belt (13894).
@@ -736,7 +729,7 @@ fn multisell_choose_exchanges_adena_for_the_product() {
 fn multisell_choose_refused_without_enough_adena() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7207, 0, 0, 0);
     super::items::add_inventory_item(&mut world, 7207, ADENA_ID, 1_000); // far short
@@ -762,7 +755,7 @@ fn multisell_choose_refused_without_enough_adena() {
 fn multisell_choose_ignored_for_a_stale_list() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
-    load_real_multisell_data(&mut world);
+    load_real_multisell_data(&mut world, DIST);
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7208, 0, 0, 0);
     super::items::add_inventory_item(&mut world, 7208, ADENA_ID, 50_000_000);
@@ -1020,7 +1013,7 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
 
     let build = |rep: i32, in_clan: bool, leader: bool| {
         let (mut world, ..) = test_world();
-        load_real_multisell_data(&mut world);
+        load_real_multisell_data(&mut world, DIST);
         world.id_pool = 0x7100_0000..0x7100_1000;
         let rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
         super::items::add_inventory_item(&mut world, PLAYER, ADENA_ID, ADENA_COST);
