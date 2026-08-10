@@ -14,10 +14,11 @@
 //! is what Java shows with none loaded.
 
 use crate::game_loop::castle::{
-    add_to_treasury_no_tax, banish_foreigners, castle_function, door_upgrade_ratio, format_adena,
+    add_to_treasury_no_tax, banish_foreigners, castle_function, door_upgrade_ratio,
     remove_castle_function, set_door_upgrade, set_trap_upgrade, trap_upgrade_level, treasury,
     update_castle_function,
 };
+use crate::game_loop::helpers::format_amount;
 use crate::game_loop::manor::{castle_owner_clan_id, chamberlain_castle_id};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
@@ -208,7 +209,7 @@ fn vault_page(ctx: &mut QuestCtx, file: &str) -> Option<String> {
     if !vault_access(ctx) {
         return Some("chamberlain-21.html".to_string());
     }
-    let balance = format_adena(castle_treasury(ctx));
+    let balance = format_amount(castle_treasury(ctx));
     Some(ctx.get_htm(file).replace("%tax_income%", &balance))
 }
 
@@ -249,8 +250,8 @@ fn withdraw(ctx: &mut QuestCtx, amount: i64) -> Option<String> {
     if amount > balance {
         let page = ctx
             .get_htm("castlenotenoughbalance.html")
-            .replace("%tax_income%", &format_adena(balance))
-            .replace("%withdraw_amount%", &format_adena(amount));
+            .replace("%tax_income%", &format_amount(balance))
+            .replace("%withdraw_amount%", &format_amount(amount));
         return Some(page);
     }
     if let Some(castle_id) = chamberlain_castle_id(ctx.npc_id) {

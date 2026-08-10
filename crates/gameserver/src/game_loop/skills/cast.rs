@@ -1430,6 +1430,16 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
     }
 }
 
+pub(crate) fn buff_level(world: &World, oid: i32, skill_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&oid)
+        .and_then(|b| {
+            b.0.iter()
+                .find(|a| a.skill_id == skill_id)
+                .map(|a| a.skill_level)
+        })
+}
 /// Java's `channelingSkillId > 0` branch of `SkillChannelizer.run`.
 ///
 /// The level is **how many distinct channelers** are holding this skill on the
@@ -1451,14 +1461,7 @@ fn apply_channeled_skill(world: &mut World, channelizer: i32, target: i32, skill
         return;
     }
     // `getBuffInfoBySkillId(...)` — skip while an equal-or-stronger stack is up.
-    let current = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&target)
-        .and_then(|b| {
-            b.0.iter()
-                .find(|a| a.skill_id == channeled_id)
-                .map(|a| a.skill_level)
-        });
+    let current = buff_level(world, target, channeled_id);
     if current.is_some_and(|lvl| lvl >= level) {
         return;
     }

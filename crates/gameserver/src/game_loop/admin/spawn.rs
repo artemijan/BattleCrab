@@ -11,8 +11,8 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::{format_amount, nth_arg};
 use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
@@ -540,7 +540,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
             row.x,
             row.y,
             row.z,
-            super::points::format_adena(row.dist_2d.round() as i32),
+            format_amount(row.dist_2d.round() as i64),
             row.oid,
         ));
     }

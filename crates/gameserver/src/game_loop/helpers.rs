@@ -431,6 +431,22 @@ pub(crate) fn send_sm_bare_to_player(world: &World, player_object_id: i32, messa
     send_sm_to_player(world, player_object_id, message_id, &[]);
 }
 
+/// `DecimalFormat("#,###")` — thousands-grouped integer.
+pub(crate) fn format_amount(value: i64) -> String {
+    let digits = value.unsigned_abs().to_string();
+    let mut out = String::with_capacity(digits.len() + digits.len() / 3 + 1);
+    if value < 0 {
+        out.push('-');
+    }
+    for (i, c) in digits.chars().enumerate() {
+        if i > 0 && (digits.len() - i).is_multiple_of(3) {
+            out.push(',');
+        }
+        out.push(c);
+    }
+    out
+}
+
 /// How much adena `object_id` is carrying — Java `Inventory.getAdena`. Zero for
 /// anything with no [`Inventory`] at all, which is what every caller wants.
 pub(crate) fn adena(world: &World, object_id: i32) -> i64 {
@@ -948,4 +964,18 @@ pub(crate) fn block_inventory(world: &mut World, object_id: i32) {
         world.tick + ms_to_ticks(1500),
         crate::scheduler::ScheduledTask::InventoryEnable { object_id },
     );
+}
+#[cfg(test)]
+mod tests {
+    use crate::game_loop::helpers::format_amount;
+
+    #[test]
+    fn formats_thousands() {
+        assert_eq!(format_amount(0), "0");
+        assert_eq!(format_amount(999), "999");
+        assert_eq!(format_amount(1_000), "1,000");
+        assert_eq!(format_amount(200_000), "200,000");
+        assert_eq!(format_amount(1_234_567), "1,234,567");
+        assert_eq!(format_amount(-4_200), "-4,200");
+    }
 }

@@ -10,6 +10,7 @@
 use crate::db::DbCommand;
 use crate::game_loop::guard;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::format_amount;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::siege::SiegeClanType;
@@ -435,11 +436,11 @@ pub(super) fn admin_manor(world: &mut World, client_id: u32) {
         ));
         info.push_str(&format!(
             "<tr><td>Current period cost:</td><td><font color=FF9900>{} Adena</font></td></tr>",
-            super::super::castle::format_adena(current)
+            format_amount(current)
         ));
         info.push_str(&format!(
             "<tr><td>Next period cost:</td><td><font color=FF9900>{} Adena</font></td></tr>",
-            super::super::castle::format_adena(next)
+            format_amount(next)
         ));
         info.push_str(
             "<tr><td><font color=808080>--------------------------</font></td>\

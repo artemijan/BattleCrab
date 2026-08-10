@@ -178,23 +178,6 @@ fn liege_castle_id(world: &World, castle_id: i32) -> Option<i32> {
         .map(|c| c.id)
 }
 
-/// `Util.formatAdena` — group digits into thousands with commas
-/// (`200000` → `200,000`), the form every castle-vault page shows.
-pub(crate) fn format_adena(value: i64) -> String {
-    let digits = value.unsigned_abs().to_string();
-    let mut out = String::with_capacity(digits.len() + digits.len() / 3 + 1);
-    if value < 0 {
-        out.push('-');
-    }
-    for (i, c) in digits.chars().enumerate() {
-        if i > 0 && (digits.len() - i).is_multiple_of(3) {
-            out.push(',');
-        }
-        out.push(c);
-    }
-    out
-}
-
 /// Java `CastleManager._castleCirclets` — castle id → its circlet item id.
 /// Index 0 is unused (castle ids are 1..=9), exactly as Java's array is.
 const CASTLE_CIRCLETS: [i32; 10] = [0, 6838, 6835, 6839, 6837, 6840, 6834, 6836, 8182, 8183];
@@ -551,18 +534,5 @@ pub(crate) fn banish_foreigners(world: &mut World, castle_id: i32) {
         let idx = world.roll(spawns.len() as i32) as usize;
         let (x, y, z) = spawns[idx];
         super::death::teleport_player(world, oid, x, y, z);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::format_adena;
-
-    #[test]
-    fn format_adena_groups_thousands() {
-        assert_eq!(format_adena(0), "0");
-        assert_eq!(format_adena(999), "999");
-        assert_eq!(format_adena(200_000), "200,000");
-        assert_eq!(format_adena(9_999_999_999_999), "9,999,999,999,999");
     }
 }

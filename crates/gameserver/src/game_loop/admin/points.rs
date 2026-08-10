@@ -5,7 +5,7 @@
 //! targeted) and re-render their HTML menu after every action, exactly like the
 //! Java handlers.
 
-use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::{format_amount, nth_arg};
 use crate::model::Player;
 use crate::network::server_packets;
 use crate::world::World;
@@ -297,7 +297,7 @@ fn reward_online_prime(world: &mut World, gm_oid: i32, value: i32, range: i32) -
 
 fn show_primepoints_menu(world: &World, client_id: u32, object_id: i32) {
     let target = target_player(world, object_id);
-    let points = format_adena(prime_of(world, target));
+    let points = format_amount(prime_of(world, target) as i64);
     let name = player_name_or_empty(world, target);
     show_admin_html_replace(
         world,
@@ -336,7 +336,7 @@ fn set_prime(world: &mut World, target: i32, value: i32) {
 
 fn show_pccafe_menu(world: &World, client_id: u32, object_id: i32) {
     let target = target_player(world, object_id);
-    let points = format_adena(points_of(world, target));
+    let points = format_amount(points_of(world, target) as i64);
     let name = player_name_or_empty(world, target);
     show_admin_html_replace(
         world,
@@ -386,34 +386,4 @@ fn send_pccafe_packet(world: &World, target: i32, points: i32, add: i32) {
         target,
         server_packets::ex_pccafe_point_info(points, add, 1),
     );
-}
-
-/// `Util.formatAdena` — group digits into thousands with commas (`200000` →
-/// `"200,000"`). Points are never negative, but a sign is handled for safety.
-pub(super) fn format_adena(value: i32) -> String {
-    let neg = value < 0;
-    let digits = value.unsigned_abs().to_string();
-    let mut out = String::new();
-    for (i, ch) in digits.chars().enumerate() {
-        if i > 0 && (digits.len() - i).is_multiple_of(3) {
-            out.push(',');
-        }
-        out.push(ch);
-    }
-    if neg { format!("-{out}") } else { out }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::format_adena;
-
-    #[test]
-    fn formats_thousands() {
-        assert_eq!(format_adena(0), "0");
-        assert_eq!(format_adena(999), "999");
-        assert_eq!(format_adena(1_000), "1,000");
-        assert_eq!(format_adena(200_000), "200,000");
-        assert_eq!(format_adena(1_234_567), "1,234,567");
-        assert_eq!(format_adena(-4_200), "-4,200");
-    }
 }

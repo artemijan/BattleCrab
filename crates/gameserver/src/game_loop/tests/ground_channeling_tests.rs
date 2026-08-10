@@ -571,17 +571,6 @@ fn stance_world() -> (
     (world, db, l)
 }
 
-fn buff_level(world: &World, oid: i32, skill_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
-        .and_then(|b| {
-            b.0.iter()
-                .find(|a| a.skill_id == skill_id)
-                .map(|a| a.skill_level)
-        })
-}
-
 fn start_stance(world: &mut World, client: u32, caster: i32, target: i32) {
     world
         .objects

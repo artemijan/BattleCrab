@@ -24,7 +24,7 @@
 //!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
 use crate::game_loop::guard;
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{format_amount, send_to_client};
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -493,19 +493,6 @@ fn format_chance(value: f64) -> String {
         s.pop();
     }
     s
-}
-
-/// `DecimalFormat("#,###")` — thousands-grouped integer.
-fn format_amount(value: i64) -> String {
-    let s = value.abs().to_string();
-    let mut out = String::new();
-    for (i, c) in s.chars().enumerate() {
-        if i > 0 && (s.len() - i).is_multiple_of(3) {
-            out.push(',');
-        }
-        out.push(c);
-    }
-    if value < 0 { format!("-{out}") } else { out }
 }
 
 /// `Creature.getAttackType`: the equipped weapon's type, else `FIST`,
