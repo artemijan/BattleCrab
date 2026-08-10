@@ -20,7 +20,7 @@
 //! if a second boat ever shares a dock.
 
 use crate::enums::ChatType;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::{send_inventory_update, set_position};
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat::{
@@ -665,7 +665,8 @@ pub(crate) fn handle_depart(world: &mut World, boat_oid: i32) {
 /// `Boat.moveToNextRoutePoint`: head for the current waypoint — face it,
 /// broadcast the move order, and schedule arrival by travel time.
 fn move_to_next(world: &mut World, boat_oid: i32) {
-    let Some((target, cur)) = target_of(world, boat_oid).zip(position(world, boat_oid)) else {
+    let Some((target, cur)) = target_of(world, boat_oid).zip(maybe_position(world, boat_oid))
+    else {
         return;
     };
     let heading = heading_toward(cur.x, cur.y, target.x, target.y);
@@ -762,7 +763,7 @@ pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i
     if moving {
         return;
     }
-    let Some(pp) = position(world, player) else {
+    let Some(pp) = maybe_position(world, player) else {
         return;
     };
     if dist3d_xyz(pp.x, pp.y, pp.z, bx, by, bz) > 1000.0 {

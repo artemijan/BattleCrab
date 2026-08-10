@@ -11,7 +11,7 @@
 //! and the `SummonInfo` packet that shows it to *other* players are separate
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
@@ -84,7 +84,7 @@ pub(crate) fn summon_servitor(
         .get_component::<crate::model::Player>(&owner_oid)?;
     unsummon_servitor(world, owner_oid);
 
-    let pos = position(world, owner_oid)?;
+    let pos = maybe_position(world, owner_oid)?;
     let servitor_oid =
         crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, pos.heading)?;
 
@@ -336,7 +336,7 @@ pub(crate) fn servitor_follow_tick(world: &mut World, servitor_oid: i32) {
             .objects
             .get_component::<Position>(&link.owner_object_id)
             .copied(),
-        position(world, servitor_oid),
+        maybe_position(world, servitor_oid),
     ) else {
         return;
     };
@@ -359,8 +359,10 @@ pub(crate) fn servitor_attack(world: &mut World, owner_oid: i32, target_oid: i32
     let Some(servitor_oid) = servitor_of(world, owner_oid) else {
         return false;
     };
-    let (Some(owner), Some(target)) = (position(world, owner_oid), position(world, target_oid))
-    else {
+    let (Some(owner), Some(target)) = (
+        maybe_position(world, owner_oid),
+        maybe_position(world, target_oid),
+    ) else {
         return false;
     };
     let dx = (owner.x - target.x) as f64;
@@ -765,7 +767,10 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     // 4. The leash — "using same task to check if owner is in visible range".
     // A servitor left too far behind is dragged back into follow whatever it
     // was doing, so an ordered attack can't strand it across the map.
-    if let (Some(me), Some(o)) = (position(world, servitor_oid), position(world, owner)) {
+    if let (Some(me), Some(o)) = (
+        maybe_position(world, servitor_oid),
+        maybe_position(world, owner),
+    ) {
         let dx = (me.x - o.x) as f64;
         let dy = (me.y - o.y) as f64;
         let dz = (me.z - o.z) as f64;
@@ -991,7 +996,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     };
 
     // Java spawns the pet beside its owner, not on top of them.
-    let pos = position(world, owner_oid)?;
+    let pos = maybe_position(world, owner_oid)?;
     let pet_oid = crate::model::npc::spawn_npc_at(
         world,
         npc_id,

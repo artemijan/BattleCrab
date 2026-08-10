@@ -14,7 +14,7 @@
 //! slice. There is no HP decay to port: Java's only HP touch is the full heal
 //! `activate` gives the new wielder.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
@@ -65,7 +65,7 @@ pub(crate) fn on_monster_killed(world: &mut World, monster_oid: i32, killer_oid:
     if !ordinary {
         return;
     }
-    let Some(pos) = position(world, monster_oid) else {
+    let Some(pos) = maybe_position(world, monster_oid) else {
         return;
     };
 
@@ -91,7 +91,7 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
     // RedSky + Earthquake at the drop site (Java `dropIt`, fromMonster branch).
     world.broadcast_to_all_online(&server_packets::ex_red_sky(10));
     let quake = {
-        let p = position(world, killer).unwrap_or(Position {
+        let p = maybe_position(world, killer).unwrap_or(Position {
             x,
             y,
             z,
@@ -298,8 +298,8 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
             cw.player_pk_kills,
         )
     };
-    let pos = position(world, victim_oid)
-        .or_else(|| position(world, killer_oid))
+    let pos = maybe_position(world, victim_oid)
+        .or_else(|| maybe_position(world, killer_oid))
         .unwrap_or(Position {
             x: 0,
             y: 0,

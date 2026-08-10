@@ -21,7 +21,7 @@
 //! the port's single-threaded game loop cannot interleave two swaps.
 
 use crate::config::flood_protector::FloodAction;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::SkillBook;
@@ -883,7 +883,7 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
     super::clans::skills::reapply_clan_advent_on_profession_change(world, player_oid);
 
     // The class-change flash, to everyone nearby including the player.
-    if let Some(pos) = position(world, player_oid)
+    if let Some(pos) = maybe_position(world, player_oid)
         && let Some(region) = region_cell_of(world, player_oid)
     {
         super::helpers::broadcast_near_region(

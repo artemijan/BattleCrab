@@ -17,13 +17,14 @@
 //! ported, but no NPC on this dist carries a resurrect skill in its
 //! `<skillList>`.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::{in_zone, maybe_position};
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
+use crate::data::zone_data::ZoneKind;
 use crate::game_loop::{abnormal, combat, servitor};
 use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
 use crate::model::components::{Casting, Position, Vitals};
@@ -363,7 +364,7 @@ pub(crate) fn resolve_npc_cast_target(
         // zone. This is the arm that fixes point-blank mob AoEs — the cast
         // lands on the mob, and `affectScope` sweeps outward from there.
         TargetType::Self_ => {
-            if skill.is_bad() && in_peace_zone(world, npc_oid) {
+            if skill.is_bad() && in_zone(world, npc_oid, ZoneKind::Peace) {
                 return None;
             }
             return Some(npc_oid);
@@ -482,7 +483,10 @@ pub(crate) fn resolve_npc_cast_target(
     // `Target.java`, `Enemy.java` and `EnemyOnly.java`. `canSeeTarget` short-
     // circuits to true for a door (a closed gate occludes the ray to its own
     // centre), matching `GeoEngine.canSeeTarget(asker, target)`.
-    let (Some(from), Some(to)) = (position(world, npc_oid), position(world, resolved)) else {
+    let (Some(from), Some(to)) = (
+        maybe_position(world, npc_oid),
+        maybe_position(world, resolved),
+    ) else {
         return None;
     };
     let target_is_door = world
@@ -514,22 +518,6 @@ pub(crate) fn resolve_npc_cast_target(
 /// compares `calculateDistance2D(target) > skill.getCastRange()` directly).
 fn within_cast_range(world: &World, npc_oid: i32, target_oid: i32, skill: &Skill) -> bool {
     distance_2d(world, npc_oid, target_oid).is_some_and(|d| d <= skill.cast_range as f64)
-}
-
-/// `creature.isInsideZone(ZoneId.PEACE)` for an NPC. NPCs carry no `ZoneFlags`
-/// component (only players are tracked by the zone sweep), so the zone grid is
-/// queried by position.
-fn in_peace_zone(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Position>(&oid)
-        .is_some_and(|p| {
-            world
-                .data
-                .zone_data
-                .zones_at(p.x, p.y, p.z)
-                .any(|z| z.kind == crate::data::zone_data::ZoneKind::Peace)
-        })
 }
 
 /// NPC-side `SkillCaster.startCasting`. Much shorter than the player path:
@@ -809,7 +797,7 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
     };
     let (Some(mine), Some(pos), Some(region)) = (
         world.data.npc_data.get(npc_id),
-        position(world, npc_oid),
+        maybe_position(world, npc_oid),
         region_cell_of(world, npc_oid),
     ) else {
         return Vec::new();

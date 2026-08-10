@@ -10,7 +10,7 @@
 //! then build a [`QuestCtx`] around `&mut World` and hand that to the
 //! script. Scripts are stateless; all state flows through the ctx.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_fraction;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::pos_of;
@@ -1717,7 +1717,7 @@ impl<'w> QuestCtx<'w> {
             return;
         }
         for oid in [self.player, self.npc] {
-            let pos = position(self.world, oid);
+            let pos = maybe_position(self.world, oid);
             let region = self
                 .world
                 .objects

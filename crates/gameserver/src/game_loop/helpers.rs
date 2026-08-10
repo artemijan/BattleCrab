@@ -1,6 +1,6 @@
 //! Small send/broadcast/range helpers shared by the packet handlers.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::model;
 use crate::model::Player;
 use crate::model::components::{Movement, RegionCell, StatModifiers, Vitals};
@@ -113,7 +113,7 @@ pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
         return;
     }
     world.objects.remove_component::<Movement>(&object_id);
-    if let Some(pos) = position(world, object_id) {
+    if let Some(pos) = maybe_position(world, object_id) {
         broadcast_including_self(
             world,
             object_id,
@@ -913,7 +913,7 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
     };
     match action {
         QueuedAction::Move { x, y, z } => {
-            let Some(cur) = position(world, object_id) else {
+            let Some(cur) = maybe_position(world, object_id) else {
                 return;
             };
             crate::game_loop::position::intention_move_to(

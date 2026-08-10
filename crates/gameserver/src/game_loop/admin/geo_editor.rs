@@ -14,7 +14,7 @@
 //! mmap'd read-only, unlike Java's mutable block objects); `//geosave` folds
 //! them back into the on-disk format — see [`crate::geo::region::Region::write_to`].
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use std::path::Path;
 
@@ -69,7 +69,7 @@ fn read_admin_htm(world: &World, name: &str) -> Option<String> {
 /// `//ge <geoX> <geoY>` into the single-cell editor, each background telling
 /// whether that cell is open in all four directions.
 pub(super) fn admin_geoedit(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let Some(mut content) = read_admin_htm(world, "geoedit.htm") else {
@@ -113,7 +113,7 @@ pub(super) fn admin_ge(world: &mut World, client_id: u32, object_id: i32, args: 
         send_message(world, client_id, "Usage: //ge <geoX> <geoY>");
         return;
     };
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let Some(mut content) = read_admin_htm(world, "geoedit_cell.htm") else {
@@ -185,7 +185,7 @@ pub(super) fn admin_geo_nswe(
     args: &[&str],
     reopen_panel: bool,
 ) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     // Java reads the pair as `geoX geoY`; a partial pair falls back to the
@@ -255,7 +255,7 @@ fn geoedit_dir(world: &World, client_id: u32) -> Option<std::path::PathBuf> {
 /// `//geosave` — write the region the GM is standing in, runtime NSWE edits
 /// folded into the cells they changed.
 pub(super) fn admin_geosave(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let Some(dir) = geoedit_dir(world, client_id) else {

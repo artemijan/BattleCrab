@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 
 /// `AcquireSkillType.PLEDGE` on the wire (skill lists + acquire packets).
@@ -112,7 +112,7 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
 
     // The level-up flourish: `MagicSkillUse(player, 5103, 1, 0, 0)` +
     // `MagicSkillLaunched`, broadcast from the leader.
-    if let Some(pos) = position(world, player_oid) {
+    if let Some(pos) = maybe_position(world, player_oid) {
         let use_pkt = server_packets::magic_skill_use_raw(
             (player_oid, pos.x, pos.y, pos.z),
             (player_oid, pos.x, pos.y, pos.z),

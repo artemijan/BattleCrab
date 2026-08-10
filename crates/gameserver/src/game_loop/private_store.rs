@@ -12,7 +12,7 @@
 use super::helpers::{
     adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
 };
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -964,7 +964,7 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
     }
     let cfg = &world.cfg.custom_misc;
     if cfg.shop_min_range_from_npc > 0 || cfg.shop_min_range_from_player > 0 {
-        let Some(pos) = position(world, owner) else {
+        let Some(pos) = maybe_position(world, owner) else {
             return false;
         };
         let too_close = |other: i32, min_distance: i32| {

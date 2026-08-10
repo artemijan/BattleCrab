@@ -1,7 +1,7 @@
 //! Gear equip/unequip handlers (`UseItem`, `RequestUnEquipItem`) and the
 //! `EtcItem` "use" dispatch (`ExtractableItems` for pack/box items).
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
@@ -1428,7 +1428,7 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
             .objects
             .get_component::<crate::model::Player>(&object_id)
             .cloned();
-        let pos = position(world, object_id);
+        let pos = maybe_position(world, object_id);
         p.zip(pos)
     }) else {
         return;
@@ -1632,7 +1632,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
                 let Some(player) = world.objects.get_component::<Player>(&object_id) else {
                     continue;
                 };
-                let Some(pos) = position(world, object_id) else {
+                let Some(pos) = maybe_position(world, object_id) else {
                     continue;
                 };
                 let target_ref = world

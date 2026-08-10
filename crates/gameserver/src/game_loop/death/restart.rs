@@ -315,7 +315,7 @@ fn siege_restart_location(
 /// front instead, so every member lands on the same coordinates even if the
 /// anchor were to move mid-loop.
 pub(crate) fn teleport_to_object(world: &mut World, subject: i32, anchor: i32) -> bool {
-    let Some(pos) = crate::game_loop::guard::position(world, anchor) else {
+    let Some(pos) = crate::game_loop::guard::maybe_position(world, anchor) else {
         return false;
     };
     teleport_player(world, subject, pos.x, pos.y, pos.z);

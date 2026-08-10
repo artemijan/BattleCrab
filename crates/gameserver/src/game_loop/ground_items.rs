@@ -5,7 +5,7 @@
 //! region (`SpawnItem`, via `visibility`), and picked up by a click (`Action` →
 //! [`pickup_ground_item`]).
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_action_failed;
@@ -253,7 +253,7 @@ pub(crate) fn pickup_ground_item(
     else {
         return;
     };
-    let Some(pos) = position(world, item_oid) else {
+    let Some(pos) = maybe_position(world, item_oid) else {
         return;
     };
     let region = region_cell_of(world, item_oid).unwrap_or_else(|| region_of(pos.x, pos.y));
@@ -369,7 +369,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     else {
         return;
     };
-    let Some(ppos) = position(world, player_oid) else {
+    let Some(ppos) = maybe_position(world, player_oid) else {
         return;
     };
     // `(item.getItemType() == EtcItemType.PET_COLLAR) && player.havePetInvItems()`

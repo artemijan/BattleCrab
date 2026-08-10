@@ -12,7 +12,7 @@
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::doors;
 use crate::game_loop::guard;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
@@ -193,7 +193,7 @@ pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32)
 /// the GM's geo coordinates + height) and `//geo_can_move` / `//geo_can_see`
 /// (line-of-sight from the GM to the current target).
 pub(super) fn admin_geo_pos(world: &mut World, client_id: u32, object_id: i32, spawn: bool) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let geo = &world.geo;
@@ -226,7 +226,10 @@ pub(super) fn admin_geo_can_see(world: &mut World, client_id: u32, object_id: i3
         );
         return;
     };
-    let (Some(a), Some(b)) = (position(world, object_id), position(world, target)) else {
+    let (Some(a), Some(b)) = (
+        maybe_position(world, object_id),
+        maybe_position(world, target),
+    ) else {
         return;
     };
     let visible = world.geo.can_see_target(a.x, a.y, a.z, b.x, b.y, b.z);
@@ -244,7 +247,7 @@ pub(super) fn admin_geo_can_see(world: &mut World, client_id: u32, object_id: i3
 /// `AdminGeodata`'s `//geomap` — the geodata tile (region file) the GM stands in
 /// plus that tile's world bounds.
 pub(super) fn admin_geomap(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let ((tx, ty), (min_x, min_y), (max_x, max_y)) = world.geo.geomap_tile(pos.x, pos.y);
@@ -258,7 +261,7 @@ pub(super) fn admin_geomap(world: &mut World, client_id: u32, object_id: i32) {
 /// `AdminGeodata`'s `//geocell` — the geo cell (geoX/geoY), its nearest Z and
 /// the cell-center world coords at the GM's position.
 pub(super) fn admin_geocell(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let geo = &world.geo;
@@ -284,7 +287,10 @@ pub(super) fn admin_path_find(world: &mut World, client_id: u32, object_id: i32)
         send_message(world, client_id, "No Target!");
         return;
     };
-    let (Some(from), Some(to)) = (position(world, object_id), position(world, target)) else {
+    let (Some(from), Some(to)) = (
+        maybe_position(world, object_id),
+        maybe_position(world, target),
+    ) else {
         return;
     };
     let path = crate::geo::path::find_path(

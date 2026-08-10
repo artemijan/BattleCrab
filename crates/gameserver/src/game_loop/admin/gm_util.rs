@@ -10,7 +10,7 @@
 //! server has not ported.
 
 use crate::game_loop::guard;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
@@ -433,7 +433,7 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
 
 /// Teleport each of `members` to the GM's position.
 fn recall_all(world: &mut World, gm_oid: i32, members: &[i32]) {
-    let Some(pos) = position(world, gm_oid) else {
+    let Some(pos) = maybe_position(world, gm_oid) else {
         return;
     };
     for &oid in members {

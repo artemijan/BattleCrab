@@ -22,7 +22,7 @@
 //! here rather than with the end-game milestones.
 
 use super::helpers::send_sm_to_player as send_sm;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
@@ -858,7 +858,7 @@ fn duel_user_info(world: &World, oid: i32) -> Option<Vec<u8>> {
 }
 
 fn distance(world: &World, a: i32, b: i32) -> f64 {
-    let (Some(pa), Some(pb)) = (position(world, a), position(world, b)) else {
+    let (Some(pa), Some(pb)) = (maybe_position(world, a), maybe_position(world, b)) else {
         return f64::MAX;
     };
     let (dx, dy) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64);

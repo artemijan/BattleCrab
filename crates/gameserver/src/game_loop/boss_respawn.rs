@@ -18,7 +18,7 @@
 //! [`spawn_all`]: crate::model::npc::spawn_all
 use crate::data::spawn_data;
 use crate::db::{DbCommand, NpcRespawnRow};
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -99,7 +99,7 @@ fn restore_vitals(world: &mut World, oid: i32, cur_hp: f64, cur_mp: f64) {
 /// `DBSpawnManager.updateStatus` for a living boss: `respawnTime = 0` plus its
 /// current vitals and position.
 pub(crate) fn persist_alive(world: &World, npc_id: i32, oid: i32) {
-    let Some(pos) = position(world, oid) else {
+    let Some(pos) = maybe_position(world, oid) else {
         return;
     };
     let (cur_hp, cur_mp) = world

@@ -9,7 +9,7 @@
 //! minutes. A 5 s `CheckOwnerBuffs` beat keeps the tamer buffed from the
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_template;
@@ -167,7 +167,7 @@ pub(crate) fn handle_follow(world: &mut World, beast_oid: i32) {
     let owner_pos = world
         .objects
         .get_component::<crate::model::Player>(&owner)
-        .and_then(|_| position(world, owner));
+        .and_then(|_| maybe_position(world, owner));
     let Some(owner_pos) = owner_pos else {
         // Owner no longer in the world.
         despawn_beast(world, beast_oid);
@@ -282,7 +282,7 @@ pub(crate) fn handle_mad_cow_polymorph(world: &mut World, cow_oid: i32, feeder_o
     let Some(next_id) = crate::scripts::feedable_beasts::mad_cow_reverts_to(npc_id) else {
         return;
     };
-    let Some(pos) = position(world, cow_oid) else {
+    let Some(pos) = maybe_position(world, cow_oid) else {
         return;
     };
     despawn_beast(world, cow_oid);

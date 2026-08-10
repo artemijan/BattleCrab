@@ -10,7 +10,7 @@
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
 use crate::game_loop::common::{near_leader, players_in_lair_oids};
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::region_cell_of;
@@ -150,7 +150,7 @@ pub(crate) fn handle_wave(world: &mut World, antharas_oid: i32) {
         });
     }
 
-    let pos = position(world, antharas_oid);
+    let pos = maybe_position(world, antharas_oid);
     if let Some(p) = pos {
         for npc_id in &spawned {
             crate::model::npc::spawn_npc_at(world, *npc_id, p.x, p.y, p.z, 0);

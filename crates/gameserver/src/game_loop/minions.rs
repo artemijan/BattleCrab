@@ -15,7 +15,7 @@
 //!   deliberately not "tidied".
 //! - **Either is attacked** → [`on_assist`] spreads aggro across the pack.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use commons::util::rnd;
@@ -153,7 +153,7 @@ pub(crate) fn live_pack(world: &World, master_oid: i32) -> Vec<i32> {
 /// around the leader rather than a uniform disc, and is kept as-is so packs
 /// sit the way retail players expect.
 fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> bool {
-    let Some(master_pos) = position(world, master_oid) else {
+    let Some(master_pos) = maybe_position(world, master_oid) else {
         return false;
     };
     let min_radius = npc_template(world, master_oid)

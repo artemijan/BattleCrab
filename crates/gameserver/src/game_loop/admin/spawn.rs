@@ -10,7 +10,7 @@
 //! and ignored (documented deviation).
 
 use crate::game_loop::guard;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::{format_amount, nth_arg};
 use crate::model::components::Position;
@@ -383,7 +383,7 @@ pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_
         .get(npc_id)
         .map(|t| t.name.clone())
         .unwrap_or_default();
-    let pos = position(world, target).unwrap_or(Position {
+    let pos = maybe_position(world, target).unwrap_or(Position {
         x: 0,
         y: 0,
         z: 0,
@@ -435,9 +435,10 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         .unwrap_or(0)
         .max(0);
 
-    let (Some(region), Some(gm_pos)) =
-        (region_cell_of(world, object_id), position(world, object_id))
-    else {
+    let (Some(region), Some(gm_pos)) = (
+        region_cell_of(world, object_id),
+        maybe_position(world, object_id),
+    ) else {
         return;
     };
     let gm_instance = crate::game_loop::helpers::instance_of(world, object_id);
@@ -456,7 +457,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         let Some(npc) = world.objects.get_component::<Npc>(&oid) else {
             continue;
         };
-        let Some(pos) = position(world, oid) else {
+        let Some(pos) = maybe_position(world, oid) else {
             continue;
         };
         let npc_id = npc.npc_id;

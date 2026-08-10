@@ -3,7 +3,7 @@
 
 use crate::game_loop::four_sepulchers as fs;
 use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_say;
 use crate::game_loop::helpers::region_cell_of;
@@ -352,7 +352,7 @@ pub(crate) fn handle_victim_flee(world: &mut crate::world::World, npc_oid: i32) 
     if !alive {
         return;
     }
-    let Some(pos) = position(world, npc_oid) else {
+    let Some(pos) = maybe_position(world, npc_oid) else {
         return;
     };
     let dx = world.roll(801) - 400;

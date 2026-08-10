@@ -18,7 +18,7 @@
 //!   bonus, MP cost and reuse time.
 
 use crate::game_loop::bot_report;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
@@ -1609,7 +1609,7 @@ fn escape_to(world: &mut World, player_oid: i32, dest: crate::model::skill::Esca
     else {
         return;
     };
-    let Some(pos) = position(world, player_oid) else {
+    let Some(pos) = maybe_position(world, player_oid) else {
         return;
     };
     let pick = if world.cfg.character.random_respawn_in_town {

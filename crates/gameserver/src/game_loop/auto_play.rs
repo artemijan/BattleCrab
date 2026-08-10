@@ -7,7 +7,7 @@
 //! behalf. See `PLAN_G33_AUTO_PLAY.md`.
 
 use crate::game_loop::guard;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
@@ -255,7 +255,10 @@ fn keep_attacking(world: &mut World, player_oid: i32, target: i32, s: &AutoPlayS
 /// Java's reposition: a point one collision-diameter beyond the target, so the
 /// player walks *through* whatever it is stuck on.
 fn nudge(world: &mut World, player_oid: i32, target: i32) {
-    let (Some(p), Some(t)) = (position(world, player_oid), position(world, target)) else {
+    let (Some(p), Some(t)) = (
+        maybe_position(world, player_oid),
+        maybe_position(world, target),
+    ) else {
         return;
     };
     let radius = world
@@ -283,7 +286,7 @@ fn move_to(world: &mut World, player_oid: i32, from: Position, dest: (i32, i32, 
 /// pass was spent.
 fn try_pickup(world: &mut World, player_oid: i32) -> bool {
     let (Some(pos), Some(region)) = (
-        position(world, player_oid),
+        maybe_position(world, player_oid),
         region_cell_of(world, player_oid),
     ) else {
         return false;
@@ -326,7 +329,7 @@ fn find_target(world: &World, player_oid: i32, s: &AutoPlaySettings) -> Option<i
     {
         return Some(leader_target);
     }
-    let pos = position(world, player_oid)?;
+    let pos = maybe_position(world, player_oid)?;
     let region = region_cell_of(world, player_oid)?;
     // Characters mode ignores the short-range setting, as Java does.
     let range = if s.short_range && s.next_target_mode != 2 {
@@ -340,7 +343,7 @@ fn find_target(world: &World, player_oid: i32, s: &AutoPlaySettings) -> Option<i
         if !mode_allows(world, player_oid, other, s.next_target_mode) {
             continue;
         }
-        let Some(opos) = position(world, other) else {
+        let Some(opos) = maybe_position(world, other) else {
             continue;
         };
         if (pos.z - opos.z).abs() >= MAX_Z_DIFF {

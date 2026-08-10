@@ -9,7 +9,7 @@
 //! (`"FourSepulchers" + managerNpcId`) and rehydrated at boot, so the
 //! 60-minute re-entry gate survives a restart.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{Position, RegionCell, Vitals};
@@ -259,10 +259,10 @@ pub(crate) fn try_enter(world: &mut World, manager_oid: i32, player: i32) -> Ent
     }
 
     // Teleport the nearby members in, collect the toll.
-    let leader_pos = position(world, player);
+    let leader_pos = maybe_position(world, player);
     let (hx, hy, hz) = start_hall(manager_id);
     for &mem in &members {
-        let near = match (leader_pos, position(world, mem)) {
+        let near = match (leader_pos, maybe_position(world, mem)) {
             (Some(a), Some(b)) => a.distance_2d(&b) <= 700.0,
             _ => false,
         };
@@ -439,9 +439,9 @@ pub(crate) fn on_boss_killed(world: &mut World, boss_oid: i32, killer: i32) {
 
     let members: Vec<i32> =
         crate::game_loop::party::party_members(world, killer).unwrap_or_default();
-    let killer_pos = position(world, killer);
+    let killer_pos = maybe_position(world, killer);
     for mem in members {
-        let near = match (killer_pos, position(world, mem)) {
+        let near = match (killer_pos, maybe_position(world, mem)) {
             (Some(a), Some(b)) => a.distance_2d(&b) <= 1500.0,
             _ => false,
         };
@@ -452,7 +452,7 @@ pub(crate) fn on_boss_killed(world: &mut World, boss_oid: i32, killer: i32) {
         }
     }
     spawn_next_wave(world, sepulcher);
-    if let Some(p) = position(world, boss_oid) {
+    if let Some(p) = maybe_position(world, boss_oid) {
         crate::model::npc::spawn_npc_at(world, TELEPORTER, p.x, p.y, p.z, 0);
     }
 }
@@ -544,7 +544,7 @@ fn set_room4_effect_zones(world: &mut World, sepulcher: i32, enabled: bool) {
 /// A room-4 charm was destroyed: kill its trap zone (matched by the charm's
 /// zone skill) wherever the killer stands.
 pub(crate) fn disable_charm_zone(world: &mut World, killer: i32, charm_skill: i32) {
-    let Some(pos) = position(world, killer) else {
+    let Some(pos) = maybe_position(world, killer) else {
         return;
     };
     for zone in world.data.zone_data.zones.iter_mut() {

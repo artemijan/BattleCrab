@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::npc_template;
@@ -285,10 +285,10 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
     {
         return;
     }
-    let Some(pos) = position(world, effected) else {
+    let Some(pos) = maybe_position(world, effected) else {
         return;
     };
-    let radians = match effector.and_then(|e| position(world, e)) {
+    let radians = match effector.and_then(|e| maybe_position(world, e)) {
         Some(src) => ((pos.y - src.y) as f64).atan2((pos.x - src.x) as f64),
         // `Util.convertHeadingToDegree`: heading / 182.044444444, in degrees.
         None => (pos.heading as f64 / 182.044_444_444).to_radians(),
@@ -430,7 +430,7 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
         world
             .objects
             .remove_component::<crate::model::components::Movement>(&target_oid);
-        if let Some(pos) = position(world, target_oid)
+        if let Some(pos) = maybe_position(world, target_oid)
             && let Some(region) = region_cell_of(world, target_oid)
         {
             crate::game_loop::helpers::broadcast_near_region(
@@ -495,7 +495,7 @@ pub(crate) fn rebalance_party_hp(world: &mut World, caster_oid: i32, skill: &Ski
         // No party: Java's `if (party != null)` guard skips the whole effect.
         return;
     };
-    let Some(origin) = position(world, caster_oid) else {
+    let Some(origin) = maybe_position(world, caster_oid) else {
         return;
     };
     let range = skill.affect_range;
@@ -635,7 +635,7 @@ pub(crate) fn call_party(world: &mut World, caster_oid: i32) {
         // `if (party == null) return` — solo, the cast is simply wasted.
         return;
     };
-    let Some(dest) = position(world, caster_oid) else {
+    let Some(dest) = maybe_position(world, caster_oid) else {
         return;
     };
 
@@ -918,7 +918,10 @@ pub(crate) fn accept_summon_request(
 /// pipeline has already run that geodata check by the time an effect applies,
 /// so it is not repeated here.
 pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid: i32) {
-    let (Some(from), Some(to)) = (position(world, caster_oid), position(world, target_oid)) else {
+    let (Some(from), Some(to)) = (
+        maybe_position(world, caster_oid),
+        maybe_position(world, target_oid),
+    ) else {
         return;
     };
 
@@ -994,10 +997,10 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
     {
         return;
     }
-    let Some(dest) = position(world, caster_oid) else {
+    let Some(dest) = maybe_position(world, caster_oid) else {
         return;
     };
-    let Some(from) = position(world, target_oid) else {
+    let Some(from) = maybe_position(world, target_oid) else {
         return;
     };
 

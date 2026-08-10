@@ -10,7 +10,7 @@
 //! `//next_missing_html` teleports the GM to the first offender so they can
 //! look at it.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::world::World;
 
 use super::send_message;
@@ -105,7 +105,7 @@ fn scan(world: &mut World, bounds: Option<(i32, i32, i32, i32)>) -> Vec<(i32, i3
 
 /// `//geomap_missing_htmls` — the geodata tile the GM is standing in.
 pub(super) fn admin_geomap_missing_htmls(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let ((tx, ty), (min_x, min_y), (max_x, max_y)) = world.geo.geomap_tile(pos.x, pos.y);

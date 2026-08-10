@@ -12,7 +12,7 @@
 //! since G31.
 
 use crate::game_loop::guard;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
@@ -127,7 +127,7 @@ pub(super) fn admin_character_info(
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
         return;
     };
-    let pos = position(world, target).unwrap_or(Position {
+    let pos = maybe_position(world, target).unwrap_or(Position {
         x: 0,
         y: 0,
         z: 0,

@@ -11,7 +11,8 @@
 //! water point, which no zone can express; cosmetic only.
 
 use crate::data::item_data::WeaponType;
-use crate::game_loop::guard::position;
+use crate::data::zone_data::ZoneKind;
+use crate::game_loop::guard::{in_zone, maybe_position};
 use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
 use crate::model::components::FishingSession;
@@ -71,14 +72,7 @@ fn equipped_bait(world: &World, player: i32) -> i32 {
 /// and meets [`can_fish`] (rod, bait, level, not underwater). Fired on zone
 /// transitions from [`revalidate_zone`](super::zones::revalidate_zone).
 pub(crate) fn fishing_available(world: &World, player: i32) -> bool {
-    let in_zone = position(world, player).is_some_and(|p| {
-        world
-            .data
-            .zone_data
-            .zones_at(p.x, p.y, p.z)
-            .any(|z| z.kind == crate::data::zone_data::ZoneKind::Fishing)
-    });
-    in_zone && can_fish(world, player)
+    in_zone(world, player, ZoneKind::Fishing) && can_fish(world, player)
 }
 
 /// Java `Fishing.canFish` (slice-1 subset): alive, a real fishing rod equipped,
@@ -103,7 +97,7 @@ fn can_fish(world: &World, player: i32) -> bool {
         return false;
     }
     // `isInsideZone(ZoneId.WATER)` — no fishing while swimming.
-    if let Some(pos) = position(world, player) {
+    if let Some(pos) = maybe_position(world, player) {
         let in_water = world
             .data
             .zone_data
@@ -350,7 +344,7 @@ fn broadcast_end(world: &World, player: i32, reason: u8) {
 /// **WaterZone** — whose upper Z (`getWaterZ`) is the bob's Z. Geo height checks
 /// are elided (the port has no per-cell geo in most zones).
 fn calculate_bait_location(world: &World, player: i32) -> Option<(i32, i32, i32)> {
-    let p = position(world, player)?;
+    let p = maybe_position(world, player)?;
     // The player must stand in a fishing zone.
     let in_fishing_zone = world
         .data

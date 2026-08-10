@@ -20,7 +20,7 @@
 //! range, and no throne/bench is interactive on this dist; and the queued
 //! sit-on-arrival `NextAction`, which needs an AI next-action slot.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
@@ -253,7 +253,7 @@ fn set_action_block(world: &mut World, object_id: i32, blocked: bool) {
 }
 
 fn broadcast_wait_type(world: &World, object_id: i32, wait_type: i32) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let pkt = server_packets::change_wait_type(object_id, wait_type, pos.x, pos.y, pos.z);

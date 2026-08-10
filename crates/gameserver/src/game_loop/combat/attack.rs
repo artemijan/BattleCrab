@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_client;
@@ -382,7 +382,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
     if radius <= 0 || angle <= 0 {
         return Vec::new();
     }
-    let Some(origin) = position(world, attacker_oid) else {
+    let Some(origin) = maybe_position(world, attacker_oid) else {
         return Vec::new();
     };
     let Some(region) = region_cell_of(world, attacker_oid) else {
@@ -407,7 +407,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
         if !attackable {
             continue;
         }
-        let Some(pos) = position(world, candidate) else {
+        let Some(pos) = maybe_position(world, candidate) else {
             continue;
         };
         let (dx, dy) = ((pos.x - origin.x) as f64, (pos.y - origin.y) as f64);

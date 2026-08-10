@@ -1,7 +1,7 @@
 //! Movement/position handlers (`MoveBackwardToLocation`, `RequestStopMove`,
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
@@ -41,7 +41,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     if world.objects.get_component::<Player>(&object_id).is_none() {
         return;
     }
-    let Some(cur) = position(world, object_id) else {
+    let Some(cur) = maybe_position(world, object_id) else {
         return;
     };
 
@@ -207,7 +207,7 @@ fn take_admin_tele_mode(
             // `FlyToLocation` constructor reads the *destination* as its origin
             // — the client flies to `dest` regardless, so the port keeps that
             // ordering rather than "fixing" the origin.
-            let Some(pos) = position(world, object_id) else {
+            let Some(pos) = maybe_position(world, object_id) else {
                 return true;
             };
             let skill_use = world
@@ -270,7 +270,7 @@ fn slide_to(
     dest: (i32, i32, i32),
     fly_type: server_packets::FlyType,
 ) {
-    let Some(from) = position(world, object_id) else {
+    let Some(from) = maybe_position(world, object_id) else {
         return;
     };
     let (x, y, z) = dest;
@@ -304,7 +304,7 @@ pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    let Some(cur) = position(world, object_id) else {
+    let Some(cur) = maybe_position(world, object_id) else {
         return;
     };
 
@@ -524,7 +524,7 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
         }
         return;
     }
-    let Some(cur) = position(world, object_id) else {
+    let Some(cur) = maybe_position(world, object_id) else {
         return;
     };
 

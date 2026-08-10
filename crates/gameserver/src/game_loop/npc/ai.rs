@@ -26,7 +26,7 @@
 //! `OnAttackableFactionCall` script event's two listeners on this dist —
 //! Queen Ant's nurses and Orfen's minions — via `on_faction_call_script`.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::{maybe_position, position};
 use crate::game_loop::helpers::hp_fraction;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
@@ -439,7 +439,10 @@ pub(crate) fn stop_npc(world: &mut World, npc_oid: i32) {
         return;
     }
     world.objects.remove_component::<Movement>(&npc_oid);
-    if let (Some(pos), Some(region)) = (position(world, npc_oid), region_cell_of(world, npc_oid)) {
+    if let (Some(pos), Some(region)) = (
+        maybe_position(world, npc_oid),
+        region_cell_of(world, npc_oid),
+    ) {
         broadcast_near_region_in(
             world,
             region,
@@ -636,10 +639,7 @@ fn think_active(world: &mut World, npc_oid: i32) {
     // geodata-visible; invisibility/silent-move/GM states don't exist).
     if aggressive && global_aggro >= 0 {
         let (nx, ny, nz) = {
-            let pos = world
-                .objects
-                .get_component::<Position>(&npc_oid)
-                .expect("caller checked");
+            let pos = position(world, npc_oid);
             (pos.x, pos.y, pos.z)
         };
         let mut in_range = players_in_range_los(world, region, nx, ny, nz, aggro_range as f64);
@@ -694,24 +694,14 @@ fn think_active(world: &mut World, npc_oid: i32) {
         && let Some(_castle) = siege::active_siege_guard_castle(world, npc_oid)
     {
         let (nx, ny, nz) = {
-            let pos = world
-                .objects
-                .get_component::<Position>(&npc_oid)
-                .expect("caller checked");
+            let pos = position(world, npc_oid);
             (pos.x, pos.y, pos.z)
         };
         let mut in_range = players_in_range_los(world, region, nx, ny, nz, aggro_range as f64);
         // Keep only actual enemies (attackers / non-defenders).
         in_range.retain(|&pid| siege::attackable_siege_guard(world, npc_oid, pid));
         in_range.retain(|&pid| notices_target(world, npc_oid, pid));
-        if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-            for player_oid in in_range {
-                let entry = aggro.0.entry(player_oid).or_default();
-                if entry.hate == 0.0 {
-                    entry.hate = 1.0;
-                }
-            }
-        }
+        set_hate_for(world, npc_oid, in_range);
     }
 
     // Chose a target from the aggro list (`getMostHated`, after the
@@ -946,8 +936,10 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     // route), then returns. Without this gate a mob whose hated target
     // climbed to another level engages straight through the geometry.
     {
-        let (Some(npos), Some(tpos)) = (position(world, npc_oid), position(world, target_oid))
-        else {
+        let (Some(npos), Some(tpos)) = (
+            maybe_position(world, npc_oid),
+            maybe_position(world, target_oid),
+        ) else {
             return;
         };
         if !world
@@ -1044,8 +1036,10 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     // In reach: stop and swing.
     if world.objects.has_component::<Movement>(&npc_oid) {
         world.objects.remove_component::<Movement>(&npc_oid);
-        let (Some(pos), Some(region)) = (position(world, npc_oid), region_cell_of(world, npc_oid))
-        else {
+        let (Some(pos), Some(region)) = (
+            maybe_position(world, npc_oid),
+            region_cell_of(world, npc_oid),
+        ) else {
             return;
         };
         broadcast_near_region_in(
@@ -1362,8 +1356,10 @@ fn aggro_range_candidates(world: &mut World, npc_oid: i32) -> Vec<i32> {
         return Vec::new();
     }
     let range = template.aggro_range as f64;
-    let (Some(pos), Some(region)) = (position(world, npc_oid), region_cell_of(world, npc_oid))
-    else {
+    let (Some(pos), Some(region)) = (
+        maybe_position(world, npc_oid),
+        region_cell_of(world, npc_oid),
+    ) else {
         return Vec::new();
     };
     // Index-derived like the aggro scan, but deliberately without the LOS and
@@ -1606,7 +1602,7 @@ fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Op
         else {
             return;
         };
-        let Some(pos) = position(world, npc_oid) else {
+        let Some(pos) = maybe_position(world, npc_oid) else {
             return;
         };
         let Some(region) = region_cell_of(world, npc_oid) else {
@@ -1817,9 +1813,19 @@ fn players_in_range_los(
 /// note beside it), deliberately not the template `aggroRange`.
 const GUARD_AGGRO_RANGE: f64 = 500.0;
 
+fn set_hate_for(world: &mut World, npc_oid: i32, in_range: Vec<i32>) {
+    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+        for player_oid in in_range {
+            let entry = aggro.0.entry(player_oid).or_default();
+            if entry.hate == 0.0 {
+                entry.hate = 1.0;
+            }
+        }
+    }
+}
 fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     let (nx, ny, nz) = {
-        let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else {
+        let Some(pos) = maybe_position(world, npc_oid) else {
             return;
         };
         (pos.x, pos.y, pos.z)
@@ -1836,14 +1842,7 @@ fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     // Guards run the same `isAggressiveTowards` (Java `Guard extends
     // Attackable`), so stealth and fake death hide a PK from them too.
     pks.retain(|&pid| notices_target(world, npc_oid, pid));
-    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-        for oid in pks {
-            let entry = aggro.0.entry(oid).or_default();
-            if entry.hate == 0.0 {
-                entry.hate = 1.0;
-            }
-        }
-    }
+    set_hate_for(world, npc_oid, pks);
 }
 
 /// Java `AttackableAI.thinkAttack`'s faction block: an engaged NPC drags its
@@ -1901,7 +1900,7 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
     let target_is_player = world
         .objects
         .has_component::<crate::model::Player>(&target_oid);
-    let Some(target_pos) = position(world, target_oid) else {
+    let Some(target_pos) = maybe_position(world, target_oid) else {
         return;
     };
 
@@ -1976,7 +1975,7 @@ pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: 
         return;
     }
 
-    let Some(killer_pos) = position(world, killer_oid) else {
+    let Some(killer_pos) = maybe_position(world, killer_oid) else {
         return;
     };
 
@@ -2007,7 +2006,7 @@ fn faction_recruits(
 ) -> Vec<i32> {
     let (Some(caller_id), Some(pos), Some(region)) = (
         npc_id_of(world, caller_oid),
-        position(world, caller_oid),
+        maybe_position(world, caller_oid),
         region_cell_of(world, caller_oid),
     ) else {
         return Vec::new();
@@ -2022,7 +2021,7 @@ fn faction_recruits(
 
     let mut recruits: Vec<i32> = Vec::new();
     for other in nearby {
-        let Some(opos) = position(world, other) else {
+        let Some(opos) = maybe_position(world, other) else {
             continue;
         };
         if is_dead(world, other) {

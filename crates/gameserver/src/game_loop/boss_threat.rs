@@ -25,7 +25,7 @@
 //! Antharas's turn came, so the machinery lives here and each boss keeps just
 //! its own skill ladder.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::skill_by_id;
 use crate::world::World;
@@ -193,7 +193,7 @@ fn prune_threat(world: &mut World, boss_oid: i32) {
     else {
         return;
     };
-    let boss_pos = position(world, boss_oid);
+    let boss_pos = maybe_position(world, boss_oid);
     let mut cleared = [false; 3];
     for (i, (oid, _)) in t.slots.iter().enumerate() {
         if *oid == 0 {

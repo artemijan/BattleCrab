@@ -2,7 +2,7 @@
 //! themselves; interrupt one and it calls every idle clansman in help range
 //! onto you, with the appropriate indignation.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_say_param;
 use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
@@ -114,7 +114,7 @@ impl QuestScript for PlainsOfDion {
                 continue;
             }
             let sees = {
-                let (hp, op) = (position(ctx.world, helper), origin);
+                let (hp, op) = (maybe_position(ctx.world, helper), origin);
                 hp.is_some_and(|hp| {
                     ctx.world
                         .geo

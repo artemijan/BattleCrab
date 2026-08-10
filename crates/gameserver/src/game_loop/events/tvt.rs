@@ -13,7 +13,7 @@
 //! (`on_player_logout`), and the freeze applies `Immobilized` +
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
@@ -1151,7 +1151,7 @@ fn set_invul(world: &mut World, player: i32, value: bool) {
 
 /// The winner's firework flourish (Java `broadcastPacket(new MagicSkillUse(...))`).
 fn firework(world: &World, player: i32) {
-    let Some(pos) = position(world, player) else {
+    let Some(pos) = maybe_position(world, player) else {
         return;
     };
     let src = (player, pos.x, pos.y, pos.z);

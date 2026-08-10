@@ -12,7 +12,7 @@
 //! boot. The status field (on the golem's `grand_bosses` record) is DrChaos's
 //! own three-state ladder, distinct from the two-/four-state ones elsewhere.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::{DrChaosGolem, DrChaosState, Position, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -378,7 +378,7 @@ pub(crate) fn on_first_talk(world: &mut World, dr_chaos_oid: i32) -> Option<Stri
 // -- helpers ----------------------------------------------------------------
 
 fn living_players_near(world: &World, oid: i32, range: f64) -> usize {
-    let Some(origin) = position(world, oid) else {
+    let Some(origin) = maybe_position(world, oid) else {
         return 0;
     };
     world

@@ -29,6 +29,7 @@
 //! Game panel after *both* outcomes — without pushing that tail into the shared
 //! helper.
 
+use crate::data::zone_data::ZoneKind;
 use crate::model::Player;
 use crate::model::components::{Position, TargetRef};
 use crate::model::npc::Npc;
@@ -166,8 +167,20 @@ pub(crate) fn clan_of_or_zero(world: &World, player_object_id: i32) -> i32 {
 }
 
 /// An object's position.
-pub(crate) fn position(world: &World, object_id: i32) -> Option<Position> {
+pub(crate) fn maybe_position(world: &World, object_id: i32) -> Option<Position> {
     world.objects.get_component::<Position>(&object_id).copied()
+}
+pub(crate) fn in_zone(world: &World, obj_id: i32, zone_kind: ZoneKind) -> bool {
+    maybe_position(world, obj_id).is_some_and(|p| {
+        world
+            .data
+            .zone_data
+            .zones_at(p.x, p.y, p.z)
+            .any(|z| z.kind == zone_kind)
+    })
+}
+pub(crate) fn position(world: &World, object_id: i32) -> Position {
+    maybe_position(world, object_id).expect(&format!("object {} must have position", object_id))
 }
 
 pub(crate) fn target_is_chest(world: &World, target_oid: i32) -> bool {

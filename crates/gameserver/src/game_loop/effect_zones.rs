@@ -15,7 +15,7 @@
 //! per-creature chance roll — without the enter/exit bookkeeping. A zone with
 //! nobody in it costs one hash lookup and never advances its timer.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::skill_by_id;
 use commons::util::rnd;
 
@@ -221,7 +221,7 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
 /// `baseValue *= zone.getMoveBonus()` for a playable inside one. `1.0` when
 /// not in a swamp. Castle-trap swamps only bite during their siege.
 pub(crate) fn swamp_multiplier_at(world: &World, oid: i32) -> f64 {
-    let Some(pos) = position(world, oid) else {
+    let Some(pos) = maybe_position(world, oid) else {
         return 1.0;
     };
     for idx in world.data.zone_data.zone_indices_at(pos.x, pos.y, pos.z) {

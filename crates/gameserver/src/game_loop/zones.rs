@@ -9,7 +9,7 @@
 //! 100-unit `last_validate` distance), enter world / teleport / position
 //! snaps with `force = true`.
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::model::components::{Speeds, ZoneFlags};
 use crate::network::server_packets::{self, compass_zone};
 use crate::world::World;
@@ -20,7 +20,7 @@ use super::helpers::{send_sm_bare_to_player, send_to_player};
 /// membership mask at the current position and applies the enter/exit
 /// effects of every bit that flipped.
 pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let Some(flags) = world

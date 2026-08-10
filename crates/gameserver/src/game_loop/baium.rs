@@ -21,7 +21,7 @@
 
 use super::helpers::pos_of;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Immobilized, Position, Vitals};
@@ -496,7 +496,7 @@ fn has_living_player_target(world: &World, angel: i32) -> bool {
 
 /// The nearest living in-zone player within `range` (3D) of the archangel.
 fn nearest_player_in_range(world: &mut World, angel: i32, range: f64) -> Option<i32> {
-    let origin = position(world, angel)?;
+    let origin = maybe_position(world, angel)?;
     let World { objects, data, .. } = &mut *world;
     let zone = data.zone_data.by_id(BAIUM_ZONE_ID);
     let mut best: Option<(i32, f64)> = None;

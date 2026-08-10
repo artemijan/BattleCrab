@@ -1,7 +1,7 @@
 use super::*;
 use crate::game_loop::ground_items::reserve_for;
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
 
@@ -890,7 +890,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
                 .collect()
         })
         .unwrap_or_default();
-    let Some(pos) = position(world, victim_oid) else {
+    let Some(pos) = maybe_position(world, victim_oid) else {
         return;
     };
 

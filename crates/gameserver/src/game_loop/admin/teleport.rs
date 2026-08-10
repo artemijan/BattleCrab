@@ -304,7 +304,7 @@ pub(super) fn admin_go(
     args: &[&str],
 ) {
     let offset = nth_arg::<i32>(args, 0).unwrap_or(150);
-    let Some(mut pos) = guard::position(world, object_id) else {
+    let Some(mut pos) = guard::maybe_position(world, object_id) else {
         return;
     };
     match dir {
@@ -342,7 +342,7 @@ pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args
     ) else {
         return;
     };
-    let Some(cur) = guard::position(world, object_id) else {
+    let Some(cur) = guard::maybe_position(world, object_id) else {
         return;
     };
     crate::game_loop::position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
@@ -362,7 +362,7 @@ fn sendhome(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
         Some(name) => find_online_player(world, name).or_sm(sm_ids::THAT_PLAYER_IS_NOT_ONLINE)?,
         None => guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?,
     };
-    let pos = guard::position(world, target).or_silent()?;
+    let pos = guard::maybe_position(world, target).or_silent()?;
     let race = world
         .objects
         .get_component::<Player>(&target)
@@ -418,7 +418,7 @@ fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
     let region = region_cell_of(world, target).or_silent()?;
-    let gm_pos = guard::position(world, object_id).or_silent()?;
+    let gm_pos = guard::maybe_position(world, object_id).or_silent()?;
     super::death::despawn_npc(world, target, region);
     if let Some(spawned) =
         crate::model::npc::spawn_npc_at(world, npc_id, gm_pos.x, gm_pos.y, gm_pos.z, gm_pos.heading)

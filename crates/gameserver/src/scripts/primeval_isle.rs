@@ -9,7 +9,7 @@
 //! most-hated specials). Skipped as off-chronicle: the Deinonychus Mesozoic
 //! Stone taming reward (Gracia-era item 14828).
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::skill_by_id;
@@ -223,7 +223,7 @@ fn trex_on_attack(ctx: &mut QuestCtx) {
     }
 
     let far = {
-        let a = position(ctx.world, npc);
+        let a = maybe_position(ctx.world, npc);
         let b = ctx
             .world
             .objects
@@ -279,7 +279,10 @@ fn monster_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
         set_running(ctx, npc);
         // `calculateHeadingFrom(creature, npc)` — the direction from the
         // player *to* the dino, extended 3000 units: straight away.
-        let (from, at) = (position(ctx.world, creature), position(ctx.world, npc));
+        let (from, at) = (
+            maybe_position(ctx.world, creature),
+            maybe_position(ctx.world, npc),
+        );
         let (Some(from), Some(at)) = (from, at) else {
             return;
         };
@@ -498,8 +501,8 @@ pub(crate) fn handle_trex_attack(world: &mut crate::world::World, trex_oid: i32,
         n.script_value = 0;
     }
     let close = {
-        let a = position(world, trex_oid);
-        let b = position(world, player_oid);
+        let a = maybe_position(world, trex_oid);
+        let b = maybe_position(world, player_oid);
         match (a, b) {
             (Some(a), Some(b)) => a.distance_2d(&b) <= 800.0,
             _ => false,

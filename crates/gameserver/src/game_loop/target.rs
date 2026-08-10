@@ -3,7 +3,7 @@
 //! to a targeted NPC opens its chat window.
 
 use crate::data::htm_cache::read_htm;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
@@ -506,7 +506,7 @@ pub(crate) fn set_target(
     }
     let viewer_level = player.level;
 
-    let Some(ppos) = position(world, object_id) else {
+    let Some(ppos) = maybe_position(world, object_id) else {
         return;
     };
     // Prevents /target exploiting: reject targets too far away in Z.
@@ -607,7 +607,7 @@ pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
     {
         t.0 = None;
     }
-    let Some(pos) = position(world, holder_object_id) else {
+    let Some(pos) = maybe_position(world, holder_object_id) else {
         return;
     };
     let pkt = server_packets::target_unselected(holder_object_id, pos.x, pos.y, pos.z);

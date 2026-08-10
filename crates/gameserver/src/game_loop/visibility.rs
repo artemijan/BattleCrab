@@ -6,7 +6,7 @@
 //! leaving it exchanges `DeleteObject`, and every broadcast helper is scoped
 //! by the same rule (`helpers::broadcast_to_others`).
 
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Movement, Position, RegionCell, TargetRef};
 use crate::network::server_packets;
@@ -377,7 +377,7 @@ fn send_static_object_info(world: &World, session: &ClientSession, object_id: i3
 /// position mutation (movement tick, `ValidatePosition` snap, future
 /// teleports).
 pub(crate) fn update_region(world: &mut World, object_id: i32) {
-    let Some(pos) = position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let new = region_of(pos.x, pos.y);

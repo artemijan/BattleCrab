@@ -34,7 +34,7 @@
 //! remainder from being forgotten.
 
 use crate::data::zone_data::ZoneKind;
-use crate::game_loop::guard::position;
+use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::{
     is_dead, is_gm, level_of, player, send_action_failed, send_sm_bare_to_client, send_sm_to_client,
 };
@@ -699,7 +699,7 @@ fn siege_deployable(world: &World, caster: i32) -> bool {
     // Here the standing-in-a-residence half is the `SiegeZone` the caster is
     // inside, which carries the `castle_id` the siege is keyed by. Forts have
     // no port, so only the castle leg exists.
-    let Some(pos) = position(world, caster) else {
+    let Some(pos) = maybe_position(world, caster) else {
         return false;
     };
     world
