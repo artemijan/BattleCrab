@@ -2,6 +2,7 @@
 //! to the keys the G9 combat/AI slice consumes.
 
 use super::character::CHARACTER_CONFIG_FILE;
+use crate::config::common::parse_tuples_separated_by_semicolon;
 use commons::config::PropertiesParser;
 
 pub const NPC_CONFIG_FILE: &str = "config/NPC.ini";
@@ -236,7 +237,7 @@ impl NpcConfig {
                 .get_int("VitalityConsumeByBoss", d.vitality_consume_by_boss),
             raid_minion_respawn_time: p
                 .get_int("RaidMinionRespawnTime", d.raid_minion_respawn_time),
-            custom_minions_respawn_time: parse_minion_respawn_overrides(
+            custom_minions_respawn_time: parse_tuples_separated_by_semicolon(
                 &p.get_string("CustomMinionsRespawnTime", ""),
             ),
             force_delete_minions: p.get_bool("ForceDeleteMinions", d.force_delete_minions),
@@ -277,17 +278,6 @@ fn parse_config_line(raw: &str, fallback: Vec<f64>) -> Vec<f64> {
         .filter_map(|v| v.trim().parse().ok())
         .collect();
     if parsed.is_empty() { fallback } else { parsed }
-}
-
-/// `CustomMinionsRespawnTime` — `id,seconds;id,seconds;…`. Malformed pairs are
-/// skipped rather than failing the boot, matching Java's lenient split.
-fn parse_minion_respawn_overrides(raw: &str) -> std::collections::HashMap<i32, i32> {
-    raw.split(';')
-        .filter_map(|pair| {
-            let (id, secs) = pair.split_once(',')?;
-            Some((id.trim().parse().ok()?, secs.trim().parse().ok()?))
-        })
-        .collect()
 }
 
 #[cfg(test)]

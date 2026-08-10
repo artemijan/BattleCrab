@@ -3,9 +3,9 @@
 
 use std::collections::HashMap;
 
-use commons::config::PropertiesParser;
-
+use crate::config::common::parse_tuples_separated_by_semicolon;
 use crate::model::MAX_VITALITY_POINTS;
+use commons::config::PropertiesParser;
 
 pub const CHARACTER_CONFIG_FILE: &str = "config/Character.ini";
 /// `CharacterDataStoreInterval` lives in Java's `General.ini`, not `Character.ini`.
@@ -552,7 +552,9 @@ impl CharacterConfig {
             party_xp_cutoff_method: p.get_string("PartyXpCutoffMethod", "level").to_lowercase(),
             party_xp_cutoff_level: p.get_int("PartyXpCutoffLevel", 20),
             party_xp_cutoff_percent: p.get_float("PartyXpCutoffPercent", 3.0) as f64,
-            party_xp_cutoff_gaps: parse_gaps(&p.get_string("PartyXpCutoffGaps", "0,9;10,14;15,99")),
+            party_xp_cutoff_gaps: parse_tuples_separated_by_semicolon(
+                &p.get_string("PartyXpCutoffGaps", "0,9;10,14;15,99"),
+            ),
             party_xp_cutoff_gap_percents: p
                 .get_string("PartyXpCutoffGapPercent", "100;30;0")
                 .split(';')
@@ -667,37 +669,12 @@ impl CharacterConfig {
             skill_duration_list: if p
                 .get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration)
             {
-                parse_skill_duration_list(&p.get_string("SkillDurationList", ""))
+                parse_tuples_separated_by_semicolon(&p.get_string("SkillDurationList", ""))
             } else {
                 HashMap::new()
             },
         }
     }
-}
-
-/// `SkillDurationList`: `skillId,seconds;skillId2,seconds2;…`. Malformed
-/// entries are skipped, mirroring Java's per-entry try/catch (which just logs).
-fn parse_skill_duration_list(raw: &str) -> HashMap<i32, i32> {
-    let mut out = HashMap::new();
-    for entry in raw.split(';') {
-        let mut it = entry.split(',');
-        if let (Some(id), Some(secs)) = (it.next(), it.next())
-            && let (Ok(id), Ok(secs)) = (id.trim().parse::<i32>(), secs.trim().parse::<i32>())
-        {
-            out.insert(id, secs);
-        }
-    }
-    out
-}
-
-/// `PartyXpCutoffGaps`: `from,to;from,to;…` pairs.
-fn parse_gaps(raw: &str) -> Vec<(i32, i32)> {
-    raw.split(';')
-        .filter_map(|pair| {
-            let (a, b) = pair.split_once(',')?;
-            Some((a.trim().parse().ok()?, b.trim().parse().ok()?))
-        })
-        .collect()
 }
 
 #[cfg(test)]
@@ -708,7 +685,8 @@ mod tests {
     fn skill_duration_list_parses_id_second_pairs() {
         // The multi-line dist form (backslash continuations are already joined
         // by the properties parser) with trailing `;` and stray whitespace.
-        let m = parse_skill_duration_list("1078,7200;1085,7200; 264,3600 ;bad;309,");
+        let m: HashMap<i32, i32> =
+            parse_tuples_separated_by_semicolon("1078,7200;1085,7200; 264,3600 ;bad;309,");
         assert_eq!(m.get(&1078), Some(&7200));
         assert_eq!(m.get(&1085), Some(&7200));
         assert_eq!(m.get(&264), Some(&3600));

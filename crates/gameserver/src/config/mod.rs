@@ -51,7 +51,9 @@ pub use npc::NpcConfig;
 pub use offline_trade::OfflineTradeConfig;
 pub use premium::PremiumConfig;
 pub use sell_buffs::SellBuffsConfig;
+mod common;
 pub mod grand_boss;
+
 pub use grand_boss::GrandBossConfig;
 pub use rates::RatesConfig;
 pub use security::SecurityConfig;
