@@ -124,7 +124,23 @@ fn list(dir: &Path) -> Result<Vec<PathBuf>, String> {
     files.sort();
     Ok(files)
 }
-
+fn file_content(
+    path: &Path,
+    name: String,
+    entries: &mut Vec<Entry>,
+) -> Result<Vec<u8>, std::io::Error> {
+    match std::fs::read(&path) {
+        Ok(d) => Ok(d),
+        Err(e) => {
+            entries.push(Entry {
+                file: name,
+                detail: String::new(),
+                error: Some(format!("read: {e}")),
+            });
+            Err(e)
+        }
+    }
+}
 /// `system` -> `system_decrypted`, as text wherever text is possible.
 pub fn decrypt(
     set: &mut SchemaSet,
@@ -149,16 +165,8 @@ pub fn decrypt(
             .to_string_lossy()
             .to_string();
         obs.step(done, total, &name);
-        let raw = match std::fs::read(&path) {
-            Ok(d) => d,
-            Err(e) => {
-                entries.push(Entry {
-                    file: name,
-                    detail: String::new(),
-                    error: Some(format!("read: {e}")),
-                });
-                continue;
-            }
+        let Ok(raw) = file_content(&path, name.clone(), &mut entries) else {
+            continue;
         };
         let Some(version) = client_dat::read_version(&raw) else {
             skipped.push(name);
@@ -303,16 +311,8 @@ pub fn encrypt(
             skipped.push(name);
             continue;
         };
-        let content = match std::fs::read(&path) {
-            Ok(c) => c,
-            Err(e) => {
-                entries.push(Entry {
-                    file: name,
-                    detail: String::new(),
-                    error: Some(format!("read: {e}")),
-                });
-                continue;
-            }
+        let Ok(content) = file_content(&path, name.clone(), &mut entries) else {
+            continue;
         };
 
         let plain = match record.form {
