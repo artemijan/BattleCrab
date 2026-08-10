@@ -37,7 +37,6 @@ use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
-use crate::game_loop::skills::cast;
 use crate::game_loop::skills::cast::set_skill_reuse;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.

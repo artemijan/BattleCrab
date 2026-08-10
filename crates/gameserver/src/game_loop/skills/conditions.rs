@@ -35,10 +35,9 @@
 
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::guard::position;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::is_gm;
-use crate::game_loop::helpers::{send_action_failed, send_sm_bare_to_client, send_sm_to_client};
-use crate::game_loop::npc::lvl_of_npc;
+use crate::game_loop::helpers::{
+    is_dead, is_gm, level_of, player, send_action_failed, send_sm_bare_to_client, send_sm_to_client,
+};
 use crate::model::Player;
 use crate::model::components::{OlympiadObserver, PartyRef, Vitals, ZoneFlags};
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -445,10 +444,6 @@ fn is_pet(world: &World, object_id: i32) -> bool {
 // world state is one obvious `None` rather than a silently-true condition.
 // ---------------------------------------------------------------------------
 
-fn player(world: &World, object_id: i32) -> Option<&Player> {
-    world.objects.get_component::<Player>(&object_id)
-}
-
 fn is_player(world: &World, object_id: i32) -> bool {
     object_id != 0 && world.objects.has_component::<Player>(&object_id)
 }
@@ -462,13 +457,6 @@ fn in_zone(world: &World, object_id: i32, kind: ZoneKind) -> bool {
 
 fn charges(world: &World, object_id: i32) -> i32 {
     player(world, object_id).map_or(0, |p| p.charges)
-}
-
-fn level_of(world: &World, object_id: i32) -> Option<i32> {
-    if let Some(p) = player(world, object_id) {
-        return Some(p.level);
-    }
-    lvl_of_npc(world, object_id)
 }
 
 /// `(equipped weapon's type mask, is it two-handed)` — Java's

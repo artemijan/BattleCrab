@@ -23,13 +23,11 @@
 //!   `Util.sendCBHtml`, the chunked community-board channel that `DropList.htm`
 //!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
+use crate::data::npc_data::{DropHolder, NpcTemplate};
 use crate::game_loop::helpers::{format_amount, send_to_client};
 use crate::game_loop::{community_board, guard};
 use crate::network::server_packets;
 use crate::world::World;
-
-use crate::data::npc_data::{DropHolder, NpcTemplate};
-use crate::game_loop::admin::npc_info;
 
 const DROP_LIST_ITEMS_PER_PAGE: usize = 10;
 

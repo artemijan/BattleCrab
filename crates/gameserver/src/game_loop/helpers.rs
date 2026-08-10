@@ -442,6 +442,26 @@ pub(crate) fn count_of(world: &World, player_oid: i32, item_id: i32) -> i64 {
         .get_component::<Inventory>(&player_oid)
         .map_or(0, |inv| inv.count_of(item_id))
 }
+
+pub fn player(world: &World, object_id: i32) -> Option<&Player> {
+    world.objects.get_component::<Player>(&object_id)
+}
+
+pub(crate) fn level_of(world: &World, object_id: i32) -> Option<i32> {
+    if let Some(p) = player(world, object_id) {
+        return Some(p.level);
+    }
+    lvl_of_npc(world, object_id)
+}
+
+pub(crate) fn lvl_of_npc(world: &World, object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&object_id)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+        .map(|t| t.level)
+}
+
 pub(crate) fn get_others_in_matching_room(
     world: &World,
     room_id: i32,
