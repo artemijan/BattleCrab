@@ -34,13 +34,15 @@
 //! remainder from being forgotten.
 
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::abnormal::flags_of;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::{
     is_dead, is_gm, level_of, player, send_action_failed, send_sm_bare_to_client, send_sm_to_client,
 };
 use crate::model::Player;
-use crate::model::components::{OlympiadObserver, PartyRef, Vitals, ZoneFlags};
+use crate::model::components::{OlympiadObserver, PartyRef, ServitorOf, Vitals, ZoneFlags};
 use crate::model::inventory::{Inventory, PaperdollSlot};
+use crate::model::skill::effect_flag::BLOCK_RESURRECTION;
 use crate::model::skill::{AffectType, MountKind, Skill, SkillCondition, Vital};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -756,52 +758,30 @@ fn resurrection(world: &World, caster: i32, target: i32) -> Result<(), Refusal> 
     if target == 0 {
         return Err(Refusal(None));
     }
-    let Some(p) = player(world, target) else {
-        // `else if (effected.isSummon())` — the pet/servitor leg. Same three
-        // checks as the player one, minus the siege branch (Java does not run
-        // it for summons), and the "already proposed" flag lives on the
-        // **owner** (`player.isRevivingPet()`), not on the summon.
-        //
-        // A pet and a servitor are the same thing here: both carry
-        // `ServitorOf`, which is what makes this one branch rather than two.
-        let Some(owner) = world
+    // Whose `revive_request` gates this. For a player it's the target itself;
+    // for a pet/servitor the flag lives on the **owner** (Java's
+    // `player.isRevivingPet()`). Pet and servitor are one branch here because
+    // both carry `ServitorOf`. Anything that is neither is not a valid target.
+    let request_holder = if player(world, target).is_some() {
+        target
+    } else {
+        world
             .objects
-            .get_component::<crate::model::components::ServitorOf>(&target)
+            .get_component::<ServitorOf>(&target)
             .map(|s| s.owner_object_id)
-        else {
-            return Err(Refusal(None));
-        };
-        if !is_dead(world, target) {
-            // Java sends `S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS` with the
-            // skill name here. `RefusalLine` carries no skill-name form, and
-            // the *player* leg above already refuses this case silently — so
-            // this matches its sibling rather than introducing a third
-            // behaviour for the same condition.
-            return Err(Refusal(None));
-        }
-        if super::super::abnormal::flags_of(world, target)
-            & crate::model::skill::effect_flag::BLOCK_RESURRECTION
-            != 0
-        {
-            return Err(Refusal(Some(RefusalLine::Sm(sm_ids::REJECT_RESURRECTION))));
-        }
-        if player(world, owner).is_some_and(|o| o.revive_request.is_some()) {
-            return Err(Refusal(Some(RefusalLine::Sm(
-                sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
-            ))));
-        }
-        return Ok(());
+            .ok_or(Refusal(None))?
     };
+
     if !is_dead(world, target) {
+        // Java sends `S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS` with the skill
+        // name on the summon leg, but `RefusalLine` has no skill-name form and
+        // the player leg refuses silently — so both refuse silently.
         return Err(Refusal(None));
     }
-    if super::super::abnormal::flags_of(world, target)
-        & crate::model::skill::effect_flag::BLOCK_RESURRECTION
-        != 0
-    {
+    if flags_of(world, target) & BLOCK_RESURRECTION != 0 {
         return Err(Refusal(Some(RefusalLine::Sm(sm_ids::REJECT_RESURRECTION))));
     }
-    if p.revive_request.is_some() {
+    if player(world, request_holder).is_some_and(|p| p.revive_request.is_some()) {
         return Err(Refusal(Some(RefusalLine::Sm(
             sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
         ))));
