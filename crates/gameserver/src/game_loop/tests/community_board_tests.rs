@@ -207,10 +207,7 @@ fn delevel_action_drops_one_level_for_a_fee() {
     world.cfg.community_board.delevel_price = 100;
     let mut rx = ingame_player(&mut world, 1, 7010, 0, 0, 0);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&7010)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&7010).unwrap();
         p.level = 10;
     }
     drain(&mut rx);
@@ -218,21 +215,14 @@ fn delevel_action_drops_one_level_for_a_fee() {
     // Broke: refused before any level math.
     handle_parse_command(&mut world, 1, "_bbsdelevel");
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&7010)
-            .unwrap()
-            .level,
+        world.objects.get_component::<Player>(&7010).unwrap().level,
         10,
         "no funds, no delevel"
     );
 
     give_test_item(&mut world, 7010, 57, 100);
     handle_parse_command(&mut world, 1, "_bbsdelevel");
-    let p = world
-        .objects
-        .get_component::<crate::model::Player>(&7010)
-        .unwrap();
+    let p = world.objects.get_component::<Player>(&7010).unwrap();
     assert_eq!(p.level, 9, "one level down");
     assert_eq!(
         p.exp,
@@ -243,20 +233,13 @@ fn delevel_action_drops_one_level_for_a_fee() {
 
     // At the floor: refused even with funds.
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&7010)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&7010).unwrap();
         p.level = 1;
     }
     give_test_item(&mut world, 7010, 57, 100);
     handle_parse_command(&mut world, 1, "_bbsdelevel");
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&7010)
-            .unwrap()
-            .level,
+        world.objects.get_component::<Player>(&7010).unwrap().level,
         1,
         "level 1 is the floor"
     );
@@ -520,26 +503,11 @@ fn scheme_create_enforces_max_schemes() {
         5,
         "the sixth is rejected at the cap"
     );
-    let pkts = drain(&mut rx);
-    let content = pkts
-        .iter()
-        .find(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
-        .map(|p| cb_content(p))
-        .unwrap_or_default();
+    let content = filter_show_board_html(&mut rx);
     assert!(
         content.contains("Maximum schemes amount is already reached."),
         "the cap error is shown"
     );
-}
-
-// --- FavoriteBoard / HomepageBoard ----------------------------------------
-
-/// Grab the concatenated board html (all SHOW_BOARD chunks joined).
-fn board_html(pkts: &[Vec<u8>]) -> String {
-    pkts.iter()
-        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
-        .map(|p| cb_content(p))
-        .collect()
 }
 
 #[test]
@@ -559,7 +527,7 @@ fn homepage_link_serves_homepage() {
         "the homepage is sent as three chunks"
     );
     assert!(
-        board_html(&pkts).contains("bbs_Webfolder"),
+        filter_show_board_html_from_bytes(pkts).contains("bbs_Webfolder"),
         "homepage.html body rendered"
     );
 }
@@ -572,7 +540,7 @@ fn getfav_on_empty_renders_the_list_page() {
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbsgetfav");
-    let html = board_html(&drain(&mut rx));
+    let html = filter_show_board_html(&mut rx);
     assert!(html.contains("Bookmark list"), "favorite.html rendered");
     assert!(
         !html.contains("%fav_list%"),
@@ -606,7 +574,7 @@ fn add_favorite_from_home_persists_and_renders() {
         "the favorite is written through to bbs_favorites"
     );
     // The callback re-renders the favorites list with the new row.
-    let html = board_html(&drain(&mut rx));
+    let html = filter_show_board_html(&mut rx);
     assert!(html.contains("Home"), "the new favorite row is rendered");
     assert!(
         html.contains("_bbsdelfav_"),
@@ -702,7 +670,7 @@ fn multisell_choose_exchanges_adena_for_the_product() {
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7206, 0, 0, 0);
     // 600026 entry 1: 50,000,000 adena → 1 Cloth Belt (13894).
-    super::items::add_inventory_item(&mut world, 7206, ADENA_ID, 50_000_000);
+    items::add_inventory_item(&mut world, 7206, ADENA_ID, 50_000_000);
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
@@ -731,7 +699,7 @@ fn multisell_choose_refused_without_enough_adena() {
     load_real_multisell_data(&mut world, DIST);
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7207, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 7207, ADENA_ID, 1_000); // far short
+    items::add_inventory_item(&mut world, 7207, ADENA_ID, 1_000); // far short
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
@@ -757,7 +725,7 @@ fn multisell_choose_ignored_for_a_stale_list() {
     load_real_multisell_data(&mut world, DIST);
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7208, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 7208, ADENA_ID, 50_000_000);
+    items::add_inventory_item(&mut world, 7208, ADENA_ID, 50_000_000);
     drain(&mut rx);
 
     // No multisell opened → a forged choose is dropped, nothing charged.
@@ -791,7 +759,7 @@ fn drop_search_item_and_drop_list_render() {
 
     // The nav "Search" button (`_bbs_search_item;`) opens the empty page.
     handle_parse_command(&mut world, 1, "_bbs_search_item;");
-    let html = board_html(&drain(&mut rx));
+    let html = filter_show_board_html(&mut rx);
     assert!(
         html.contains("Drop Search"),
         "the drop-search page rendered with navigation"
@@ -799,7 +767,7 @@ fn drop_search_item_and_drop_list_render() {
 
     // An empty query matches all droppable items → the first 14 icon buttons.
     handle_parse_command(&mut world, 1, "_bbs_search_item ");
-    let html = board_html(&drain(&mut rx));
+    let html = filter_show_board_html(&mut rx);
     assert_eq!(
         html.matches("_bbs_search_drop").count(),
         14,
@@ -810,7 +778,7 @@ fn drop_search_item_and_drop_list_render() {
     // A nonsense query → No Match.
     handle_parse_command(&mut world, 1, "_bbs_search_item zzzznotanitem");
     assert!(
-        board_html(&drain(&mut rx)).contains("No Match"),
+        filter_show_board_html(&mut rx).contains("No Match"),
         "no matches reported"
     );
 
@@ -827,7 +795,7 @@ fn drop_search_item_and_drop_list_render() {
         1,
         &format!("_bbs_search_drop {item_id} 1 $order $level"),
     );
-    let html = board_html(&drain(&mut rx));
+    let html = filter_show_board_html(&mut rx);
     assert!(
         html.contains("_bbs_npc_trace"),
         "drop rows link to the NPC trace"
@@ -1015,7 +983,7 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
         load_real_multisell_data(&mut world, DIST);
         world.id_pool = 0x7100_0000..0x7100_1000;
         let rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
-        super::items::add_inventory_item(&mut world, PLAYER, ADENA_ID, ADENA_COST);
+        items::add_inventory_item(&mut world, PLAYER, ADENA_ID, ADENA_COST);
         if in_clan {
             world.clans.insert(
                 CLAN,
@@ -1056,10 +1024,7 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
                     blood_alliance_count: 0,
                 },
             );
-            let p = world
-                .objects
-                .get_component_mut::<crate::model::Player>(&PLAYER)
-                .unwrap();
+            let p = world.objects.get_component_mut::<Player>(&PLAYER).unwrap();
             p.clan_id = CLAN;
             p.clan_leader = leader;
         }
@@ -1070,14 +1035,7 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
         add_test_npc(&mut world, TRADER_OID, 32024, "Merchant", 70, 0, 0, 0);
         // Open the window through the real path so the prepared rows — which
         // the entry id indexes — are built the way the client saw them.
-        crate::game_loop::multisell::separate_and_send(
-            &mut world,
-            1,
-            PLAYER,
-            Some(TRADER_OID),
-            LIST,
-            false,
-        );
+        multisell::separate_and_send(&mut world, 1, PLAYER, Some(TRADER_OID), LIST, false);
         (world, rx)
     };
     let has_helm = |w: &World| {
@@ -1154,14 +1112,8 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
     ));
 }
 
-fn cb_test_clan(
-    id: i32,
-    name: &str,
-    leader: i32,
-    level: i32,
-    castle_id: i32,
-) -> crate::model::clan::Clan {
-    crate::model::clan::Clan {
+fn cb_test_clan(id: i32, name: &str, leader: i32, level: i32, castle_id: i32) -> Clan {
+    Clan {
         id,
         name: name.into(),
         leader_id: leader,
@@ -1198,6 +1150,15 @@ fn cb_test_clan(
         blood_alliance_count: 0,
     }
 }
+fn filter_show_board_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> String {
+    filter_show_board_html_from_bytes(drain(rx))
+}
+fn filter_show_board_html_from_bytes(data: Vec<Vec<u8>>) -> String {
+    data.iter()
+        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .map(|p| cb_content(p))
+        .collect::<String>()
+}
 
 /// The retail clan board (G30): the list shows the clans, the leader's notice
 /// flow enables and writes the notice (persisted through `SaveClanNotice`),
@@ -1220,11 +1181,7 @@ fn clan_board_lists_clans_and_edits_the_notice() {
 
     // The list renders the clan with its home link.
     handle_parse_command(&mut world, 1, "_bbsclan_clanlist");
-    let html = drain(&mut rx)
-        .iter()
-        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
-        .map(|p| cb_content(p))
-        .collect::<String>();
+    let html = filter_show_board_html(&mut rx);
     assert!(html.contains("Vanguard"), "the clan is listed: {html}");
 
     // The leader enables the notice, then writes it.
@@ -1234,7 +1191,7 @@ fn clan_board_lists_clans_and_edits_the_notice() {
         Some(true),
         "notice enabled"
     );
-    crate::game_loop::community_board::handle_write_command(
+    community_board::handle_write_command(
         &mut world,
         1,
         "Notice",
@@ -1270,7 +1227,7 @@ fn region_board_renders_the_castles() {
         .map(|id| crate::model::castle::Castle {
             id,
             name: format!("C{id}"),
-            side: crate::model::castle::CastleSide::Neutral,
+            side: castle::CastleSide::Neutral,
             show_npc_crest: false,
             ticket_buy_count: 0,
             first_mid_victory: false,
@@ -1286,11 +1243,7 @@ fn region_board_renders_the_castles() {
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbsloc");
-    let html = drain(&mut rx)
-        .iter()
-        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
-        .map(|p| cb_content(p))
-        .collect::<String>();
+    let html = filter_show_board_html(&mut rx);
     assert!(html.contains("Wardens"), "the owner clan shows: {html}");
     assert!(html.contains("NPC"), "unowned regions say NPC");
     assert!(html.contains('%'), "the tax column renders");

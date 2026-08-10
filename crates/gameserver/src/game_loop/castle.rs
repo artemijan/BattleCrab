@@ -21,7 +21,7 @@
 //! holds simply vanishes (and the tax cascade skips a liege with no owner).
 
 use crate::db::DbCommand;
-use crate::model::castle::{CastleSide, TaxType};
+pub(crate) use crate::model::castle::{CastleSide, TaxType};
 use crate::world::World;
 
 /// Java `Castle.getTaxPercent(type)` — the percent for the castle's current
