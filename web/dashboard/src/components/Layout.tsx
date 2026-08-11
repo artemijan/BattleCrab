@@ -4,11 +4,9 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import markUrl from "../../assets/favicon.svg";
 import { api, type Account } from "../lib/api";
+import { GITHUB_ISSUES_URL, GITHUB_URL } from "../lib/links";
 import { Button, cx } from "./ui";
 import { ThemeToggle } from "./ThemeToggle";
-
-/** The server is open source; the footer links to it. */
-const GITHUB_URL = "https://github.com/artemijan/BattleCrab";
 
 /**
  * Link to the source, as the GitHub mark.
@@ -43,6 +41,43 @@ function GitHubLink() {
         <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
       </svg>
       <span className="hidden sm:inline">Source</span>
+    </a>
+  );
+}
+
+/**
+ * Link to the issue tracker, on every page.
+ *
+ * The landing page makes the full case for reporting things; this is the copy
+ * that has to be reachable from wherever someone actually hits the bug — the
+ * account page, a password reset, anywhere. Unlike its neighbour the label
+ * stays visible at every width: a lone icon reads as decoration, and an
+ * invitation nobody recognises is not an invitation.
+ */
+function IssuesLink() {
+  return (
+    <a
+      href={GITHUB_ISSUES_URL}
+      target="_blank"
+      rel="noreferrer noopener"
+      title="Report a bug or suggest an improvement on GitHub"
+      className="group flex items-center gap-1.5 text-(--text-faint)
+                 transition-colors hover:text-(--text)"
+    >
+      <svg
+        aria-hidden
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5"
+      >
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 8v5M12 16.5v.01" />
+      </svg>
+      Report a bug
     </a>
   );
 }
@@ -376,10 +411,14 @@ export function Footer() {
                 : "Server status unavailable"}
           </span>
         </span>
-        {/* `ml-auto` moves to the group so the tagline and the source link
-            travel together to the right edge and wrap as one unit. */}
-        <span className="ml-auto flex items-center gap-4">
+        {/* `ml-auto` moves to the group so the tagline and the two links travel
+            together to the right edge. They wrap among themselves rather than
+            as one unit, because three items no longer fit on one line on a
+            phone — and the tagline is the piece that should drop to its own
+            row, not the links. */}
+        <span className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-1.5">
           <span className="text-(--text-faint)">Custom Lineage II · Interlude Classic</span>
+          <IssuesLink />
           <GitHubLink />
         </span>
       </div>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import logoSmall from "../../assets/logo-420.webp";
 import logo from "../../assets/logo.webp";
 import { Button, Panel, cx } from "../components/ui";
+import { GITHUB_ISSUES_URL, GITHUB_NEW_ISSUE_URL } from "../lib/links";
 import { useAccount } from "../lib/session";
 import { STATUS } from "../lib/status";
 
@@ -40,8 +41,9 @@ function ProjectStatus() {
               </p>
               <p className="mt-1 text-sm/relaxed  text-(--text-muted)">
                 The server is up and open to everyone — no key or invite. It is genuinely early, so
-                expect rough edges, occasional restarts and content that is still landing. Bug
-                reports are worth a lot right now.
+                expect rough edges, occasional restarts and content that is still landing.
+                {/* What to do about those rough edges is the panel directly
+                    below, so it is not spelled out a second time here. */}
               </p>
             </div>
           </li>
@@ -65,6 +67,52 @@ function ProjectStatus() {
             </div>
           </li>
         </ol>
+      </Panel>
+    </section>
+  );
+}
+
+/**
+ * Where to put a bug, and why it is worth the trouble.
+ *
+ * This follows the status panel deliberately. That panel has just admitted the
+ * server is rough; the obvious next question is what someone is supposed to do
+ * when they hit one of those rough edges, and leaving it unanswered turns a
+ * fixable bug into a player who quietly stops logging in.
+ *
+ * Both links are plain anchors to GitHub — the tracker is the real one, so the
+ * site does not pretend to own a form in front of it. "Browse open issues"
+ * comes first in reading order for a reason: a duplicate report costs the
+ * reporter their effort and us the triage.
+ */
+function ReportIssues() {
+  return (
+    <section className="mt-4">
+      <Panel className="animate-rise flex flex-wrap items-center gap-5 p-6 sm:p-7">
+        <div className="min-w-56 flex-1">
+          <h2 className="text-xl font-bold">Found something broken?</h2>
+          <p className="mt-1.5 text-sm/relaxed text-(--text-muted)">
+            {STATUS.phase} means bugs, and the ones nobody reports are the ones nobody fixes. If a
+            skill misbehaves, a quest dead-ends or the client drops you — or you just think
+            something could work better — open an issue on GitHub. Ideas and balance suggestions are
+            as welcome as crashes.
+          </p>
+          <p className="mt-2 text-xs/relaxed text-(--text-faint)">
+            What helps most: your character name, roughly when it happened, and what you were doing
+            just before. A screenshot beats a paragraph. Reporting needs a free GitHub account.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          {/* Leaves the SPA for github.com, so plain anchors rather than router
+              Links — and a new tab, because losing the page you were reading is
+              a poor trade for filing a report. */}
+          <a href={GITHUB_ISSUES_URL} target="_blank" rel="noreferrer noopener">
+            <Button variant="ghost">Browse open issues</Button>
+          </a>
+          <a href={GITHUB_NEW_ISSUE_URL} target="_blank" rel="noreferrer noopener">
+            <Button variant="secondary">Report an issue</Button>
+          </a>
+        </div>
       </Panel>
     </section>
   );
@@ -171,6 +219,8 @@ export function Landing() {
       </section>
 
       <ProjectStatus />
+
+      <ReportIssues />
 
       <section className="stagger mt-4 grid gap-4 sm:grid-cols-3">
         {FEATURES.map((feature) => (

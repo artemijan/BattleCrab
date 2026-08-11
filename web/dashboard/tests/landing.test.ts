@@ -11,6 +11,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import type { Browser, Page } from "playwright";
 
+import { GITHUB_ISSUES_URL, GITHUB_NEW_ISSUE_URL } from "../src/lib/links";
 import { STATUS } from "../src/lib/status";
 
 const DIST = new URL("../dist", import.meta.url).pathname;
@@ -159,6 +160,46 @@ describe("landing page calls to action", () => {
     expect(body).toContain(STATUS.nextWhen);
     // And that it is playable today, which "alpha" alone does not imply.
     expect(body).toContain("open to everyone");
+  });
+
+  /**
+   * An alpha that admits it is rough owes the reader somewhere to send the
+   * roughness. Both audiences are checked because the panel sits outside the
+   * auth-dependent blocks and a rearrangement there could drop it for one of
+   * them without touching the other.
+   */
+  test("both audiences are pointed at the issue tracker", async () => {
+    if (skip()) return;
+
+    for (const signedIn of [true, false]) {
+      const page = await openLanding(signedIn);
+      const body = (await page.textContent("body")) ?? "";
+      const links = await hrefs(page);
+      await page.close();
+
+      expect(body).toContain("Found something broken?");
+      // The hrefs, not just the labels: a button relabelled while its target
+      // was left pointing at the repo root is exactly the silent failure here.
+      expect(links).toContain(GITHUB_NEW_ISSUE_URL);
+      expect(links).toContain(GITHUB_ISSUES_URL);
+    }
+  });
+
+  test("every page can reach the issue tracker from the footer", async () => {
+    if (skip()) return;
+
+    // The landing page argues the case at length, but a bug is far more likely
+    // to be found somewhere else entirely, so the footer link is the one that
+    // actually has to survive.
+    const page = await openLanding(false);
+    const footer = (await page.textContent("footer")) ?? "";
+    const links = await page.evaluate(() =>
+      [...document.querySelectorAll("footer a")].map((a) => a.getAttribute("href") ?? ""),
+    );
+    await page.close();
+
+    expect(footer).toContain("Report a bug");
+    expect(links).toContain(GITHUB_ISSUES_URL);
   });
 
   test("the status is shown to signed-in visitors too", async () => {
