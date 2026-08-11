@@ -14,6 +14,7 @@
 //! wrong floor, the buttons addressing destinations by index) fails loudly.
 
 use super::*;
+use crate::data::spawn_data::NpcSpawnDef;
 
 const DIST: &str = crate::data::DIST_GAME;
 
@@ -220,20 +221,21 @@ fn carsus_offers_only_the_third_basement_floor() {
         "the OTHER list charges no fee"
     );
 }
-
+fn get_npc(npc_id: i32) -> Option<NpcSpawnDef> {
+    let data = dist::spawns();
+    data.spawns
+        .iter()
+        .flat_map(|s| s.groups.iter())
+        .flat_map(|g| g.npcs.iter())
+        .find(|n| n.npc_id == npc_id)
+        .cloned()
+}
 /// Ian is actually placed on the map — his spawn line lives in
 /// `spawns/Dion/Dion.xml`, a subdirectory file, so this also guards the
 /// recursive spawn walk that makes him reachable at all.
 #[test]
 fn ian_is_spawned_on_the_second_floor() {
-    let data = dist::spawns();
-    let ian = data
-        .spawns
-        .iter()
-        .flat_map(|s| s.groups.iter())
-        .flat_map(|g| g.npcs.iter())
-        .find(|n| n.npc_id == IAN_ID)
-        .expect("Ian must be spawned");
+    let ian = get_npc(IAN_ID).expect("Ian must be spawned");
     let loc = ian.loc.expect("fixed loc");
     assert_eq!((loc.x, loc.y, loc.z), (17722, 119749, -9068));
 }
@@ -243,14 +245,7 @@ fn ian_is_spawned_on_the_second_floor() {
 /// strand the 2nd floor (and Ian behind it) rather than merely inconvenience.
 #[test]
 fn rombel_is_spawned_on_the_third_floor() {
-    let data = dist::spawns();
-    let rombel = data
-        .spawns
-        .iter()
-        .flat_map(|s| s.groups.iter())
-        .flat_map(|g| g.npcs.iter())
-        .find(|n| n.npc_id == ROMBEL_ID)
-        .expect("Rombel must be spawned");
+    let rombel = get_npc(ROMBEL_ID).expect("Rombel must be spawned");
     let loc = rombel.loc.expect("fixed loc");
     assert_eq!((loc.x, loc.y, loc.z), (17811, 114750, -11680));
 }
