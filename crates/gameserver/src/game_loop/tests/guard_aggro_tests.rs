@@ -184,11 +184,7 @@ fn engaged_pair(world: &mut World, mate_npc_id: i32, mate_x: i32, damage: f64) {
         .unwrap()
         .0
         .insert(PLAYER, AggroInfo { hate: 50.0, damage });
-    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&GUARD_OID) {
-        ai.intention = NpcIntention::Attack;
-        ai.global_aggro = 0;
-        ai.attack_timeout_tick = u64::MAX;
-    }
+    ai_intention_test(world, GUARD_OID, NpcIntention::Attack);
 }
 
 #[test]

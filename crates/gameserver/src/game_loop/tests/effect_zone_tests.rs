@@ -16,7 +16,7 @@ fn zone_skill(id: i32, effects: Vec<SkillEffect>, abnormal: &str) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -91,11 +91,7 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
     refresh_zone_masks(world);
 }
 
-fn zone_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn zone_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     // A flat 50-damage burn, and a stat buff with an abnormal type.
     world.data.skill_data.insert_for_test(zone_skill(
@@ -105,17 +101,7 @@ fn zone_world() -> (
     ));
     world.data.skill_data.insert_for_test(zone_skill(
         BUFF_ID,
-        vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::PhysicalAttack,
-                mode: crate::model::stats::StatModifierType::Per,
-                amount: 1.2,
-                armor_condition: 0,
-                weapon_condition: 0,
-                qualifier: None,
-                two_handed: false,
-            },
-        )],
+        vec![SkillEffect::StatModifier(test_stat_modifier_effect())],
         "MIGHT",
     ));
     (world, db, l)
@@ -254,10 +240,7 @@ fn a_buff_zone_grants_its_buff_once_not_repeatedly() {
 
     sweep(&mut world, 30);
 
-    let buffs = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&PLAYER)
-        .unwrap();
+    let buffs = world.objects.get_component::<Buffs>(&PLAYER).unwrap();
     let count = buffs.0.iter().filter(|b| b.skill_id == BUFF_ID).count();
     assert_eq!(count, 1, "the zone buff should be held once, not stacked");
 }
@@ -288,10 +271,7 @@ fn multiple_skills_all_land_in_one_tick() {
     sweep(&mut world, 20);
 
     assert!(hp(&world) < before, "the damage skill landed");
-    let buffs = world
-        .objects
-        .get_component::<crate::model::components::Buffs>(&PLAYER)
-        .unwrap();
+    let buffs = world.objects.get_component::<Buffs>(&PLAYER).unwrap();
     assert!(
         buffs.0.iter().any(|b| b.skill_id == BUFF_ID),
         "and the buff skill landed too"

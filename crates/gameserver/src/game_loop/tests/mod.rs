@@ -30,7 +30,7 @@ use crate::model::components::{Macros, Shortcuts};
 use crate::model::components::{PartyRef, PendingRequest};
 use crate::model::formulas;
 use crate::model::inventory::Inventory;
-use crate::model::npc::AggroList;
+use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::model::party::LootRule;
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
@@ -1112,7 +1112,24 @@ fn drain(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Vec<Vec<u8>> {
     }
     out
 }
-
+fn test_stat_modifier_effect() -> model::skill::StatModifierEffect {
+    model::skill::StatModifierEffect {
+        stat: Stat::PhysicalAttack,
+        mode: model::stats::StatModifierType::Per,
+        amount: 1.2,
+        armor_condition: 0,
+        weapon_condition: 0,
+        qualifier: None,
+        two_handed: false,
+    }
+}
+fn ai_intention_test(world: &mut World, oid: i32, intention: NpcIntention) {
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&oid) {
+        ai.intention = intention;
+        ai.global_aggro = 0;
+        ai.attack_timeout_tick = u64::MAX;
+    }
+}
 /// Advance the world one tick at a time, firing due tasks each tick like
 /// the real loop — a task scheduled by another task (launch → finish)
 /// would never fire under a single big jump + one drain.

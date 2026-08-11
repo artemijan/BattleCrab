@@ -5,7 +5,7 @@ use super::*;
 
 use crate::data::npc_data::{AiType, MinionHolder};
 use crate::model::components::{Casting, Vitals};
-use crate::model::npc::{AggroInfo, AggroList, NpcAi, NpcIntention};
+use crate::model::npc::{AggroInfo, AggroList, NpcIntention};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
 
 const PLAYER: i32 = 2001;
@@ -24,7 +24,7 @@ fn support_skill(id: i32, effects: Vec<SkillEffect>, continuous: bool) -> Skill 
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -89,11 +89,7 @@ fn template(id: i32, clans: &[&str], skills: &[(i32, i32)]) -> crate::data::npc_
     t
 }
 
-fn support_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn support_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world.data.skill_data.insert_for_test(support_skill(
         HEAL_SKILL,
@@ -102,17 +98,7 @@ fn support_world() -> (
     ));
     world.data.skill_data.insert_for_test(support_skill(
         BUFF_SKILL,
-        vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::PhysicalAttack,
-                mode: crate::model::stats::StatModifierType::Per,
-                amount: 1.2,
-                armor_condition: 0,
-                weapon_condition: 0,
-                qualifier: None,
-                two_handed: false,
-            },
-        )],
+        vec![SkillEffect::StatModifier(test_stat_modifier_effect())],
         true,
     ));
     world.data.npc_data.insert_for_test(template(
@@ -168,11 +154,7 @@ fn scene(world: &mut World, companion_id: Option<i32>, companion_oid: i32, compa
                 damage: 50.0,
             },
         );
-    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&HEALER) {
-        ai.intention = NpcIntention::Attack;
-        ai.global_aggro = 0;
-        ai.attack_timeout_tick = u64::MAX;
-    }
+    ai_intention_test(world, HEALER, NpcIntention::Attack);
 }
 
 fn wound(world: &mut World, oid: i32, cur_hp: f64) {
@@ -350,14 +332,14 @@ fn a_buff_goes_to_a_faction_mate_that_lacks_it() {
     // (`checkSkillTarget` refuses a re-cast of a held abnormal).
     world.objects.add_components(
         &HEALER,
-        crate::model::components::Buffs(vec![crate::model::skill::ActiveBuff {
+        Buffs(vec![model::skill::ActiveBuff {
             displayed: true,
             skill_id: BUFF_SKILL,
             skill_level: 1,
             abnormal_type_client_id: 0,
             abnormal_type: "MIGHT".into(),
             abnormal_level: 1,
-            slot: crate::model::skill::BuffSlot::Buff,
+            slot: model::skill::BuffSlot::Buff,
             expires_at_tick: u64::MAX,
             passive: false,
             effect_flags: 0,
