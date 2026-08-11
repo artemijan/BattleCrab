@@ -5,6 +5,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::grand_boss::find_spawned;
 use crate::model::components::{Casting, SummonerRef};
 use crate::model::skill::{
     AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillCondition,
@@ -57,7 +58,7 @@ fn aura_skill() -> Skill {
         abnormal_type: "MULTI_DEBUFF".into(),
         magic_type: 2,
         effects: vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
+            model::skill::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: StatModifierType::Per,
                 amount: -50.0,
@@ -108,20 +109,10 @@ fn learn(world: &mut World, oid: i32, skill: &Skill) {
     world.data.skill_data.insert_for_test(skill.clone());
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&oid)
+        .get_component_mut::<SkillBook>(&oid)
         .unwrap()
         .0
         .insert(skill.id, 1);
-}
-
-/// The totem entity standing at (x, y), if any.
-fn totem_at(world: &mut World) -> Option<i32> {
-    world.npc_regions.values().flatten().copied().find(|oid| {
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(oid)
-            .is_some_and(|n| n.npc_id == TOTEM_NPC)
-    })
 }
 
 // ---------------------------------------------------------------------------
@@ -197,11 +188,7 @@ fn a_seal_pulses_its_aura_and_expires() {
     world.data.skill_data.insert_for_test(aura_skill());
     learn(&mut world, CASTER, &symbol_skill());
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, SYMBOL_SKILL),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, SYMBOL_SKILL));
     assert!(
         world.objects.has_component::<Casting>(&CASTER),
         "the symbol cast starts"
@@ -211,7 +198,7 @@ fn a_seal_pulses_its_aura_and_expires() {
     // few 200 ms pulses, while the totem (1 s lifetime from spawn) also dies
     // inside this window — so assert the effects, then the corpse.
     advance_ticks(&mut world, 12);
-    let totem = totem_at(&mut world).expect("the totem spawned");
+    let totem = find_spawned(&world, TOTEM_NPC).expect("the totem spawned");
     assert_eq!(
         world
             .objects
@@ -243,7 +230,10 @@ fn a_seal_pulses_its_aura_and_expires() {
 
     // The 1 s lifetime runs out; the seal and its pulses go with it.
     advance_ticks(&mut world, 20);
-    assert!(totem_at(&mut world).is_none(), "the seal despawned");
+    assert!(
+        find_spawned(&world, TOTEM_NPC).is_none(),
+        "the seal despawned"
+    );
 }
 
 /// A player who walks into the seal's radius mid-lifetime is cursed by the
@@ -268,11 +258,7 @@ fn walking_into_a_live_seal_gets_cursed() {
     world.data.skill_data.insert_for_test(aura_skill());
     learn(&mut world, CASTER, &symbol_skill());
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, SYMBOL_SKILL),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, SYMBOL_SKILL));
     advance_ticks(&mut world, 15);
     assert!(
         !has_buff(&world, BYSTANDER, AURA_SKILL),
@@ -314,11 +300,7 @@ fn op_exist_npc_gates_recasting_next_to_a_seal() {
 
     // A live listed totem 150 from the caster.
     add_test_npc(&mut world, NPC_OID, TOTEM_NPC, "EffectPoint", 70, 150, 0, 0);
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, SYMBOL_SKILL),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, SYMBOL_SKILL));
     assert!(
         !world.objects.has_component::<Casting>(&CASTER),
         "a listed seal within 200 of the caster refuses the cast"
@@ -330,11 +312,7 @@ fn op_exist_npc_gates_recasting_next_to_a_seal() {
         .get_component_mut::<Position>(&NPC_OID)
         .unwrap()
         .x = 250;
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, SYMBOL_SKILL),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, SYMBOL_SKILL));
     assert!(
         world.objects.has_component::<Casting>(&CASTER),
         "250 away is outside the 200 gate"
@@ -355,23 +333,19 @@ fn a_seal_is_titled_with_its_casters_name() {
     learn(&mut world, CASTER, &symbol_skill());
     let caster_name = world
         .objects
-        .get_component::<crate::model::Player>(&CASTER)
+        .get_component::<Player>(&CASTER)
         .unwrap()
         .name
         .clone();
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, SYMBOL_SKILL),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, SYMBOL_SKILL));
     advance_ticks(&mut world, 8);
-    let totem = totem_at(&mut world).expect("the totem spawned");
+    let totem = find_spawned(&world, TOTEM_NPC).expect("the totem spawned");
 
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&totem)
+            .get_component::<model::npc::Npc>(&totem)
             .and_then(|n| n.title_override.clone()),
         Some(caster_name.clone()),
         "the seal records whose it is"
@@ -383,7 +357,7 @@ fn a_seal_is_titled_with_its_casters_name() {
     // is stored and never transmitted either — the port matches, including the
     // pointlessness.
     let wire_title = |world: &World| {
-        let view = crate::model::npc::NpcView::of(&world.objects, totem).unwrap();
+        let view = model::npc::NpcView::of(&world.objects, totem).unwrap();
         let template = world.data.npc_data.get(TOTEM_NPC).unwrap();
         let pkt = server_packets::npc_info(
             &view,
@@ -471,7 +445,7 @@ fn plain_summon_spawns_folk_with_despawn() {
         .find(|oid| {
             world
                 .objects
-                .get_component::<crate::model::npc::Npc>(oid)
+                .get_component::<model::npc::Npc>(oid)
                 .is_some_and(|n| n.npc_id == TREE_NPC)
         })
         .expect("the tree spawned");
@@ -493,7 +467,7 @@ fn plain_summon_spawns_folk_with_despawn() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&tree_oid)
+            .get_component::<model::npc::Npc>(&tree_oid)
             .unwrap()
             .title_override
             .as_deref(),
@@ -511,9 +485,7 @@ fn plain_summon_spawns_folk_with_despawn() {
     // `scheduleDespawn(despawnDelay)` — 1 s on the test clock.
     advance_ticks(&mut world, 15);
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::npc::Npc>(&tree_oid),
+        !world.objects.has_component::<model::npc::Npc>(&tree_oid),
         "the despawnDelay removed the tree"
     );
 }

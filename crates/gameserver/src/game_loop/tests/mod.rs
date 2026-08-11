@@ -322,7 +322,7 @@ fn insert_positions_for(world: &mut World, npc_id: i32) -> Vec<(i32, i32, i32)> 
     let mut out = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(n, p)| {
+        .for_each_mut::<(&model::npc::Npc, &Position)>(|(n, p)| {
             if n.npc_id == npc_id {
                 out.push((p.x, p.y, p.z));
             }
@@ -332,7 +332,7 @@ fn insert_positions_for(world: &mut World, npc_id: i32) -> Vec<(i32, i32, i32)> 
 
 fn find_npc_object_id(world: &mut World, npc_id: i32) -> Option<i32> {
     let mut f = None;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
         if n.npc_id == npc_id {
             f = Some(n.object_id);
         }
@@ -375,7 +375,7 @@ fn stat_value_of(id: i32, level: i32, stat: Stat) -> Option<f64> {
 
 fn npc_count(world: &mut World, npc_id: i32) -> usize {
     let mut n = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
         if x.npc_id == npc_id {
             n += 1;
         }
@@ -797,14 +797,14 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
 
     let base = Skill {
         self_continuous: false,
-        basic_property: crate::model::skill::BasicProperty::None,
+        basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -1200,7 +1200,7 @@ fn add_test_npc(
         t.base_mp_max = 50.0;
         world.data.npc_data.insert_for_test(t);
     }
-    let (npc, extra) = crate::model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
+    let (npc, extra) = model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
     world
         .npc_regions
         .entry(extra.1.0)
@@ -1209,7 +1209,7 @@ fn add_test_npc(
     world.objects.spawn(object_id, (npc, extra));
     // Memoized combat stats, from the template registered above (the
     // test-side mirror of `spawn_one`'s `npc_combat_stats` bundle entry).
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(npc_id).expect("registered above"),
         &world.data.stat_bonus,
     );
@@ -1223,7 +1223,7 @@ fn add_test_npc(
     world.next_npc_object_id = world.next_npc_object_id.max(object_id + 1);
 }
 
-const NPC_OID: i32 = crate::model::npc::FIRST_NPC_OBJECT_ID;
+const NPC_OID: i32 = model::npc::FIRST_NPC_OBJECT_ID;
 
 fn bypass_body(command: &str) -> Vec<u8> {
     let mut w = PacketWriter::new();
@@ -1407,14 +1407,14 @@ fn spawn_targeted_monster(
     npc_oid: i32,
     x: i32,
 ) {
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, x, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, x, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1728,14 +1728,14 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
-        basic_property: crate::model::skill::BasicProperty::None,
+        basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -1812,14 +1812,14 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
-        basic_property: crate::model::skill::BasicProperty::None,
+        basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -2187,7 +2187,7 @@ fn add_shot_item(
 fn quest_cond(world: &World, player: i32, quest: &str) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::components::Quests>(&player)
+        .get_component::<model::components::Quests>(&player)
         .and_then(|q| q.0.get(quest).map(|qs| qs.cond()))
 }
 

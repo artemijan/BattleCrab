@@ -3,6 +3,7 @@
 use super::*;
 
 use crate::game_loop::dr_chaos::{self, CHAOS_GOLEM, CRAZY, DEAD, DOCTOR_CHAOS, NORMAL};
+use crate::game_loop::grand_boss::find_spawned;
 use crate::model::components::{DrChaosGolem, DrChaosState};
 
 const CID: u32 = 1;
@@ -38,15 +39,6 @@ fn chaos_world() -> (
     (world, db, l)
 }
 
-fn find(world: &World, npc_id: i32) -> Option<i32> {
-    world.npc_regions.values().flatten().copied().find(|oid| {
-        world
-            .objects
-            .get_component::<crate::model::npc::Npc>(oid)
-            .is_some_and(|n| n.npc_id == npc_id)
-    })
-}
-
 /// Boot: NORMAL spawns Dr. Chaos (paranoia armed); CRAZY spawns the golem;
 /// DEAD with an elapsed window brings Dr. Chaos back.
 #[test]
@@ -54,20 +46,23 @@ fn boot_resolves_each_status() {
     // NORMAL → Dr. Chaos.
     let (mut world, _db, _l) = chaos_world();
     dr_chaos::resolve_at_boot(&mut world);
-    let dc = find(&world, DOCTOR_CHAOS).expect("Dr. Chaos stands");
+    let dc = find_spawned(&world, DOCTOR_CHAOS).expect("Dr. Chaos stands");
     assert!(
         world.objects.get_component::<DrChaosState>(&dc).is_some(),
         "paranoia armed"
     );
-    assert!(find(&world, CHAOS_GOLEM).is_none(), "no golem yet");
+    assert!(find_spawned(&world, CHAOS_GOLEM).is_none(), "no golem yet");
 
     // CRAZY → the golem.
     let (mut world, _db, _l) = chaos_world();
     world.grand_bosses.get_mut(&CHAOS_GOLEM).unwrap().status = CRAZY;
     dr_chaos::resolve_at_boot(&mut world);
-    assert!(find(&world, CHAOS_GOLEM).is_some(), "golem restored");
     assert!(
-        find(&world, DOCTOR_CHAOS).is_none(),
+        find_spawned(&world, CHAOS_GOLEM).is_some(),
+        "golem restored"
+    );
+    assert!(
+        find_spawned(&world, DOCTOR_CHAOS).is_none(),
         "Dr. Chaos not up while the golem is"
     );
 
@@ -81,7 +76,7 @@ fn boot_resolves_each_status() {
     dr_chaos::resolve_at_boot(&mut world);
     assert_eq!(dr_chaos_status(&world), NORMAL, "reset to NORMAL");
     assert!(
-        find(&world, DOCTOR_CHAOS).is_some(),
+        find_spawned(&world, DOCTOR_CHAOS).is_some(),
         "Dr. Chaos back after downtime"
     );
 }
@@ -96,7 +91,7 @@ fn dr_chaos_status(world: &World) -> i32 {
 fn a_lingering_player_triggers_the_transformation() {
     let (mut world, _db, _l) = chaos_world();
     dr_chaos::resolve_at_boot(&mut world);
-    let dc = find(&world, DOCTOR_CHAOS).unwrap();
+    let dc = find_spawned(&world, DOCTOR_CHAOS).unwrap();
     let dc_pos = world
         .objects
         .get_component::<Position>(&dc)
@@ -116,17 +111,20 @@ fn a_lingering_player_triggers_the_transformation() {
     // Dr. Chaos lingers through the 17 s cinematic (Java deletes him on beat
     // 5); the golem replaces him only when the beats run out.
     assert!(
-        find(&world, DOCTOR_CHAOS).is_some(),
+        find_spawned(&world, DOCTOR_CHAOS).is_some(),
         "still on-screen mid-cinematic"
     );
-    assert!(find(&world, CHAOS_GOLEM).is_none(), "golem not up yet");
+    assert!(
+        find_spawned(&world, CHAOS_GOLEM).is_none(),
+        "golem not up yet"
+    );
     advance_ticks(&mut world, 18 * 10);
     assert!(
-        find(&world, DOCTOR_CHAOS).is_none(),
+        find_spawned(&world, DOCTOR_CHAOS).is_none(),
         "Dr. Chaos gone after beat 5"
     );
     assert!(
-        find(&world, CHAOS_GOLEM).is_some(),
+        find_spawned(&world, CHAOS_GOLEM).is_some(),
         "the golem stands after the cinematic"
     );
 }
@@ -136,7 +134,7 @@ fn a_lingering_player_triggers_the_transformation() {
 fn nobody_near_leaves_the_timer_alone() {
     let (mut world, _db, _l) = chaos_world();
     dr_chaos::resolve_at_boot(&mut world);
-    let dc = find(&world, DOCTOR_CHAOS).unwrap();
+    let dc = find_spawned(&world, DOCTOR_CHAOS).unwrap();
     world
         .objects
         .get_component_mut::<DrChaosState>(&dc)
@@ -162,7 +160,7 @@ fn nobody_near_leaves_the_timer_alone() {
 fn a_dead_player_does_not_drain() {
     let (mut world, _db, _l) = chaos_world();
     dr_chaos::resolve_at_boot(&mut world);
-    let dc = find(&world, DOCTOR_CHAOS).unwrap();
+    let dc = find_spawned(&world, DOCTOR_CHAOS).unwrap();
     let dc_pos = world
         .objects
         .get_component::<Position>(&dc)
@@ -197,7 +195,7 @@ fn a_dead_player_does_not_drain() {
 fn talking_drains_and_eventually_transforms() {
     let (mut world, _db, _l) = chaos_world();
     dr_chaos::resolve_at_boot(&mut world);
-    let dc = find(&world, DOCTOR_CHAOS).unwrap();
+    let dc = find_spawned(&world, DOCTOR_CHAOS).unwrap();
     let before = world
         .objects
         .get_component::<DrChaosState>(&dc)
@@ -234,7 +232,7 @@ fn the_golem_despawns_after_idle_but_an_attack_refreshes_it() {
     let (mut world, _db, _l) = chaos_world();
     world.grand_bosses.get_mut(&CHAOS_GOLEM).unwrap().status = CRAZY;
     dr_chaos::resolve_at_boot(&mut world);
-    let golem = find(&world, CHAOS_GOLEM).unwrap();
+    let golem = find_spawned(&world, CHAOS_GOLEM).unwrap();
 
     // 29 minutes idle, then an attack — the despawn check must NOT fire.
     world
@@ -246,7 +244,7 @@ fn the_golem_despawns_after_idle_but_an_attack_refreshes_it() {
     dr_chaos::on_golem_attacked(&mut world, golem);
     dr_chaos::handle_golem_despawn(&mut world, golem);
     assert!(
-        find(&world, CHAOS_GOLEM).is_some(),
+        find_spawned(&world, CHAOS_GOLEM).is_some(),
         "the attack refreshed the clock"
     );
     assert_eq!(dr_chaos_status(&world), CRAZY);
@@ -254,9 +252,12 @@ fn the_golem_despawns_after_idle_but_an_attack_refreshes_it() {
     // Now 31 idle minutes → revert.
     world.tick += 31 * 60 * 10;
     dr_chaos::handle_golem_despawn(&mut world, golem);
-    assert!(find(&world, CHAOS_GOLEM).is_none(), "idle golem despawned");
+    assert!(
+        find_spawned(&world, CHAOS_GOLEM).is_none(),
+        "idle golem despawned"
+    );
     assert_eq!(dr_chaos_status(&world), NORMAL, "back to Dr. Chaos");
-    assert!(find(&world, DOCTOR_CHAOS).is_some());
+    assert!(find_spawned(&world, DOCTOR_CHAOS).is_some());
 }
 
 /// Killing the golem sets DEAD + a reset window; the reset respawns Dr. Chaos.
@@ -265,7 +266,7 @@ fn killing_the_golem_arms_a_reset_that_brings_dr_chaos_back() {
     let (mut world, _db, _l) = chaos_world();
     world.grand_bosses.get_mut(&CHAOS_GOLEM).unwrap().status = CRAZY;
     dr_chaos::resolve_at_boot(&mut world);
-    let golem = find(&world, CHAOS_GOLEM).unwrap();
+    let golem = find_spawned(&world, CHAOS_GOLEM).unwrap();
 
     dr_chaos::on_golem_killed(&mut world, golem);
     assert_eq!(dr_chaos_status(&world), DEAD, "dead");
@@ -282,7 +283,10 @@ fn killing_the_golem_arms_a_reset_that_brings_dr_chaos_back() {
         .respawn_time = 1;
     dr_chaos::handle_reset(&mut world);
     assert_eq!(dr_chaos_status(&world), NORMAL);
-    assert!(find(&world, DOCTOR_CHAOS).is_some(), "Dr. Chaos returns");
+    assert!(
+        find_spawned(&world, DOCTOR_CHAOS).is_some(),
+        "Dr. Chaos returns"
+    );
 }
 
 /// The kill runs through the real death path (the slice-20 lesson: a direct
@@ -292,7 +296,7 @@ fn killing_the_golem_through_the_death_path_marks_it_dead() {
     let (mut world, _db, _l) = chaos_world();
     world.grand_bosses.get_mut(&CHAOS_GOLEM).unwrap().status = CRAZY;
     dr_chaos::resolve_at_boot(&mut world);
-    let golem = find(&world, CHAOS_GOLEM).unwrap();
+    let golem = find_spawned(&world, CHAOS_GOLEM).unwrap();
 
     crate::game_loop::death::npc_do_die(&mut world, golem, 0);
 
