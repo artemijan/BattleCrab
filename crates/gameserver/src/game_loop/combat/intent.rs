@@ -4,6 +4,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::stop_movement;
+use crate::game_loop::skills::effects::target_p_def;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
 /// `NpcAction`'s monster branch: clicking your already-selected monster
@@ -192,12 +193,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     };
 
     // Damage: pAtk vs the door's pDef (front, no crit, no shot).
-    let door_pdef = world
-        .objects
-        .get_component::<crate::model::door::Door>(&door_oid)
-        .and_then(|d| world.data.door_data.get(d.door_id))
-        .map(|t| (t.p_def as f64).max(1.0))
-        .unwrap_or(1.0);
+    let door_pdef = target_p_def(world, door_oid);
     let damage = formulas::calc_auto_attack_damage(
         attacker.p_atk,
         1.0,

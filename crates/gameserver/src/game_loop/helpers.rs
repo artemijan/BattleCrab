@@ -377,6 +377,11 @@ pub(crate) fn send_to_player(world: &World, player_object_id: i32, packet: Vec<u
         send_to_client(world, cid, packet);
     }
 }
+pub(crate) fn absorb_into_hp(world: &mut World, attacker: i32, absorbed: f64) {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&attacker) {
+        v.cur_hp = (v.cur_hp + absorbed).min(v.max_hp as f64);
+    }
+}
 
 /// `SystemMessage` to a connected client. Pass `&[]` for a message with no
 /// substitution parameters.

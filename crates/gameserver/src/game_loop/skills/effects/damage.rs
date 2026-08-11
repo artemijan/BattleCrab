@@ -51,15 +51,12 @@ pub(crate) fn target_p_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
         return cs.p_def;
     }
-    if let Some(p_def) = world
+    world
         .objects
         .get_component::<crate::model::door::Door>(&target_oid)
         .and_then(|d| world.data.door_data.get(d.door_id))
         .map(|t| (t.p_def as f64).max(1.0))
-    {
-        return p_def;
-    }
-    1.0
+        .unwrap_or(1.0)
 }
 
 /// The trait term every damage formula multiplies in, as one call.

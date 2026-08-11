@@ -1,10 +1,10 @@
 use super::*;
-use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::stat_add;
 use crate::game_loop::helpers::stat_mul;
+use crate::game_loop::helpers::{absorb_into_hp, is_dead};
 
 /// Damage application shared by auto-attacks (and reusable by future physical
 /// skills): route to the right victim kind, waking NPC AI / breaking player
@@ -124,9 +124,7 @@ fn absorb_damage_to_hp(
     if absorbed <= 0.0 {
         return;
     }
-    if let Some(v) = world.objects.get_component_mut::<Vitals>(&attacker) {
-        v.cur_hp = (v.cur_hp + absorbed).min(v.max_hp as f64);
-    }
+    absorb_into_hp(world, attacker, absorbed);
     crate::game_loop::skills::effects::broadcast_vitals_for(world, attacker);
 }
 

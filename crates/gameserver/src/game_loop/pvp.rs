@@ -599,6 +599,12 @@ pub(crate) fn calculate_karma_gain(pk_count: i32) -> i32 {
 /// faithfulness (and so an operator raising it gets the retail behaviour).
 const REPUTATION_INCREASE: i32 = 0;
 
+pub(crate) fn get_killer_rep_and_pk(world: &mut World, killer_oid: i32) -> Option<(i32, i32)> {
+    let Some(p) = world.objects.get_component::<Player>(&killer_oid) else {
+        return None;
+    };
+    Some((p.reputation, p.pk_kills))
+}
 /// `Player.onKillUpdatePvPReputation` — the counters and karma a player kill
 /// moves. Called from the victim's death path with their killer.
 ///
@@ -628,11 +634,9 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
     }
 
     let legitimate = check_if_pvp(world, killer_oid, victim_oid);
-    let (killer_rep, killer_pk) = {
-        let Some(p) = world.objects.get_component::<Player>(&killer_oid) else {
-            return;
-        };
-        (p.reputation, p.pk_kills)
+
+    let Some((killer_rep, killer_pk)) = get_killer_rep_and_pk(world, killer_oid) else {
+        return;
     };
     let victim_rep = world
         .objects

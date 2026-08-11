@@ -25,6 +25,7 @@ use crate::world::World;
 
 use super::send_message;
 
+use crate::game_loop::pvp::get_killer_rep_and_pk;
 // Re-exported rather than redefined: `cursed_weapon.rs` imports `now_millis`
 // from here alongside the rest of this module's surface.
 pub(crate) use commons::util::now_millis;
@@ -320,13 +321,9 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     let target_client = super::helpers::client_for_player(world, target);
 
     // Save the wielder's current reputation/pk-kills (restored on end-of-life).
-    let (saved_rep, saved_pk) = {
-        let Some(p) = world.objects.get_component::<Player>(&target) else {
-            return;
-        };
-        (p.reputation, p.pk_kills)
+    let Some((saved_rep, saved_pk)) = get_killer_rep_and_pk(world, target) else {
+        return;
     };
-
     // addItem — give the weapon.
     let Some(item_oids) = crate::game_loop::items::add_inventory_item(world, target, item_id, 1)
     else {

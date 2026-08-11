@@ -7,10 +7,10 @@
 //! equivalent because the match was the last statement in the effect loop.
 
 use crate::game_loop::guard::target_is_chest;
-use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{absorb_into_hp, client_for_player};
 use crate::model::components::{BaseStats, Buffs, CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
@@ -642,9 +642,7 @@ pub(super) fn hp_drain(
     // Heal the caster by `percentage`% of the drain, overheal-clamped.
     let heal = (percentage / 100.0) * drain;
     if heal > 0.0 {
-        if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
-            v.cur_hp = (v.cur_hp + heal).min(v.max_hp as f64);
-        }
+        absorb_into_hp(world, caster_oid, heal);
         if let Some(client_id) = client_for_player(world, caster_oid) {
             let cur = world
                 .objects
@@ -1197,9 +1195,7 @@ pub(super) fn hp(world: &mut World, ctx: &CastCtx, amount: f64, percent: bool) {
     );
     let gain = basic.min((ceiling - v.cur_hp).max(0.0));
     if gain > 0.0 {
-        if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-            vit.cur_hp = (vit.cur_hp + gain).min(vit.max_hp as f64);
-        }
+        absorb_into_hp(world, target_oid, gain);
         broadcast_vitals(world, target_oid);
     }
 }
