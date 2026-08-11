@@ -138,11 +138,15 @@ fn the_clamp_still_bounds_a_heavily_defended_target() {
 #[test]
 fn real_dist_carriers_parse() {
     assert_eq!(
-        amount_of(233, 1),
+        stat_value_of(233, 1, Stat::DefenceCriticalRate),
         Some(-15.0),
         "Light Armor Mastery is -15%"
     );
-    assert_eq!(amount_of(1364, 1), Some(-30.0), "Pa'agrio's Eye is -30%");
+    assert_eq!(
+        stat_value_of(1364, 1, Stat::DefenceCriticalRate),
+        Some(-30.0),
+        "Pa'agrio's Eye is -30%"
+    );
 }
 
 /// Light Armor Mastery is **armor-conditioned** — Java gates it on

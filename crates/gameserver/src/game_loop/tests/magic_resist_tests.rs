@@ -73,12 +73,19 @@ fn a_lower_res_modifier_raises_the_success_rate() {
 #[test]
 fn real_dist_carriers_parse() {
     assert_eq!(
-        amount_of(146, 1),
+        stat_value_of(146, 1, Stat::MagicSuccessRes),
         Some(0.0),
         "Anti Magic does nothing at level 1"
     );
-    assert_eq!(amount_of(146, 3), Some(5.0), "and 5% from level 3");
-    assert!(amount_of(147, 1).is_some(), "M. Def. carries the stat too");
+    assert_eq!(
+        stat_value_of(146, 3, Stat::MagicSuccessRes),
+        Some(5.0),
+        "and 5% from level 3"
+    );
+    assert!(
+        stat_value_of(147, 1, Stat::MagicSuccessRes).is_some(),
+        "M. Def. carries the stat too"
+    );
 }
 
 /// Learned as a passive, Anti Magic folds a `>1.0` multiplier — which is what

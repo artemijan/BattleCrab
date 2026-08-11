@@ -363,12 +363,12 @@ fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
     w.into_bytes()
 }
 
-fn amount_of(id: i32, level: i32) -> Option<f64> {
+fn stat_value_of(id: i32, level: i32, stat: Stat) -> Option<f64> {
     let skills = dist::skills_owned();
     skills.get(id, level).and_then(|s| {
         s.stat_modifier_effects()
             .iter()
-            .find(|m| m.stat == Stat::DefenceCriticalRate)
+            .find(|m| m.stat == stat)
             .map(|m| m.amount)
     })
 }
