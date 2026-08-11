@@ -20,7 +20,6 @@ use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::npc::ai;
 use crate::game_loop::{apply_due_tasks, combat, items, visibility, zones};
 use crate::loginlink::LoginLinkCommand;
-use crate::model::Player;
 use crate::model::clan::Clan;
 use crate::model::components::Friends;
 use crate::model::components::{
@@ -36,15 +35,16 @@ use crate::model::party::LootRule;
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
 use crate::model::stats::Stat;
+use crate::model::{Player, PlayerData};
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::{ClientSession, Session, SessionKey};
 use crate::world::World;
-use crate::{db, model};
+use crate::{db, model, session};
 use commons::network::PacketWriter;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
 mod abnormal_tests;
 mod admin_tests;
@@ -1058,6 +1058,16 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         link_rx,
     )
 }
+fn get_test_session(
+    client_id: u32,
+    out_tx: UnboundedSender<bytes::Bytes>,
+    bundle: PlayerData,
+) -> Session<session::Entering> {
+    Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![])
+        .into_entering(bundle)
+}
 
 /// An `InGame` level-5 player knowing every `cast_test_world` skill, with
 /// full MP/CP.
@@ -1078,10 +1088,7 @@ fn ingame_caster(
     chr.skills = vec![(1177, 1, 0), (1015, 1, 0), (1068, 1, 0), (91, 1, 0)];
     let player = Player::from_char(&world.data, &chr);
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(player);
+    let s = get_test_session(client_id, out_tx, player);
     let (session, bundle) = s.into_ingame();
     bundle.spawn_into(world);
     world
@@ -1140,10 +1147,7 @@ fn ingame_player(
     chr.z = z;
     let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle);
+    let s = get_test_session(client_id, out_tx, bundle);
     let (session, bundle) = s.into_ingame();
     bundle.spawn_into(world);
     world
@@ -1292,10 +1296,7 @@ fn entering_player(
     chr.z = z;
     let player = Player::from_char(&world.data, &chr);
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(player);
+    let s = get_test_session(client_id, out_tx, player);
     world.clients.insert(client_id, ClientSession::Entering(s));
     out_rx
 }
@@ -2278,10 +2279,7 @@ fn ingame_player_access(
     chr.access_level = access_level;
     let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle);
+    let s = get_test_session(client_id, out_tx, bundle);
     let (session, bundle) = s.into_ingame();
     bundle.spawn_into(world);
     world
