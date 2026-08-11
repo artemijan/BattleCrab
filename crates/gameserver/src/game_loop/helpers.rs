@@ -467,6 +467,28 @@ pub(crate) fn set_attack_intention(world: &mut World, npc_oid: i32) {
     }
 }
 
+/// The NPC half of `setIntention(AI_INTENTION_MOVE_TO, destination)`: park the
+/// AI on `MoveTo` and walk. The intention is what keeps `think` from re-issuing
+/// a chase for the length of the walk (fear, flee-on-attack), so it is set
+/// *before* the move and regardless of the outcome — Java flips the intention
+/// whether or not the walk actually starts, and [`move_npc_to`] can bail on a
+/// rooted mob, a missing speed or no path.
+///
+/// The player half is [`crate::game_loop::position::intention_move_to`], which
+/// needs a client id and its own broadcast; callers that may hold either kind
+/// of creature pick between the two.
+///
+/// [`move_npc_to`]: crate::game_loop::ai::move_npc_to
+pub(crate) fn set_move_to_intention(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
+    if let Some(ai) = world
+        .objects
+        .get_component_mut::<model::npc::NpcAi>(&npc_oid)
+    {
+        ai.intention = model::npc::NpcIntention::MoveTo;
+    }
+    crate::game_loop::ai::move_npc_to(world, npc_oid, x, y, z);
+}
+
 /// Java's taunt arithmetic (`Aggression` / `GetAgro`: `getHating(mostHated) -
 /// getHating(effector) + 1`): puts `target_oid` one point above the current
 /// most-hated entry rather than at an arbitrary huge constant, so the pull is

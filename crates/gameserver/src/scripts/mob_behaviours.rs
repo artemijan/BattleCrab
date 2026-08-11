@@ -13,7 +13,6 @@
 
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Immobilized, Position, Vitals};
 
@@ -444,14 +443,7 @@ impl QuestScript for FleeMonsters {
             .world
             .geo
             .get_valid_location(npc_pos.x, npc_pos.y, npc_pos.z, dest_x, dest_y, npc_pos.z);
-        if let Some(ai) = ctx
-            .world
-            .objects
-            .get_component_mut::<crate::model::npc::NpcAi>(&ctx.npc)
-        {
-            ai.intention = crate::model::npc::NpcIntention::MoveTo;
-        }
-        ai::move_npc_to(ctx.world, ctx.npc, vx, vy, vz);
+        crate::game_loop::helpers::set_move_to_intention(ctx.world, ctx.npc, vx, vy, vz);
     }
 }
 

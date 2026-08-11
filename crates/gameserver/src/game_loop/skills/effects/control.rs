@@ -295,15 +295,7 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
             (vx, vy, vz),
         );
     } else {
-        // Set before the move: `move_npc_to` can bail (no speed, no path), and
-        // Java changes the intention regardless of whether the walk starts.
-        if let Some(ai) = world
-            .objects
-            .get_component_mut::<crate::model::npc::NpcAi>(&effected)
-        {
-            ai.intention = crate::model::npc::NpcIntention::MoveTo;
-        }
-        crate::game_loop::ai::move_npc_to(world, effected, vx, vy, vz);
+        crate::game_loop::helpers::set_move_to_intention(world, effected, vx, vy, vz);
     }
 }
 
