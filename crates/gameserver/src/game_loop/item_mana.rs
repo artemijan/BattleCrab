@@ -64,7 +64,7 @@
 //! is null, so `run` throws it away — and without it a relog inside the beat
 //! window would leave two beats racing on one item, draining it twice as fast.
 
-use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
+use crate::game_loop::helpers::{get_inventory_items_oids, send_sm_to_client, send_to_client};
 use tracing::warn;
 
 use crate::model::inventory::Inventory;
@@ -106,11 +106,7 @@ pub(crate) fn schedule_consume_mana_task(world: &mut World, player_oid: i32, ite
 /// it, exactly as Java's `run` discards an entry whose `Item` has no acting
 /// player.
 pub(crate) fn on_player_leave_world(world: &mut World, player_oid: i32) {
-    let owned: Vec<i32> = world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .map(|inv| inv.items().iter().map(|it| it.object_id).collect())
-        .unwrap_or_default();
+    let owned: Vec<i32> = get_inventory_items_oids(world, player_oid);
     for oid in owned {
         world.item_mana_consuming.remove(&oid);
     }

@@ -382,6 +382,13 @@ pub(crate) fn absorb_into_hp(world: &mut World, attacker: i32, absorbed: f64) {
         v.cur_hp = (v.cur_hp + absorbed).min(v.max_hp as f64);
     }
 }
+pub(crate) fn get_inventory_items_oids(world: &World, player_oid: i32) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .map(|inv| inv.items().iter().map(|it| it.object_id).collect())
+        .unwrap_or_default()
+}
 
 /// `SystemMessage` to a connected client. Pass `&[]` for a message with no
 /// substitution parameters.

@@ -35,6 +35,7 @@ use crate::model::npc::AggroList;
 use crate::model::party::LootRule;
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+use crate::model::stats::Stat;
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::{ClientSession, Session, SessionKey};
@@ -263,7 +264,18 @@ fn test_world() -> (
     world.cfg.flood_protector = crate::config::FloodProtectorsConfig::disabled();
     (world, db_tx, db_rx, link_rx)
 }
-
+fn live_buffs(world: &World, oid: i32) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| !x.passive)
+                .map(|x| x.skill_id)
+                .collect()
+        })
+        .unwrap_or_default()
+}
 fn connect(world: &mut World, id: u32) -> UnboundedReceiver<bytes::Bytes> {
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
     world.clients.insert(
@@ -349,6 +361,16 @@ fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
         w.write_i16(0);
     }
     w.into_bytes()
+}
+
+fn amount_of(id: i32, level: i32) -> Option<f64> {
+    let skills = dist::skills_owned();
+    skills.get(id, level).and_then(|s| {
+        s.stat_modifier_effects()
+            .iter()
+            .find(|m| m.stat == Stat::DefenceCriticalRate)
+            .map(|m| m.amount)
+    })
 }
 
 fn npc_count(world: &mut World, npc_id: i32) -> usize {

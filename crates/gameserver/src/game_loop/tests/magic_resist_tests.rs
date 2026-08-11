@@ -13,10 +13,6 @@ use crate::model::stats::Stat;
 
 const DIST: &str = crate::data::DIST_GAME;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    dist::skills_owned()
-}
-
 /// A PvP-branch input with a known failure term, so the resist multiplier's
 /// effect is arithmetic rather than incidental.
 fn pvp_input(res_modifier: f64) -> MagicSuccess<'static> {
@@ -76,22 +72,13 @@ fn a_lower_res_modifier_raises_the_success_rate() {
 /// level, so a level-1 assertion would prove nothing.
 #[test]
 fn real_dist_carriers_parse() {
-    let skills = dist_skills();
-    let amount_at = |id: i32, level: i32| {
-        skills.get(id, level).and_then(|s| {
-            s.stat_modifier_effects()
-                .iter()
-                .find(|m| m.stat == Stat::MagicSuccessRes)
-                .map(|m| m.amount)
-        })
-    };
     assert_eq!(
-        amount_at(146, 1),
+        amount_of(146, 1),
         Some(0.0),
         "Anti Magic does nothing at level 1"
     );
-    assert_eq!(amount_at(146, 3), Some(5.0), "and 5% from level 3");
-    assert!(amount_at(147, 1).is_some(), "M. Def. carries the stat too");
+    assert_eq!(amount_of(146, 3), Some(5.0), "and 5% from level 3");
+    assert!(amount_of(147, 1).is_some(), "M. Def. carries the stat too");
 }
 
 /// Learned as a passive, Anti Magic folds a `>1.0` multiplier — which is what

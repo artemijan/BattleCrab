@@ -3,7 +3,7 @@
 
 use super::*;
 use crate::game_loop::{abnormal, death};
-use crate::model::components::{Buffs, Vitals};
+use crate::model::components::Vitals;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType, effect_flag,
 };
@@ -93,19 +93,6 @@ fn death_buff_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>)
         .skill_data
         .insert_for_test(buff_skill(LASTING_ID, vec![pump], true));
     (world, db, l)
-}
-
-fn live_buffs(world: &World, oid: i32) -> Vec<i32> {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| !x.passive)
-                .map(|x| x.skill_id)
-                .collect()
-        })
-        .unwrap_or_default()
 }
 
 fn setup(world: &mut World) {

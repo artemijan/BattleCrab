@@ -251,16 +251,7 @@ fn dispel_all_strips_every_buff_but_spares_the_irreplacable_ones() {
     let cancel = instant(4177, SkillEffect::DispelAll);
     land(&mut world, &cancel, CASTER, CASTER);
 
-    let left: Vec<i32> = world
-        .objects
-        .get_component::<Buffs>(&CASTER)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| !x.passive)
-                .map(|x| x.skill_id)
-                .collect()
-        })
-        .unwrap_or_default();
+    let left: Vec<i32> = live_buffs(&world, CASTER);
     assert_eq!(left, vec![9402], "only the irreplacable buff survives");
 }
 

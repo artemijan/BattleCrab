@@ -2,6 +2,7 @@
 //! gentler drop a monster kill can cause.
 
 use super::*;
+use crate::game_loop::helpers::get_inventory_items_oids;
 
 use crate::model::Player;
 use crate::model::inventory::Inventory;
@@ -389,11 +390,7 @@ fn a_shadow_item_is_never_dropped_on_death() {
 
     kill_by_player(&mut world);
 
-    let still_held: Vec<i32> = world
-        .objects
-        .get_component::<Inventory>(&VICTIM)
-        .map(|i| i.items().iter().map(|x| x.object_id).collect())
-        .unwrap_or_default();
+    let still_held: Vec<i32> = get_inventory_items_oids(&world, VICTIM);
     assert!(
         still_held.contains(&shadow_oid),
         "the shadow instance is kept, like retail: {still_held:x?}"

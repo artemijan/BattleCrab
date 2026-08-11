@@ -13,10 +13,6 @@ use crate::model::stats::Stat;
 
 const DIST: &str = crate::data::DIST_GAME;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    dist::skills_owned()
-}
-
 /// The identity defaults reproduce exactly what the formula did before, which
 /// is what keeps every existing combat test honest.
 ///
@@ -141,15 +137,6 @@ fn the_clamp_still_bounds_a_heavily_defended_target() {
 /// Both carriers parse to the `PER` stat with their real negative amounts.
 #[test]
 fn real_dist_carriers_parse() {
-    let skills = dist_skills();
-    let amount_of = |id: i32, level: i32| {
-        skills.get(id, level).and_then(|s| {
-            s.stat_modifier_effects()
-                .iter()
-                .find(|m| m.stat == Stat::DefenceCriticalRate)
-                .map(|m| m.amount)
-        })
-    };
     assert_eq!(
         amount_of(233, 1),
         Some(-15.0),
@@ -167,7 +154,7 @@ fn real_dist_carriers_parse() {
 /// and failed — the gate is right, the expectation was not.)
 #[test]
 fn light_armor_mastery_is_armor_conditioned() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let effect = skills
         .get(233, 1)
         .expect("Light Armor Mastery loads")
@@ -204,7 +191,7 @@ fn light_armor_mastery_is_armor_conditioned() {
 /// own property and not a limitation of the plumbing.
 #[test]
 fn paagrios_eye_folds_unconditionally() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let effect = skills
         .get(1364, 1)
         .expect("Pa'agrio's Eye loads")
