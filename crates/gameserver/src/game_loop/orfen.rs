@@ -12,7 +12,7 @@
 
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::set_position;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::npc::cast;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -187,7 +187,7 @@ fn try_drag(world: &mut World, orfen_oid: i32, attacker_oid: i32) {
     if !crate::game_loop::death::teleport_to_object(world, attacker_oid, orfen_oid) {
         return;
     }
-    cast_on(world, orfen_oid, attacker_oid, PARALYSIS);
+    cast::cast_skill(world, orfen_oid, attacker_oid, PARALYSIS, 1);
 }
 
 /// Riba Iren heals Orfen when **the minion itself** drops below half — an
@@ -204,7 +204,7 @@ pub(crate) fn on_riba_iren_attacked(world: &mut World, minion_oid: i32) {
     let Some(orfen_oid) = crate::game_loop::grand_boss::find_alive(world, ORFEN) else {
         return;
     };
-    cast_on(world, minion_oid, orfen_oid, ORFEN_HEAL);
+    cast::cast_skill(world, minion_oid, orfen_oid, ORFEN_HEAL, 1);
 }
 
 fn distance_2d(world: &World, a: i32, b: i32) -> Option<f64> {
@@ -212,14 +212,4 @@ fn distance_2d(world: &World, a: i32, b: i32) -> Option<f64> {
     let pb = world.objects.get_component::<Position>(&b)?;
     let (dx, dy) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64);
     Some((dx * dx + dy * dy).sqrt())
-}
-
-fn cast_on(world: &mut World, caster_oid: i32, target_oid: i32, skill_id: i32) {
-    let Some(skill) = skill_by_id(world, skill_id, 1) else {
-        return;
-    };
-    if !crate::game_loop::npc::cast::check_use_conditions_pub(world, caster_oid, &skill) {
-        return;
-    }
-    crate::game_loop::npc::cast::start_cast(world, caster_oid, target_oid, &skill);
 }

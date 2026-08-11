@@ -16,7 +16,6 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -1648,17 +1647,7 @@ impl<'w> QuestCtx<'w> {
         skill_id: i32,
         level: i32,
     ) -> bool {
-        if self.simulated {
-            return false;
-        }
-        let Some(skill) = skill_by_id(self.world, skill_id, level) else {
-            return false;
-        };
-        if !cast::check_use_conditions_pub(self.world, caster_oid, &skill) {
-            return false;
-        }
-        cast::start_cast(self.world, caster_oid, target_oid, &skill);
-        true
+        !self.simulated && cast::cast_skill(self.world, caster_oid, target_oid, skill_id, level)
     }
 
     /// `<caster>.broadcastPacket(new MagicSkillUse(caster, target, skillId,

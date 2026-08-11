@@ -2353,10 +2353,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         }
     };
 
-    if !crate::game_loop::npc::cast::check_use_conditions_pub(world, servitor_oid, &skill) {
-        return;
-    }
-    crate::game_loop::npc::cast::start_cast(world, servitor_oid, target_oid, &skill);
+    crate::game_loop::npc::cast::cast_checked(world, servitor_oid, target_oid, &skill);
 }
 
 /// Charge a summon's Beast Spiritshot from its owner — the magic counterpart of

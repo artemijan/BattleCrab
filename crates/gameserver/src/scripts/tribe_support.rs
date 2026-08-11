@@ -7,7 +7,6 @@
 //! (level 1–5); every chat window keys off it, the buffer trades
 //! horns/seeds for war buffs, and the teleporter serves level 4+.
 
-use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 /// `BUFF` — event digit → (skill, cost in horns/seeds). Same for both tribes.
@@ -148,11 +147,7 @@ fn on_event(ctx: &mut QuestCtx, tribe: &Tribe, event: &str) -> Option<String> {
 fn cast_buff(ctx: &mut QuestCtx, skill_id: i32) {
     let npc = ctx.npc;
     let player = ctx.player;
-    if let Some(skill) = skill_by_id(ctx.world, skill_id, 1)
-        && crate::game_loop::npc::cast::check_use_conditions_pub(ctx.world, npc, &skill)
-    {
-        crate::game_loop::npc::cast::start_cast(ctx.world, npc, player, &skill);
-    }
+    ctx.npc_cast(npc, player, skill_id, 1);
     if let Some(v) = ctx
         .world
         .objects

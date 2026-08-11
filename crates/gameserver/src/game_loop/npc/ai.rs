@@ -32,7 +32,6 @@ use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashSet;
 
 use commons::util::rnd;
@@ -2093,11 +2092,7 @@ fn on_faction_call_script(world: &mut World, recruit_oid: i32, caller_oid: i32, 
     }
     let caller_hp = hp_pair(world, caller_oid);
     let cast = |world: &mut World, target: i32, (id, lvl): (i32, i32)| {
-        if let Some(skill) = skill_by_id(world, id, lvl)
-            && crate::game_loop::npc::cast::check_use_conditions_pub(world, recruit_oid, &skill)
-        {
-            crate::game_loop::npc::cast::start_cast(world, recruit_oid, target, &skill);
-        }
+        crate::game_loop::npc::cast::cast_skill(world, recruit_oid, target, id, lvl);
     };
     match recruit_id {
         NURSE => {

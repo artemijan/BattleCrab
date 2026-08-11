@@ -5,7 +5,6 @@
 
 use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 const RAGNA_ORC_COMMANDER: i32 = 22694;
@@ -208,11 +207,7 @@ impl QuestScript for FrightenedRagnaOrc {
 
 fn cast_vanish(ctx: &mut QuestCtx) {
     let npc = ctx.npc;
-    if let Some(skill) = skill_by_id(ctx.world, VANISH_SKILL, 1)
-        && crate::game_loop::npc::cast::check_use_conditions_pub(ctx.world, npc, &skill)
-    {
-        crate::game_loop::npc::cast::start_cast(ctx.world, npc, npc, &skill);
-    }
+    ctx.npc_cast(npc, npc, VANISH_SKILL, 1);
 }
 
 /// Java drops ten separate stacks on the ground (`npc.dropItem` × 10, no

@@ -4,7 +4,6 @@
 //! the reason a long Hot Springs session ends with a debuff bar full of
 //! level-10 plagues.
 
-use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 const BANDERSNATCHLING: i32 = 21314;
@@ -40,14 +39,9 @@ fn infect(ctx: &mut QuestCtx, disease_id: i32) {
         Some(l) if l < 10 => l + 1,
         Some(_) => 10,
     };
-    let Some(skill) = skill_by_id(ctx.world, disease_id, level) else {
-        return;
-    };
     let npc = ctx.npc;
     let player = ctx.player;
-    if crate::game_loop::npc::cast::check_use_conditions_pub(ctx.world, npc, &skill) {
-        crate::game_loop::npc::cast::start_cast(ctx.world, npc, player, &skill);
-    }
+    ctx.npc_cast(npc, player, disease_id, level);
 }
 
 impl QuestScript for HotSprings {

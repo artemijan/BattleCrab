@@ -213,13 +213,51 @@ fn pick(
     check_use_conditions(world, npc_oid, skill).then(|| skill.clone())
 }
 
-/// The use-condition gate (MP, mutes, cooldown), shared with the owner-ordered
-/// [`ServitorSkillUse`] path so a commanded skill obeys the same rules as an
-/// AI-chosen one.
+/// `npc.setTarget(target); npc.doCast(skill)` for a skill the caller already
+/// holds — the use-condition gate (MP, mutes, cooldown) plus the cast it must
+/// always precede, said once.
+///
+/// Exporting the gate on its own is what let thirteen call sites each re-spell
+/// this; the pairing is the invariant, so this is the only way out. The
+/// owner-ordered [`ServitorSkillUse`] path comes through here too, so a
+/// commanded skill obeys the same rules as an AI-chosen one.
+///
+/// Returns whether the cast started. Java's `doCast` runs its own checks and
+/// quietly does nothing on failure, so a caller that ignores the result matches
+/// it.
 ///
 /// [`ServitorSkillUse`]: crate::game_loop::servitor::use_servitor_skill
-pub(crate) fn check_use_conditions_pub(world: &World, npc_oid: i32, skill: &Skill) -> bool {
-    check_use_conditions(world, npc_oid, skill)
+pub(crate) fn cast_checked(
+    world: &mut World,
+    npc_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) -> bool {
+    if !check_use_conditions(world, npc_oid, skill) {
+        return false;
+    }
+    start_cast(world, npc_oid, target_oid, skill);
+    true
+}
+
+/// [`cast_checked`] with the datapack lookup in front — the shape almost every
+/// script and boss AI wants, since they name a skill by id rather than carrying
+/// one.
+///
+/// `false` when the id is absent from this dist as well as when the conditions
+/// refuse; the two are indistinguishable to Java's scripts, which call
+/// `SkillData.getSkill(...)` straight into `doCast`.
+pub(crate) fn cast_skill(
+    world: &mut World,
+    npc_oid: i32,
+    target_oid: i32,
+    skill_id: i32,
+    level: i32,
+) -> bool {
+    let Some(skill) = crate::game_loop::helpers::skill_by_id(world, skill_id, level) else {
+        return false;
+    };
+    cast_checked(world, npc_oid, target_oid, &skill)
 }
 
 /// Test hook.

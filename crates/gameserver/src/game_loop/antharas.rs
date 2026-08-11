@@ -15,7 +15,6 @@ use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::set_position;
-use crate::game_loop::helpers::skill_by_id;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -726,12 +725,8 @@ pub(crate) fn on_antharas_damage(
         .objects
         .get_component::<crate::model::Player>(&attacker_oid)
         .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
-    if on_strider
-        && !crate::game_loop::abnormal::has_buff(world, attacker_oid, ANTI_STRIDER)
-        && let Some(skill) = skill_by_id(world, ANTI_STRIDER, 1)
-        && crate::game_loop::npc::cast::check_use_conditions_pub(world, antharas_oid, &skill)
-    {
-        crate::game_loop::npc::cast::start_cast(world, antharas_oid, attacker_oid, &skill);
+    if on_strider && !crate::game_loop::abnormal::has_buff(world, attacker_oid, ANTI_STRIDER) {
+        crate::game_loop::npc::cast::cast_skill(world, antharas_oid, attacker_oid, ANTI_STRIDER, 1);
     }
 
     super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);

@@ -12,7 +12,6 @@
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, Vitals};
@@ -214,12 +213,12 @@ fn trex_on_attack(ctx: &mut QuestCtx) {
     let hp = hp_percent(ctx, npc);
     if hp <= 30.0 {
         if sv == 3 {
-            cast(ctx, npc, npc, BERSERK, 1);
+            ctx.npc_cast(npc, npc, BERSERK, 1);
         } else if sv == 1 {
-            cast(ctx, npc, npc, BERSERK, 2);
+            ctx.npc_cast(npc, npc, BERSERK, 2);
         }
     } else if hp <= 60.0 && sv == 3 {
-        cast(ctx, npc, npc, BERSERK, 1);
+        ctx.npc_cast(npc, npc, BERSERK, 1);
     }
 
     let far = {
@@ -237,7 +236,7 @@ fn trex_on_attack(ctx: &mut QuestCtx) {
     if far {
         if ctx.roll(100) <= 10 * sv {
             let target = ctx.player;
-            cast(ctx, npc, target, LONG_RANGE_STUN, 1);
+            ctx.npc_cast(npc, target, LONG_RANGE_STUN, 1);
         }
         return;
     }
@@ -245,16 +244,16 @@ fn trex_on_attack(ctx: &mut QuestCtx) {
         return;
     };
     if ctx.roll(100) <= 10 * sv {
-        cast(ctx, npc, mh, LONG_RANGE_STUN, 1);
+        ctx.npc_cast(npc, mh, LONG_RANGE_STUN, 1);
     }
     if ctx.roll(100) <= 5 * sv {
-        cast(ctx, npc, mh, SPECIAL_STUN, 4);
+        ctx.npc_cast(npc, mh, SPECIAL_STUN, 4);
     }
     if ctx.roll(100) <= 3 * sv {
-        cast(ctx, npc, mh, SPECIAL_SILENCE, 4);
+        ctx.npc_cast(npc, mh, SPECIAL_SILENCE, 4);
     }
     if ctx.roll(100) <= 5 * sv {
-        cast(ctx, npc, mh, SPECIAL_SPIN, 4);
+        ctx.npc_cast(npc, mh, SPECIAL_SPIN, 4);
     }
 }
 
@@ -313,12 +312,12 @@ fn monster_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
     let mult = npc_var(ctx, "SKILL_MULTIPLER");
     if ctx.roll(100) <= prob1 * mult {
         if let Some((id, lvl)) = s1 {
-            cast(ctx, npc, creature, id, lvl);
+            ctx.npc_cast(npc, creature, id, lvl);
         }
     } else if ctx.roll(100) <= prob2 * mult
         && let Some((id, lvl)) = s2
     {
-        cast(ctx, npc, creature, id, lvl);
+        ctx.npc_cast(npc, creature, id, lvl);
     }
 }
 
@@ -331,7 +330,7 @@ fn trex_on_creature_see(ctx: &mut QuestCtx, creature: i32) {
         return;
     }
     let npc = ctx.npc;
-    cast(ctx, npc, creature, CREW_SKILL, 1);
+    ctx.npc_cast(npc, creature, CREW_SKILL, 1);
     set_running(ctx, npc);
     ai::seed_attack(ctx.world, npc, creature);
 }
@@ -359,7 +358,7 @@ fn monster_on_attack(ctx: &mut QuestCtx) {
             .and_then(|t| t.ai_skill_params.get("SelfRangeBuff1").copied());
         if let Some((id, lvl)) = buff {
             set_npc_var(ctx, "SELFBUFF_USED", 1);
-            cast(ctx, npc, npc, id, lvl);
+            ctx.npc_cast(npc, npc, id, lvl);
             set_running(ctx, npc);
             if let Some(t) = target {
                 ai::seed_attack(ctx.world, npc, t);
@@ -385,12 +384,12 @@ fn monster_on_attack(ctx: &mut QuestCtx) {
     if ctx.roll(100) <= prob1 * mult
         && let Some((id, lvl)) = s1
     {
-        cast(ctx, npc, t, id, lvl);
+        ctx.npc_cast(npc, t, id, lvl);
     }
     if ctx.roll(100) <= prob2 * mult
         && let Some((id, lvl)) = s2
     {
-        cast(ctx, npc, t, id, lvl);
+        ctx.npc_cast(npc, t, id, lvl);
     }
 }
 
@@ -436,14 +435,6 @@ fn set_npc_var(ctx: &mut QuestCtx, name: &str, value: i32) {
     }
 }
 
-fn cast(ctx: &mut QuestCtx, npc: i32, target: i32, skill_id: i32, level: i32) {
-    if let Some(skill) = skill_by_id(ctx.world, skill_id, level)
-        && crate::game_loop::npc::cast::check_use_conditions_pub(ctx.world, npc, &skill)
-    {
-        crate::game_loop::npc::cast::start_cast(ctx.world, npc, target, &skill);
-    }
-}
-
 /// `100.0` when the answer is unavailable, as in `npc_cast`.
 ///
 /// This copy had no zero-maximum guard and divided anyway, yielding a `NaN`.
@@ -480,11 +471,7 @@ pub(crate) fn handle_sprigant_trap(world: &mut crate::world::World, npc_oid: i32
     } else {
         DEADLY_POISON
     };
-    if let Some(skill) = skill_by_id(world, skill_id, 1)
-        && crate::game_loop::npc::cast::check_use_conditions_pub(world, npc_oid, &skill)
-    {
-        crate::game_loop::npc::cast::start_cast(world, npc_oid, npc_oid, &skill);
-    }
+    crate::game_loop::npc::cast::cast_skill(world, npc_oid, npc_oid, skill_id, 1);
     world.scheduler.schedule(
         world.tick + 150,
         crate::scheduler::ScheduledTask::SprigantTrap { npc_oid },
@@ -511,10 +498,6 @@ pub(crate) fn handle_trex_attack(world: &mut crate::world::World, trex_oid: i32,
     if !close {
         return;
     }
-    if let Some(skill) = skill_by_id(world, LONG_RANGE_STUN, 1)
-        && crate::game_loop::npc::cast::check_use_conditions_pub(world, trex_oid, &skill)
-    {
-        crate::game_loop::npc::cast::start_cast(world, trex_oid, player_oid, &skill);
-    }
+    crate::game_loop::npc::cast::cast_skill(world, trex_oid, player_oid, LONG_RANGE_STUN, 1);
     ai::seed_attack(world, trex_oid, player_oid);
 }
