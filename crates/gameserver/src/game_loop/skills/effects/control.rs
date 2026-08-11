@@ -481,17 +481,7 @@ pub(crate) fn rebalance_party_hp(world: &mut World, caster_oid: i32, skill: &Ski
         if range <= 0 {
             return true;
         }
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&oid)
-            .is_some_and(|p| {
-                let (dx, dy, dz) = (
-                    (origin.x - p.x) as f64,
-                    (origin.y - p.y) as f64,
-                    (origin.z - p.z) as f64,
-                );
-                dx * dx + dy * dy + dz * dz <= (range as f64) * (range as f64)
-            })
+        crate::geo::distance::within_3d_xyz(world, oid, origin.x, origin.y, origin.z, range as f64)
     };
 
     // Every creature the effect touches: each member, then their pet and

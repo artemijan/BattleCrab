@@ -464,10 +464,9 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         if crate::game_loop::helpers::instance_of(world, oid) != gm_instance {
             continue;
         }
-        let dx = (pos.x - gm_pos.x) as f64;
-        let dy = (pos.y - gm_pos.y) as f64;
-        let dz = (pos.z - gm_pos.z) as f64;
-        if (dx * dx + dy * dy + dz * dz).sqrt() > radius as f64 {
+        if crate::geo::distance::dist3d_xyz(pos.x, pos.y, pos.z, gm_pos.x, gm_pos.y, gm_pos.z)
+            > radius as f64
+        {
             continue;
         }
         let tname = world
@@ -493,7 +492,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
             x: pos.x,
             y: pos.y,
             z: pos.z,
-            dist_2d: (dx * dx + dy * dy).sqrt(),
+            dist_2d: crate::geo::distance::distance_2d_xy(pos.x, pos.y, gm_pos.x, gm_pos.y),
         });
     }
 

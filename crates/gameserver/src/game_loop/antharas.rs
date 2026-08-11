@@ -555,9 +555,8 @@ pub(crate) fn choose_skill(
         let b = world
             .objects
             .get_component::<crate::model::components::Position>(&target_oid)?;
-        let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
         (
-            (dx * dx + dy * dy + dz * dz).sqrt(),
+            crate::geo::distance::dist3d_xyz(a.x, a.y, a.z, b.x, b.y, b.z),
             angle_between(a.x, a.y, b.x, b.y),
         )
     };

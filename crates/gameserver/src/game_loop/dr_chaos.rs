@@ -14,7 +14,8 @@
 
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
-use crate::model::components::{DrChaosGolem, DrChaosState, Position, Vitals};
+use crate::geo::distance::within_2d_xy;
+use crate::model::components::{DrChaosGolem, DrChaosState, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -388,14 +389,7 @@ fn living_players_near(world: &World, oid: i32, range: f64) -> usize {
                 .objects
                 .get_component::<Vitals>(p)
                 .is_some_and(|v| !v.dead);
-            let near = world
-                .objects
-                .get_component::<Position>(p)
-                .is_some_and(|pos| {
-                    let (dx, dy) = ((pos.x - origin.x) as f64, (pos.y - origin.y) as f64);
-                    (dx * dx + dy * dy).sqrt() <= range
-                });
-            alive && near
+            alive && within_2d_xy(world, *p, origin.x, origin.y, range)
         })
         .count()
 }

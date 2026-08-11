@@ -422,14 +422,7 @@ fn revive_pet(
 
 /// `calculateDistance3D(this) < ALT_PARTY_RANGE` — measured from the corpse.
 fn in_range_of(world: &World, from: i32, to: i32, range: f64) -> bool {
-    let (Some(a), Some(b)) = (
-        world.objects.get_component::<Position>(&from),
-        world.objects.get_component::<Position>(&to),
-    ) else {
-        return false;
-    };
-    let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
-    (dx * dx + dy * dy + dz * dz).sqrt() < range
+    crate::geo::distance::distance_3d(world, from, to).is_some_and(|d| d < range)
 }
 
 /// `Attackable.calculateRewards`' raid-point block.

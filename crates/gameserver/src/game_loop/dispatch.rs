@@ -519,9 +519,7 @@ fn handle_get_on_off_vehicle(world: &mut World, client_id: u32, body: &[u8], boa
         return;
     };
     let mut r = commons::network::PacketReader::new(body);
-    let (Some(boat_oid), Some(x), Some(y), Some(z)) =
-        (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i32())
-    else {
+    let Some([boat_oid, x, y, z]) = r.read_i32_array::<4>() else {
         return;
     };
     if boarding {

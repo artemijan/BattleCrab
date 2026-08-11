@@ -8,6 +8,7 @@
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_player;
+use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::{
     PartyRef, PendingRequest, PlayerVitals, Position, RequestKind, Vitals,
@@ -1388,15 +1389,7 @@ fn members_within(world: &World, members: &[i32], corpse: (i32, i32), range: f64
     members
         .iter()
         .copied()
-        .filter(|&m| {
-            world
-                .objects
-                .get_component::<Position>(&m)
-                .is_some_and(|p| {
-                    let (dx, dy) = ((p.x - corpse.0) as f64, (p.y - corpse.1) as f64);
-                    (dx * dx + dy * dy).sqrt() <= range
-                })
-        })
+        .filter(|&m| within_2d_xy(world, m, corpse.0, corpse.1, range))
         .collect()
 }
 

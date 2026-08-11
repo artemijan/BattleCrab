@@ -1815,21 +1815,12 @@ impl<'w> QuestCtx<'w> {
             if npc == 0 {
                 return true;
             }
-            match (
-                world
-                    .objects
-                    .get_component::<crate::model::components::Position>(&oid),
-                world
-                    .objects
-                    .get_component::<crate::model::components::Position>(&npc),
-            ) {
-                (Some(a), Some(b)) => {
-                    let (dx, dy, dz) = ((a.x - b.x) as i64, (a.y - b.y) as i64, (a.z - b.z) as i64);
-                    let r = i64::from(world.cfg.character.alt_party_range);
-                    dx * dx + dy * dy + dz * dz <= r * r
-                }
-                _ => false,
-            }
+            crate::geo::distance::within_3d(
+                world,
+                oid,
+                npc,
+                f64::from(world.cfg.character.alt_party_range),
+            )
         };
         if members.is_empty() {
             // Java's solo arm range-checks too.
@@ -2867,17 +2858,7 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
             if is_dead(world, oid) {
                 return false;
             }
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(&oid)
-                .is_some_and(|p| {
-                    let (dx, dy, dz) = (
-                        f64::from(p.x - pos.x),
-                        f64::from(p.y - pos.y),
-                        f64::from(p.z - pos.z),
-                    );
-                    (dx * dx + dy * dy + dz * dz).sqrt() <= range
-                })
+            crate::geo::distance::within_3d_xyz(world, oid, pos.x, pos.y, pos.z, range)
         };
         let mut fresh: Vec<i32> = Vec::new();
         // Players in the surrounding block (Java skips invisible ones).

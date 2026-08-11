@@ -13,6 +13,7 @@ use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::skill_by_id;
+use crate::geo::distance::within_3d;
 use crate::model::components::{Position, Vitals};
 use crate::world::World;
 
@@ -383,7 +384,7 @@ fn in_range(world: &World, owner_oid: i32, target: i32, template: &CubicTemplate
     let Some(range) = template.range else {
         return true;
     };
-    distance(world, owner_oid, target).is_some_and(|d| d <= range as f64)
+    within_3d(world, owner_oid, target, range as f64)
 }
 
 /// Java heals within `Config.ALT_PARTY_RANGE`.
@@ -393,18 +394,7 @@ fn in_heal_range(world: &World, owner_oid: i32, target: i32) -> bool {
     if owner_oid == target {
         return true;
     }
-    distance(world, owner_oid, target).is_some_and(|d| d <= PARTY_RANGE)
-}
-
-fn distance(world: &World, a: i32, b: i32) -> Option<f64> {
-    let pa = world.objects.get_component::<Position>(&a)?;
-    let pb = world.objects.get_component::<Position>(&b)?;
-    let (dx, dy, dz) = (
-        (pa.x - pb.x) as f64,
-        (pa.y - pb.y) as f64,
-        (pa.z - pb.z) as f64,
-    );
-    Some((dx * dx + dy * dy + dz * dz).sqrt())
+    within_3d(world, owner_oid, target, PARTY_RANGE)
 }
 
 /// `Cubic.activateCubicSkill` — the cast animation is broadcast **from the

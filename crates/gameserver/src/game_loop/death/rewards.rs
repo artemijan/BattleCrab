@@ -319,14 +319,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
             if dead {
                 continue; // their leftover share rewards nothing (Java parity)
             }
-            let in_range = world
-                .objects
-                .get_component::<Position>(&m)
-                .is_some_and(|p| {
-                    let (dx, dy) = ((p.x - nx) as f64, (p.y - ny) as f64);
-                    (dx * dx + dy * dy).sqrt() <= reward_range
-                });
-            if !in_range {
+            if !crate::geo::distance::within_2d_xy(world, m, nx, ny, reward_range) {
                 continue;
             }
             if let Some(&share) = share_of.get(&m) {

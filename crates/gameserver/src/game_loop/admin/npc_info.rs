@@ -58,17 +58,10 @@ pub(crate) fn send_npc_info(
         .unwrap_or(t.base_run_spd);
 
     let (d2d, d3d) = match world.objects.get_component::<Position>(&viewer_object_id) {
-        Some(v) => {
-            let (dx, dy, dz) = (
-                (pos.x - v.x) as f64,
-                (pos.y - v.y) as f64,
-                (pos.z - v.z) as f64,
-            );
-            (
-                (dx * dx + dy * dy).sqrt() as i64,
-                (dx * dx + dy * dy + dz * dz).sqrt() as i64,
-            )
-        }
+        Some(v) => (
+            crate::geo::distance::distance_2d_xy(pos.x, pos.y, v.x, v.y) as i64,
+            crate::geo::distance::dist3d_xyz(pos.x, pos.y, pos.z, v.x, v.y, v.z) as i64,
+        ),
         None => (0, 0),
     };
 

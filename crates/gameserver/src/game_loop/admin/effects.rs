@@ -12,6 +12,7 @@ use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
+use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{self, sm_ids};
@@ -341,15 +342,7 @@ pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32
 fn players_in_radius(world: &World, origin: &Position, radius: f64) -> Vec<i32> {
     world
         .in_game_player_oids()
-        .filter(|oid| {
-            world
-                .objects
-                .get_component::<Position>(oid)
-                .is_some_and(|p| {
-                    let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
-                    (dx * dx + dy * dy).sqrt() <= radius
-                })
-        })
+        .filter(|&oid| within_2d_xy(world, oid, origin.x, origin.y, radius))
         .collect()
 }
 

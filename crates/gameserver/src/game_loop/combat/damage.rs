@@ -591,21 +591,7 @@ fn transfer_damage_to_servitor(
     let Some(servitor) = crate::game_loop::servitor::servitor_of(world, player_oid) else {
         return damage;
     };
-    let in_range = match (
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&player_oid),
-        world
-            .objects
-            .get_component::<crate::model::components::Position>(&servitor),
-    ) {
-        (Some(a), Some(b)) => {
-            let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
-            dx * dx + dy * dy + dz * dz <= 1000.0 * 1000.0
-        }
-        _ => false,
-    };
-    if !in_range {
+    if !crate::geo::distance::within_3d(world, player_oid, servitor, 1000.0) {
         return damage;
     }
     // Java truncates to int on both sides before dividing.

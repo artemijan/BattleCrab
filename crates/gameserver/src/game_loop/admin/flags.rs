@@ -447,13 +447,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         for cs in world.clients.values() {
             if let crate::session::ClientSession::InGame(s) = cs {
                 let oid = s.player_object_id();
-                if world
-                    .objects
-                    .get_component::<crate::model::components::Position>(&oid)
-                    .is_some_and(|p| {
-                        let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
-                        (dx * dx + dy * dy).sqrt() <= radius as f64
-                    })
+                if crate::geo::distance::within_2d_xy(world, oid, origin.x, origin.y, radius as f64)
                 {
                     out.push(oid);
                 }

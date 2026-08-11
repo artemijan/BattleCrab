@@ -359,16 +359,10 @@ pub(crate) fn servitor_attack(world: &mut World, owner_oid: i32, target_oid: i32
     let Some(servitor_oid) = servitor_of(world, owner_oid) else {
         return false;
     };
-    let (Some(owner), Some(target)) = (
-        maybe_position(world, owner_oid),
-        maybe_position(world, target_oid),
-    ) else {
+    let Some(distance) = crate::geo::distance::distance_3d(world, owner_oid, target_oid) else {
         return false;
     };
-    let dx = (owner.x - target.x) as f64;
-    let dy = (owner.y - target.y) as f64;
-    let dz = (owner.z - target.z) as f64;
-    if (dx * dx + dy * dy + dz * dz).sqrt() > 3000.0 {
+    if distance > 3000.0 {
         // Too far — Java falls back to following rather than obeying.
         if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
             l.following = true;
@@ -750,23 +744,17 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     // 4. The leash — "using same task to check if owner is in visible range".
     // A servitor left too far behind is dragged back into follow whatever it
     // was doing, so an ordered attack can't strand it across the map.
-    if let (Some(me), Some(o)) = (
-        maybe_position(world, servitor_oid),
-        maybe_position(world, owner),
-    ) {
-        let dx = (me.x - o.x) as f64;
-        let dy = (me.y - o.y) as f64;
-        let dz = (me.z - o.z) as f64;
-        if (dx * dx + dy * dy + dz * dz).sqrt() > LEASH_DISTANCE {
-            if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
-                l.following = true;
-            }
-            if let Some(ai) = world
-                .objects
-                .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
-            {
-                ai.intention = crate::model::npc::NpcIntention::Active;
-            }
+    if crate::geo::distance::distance_3d(world, servitor_oid, owner)
+        .is_some_and(|d| d > LEASH_DISTANCE)
+    {
+        if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+            l.following = true;
+        }
+        if let Some(ai) = world
+            .objects
+            .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
+        {
+            ai.intention = crate::model::npc::NpcIntention::Active;
         }
     }
 

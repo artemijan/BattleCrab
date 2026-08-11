@@ -504,19 +504,7 @@ impl QuestScript for FairyTrees {
     /// after 30 s.
     fn on_kill(&self, ctx: &mut QuestCtx) {
         let killer = attacking_creature(ctx);
-        let (Some(npc_pos), Some(killer_pos)) = (
-            ctx.world
-                .objects
-                .get_component::<Position>(&ctx.npc)
-                .copied(),
-            maybe_position(ctx.world, killer),
-        ) else {
-            return;
-        };
-        let dx = (npc_pos.x - killer_pos.x) as f64;
-        let dy = (npc_pos.y - killer_pos.y) as f64;
-        let dz = (npc_pos.z - killer_pos.z) as f64;
-        if (dx * dx + dy * dy + dz * dz).sqrt() > REVENGE_RANGE {
+        if !crate::geo::distance::within_3d(ctx.world, ctx.npc, killer, REVENGE_RANGE) {
             return;
         }
         for _ in 0..GUARDIAN_COUNT {

@@ -971,18 +971,14 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
             if min_distance <= 0 {
                 return false;
             }
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(&other)
-                .is_some_and(|o| {
-                    let (dx, dy, dz) = (
-                        (o.x - pos.x) as i64,
-                        (o.y - pos.y) as i64,
-                        (o.z - pos.z) as i64,
-                    );
-                    let d = min_distance as i64;
-                    dx * dx + dy * dy + dz * dz <= d * d
-                })
+            crate::geo::distance::within_3d_xyz(
+                world,
+                other,
+                pos.x,
+                pos.y,
+                pos.z,
+                f64::from(min_distance),
+            )
         };
         // Java sweeps `getVisibleObjectsInRange(this, Creature.class, 1000)`;
         // the port's equivalent neighbourhood is the 3×3 region block, the same

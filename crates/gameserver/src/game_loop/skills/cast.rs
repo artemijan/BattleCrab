@@ -566,17 +566,7 @@ pub(super) fn op_exist_npc_around(
             .get_component::<crate::model::npc::Npc>(&oid)
             .is_some_and(|n| cond.npc_ids.contains(&n.npc_id));
         listed
-            && world
-                .objects
-                .get_component::<Position>(&oid)
-                .is_some_and(|p| {
-                    let (dx, dy, dz) = (
-                        (p.x - origin.x) as f64,
-                        (p.y - origin.y) as f64,
-                        (p.z - origin.z) as f64,
-                    );
-                    dx * dx + dy * dy + dz * dz <= range * range
-                })
+            && crate::geo::distance::within_3d_xyz(world, oid, origin.x, origin.y, origin.z, range)
     })
 }
 
@@ -1390,16 +1380,17 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         let Some(pos) = maybe_position(world, target) else {
             continue;
         };
-        if skill.effect_range > 0 {
-            let (dx, dy, dz) = (
-                (pos.x - caster_pos.x) as f64,
-                (pos.y - caster_pos.y) as f64,
-                (pos.z - caster_pos.z) as f64,
-            );
-            let r = skill.effect_range as f64;
-            if dx * dx + dy * dy + dz * dz > r * r {
-                continue;
-            }
+        if skill.effect_range > 0
+            && crate::geo::distance::dist3d_xyz(
+                pos.x,
+                pos.y,
+                pos.z,
+                caster_pos.x,
+                caster_pos.y,
+                caster_pos.z,
+            ) > skill.effect_range as f64
+        {
+            continue;
         }
         if !world.geo.can_see_target(
             caster_pos.x,

@@ -753,9 +753,7 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
 /// out to everyone including the mover.
 pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body: &[u8]) {
     let mut r = commons::network::PacketReader::new(body);
-    let (Some(x), Some(y), Some(z), Some(heading)) =
-        (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i32())
-    else {
+    let Some([x, y, z, heading]) = r.read_i32_array::<4>() else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

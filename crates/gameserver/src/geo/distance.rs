@@ -43,6 +43,25 @@ pub fn within_3d(world: &World, a: i32, b: i32, range: f64) -> bool {
     distance_3d(world, a, b).is_some_and(|d| d <= range)
 }
 
+/// [`within_2d`] measured against a bare point instead of a second object —
+/// the "everyone standing within `range` of this spot" gate that radius sweeps
+/// (admin effects, boss aggro counts, loot distribution) each spelled out by
+/// hand.
+///
+/// `false` when the object has left the world, same as [`within_2d`].
+pub fn within_2d_xy(world: &World, oid: i32, x: i32, y: i32, range: f64) -> bool {
+    position_of(world, oid).is_some_and(|(ox, oy, _)| distance_2d_xy(ox, oy, x, y) <= range)
+}
+
+/// [`within_3d`] measured against a bare point — the height-aware twin of
+/// [`within_2d_xy`], for the sweeps whose origin is a captured `Position`
+/// rather than a live object.
+///
+/// `false` when the object has left the world, same as [`within_3d`].
+pub fn within_3d_xyz(world: &World, oid: i32, x: i32, y: i32, z: i32, range: f64) -> bool {
+    position_of(world, oid).is_some_and(|(ox, oy, oz)| dist3d_xyz(ox, oy, oz, x, y, z) <= range)
+}
+
 pub fn dist3d_xyz(x1: i32, y1: i32, z1: i32, x2: i32, y2: i32, z2: i32) -> f64 {
     (((x2 - x1) as f64).powi(2) + ((y2 - y1) as f64).powi(2) + ((z2 - z1) as f64).powi(2)).sqrt()
 }

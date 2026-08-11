@@ -378,26 +378,7 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
             return;
         }
         let range = ctx.world.cfg.character.alt_party_range as f64;
-        let within = {
-            let npc = ctx
-                .world
-                .objects
-                .get_component::<crate::model::components::Position>(&ctx.npc)
-                .copied();
-            let killer = ctx
-                .world
-                .objects
-                .get_component::<crate::model::components::Position>(&ctx.player)
-                .copied();
-            match (npc, killer) {
-                (Some(n), Some(k)) => {
-                    let (dx, dy, dz) = ((n.x - k.x) as f64, (n.y - k.y) as f64, (n.z - k.z) as f64);
-                    (dx * dx + dy * dy + dz * dz).sqrt() <= range
-                }
-                _ => false,
-            }
-        };
-        if !within {
+        if !crate::geo::distance::within_3d(ctx.world, ctx.npc, ctx.player, range) {
             return;
         }
         for i in 0..20 {

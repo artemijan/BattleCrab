@@ -25,6 +25,14 @@ impl<'a> PacketReader<'a> {
         Some(slice)
     }
 
+    pub fn read_i32_array<const N: usize>(&mut self) -> Option<[i32; N]> {
+        let mut out = [0i32; N];
+        for slot in &mut out {
+            *slot = self.read_i32()?;
+        }
+        Some(out)
+    }
+
     pub fn read_u8(&mut self) -> Option<u8> {
         self.take(1).map(|s| s[0])
     }

@@ -25,7 +25,6 @@
 //! Antharas's turn came, so the machinery lives here and each boss keeps just
 //! its own skill ladder.
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::skill_by_id;
 use crate::world::World;
@@ -193,7 +192,6 @@ fn prune_threat(world: &mut World, boss_oid: i32) {
     else {
         return;
     };
-    let boss_pos = maybe_position(world, boss_oid);
     let mut cleared = [false; 3];
     for (i, (oid, _)) in t.slots.iter().enumerate() {
         if *oid == 0 {
@@ -203,18 +201,7 @@ fn prune_threat(world: &mut World, boss_oid: i32) {
             .objects
             .get_component::<crate::model::components::Vitals>(oid)
             .is_none_or(|v| v.dead);
-        let far = match (
-            boss_pos,
-            world
-                .objects
-                .get_component::<crate::model::components::Position>(oid),
-        ) {
-            (Some(a), Some(b)) => {
-                let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
-                (dx * dx + dy * dy + dz * dz).sqrt() > THREAT_RANGE
-            }
-            _ => true,
-        };
+        let far = !crate::geo::distance::within_3d(world, boss_oid, *oid, THREAT_RANGE);
         cleared[i] = dead || far;
     }
     if let Some(t) = world.objects.get_component_mut::<BossThreat>(&boss_oid) {

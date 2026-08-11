@@ -737,8 +737,7 @@ fn is_monster(world: &World, oid: i32) -> bool {
 
 /// 3D radius test (Java `isInsideRadius3D`).
 fn within(a: &Position, b: &Position, range: i32) -> bool {
-    let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
-    dx * dx + dy * dy + dz * dz <= (range as f64) * (range as f64)
+    crate::geo::distance::dist3d_xyz(a.x, a.y, a.z, b.x, b.y, b.z) <= range as f64
 }
 
 /// `handlers/targethandlers/affectobject/*` — the friend/foe filter.
