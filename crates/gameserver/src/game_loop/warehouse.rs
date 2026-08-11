@@ -10,7 +10,9 @@
 //! `net::build_save_data`, the clan one via [`persist_clan_warehouse`] on every
 //! change.
 
-use super::helpers::{adena, player_of, send_sm_bare_to_client as send_sm};
+use super::helpers::{
+    adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
+};
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::ActiveWarehouse;
@@ -258,7 +260,7 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
     if moved {
         persist_target(world, player_oid);
     }
-    send_inventory(world, client_id, player_oid);
+    send_inventory_item_list(world, player_oid);
     open_deposit_window(world, client_id);
 }
 
@@ -329,7 +331,7 @@ pub(crate) fn handle_withdraw(world: &mut World, client_id: u32, body: &[u8]) {
     if moved {
         persist_target(world, player_oid);
     }
-    send_inventory(world, client_id, player_oid);
+    send_inventory_item_list(world, player_oid);
     open_withdraw_window(world, client_id);
 }
 
@@ -510,14 +512,6 @@ pub(crate) fn persist_clan_warehouse(world: &World, clan_id: i32) {
         let _ = world
             .db
             .send(crate::db::DbCommand::StoreClanWarehouse { clan_id, items });
-    }
-}
-
-/// Refresh the client's inventory window after a transfer (full `ItemList`).
-fn send_inventory(world: &World, client_id: u32, player_oid: i32) {
-    if let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) {
-        let packet = crate::network::enter_world::item_list(inv, &world.data, false);
-        send_to_client(world, client_id, packet);
     }
 }
 
@@ -721,7 +715,7 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
             items,
         });
     }
-    send_inventory(world, client_id, player_oid);
+    send_inventory_item_list(world, player_oid);
 }
 
 /// `RequestPackageSend`'s body: the recipient's object id, then `(objectId,

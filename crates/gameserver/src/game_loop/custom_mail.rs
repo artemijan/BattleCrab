@@ -15,7 +15,7 @@ use crate::db::{CustomMailRow, DbCommand};
 use crate::model::mail::{MailType, Message};
 use crate::world::World;
 
-use super::helpers::client_for_player;
+use super::helpers::{client_for_player, send_to_player};
 
 /// Java `Config.CUSTOM_MAIL_MANAGER_DELAY` is `DatabaseQueryDelay * 1000`, so
 /// the ini's `30` is thirty **seconds** — three hundred game-loop ticks.
@@ -87,7 +87,7 @@ fn deliver(world: &mut World, row: &CustomMailRow) {
         super::mail::persist_attachments(world, message_id);
     }
     // The chime and the badge, the same two the player-to-player path sends.
-    super::mail::send(
+    send_to_player(
         world,
         row.receiver,
         crate::network::server_packets::ex_notice_post_arrived(true),

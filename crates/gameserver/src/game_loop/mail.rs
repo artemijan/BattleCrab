@@ -6,8 +6,9 @@
 //! Both parties to a message may be offline, so nothing here is memory-first:
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
-pub(crate) use super::helpers::{send_sm_to_player as send_sm, send_to_player as send};
-use crate::game_loop::helpers::{send_inventory_item_list, send_to_client};
+use crate::game_loop::helpers::{
+    send_inventory_item_list, send_sm_to_player as send_sm, send_to_player,
+};
 use crate::model::Player;
 use crate::model::components::{Trade, ZoneFlags};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -168,7 +169,7 @@ fn now_seconds() -> i32 {
 /// Refresh the unread badge (Java sends this on login and after every change).
 pub(crate) fn send_unread_count(world: &World, object_id: i32) {
     let count = world.mail.unread_count(object_id);
-    send(
+    send_to_player(
         world,
         object_id,
         server_packets::ex_unread_mail_count(count),
@@ -188,7 +189,7 @@ pub(crate) fn on_enter_world(world: &World, object_id: i32) {
     }
     send_unread_count(world, object_id);
     if world.cfg.general.allow_mail {
-        send(
+        send_to_player(
             world,
             object_id,
             server_packets::ex_notice_post_arrived(false),
@@ -248,7 +249,7 @@ pub(crate) fn handle_received_post_list(world: &mut World, client_id: u32) {
     }
     let rows = MailListRow::inbox(&world.mail, player);
     let views = list_views(world, rows);
-    send(
+    send_to_player(
         world,
         player,
         server_packets::ex_show_received_post_list(now_seconds(), &views),
@@ -264,7 +265,7 @@ pub(crate) fn handle_sent_post_list(world: &mut World, client_id: u32) {
     }
     let rows = MailListRow::outbox(&world.mail, player);
     let views = list_views(world, rows);
-    send(
+    send_to_player(
         world,
         player,
         server_packets::ex_show_sent_post_list(now_seconds(), &views),
@@ -305,7 +306,7 @@ pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
                 .collect()
         })
         .unwrap_or_default();
-    send(
+    send_to_player(
         world,
         player,
         server_packets::ex_reply_post_item_list(&items),
@@ -587,15 +588,11 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     schedule_expiry(world, message_id);
     // Re-send the full item list rather than a delta — a partial-stack move
     // creates a new object id, which an InventoryUpdate cannot express.
-    if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
-        let packet = crate::network::enter_world::item_list(inv, &world.data, false);
-        send_to_client(world, client_id, packet);
-    }
-
-    send(world, player, server_packets::ex_notice_post_sent(true));
+    send_inventory_item_list(world, player);
+    send_to_player(world, player, server_packets::ex_notice_post_sent(true));
     send_sm(world, player, sm_ids::MAIL_SUCCESSFULLY_SENT, &[]);
     // The recipient, if online, gets the chime and a fresh badge.
-    send(
+    send_to_player(
         world,
         receiver_id,
         server_packets::ex_notice_post_arrived(true),
@@ -717,8 +714,8 @@ pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8
         has_attachments,
         returned,
     );
-    send(world, player, pkt);
-    send(
+    send_to_player(world, player, pkt);
+    send_to_player(
         world,
         player,
         server_packets::ex_change_post_state(true, &[message_id], crate::model::mail::STATE_READ),
@@ -789,7 +786,7 @@ pub(crate) fn handle_sent_post(world: &mut World, client_id: u32, body: &[u8]) {
         returned,
     );
     // Java sends no `markAsRead` and no state change for the outbox.
-    send(world, player, pkt);
+    send_to_player(world, player, pkt);
 }
 
 // ---------------------------------------------------------------------------
@@ -873,7 +870,7 @@ fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: 
         }
     }
 
-    send(
+    send_to_player(
         world,
         player,
         server_packets::ex_change_post_state(received, &deleted, crate::model::mail::STATE_DELETED),
@@ -1083,7 +1080,7 @@ pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[
         );
     }
 
-    send(
+    send_to_player(
         world,
         player,
         server_packets::ex_change_post_state(true, &[message_id], crate::model::mail::STATE_READ),
@@ -1197,7 +1194,7 @@ pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, b
         sm_ids::S1_CANCELED_THE_SENT_MAIL,
         &[SmParam::Text(sender_name)],
     );
-    send(
+    send_to_player(
         world,
         receiver_id,
         server_packets::ex_change_post_state(
@@ -1208,7 +1205,7 @@ pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, b
     );
     // A cancelled mail is gone for both sides — the fee is not refunded.
     delete_message(world, message_id);
-    send(
+    send_to_player(
         world,
         player,
         server_packets::ex_change_post_state(
@@ -1288,7 +1285,7 @@ pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, b
     schedule_expiry(world, return_id);
 
     send_sm(world, player, sm_ids::MAIL_SUCCESSFULLY_RETURNED, &[]);
-    send(
+    send_to_player(
         world,
         player,
         server_packets::ex_change_post_state(
@@ -1304,7 +1301,7 @@ pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, b
         sm_ids::S1_RETURNED_THE_MAIL,
         &[SmParam::Text(rejecter)],
     );
-    send(
+    send_to_player(
         world,
         sender_id,
         server_packets::ex_notice_post_arrived(true),

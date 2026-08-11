@@ -15,8 +15,8 @@
 //! `activate` gives the new wielder.
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{npc_template, send_inventory_item_list};
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
@@ -323,10 +323,7 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
     super::admin::transforms::remove_transform(world, victim_oid);
     super::admin::refresh_skill_list(world, victim_oid);
     if let Some(cid) = super::helpers::client_for_player(world, victim_oid) {
-        if let Some(inv) = world.objects.get_component::<Inventory>(&victim_oid) {
-            let list = crate::network::enter_world::item_list(inv, &world.data, false);
-            send_to_client(world, cid, list);
-        }
+        send_inventory_item_list(world, victim_oid);
         // The bag list alone leaves the *model* holding the sword: the client
         // reads its own paperdoll from `ExUserInfoEquipSlot`, which Java emits
         // from `setPaperdollItem` inside the `dropItem` → `removeItem` →
