@@ -7,6 +7,7 @@ use tracing::info;
 
 pub const EXPERIENCE_FILE: &str = "data/stats/experience.xml";
 
+#[derive(Clone)]
 pub struct ExperienceData {
     /// `exp_for_level[level]` = cumulative XP to reach `level` (Java `tolevel`).
     exp_for_level: Vec<i64>,

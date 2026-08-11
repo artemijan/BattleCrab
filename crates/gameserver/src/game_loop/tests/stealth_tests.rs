@@ -18,7 +18,6 @@ const CID: u32 = 1;
 const MOB_ID: i32 = 45000;
 const RAID_ID: i32 = 45001;
 const MOB_OID: i32 = NPC_OID;
-const DIST: &str = crate::data::DIST_GAME;
 
 /// An aggressive monster that would notice anyone in range.
 fn aggressive_template(id: i32, type_name: &str) -> crate::data::npc_data::NpcTemplate {
@@ -286,7 +285,7 @@ fn standing_up_sends_change_wait_type_and_revive() {
 /// "10 MP per second").
 #[test]
 fn real_dist_fake_death_parses_both_halves() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     let skill = skills.get(60, 1).expect("Fake Death loads");
 
     assert!(
@@ -311,7 +310,7 @@ fn real_dist_fake_death_parses_both_halves() {
 /// simply never happened, which is a quieter failure than Fake Death's.
 #[test]
 fn real_dist_silent_move_skills_contribute_the_flag() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     // Silent Move 221, Dance of Shadows 366, Stealth 411.
     for id in [221, 366, 411] {
         let skill = skills

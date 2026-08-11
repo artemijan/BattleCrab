@@ -62,7 +62,7 @@ impl OptionEntry {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct OptionData {
     by_id: HashMap<i32, OptionEntry>,
 }

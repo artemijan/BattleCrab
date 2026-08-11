@@ -24,7 +24,7 @@ const TCID: u32 = 2;
 const DIST: &str = crate::data::DIST_GAME;
 
 fn dist_skills() -> crate::data::skill_data::SkillData {
-    crate::data::skill_data::SkillData::load_from(DIST)
+    dist::skills_owned()
 }
 
 fn mp(world: &World, oid: i32) -> f64 {
@@ -491,10 +491,10 @@ fn higher_mana_gain_grants_the_mana_charge_stat() {
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut data = GameData::for_test();
-    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.player_templates = dist::player_templates_owned();
     data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
-    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
-    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    data.item_data = dist::items_owned();
+    data.skill_data = dist::skills_owned();
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
     let bare = Player::from_char(&world.data, &dummy_char(6101, "Bare"));

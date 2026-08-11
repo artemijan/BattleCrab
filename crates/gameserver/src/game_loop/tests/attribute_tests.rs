@@ -14,7 +14,6 @@ use crate::model::stats::{Element, Stat, StatModifierType};
 
 const CASTER: i32 = 2001;
 const CID: u32 = 1;
-const DIST: &str = crate::data::DIST_GAME;
 
 /// A template with a chosen fire resistance, sturdy enough to survive the
 /// comparisons (deep HP, real m.def so a test nuke doesn't one-shot).
@@ -95,7 +94,7 @@ fn attribute_bonus_curve_and_caps() {
 /// by 50; totem 13028's template declares 20 across the board.
 #[test]
 fn dist_attributes_parse() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     let volcano = sd.get(1419, 1).expect("Volcano");
     assert_eq!(volcano.attribute_type, Some(Element::Fire));
     assert_eq!(volcano.attribute_value, 20);
@@ -128,7 +127,7 @@ fn dist_attributes_parse() {
         dod_aura.effects
     );
 
-    let npcs = crate::data::NpcData::load_from(DIST);
+    let npcs = dist::npcs();
     let totem = npcs.get(13028).expect("totem 13028");
     assert_eq!(totem.base_element_res, [20; 6]);
 }

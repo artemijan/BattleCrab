@@ -9,8 +9,6 @@
 use crate::model::formulas::{self, MagicFailure};
 use crate::model::skill::SkillEffect;
 
-const DIST: &str = crate::data::DIST_GAME;
-
 // ---------------------------------------------------------------------------
 // calcManaDam
 // ---------------------------------------------------------------------------
@@ -227,7 +225,7 @@ fn a_zero_attack_actor_never_lands_the_drain() {
 /// split (1600 on the two debuffs, 7000 on the two nukes).
 #[test]
 fn real_dist_mana_drain_skills_parse() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = super::dist::skills();
     for (id, expected_limit) in [
         (1102, 1600.0),
         (1210, 1600.0),
@@ -260,7 +258,7 @@ fn real_dist_mana_drain_skills_parse() {
 /// they were dropped whole. Pinning it keeps the regression visible.
 #[test]
 fn the_two_nukes_carry_only_the_drain_effect() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = super::dist::skills();
     for id in [1398, 1399] {
         let skill = skills.get(id, 1).unwrap();
         assert_eq!(
@@ -286,7 +284,7 @@ fn the_two_nukes_carry_only_the_drain_effect() {
 /// `<magicType>` tag — which this dist's schema doesn't have at all.)
 #[test]
 fn the_drain_skills_are_magic_skills() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = super::dist::skills();
     for id in [1102, 1210, 1398, 1399] {
         assert_eq!(
             skills.get(id, 1).unwrap().magic_type,
@@ -300,7 +298,7 @@ fn the_drain_skills_are_magic_skills() {
 /// two nukes are not (320‰) — the `is_bad` split `calc_magic_crit` keys on.
 #[test]
 fn the_two_debuffs_and_the_two_nukes_differ_in_badness() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = super::dist::skills();
     for id in [1102, 1210] {
         assert!(
             skills.get(id, 1).unwrap().is_debuff,

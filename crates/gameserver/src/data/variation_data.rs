@@ -123,7 +123,7 @@ pub struct VariationFee {
     pub cancel_fee: i64,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct VariationData {
     variations: HashMap<i32, Variation>,
     /// weapon item id → (mineral id → fee).

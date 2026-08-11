@@ -8,10 +8,8 @@
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 
-const DIST: &str = crate::data::DIST_GAME;
-
 fn dist_skills() -> crate::data::skill_data::SkillData {
-    crate::data::skill_data::SkillData::load_from(DIST)
+    super::dist::skills_owned()
 }
 
 /// The `(stat, weapon_mask_set, two_handed)` triples a skill contributes.

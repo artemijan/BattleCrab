@@ -97,6 +97,7 @@ impl TeleportHolder {
 }
 
 /// npc template id → list name → holder.
+#[derive(Clone)]
 pub struct TeleporterData {
     teleporters: HashMap<i32, HashMap<String, TeleportHolder>>,
 }

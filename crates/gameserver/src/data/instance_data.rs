@@ -62,7 +62,7 @@ pub struct InstanceTemplate {
 }
 
 /// Every instance template, by id (Java `InstanceManager._instanceTemplates`).
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct InstanceData {
     by_id: HashMap<i32, InstanceTemplate>,
 }

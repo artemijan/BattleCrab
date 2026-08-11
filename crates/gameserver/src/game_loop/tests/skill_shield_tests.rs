@@ -19,7 +19,6 @@ use crate::model::skill::SkillEffect;
 const CASTER: i32 = 3001;
 const CID: u32 = 1;
 const SHIELD_ID: i32 = 7700;
-const DIST: &str = crate::data::DIST_GAME;
 
 fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
     ItemTemplate {
@@ -174,7 +173,7 @@ fn physical_skill(world: &World, id: i32, power: f64, ignore_shield: bool) -> Sk
 fn a_bow_switches_the_skill_to_the_ranged_formula() {
     let (mut world, _db, _l) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
-    world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     world
         .objects
         .get_component_mut::<crate::model::components::CombatStats>(&CASTER)
@@ -359,7 +358,7 @@ fn the_physical_attack_path_consults_the_shield_switch() {
 /// have it.
 #[test]
 fn ignore_shield_defence_is_read_from_the_dist() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     // Armor Crush (362) ignores shields; Power Strike (3) does not.
     let crush = sd.get(362, 1).expect("Armor Crush");
     assert!(

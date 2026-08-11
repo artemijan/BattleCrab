@@ -10,6 +10,7 @@ pub const XP_LOST_FILE: &str = "data/stats/chars/playerXpPercentLost.xml";
 /// Java default when a level is missing from the table.
 const DEFAULT_XP_PERCENT_LOST: f64 = 1.0;
 
+#[derive(Clone)]
 pub struct PlayerXpPercentLostData {
     /// `percent[level]` — indexed 1..=max parsed level.
     percent: Vec<f64>,

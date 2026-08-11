@@ -151,7 +151,7 @@ pub struct EnchantSupport {
     pub random_max: i32,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct EnchantData {
     item_groups: HashMap<String, EnchantItemGroup>,
     scroll_groups: HashMap<i32, EnchantScrollGroup>,

@@ -714,10 +714,9 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
 
 #[test]
 fn real_dist_index_buckets_a_known_caster() {
-    const DIST: &str = crate::data::DIST_GAME;
-    let npc_data = crate::data::NpcData::load_from(DIST);
-    let skill_data = crate::data::SkillData::load_from(DIST);
-    let index = NpcAiSkillIndex::build(&npc_data, &skill_data);
+    let npc_data = dist::npcs();
+    let skill_data = dist::skills();
+    let index = NpcAiSkillIndex::build(npc_data, skill_data);
 
     // ~5013 templates on this dist. A floor rather than the exact count so
     // datapack tweaks don't churn the test — but a high enough floor that a

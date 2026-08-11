@@ -51,7 +51,7 @@ pub struct AuctionInstanceCfg {
 }
 
 /// Every auctioneer instance, by NPC id (Java `ItemAuctionManager._managerInstances`).
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ItemAuctionData {
     by_id: std::collections::HashMap<i32, AuctionInstanceCfg>,
 }

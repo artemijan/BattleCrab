@@ -12,6 +12,7 @@ use tracing::info;
 
 pub const ACTION_DATA_FILE: &str = "data/ActionData.xml";
 
+#[derive(Clone)]
 pub struct ActionData {
     action_ids: Vec<i32>,
     /// `handler="ServitorSkillUse" option="<skillId>"` — the summon's

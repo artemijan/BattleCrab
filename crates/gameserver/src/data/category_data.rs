@@ -11,7 +11,7 @@ use tracing::info;
 
 pub const CATEGORY_FILE: &str = "data/CategoryData.xml";
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct CategoryData {
     by_name: HashMap<String, HashSet<i32>>,
 }

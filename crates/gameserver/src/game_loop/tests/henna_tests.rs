@@ -67,19 +67,6 @@ fn test_dye() -> Henna {
     }
 }
 
-fn has_sm(out: &[Vec<u8>], id: i16) -> bool {
-    out.iter()
-        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
-}
-
-fn give(world: &mut World, oid: i32, obj_id: i32, item_id: i32, count: i64) {
-    let World { objects, data, .. } = world;
-    objects
-        .get_component_mut::<Inventory>(&oid)
-        .unwrap()
-        .add_item(&data.item_data, obj_id, item_id, count);
-}
-
 /// Install a class-0 henna slot (via a SECOND_CLASS_GROUP membership → class
 /// level 1 → 2 slots), the test dye, its dye item + adena templates, and a
 /// live id pool.
@@ -114,8 +101,8 @@ fn equip_henna_changes_stats_and_consumes() {
     let (mut world, ..) = cast_test_world();
     install(&mut world);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    give(&mut world, 3001, 9001, DYE_ITEM, 5);
-    give(&mut world, 3001, 9002, 57, 5000);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
     let (str0, con0) = (str_of(&world, 3001), con_of(&world, 3001));
     drain(&mut rx);
 
@@ -150,8 +137,8 @@ fn remove_henna_reverts_and_refunds() {
     let (mut world, ..) = cast_test_world();
     install(&mut world);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    give(&mut world, 3001, 9001, DYE_ITEM, 5);
-    give(&mut world, 3001, 9002, 57, 5000);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
     let (str0, con0) = (str_of(&world, 3001), con_of(&world, 3001));
     henna::handle_equip(&mut world, 1, DYE_ID);
     drain(&mut rx);
@@ -193,8 +180,8 @@ fn base_class_has_no_henna_slots() {
         .item_data
         .insert_for_test(etc_template(57, "Adena"));
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    give(&mut world, 3001, 9001, DYE_ITEM, 5);
-    give(&mut world, 3001, 9002, 57, 5000);
+    give_item(&mut world, 3001, 9001, DYE_ITEM, 5);
+    give_item(&mut world, 3001, 9002, 57, 5000);
     let str0 = str_of(&world, 3001);
     drain(&mut rx);
 

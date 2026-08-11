@@ -75,7 +75,7 @@ fn herbs_and_raid_drops_get_no_premium_bonus() {
 
     // A herb — `ex_immediate_effect` on the item template is what marks one.
     let herb_id = {
-        let dist_items = crate::data::ItemData::load_from(DIST);
+        let dist_items = dist::items();
         let herb = dist_items.get(8600).expect("Herb of Life");
         assert!(herb.ex_immediate_effect, "8600 really is a herb");
         world.data.item_data.insert_for_test(herb.clone());

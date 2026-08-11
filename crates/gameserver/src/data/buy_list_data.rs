@@ -50,7 +50,7 @@ impl BuyList {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct BuyListData {
     by_id: HashMap<i32, BuyList>,
 }

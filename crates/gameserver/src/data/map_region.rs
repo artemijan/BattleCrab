@@ -53,6 +53,7 @@ pub struct MapRegion {
 /// Port of `zone/type/RespawnZone`: a polygon (+ z band) that overrides the
 /// map-tile lookup, mapping the dying player's race to a target region name
 /// (`_raceRespawnPoint`).
+#[derive(Clone)]
 pub struct RespawnZone {
     #[allow(dead_code)]
     pub name: String,
@@ -61,6 +62,7 @@ pub struct RespawnZone {
     pub race_points: HashMap<Race, String>,
 }
 
+#[derive(Clone)]
 pub struct MapRegionData {
     regions: Vec<MapRegion>,
     respawn_zones: Vec<RespawnZone>,

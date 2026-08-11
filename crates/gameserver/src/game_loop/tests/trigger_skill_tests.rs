@@ -17,7 +17,6 @@ const MOB_ID: i32 = 48000;
 const MOB_OID: i32 = NPC_OID;
 const CARRIER: i32 = 9900;
 const TRIGGERED: i32 = 9901;
-const DIST: &str = crate::data::DIST_GAME;
 
 fn trigger_world() -> (
     World,
@@ -304,7 +303,7 @@ fn a_self_hit_never_triggers() {
 /// trigger from level 9.
 #[test]
 fn real_dist_carriers_parse() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
 
     let trigger_of = |id: i32, level: i32| {
         skills.get(id, level).and_then(|s| {
@@ -335,7 +334,7 @@ fn real_dist_carriers_parse() {
 /// grants `FatalBlowRate` for 5 seconds.
 #[test]
 fn the_triggered_skills_carry_real_effects() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     let dagger = skills.get(5603, 1).expect("Dagger Mastery buff loads");
     assert!(
         dagger

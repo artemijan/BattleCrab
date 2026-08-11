@@ -82,13 +82,6 @@ fn recipe(id: i32, success_rate: i32, rare: Option<RareProduction>) -> RecipeLis
         alt_gim: 1,
     }
 }
-
-/// Whether any packet is a `SystemMessage` with the given id.
-fn has_sm(out: &[Vec<u8>], id: i16) -> bool {
-    out.iter()
-        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
-}
-
 /// Insert the item + recipe fixtures into a `cast_test_world`, and give the
 /// world a live object-id pool so crafted items can be allocated.
 fn install_fixtures(world: &mut World) {
@@ -143,14 +136,6 @@ fn install_fixtures(world: &mut World) {
         .insert_for_test(recipe(RECIPE_LIST, 100, None));
 }
 
-fn give(world: &mut World, oid: i32, obj_id: i32, item_id: i32, count: i64) {
-    let World { objects, data, .. } = world;
-    objects
-        .get_component_mut::<Inventory>(&oid)
-        .unwrap()
-        .add_item(&data.item_data, obj_id, item_id, count);
-}
-
 fn learn_skill(world: &mut World, oid: i32, skill_id: i32) {
     world
         .objects
@@ -167,7 +152,7 @@ fn using_recipe_item_registers_recipe() {
     install_fixtures(&mut world);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     learn_skill(&mut world, 3001, 172); // Create Dwarven
-    give(&mut world, 3001, 9001, RECIPE_ITEM, 1);
+    give_item(&mut world, 3001, 9001, RECIPE_ITEM, 1);
     drain(&mut rx);
 
     items::handle_use_item(&mut world, 1, &use_item_body(9001));
@@ -205,7 +190,7 @@ fn learn_refused_without_craft_ability() {
     let (mut world, ..) = cast_test_world();
     install_fixtures(&mut world);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    give(&mut world, 3001, 9001, RECIPE_ITEM, 1);
+    give_item(&mut world, 3001, 9001, RECIPE_ITEM, 1);
     drain(&mut rx);
 
     items::handle_use_item(&mut world, 1, &use_item_body(9001));
@@ -246,7 +231,7 @@ fn self_craft_success_consumes_and_rewards() {
         .unwrap()
         .dwarven
         .push(RECIPE_LIST);
-    give(&mut world, 3001, 9001, MATERIAL, 10);
+    give_item(&mut world, 3001, 9001, MATERIAL, 10);
     let mp0 = pvit(&world, 3001).cur_mp;
     drain(&mut rx);
 
@@ -281,7 +266,7 @@ fn self_craft_missing_material_aborts() {
         .unwrap()
         .dwarven
         .push(RECIPE_LIST);
-    give(&mut world, 3001, 9001, MATERIAL, 1); // need 2, only 1
+    give_item(&mut world, 3001, 9001, MATERIAL, 1); // need 2, only 1
     let mp0 = pvit(&world, 3001).cur_mp;
     drain(&mut rx);
 
@@ -311,7 +296,7 @@ fn self_craft_failure_consumes_materials_no_product() {
         .unwrap()
         .dwarven
         .push(RECIPE_LIST_FAIL);
-    give(&mut world, 3001, 9001, MATERIAL, 10);
+    give_item(&mut world, 3001, 9001, MATERIAL, 10);
     drain(&mut rx);
 
     crafting::handle_make_self(&mut world, 1, RECIPE_LIST_FAIL);
@@ -339,7 +324,7 @@ fn self_craft_rolls_masterwork_rare() {
         .unwrap()
         .dwarven
         .push(RECIPE_LIST_RARE);
-    give(&mut world, 3001, 9001, MATERIAL, 10);
+    give_item(&mut world, 3001, 9001, MATERIAL, 10);
     // roll order: success (< 100) then masterwork (<= 100). Force both to hit.
     world.forced_rolls.extend([0, 0]);
     drain(&mut rx);
@@ -367,8 +352,8 @@ fn manufacture_store_craft_for_customer() {
         .unwrap()
         .dwarven
         .push(RECIPE_LIST);
-    give(&mut world, 3002, 9101, MATERIAL, 10); // customer holds materials
-    give(&mut world, 3002, 9102, 57, 5000); // customer adena
+    give_item(&mut world, 3002, 9101, MATERIAL, 10); // customer holds materials
+    give_item(&mut world, 3002, 9102, 57, 5000); // customer adena
     let mp0 = pvit(&world, 3001).cur_mp;
 
     // Manufacturer opens a store selling the craft at 1000 adena.
@@ -428,7 +413,7 @@ fn enlarge_slot_expand_dwarven_craft_raises_recipe_limit() {
     ));
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     learn_skill(&mut world, 3001, 172); // Create Dwarven
-    give(&mut world, 3001, 9001, RECIPE_ITEM, 1);
+    give_item(&mut world, 3001, 9001, RECIPE_ITEM, 1);
 
     // Fill the book to the config base limit with unrelated ids.
     let base = world.cfg.character.dwarf_recipe_limit;
@@ -457,7 +442,7 @@ fn enlarge_slot_expand_dwarven_craft_raises_recipe_limit() {
     // Learn Expand Dwarven Craft lvl1 (+6, real dist data) and retry.
     learn_skill(&mut world, 3001, 1368);
     crate::game_loop::passive_skills::recompute_conditioned_passives(&mut world, 3001);
-    give(&mut world, 3001, 9002, RECIPE_ITEM, 1);
+    give_item(&mut world, 3001, 9002, RECIPE_ITEM, 1);
     drain(&mut rx);
 
     items::handle_use_item(&mut world, 1, &use_item_body(9002));
@@ -622,7 +607,7 @@ fn alt_game_creation_stages_the_craft() {
         .unwrap()
         .dwarven
         .push(RECIPE_LIST);
-    give(&mut world, 3001, 9001, MATERIAL, 10);
+    give_item(&mut world, 3001, 9001, MATERIAL, 10);
     let mp0 = pvit(&world, 3001).cur_mp;
     drain(&mut rx);
 

@@ -152,6 +152,7 @@ impl ZoneKind {
     }
 }
 
+#[derive(Clone)]
 pub struct Zone {
     /// `<zone id="…">`. Scripts address zones by this (`getZoneById(12012)` is
     /// Queen Ant's lair), so it is kept even though the spatial lookups don't
@@ -239,7 +240,7 @@ pub struct EffectZoneParams {
     pub remove_effects_on_exit: bool,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct ZoneData {
     pub zones: Vec<Zone>,
     /// Zone-grid cell → indexes into `zones` whose bounds overlap the cell.

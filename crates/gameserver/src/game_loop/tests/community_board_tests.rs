@@ -745,8 +745,8 @@ fn multisell_choose_ignored_for_a_stale_list() {
 /// Load the real NPC + item datapack into the synthetic world so the drop
 /// index and item catalog are populated (the empty test data has no drops).
 fn load_real_drop_data(world: &mut World) {
-    world.data.npc_data = crate::data::NpcData::load_from(DIST);
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.npc_data = dist::npcs_owned();
+    world.data.item_data = dist::items_owned();
 }
 
 #[test]

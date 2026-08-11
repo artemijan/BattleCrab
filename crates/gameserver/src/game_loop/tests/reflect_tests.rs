@@ -12,10 +12,9 @@ use crate::model::stats::Stat;
 
 const PLAYER: i32 = 9001;
 const CID: u32 = 1;
-const DIST: &str = crate::data::DIST_GAME;
 
 fn dist_skills() -> crate::data::skill_data::SkillData {
-    crate::data::skill_data::SkillData::load_from(DIST)
+    dist::skills_owned()
 }
 
 /// Stamp a buff carrying `flags` onto the player.

@@ -95,7 +95,7 @@ pub struct CubicTemplate {
     pub health_percent: Option<(i32, i32)>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct CubicData {
     by_key: HashMap<(i32, i32), CubicTemplate>,
 }

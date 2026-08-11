@@ -280,12 +280,11 @@ fn gm_startup_applies_invul_and_invisible() {
 /// config is turned back off.
 #[test]
 fn gm_special_skills_are_granted_but_never_persisted() {
-    const DIST: &str = crate::data::DIST_GAME;
     /// Super Haste, the first row of `gameMasterSkillTree.xml`.
     const SUPER_HASTE: i32 = 7029;
 
     let (mut world, ..) = admin_world();
-    world.data.skill_trees = crate::data::skill_tree::SkillTreeData::load_from(DIST);
+    world.data.skill_trees = dist::skill_trees_owned();
     assert!(
         world.data.skill_trees.gm_skills(false).len() > 1
             && !world.data.skill_trees.gm_skills(true).is_empty(),
@@ -1434,7 +1433,7 @@ fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
 #[test]
 fn admin_create_item_adds_to_gm_inventory() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7201, 100);
     drain(&mut gm_rx);
@@ -1456,7 +1455,7 @@ fn admin_create_item_adds_to_gm_inventory() {
 #[test]
 fn admin_delete_item_trims_a_stack_by_object_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x4000_0200..0x4000_0300;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7211, 100);
     drain(&mut gm_rx);
@@ -1496,7 +1495,7 @@ fn admin_delete_item_trims_a_stack_by_object_id() {
 #[test]
 fn admin_delete_item_rejects_unowned_object_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x4000_0300..0x4000_0400;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7212, 100);
     on_packet(&mut world, 1, build_admin("create_item 57 50"));
@@ -1524,7 +1523,7 @@ fn admin_delete_item_rejects_unowned_object_id() {
 #[test]
 fn admin_delete_quest_item_by_template_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x4000_0400..0x4000_0500;
     let mut gm_rx = ingame_player_access(&mut world, 1, 7213, 100);
     let _p_rx = ingame_player_access(&mut world, 2, 7214, 0);
@@ -1579,7 +1578,7 @@ fn admin_delete_quest_item_by_template_id() {
 #[test]
 fn admin_create_item_rejects_unknown_id() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7204, 100);
     drain(&mut gm_rx);
 
@@ -1989,7 +1988,7 @@ fn admin_spawn_rejects_unknown_npc() {
 #[test]
 fn admin_spawn_creates_npc_at_gm() {
     let (mut world, ..) = admin_world();
-    world.data.npc_data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
+    world.data.npc_data = dist::npcs_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7604, 100);
     drain(&mut gm_rx);
     set_position(&mut world, 7604, (100, 200, 300));
@@ -2168,7 +2167,7 @@ fn admin_hide_toggles_visibility() {
 #[test]
 fn admin_add_and_remove_skill() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8001, 100);
     drain(&mut gm_rx);
 
@@ -2204,7 +2203,7 @@ fn admin_add_and_remove_skill() {
 #[test]
 fn admin_add_skill_rejects_unknown() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8002, 100);
     drain(&mut gm_rx);
 
@@ -2220,7 +2219,7 @@ fn admin_add_skill_rejects_unknown() {
 #[test]
 fn admin_setew_enchants_equipped_weapon() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8101, 100);
     drain(&mut gm_rx);
     // Equip a weapon (item 1, the starter gloves aside — any weapon id) in RHand.
@@ -2275,7 +2274,7 @@ fn admin_setew_without_weapon_warns() {
 #[test]
 fn admin_buff_applies_skill_to_self() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8201, 100);
     drain(&mut gm_rx);
 
@@ -2298,7 +2297,7 @@ fn admin_superhaste_applies_and_persists() {
     // is negligible (`power` 0.0001) but still needs a real MP pool: with
     // `for_test()`'s empty `player_templates` a level-1 dummy char computes 0
     // max MP, and the very first tick would exceed it and cancel the toggle.
-    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
+    world.data = dist::game_data_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8202, 100);
     drain(&mut gm_rx);
 
@@ -2419,7 +2418,7 @@ fn client_atk_speed_multiplier_tracks_haste() {
 #[test]
 fn admin_buff_rejects_unknown_skill() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8202, 100);
     drain(&mut gm_rx);
 
@@ -2487,7 +2486,7 @@ fn admin_set_hp_sets_current_hp() {
 #[test]
 fn admin_getbuffs_lists_active_buffs() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8401, 100);
     drain(&mut gm_rx);
@@ -2520,7 +2519,7 @@ fn admin_getbuffs_lists_active_buffs() {
 #[test]
 fn admin_getbuffs_pages_at_three() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8402, 100);
     drain(&mut gm_rx);
@@ -2557,7 +2556,7 @@ fn admin_getbuffs_pages_at_three() {
 #[test]
 fn admin_stopbuff_removes_one() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8501, 100);
     drain(&mut gm_rx);
 
@@ -2576,7 +2575,7 @@ fn admin_stopbuff_removes_one() {
 #[test]
 fn admin_stopallbuffs_clears_after_confirm() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8502, 100);
     drain(&mut gm_rx);
 
@@ -2853,7 +2852,7 @@ fn admin_remove_exp_sp_reduces() {
 #[test]
 fn admin_setskill_adds_to_self() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8902, 100);
     drain(&mut gm_rx);
     on_packet(&mut world, 1, build_admin("setskill 1177 1"));
@@ -3099,7 +3098,7 @@ fn admin_geo_pos_no_geodata() {
 #[test]
 fn admin_create_coin_gives_adena() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut gm_rx = ingame_player_access(&mut world, 1, 8911, 100);
     drain(&mut gm_rx);
@@ -3115,7 +3114,7 @@ fn admin_create_coin_gives_adena() {
 #[test]
 fn admin_spawnat_creates_npc_at_coords() {
     let (mut world, ..) = admin_world();
-    world.data.npc_data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
+    world.data.npc_data = dist::npcs_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8912, 100);
     drain(&mut gm_rx);
     let npc_oid = world.next_npc_object_id;
@@ -3281,7 +3280,7 @@ fn admin_ride_bike_transforms_and_reverts() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     // Jet bike (20001) exists in the dist with run=170 + a Dismount skill.
     let bike = world
         .data
@@ -3381,7 +3380,7 @@ fn dismount_skill_reverts_gm_ride_transform() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
 
     let mut gm_rx = ingame_player_access(&mut world, 1, 8935, 100);
     drain(&mut gm_rx);
@@ -3448,7 +3447,7 @@ fn transform_skills_never_persist() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let bike_skills: Vec<i32> = world
         .data
         .transforms
@@ -3503,7 +3502,7 @@ fn transform_skills_never_persist() {
 #[test]
 fn admin_mobgroup_lifecycle() {
     let (mut world, ..) = admin_world();
-    world.data.npc_data = crate::data::NpcData::load_from(crate::data::DIST_GAME);
+    world.data.npc_data = dist::npcs_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8940, 100);
     drain(&mut gm_rx);
 
@@ -5266,7 +5265,7 @@ fn setcharquest_and_menu_roundtrip() {
 #[test]
 fn getbuffs_follows_an_npc_target_and_a_name_argument() {
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut t = crate::data::npc_data::default_template(30001);
     t.name = "Buffed Mob".into();
@@ -6608,7 +6607,7 @@ fn admin_transform_swaps_and_restores_the_action_bar() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     // The fixture world ships an *empty* ActionData, which would make the
     // restore leg below compare an empty bar against an empty bar and pass
     // while proving nothing. Load the real one.
@@ -6670,7 +6669,7 @@ fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/"
     ));
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     // The fixture's single synthetic class template does not cover the test
     // player's class, so `recalculate_stats` would fall back to
     // `PlayerTemplate::default()` — every class base 0, which makes a ratio
@@ -6872,7 +6871,7 @@ fn admin_teleportto_moves_the_gm_to_a_named_player() {
 fn admin_remove_skills_generates_the_targets_own_skill_list() {
     use crate::model::components::{SkillBook, TargetRef};
     let (mut world, ..) = admin_world();
-    world.data.skill_data = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7130, 100);
     let _victim_rx = ingame_player(&mut world, 2, 7131, 0, 0, 0);
     world.objects.add_components(&7130, TargetRef(Some(7131)));

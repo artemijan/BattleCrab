@@ -8,7 +8,6 @@ use crate::model::Player;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets::sm_ids;
 
-const DIST: &str = crate::data::DIST_GAME;
 const CRYSTAL_B: i32 = 1460;
 
 /// **`//ride_wyvern` produces a flying mount moving at the wyvern's
@@ -19,7 +18,7 @@ const CRYSTAL_B: i32 = 1460;
 #[test]
 fn admin_ride_wyvern_flies_at_ride_speed_and_gates_dismount() {
     let (mut world, ..) = admin_world();
-    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
+    world.data.pet_data = dist::pets_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8920, 100);
     drain(&mut gm_rx);
 
@@ -98,8 +97,8 @@ fn admin_ride_wyvern_flies_at_ride_speed_and_gates_dismount() {
 #[test]
 fn mounting_disarms_the_weapon_and_cursed_refuses() {
     let (mut world, ..) = admin_world();
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
-    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
+    world.data.pet_data = dist::pets_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8920, 100);
 
     // Give + equip a Squire's Sword (2369).
@@ -334,7 +333,7 @@ fn wyvern_manager_gates_on_ownership_and_seal_of_strife() {
 fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
     let (mut world, mut rx) = wyvern_manager_world();
     world.cfg.feature.allow_ride_wyvern_always = true;
-    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
+    world.data.pet_data = dist::pets_owned();
     own_castle(&mut world, 1);
 
     // Not riding a strider → wyvernmanager-05 with the placeholders filled.
@@ -476,8 +475,8 @@ fn glow_offsets(world: &mut World, oid: i32) -> (usize, usize) {
 #[test]
 fn hero_glow_survives_mount_for_gm_and_hero() {
     let (mut world, ..) = admin_world();
-    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
-    world.data.npc_data = crate::data::npc_data::NpcData::load_from(DIST);
+    world.data.pet_data = dist::pets_owned();
+    world.data.npc_data = dist::npcs_owned();
     world.data.gm.hero_aura = true;
 
     // The GM (glow from GMHeroAura) and a plain player crowned hero, plus an
@@ -721,8 +720,8 @@ fn char_info_reflects_live_player_state() {
 fn mounting_and_dismounting_resend_the_visual_effects() {
     use crate::model::skill::STEALTH_CLIENT_ID;
     let (mut world, ..) = admin_world();
-    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
-    world.data.npc_data = crate::data::npc_data::NpcData::load_from(DIST);
+    world.data.pet_data = dist::pets_owned();
+    world.data.npc_data = dist::npcs_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8980, 100);
 
     // Hide: the GM is invisible and their client knows to draw STEALTH.

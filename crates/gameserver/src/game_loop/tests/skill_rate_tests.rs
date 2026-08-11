@@ -17,7 +17,6 @@ use crate::model::skill::{Skill, SkillEffect, TargetType};
 
 const CASTER: i32 = 7001;
 const CID: u32 = 1;
-const DIST: &str = crate::data::DIST_GAME;
 
 /// A skill of `magic_type` costing `mp_consume` MP with a `reuse_delay` ms
 /// cooldown — the *victim* of the rates, not a carrier of them.
@@ -293,7 +292,7 @@ fn the_rates_arrive_and_leave_with_the_buff() {
 /// carrying skill's own.
 #[test]
 fn the_dist_carriers_parse_their_buckets_and_amounts() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
 
     // Arcane Wisdom: -30 % on magic (1). The skill itself is a passive.
     let aw = sd.get(336, 1).expect("Arcane Wisdom");
@@ -371,7 +370,7 @@ fn the_dist_carriers_parse_their_buckets_and_amounts() {
 /// bypass above reachable from real data.
 #[test]
 fn static_reuse_is_read_from_the_dist() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     let statics = (1..=30_000)
         .filter_map(|id| sd.get(id, 1))
         .filter(|s| s.static_reuse)

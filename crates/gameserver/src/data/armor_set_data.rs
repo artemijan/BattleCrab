@@ -126,7 +126,7 @@ impl std::ops::AddAssign for ArmorSetStats {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ArmorSetData {
     by_id: HashMap<i32, ArmorSet>,
     /// item id → the sets that item belongs to, required **or** optional

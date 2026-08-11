@@ -38,6 +38,7 @@ pub struct PledgeSkillLearn {
     pub level_up_sp: i64,
 }
 
+#[derive(Clone)]
 pub struct PledgeSkillTreeData {
     /// Java `_pledgeSkillTree`.
     pledge: Vec<PledgeSkillLearn>,

@@ -308,8 +308,7 @@ fn shutdown_flushes_living_boss_hp() {
 
 #[test]
 fn real_dist_flags_raid_bosses_as_db_save() {
-    const DIST: &str = crate::data::DIST_GAME;
-    let spawns = crate::data::SpawnData::load_from(DIST);
+    let spawns = dist::spawns();
     let db_save_count: usize = spawns
         .spawns
         .iter()

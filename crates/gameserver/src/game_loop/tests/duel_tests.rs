@@ -53,11 +53,6 @@ fn answer(world: &mut World, cid: u32, accept: bool) {
     duel::handle_request_duel_answer(world, cid, &w.into_bytes());
 }
 
-fn has_sm(pkts: &[Vec<u8>], id: i16) -> bool {
-    pkts.iter()
-        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
-}
-
 // ---------------------------------------------------------------------------
 // The handshake
 // ---------------------------------------------------------------------------

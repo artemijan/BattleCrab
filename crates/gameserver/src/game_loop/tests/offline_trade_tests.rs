@@ -214,7 +214,7 @@ fn buying_out_an_unattended_shop_sends_it_home() {
 
     let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
     enable_offline(&mut world);
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x4100_0000..0x4100_0200;
     let _seller_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     let _buyer_rx = ingame_player(&mut world, 2, 5002, 120, 200, 0);

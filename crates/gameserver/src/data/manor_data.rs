@@ -46,7 +46,7 @@ impl Seed {
 }
 
 /// The seed catalogue keyed by castle id (Java `CastleManorManager._seeds`).
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ManorData {
     by_castle: HashMap<i32, Vec<Seed>>,
 }

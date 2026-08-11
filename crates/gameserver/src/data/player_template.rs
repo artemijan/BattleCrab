@@ -178,6 +178,7 @@ fn table_get(table: &[f64], level: i32) -> f64 {
     table[idx]
 }
 
+#[derive(Clone)]
 pub struct PlayerTemplateData {
     templates: HashMap<i32, PlayerTemplate>,
 }

@@ -59,7 +59,7 @@ pub struct SoulCrystal {
     pub leveled_item_id: i32,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct SoulCrystalData {
     /// item id → the crystal's stage + next-stage item id.
     crystals: HashMap<i32, SoulCrystal>,

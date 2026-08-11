@@ -250,7 +250,7 @@ fn accepting_after_already_respawning_does_nothing() {
 /// corpse, a target type this port had no equivalent for before.
 #[test]
 fn real_dist_resurrection_skills_parse() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
 
     let res = skills.get(1016, 2).expect("Resurrection loads");
     assert_eq!(
@@ -279,7 +279,7 @@ fn real_dist_resurrection_skills_parse() {
 /// `base == 0` short-circuit is exercised by real data.
 #[test]
 fn level_one_resurrection_restores_no_xp() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     let res = skills.get(1016, 1).expect("Resurrection lvl 1 loads");
     let power = res.effects.iter().find_map(|e| match e {
         SkillEffect::Resurrection { power, .. } => Some(*power),

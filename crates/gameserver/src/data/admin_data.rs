@@ -82,7 +82,7 @@ pub struct AdminCommandAccessRight {
     pub require_confirm: bool,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct AdminData {
     access_levels: HashMap<i32, AccessLevel>,
     command_rights: HashMap<String, AdminCommandAccessRight>,

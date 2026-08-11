@@ -174,6 +174,7 @@ pub struct GmSettings {
     pub give_special_aura_skills: bool,
 }
 
+#[derive(Clone)]
 pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,

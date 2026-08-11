@@ -581,7 +581,7 @@ fn mercenary_manager_needs_its_privilege() {
 fn castle_warehouse_pays_out_blood_alliances_once() {
     const BLOOD_ALLIANCE: i32 = 9911;
     let (mut world, mut db, _l) = castle_world(GLUDIO_WAREHOUSE, BLACKSMITH_POS);
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     let mut rx = ingame_player(
         &mut world,
         1,
@@ -1019,13 +1019,13 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
 // Slice 4 — day/night spawn groups + NoRandomActivity
 // ---------------------------------------------------------------------------
 
-use crate::data::spawn_data::{NpcSpawnDef, SpawnData, SpawnGroup, SpawnTemplate};
+use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate};
 use crate::game_loop::spawn_scripts;
 
 /// The dist really does ship the two spawn-script families this slice serves.
 #[test]
 fn the_dist_ships_day_night_templates_and_non_default_groups() {
-    let spawns = SpawnData::load_from(DIST);
+    let spawns = dist::spawns();
     let day_night = spawns
         .spawns
         .iter()
@@ -1248,7 +1248,7 @@ fn adena_of(world: &mut World, player: i32) -> i64 {
 }
 
 fn give_adena(world: &mut World, player: i32, count: i64) {
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     give_test_item(world, player, ADENA, count);
 }
 
@@ -1298,7 +1298,7 @@ fn arena_manager_charges_for_cp_recovery() {
 fn arena_manager_sells_the_buff_package() {
     const ARENA_MANAGER: i32 = 31225;
     let (mut world, _db, _l) = quest_test_world();
-    world.data.skill_data = crate::data::SkillData::load_from(DIST);
+    world.data.skill_data = dist::skills_owned();
     add_test_npc(&mut world, NPC_OID, ARENA_MANAGER, "Folk", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 8851, 60, 0, 0);
     give_adena(&mut world, 8851, 5_000);
@@ -1330,7 +1330,7 @@ fn toi_vortex_trades_a_stone_for_a_ride() {
     let (mut world, _db, _l) = quest_test_world();
     add_test_npc(&mut world, NPC_OID, VORTEX, "Folk", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 8852, 60, 0, 0);
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     drain(&mut rx);
 
     // No stone: the refusal page, and no teleport.

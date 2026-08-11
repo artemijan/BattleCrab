@@ -25,7 +25,7 @@ pub struct StaticObjectTemplate {
     pub z: i32,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct StaticObjectData {
     pub objects: Vec<StaticObjectTemplate>,
 }

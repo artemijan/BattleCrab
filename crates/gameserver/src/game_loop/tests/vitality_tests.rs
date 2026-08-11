@@ -10,11 +10,6 @@ use crate::network::server_packets::sm_ids;
 const CID: u32 = 1;
 const OID: i32 = 268_500_001;
 
-fn has_sm(out: &[Vec<u8>], id: i16) -> bool {
-    out.iter()
-        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
-}
-
 /// A world with vitality switched on, matching this dist's `Character.ini`.
 fn vitality_world() -> (
     World,

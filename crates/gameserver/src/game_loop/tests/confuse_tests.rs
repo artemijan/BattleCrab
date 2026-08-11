@@ -21,7 +21,6 @@ const ORC_A: i32 = 47001;
 const ORC_B: i32 = 47002;
 const VICTIM_OID: i32 = NPC_OID;
 const BYSTANDER_OID: i32 = NPC_OID + 1;
-const DIST: &str = crate::data::DIST_GAME;
 
 fn mob_template(id: i32, clans: &[&str]) -> crate::data::npc_data::NpcTemplate {
     let mut t = crate::data::npc_data::default_template(id);
@@ -399,7 +398,7 @@ fn randomize_hate_ignores_a_player_target() {
 /// default to 100 (they declare no `<chance>` at all).
 #[test]
 fn real_dist_skills_parse_with_their_chances() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
 
     // Every one of these declares a real `<chance>` — **none** falls back to
     // the parser's default of 100, so the default is exercised by no shipped
@@ -465,7 +464,7 @@ fn real_dist_skills_parse_with_their_chances() {
 /// there is no buff for an instant effect's flag to persist in.
 #[test]
 fn confuse_skills_have_no_real_abnormal_time() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     for id in [1105, 1163, 1213] {
         assert_eq!(
             skills.get(id, 1).unwrap().abnormal_time,

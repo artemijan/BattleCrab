@@ -133,7 +133,7 @@ impl PetTemplate {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct PetData {
     by_npc: HashMap<i32, PetTemplate>,
     /// `getPetDataByItemId` — the lookup `SummonPet` uses.

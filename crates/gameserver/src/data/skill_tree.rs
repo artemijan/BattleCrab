@@ -81,6 +81,7 @@ impl SkillLearn {
     }
 }
 
+#[derive(Clone)]
 pub struct SkillTreeData {
     /// Every `<skill>` entry per class id, in document order (Java
     /// `_classSkillTrees`). Holds only the class's *own* tier entries — the

@@ -178,7 +178,7 @@ impl Transform {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct TransformData {
     by_id: HashMap<i32, Transform>,
     /// Every skill id any transform template grants (either gender). Transform

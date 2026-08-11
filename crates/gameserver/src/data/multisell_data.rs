@@ -117,7 +117,7 @@ impl MultisellList {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct MultisellData {
     by_id: HashMap<i32, MultisellList>,
 }

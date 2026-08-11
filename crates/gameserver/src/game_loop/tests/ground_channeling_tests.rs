@@ -10,10 +10,9 @@ use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEf
 
 const CASTER: i32 = 2001;
 const CID: u32 = 1;
-const DIST: &str = crate::data::DIST_GAME;
 
 fn dist_skills() -> crate::data::skill_data::SkillData {
-    crate::data::skill_data::SkillData::load_from(DIST)
+    dist::skills_owned()
 }
 
 /// A Volcano in miniature: 100 ms to first tick, 200 ms per tick, a short

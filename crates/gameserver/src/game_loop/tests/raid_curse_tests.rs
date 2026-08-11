@@ -13,7 +13,6 @@ const MOB_NPC: i32 = 29002;
 const RAID_CURSE2: i32 = 4515;
 /// 4215 `RAID_CURSE` — silence, for helping from a distance.
 const RAID_CURSE: i32 = 4215;
-const DIST: &str = crate::data::DIST_GAME;
 
 fn curse_world() -> (
     World,
@@ -316,7 +315,7 @@ fn the_raid_point_rate_is_applied() {
 /// parse regression on `<acquire raidPoints>`.
 #[test]
 fn the_real_datapack_parses_raid_points() {
-    let npcs = crate::data::npc_data::NpcData::load_from(DIST);
+    let npcs = dist::npcs();
     let with_points = (1..=30000)
         .filter(|id| npcs.get(*id).is_some_and(|t| t.raid_points > 0.0))
         .count();

@@ -72,7 +72,7 @@ impl DoorTemplate {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct DoorData {
     pub doors: Vec<DoorTemplate>,
     by_id: HashMap<i32, u32>,

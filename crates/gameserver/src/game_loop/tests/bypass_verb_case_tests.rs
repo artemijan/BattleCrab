@@ -38,7 +38,7 @@ fn shop_world(
     tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
 ) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data);
     add_test_npc(&mut world, NPC_OID, npc_id, "Merchant", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);

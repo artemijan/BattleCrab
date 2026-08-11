@@ -203,7 +203,7 @@ fn the_owner_is_sent_pet_info() {
 /// skill.
 #[test]
 fn real_dist_summon_skills_parse_per_level_npc_ids() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     let npc_of = |id: i32, level: i32| {
         skills.get(id, level).and_then(|s| {
             s.effects.iter().find_map(|e| match e {
@@ -239,7 +239,7 @@ fn real_dist_summon_skills_parse_per_level_npc_ids() {
 /// want of an `npcId`.
 #[test]
 fn every_learnable_summon_skill_parses() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     for id in [13, 25, 283, 299, 301, 448, 1111, 1128] {
         let skill = skills
             .get(id, 1)
@@ -1611,7 +1611,7 @@ fn a_pet_refuses_food_it_does_not_eat() {
 /// every pet food in the game silently restores nothing.
 #[test]
 fn the_real_wolf_food_skill_parses_its_feed_value() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     let skill = skills
         .get(2048, 1)
         .expect("Wolf Food skill 2048 exists in the datapack");
@@ -2871,7 +2871,7 @@ fn a_pet_is_not_a_summon_target() {
 /// return to `INVALID_TARGET`.
 #[test]
 fn the_real_servitor_skills_parse_as_summon_targeted() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     // Servitor Heal, Servitor Recharge, Mighty Servitor, Final Servitor.
     for id in [1127, 1126, 1146, 1349] {
         let s = skills
@@ -4633,7 +4633,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
 fn a_pet_ticket_exchanges_for_a_collar() {
     let (mut world, ..) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x4500_0000..0x4500_0100;
 
     // No ticket → nothing.
@@ -4908,7 +4908,7 @@ fn sharing_does_not_recurse_past_the_servitor() {
 /// 'shares' the effect").
 #[test]
 fn the_real_datapack_defaults_to_shared() {
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
 
     let prophecy = skills
         .get(1352, 1)
@@ -5218,7 +5218,7 @@ fn servitor_empowerment_roots_the_servitor_until_it_expires() {
 fn a_dead_servitor_can_be_resurrected_but_a_live_one_cannot() {
     use crate::game_loop::skills::conditions::check_cast;
 
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
     let res = skills.get(1016, 2).expect("Resurrection loads");
 
     let (mut world, _db, _l) = servitor_world();

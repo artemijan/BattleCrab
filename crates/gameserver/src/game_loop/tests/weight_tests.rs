@@ -27,7 +27,7 @@ fn weight_world() -> (
     world.data.item_data.insert_for_test(t);
     // The 4270 passive as the dist writes it: the level-4 rung halves nothing
     // and stops the character dead (`Speed -100%`).
-    world.data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    world.data.skill_data = dist::skills_owned();
     // The synthetic world uses `StatBonus::empty()`, where every bonus is 1.0 —
     // so the CON-derived limit could not vary and the test below would be
     // asserting against a constant.

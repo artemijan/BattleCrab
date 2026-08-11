@@ -16,6 +16,7 @@ use tracing::info;
 pub const SPAWNS_DIR: &str = "data/spawns";
 
 /// One `<spawn>` element (Java `SpawnTemplate`).
+#[derive(Clone)]
 pub struct SpawnTemplate {
     pub name: Option<String>,
     /// Source file, relative to [`SPAWNS_DIR`] and always `/`-separated —
@@ -35,6 +36,7 @@ pub struct SpawnTemplate {
 }
 
 /// One `<group>` (or the implicit default group for bare `<npc>` children).
+#[derive(Clone)]
 pub struct SpawnGroup {
     /// `<group name="…">` — `dayTime`/`nightTime` for the day/night templates,
     /// absent for the rest.
@@ -49,6 +51,7 @@ pub struct SpawnGroup {
 
 /// One `<npc>` line (Java `NpcSpawnTemplate`, minus the unused features
 /// listed in the module docs).
+#[derive(Clone)]
 pub struct NpcSpawnDef {
     pub npc_id: i32,
     pub count: i32,
@@ -80,6 +83,7 @@ pub struct FixedLoc {
 }
 
 /// Java `SpawnTerritory` wrapping a `ZoneForm`.
+#[derive(Clone)]
 pub struct Territory {
     pub form: ZoneForm,
     pub min_z: i32,
@@ -87,6 +91,7 @@ pub struct Territory {
 }
 
 /// The three `ZoneForm` shapes (`ZoneNPoly`/`ZoneCuboid`/`ZoneCylinder`).
+#[derive(Clone)]
 pub enum ZoneForm {
     NPoly { xs: Vec<i32>, ys: Vec<i32> },
     Cuboid { x1: i32, x2: i32, y1: i32, y2: i32 },
@@ -208,6 +213,7 @@ impl Territory {
     }
 }
 
+#[derive(Clone)]
 pub struct SpawnData {
     pub spawns: Vec<SpawnTemplate>,
 }

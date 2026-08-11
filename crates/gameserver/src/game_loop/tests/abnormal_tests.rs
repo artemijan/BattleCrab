@@ -1484,7 +1484,7 @@ fn the_shield_angle_flag_lets_a_shield_block_from_behind() {
 #[test]
 fn irreplacable_buffs_survive_death_like_stay_after_death_ones() {
     const TRANSFORM_GRAIL_APOSTLE: i32 = 541;
-    let sd = crate::data::SkillData::load_from(crate::data::DIST_GAME);
+    let sd = dist::skills();
     assert!(
         sd.get(TRANSFORM_GRAIL_APOSTLE, 1)
             .expect("Transform Grail Apostle 1")

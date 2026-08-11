@@ -370,8 +370,7 @@ fn fear_expiry_returns_the_mob_to_active() {
 /// debuff looked like it worked — it just never moved anyone.
 #[test]
 fn real_dist_fear_skills_parse_a_fear_effect() {
-    const DIST: &str = crate::data::DIST_GAME;
-    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+    let skills = dist::skills();
 
     // Horror 65, Banish Undead 405, Banish Seraph 450, Fear 1092, Curse Fear
     // 1169, Word of Fear 1272, Mass Curse Fear 1381, Turn Undead 1400 — every

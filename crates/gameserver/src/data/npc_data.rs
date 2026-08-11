@@ -354,6 +354,19 @@ pub struct NpcData {
     drop_index: OnceLock<HashMap<i32, Vec<CbDrop>>>,
 }
 
+/// Hand-written rather than derived: `drop_index` is a cache *derived from*
+/// `by_id`, so a copy must start cold. Deriving would carry a filled index into
+/// a clone that then diverges through [`NpcData::insert_for_test`], and the
+/// drop search would answer from the original's templates.
+impl Clone for NpcData {
+    fn clone(&self) -> Self {
+        Self {
+            by_id: self.by_id.clone(),
+            drop_index: OnceLock::new(),
+        }
+    }
+}
+
 impl NpcData {
     pub fn load() -> Self {
         Self::load_from("")

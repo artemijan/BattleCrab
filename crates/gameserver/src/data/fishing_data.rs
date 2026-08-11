@@ -66,7 +66,7 @@ pub struct FishingRod {
     pub sp_multiplier: f64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FishingData {
     baits: HashMap<i32, FishingBait>,
     rods: HashMap<i32, FishingRod>,

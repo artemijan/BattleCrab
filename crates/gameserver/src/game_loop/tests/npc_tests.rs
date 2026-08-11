@@ -664,7 +664,7 @@ fn npc_view_drop_page_uses_board_channel_real_icons_and_java_chance_format() {
     world.cfg.rates.death_drop_amount_multiplier = 1.0;
     // The real item catalogue, so the rows carry real `<set name="icon">`
     // values (the synthetic test data has none).
-    world.data.item_data = crate::data::ItemData::load_from(crate::data::DIST_GAME);
+    world.data.item_data = dist::items_owned();
     let mut t = crate::data::npc_data::default_template(30001);
     t.name = "Test Mob".into();
     t.type_name = "Monster".into();

@@ -26,7 +26,7 @@ const REVIVAL: i32 = 181;
 
 fn dist_world() -> (World, impl Sized, impl Sized, impl Sized) {
     let (mut world, a, b, c) = test_world();
-    world.data = crate::data::GameData::load_from(crate::data::DIST_GAME);
+    world.data = dist::game_data_owned();
     (world, a, b, c)
 }
 

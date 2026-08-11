@@ -79,7 +79,7 @@ fn onhit_world() -> (World, i32) {
 /// `vampiricSum += amount · chance`. Vampiric Rage 1 is `amount 6, chance 80`.
 #[test]
 fn vampiric_attack_grants_both_of_its_stats() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     let rage = sd.get(1268, 1).expect("Vampiric Rage");
     let mods = rage.stat_modifier_effects();
     let of = |stat| {
@@ -121,7 +121,7 @@ fn a_melee_hit_absorbs_hp_for_the_attacker() {
 #[test]
 fn a_ranged_weapon_absorbs_nothing() {
     let (mut world, mob) = onhit_world();
-    world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     add_stat(&mut world, ATTACKER, Stat::AbsorbDamagePercent, 0.5);
     add_stat(&mut world, ATTACKER, Stat::VampiricSum, 5_000.0);
     set_hp(&mut world, ATTACKER, 10.0);
@@ -213,7 +213,7 @@ fn the_absorb_never_overheals_and_is_capped_by_the_victim() {
 /// the target reads when it takes a hit.
 #[test]
 fn damage_shield_grants_the_reflect_stat() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     for (id, name, pct) in [
         (305, "Song of Vengeance", 20.0),
         (340, "Riposte Stance", 30.0),

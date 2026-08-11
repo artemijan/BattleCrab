@@ -49,7 +49,7 @@ pub struct WalkRoute {
     pub nodes: Vec<WalkNode>,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct RouteData {
     pub routes: Vec<WalkRoute>,
     /// npc id → index into [`Self::routes`]. No npc id carries two routes on

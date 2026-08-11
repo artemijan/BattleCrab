@@ -17,6 +17,7 @@ pub struct InitialEquipmentItem {
     pub equipped: bool,
 }
 
+#[derive(Clone)]
 pub struct InitialEquipmentData {
     by_class: HashMap<i32, Vec<InitialEquipmentItem>>,
 }

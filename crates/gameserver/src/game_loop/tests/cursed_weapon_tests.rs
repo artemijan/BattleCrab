@@ -538,9 +538,9 @@ const SQUIRES_SWORD: i32 = 7816;
 /// gates).
 fn load_curse_data(world: &mut World) {
     load_cursed_weapons(world);
-    world.data.skill_data = crate::data::SkillData::load_from(DIST);
+    world.data.skill_data = dist::skills_owned();
     world.data.transforms = crate::data::TransformData::load_from(DIST);
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     for cw in &mut world.cursed_weapons {
         cw.skill_max_level = (1..=100)
             .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())

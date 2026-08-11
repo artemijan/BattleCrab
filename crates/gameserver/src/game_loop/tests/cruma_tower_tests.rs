@@ -14,6 +14,7 @@
 //! wrong floor, the buttons addressing destinations by index) fails loudly.
 
 use super::*;
+use crate::data::spawn_data::NpcSpawnDef;
 
 const DIST: &str = crate::data::DIST_GAME;
 
@@ -226,7 +227,7 @@ fn carsus_offers_only_the_third_basement_floor() {
 /// recursive spawn walk that makes him reachable at all.
 #[test]
 fn ian_is_spawned_on_the_second_floor() {
-    let data = crate::data::spawn_data::SpawnData::load_from(DIST);
+    let data = dist::spawns();
     let ian = data
         .spawns
         .iter()
@@ -243,7 +244,7 @@ fn ian_is_spawned_on_the_second_floor() {
 /// strand the 2nd floor (and Ian behind it) rather than merely inconvenience.
 #[test]
 fn rombel_is_spawned_on_the_third_floor() {
-    let data = crate::data::spawn_data::SpawnData::load_from(DIST);
+    let data = dist::spawns();
     let rombel = data
         .spawns
         .iter()

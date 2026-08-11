@@ -893,6 +893,7 @@ impl ItemTemplate {
     }
 }
 
+#[derive(Clone)]
 pub struct ItemData {
     by_id: HashMap<i32, ItemTemplate>,
     /// Parsed `<stats>` blocks, keyed by item id. Sparse: only equipable

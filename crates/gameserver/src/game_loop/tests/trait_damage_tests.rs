@@ -17,7 +17,6 @@ use crate::model::skill::{SkillEffect, TraitType, WeaknessTrait, WeaponTrait};
 
 const ATTACKER: i32 = 5001;
 const TARGET: i32 = 5002;
-const DIST: &str = crate::data::DIST_GAME;
 
 fn two_players() -> World {
     let (mut world, _db, _l) = combat_test_world();
@@ -80,7 +79,7 @@ fn attack_traits_merge_onto_an_identity_of_one() {
 /// The dist's own "Detect &lt;Category&gt; Weakness" line parses its traits.
 #[test]
 fn the_detect_weakness_skills_parse_their_traits() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     let beast = sd.get(80, 1).expect("Detect Beast Weakness");
     assert!(
         beast.effects.iter().any(|e| matches!(
@@ -114,7 +113,7 @@ fn the_detect_weakness_skills_parse_their_traits() {
 #[test]
 fn a_weapon_defence_trait_softens_that_weapons_hits() {
     let mut world = two_players();
-    world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     // Bare-handed: no weapon trait at all, so nothing defends it.
     assert_eq!(calc_weapon_trait_bonus(&world, ATTACKER, TARGET), 1.0);
 
@@ -150,7 +149,7 @@ fn a_weapon_defence_trait_softens_that_weapons_hits() {
 #[test]
 fn a_negative_weapon_trait_is_a_vulnerability_and_the_floor_is_0_22() {
     let mut world = two_players();
-    world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     {
         let World { objects, data, .. } = &mut world;
         let inv = objects
@@ -264,7 +263,7 @@ fn ignore_resistance_short_circuits_the_resistable_group() {
 #[test]
 fn the_auto_attack_trait_bonus_multiplies_weapon_and_weakness() {
     let mut world = two_players();
-    world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     {
         let World { objects, data, .. } = &mut world;
         let inv = objects
@@ -297,7 +296,7 @@ fn the_auto_attack_trait_bonus_multiplies_weapon_and_weakness() {
 #[test]
 fn an_auto_attack_is_softened_by_the_targets_weapon_defence() {
     let mut world = two_players();
-    world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     let npc_oid = 0x4000_0333;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
@@ -340,7 +339,7 @@ fn an_auto_attack_is_softened_by_the_targets_weapon_defence() {
 /// which is precisely what the Hunter's line is for.
 #[test]
 fn the_race_skills_carry_the_weakness_defence_traits() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     let undead = sd.get(4416, 2).expect("Undead lvl 2");
     let traits = undead
         .effects
@@ -372,7 +371,7 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
     let swing = |trait_pct: Option<f64>| {
         let (mut world, _db, _l) = combat_test_world();
         let mut a_rx = ingame_caster(&mut world, 1, ATTACKER, 0, 0);
-        world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+        world.data.item_data = dist::items_owned();
         let npc_oid = 0x4000_0444;
         let (npc, extra) =
             crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
@@ -452,7 +451,7 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
     let hit = |with_trait: bool| {
         let (mut world, _db, _l) = combat_test_world();
         let mut a_rx = ingame_caster(&mut world, 1, ATTACKER, 0, 0);
-        world.data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+        world.data.item_data = dist::items_owned();
         let npc_oid = 0x4000_0555;
         let (npc, extra) =
             crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);

@@ -17,7 +17,6 @@ const CASTER: i32 = 2001;
 const BYSTANDER: i32 = 2002;
 const CID: u32 = 1;
 const BID: u32 = 2;
-const DIST: &str = crate::data::DIST_GAME;
 
 /// Fixture ids well away from anything real.
 const TOTEM_NPC: i32 = 91300;
@@ -137,7 +136,7 @@ fn totem_at(world: &mut World) -> Option<i32> {
 /// ids are — is data, not a bug; ported as written.
 #[test]
 fn day_of_doom_parses_with_its_totem_and_gate() {
-    let sd = crate::data::skill_data::SkillData::load_from(DIST);
+    let sd = dist::skills();
     let dod = sd.get(1422, 1).expect("Day of Doom lvl 1");
     assert!(
         dod.effects.iter().any(|e| matches!(
@@ -165,7 +164,7 @@ fn day_of_doom_parses_with_its_totem_and_gate() {
         "OpExistNpc parsed into the condition list"
     );
 
-    let npcs = crate::data::NpcData::load_from(DIST);
+    let npcs = dist::npcs();
     let totem = npcs.get(13028).expect("totem 13028");
     assert_eq!(totem.type_name, "EffectPoint");
     assert_eq!(totem.ai_param_f64("skill_delay", 0.0), 2.0);

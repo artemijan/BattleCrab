@@ -9,9 +9,6 @@ use crate::network::server_packets::opcodes;
 use crate::network::server_packets::sm_ids;
 
 const NOW: i64 = 1_700_000_000_000;
-/// The real datapack — the test catalogue is empty, and the item packets need
-/// real templates to serialize anything.
-const DIST: &str = crate::data::DIST_GAME;
 
 fn put_mail(world: &mut World, id: i32, sender: i32, receiver: i32, subject: &str) {
     world.mail.insert(Message::new_player_mail(
@@ -286,7 +283,7 @@ fn the_attachable_item_list_needs_a_peace_zone() {
 #[test]
 fn the_attachable_item_list_returns_unequipped_non_quest_items_in_a_peace_zone() {
     let (mut world, ..) = test_world();
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
         .objects
@@ -369,7 +366,7 @@ fn mail_world() -> (
     db::CmdRx,
 ) {
     let (mut world, _tx, db_rx, _link) = test_world();
-    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.item_data = dist::items_owned();
     world.id_pool = 0x5000_0000..0x5000_1000;
     let a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);

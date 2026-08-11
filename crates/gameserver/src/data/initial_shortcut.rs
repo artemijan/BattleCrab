@@ -28,6 +28,7 @@ pub struct InitialShortcut {
     pub character_type: i32,
 }
 
+#[derive(Clone)]
 pub struct InitialShortcutData {
     global: Vec<InitialShortcut>,
     by_class: HashMap<i32, Vec<InitialShortcut>>,

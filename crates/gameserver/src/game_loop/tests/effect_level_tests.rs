@@ -14,10 +14,8 @@
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 
-const DIST: &str = crate::data::DIST_GAME;
-
 fn dist_skills() -> crate::data::skill_data::SkillData {
-    crate::data::skill_data::SkillData::load_from(DIST)
+    super::dist::skills_owned()
 }
 
 /// How many modifiers for `stat` this skill level carries.
