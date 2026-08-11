@@ -1,6 +1,6 @@
 use super::*;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::npc_name_or_empty;
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
@@ -8,7 +8,7 @@ use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::set_position;
-use crate::game_loop::helpers::{is_dead, max_hate};
+use crate::game_loop::helpers::{force_attack_target, npc_name_or_empty};
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
@@ -66,20 +66,7 @@ fn same_npc_faction(world: &World, a_oid: i32, b_oid: i32) -> bool {
 /// player.
 pub(crate) fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: i32) {
     if crate::game_loop::combat::is_npc_oid(victim_oid) {
-        let the_hate = max_hate(world, victim_oid);
-        if let Some(aggro) = world
-            .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&victim_oid)
-        {
-            aggro.0.entry(new_target_oid).or_default().hate = the_hate + 1.0;
-        }
-        if let Some(ai) = world
-            .objects
-            .get_component_mut::<crate::model::npc::NpcAi>(&victim_oid)
-        {
-            ai.intention = crate::model::npc::NpcIntention::Attack;
-            ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
-        }
+        force_attack_target(world, victim_oid, new_target_oid);
     } else if let Some(client_id) = client_for_player(world, victim_oid) {
         crate::game_loop::target::set_target(world, client_id, victim_oid, Some(new_target_oid));
     }

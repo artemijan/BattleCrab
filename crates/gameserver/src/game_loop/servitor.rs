@@ -12,15 +12,15 @@
 //! slices (see `PLAN_G29_SERVITOR_SUMMON.md`).
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::npc_name_or_empty;
+use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{force_attack_target, npc_name_or_empty};
 use crate::game_loop::helpers::{is_dead, restore_hp_mp};
 use crate::game_loop::helpers::{item_id_of, send_inventory_update};
-use crate::game_loop::helpers::{max_hate, npc_id_of};
 use crate::game_loop::helpers::{send_action_failed, send_sm_and_action_failed};
 use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_player};
 use crate::game_loop::items::item_skills;
@@ -380,20 +380,7 @@ pub(crate) fn servitor_attack(world: &mut World, owner_oid: i32, target_oid: i32
     if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
         l.following = false;
     }
-    let max_hate = max_hate(world, target_oid);
-    if let Some(aggro) = world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&servitor_oid)
-    {
-        aggro.0.entry(target_oid).or_default().hate = max_hate + 1.0;
-    }
-    if let Some(ai) = world
-        .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
-    {
-        ai.intention = crate::model::npc::NpcIntention::Attack;
-        ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
-    }
+    force_attack_target(world, servitor_oid, target_oid);
     true
 }
 

@@ -449,6 +449,53 @@ pub(crate) fn max_hate(world: &World, victim_oid: i32) -> f64 {
         .map(|a| a.0.values().map(|i| i.hate).fold(0.0_f64, f64::max))
         .unwrap_or(0.0)
 }
+/// Java `setIntention(AI_INTENTION_ATTACK, target)` reduced to what this port
+/// keeps on `NpcAi`: the intention flip plus a fresh attack-timeout stamp. No
+/// target is passed — the ported AI reads its victim from the aggro list every
+/// think tick, so seeding hate *is* the target hand-off.
+///
+/// The caller decides whether an NPC already in `Attack` should have its
+/// timeout re-armed; this always re-arms.
+pub(crate) fn set_attack_intention(world: &mut World, npc_oid: i32) {
+    let deadline = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
+    if let Some(ai) = world
+        .objects
+        .get_component_mut::<model::npc::NpcAi>(&npc_oid)
+    {
+        ai.intention = model::npc::NpcIntention::Attack;
+        ai.attack_timeout_tick = deadline;
+    }
+}
+
+/// Java's taunt arithmetic (`Aggression` / `GetAgro`: `getHating(mostHated) -
+/// getHating(effector) + 1`): puts `target_oid` one point above the current
+/// most-hated entry rather than at an arbitrary huge constant, so the pull is
+/// dominant but still breakable by the next real tank.
+///
+/// This *sets* the top of the list; [`crate::game_loop::minions::add_hate`]
+/// *accumulates* a given amount. Returns `false` when `npc_oid` has no aggro
+/// list at all (not an attackable — nothing to hate with).
+pub(crate) fn set_top_hate(world: &mut World, npc_oid: i32, target_oid: i32) -> bool {
+    let top = max_hate(world, npc_oid);
+    let Some(aggro) = world
+        .objects
+        .get_component_mut::<model::npc::AggroList>(&npc_oid)
+    else {
+        return false;
+    };
+    aggro.0.entry(target_oid).or_default().hate = top + 1.0;
+    true
+}
+
+/// "Attack this, now" — [`set_top_hate`] plus the AI wake, the primitive behind
+/// taunts (`GetAgro`), `Confuse`/`RandomizeHate` retargeting, and the servitor
+/// attack order. A no-op on an NPC without an aggro list, which could not act
+/// on the order anyway.
+pub(crate) fn force_attack_target(world: &mut World, npc_oid: i32, target_oid: i32) {
+    if set_top_hate(world, npc_oid, target_oid) {
+        set_attack_intention(world, npc_oid);
+    }
+}
 pub fn player(world: &World, object_id: i32) -> Option<&Player> {
     world.objects.get_component::<Player>(&object_id)
 }

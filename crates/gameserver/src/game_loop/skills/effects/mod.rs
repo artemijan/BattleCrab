@@ -19,12 +19,12 @@
 
 use crate::game_loop::bot_report;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{client_for_player, force_attack_target, set_attack_intention};
 use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
@@ -1356,17 +1356,7 @@ pub(crate) fn apply_skill_effects(
             // highest entry, not an arbitrary huge constant that would make
             // the taunt unbreakable. `NpcAi::intention` is set the same way
             // `minions::add_hate` does, waking a currently-idle target.
-            SkillEffect::GetAgro => {
-                let Some(aggro) = world.objects.get_component::<crate::model::npc::AggroList>(&target_oid) else { continue };
-                let max_hate = aggro.0.values().map(|i| i.hate).fold(0.0_f64, f64::max);
-                if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) {
-                    aggro.0.entry(caster_oid).or_default().hate = max_hate + 1.0;
-                }
-                if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&target_oid) {
-                    ai.intention = crate::model::npc::NpcIntention::Attack;
-                    ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
-                }
-            }
+            SkillEffect::GetAgro => force_attack_target(world, target_oid, caster_oid),
             // `AddHate.instant` — a flat hate change with no damage
             // (positive: Charm/Lure; negative: unused on this dist but
             // supported). Mirrors the add/reduce shape already used by
@@ -1379,11 +1369,13 @@ pub(crate) fn apply_skill_effects(
                     entry.hate = (entry.hate + *power).max(0.0);
                 }
                 if *power > 0.0
-                    && let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&target_oid)
-                        && ai.intention != crate::model::npc::NpcIntention::Attack {
-                            ai.intention = crate::model::npc::NpcIntention::Attack;
-                            ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
-                        }
+                    && world
+                        .objects
+                        .get_component::<crate::model::npc::NpcAi>(&target_oid)
+                        .is_some_and(|ai| ai.intention != crate::model::npc::NpcIntention::Attack)
+                {
+                    set_attack_intention(world, target_oid);
+                }
                 // No `Attackable.reduceHate` tail here (the −25 calm window +
                 // `clearAggroList`), deliberately: Java can't reach it through
                 // this handler. `AddHate.instant` passes `(int) -val` for a

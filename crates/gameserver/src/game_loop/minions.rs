@@ -18,6 +18,7 @@
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::set_attack_intention;
 use commons::util::rnd;
 
 use crate::game_loop::helpers::npc_id_of;
@@ -385,10 +386,7 @@ pub(crate) fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate:
         .is_some_and(|ai| ai.intention != NpcIntention::Attack)
     {
         super::ai::set_running(world, npc_oid);
-        if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
-            ai.intention = NpcIntention::Attack;
-            ai.attack_timeout_tick = world.tick + super::combat::ATTACK_TIMEOUT_TICKS;
-        }
+        set_attack_intention(world, npc_oid);
     }
 }
 
