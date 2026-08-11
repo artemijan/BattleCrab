@@ -209,7 +209,7 @@ fn flying_move_ignores_geodata_and_allows_vertical_flight() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::PathWait>(&4001),
+            .has_component::<model::components::PathWait>(&4001),
         "no path-worker handoff while flying"
     );
     assert_eq!(
@@ -250,7 +250,7 @@ fn validate_position_trusts_flying_client_z() {
         p.mount_type = 2;
         p.mount_npc_id = 12621;
     }
-    super::super::zones::revalidate_zone(&mut world, 4001, true);
+    zones::revalidate_zone(&mut world, 4001, true);
     drain(&mut rx);
 
     handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 3000, 0));
@@ -271,7 +271,7 @@ fn validate_position_trusts_flying_client_z() {
 // ---------------------------------------------------------------------------
 
 /// Player 100 + the Gludio castle wyvern manager (35101) as npc oid 701.
-fn wyvern_manager_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn wyvern_manager_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _link) = quest_test_world();
     add_test_npc(&mut world, 701, 35101, "Merchant", 75, 0, 0, 0);
     let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
@@ -422,7 +422,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
 /// a layout change.
 fn glow_offsets(world: &mut World, oid: i32) -> (usize, usize) {
     let build = |world: &World| {
-        let v = crate::model::PlayerView::of(&world.objects, oid).unwrap();
+        let v = model::PlayerView::of(&world.objects, oid).unwrap();
         let relation = crate::game_loop::party::calculate_relation(world, v.p);
         (
             crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation),
@@ -452,13 +452,7 @@ fn glow_offsets(world: &mut World, oid: i32) -> (usize, usize) {
         .unwrap()
         .hero_aura = was;
     let only_diff = |a: &[u8], b: &[u8]| {
-        let d: Vec<usize> = a
-            .iter()
-            .zip(b)
-            .enumerate()
-            .filter(|(_, (x, y))| x != y)
-            .map(|(i, _)| i)
-            .collect();
+        let d: Vec<usize> = moved_bytes(a, b);
         assert_eq!(d.len(), 1, "the glow flag moves exactly one byte");
         d[0]
     };
@@ -528,19 +522,25 @@ fn hero_glow_survives_mount_for_gm_and_hero() {
                 .is_flying(),
             "{oid}: on the wyvern"
         );
+        fn drain_ob_and_own(
+            own_rx: &mut UnboundedReceiver<bytes::Bytes>,
+            ob_rx: &mut UnboundedReceiver<bytes::Bytes>,
+        ) -> (Vec<u8>, Vec<u8>) {
+            (
+                drain(own_rx)
+                    .into_iter()
+                    .rev()
+                    .find(|p| p[0] == 0x32)
+                    .unwrap(),
+                drain(ob_rx)
+                    .into_iter()
+                    .rev()
+                    .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+                    .unwrap(),
+            )
+        }
         advance_ticks(&mut world, 1);
-        let (ui, ci) = (
-            drain(own_rx)
-                .into_iter()
-                .rev()
-                .find(|p| p[0] == 0x32)
-                .unwrap(),
-            drain(&mut ob_rx)
-                .into_iter()
-                .rev()
-                .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
-                .unwrap(),
-        );
+        let (ui, ci) = drain_ob_and_own(own_rx, &mut ob_rx);
         assert_eq!(
             (ui[ui_off], ci[ci_off]),
             (1, 1),
@@ -563,18 +563,7 @@ fn hero_glow_survives_mount_for_gm_and_hero() {
             "{oid}: dismounted"
         );
         advance_ticks(&mut world, 1);
-        let (ui, ci) = (
-            drain(own_rx)
-                .into_iter()
-                .rev()
-                .find(|p| p[0] == 0x32)
-                .unwrap(),
-            drain(&mut ob_rx)
-                .into_iter()
-                .rev()
-                .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
-                .unwrap(),
-        );
+        let (ui, ci) = drain_ob_and_own(own_rx, &mut ob_rx);
         assert_eq!(
             (ui[ui_off], ci[ci_off]),
             (1, 1),
@@ -597,9 +586,7 @@ fn settruehero_is_a_separate_flag_from_sethero() {
     drain(&mut gm_rx);
     drain(&mut ob_rx);
     // Java's `settruehero` needs a target (INVALID_TARGET otherwise); self.
-    world
-        .objects
-        .add_components(&8950, crate::model::components::TargetRef(Some(8950)));
+    world.objects.add_components(&8950, TargetRef(Some(8950)));
 
     let true_hero_byte = |pk: &[u8]| pk[pk.len() - 3]; // …trueHero, hairAccessory, abilityPoints
     crate::game_loop::party::broadcast_user_info(&mut world, 8950);
@@ -634,7 +621,14 @@ fn settruehero_is_a_separate_flag_from_sethero() {
             .true_hero
     );
 }
-
+fn moved_bytes(base: &[u8], sitting: &[u8]) -> Vec<usize> {
+    base.iter()
+        .zip(sitting)
+        .enumerate()
+        .filter(|(_, (a, b))| a != b)
+        .map(|(i, _)| i)
+        .collect()
+}
 /// **`CharInfo` carries the states an onlooker can only learn from it.** Java
 /// fills sitting / in-combat / dead / pvp-flag / noble / cursed-weapon /
 /// clan-crest / clan-reputation from live state inside the packet ctor; the
@@ -649,15 +643,14 @@ fn char_info_reflects_live_player_state() {
 
     // Content test, not a timing one — call the coalesced task's body
     // directly rather than waiting out the 50 ms window.
-    let snapshot =
-        |world: &mut World, rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| {
-            crate::game_loop::party::broadcast_char_info_now(world, 8960);
-            drain(rx)
-                .into_iter()
-                .rev()
-                .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
-                .expect("CharInfo")
-        };
+    let snapshot = |world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>| {
+        crate::game_loop::party::broadcast_char_info_now(world, 8960);
+        drain(rx)
+            .into_iter()
+            .rev()
+            .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+            .expect("CharInfo")
+    };
     let base = snapshot(&mut world, &mut ob_rx);
 
     // Sit down + flag for PvP: both bytes must move.
@@ -668,19 +661,13 @@ fn char_info_reflects_live_player_state() {
     }
     world.objects.add_components(
         &8960,
-        crate::model::components::PvpState {
+        model::components::PvpState {
             flag: 1,
             ..Default::default()
         },
     );
     let sitting = snapshot(&mut world, &mut ob_rx);
-    let moved: Vec<usize> = base
-        .iter()
-        .zip(&sitting)
-        .enumerate()
-        .filter(|(_, (a, b))| a != b)
-        .map(|(i, _)| i)
-        .collect();
+    let moved: Vec<usize> = moved_bytes(&base, &sitting);
     assert_eq!(
         moved.len(),
         3,
@@ -694,17 +681,11 @@ fn char_info_reflects_live_player_state() {
     // Dying flips the alike-dead byte (Java `isAlikeDead`).
     world
         .objects
-        .get_component_mut::<crate::model::components::Vitals>(&8960)
+        .get_component_mut::<Vitals>(&8960)
         .unwrap()
         .dead = true;
     let dead = snapshot(&mut world, &mut ob_rx);
-    let dead_moved: Vec<usize> = sitting
-        .iter()
-        .zip(&dead)
-        .enumerate()
-        .filter(|(_, (a, b))| a != b)
-        .map(|(i, _)| i)
-        .collect();
+    let dead_moved: Vec<usize> = moved_bytes(&sitting, &dead);
     assert_eq!(dead_moved.len(), 1, "only the alike-dead byte changed");
     assert_eq!(dead[dead_moved[0]], 1);
 }
@@ -755,7 +736,7 @@ fn mounting_and_dismounting_resend_the_visual_effects() {
         assert!(
             world
                 .objects
-                .get_component::<crate::model::components::AdminFlags>(&8980)
+                .get_component::<AdminFlags>(&8980)
                 .is_some_and(|f| f.hidden),
             "{step}: still invisible throughout"
         );
@@ -816,7 +797,7 @@ fn a_siege_zone_refuses_and_strips_mounts() {
 
     // …until the siege catches up with the rider, which dismounts them
     // (`SiegeZone.onEnter`, reached from `refresh_siege_zone_flag`).
-    crate::game_loop::zones::dismount_for_siege(&mut world, 3001);
+    zones::dismount_for_siege(&mut world, 3001);
     assert!(
         !world
             .objects
@@ -904,8 +885,7 @@ fn the_mount_feed_gauge_drains_and_force_dismounts() {
         "out of feed → dismounted"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
-            .contains(&server_packets::sm_ids::YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED),
+        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED),
         "the cancellation message is sent"
     );
 }
@@ -929,21 +909,21 @@ fn mount_food_refills_the_riders_gauge() {
     assert_eq!(feed(&world), 5, "two ticks burned");
 
     // The food item's skill: `<effect name="Feed" normal=… ride=… wyvern=…/>`.
-    let food = crate::model::skill::Skill {
+    let food = Skill {
         self_continuous: false,
         id: 9100,
         level: 1,
-        effects: vec![crate::model::skill::SkillEffect::Feed {
+        effects: vec![model::skill::SkillEffect::Feed {
             normal: 100,
             ride: 12,
             wyvern: 99,
         }],
         ..Default::default()
     };
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3001, &food);
+    effects::apply_skill_effects(&mut world, 3001, 3001, &food);
     assert_eq!(feed(&world), 17, "the `ride` param, not `normal`");
 
     // A second helping clamps at the maximum rather than overfilling.
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3001, &food);
+    effects::apply_skill_effects(&mut world, 3001, 3001, &food);
     assert_eq!(feed(&world), 25, "clamped to max_meal");
 }
