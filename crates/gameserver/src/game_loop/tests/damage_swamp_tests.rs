@@ -52,15 +52,6 @@ fn insert_damage_zone(world: &mut World, p: DamageZoneParams) {
     refresh_zone_masks(world);
 }
 
-/// See `effect_zone_tests::refresh_zone_masks` — a zone inserted mid-test
-/// postdates the players' `ZoneFlags` masks the sweeps gate on.
-fn refresh_zone_masks(world: &mut World) {
-    let ids: Vec<i32> = world.in_game_player_oids().collect();
-    for id in ids {
-        crate::game_loop::zones::revalidate_zone(world, id, true);
-    }
-}
-
 fn insert_swamp_zone(world: &mut World, p: SwampZoneParams) {
     world.data.zone_data.insert(Zone {
         id: 0,

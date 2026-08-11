@@ -4,6 +4,7 @@
 use super::*;
 
 use crate::game_loop::area_npcs::{self, TOMA};
+use crate::game_loop::quests;
 
 const TOMA_LOCS: [(i32, i32, i32); 3] = [
     (151680, -174891, -1782),

@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::{death, expertise, passive_skills};
 use commons::system_messages::generated::{
     C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
 };
@@ -17,7 +18,7 @@ fn arm(world: &mut World, object_id: i32, item_id: i32) {
     // mutably, so the catalog has to come out of the ECS first.
     let mut inv = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&object_id)
+        .get_component::<Inventory>(&object_id)
         .expect("test player has an inventory")
         .clone();
     let oid = inv.add_item(&world.data.item_data, 0x5000_0001, item_id, 1);
@@ -78,14 +79,14 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     );
     data.skill_data.insert_for_test(Skill {
         self_continuous: false,
-        basic_property: crate::model::skill::BasicProperty::None,
+        basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -196,7 +197,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&2001)
+            .get_component::<Player>(&2001)
             .expect("player")
             .sp,
         100,
@@ -313,7 +314,7 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
     // Replay the class starting equipment through the real equip-slot logic
     // (mirrors `resolve_initial_items`), then hand the resolved paperdoll to
     // `from_char` as stored `ItemRow`s.
-    let mut inv = crate::model::inventory::Inventory::new();
+    let mut inv = Inventory::new();
     let mut next_oid = 1000;
     for entry in data.initial_equipment.get(class_id) {
         let oid = next_oid;
@@ -388,8 +389,8 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
     b.spawn_into(&mut world);
-    super::expertise::refresh_expertise_penalty(&mut world, 4212);
-    super::passive_skills::refresh_conditioned_passives(&mut world, 4212);
+    expertise::refresh_expertise_penalty(&mut world, 4212);
+    passive_skills::refresh_conditioned_passives(&mut world, 4212);
     assert_eq!(
         pcs(&world, 4212).m_atk_spd,
         499,
@@ -460,10 +461,10 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
     // NONE), so `refresh_conditioned_passives` drops Spellcraft's bonus.
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&4211)
+        .get_component_mut::<Inventory>(&4211)
         .unwrap()
         .unequip_item(1003);
-    super::passive_skills::refresh_conditioned_passives(&mut world, 4211);
+    passive_skills::refresh_conditioned_passives(&mut world, 4211);
     assert_eq!(
         pcs(&world, 4211).m_atk_spd,
         333,
@@ -495,7 +496,7 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     // No-grade MAGIC robe (chest/legs/gloves → Spellcraft applies, no grade
     // penalty) plus a D-grade BLUNT staff (15149) — a weapon that is NOT
     // bow/pole, equipped through the real slot logic.
-    let mut inv = crate::model::inventory::Inventory::new();
+    let mut inv = Inventory::new();
     let mut next_oid = 2000;
     for item_id in [6, 425, 461, 15149] {
         let oid = next_oid;
@@ -562,7 +563,7 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     {
         let mut skills_map: std::collections::HashMap<i32, i32> =
             chr.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect();
-        super::death::maybe_skill_remove_on_delevel(
+        death::maybe_skill_remove_on_delevel(
             &world,
             chr.object_id,
             chr.class_id,
@@ -593,13 +594,13 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     b.spawn_into(&mut world);
 
     // 3. Enter-world refresh tail, in `handle_enter_world` order.
-    super::expertise::refresh_expertise_penalty(&mut world, 4213);
+    expertise::refresh_expertise_penalty(&mut world, 4213);
     assert_eq!(
         pcs(&world, 4213).m_atk_spd,
         499,
         "cast speed after expertise refresh"
     );
-    super::passive_skills::refresh_conditioned_passives(&mut world, 4213);
+    passive_skills::refresh_conditioned_passives(&mut world, 4213);
     assert_eq!(
         pcs(&world, 4213).m_atk_spd,
         499,
@@ -667,7 +668,7 @@ fn delevel_filter_on_select_keeps_passive_stats() {
     // The select-time filter (what `filter_skills_on_select` runs).
     let mut skills: std::collections::HashMap<i32, i32> =
         chr.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect();
-    let changes = super::death::maybe_skill_remove_on_delevel(
+    let changes = death::maybe_skill_remove_on_delevel(
         &world,
         chr.object_id,
         chr.class_id,
@@ -748,7 +749,7 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
     bundle.spawn_into(&mut world);
 
     // Level-down check strips Weapon Mastery (5 < 7) and re-folds the stats.
-    super::death::check_player_skills(&mut world, 4214);
+    death::check_player_skills(&mut world, 4214);
     assert!(
         !world
             .objects
@@ -852,7 +853,7 @@ fn auto_learn_grants_all_reachable_class_skills() {
         let mut world = World::new(link_tx, 7, 3, 0, mk_data(), db_tx);
         world.cfg.character.auto_learn_skills = true;
         spawn_level_5(&mut world);
-        super::death::reward_skills(&mut world, 2001);
+        death::reward_skills(&mut world, 2001);
         let book = &world.objects.get_component::<SkillBook>(&2001).unwrap().0;
         assert_eq!(book.get(&1000), Some(&1), "autoGet skill granted");
         assert_eq!(
@@ -869,7 +870,7 @@ fn auto_learn_grants_all_reachable_class_skills() {
         let mut world = World::new(link_tx, 7, 3, 0, mk_data(), db_tx);
         assert!(!world.cfg.character.auto_learn_skills, "default is off");
         spawn_level_5(&mut world);
-        super::death::reward_skills(&mut world, 2001);
+        death::reward_skills(&mut world, 2001);
         let book = &world.objects.get_component::<SkillBook>(&2001).unwrap().0;
         assert_eq!(book.get(&1000), Some(&1), "autoGet skill granted");
         assert_eq!(
@@ -957,10 +958,10 @@ fn delevel_downgrades_then_removes_skills() {
 
         world
             .objects
-            .get_component_mut::<crate::model::Player>(&2001)
+            .get_component_mut::<Player>(&2001)
             .unwrap()
             .level = new_level;
-        super::death::check_player_skills(&mut world, 2001);
+        death::check_player_skills(&mut world, 2001);
         world
             .objects
             .get_component::<SkillBook>(&2001)
@@ -1213,14 +1214,14 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::AttackState>(&3001)
+            .get_component::<model::components::AttackState>(&3001)
             .is_some_and(|st| st.stance_until_tick > world.tick),
         "caster is in combat stance → canLogout refuses relogin"
     );
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PvpState>(&3001)
+            .get_component::<model::components::PvpState>(&3001)
             .unwrap()
             .flag,
         1,
@@ -1330,10 +1331,8 @@ fn cast_nuke_damages_siege_door() {
     let mut siege = Siege::new(3);
     siege.in_progress = true;
     world.sieges.insert(3, siege);
-    let door = crate::model::door::spawn_door_for_test(
-        &mut world,
-        test_door(24190001, DoorOpenMethod::None),
-    );
+    let door =
+        model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
     world
         .objects
         .get_component_mut::<Door>(&door)
@@ -1564,7 +1563,7 @@ fn skill_cool_time_lists_remaining_reuse() {
         .0
         .insert(
             1177,
-            crate::model::SkillReuse {
+            model::SkillReuse {
                 skill_level: 1,
                 until_tick: world.tick + 60,
                 total_ms: 10_000,
@@ -1953,14 +1952,14 @@ fn skill_mid_swing_is_queued_until_swing_end() {
     let (mut world, ..) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 20;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1973,7 +1972,7 @@ fn skill_mid_swing_is_queued_until_swing_end() {
     drain(&mut a_rx);
     let swing_end = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&3001)
+        .get_component::<model::components::AttackState>(&3001)
         .unwrap()
         .attack_end_tick;
     assert!(swing_end > world.tick, "swing in flight");
@@ -2327,14 +2326,14 @@ fn nuke_kills_monster_and_rewards() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 11;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 100, 0, 0, 100, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 100, 0, 0, 100, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2342,7 +2341,7 @@ fn nuke_kills_monster_and_rewards() {
 
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .exp = 4000; // level 5 on the test table
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
@@ -2351,7 +2350,7 @@ fn nuke_kills_monster_and_rewards() {
     // Monsters are valid Enemy targets without ctrl.
     let exp_before = world
         .objects
-        .get_component::<crate::model::Player>(&3001)
+        .get_component::<Player>(&3001)
         .expect("player")
         .exp;
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
@@ -2370,7 +2369,7 @@ fn nuke_kills_monster_and_rewards() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&3001)
+            .get_component::<Player>(&3001)
             .expect("player")
             .exp
             > exp_before,
@@ -2392,7 +2391,7 @@ fn nuke_on_a_far_higher_level_monster_is_resisted_to_one_damage() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .exp = 4000; // level 5
 
@@ -2438,7 +2437,7 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .exp = 4000; // level 5
 
@@ -2487,14 +2486,14 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // caster at (0,0)
     let npc_oid = NPC_OID + 16;
     // NPC at (40,0). Heading 0 (faces +x, east) → caster to its west is BEHIND.
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2519,7 +2518,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
         .clone();
     let hp0 = nvit(&world, npc_oid).cur_hp;
     world.forced_rolls.extend([999_999, 0, 999_999]); // top magic roll; success lands; crit-double fails
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &mortal);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &mortal);
     assert!(
         nvit(&world, npc_oid).cur_hp < hp0,
         "FatalBlow dealt damage (was a no-op before)"
@@ -2533,7 +2532,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
     // Backstab from behind — lands.
     let backstab = world.data.skill_data.get(30, 1).expect("Backstab").clone();
     world.forced_rolls.extend([999_999, 0, 999_999]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
     assert!(
         nvit(&world, npc_oid).cur_hp < hp0,
         "Backstab from the flank landed"
@@ -2552,7 +2551,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
         .unwrap()
         .heading = 0x8000;
     world.forced_rolls.extend([999_999, 0, 999_999]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
     assert_eq!(
         nvit(&world, npc_oid).cur_hp,
         hp0,
@@ -2570,14 +2569,14 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 15;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2601,7 +2600,7 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
         .clone();
     // magic-crit roll fails, then the `MagicFailures` success roll lands (0).
     world.forced_rolls.extend([999_999, 0]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     let dmg = npc_hp_before - nvit(&world, npc_oid).cur_hp;
     assert!(
@@ -2617,19 +2616,16 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
 
 /// Spawn the level-5 test mob (40001) targeted for a debuff cast and drain the
 /// spawn/target chatter, returning its object id.
-fn spawn_debuff_target(
-    world: &mut World,
-    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-) -> i32 {
+fn spawn_debuff_target(world: &mut World, a_rx: &mut UnboundedReceiver<bytes::Bytes>) -> i32 {
     let npc_oid = NPC_OID + 14;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2659,7 +2655,7 @@ fn single_target_debuff_lands_and_reports_chance() {
         .clone();
     assert!(skill.is_bad() && skill.affect_scope == AffectScope::Single);
     world.forced_rolls.extend([0, 0]); // magic-crit roll, then land roll (0 < 90 → lands)
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     // Debuff applied to the mob: run speed recomputed to base 120 × 0.80 = 96.
     let speed = world
@@ -2701,7 +2697,7 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
         .expect("Decrease Speed")
         .clone();
     world.forced_rolls.extend([0, 90]); // magic-crit roll, then land roll (90 >= 90 → resisted)
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     // No debuff: run speed stays at the mob's base 120.
     let speed = world
@@ -2751,7 +2747,7 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
 
     // Unprotected: (35 - 5 + 3)·30 + 80 + 30 clamps to the 90 cap.
     world.forced_rolls.extend([0, 95]); // magic-crit roll, then a losing land roll
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let msgs = drain(&mut a_rx);
     assert!(
         msgs.iter().any(|p| {
@@ -2764,7 +2760,7 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     // Invulnerable to SHOCK: the same cast is offered at the 10 floor.
     merge_defence_traits(&mut world, npc_oid, &[(TraitType::Shock, 1.0)]);
     world.forced_rolls.extend([0, 95]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let msgs = drain(&mut a_rx);
     assert!(
         msgs.iter().any(|p| {
@@ -2791,34 +2787,26 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
         s.id = 9610;
         s.name = "Test Poison".into();
         s.magic_type = 1;
-        s.effects = vec![crate::model::skill::SkillEffect::DamOverTime {
+        s.effects = vec![model::skill::SkillEffect::DamOverTime {
             power: 5.0,
             ticks: 5,
             can_kill: false,
         }];
         s
     };
-    let hp = |w: &World, oid: i32| {
-        w.objects
-            .get_component::<crate::model::components::Vitals>(&oid)
-            .unwrap()
-            .cur_hp
-    };
+    let hp = |w: &World, oid: i32| w.objects.get_component::<Vitals>(&oid).unwrap().cur_hp;
     // `Npc::for_test` seeds a 1 000 000 HP pool, but the damage path's stat
     // recalculation clamps it to template 40001's real 100 — which alone would
     // read as 999 900 "damage". Start at that real max so the before/after
     // difference is the burst and nothing else.
     let normalise = |w: &mut World, oid: i32| {
-        w.objects
-            .get_component_mut::<crate::model::components::Vitals>(&oid)
-            .unwrap()
-            .cur_hp = 100.0;
+        w.objects.get_component_mut::<Vitals>(&oid).unwrap().cur_hp = 100.0;
     };
     // The crit roll reads the *caster's* `m_crit_hit`; the fixture player has
     // none, so nothing would ever crit.
     let make_critter = |w: &mut World| {
         w.objects
-            .get_component_mut::<crate::model::components::CombatStats>(&3001)
+            .get_component_mut::<CombatStats>(&3001)
             .unwrap()
             .m_crit_hit = 200.0;
     };
@@ -2832,7 +2820,7 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
     normalise(&mut world, npc_oid);
     let before = hp(&world, npc_oid);
     world.forced_rolls.extend([0, 90]); // crit, then 90 >= the 90 rate -> resisted
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     assert_eq!(
         hp(&world, npc_oid),
         before,
@@ -2848,7 +2836,7 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
     normalise(&mut world, npc_oid);
     let before = hp(&world, npc_oid);
     world.forced_rolls.extend([0, 0]); // crit, then 0 < 90 -> lands
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     assert_eq!(
         before - hp(&world, npc_oid),
         50.0,
@@ -2957,14 +2945,14 @@ mod hate_effects {
             .0
             .insert(
                 DECOY,
-                crate::model::npc::AggroInfo {
+                model::npc::AggroInfo {
                     hate: 500.0,
                     damage: 500.0,
                 },
             );
 
         let skill = hate_skill(&world, 28, "Aggression", SkillEffect::GetAgro);
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
         let ai = world.objects.get_component::<NpcAi>(&npc_oid).unwrap();
         assert_eq!(
@@ -2991,7 +2979,7 @@ mod hate_effects {
         let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
 
         let up = hate_skill(&world, 15, "Charm", SkillEffect::AddHate { power: 500.0 });
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &up);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &up);
         assert_eq!(
             world
                 .objects
@@ -3012,7 +3000,7 @@ mod hate_effects {
         );
 
         let down = hate_skill(&world, 15, "Charm", SkillEffect::AddHate { power: -800.0 });
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &down);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &down);
         assert_eq!(
             world
                 .objects
@@ -3051,9 +3039,7 @@ mod hate_effects {
         assert!(bluff.has_hate_effect());
         assert!(bluff.is_bad(), "still a bad skill, so it reaches the gate");
 
-        crate::game_loop::skills::cast::apply_bad_skill_aggro_for_test(
-            &mut world, 3001, npc_oid, &bluff,
-        );
+        apply_bad_skill_aggro_for_test(&mut world, 3001, npc_oid, &bluff);
 
         let ai = world.objects.get_component::<NpcAi>(&npc_oid).unwrap();
         assert_ne!(
@@ -3085,9 +3071,7 @@ mod hate_effects {
         plain.effect_point = -1;
         assert!(!plain.has_hate_effect());
 
-        crate::game_loop::skills::cast::apply_bad_skill_aggro_for_test(
-            &mut world, 3001, npc_oid, &plain,
-        );
+        apply_bad_skill_aggro_for_test(&mut world, 3001, npc_oid, &plain);
         assert_eq!(
             world
                 .objects
@@ -3115,14 +3099,14 @@ mod hate_effects {
                 .unwrap();
             aggro.0.insert(
                 3001,
-                crate::model::npc::AggroInfo {
+                model::npc::AggroInfo {
                     hate: 50.0,
                     damage: 50.0,
                 },
             );
             aggro.0.insert(
                 DECOY,
-                crate::model::npc::AggroInfo {
+                model::npc::AggroInfo {
                     hate: 900.0,
                     damage: 900.0,
                 },
@@ -3141,7 +3125,7 @@ mod hate_effects {
             "Eva's Serenade",
             SkillEffect::DeleteHate { chance: 80 },
         );
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
         assert!(
             world
@@ -3179,14 +3163,14 @@ mod hate_effects {
                 .unwrap();
             aggro.0.insert(
                 3001,
-                crate::model::npc::AggroInfo {
+                model::npc::AggroInfo {
                     hate: 50.0,
                     damage: 50.0,
                 },
             );
             aggro.0.insert(
                 DECOY,
-                crate::model::npc::AggroInfo {
+                model::npc::AggroInfo {
                     hate: 900.0,
                     damage: 900.0,
                 },
@@ -3202,7 +3186,7 @@ mod hate_effects {
             "Bluff",
             SkillEffect::DeleteHateOfMe { chance: 80 },
         );
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
         let aggro = world.objects.get_component::<AggroList>(&npc_oid).unwrap();
         assert_eq!(
@@ -3242,14 +3226,14 @@ fn cure_poison_dispels_matching_poison_debuff() {
     // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
     let poison = |level: i32, abnormal_level: i32| Skill {
         self_continuous: false,
-        basic_property: crate::model::skill::BasicProperty::None,
+        basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -3314,14 +3298,14 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(poison(4, 7));
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
-        basic_property: crate::model::skill::BasicProperty::None,
+        basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -3386,7 +3370,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     let cure = world.data.skill_data.get(1012, 1).unwrap().clone();
 
     // Land Poison lvl 1 (abnormalLevel 3) on the mob.
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &poison1);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &poison1);
     assert_eq!(
         world
             .objects
@@ -3399,7 +3383,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     );
 
     // Cure Poison lvl 1 dispels POISON up to level 3 → the debuff is removed.
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cure);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &cure);
     assert!(
         world
             .objects
@@ -3412,8 +3396,8 @@ fn cure_poison_dispels_matching_poison_debuff() {
 
     // A higher-level poison (lvl 4, abnormalLevel 7) is above Cure Poison lvl 1's
     // reach (POISON,3) and survives the cleanse.
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &poison4);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cure);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &poison4);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &cure);
     assert_eq!(
         world
             .objects
@@ -3445,14 +3429,14 @@ mod dispel_by_category {
     fn base_skill(id: i32, name: &str) -> Skill {
         Skill {
             self_continuous: false,
-            basic_property: crate::model::skill::BasicProperty::None,
+            basic_property: model::skill::BasicProperty::None,
             conditions: Vec::new(),
             target_conditions: Vec::new(),
             passive_conditions: Vec::new(),
             without_action: false,
             is_suicide_attack: false,
             icon: String::from("icon.skill0000"),
-            trait_type: crate::model::skill::TraitType::None,
+            trait_type: model::skill::TraitType::None,
             static_reuse: false,
             item_consume_id: 0,
             item_consume_count: 0,
@@ -3558,9 +3542,7 @@ mod dispel_by_category {
 
         for s in [&buff, &undispellable, &dance] {
             world.data.skill_data.insert_for_test(s.clone());
-            crate::game_loop::skills::effects::apply_continuous_effects(
-                &mut world, 3001, npc_oid, s, None,
-            );
+            effects::apply_continuous_effects(&mut world, 3001, npc_oid, s, None);
         }
         assert_eq!(
             world
@@ -3573,7 +3555,7 @@ mod dispel_by_category {
             "all three landed"
         );
 
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cancel);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &cancel);
 
         let remaining: Vec<i32> = world
             .objects
@@ -3619,12 +3601,8 @@ mod dispel_by_category {
 
         world.data.skill_data.insert_for_test(buff.clone());
         world.data.skill_data.insert_for_test(debuff.clone());
-        crate::game_loop::skills::effects::apply_continuous_effects(
-            &mut world, 3001, npc_oid, &buff, None,
-        );
-        crate::game_loop::skills::effects::apply_continuous_effects(
-            &mut world, 3001, npc_oid, &debuff, None,
-        );
+        effects::apply_continuous_effects(&mut world, 3001, npc_oid, &buff, None);
+        effects::apply_continuous_effects(&mut world, 3001, npc_oid, &debuff, None);
         assert_eq!(
             world
                 .objects
@@ -3636,7 +3614,7 @@ mod dispel_by_category {
             "both landed"
         );
 
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &cleanse);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &cleanse);
 
         let remaining: Vec<i32> = world
             .objects
@@ -3713,10 +3691,7 @@ fn skill_acquire_gates_send_system_messages() {
     );
 
     // Neither gate learned the skill.
-    let book = world
-        .objects
-        .get_component::<crate::model::components::SkillBook>(&3001)
-        .unwrap();
+    let book = world.objects.get_component::<SkillBook>(&3001).unwrap();
     assert!(!book.0.contains_key(&1001) && !book.0.contains_key(&1002));
 }
 
@@ -3733,11 +3708,7 @@ fn skill_acquire_requires_and_consumes_the_book() {
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.cfg.character.divine_inspiration_sp_book_needed = true;
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world
-        .objects
-        .get_component_mut::<crate::model::Player>(&3001)
-        .unwrap()
-        .sp = 500;
+    world.objects.get_component_mut::<Player>(&3001).unwrap().sp = 500;
     world.data.skill_trees.insert_for_test(
         0,
         SkillLearn {
@@ -3766,18 +3737,14 @@ fn skill_acquire_requires_and_consumes_the_book() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&3001)
+            .get_component::<SkillBook>(&3001)
             .unwrap()
             .0
             .contains_key(&1003),
         "book-gated skill not learned without the book"
     );
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&3001)
-            .unwrap()
-            .sp,
+        world.objects.get_component::<Player>(&3001).unwrap().sp,
         500,
         "SP untouched when the item gate refuses"
     );
@@ -3796,7 +3763,7 @@ fn skill_acquire_requires_and_consumes_the_book() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&3001)
+            .get_component::<SkillBook>(&3001)
             .unwrap()
             .0
             .get(&1003),
@@ -3812,11 +3779,7 @@ fn skill_acquire_requires_and_consumes_the_book() {
         "the book is consumed"
     );
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&3001)
-            .unwrap()
-            .sp,
+        world.objects.get_component::<Player>(&3001).unwrap().sp,
         400,
         "500 SP - levelUpSp(100)"
     );
@@ -3850,11 +3813,8 @@ fn acquire_skill_list_carries_the_required_book() {
         },
     );
 
-    let view = crate::model::PlayerView::of_world(&world, 3001).expect("view");
-    let skills = world
-        .objects
-        .get_component::<crate::model::components::SkillBook>(&3001)
-        .unwrap();
+    let view = model::PlayerView::of_world(&world, 3001).expect("view");
+    let skills = world.objects.get_component::<SkillBook>(&3001).unwrap();
     let pkt = crate::network::enter_world::acquire_skill_list(view.p, skills, &world.data);
 
     // 0x90, i16 entry count, then: i32 id, i16 level, i64 sp, u8 getLevel,
@@ -3885,11 +3845,7 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.cfg.character.divine_inspiration_sp_book_needed = false;
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world
-        .objects
-        .get_component_mut::<crate::model::Player>(&3001)
-        .unwrap()
-        .sp = 500;
+    world.objects.get_component_mut::<Player>(&3001).unwrap().sp = 500;
     world.data.skill_trees.insert_for_test(
         0,
         SkillLearn {
@@ -3930,7 +3886,7 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&3001)
+            .get_component::<SkillBook>(&3001)
             .unwrap()
             .0
             .get(&DIVINE_INSPIRATION_SKILL_ID),
@@ -3938,11 +3894,7 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
         "learned with no book in the bag"
     );
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&3001)
-            .unwrap()
-            .sp,
+        world.objects.get_component::<Player>(&3001).unwrap().sp,
         500,
         "Java's early return skips the SP deduction too"
     );
@@ -3987,7 +3939,7 @@ fn skill_reuse_cooldown_survives_relog() {
         );
 
     // The save captures it (config default = on) as an absolute systime.
-    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    let save = build_save_data(&world, 3001).expect("save data");
     assert_eq!(save.skill_reuses.len(), 1);
     let row = save.skill_reuses[0];
     assert_eq!(
@@ -4013,7 +3965,7 @@ fn skill_reuse_cooldown_survives_relog() {
     // With the config off, nothing is persisted (and the DB rows get cleared).
     world.cfg.character.store_skill_cooltime = false;
     assert!(
-        super::net::build_save_data(&world, 3001)
+        build_save_data(&world, 3001)
             .unwrap()
             .skill_reuses
             .is_empty()
@@ -4039,7 +3991,7 @@ fn buff_survives_relog_without_offline_countdown() {
     world.tick += 300;
 
     // The save captures the *remaining* 70 s, not the skill's full duration.
-    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    let save = build_save_data(&world, 3001).expect("save data");
     assert_eq!(save.skill_buffs.len(), 1, "the live buff is captured");
     let row = save.skill_buffs[0];
     assert_eq!(
@@ -4068,7 +4020,7 @@ fn buff_survives_relog_without_offline_countdown() {
     // With the config off, buffs aren't persisted (and the DB rows get cleared).
     world.cfg.character.store_skill_cooltime = false;
     assert!(
-        super::net::build_save_data(&world, 3001)
+        build_save_data(&world, 3001)
             .unwrap()
             .skill_buffs
             .is_empty()
@@ -4094,7 +4046,7 @@ fn dances_and_toggles_are_not_stored_by_default() {
     assert_eq!(pbuffs(&world, 3001), 2, "both landed");
 
     world.cfg.character.alt_store_dances = false;
-    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    let save = build_save_data(&world, 3001).expect("save data");
     assert!(
         save.skill_buffs.is_empty(),
         "dance dropped, toggle never stored"
@@ -4102,7 +4054,7 @@ fn dances_and_toggles_are_not_stored_by_default() {
 
     // AltStoreDances=True (this dist) keeps the dance — but still not the toggle.
     world.cfg.character.alt_store_dances = true;
-    let save = super::net::build_save_data(&world, 3001).expect("save data");
+    let save = build_save_data(&world, 3001).expect("save data");
     assert_eq!(save.skill_buffs.len(), 1);
     assert_eq!(
         save.skill_buffs[0].skill_id, 9600,
@@ -4126,14 +4078,14 @@ fn synthetic_buff(
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
-        basic_property: crate::model::skill::BasicProperty::None,
+        basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
         passive_conditions: Vec::new(),
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -4467,10 +4419,10 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
     let far = NPC_OID + 71;
     spawn_targeted_monster(&mut world, &mut a_rx, near, 100);
     // The far monster: outside castRange 600, spawned untargeted.
-    let (npc, extra) = crate::model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(far);
     world.objects.spawn(far, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -4488,10 +4440,7 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
     // while the 4 s cast is still running): select the far monster and click
     // the same skill again.
     advance_world(&mut world, 15);
-    if let Some(reuses) = world
-        .objects
-        .get_component_mut::<crate::model::components::Reuses>(&3001)
-    {
+    if let Some(reuses) = world.objects.get_component_mut::<Reuses>(&3001) {
         reuses.0.clear();
     }
     handle_action(&mut world, 1, &action_body(far, 0));
@@ -4534,20 +4483,17 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
     // top the caster back up so the walk-to-cast is what is being measured.
     world
         .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&near)
+        .get_component_mut::<AggroList>(&near)
         .unwrap()
         .0
         .clear();
     world
         .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&near)
+        .get_component_mut::<model::npc::NpcAi>(&near)
         .unwrap()
-        .intention = crate::model::npc::NpcIntention::Active;
+        .intention = model::npc::NpcIntention::Active;
     {
-        let v = world
-            .objects
-            .get_component_mut::<crate::model::components::Vitals>(&3001)
-            .unwrap();
+        let v = world.objects.get_component_mut::<Vitals>(&3001).unwrap();
         v.cur_hp = v.max_hp as f64;
     }
 
@@ -4577,10 +4523,10 @@ fn far_retarget_after_target_cancel_walks_into_range() {
     let near = NPC_OID + 72;
     let far = NPC_OID + 73;
     spawn_targeted_monster(&mut world, &mut a_rx, near, 100);
-    let (npc, extra) = crate::model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(far);
     world.objects.spawn(far, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -4594,10 +4540,7 @@ fn far_retarget_after_target_cancel_walks_into_range() {
 
     // Client target switch: TargetCanceld (aborts the cast) + Action(far).
     advance_world(&mut world, 15);
-    if let Some(reuses) = world
-        .objects
-        .get_component_mut::<crate::model::components::Reuses>(&3001)
-    {
+    if let Some(reuses) = world.objects.get_component_mut::<Reuses>(&3001) {
         reuses.0.clear();
     }
     handle_request_target_canceld(&mut world, 1, &target_canceld_body(false));
@@ -4655,7 +4598,7 @@ fn queued_far_retarget_with_real_datapack_timings() {
     // leaving the queue/retarget flow under test untouched.
     world.objects.add_components(
         &3001,
-        crate::model::components::AdminFlags {
+        AdminFlags {
             invul: true,
             ..Default::default()
         },
@@ -4664,10 +4607,10 @@ fn queued_far_retarget_with_real_datapack_timings() {
     let far = NPC_OID + 75;
     // Real-datapack monsters (Gremlin, 20001) at 100 and 900 units.
     for (oid, x) in [(near, 100), (far, 900)] {
-        let (npc, extra) = crate::model::npc::Npc::for_test(oid, 20001, x, 0, 0, 5000, 30);
+        let (npc, extra) = model::npc::Npc::for_test(oid, 20001, x, 0, 0, 5000, 30);
         world.npc_regions.entry(extra.1.0).or_default().push(oid);
         world.objects.spawn(oid, (npc, extra));
-        let cs = crate::model::npc::npc_combat_stats(
+        let cs = model::npc::npc_combat_stats(
             world.data.npc_data.get(20001).unwrap(),
             &world.data.stat_bonus,
         );
@@ -4699,9 +4642,7 @@ fn queued_far_retarget_with_real_datapack_timings() {
             .objects
             .get_component::<Casting>(&3001)
             .map(|c| c.0.skill_id),
-        world
-            .objects
-            .get_component::<crate::model::components::Reuses>(&3001)
+        world.objects.get_component::<Reuses>(&3001)
     );
     drain(&mut a_rx);
 
@@ -4844,7 +4785,7 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
     );
 
     // Expiry (natural `BuffExpire`, dispel, or death all route through this).
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, 5001, 618);
+    effects::handle_buff_expire(&mut world, 5001, 618);
     // A TvT entrant cannot transform at all — Java's `isRegisteredOnEvent()`
     // leg, which sends a plain text line rather than a SystemMessage.
     {
@@ -4854,10 +4795,7 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
     // Clear the reuse the first cast left, or the refusal below would be the
     // cooldown talking rather than the event gate (it was, on the first
     // attempt at this test — the sabotage caught it).
-    if let Some(r) = world
-        .objects
-        .get_component_mut::<crate::model::components::Reuses>(&5001)
-    {
+    if let Some(r) = world.objects.get_component_mut::<Reuses>(&5001) {
         r.0.clear();
     }
     world.events.tvt.player_list.push(5001);
@@ -5077,7 +5015,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     bare.items = vec![paperdoll(1, 628, 7)];
     let bare_bundle = Player::from_char(&world.data, &bare);
     bare_bundle.spawn_into(&mut world);
-    let bare_shield = crate::game_loop::combat::combatant(&world, 5201).expect("bare combatant");
+    let bare_shield = combat::combatant(&world, 5201).expect("bare combatant");
     assert_eq!(
         bare_shield.shield_def, 128.0,
         "no skill: raw sDef unchanged"
@@ -5088,8 +5026,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     masted.skills = vec![(153, 4, 0)];
     let masted_bundle = Player::from_char(&world.data, &masted);
     masted_bundle.spawn_into(&mut world);
-    let masted_shield =
-        crate::game_loop::combat::combatant(&world, 5202).expect("masted combatant");
+    let masted_shield = combat::combatant(&world, 5202).expect("masted combatant");
     assert_eq!(
         masted_shield.shield_def,
         128.0 * 1.6,
@@ -5193,7 +5130,7 @@ fn assassination_passive_raises_blow_rate_stat() {
         bare_bundle
             .stat_modifiers
             .mul
-            .get(&crate::model::stats::Stat::BlowRate),
+            .get(&model::stats::Stat::BlowRate),
         None,
         "no skill: no modifier at all"
     );
@@ -5204,7 +5141,7 @@ fn assassination_passive_raises_blow_rate_stat() {
     let mul = assassin_bundle
         .stat_modifiers
         .mul
-        .get(&crate::model::stats::Stat::BlowRate)
+        .get(&model::stats::Stat::BlowRate)
         .copied()
         .unwrap_or(0.0);
     assert!(
@@ -5236,9 +5173,9 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
     bare.race = 0; // human, not a dwarf
     let bare_bundle = Player::from_char(&world.data, &bare);
     let bare_view = bare_bundle.view();
-    let bare_limit = crate::model::finalize(
+    let bare_limit = model::finalize(
         bare_view.mods,
-        crate::model::stats::Stat::InventoryNormal,
+        model::stats::Stat::InventoryNormal,
         cfg.inventory_limit(0) as f64,
     ) as i32;
     assert_eq!(
@@ -5252,9 +5189,9 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
     expanded.skills = vec![(1372, 3, 0)]; // Expand Inventory lvl3, real dist: +18
     let expanded_bundle = Player::from_char(&world.data, &expanded);
     let expanded_view = expanded_bundle.view();
-    let expanded_limit = crate::model::finalize(
+    let expanded_limit = model::finalize(
         expanded_view.mods,
-        crate::model::stats::Stat::InventoryNormal,
+        model::stats::Stat::InventoryNormal,
         cfg.inventory_limit(0) as f64,
     ) as i32;
     assert_eq!(
@@ -5443,7 +5380,7 @@ fn enemy_not_targets_a_friendly_player() {
     // casters/targets aren't exercised elsewhere in this suite.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&5402)
+        .get_component_mut::<Position>(&5402)
         .unwrap()
         .x = 50;
 
@@ -5501,14 +5438,14 @@ fn enemy_not_refuses_a_hostile_target() {
 
     // A real dist monster (20001 Gremlin) is auto-attackable.
     let npc_oid = NPC_OID + 1;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 1000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 1000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(20001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -5671,23 +5608,21 @@ fn energy_attack_spends_charges_for_bonus_damage() {
     arm(&mut world, 5511, 2);
 
     let npc_oid = NPC_OID + 2;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 100_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 100_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(20001).unwrap(),
         &world.data.stat_bonus,
     );
     world.objects.add_components(&npc_oid, cs);
     let npc_hp_before = pvit(&world, npc_oid).cur_hp;
     let p_atk = pcs(&world, 5511).p_atk;
-    let p_def = crate::game_loop::combat::combatant(&world, npc_oid)
-        .unwrap()
-        .p_def;
+    let p_def = combat::combatant(&world, npc_oid).unwrap().p_def;
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
@@ -5710,7 +5645,7 @@ fn energy_attack_spends_charges_for_bonus_damage() {
     // one actually consumes a pushed value depends on tick timing rather
     // than cast order — tolerate either outcome instead of fighting that.
     let level = world.objects.get_component::<Player>(&5511).unwrap().level;
-    let level_mod = crate::model::formulas::level_mod(level);
+    let level_mod = formulas::level_mod(level);
     let base = (77.0 * ((p_atk * level_mod) + 369.0) / p_def.max(1.0)) * 1.2;
     let actual_damage = npc_hp_before - pvit(&world, npc_oid).cur_hp;
     assert!(
@@ -5741,7 +5676,7 @@ fn lethal_half_kill_sets_player_cp_to_1() {
     drain(&mut b_rx);
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&5602)
+        .get_component_mut::<Position>(&5602)
         .unwrap()
         .x = 30;
     world
@@ -5762,7 +5697,7 @@ fn lethal_half_kill_sets_player_cp_to_1() {
     {
         let pv = world
             .objects
-            .get_component_mut::<crate::model::components::PlayerVitals>(&5602)
+            .get_component_mut::<PlayerVitals>(&5602)
             .unwrap();
         pv.max_cp = 50;
         pv.cur_cp = 50.0;
@@ -5777,7 +5712,7 @@ fn lethal_half_kill_sets_player_cp_to_1() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerVitals>(&5602)
+            .get_component::<PlayerVitals>(&5602)
             .unwrap()
             .cur_cp,
         1.0,
@@ -5811,7 +5746,7 @@ fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
     drain(&mut b_rx);
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&5622)
+        .get_component_mut::<Position>(&5622)
         .unwrap()
         .x = 30;
     world
@@ -5836,23 +5771,18 @@ fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
     }
     // The counter needs a real p_atk behind it or the damage rounds to 0 and
     // the whole thing bails before sending anything.
-    if let Some(cs) = world
-        .objects
-        .get_component_mut::<crate::model::components::CombatStats>(&5622)
-    {
+    if let Some(cs) = world.objects.get_component_mut::<CombatStats>(&5622) {
         cs.p_atk = 500.0;
     }
     // `VENGEANCE_SKILL_PHYSICAL_DAMAGE` at 100 — the counter always rolls.
     {
         let mut mods = world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&5622)
+            .get_component::<model::components::StatModifiers>(&5622)
             .cloned()
             .unwrap_or_default();
-        mods.add.insert(
-            crate::model::stats::Stat::VengeanceSkillPhysicalDamage,
-            100.0,
-        );
+        mods.add
+            .insert(model::stats::Stat::VengeanceSkillPhysicalDamage, 100.0);
         world.objects.add_components(&5622, mods);
     }
 
@@ -5908,14 +5838,14 @@ fn lethal_spares_a_raid_boss() {
         .cur_mp = 200.0;
 
     let npc_oid = NPC_OID + 10;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 3404, 30, 0, 0, 1_000_000, 100);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 3404, 30, 0, 0, 1_000_000, 100);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(3404).unwrap(),
         &world.data.stat_bonus,
     );
@@ -6036,9 +5966,8 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
     );
     assert_eq!(
         world.objects.get_component::<Buffs>(&5801).unwrap().0[0].effect_flags
-            & (crate::model::skill::effect_flag::HP_BLOCK
-                | crate::model::skill::effect_flag::MP_BLOCK),
-        crate::model::skill::effect_flag::HP_BLOCK | crate::model::skill::effect_flag::MP_BLOCK,
+            & (model::skill::effect_flag::HP_BLOCK | model::skill::effect_flag::MP_BLOCK),
+        model::skill::effect_flag::HP_BLOCK | model::skill::effect_flag::MP_BLOCK,
         "both HP_BLOCK and MP_BLOCK set"
     );
 
@@ -6047,21 +5976,19 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
     // that absorb branch in `player_receive_damage`).
     world
         .objects
-        .get_component_mut::<crate::model::components::PlayerVitals>(&5801)
+        .get_component_mut::<PlayerVitals>(&5801)
         .unwrap()
         .cur_cp = 0.0;
     let hp_before = pvit(&world, 5801).cur_hp;
     // A huge non-DoT hit: refused outright.
-    crate::game_loop::combat::apply_physical_damage(
-        &mut world, 90001, 5801, 999_999.0, false, false,
-    );
+    combat::apply_physical_damage(&mut world, 90001, 5801, 999_999.0, false, false);
     assert_eq!(
         pvit(&world, 5801).cur_hp,
         hp_before,
         "HP_BLOCK refuses a normal hit"
     );
     // A DoT tick: Java's one exemption besides a skill's own HP cost.
-    crate::game_loop::combat::apply_physical_damage(&mut world, 90001, 5801, 5.0, true, false);
+    combat::apply_physical_damage(&mut world, 90001, 5801, 5.0, true, false);
     assert_eq!(
         pvit(&world, 5801).cur_hp,
         hp_before - 5.0,
@@ -6104,16 +6031,12 @@ fn a_trait_resistance_lowers_the_lethal_chance() {
             half_lethal: 0.0,
         }];
         if resist {
-            crate::game_loop::skills::effects::merge_defence_traits(
-                &mut world,
-                npc_oid,
-                &[(TraitType::Shock, 0.5)],
-            );
+            effects::merge_defence_traits(&mut world, npc_oid, &[(TraitType::Shock, 0.5)]);
         }
         // magic-crit throwaway, then the full-lethal roll: 60 is under the
         // unresisted 100 but over the halved 50.
         world.forced_rolls.extend([0, 60]);
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+        effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
         world
             .objects
             .get_component::<Vitals>(&npc_oid)
@@ -6152,7 +6075,7 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
     const POWER_STRIKE: i32 = 3;
     const WIND_STRIKE: i32 = 1177;
     const CASTER: i32 = 6401;
-    let npc = crate::model::npc::FIRST_NPC_OBJECT_ID + 7801;
+    let npc = model::npc::FIRST_NPC_OBJECT_ID + 7801;
 
     let (mut world, ..) = test_world();
     world.data = dist::game_data_owned();
@@ -6178,7 +6101,7 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
         let skill = skill_by_id(world, skill_id, 1).expect("skill");
         world.forced_rolls.clear();
         world.forced_rolls.extend([50; 12]);
-        crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, npc, &skill);
+        effects::apply_skill_effects(world, CASTER, npc, &skill);
         1_000_000.0 - pvit_npc_hp(world, npc)
     };
 
@@ -6303,7 +6226,7 @@ fn a_non_combat_transform_is_refused_a_walk_to_cast() {
         drain(&mut rx);
         handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
         sm_ids_of(&drain(&mut rx)).contains(
-            &crate::network::server_packets::sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
+            &server_packets::sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
         )
     };
 
@@ -6348,9 +6271,7 @@ fn a_passive_rate_skill_actually_discounts_the_skill_it_names() {
         .get(WIND_STRIKE, 1)
         .expect("wind strike")
         .clone();
-    let mp = |w: &World, s: &crate::model::skill::Skill| {
-        crate::game_loop::skills::effects::mp_consume_for(w, 7711, s)
-    };
+    let mp = |w: &World, s: &Skill| effects::mp_consume_for(w, 7711, s);
 
     let (song_before, nuke_before) = (mp(&world, &song), mp(&world, &nuke));
     assert_eq!(song_before, 60, "sanity: the dist still prices it at 60");
@@ -6361,7 +6282,7 @@ fn a_passive_rate_skill_actually_discounts_the_skill_it_names() {
         .unwrap()
         .0
         .insert(INNER_RHYTHM, 1);
-    crate::game_loop::passive_skills::refresh_conditioned_passives(&mut world, 7711);
+    passive_skills::refresh_conditioned_passives(&mut world, 7711);
 
     assert_eq!(
         mp(&world, &song),
@@ -6383,7 +6304,7 @@ fn a_passive_rate_skill_actually_discounts_the_skill_it_names() {
         .unwrap()
         .0
         .remove(&INNER_RHYTHM);
-    crate::game_loop::passive_skills::refresh_conditioned_passives(&mut world, 7711);
+    passive_skills::refresh_conditioned_passives(&mut world, 7711);
     assert_eq!(mp(&world, &song), song_before, "and it comes back off");
 }
 
@@ -6405,7 +6326,7 @@ fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
         // A real MP pool rather than a hand-set one: `//add_skill` recomputes
         // max vitals, and a level-1 character's ~40 MP would be clamped back
         // under the song's 60 anyway.
-        crate::game_loop::death::set_level(&mut world, OID, 78);
+        death::set_level(&mut world, OID, 78);
         {
             let max = world.objects.get_component::<Vitals>(&OID).unwrap().max_mp;
             let v = world.objects.get_component_mut::<Vitals>(&OID).unwrap();
@@ -6478,14 +6399,11 @@ fn npc_body_spoil_gate_only_for_sweeper() {
         effects: vec![SkillEffect::Sweeper, SkillEffect::ConsumeBody],
         ..Default::default()
     };
-    let caster = world
-        .objects
-        .get_component::<crate::model::Player>(&3001)
-        .unwrap();
+    let caster = world.objects.get_component::<Player>(&3001).unwrap();
     let pos = *world.objects.get_component::<Position>(&3001).unwrap();
 
     assert_eq!(
-        skills::cast::resolve_cast_target(
+        resolve_cast_target(
             &world,
             caster,
             &pos,
@@ -6498,37 +6416,18 @@ fn npc_body_spoil_gate_only_for_sweeper() {
         "a corpse skill without the Sweeper effect casts on an unspoiled corpse"
     );
     assert_eq!(
-        skills::cast::resolve_cast_target(
-            &world,
-            caster,
-            &pos,
-            Some(npc_oid),
-            &sweeper,
-            false,
-            false
-        ),
+        resolve_cast_target(&world, caster, &pos, Some(npc_oid), &sweeper, false, false),
         Err(sm_ids::SWEEPER_FAILED_TARGET_NOT_SPOILED),
         "Sweeper is still refused on an unspoiled corpse at cast time"
     );
     world
         .objects
-        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+        .get_component_mut::<model::npc::Npc>(&npc_oid)
         .unwrap()
         .spoiler_object_id = 3001;
-    let caster = world
-        .objects
-        .get_component::<crate::model::Player>(&3001)
-        .unwrap();
+    let caster = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(
-        skills::cast::resolve_cast_target(
-            &world,
-            caster,
-            &pos,
-            Some(npc_oid),
-            &sweeper,
-            false,
-            false
-        ),
+        resolve_cast_target(&world, caster, &pos, Some(npc_oid), &sweeper, false, false),
         Ok(npc_oid),
         "the caster's own spoil passes the Sweeper gate"
     );
@@ -6563,7 +6462,7 @@ fn own_summon_interact_fires_summon_talk() {
 
     // 10 % roll hits (0 < 10), then the 25 % band picks string 42240.
     world.forced_rolls.extend([5, 30]);
-    crate::game_loop::target::interact_with_npc(&mut world, 1, 3001, pet_oid);
+    interact_with_npc(&mut world, 1, 3001, pet_oid);
     let pkts = drain(&mut rx);
     let said = pkts.iter().any(|p| {
         p[0] == server_packets::opcodes::NPC_SAY
@@ -6574,7 +6473,7 @@ fn own_summon_interact_fires_summon_talk() {
 
     // The 90 % miss stays quiet.
     world.forced_rolls.push_back(50);
-    crate::game_loop::target::interact_with_npc(&mut world, 1, 3001, pet_oid);
+    interact_with_npc(&mut world, 1, 3001, pet_oid);
     assert!(
         !drain(&mut rx)
             .iter()

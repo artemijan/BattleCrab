@@ -76,10 +76,7 @@ pub(crate) fn member_view(world: &World, object_id: i32) -> Option<PartyMemberVi
 /// A member's pet and servitor as party-window rows (Java writes the pet
 /// first, then servitors). Reads the owner's `SummonRef` link rather than
 /// sweeping — which is what makes this callable from `&World`.
-fn summon_views(
-    world: &World,
-    owner_oid: i32,
-) -> Vec<crate::network::server_packets::PartySummonView> {
+fn summon_views(world: &World, owner_oid: i32) -> Vec<server_packets::PartySummonView> {
     use crate::game_loop::servitor::{pet_of, servitor_of};
     [
         (pet_of(world, owner_oid), 1u8),
@@ -96,7 +93,7 @@ fn summon_views(
             .template(world)
             .map(|t| t.name.clone())
             .unwrap_or_default();
-        Some(crate::network::server_packets::PartySummonView {
+        Some(server_packets::PartySummonView {
             object_id: oid,
             npc_id: npc.npc_id,
             summon_type,
@@ -268,7 +265,7 @@ pub(crate) fn broadcast_user_info(world: &mut World, object_id: i32) {
     }
     world.scheduler.schedule(
         world.tick + crate::game_loop::helpers::ms_to_ticks(50),
-        crate::scheduler::ScheduledTask::BroadcastCharInfo { object_id },
+        ScheduledTask::BroadcastCharInfo { object_id },
     );
 }
 

@@ -291,6 +291,7 @@ fn the_beats_keep_their_uneven_spacing() {
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::valakas::{DORMANT, MAX_PEOPLE, VACUALITE};
+use crate::scheduler::ScheduledTask;
 
 /// A world with a DORMANT, spawned Valakas and the item template registered.
 fn entry_world() -> (

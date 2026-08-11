@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::{death, skills};
 
 /// `Action` on a monster tints `MyTargetSelected` with the level gap; a second
 /// click on the already-targeted (out-of-range) monster starts the attack and
@@ -2668,7 +2669,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     );
 
     // Sweep → loot lands in the caster's inventory and the corpse is consumed.
-    skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &sweeper);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &sweeper);
     assert_eq!(
         world
             .objects

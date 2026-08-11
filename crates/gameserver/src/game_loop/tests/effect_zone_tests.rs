@@ -91,17 +91,6 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
     refresh_zone_masks(world);
 }
 
-/// A zone inserted mid-test postdates every spawned player's `ZoneFlags`
-/// mask, and the sweeps gate on that mask (as Java gates on the
-/// revalidate-fed `_characterList`). Production order is zones-at-boot,
-/// players-revalidate-on-enter; re-run that revalidate here.
-fn refresh_zone_masks(world: &mut World) {
-    let ids: Vec<i32> = world.in_game_player_oids().collect();
-    for id in ids {
-        crate::game_loop::zones::revalidate_zone(world, id, true);
-    }
-}
-
 fn zone_world() -> (
     World,
     db::CmdRx,

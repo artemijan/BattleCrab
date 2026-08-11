@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::warehouse;
 
 /// A heal on another player: Heal.java's `power + sqrt(2·mAtk)` amount,
 /// overheal-clamped, SM 1067 to the healed target.
@@ -741,7 +742,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: item_data::ActionType::Other,
         item_id: 15274,
         name: "Jewelry Pack (A-grade)".into(),
         kind: ItemKind::Etc,
@@ -756,7 +757,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: item_data::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -772,7 +773,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: item_data::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -783,7 +784,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: item_data::ActionType::Other,
         item_id: 14966,
         name: "Majestic Earring of Fortune".into(),
         kind: ItemKind::Armor,
@@ -798,7 +799,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: item_data::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -809,7 +810,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: item_data::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -976,7 +977,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 2031,
@@ -1148,7 +1149,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         mp_initial_consume: 0,
         hp_consume: 0,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 9909,
         item_consume_count: 1,
         abnormal_time: 0,
@@ -1167,7 +1168,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         is_debuff: false,
         stay_after_death: false,
         effects: vec![SkillEffect::Escape {
-            dest: crate::model::skill::EscapeDest::Town,
+            dest: model::skill::EscapeDest::Town,
         }],
         ..Default::default()
     });
@@ -1278,7 +1279,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 22490,
@@ -1452,7 +1453,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 323,
@@ -1639,7 +1640,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 324,
@@ -1796,10 +1797,7 @@ fn restart_stores_player_and_returns_to_lobby() {
     let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
     let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&5001)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&5001).unwrap();
         p.exp = 1234;
     }
     world
@@ -1939,10 +1937,10 @@ fn soulshot_charges_consumes_and_plays_visual() {
     ));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     grant_and_equip(&mut world, 3001, 1, 9500);
-    let shot_oid = super::items::add_inventory_item(&mut world, 3001, 1463, 10).unwrap()[0];
+    let shot_oid = items::add_inventory_item(&mut world, 3001, 1463, 10).unwrap()[0];
     drain(&mut a_rx);
 
-    super::items::use_equipable_item(&mut world, 1, 3001, shot_oid);
+    items::use_equipable_item(&mut world, 1, 3001, shot_oid);
 
     assert!(
         world
@@ -1994,10 +1992,10 @@ fn soulshot_wrong_grade_is_refused() {
     ));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     grant_and_equip(&mut world, 3001, 1, 9500);
-    let shot_oid = super::items::add_inventory_item(&mut world, 3001, 1464, 10).unwrap()[0];
+    let shot_oid = items::add_inventory_item(&mut world, 3001, 1464, 10).unwrap()[0];
     drain(&mut a_rx);
 
-    super::items::use_equipable_item(&mut world, 1, 3001, shot_oid);
+    items::use_equipable_item(&mut world, 1, 3001, shot_oid);
 
     assert!(
         !world
@@ -2010,7 +2008,7 @@ fn soulshot_wrong_grade_is_refused() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .count_of(1464),
         10,
@@ -2038,14 +2036,14 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2096,14 +2094,14 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2122,7 +2120,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
     // success roll — unforced it resists ~3 % of the time against this mob, and
     // the halved damage reads as "the shot did nothing".
     world.forced_rolls.extend([999_999, 0]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let base = start_hp - nvit(&world, npc_oid).cur_hp;
     assert!(base > 0.0, "control nuke dealt damage");
     world
@@ -2138,7 +2136,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
         .unwrap()
         .charge_shot(ShotType::Spiritshots);
     world.forced_rolls.extend([999_999, 0]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 
     assert!(
@@ -2166,14 +2164,14 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 13;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2208,7 +2206,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
     world
         .forced_rolls
         .extend([999_999, 999_999, 999_999, 999_999]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let base = start_hp - nvit(&world, npc_oid).cur_hp;
     assert!(
         base > 0.0,
@@ -2229,7 +2227,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
     world
         .forced_rolls
         .extend([999_999, 999_999, 999_999, 999_999]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 
     assert!(
@@ -2264,7 +2262,7 @@ fn auto_soulshot_toggle_activates_and_recharges() {
     ));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     grant_and_equip(&mut world, 3001, 1, 9500);
-    super::items::add_inventory_item(&mut world, 3001, 1463, 10);
+    items::add_inventory_item(&mut world, 3001, 1463, 10);
     drain(&mut a_rx);
 
     // itemId=1463, enable=1, type=0.
@@ -2272,7 +2270,7 @@ fn auto_soulshot_toggle_activates_and_recharges() {
     body.extend_from_slice(&1463i32.to_le_bytes());
     body.extend_from_slice(&1i32.to_le_bytes());
     body.extend_from_slice(&0i32.to_le_bytes());
-    super::items::handle_request_auto_soul_shot(&mut world, 1, &body);
+    items::handle_request_auto_soul_shot(&mut world, 1, &body);
 
     assert!(
         world
@@ -2301,14 +2299,14 @@ fn auto_soulshot_toggle_activates_and_recharges() {
 
     // The charge is spent on a hit, and the next attack auto-recharges it.
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2335,7 +2333,7 @@ fn auto_soulshot_toggle_activates_and_recharges() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .count_of(1463),
         8,
@@ -2353,16 +2351,16 @@ fn destroy_item_removes_from_inventory() {
     let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
     drain(&mut rx);
 
-    super::items::add_inventory_item(&mut world, 9100, 57, 1000).expect("adena added");
+    items::add_inventory_item(&mut world, 9100, 57, 1000).expect("adena added");
     let inv = |w: &World| {
         w.objects
-            .get_component::<crate::model::inventory::Inventory>(&9100)
+            .get_component::<Inventory>(&9100)
             .unwrap()
             .count_of(57)
     };
     let adena_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&9100)
+        .get_component::<Inventory>(&9100)
         .unwrap()
         .items()
         .iter()
@@ -2421,7 +2419,7 @@ fn giving_adena_refreshes_the_adena_counter() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&9100)
+            .get_component::<Inventory>(&9100)
             .unwrap()
             .adena(),
         100_000,
@@ -2438,16 +2436,16 @@ fn drop_and_pickup_ground_item() {
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9200, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, 9200, 57, 1000).expect("adena");
+    items::add_inventory_item(&mut world, 9200, 57, 1000).expect("adena");
     let count_of = |w: &World| {
         w.objects
-            .get_component::<crate::model::inventory::Inventory>(&9200)
+            .get_component::<Inventory>(&9200)
             .unwrap()
             .count_of(57)
     };
     let adena_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&9200)
+        .get_component::<Inventory>(&9200)
         .unwrap()
         .items()
         .iter()
@@ -2469,7 +2467,7 @@ fn drop_and_pickup_ground_item() {
     assert_eq!(count_of(&world), 600, "400 left the inventory");
     let g = world
         .objects
-        .get_component::<crate::model::components::GroundItem>(&item_oid)
+        .get_component::<model::components::GroundItem>(&item_oid)
         .expect("ground item spawned");
     assert_eq!((g.item_id, g.count), (57, 400));
     assert!(
@@ -2496,7 +2494,7 @@ fn drop_and_pickup_ground_item() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "ground item removed"
     );
     assert!(
@@ -2530,10 +2528,10 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
     // dropable. The starter Squire's Sword is `is_dropable="false"`, so a drop
     // of it is correctly refused and would make this test vacuous.
     const SWORD: i32 = 1;
-    super::items::add_inventory_item(&mut world, 9200, SWORD, 1).expect("sword");
+    items::add_inventory_item(&mut world, 9200, SWORD, 1).expect("sword");
     let sword_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&9200)
+        .get_component::<Inventory>(&9200)
         .unwrap()
         .items()
         .iter()
@@ -2542,7 +2540,7 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
         .object_id;
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&9200)
+        .get_component_mut::<Inventory>(&9200)
         .unwrap()
         .set_enchant_level(sword_oid, 7);
 
@@ -2559,7 +2557,7 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::GroundItem>(&ground_oid)
+            .get_component::<model::components::GroundItem>(&ground_oid)
             .expect("ground item spawned")
             .enchant,
         7,
@@ -2578,7 +2576,7 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
 
     let picked_enchant = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&9200)
+        .get_component::<Inventory>(&9200)
         .unwrap()
         .items()
         .iter()
@@ -2598,10 +2596,10 @@ const DROP_AT: (i32, i32, i32) = (61, 72, 13);
 /// Give `count` adena to `player_oid` and drop it via `RequestDropItem` at a
 /// fixed spot; returns the resulting ground-item object id.
 fn drop_adena(world: &mut World, client_id: u32, player_oid: i32, count: i64) -> i32 {
-    super::items::add_inventory_item(world, player_oid, 57, count).expect("adena");
+    items::add_inventory_item(world, player_oid, 57, count).expect("adena");
     let adena_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&player_oid)
+        .get_component::<Inventory>(&player_oid)
         .unwrap()
         .items()
         .iter()
@@ -2634,10 +2632,10 @@ fn drop_item_packet(item_oid: i32, count: i64, x: i32, y: i32, z: i32) -> Vec<u8
 
 /// Give the player adena and return its inventory object id.
 fn give_adena(world: &mut World, player_oid: i32, count: i64) -> i32 {
-    super::items::add_inventory_item(world, player_oid, 57, count).expect("adena");
+    items::add_inventory_item(world, player_oid, 57, count).expect("adena");
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&player_oid)
+        .get_component::<Inventory>(&player_oid)
         .unwrap()
         .items()
         .iter()
@@ -2669,17 +2667,14 @@ fn dropped_item_lands_at_the_requested_location() {
 
     let pos = world
         .objects
-        .get_component::<crate::model::components::Position>(&ground_oid)
+        .get_component::<Position>(&ground_oid)
         .expect("the stack reached the ground");
     assert_eq!(
         (pos.x, pos.y, pos.z),
         DROP_AT,
         "the ground item sits at the requested drop point"
     );
-    let player_pos = *world
-        .objects
-        .get_component::<crate::model::components::Position>(&9300)
-        .unwrap();
+    let player_pos = *world.objects.get_component::<Position>(&9300).unwrap();
     assert_ne!(
         (pos.x, pos.y),
         (player_pos.x, player_pos.y),
@@ -2706,7 +2701,7 @@ fn drop_beyond_150_units_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::GroundItem>(&ground_oid),
         "nothing reached the ground"
     );
     assert_eq!(
@@ -2715,9 +2710,8 @@ fn drop_beyond_150_units_is_refused() {
         "the adena stays in the inventory"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(
-            &crate::network::server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU
-        ),
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU),
         "the client is told the spot is too far away"
     );
 }
@@ -2744,14 +2738,13 @@ fn drop_more_than_50_units_below_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::GroundItem>(&ground_oid),
         "nothing reached the ground"
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(
-            &crate::network::server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU
-        ),
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU),
         "the client is told the spot is too far away"
     );
     // …while the same request at the player's own height is accepted, so the
@@ -2761,7 +2754,7 @@ fn drop_more_than_50_units_below_is_refused() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::GroundItem>(&ground_oid),
         "the in-range drop goes through"
     );
 }
@@ -2781,7 +2774,7 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
         id: 0,
         name: "test_no_drop".into(),
         kind: crate::data::zone_data::ZoneKind::Condition,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid {
                 x1: -1000,
                 x2: 1000,
@@ -2812,13 +2805,12 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::GroundItem>(&ground_oid),
         "nothing reached the ground inside the zone"
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
     assert!(
-        sm_ids_of(&drain(&mut rx))
-            .contains(&crate::network::server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
         "the client is told the item cannot be discarded"
     );
 }
@@ -2844,13 +2836,13 @@ fn drop_while_casting_a_known_skill_is_refused_by_name() {
     // The character knows the skill *and* is casting it.
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&9300)
+        .get_component_mut::<SkillBook>(&9300)
         .unwrap()
         .0
         .insert(WIND_STRIKE, 1);
     world.objects.add_components(
         &9300,
-        crate::model::components::Casting(crate::model::CastState {
+        Casting(model::CastState {
             skill_id: WIND_STRIKE,
             skill_level: 1,
             skill_sub_level: 0,
@@ -2873,7 +2865,7 @@ fn drop_while_casting_a_known_skill_is_refused_by_name() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::GroundItem>(&ground_oid),
         "nothing reached the ground mid-cast"
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
@@ -2911,7 +2903,7 @@ fn drop_of_more_than_is_held_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::GroundItem>(&ground_oid),
         "nothing reached the ground"
     );
     assert_eq!(
@@ -2920,8 +2912,7 @@ fn drop_of_more_than_is_held_is_refused() {
         "the whole stack is still held"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
-            .contains(&crate::network::server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
         "the client is told the item cannot be discarded"
     );
 }
@@ -2939,10 +2930,10 @@ fn bound_item_cannot_be_discarded() {
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
 
-    super::items::add_inventory_item(&mut world, 9300, BOUND_BOX, 1).expect("bound box");
+    items::add_inventory_item(&mut world, 9300, BOUND_BOX, 1).expect("bound box");
     let box_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&9300)
+        .get_component::<Inventory>(&9300)
         .unwrap()
         .items()
         .iter()
@@ -2963,7 +2954,7 @@ fn bound_item_cannot_be_discarded() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&9300)
+            .get_component::<Inventory>(&9300)
             .unwrap()
             .items()
             .iter()
@@ -2973,12 +2964,11 @@ fn bound_item_cannot_be_discarded() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&would_be_ground_oid),
+            .has_component::<model::components::GroundItem>(&would_be_ground_oid),
         "nothing reached the ground"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
-            .contains(&crate::network::server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
         "the client is told the item cannot be discarded"
     );
 }
@@ -3013,7 +3003,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
     );
     let held = |w: &World| {
         w.objects
-            .get_component::<crate::model::inventory::Inventory>(&9400)
+            .get_component::<Inventory>(&9400)
             .unwrap()
             .count_of(57)
     };
@@ -3026,7 +3016,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "the item is still on the ground"
     );
     assert!(
@@ -3053,7 +3043,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "ground item removed"
     );
     assert!(
@@ -3080,7 +3070,7 @@ fn seated_player_cannot_pick_up() {
     let start = *world.objects.get_component::<Position>(&9401).unwrap();
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&9401)
+        .get_component_mut::<Player>(&9401)
         .unwrap()
         .sitting = true;
     // At the player's feet, so only the REST gate can refuse it.
@@ -3101,7 +3091,7 @@ fn seated_player_cannot_pick_up() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "loot stays on the floor while seated"
     );
     assert!(
@@ -3133,7 +3123,7 @@ fn ground_item_decays_after_lifetime() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "dropped"
     );
 
@@ -3143,7 +3133,7 @@ fn ground_item_decays_after_lifetime() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "decayed"
     );
     assert!(
@@ -3175,7 +3165,7 @@ fn player_ground_item_persists_when_destroy_player_dropped_off() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "player drop persists"
     );
 }
@@ -3193,7 +3183,7 @@ fn npc_ground_item_decays_regardless_of_player_flag() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "npc drop on ground"
     );
 
@@ -3202,7 +3192,7 @@ fn npc_ground_item_decays_regardless_of_player_flag() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::GroundItem>(&item_oid),
         "npc drop decays"
     );
 }
@@ -3218,7 +3208,7 @@ fn warehouse_deposit_withdraw_and_persist() {
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9400, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, 9400, 57, 1000).expect("adena");
+    items::add_inventory_item(&mut world, 9400, 57, 1000).expect("adena");
     let inv_adena = |w: &World| {
         w.objects
             .get_component::<Inventory>(&9400)
@@ -3253,7 +3243,7 @@ fn warehouse_deposit_withdraw_and_persist() {
     assert_eq!(wh_adena(&world), 400, "400 in warehouse");
 
     // The whole persisted set carries both containers with distinct locs.
-    let save = super::net::build_save_data(&world, 9400).expect("save");
+    let save = build_save_data(&world, 9400).expect("save");
     let inv_row = save
         .items
         .iter()
@@ -3301,7 +3291,7 @@ fn crystallize_item_yields_crystals_when_skilled() {
 
     let mut rx = ingame_player_access(&mut world, 1, 9500, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, 9500, 40, 1).expect("boots");
+    items::add_inventory_item(&mut world, 9500, 40, 1).expect("boots");
     let boots_oid = world
         .objects
         .get_component::<Inventory>(&9500)
@@ -3334,7 +3324,7 @@ fn crystallize_item_yields_crystals_when_skilled() {
     // Grant Crystallize (248) level 1, then crystallize.
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&9500)
+        .get_component_mut::<SkillBook>(&9500)
         .unwrap()
         .0
         .insert(248, 1);
@@ -3361,8 +3351,8 @@ fn private_store_sell_and_buy() {
     drain(&mut seller_rx);
     drain(&mut buyer_rx);
     // Seller has 10 Crystal (D); buyer has 1000 adena.
-    super::items::add_inventory_item(&mut world, 9600, 1458, 10).unwrap();
-    super::items::add_inventory_item(&mut world, 9601, 57, 1000).unwrap();
+    items::add_inventory_item(&mut world, 9600, 1458, 10).unwrap();
+    items::add_inventory_item(&mut world, 9601, 57, 1000).unwrap();
     let crystal_oid = world
         .objects
         .get_component::<Inventory>(&9600)
@@ -3385,7 +3375,7 @@ fn private_store_sell_and_buy() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9600)
+            .get_component::<Player>(&9600)
             .unwrap()
             .store_type,
         1,
@@ -3394,7 +3384,7 @@ fn private_store_sell_and_buy() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PrivateStore>(&9600)
+            .get_component::<model::components::PrivateStore>(&9600)
             .unwrap()
             .items
             .len(),
@@ -3451,7 +3441,7 @@ fn private_store_sell_and_buy() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9600)
+            .get_component::<Player>(&9600)
             .unwrap()
             .store_type,
         0,
@@ -3471,8 +3461,8 @@ fn player_trade_swaps_items() {
     let mut b_rx = ingame_player_access(&mut world, 2, 9701, 0);
     drain(&mut a_rx);
     drain(&mut b_rx);
-    super::items::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // A: Crystal D
-    super::items::add_inventory_item(&mut world, 9701, 1459, 10).unwrap(); // B: Crystal C
+    items::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // A: Crystal D
+    items::add_inventory_item(&mut world, 9701, 1459, 10).unwrap(); // B: Crystal C
     let a_oid = world
         .objects
         .get_component::<Inventory>(&9700)
@@ -3511,7 +3501,7 @@ fn player_trade_swaps_items() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PendingTrade>(&9701)
+            .get_component::<model::components::PendingTrade>(&9701)
             .map(|p| p.from),
         Some(9700)
     );
@@ -3519,7 +3509,7 @@ fn player_trade_swaps_items() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Trade>(&9700)
+            .get_component::<model::components::Trade>(&9700)
             .unwrap()
             .partner,
         9701
@@ -3531,7 +3521,7 @@ fn player_trade_swaps_items() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Trade>(&9700)
+            .get_component::<model::components::Trade>(&9700)
             .unwrap()
             .items[0]
             .count,
@@ -3567,13 +3557,13 @@ fn player_trade_swaps_items() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::Trade>(&9700),
+            .has_component::<model::components::Trade>(&9700),
         "trade closed"
     );
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::Trade>(&9701),
+            .has_component::<model::components::Trade>(&9701),
         "trade closed"
     );
 }
@@ -3604,8 +3594,8 @@ fn enchant_scroll_success_and_failure() {
 
     let mut rx = ingame_player_access(&mut world, 1, 9800, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, 9800, 955, 5).unwrap();
-    super::items::add_inventory_item(&mut world, 9800, 69, 1).unwrap();
+    items::add_inventory_item(&mut world, 9800, 955, 5).unwrap();
+    items::add_inventory_item(&mut world, 9800, 69, 1).unwrap();
     let find = |w: &World, item: i32| {
         w.objects
             .get_component::<Inventory>(&9800)
@@ -3745,9 +3735,9 @@ fn enchant_support_item_bonus_and_consume() {
 
     // Bastard Sword 69 (D weapon), Enchant Weapon D scroll 955, and the D-grade
     // weapon support "Lucky Enchant Stone" 12362 (+20 bonus, valid at +3..9).
-    super::items::add_inventory_item(&mut world, 9850, 955, 1).unwrap();
-    super::items::add_inventory_item(&mut world, 9850, 69, 1).unwrap();
-    super::items::add_inventory_item(&mut world, 9850, 12362, 1).unwrap();
+    items::add_inventory_item(&mut world, 9850, 955, 1).unwrap();
+    items::add_inventory_item(&mut world, 9850, 69, 1).unwrap();
+    items::add_inventory_item(&mut world, 9850, 12362, 1).unwrap();
     let find = |w: &World, item: i32| {
         w.objects
             .get_component::<Inventory>(&9850)
@@ -3873,7 +3863,7 @@ fn freight_withdraw_and_persist() {
     }
 
     // package_withdraw → active = freight, window opens.
-    super::warehouse::open_freight_withdraw(&mut world, 1);
+    warehouse::open_freight_withdraw(&mut world, 1);
     let withdraw = {
         let mut w = PacketWriter::new();
         w.write_u8(cop::SEND_WARE_HOUSE_WITH_DRAW_LIST);
@@ -3905,7 +3895,7 @@ fn freight_withdraw_and_persist() {
     );
 
     // Persisted with its own loc alongside inventory + warehouse.
-    let save = super::net::build_save_data(&world, 9600).expect("save");
+    let save = build_save_data(&world, 9600).expect("save");
     let fr_row = save
         .items
         .iter()
@@ -3937,10 +3927,10 @@ fn augment_make_and_cancel() {
 
     // Crimson Sword (2551, augmentable D weapon), Life Stone Lv.46 (8723),
     // Gemstone D (2130) ×20, and adena for the cancel fee (95000).
-    super::items::add_inventory_item(&mut world, 9900, 2551, 1).unwrap();
-    super::items::add_inventory_item(&mut world, 9900, 8723, 1).unwrap();
-    super::items::add_inventory_item(&mut world, 9900, 2130, 20).unwrap();
-    super::items::add_inventory_item(&mut world, 9900, 57, 200_000).unwrap();
+    items::add_inventory_item(&mut world, 9900, 2551, 1).unwrap();
+    items::add_inventory_item(&mut world, 9900, 8723, 1).unwrap();
+    items::add_inventory_item(&mut world, 9900, 2130, 20).unwrap();
+    items::add_inventory_item(&mut world, 9900, 57, 200_000).unwrap();
     let oid = |w: &World, item: i32| {
         w.objects
             .get_component::<Inventory>(&9900)
@@ -3997,7 +3987,7 @@ fn augment_make_and_cancel() {
 
     // Persistence round-trip: the augment rides the item rows (→ item_variations)
     // and restores through `from_rows`.
-    let save = super::net::build_save_data(&world, 9900).expect("save");
+    let save = build_save_data(&world, 9900).expect("save");
     let wrow = save
         .items
         .iter()
@@ -4012,7 +4002,7 @@ fn augment_make_and_cancel() {
         (8723, o1, o2),
         "augment persisted on the row"
     );
-    let restored = crate::model::inventory::Inventory::from_rows(&save.items);
+    let restored = Inventory::from_rows(&save.items);
     assert_eq!(
         restored.augmentation_of(weapon),
         Some((o1, o2)),
@@ -4094,8 +4084,8 @@ fn private_buy_store_takes_items_and_pays_out() {
     drain(&mut owner_rx);
     drain(&mut seller_rx);
     // The buyer has 1000 adena to spend; the seller has 10 D-grade crystals.
-    super::items::add_inventory_item(&mut world, 9610, 57, 1000).unwrap();
-    super::items::add_inventory_item(&mut world, 9611, 1458, 10).unwrap();
+    items::add_inventory_item(&mut world, 9610, 57, 1000).unwrap();
+    items::add_inventory_item(&mut world, 9611, 1458, 10).unwrap();
     let crystal_oid = world
         .objects
         .get_component::<Inventory>(&9611)
@@ -4111,7 +4101,7 @@ fn private_buy_store_takes_items_and_pays_out() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9610)
+            .get_component::<Player>(&9610)
             .unwrap()
             .store_type,
         3,
@@ -4140,7 +4130,7 @@ fn private_buy_store_takes_items_and_pays_out() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9610)
+            .get_component::<Player>(&9610)
             .unwrap()
             .store_type,
         0,
@@ -4168,7 +4158,7 @@ fn private_buy_store_takes_items_and_pays_out() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PrivateBuyStore>(&9610)
+            .get_component::<model::components::PrivateBuyStore>(&9610)
             .unwrap()
             .items[0]
             .count,
@@ -4185,7 +4175,7 @@ fn private_buy_store_takes_items_and_pays_out() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9610)
+            .get_component::<Player>(&9610)
             .unwrap()
             .store_type,
         0,
@@ -4201,7 +4191,7 @@ fn private_buy_store_refuses_an_unaffordable_list() {
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9612, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, 9612, 57, 100).unwrap();
+    items::add_inventory_item(&mut world, 9612, 57, 100).unwrap();
 
     // 10 × 100 = 1000 adena wanted, but only 100 in the purse.
     on_packet(&mut world, 1, set_buy_list(&[(1458, 10, 100)]));
@@ -4209,7 +4199,7 @@ fn private_buy_store_refuses_an_unaffordable_list() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9612)
+            .get_component::<Player>(&9612)
             .unwrap()
             .store_type,
         0,
@@ -4232,7 +4222,7 @@ fn private_buy_store_enforces_the_slot_limit() {
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9613, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, 9613, 57, 1_000_000).unwrap();
+    items::add_inventory_item(&mut world, 9613, 57, 1_000_000).unwrap();
 
     let five = [
         (1458, 1, 100),
@@ -4245,7 +4235,7 @@ fn private_buy_store_enforces_the_slot_limit() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9613)
+            .get_component::<Player>(&9613)
             .unwrap()
             .store_type,
         0,
@@ -4256,7 +4246,7 @@ fn private_buy_store_enforces_the_slot_limit() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9613)
+            .get_component::<Player>(&9613)
             .unwrap()
             .store_type,
         3,
@@ -4399,9 +4389,9 @@ fn package_store_is_all_or_nothing() {
     let mut seller_rx = ingame_player_access(&mut world, 1, 9700, 0);
     let mut buyer_rx = ingame_player_access(&mut world, 2, 9701, 0);
     // Two distinct items so the package has two lines.
-    super::items::add_inventory_item(&mut world, 9700, 1458, 5).unwrap(); // Crystal (D)
-    super::items::add_inventory_item(&mut world, 9700, 1459, 5).unwrap(); // Crystal (C)
-    super::items::add_inventory_item(&mut world, 9701, 57, 10_000).unwrap();
+    items::add_inventory_item(&mut world, 9700, 1458, 5).unwrap(); // Crystal (D)
+    items::add_inventory_item(&mut world, 9700, 1459, 5).unwrap(); // Crystal (C)
+    items::add_inventory_item(&mut world, 9701, 57, 10_000).unwrap();
     let oid = |w: &World, item: i32| {
         w.objects
             .get_component::<Inventory>(&9700)
@@ -4448,7 +4438,7 @@ fn package_store_is_all_or_nothing() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9700)
+            .get_component::<Player>(&9700)
             .unwrap()
             .store_type,
         8,
@@ -4514,7 +4504,7 @@ fn package_store_is_all_or_nothing() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&9700)
+            .get_component::<Player>(&9700)
             .unwrap()
             .store_type,
         0,
@@ -4575,17 +4565,15 @@ fn freight_send_delivers_to_an_offline_character() {
 
     // The sender, with a second character (9902 "Alt") on the account.
     let chr = dummy_char(9901, "Sender");
-    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
-    let session = crate::session::Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+    let session = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
         .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![dummy_char(9901, "Sender"), dummy_char(9902, "Alt")])
         .into_entering(bundle);
     let (session, bundle) = session.into_ingame();
     bundle.spawn_into(&mut world);
-    world
-        .clients
-        .insert(1, crate::session::ClientSession::InGame(session));
+    world.clients.insert(1, ClientSession::InGame(session));
 
     // A freight manager in range (the send checks the last folk NPC).
     add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
@@ -4605,8 +4593,8 @@ fn freight_send_delivers_to_an_offline_character() {
             .is_freightable,
         "fixture assumption: 10649 is freightable"
     );
-    super::items::add_inventory_item(&mut world, 9901, FREIGHTABLE, 10).unwrap();
-    super::items::add_inventory_item(&mut world, 9901, 57, 5_000).unwrap();
+    items::add_inventory_item(&mut world, 9901, FREIGHTABLE, 10).unwrap();
+    items::add_inventory_item(&mut world, 9901, 57, 5_000).unwrap();
     let crystal = world
         .objects
         .get_component::<Inventory>(&9901)
@@ -4683,24 +4671,22 @@ fn freight_send_refuses_bad_items_and_strangers() {
     world.data.item_data = dist::items_owned();
     world.id_pool = 0x4500_0000..0x4500_0200;
     let chr = dummy_char(9903, "Sender");
-    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
-    let session = crate::session::Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+    let session = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
         .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![dummy_char(9903, "Sender"), dummy_char(9904, "Alt")])
         .into_entering(bundle);
     let (session, bundle) = session.into_ingame();
     bundle.spawn_into(&mut world);
-    world
-        .clients
-        .insert(1, crate::session::ClientSession::InGame(session));
+    world.clients.insert(1, ClientSession::InGame(session));
     add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
     world.objects.add_components(&9903, LastFolkNpc(NPC_OID));
 
     // Adena — like every other Interlude-range item on this dist — is not
     // freightable; 10649 is, and stands in for a legal cargo below.
-    super::items::add_inventory_item(&mut world, 9903, 57, 5_000).unwrap();
-    super::items::add_inventory_item(&mut world, 9903, 10649, 5).unwrap();
+    items::add_inventory_item(&mut world, 9903, 57, 5_000).unwrap();
+    items::add_inventory_item(&mut world, 9903, 10649, 5).unwrap();
     assert!(
         !world.data.item_data.get(1458).unwrap().is_freightable,
         "Crystal (D) — an Interlude item — may not be freighted"
@@ -4790,7 +4776,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         mp_initial_consume: 0,
         hp_consume: 0,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 8058,
         item_consume_count: 1,
         abnormal_time: 0,
@@ -4850,10 +4836,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
     });
     // The finish phase re-checks HP (`cur_hp <= hp_consume` aborts), and the
     // bare fixture player starts at 0.
-    if let Some(vitals) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&3001)
-    {
+    if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&3001) {
         vitals.cur_hp = 100.0;
     }
     {
@@ -4871,7 +4854,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         2,
         "nothing is taken at use time"
     );
-    crate::game_loop::skills::cast::abort_cast(&mut world, 3001);
+    abort_cast(&mut world, 3001);
     advance_ticks(&mut world, 60);
     assert_eq!(
         count_of_item(&world, 3001, 8058),
@@ -4917,10 +4900,10 @@ fn the_augment_window_confirms_each_slot() {
     ));
     world.id_pool = 0x4700_0000..0x4700_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9910, 0);
-    super::items::add_inventory_item(&mut world, 9910, 2551, 1).unwrap(); // Crimson Sword
-    super::items::add_inventory_item(&mut world, 9910, 8723, 1).unwrap(); // Life Stone 46
-    super::items::add_inventory_item(&mut world, 9910, 2130, 20).unwrap(); // Gemstone D
-    super::items::add_inventory_item(&mut world, 9910, 1458, 1).unwrap(); // Crystal (D)
+    items::add_inventory_item(&mut world, 9910, 2551, 1).unwrap(); // Crimson Sword
+    items::add_inventory_item(&mut world, 9910, 8723, 1).unwrap(); // Life Stone 46
+    items::add_inventory_item(&mut world, 9910, 2130, 20).unwrap(); // Gemstone D
+    items::add_inventory_item(&mut world, 9910, 1458, 1).unwrap(); // Crystal (D)
     let oid = |w: &World, item: i32| {
         w.objects
             .get_component::<Inventory>(&9910)
@@ -5181,7 +5164,7 @@ fn the_user_info_stats_block_reports_weapon_attack_range() {
     let _rx = ingame_player(&mut world, 1, 8300, 0, 0, 0);
 
     let packet = |world: &World| -> Vec<u8> {
-        let view = crate::model::PlayerView::of(&world.objects, 8300).unwrap();
+        let view = model::PlayerView::of(&world.objects, 8300).unwrap();
         crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, 0)
     };
 
@@ -5193,7 +5176,7 @@ fn the_user_info_stats_block_reports_weapon_attack_range() {
         count: 1,
         enchant_level: 0,
         loc: "PAPERDOLL".into(),
-        loc_data: crate::model::inventory::PaperdollSlot::RHand as i32,
+        loc_data: model::inventory::PaperdollSlot::RHand as i32,
         custom_type1: 0,
         custom_type2: 0,
         mana_left: -1,
@@ -5202,10 +5185,9 @@ fn the_user_info_stats_block_reports_weapon_attack_range() {
         augment_option1: 0,
         augment_option2: 0,
     };
-    world.objects.add_components(
-        &8300,
-        crate::model::inventory::Inventory::from_rows(&[weapon]),
-    );
+    world
+        .objects
+        .add_components(&8300, Inventory::from_rows(&[weapon]));
     let armed = packet(&world);
 
     assert_eq!(unarmed.len(), armed.len(), "same layout either way");
@@ -5243,7 +5225,7 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
 
     // Not blocked to begin with: a plain request is answered.
     drain(&mut rx);
-    crate::game_loop::items::handle_request_item_list(&mut world, 1);
+    items::handle_request_item_list(&mut world, 1);
     assert!(
         !drain(&mut rx).is_empty(),
         "an unblocked item-list request is answered"
@@ -5251,7 +5233,7 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
 
     // Block, as opening a shop/warehouse does.
     crate::game_loop::helpers::block_inventory(&mut world, 3001);
-    crate::game_loop::items::handle_request_item_list(&mut world, 1);
+    items::handle_request_item_list(&mut world, 1);
     assert!(
         drain(&mut rx).is_empty(),
         "the request is dropped while the window is opening"
@@ -5265,7 +5247,7 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
         !world.inventory_blocked.contains(&3001),
         "InventoryEnableTask lifted the block"
     );
-    crate::game_loop::items::handle_request_item_list(&mut world, 1);
+    items::handle_request_item_list(&mut world, 1);
     assert!(
         !drain(&mut rx).is_empty(),
         "refreshes are answered again once the window has settled"
@@ -5304,8 +5286,8 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
 
     let mut rx = ingame_player_access(&mut world, 1, PLAYER, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, PLAYER, SCROLL, 5).unwrap();
-    super::items::add_inventory_item(&mut world, PLAYER, SWORD, 1).unwrap();
+    items::add_inventory_item(&mut world, PLAYER, SCROLL, 5).unwrap();
+    items::add_inventory_item(&mut world, PLAYER, SWORD, 1).unwrap();
     let find = |w: &World, item: i32| {
         w.objects
             .get_component::<Inventory>(&PLAYER)
@@ -5418,8 +5400,8 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
 
     let mut rx = ingame_player_access(&mut world, 1, PLAYER, 0);
     drain(&mut rx);
-    super::items::add_inventory_item(&mut world, PLAYER, 955, 3).unwrap();
-    super::items::add_inventory_item(&mut world, PLAYER, 69, 1).unwrap();
+    items::add_inventory_item(&mut world, PLAYER, 955, 3).unwrap();
+    items::add_inventory_item(&mut world, PLAYER, 69, 1).unwrap();
     let find = |w: &World, item: i32| {
         w.objects
             .get_component::<Inventory>(&PLAYER)

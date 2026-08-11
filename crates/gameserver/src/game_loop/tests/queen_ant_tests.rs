@@ -1,6 +1,7 @@
 //! Queen Ant — the larva and the nurse rotation.
 
 use super::*;
+use crate::game_loop::queen_ant;
 
 use crate::game_loop::queen_ant::{LARVA, NURSE, QUEEN};
 

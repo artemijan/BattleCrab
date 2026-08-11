@@ -1,6 +1,7 @@
 //! Sailren — the dinosaur wave ladder.
 
 use super::*;
+use crate::game_loop::sailren;
 
 use crate::model::components::{AdminFlags, Immobilized, Position, SailrenWaveMob, Vitals};
 

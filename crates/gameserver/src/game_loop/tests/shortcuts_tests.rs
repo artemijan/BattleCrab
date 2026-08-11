@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::shortcuts;
 
 /// Registering a skill shortcut echoes `ShortCutRegister` + a `SkillList`
 /// re-send (Java's quirk) and persists; deleting it re-sends the whole
@@ -8,11 +9,7 @@ fn register_and_delete_shortcut_round_trip() {
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
-    super::shortcuts::handle_request_short_cut_reg(
-        &mut world,
-        1,
-        &shortcut_reg_body(2, 13, 1177, 1),
-    );
+    shortcuts::handle_request_short_cut_reg(&mut world, 1, &shortcut_reg_body(2, 13, 1177, 1));
     let packets = drain(&mut rx);
     assert_eq!(packets.len(), 2);
     assert_eq!(packets[0][0], server_packets::opcodes::SHORT_CUT_REGISTER);
@@ -35,7 +32,7 @@ fn register_and_delete_shortcut_round_trip() {
         "shortcut register does not touch the DB"
     );
 
-    super::shortcuts::handle_request_short_cut_del(&mut world, 1, &{
+    shortcuts::handle_request_short_cut_del(&mut world, 1, &{
         let mut w = PacketWriter::new();
         w.write_i32(13);
         w.into_bytes()
@@ -63,11 +60,7 @@ fn item_shortcut_without_item_not_stored_but_echoed() {
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
-    super::shortcuts::handle_request_short_cut_reg(
-        &mut world,
-        1,
-        &shortcut_reg_body(1, 0, 999_999, 0),
-    );
+    shortcuts::handle_request_short_cut_reg(&mut world, 1, &shortcut_reg_body(1, 0, 999_999, 0));
     let packets = drain(&mut rx);
     assert_eq!(packets.len(), 2);
     assert_eq!(packets[0][0], server_packets::opcodes::SHORT_CUT_REGISTER);
@@ -92,7 +85,7 @@ fn make_macro_validations_and_recurring_rejection() {
     };
 
     // SHORTCUT command → invalid macro.
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(0, "loop", "d", &[(4, 0, 11, "")]),
@@ -104,7 +97,7 @@ fn make_macro_validations_and_recurring_rejection() {
     assert_eq!(macros_of(&world), 0);
 
     // Empty name.
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(0, "", "d", &[(1, 1177, 1, "")]),
@@ -115,7 +108,7 @@ fn make_macro_validations_and_recurring_rejection() {
     );
 
     // Description over 32 chars.
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(0, "m", &"d".repeat(33), &[(1, 1177, 1, "")]),
@@ -127,7 +120,7 @@ fn make_macro_validations_and_recurring_rejection() {
 
     // Command strings over 255 chars total.
     let long = "x".repeat(256);
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(0, "m", "d", &[(3, 0, 0, long.as_str())]),
@@ -151,7 +144,7 @@ fn make_macro_validations_and_recurring_rejection() {
             });
         }
     }
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(0, "m", "d", &[(1, 1177, 1, "")]),
@@ -172,7 +165,7 @@ fn make_macro_validations_and_recurring_rejection() {
     );
 
     // A valid macro: id 0 → allocated 1000, ADD echo, persisted.
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(0, "buffs", "d", &[(1, 1177, 1, ""), (3, 0, 0, "/sit")]),
@@ -198,7 +191,7 @@ fn make_macro_validations_and_recurring_rejection() {
     );
 
     // Editing it (real id) → MODIFY echo, still one macro.
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(1000, "buffs2", "d", &[(1, 1177, 1, "")]),
@@ -226,20 +219,16 @@ fn delete_macro_cascades_panel_slots() {
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
-    super::shortcuts::handle_request_make_macro(
+    shortcuts::handle_request_make_macro(
         &mut world,
         1,
         &make_macro_body(0, "m", "d", &[(3, 0, 0, "/loc")]),
     );
-    super::shortcuts::handle_request_short_cut_reg(
-        &mut world,
-        1,
-        &shortcut_reg_body(4, 5, 1000, 0),
-    );
+    shortcuts::handle_request_short_cut_reg(&mut world, 1, &shortcut_reg_body(4, 5, 1000, 0));
     drain(&mut rx);
     drain_db(&mut db_rx);
 
-    super::shortcuts::handle_request_delete_macro(&mut world, 1, &{
+    shortcuts::handle_request_delete_macro(&mut world, 1, &{
         let mut w = PacketWriter::new();
         w.write_i32(1000);
         w.into_bytes()
@@ -281,16 +270,12 @@ fn delete_macro_cascades_panel_slots() {
 fn skill_upgrade_updates_matching_shortcuts() {
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    super::shortcuts::handle_request_short_cut_reg(
-        &mut world,
-        1,
-        &shortcut_reg_body(2, 0, 1177, 1),
-    );
-    super::shortcuts::handle_request_short_cut_reg(&mut world, 1, &shortcut_reg_body(3, 1, 2, 0)); // an ACTION, untouched
+    shortcuts::handle_request_short_cut_reg(&mut world, 1, &shortcut_reg_body(2, 0, 1177, 1));
+    shortcuts::handle_request_short_cut_reg(&mut world, 1, &shortcut_reg_body(3, 1, 2, 0)); // an ACTION, untouched
     drain(&mut rx);
     drain_db(&mut db_rx);
 
-    super::shortcuts::update_skill_shortcuts(&mut world, 3001, 1177, 2);
+    shortcuts::update_skill_shortcuts(&mut world, 3001, 1177, 2);
     let scs = player_shortcuts(&world, 3001);
     assert_eq!(scs.iter().find(|sc| sc.id == 1177).unwrap().level, 2);
     assert_eq!(
@@ -310,7 +295,7 @@ fn skill_upgrade_updates_matching_shortcuts() {
     );
 
     // No matching slot → no traffic.
-    super::shortcuts::update_skill_shortcuts(&mut world, 3001, 9999, 1);
+    shortcuts::update_skill_shortcuts(&mut world, 3001, 9999, 1);
     assert!(drain(&mut rx).is_empty());
     assert!(drain_db(&mut db_rx).is_empty());
 }

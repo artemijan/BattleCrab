@@ -3,6 +3,7 @@
 
 use super::*;
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::{death, water};
 use crate::model::components::{Speeds, Vitals, WaterTask};
 
 /// A `Speeds` with distinct land/swim values, so a slot mix-up is visible.
@@ -111,7 +112,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
     // 59 s under: still holding our breath.
     for _ in 0..590 {
         world.tick += 1;
-        super::water::drown_tick(&mut world);
+        water::drown_tick(&mut world);
     }
     assert_eq!(
         world.objects.get_component::<Vitals>(&3001).unwrap().cur_hp,
@@ -122,7 +123,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
     // The 60 s mark, then two more seconds.
     for _ in 0..30 {
         world.tick += 1;
-        super::water::drown_tick(&mut world);
+        water::drown_tick(&mut world);
     }
     let v = *world.objects.get_component::<Vitals>(&3001).unwrap();
     assert_eq!(v.cur_hp, 485.0, "3 beats × (500/100) HP");
@@ -170,7 +171,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
     let hp = world.objects.get_component::<Vitals>(&3001).unwrap().cur_hp;
     for _ in 0..30 {
         world.tick += 1;
-        super::water::drown_tick(&mut world);
+        water::drown_tick(&mut world);
     }
     assert_eq!(
         world.objects.get_component::<Vitals>(&3001).unwrap().cur_hp,
@@ -187,11 +188,11 @@ fn death_stops_the_drowning_clock() {
     world.cfg.general.allow_water = true;
     insert_zone(&mut world, ZoneKind::Water, -1000, 1000, -1000, 1000);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(world.objects.has_component::<WaterTask>(&3001));
     drain(&mut rx);
 
-    super::death::player_do_die(&mut world, 3001, 3001);
+    death::player_do_die(&mut world, 3001, 3001);
     assert!(
         !world.objects.has_component::<WaterTask>(&3001),
         "the drowning clock is cancelled on death"
@@ -233,9 +234,9 @@ fn castle_zone_is_the_exception_to_the_water_movement_branch() {
     let (mut world, ..) = cast_test_world();
     insert_zone(&mut world, ZoneKind::Water, -1000, 1000, -1000, 1000);
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(
-        super::position::is_in_water(&world, 3001),
+        is_in_water(&world, 3001),
         "open water: the movement branch is on"
     );
 
@@ -249,7 +250,7 @@ fn castle_zone_is_the_exception_to_the_water_movement_branch() {
         "the speed branch has no castle exception"
     );
     assert!(
-        !super::position::is_in_water(&world, 3001),
+        !is_in_water(&world, 3001),
         "inside a castle the moat does not disable geodata"
     );
 }
@@ -383,9 +384,9 @@ fn the_movement_byte_reports_a_player_in_water() {
         p.x = 0;
         p.y = 0;
     }
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(
-        super::position::is_in_water(&world, 3001),
+        is_in_water(&world, 3001),
         "fixture check: the player really is in water"
     );
     assert!(

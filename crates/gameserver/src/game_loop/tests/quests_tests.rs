@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::{death, ground_items, quests, shop};
 
 /// RequestShowMiniMap (0x6C): empty body, answered with `ShowMiniMap` —
 /// map id 0 (base world map) plus the Seven Signs state byte.
@@ -20847,7 +20848,7 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
     drain(&mut rx);
 
     // Pickup: memoState 3 + question mark 5 + the voice line.
-    super::ground_items::pickup_ground_item(&mut world, 1, 3001, gem_oid);
+    ground_items::pickup_ground_item(&mut world, 1, 3001, gem_oid);
     let pkts = drain(&mut rx);
     assert_eq!(tutorial_memo(&world, 3001), 3);
     assert!(

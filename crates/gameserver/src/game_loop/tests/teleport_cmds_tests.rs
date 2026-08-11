@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::user_commands;
 use crate::model::skill::{AffectObject, AffectScope};
 
 /// `showTeleports` builds the button list: the fee suffix shows only above
@@ -264,7 +265,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         .unwrap()
         .cur_hp = 100.0;
 
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
+    user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
     let pkts = drain(&mut rx);
     // Both lines are sent, in Java's order: `SkillCaster.castSkill` runs phase 0
     // synchronously (`skillCaster.run()` → `startCasting`), so the skill's
@@ -292,7 +293,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     assert!(world.objects.has_component::<Casting>(&3001));
 
     // Mid-cast re-use refuses silently (Java `isCastingNow` → false).
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
+    user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
     assert!(
         !drain(&mut rx)
             .iter()
@@ -361,7 +362,7 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
     }
     drain(&mut rx);
 
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
+    user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
     let pkts = drain(&mut rx);
     assert!(
         !world.objects.has_component::<Casting>(&3001),
@@ -395,14 +396,14 @@ fn loc_user_command_reports_region() {
         }]);
     let mut rx = ingame_player(&mut world, 1, 3001, 123, 456, -78);
     drain(&mut rx);
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(0));
+    user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(0));
     let pkts = drain(&mut rx);
     assert_eq!(sm_ids_of(&pkts), vec![924], "region locId is the SM id");
 
     // Far outside every region tile: the plain-text fallback.
     let mut rx2 = ingame_player(&mut world, 2, 3002, 500_000, 500_000, 0);
     drain(&mut rx2);
-    super::user_commands::handle_bypass_user_cmd(&mut world, 2, &user_cmd_body(0));
+    user_commands::handle_bypass_user_cmd(&mut world, 2, &user_cmd_body(0));
     let pkts = drain(&mut rx2);
     assert_eq!(
         sm_ids_of(&pkts),
@@ -411,7 +412,7 @@ fn loc_user_command_reports_region() {
 
     // Unknown command id: silence for a non-GM. (255 is unregistered — 77 is
     // `/time` since the user-command sweep.)
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(255));
+    user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(255));
     assert!(
         drain(&mut rx).is_empty(),
         "unknown user command must be silent"

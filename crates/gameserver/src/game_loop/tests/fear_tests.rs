@@ -6,8 +6,7 @@
 //! simply shoved 500 units away on landing and again on every 5-tick beat.
 
 use super::*;
-use crate::game_loop::helpers::skill_by_id;
-
+use crate::game_loop::skills::effects::handle_buff_expire;
 use crate::model::components::{Movement, Position};
 use crate::model::npc::{NpcAi, NpcIntention};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
@@ -68,11 +67,6 @@ fn fear_skill(id: i32) -> Skill {
     }
 }
 
-fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = skill_by_id(world, skill_id, 1).expect("registered");
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
-}
-
 fn dest(world: &World, oid: i32) -> Option<(i32, i32)> {
     world
         .objects
@@ -99,13 +93,10 @@ fn advance_moving(world: &mut World, n: u64) {
     for _ in 0..n {
         world.tick += 1;
         apply_due_tasks(world);
-        if world
-            .tick
-            .is_multiple_of(crate::game_loop::ai::NPC_THINK_PERIOD)
-        {
-            crate::game_loop::ai::npc_ai_tick(world);
+        if world.tick.is_multiple_of(ai::NPC_THINK_PERIOD) {
+            ai::npc_ai_tick(world);
         }
-        crate::game_loop::visibility::movement_tick(world);
+        visibility::movement_tick(world);
     }
 }
 
@@ -128,7 +119,7 @@ fn fear_shoves_the_victim_directly_away_from_the_caster() {
         dest(&world, VICTIM).is_none(),
         "not moving before the fear lands"
     );
-    land(&mut world, 9600, VICTIM);
+    land_skill_on_target(&mut world, 9600, VICTIM);
 
     let (dx, dy) = dest(&world, VICTIM).expect("the fear started a move");
     assert!(
@@ -152,7 +143,7 @@ fn fear_keeps_pushing_the_victim_further_each_beat() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _v = ingame_player(&mut world, VICTIM_CID, VICTIM, 100, 0, 0);
 
-    land(&mut world, 9601, VICTIM);
+    land_skill_on_target(&mut world, 9601, VICTIM);
     let start_x = pos(&world, VICTIM).0;
 
     // Let the first leg run out, then take a reading after each of two beats.
@@ -185,9 +176,9 @@ fn fear_stops_pushing_once_the_buff_is_gone() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _v = ingame_player(&mut world, VICTIM_CID, VICTIM, 100, 0, 0);
 
-    land(&mut world, 9602, VICTIM);
+    land_skill_on_target(&mut world, 9602, VICTIM);
     advance_moving(&mut world, ONE_BEAT * 2);
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, VICTIM, 9602);
+    handle_buff_expire(&mut world, VICTIM, 9602);
 
     // Let the leg that was already in flight run itself out — expiry doesn't
     // teleport anyone to a halt, it just stops arming new legs.
@@ -222,7 +213,7 @@ fn fear_never_moves_a_raid_boss() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     add_test_npc(&mut world, NPC_OID, 90001, "RaidBoss", 40, 100, 0, 0);
 
-    land(&mut world, 9603, NPC_OID);
+    land_skill_on_target(&mut world, 9603, NPC_OID);
     assert!(dest(&world, NPC_OID).is_none(), "a raid boss does not flee");
     assert_eq!(
         world
@@ -249,7 +240,7 @@ fn fear_never_moves_siege_defenders() {
     {
         let oid = NPC_OID + i as i32;
         add_test_npc(&mut world, oid, 90010 + i as i32, type_name, 40, 100, 0, 0);
-        land(&mut world, 9604, oid);
+        land_skill_on_target(&mut world, 9604, oid);
         assert!(dest(&world, oid).is_none(), "{type_name} holds its post");
     }
 }
@@ -264,7 +255,7 @@ fn fear_does_not_move_a_non_attackable_npc() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     add_test_npc(&mut world, NPC_OID, 90020, "Merchant", 40, 100, 0, 0);
 
-    land(&mut world, 9605, NPC_OID);
+    land_skill_on_target(&mut world, 9605, NPC_OID);
     assert!(
         dest(&world, NPC_OID).is_none(),
         "a merchant is not fearable"
@@ -295,14 +286,14 @@ fn feared_mob_stops_thinking_until_it_arrives() {
         .intention = NpcIntention::Attack;
     world
         .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
+        .get_component_mut::<AggroList>(&NPC_OID)
         .unwrap()
         .0
         .entry(CASTER)
         .or_default()
         .hate = 100.0;
 
-    land(&mut world, 9606, NPC_OID);
+    land_skill_on_target(&mut world, 9606, NPC_OID);
     assert_eq!(
         world
             .objects
@@ -338,7 +329,7 @@ fn fear_expiry_returns_the_mob_to_active() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     add_test_npc(&mut world, NPC_OID, 90040, "Monster", 40, 100, 0, 0);
 
-    land(&mut world, 9607, NPC_OID);
+    land_skill_on_target(&mut world, 9607, NPC_OID);
     assert_eq!(
         world
             .objects
@@ -348,7 +339,7 @@ fn fear_expiry_returns_the_mob_to_active() {
         NpcIntention::MoveTo
     );
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, NPC_OID, 9607);
+    handle_buff_expire(&mut world, NPC_OID, 9607);
     assert_eq!(
         world
             .objects

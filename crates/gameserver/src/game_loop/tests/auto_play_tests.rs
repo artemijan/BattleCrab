@@ -2,6 +2,7 @@
 //! play loop: target acquisition, the mode filter, respectful hunting and loot.
 
 use super::*;
+use crate::game_loop::auto_use;
 
 use crate::model::components::{AutoPlaySettings, Casting, TargetRef, Vitals};
 

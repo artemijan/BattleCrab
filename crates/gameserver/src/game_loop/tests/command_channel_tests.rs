@@ -2,6 +2,7 @@
 //! CC chat, and the MPCC matching rooms.
 
 use super::*;
+use crate::game_loop::{chat, command_channel, ground_items, party, party_room};
 
 use crate::network::server_packets::opcodes;
 use crate::network::server_packets::sm_ids;
@@ -354,7 +355,7 @@ fn mpcc_room_lifecycle() {
     );
 
     // …and shows in the MPCC browser (exact-location match).
-    let leader_location = super::party_room::location_of(&world, 3001);
+    let leader_location = party_room::location_of(&world, 3001);
     on_packet(
         &mut world,
         5,
@@ -506,9 +507,9 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     // First CC hit: the claim + the announcement to every channel member.
     combat::npc_receive_damage(&mut world, 9100, 3004, 10.0, false);
     assert_eq!(
-        super::command_channel::loot_rights_cc(&world, 9100),
-        super::command_channel::party_id_of(&world, 3001)
-            .and_then(|pid| super::command_channel::cc_id_of_party(&world, pid)),
+        command_channel::loot_rights_cc(&world, 9100),
+        command_channel::party_id_of(&world, 3001)
+            .and_then(|pid| command_channel::cc_id_of_party(&world, pid)),
         "the channel holds the claim"
     );
     for rx in &mut rxs {
@@ -538,7 +539,7 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     }
 
     // An outsider may not take it: ActionFailed + SM 56, item stays.
-    super::ground_items::pickup_ground_item(&mut world, 5, 3005, ground);
+    ground_items::pickup_ground_item(&mut world, 5, 3005, ground);
     let pkts = drain(&mut outsider_rx);
     assert!(
         pkts.iter()
@@ -553,7 +554,7 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     );
 
     // A member of the *other* CC party may (isInLooterParty via the channel).
-    super::ground_items::pickup_ground_item(&mut world, 4, 3004, ground);
+    ground_items::pickup_ground_item(&mut world, 4, 3004, ground);
     assert!(
         world
             .objects
@@ -588,10 +589,10 @@ fn ordinary_drop_is_killer_protected_for_15s() {
     assert_eq!(g.owner_until_tick, world.tick + 150, "15 s protection");
 
     // The stranger is refused while protected…
-    super::ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
+    ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
     assert!(sm_ids_of(&drain(&mut stranger_rx)).contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1));
     // …and succeeds once the 15 s lapse.
     advance_ticks(&mut world, 151);
-    super::ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
+    ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
     assert_eq!(count_of_item(&world, 3002, 9551), 1);
 }

@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::party;
 
 /// General chat reaches the speaker and players within 1250 units, but not a
 /// region-adjacent player standing further away.
@@ -152,7 +153,7 @@ fn relation_reflects_party_and_clan() {
 
     // Solo, clanless → 0.
     assert_eq!(
-        super::party::calculate_relation(&world, &snapshot(&world, 3001)),
+        party::calculate_relation(&world, &snapshot(&world, 3001)),
         0
     );
 
@@ -163,7 +164,7 @@ fn relation_reflects_party_and_clan() {
         p.clan_leader = true;
     }
     assert_eq!(
-        super::party::calculate_relation(&world, &snapshot(&world, 3001)),
+        party::calculate_relation(&world, &snapshot(&world, 3001)),
         0x20 | 0x40
     );
 
@@ -174,7 +175,7 @@ fn relation_reflects_party_and_clan() {
         .unwrap()
         .clan_leader = false;
     assert_eq!(
-        super::party::calculate_relation(&world, &snapshot(&world, 3001)),
+        party::calculate_relation(&world, &snapshot(&world, 3001)),
         0x20
     );
 
@@ -182,11 +183,11 @@ fn relation_reflects_party_and_clan() {
     // (3002, clanless) gets 0x08 only.
     make_party(&mut world, &[3001, 3002], LootRule::FindersKeepers);
     assert_eq!(
-        super::party::calculate_relation(&world, &snapshot(&world, 3001)),
+        party::calculate_relation(&world, &snapshot(&world, 3001)),
         0x20 | 0x08 | 0x10
     );
     assert_eq!(
-        super::party::calculate_relation(&world, &snapshot(&world, 3002)),
+        party::calculate_relation(&world, &snapshot(&world, 3002)),
         0x08
     );
 }
@@ -417,7 +418,7 @@ fn party_leadership_oust_and_change() {
 
     // Leader disconnects → B becomes leader.
     world.clients.remove(&1);
-    net::store_and_remove_player(&mut world, 3001);
+    store_and_remove_player(&mut world, 3001);
     let b_pkts = drain(&mut b_rx);
     assert!(sm_ids_of(&b_pkts).contains(&server_packets::sm_ids::C1_HAS_BECOME_THE_PARTY_LEADER));
     assert!(

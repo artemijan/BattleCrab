@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::{doors, party, pvp};
 
 /// Melee-attacking a player inside a peace zone is refused with the peaceful-
 /// zone message (`Creature.onForcedAttack`), and no attack intent is set.
@@ -365,7 +366,7 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
         .get_component_mut::<crate::model::Player>(&3002)
         .unwrap()
         .siege_state = 1;
-    super::pvp::broadcast_siege_relation(&world, 3002);
+    pvp::broadcast_siege_relation(&world, 3002);
     let (_, rel) = rc(&drain(&mut a_rx), 3002).expect("A is told about B again");
     assert_eq!(
         rel & (0x200 | 0x1000 | 0x400),
@@ -456,7 +457,7 @@ fn user_info_relation_sets_in_siege_crown_bit_for_participant() {
 
     let rel = |world: &World, oid: i32| {
         let p = world.objects.get_component::<Player>(&oid).unwrap().clone();
-        super::party::calculate_relation(world, &p)
+        party::calculate_relation(world, &p)
     };
     assert!(
         rel(&world, 3001) & 0x80 != 0,
@@ -572,7 +573,7 @@ fn closed_door_blocks_cast_los_until_opened() {
     assert!(!world.objects.has_component::<Casting>(&3001));
 
     // Open the door: both nearby players get the status packets…
-    super::doors::open_door(&mut world, door_oid);
+    doors::open_door(&mut world, door_oid);
     let pkts = drain(&mut a_rx);
     assert!(
         pkts.iter()
@@ -598,7 +599,7 @@ fn opened_door_auto_closes_after_close_time() {
         test_door(9001, crate::data::door_data::DoorOpenMethod::None),
     );
 
-    super::doors::open_door(&mut world, door_oid);
+    doors::open_door(&mut world, door_oid);
     assert!(world.geo.doors.is_open(9001));
     // closeTime = 2 s = 20 ticks.
     advance_ticks(&mut world, 19);
@@ -607,10 +608,10 @@ fn opened_door_auto_closes_after_close_time() {
     assert!(!world.geo.doors.is_open(9001), "auto-closed");
 
     // Re-open, close by hand, then let the (stale) auto-close fire: no flip.
-    super::doors::open_door(&mut world, door_oid);
-    super::doors::close_door(&mut world, door_oid);
-    super::doors::open_door(&mut world, door_oid);
-    super::doors::close_door(&mut world, door_oid);
+    doors::open_door(&mut world, door_oid);
+    doors::close_door(&mut world, door_oid);
+    doors::open_door(&mut world, door_oid);
+    doors::close_door(&mut world, door_oid);
     assert!(!world.geo.doors.is_open(9001));
     advance_ticks(&mut world, 40);
     assert!(
@@ -624,11 +625,11 @@ fn opened_door_auto_closes_after_close_time() {
 #[test]
 fn by_time_door_cycles() {
     let (mut world, ..) = test_world();
-    crate::model::door::spawn_door_for_test(
+    model::door::spawn_door_for_test(
         &mut world,
         test_door(9001, crate::data::door_data::DoorOpenMethod::ByTime),
     );
-    super::doors::start_time_cycles(&mut world);
+    doors::start_time_cycles(&mut world);
 
     assert!(!world.geo.doors.is_open(9001));
     // Initial delay while closed = closeTime (2 s).

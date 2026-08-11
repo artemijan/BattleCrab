@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::admin;
 use crate::game_loop::helpers::set_position;
 
 /// A GM's `//serverinfo` runs and answers with server-info text lines.
@@ -259,7 +260,7 @@ fn gm_startup_applies_invul_and_invisible() {
 
     let mut rx = ingame_player_access(&mut world, 1, 6411, 100);
     drain(&mut rx);
-    super::admin::apply_gm_startup(&mut world, 1, 6411);
+    admin::apply_gm_startup(&mut world, 1, 6411);
 
     let f = world
         .objects
@@ -294,7 +295,7 @@ fn gm_special_skills_are_granted_but_never_persisted() {
     // Off by default: no kit.
     let mut rx = ingame_player_access(&mut world, 1, 6431, 100);
     drain(&mut rx);
-    super::admin::apply_gm_startup(&mut world, 1, 6431);
+    admin::apply_gm_startup(&mut world, 1, 6431);
     assert!(
         !world
             .objects
@@ -310,7 +311,7 @@ fn gm_special_skills_are_granted_but_never_persisted() {
     world.data.gm.give_special_aura_skills = true;
     let mut rx = ingame_player_access(&mut world, 2, 6432, 100);
     drain(&mut rx);
-    super::admin::apply_gm_startup(&mut world, 2, 6432);
+    admin::apply_gm_startup(&mut world, 2, 6432);
     let book = world
         .objects
         .get_component::<crate::model::components::SkillBook>(&6432)
@@ -348,7 +349,7 @@ fn gm_startup_builder_hide_short_circuits() {
 
     let mut rx = ingame_player_access(&mut world, 1, 6421, 100);
     drain(&mut rx);
-    super::admin::apply_gm_startup(&mut world, 1, 6421);
+    admin::apply_gm_startup(&mut world, 1, 6421);
 
     let f = world
         .objects
@@ -3472,7 +3473,7 @@ fn transform_skills_never_persist() {
     }
 
     // Flush mid-transform: the snapshot must not carry the transform skills.
-    let save = super::net::build_save_data(&world, 8945).expect("save data");
+    let save = build_save_data(&world, 8945).expect("save data");
     for id in &bike_skills {
         assert!(
             !save.skills.iter().any(|&(sid, _, _)| sid == *id),
@@ -4170,7 +4171,7 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
     drain(&mut rx);
     drain_db(&mut db_rx);
 
-    super::admin::use_admin_command(&mut world, 1, "admin_give_clan_skills", false);
+    admin::use_admin_command(&mut world, 1, "admin_give_clan_skills", false);
 
     assert_eq!(
         world.clans[&clan_id].skills.get(&370),

@@ -2,6 +2,7 @@
 //! waypoint in order.
 
 use super::*;
+use crate::game_loop::boats;
 
 use crate::model::boat::{
     Boat, DockSchedule, DwellStage, Fare, InVehicle, RouteDef, RouteId, VehiclePathPoint,

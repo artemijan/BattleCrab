@@ -5,6 +5,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::skill_by_id;
 
 use crate::game_loop::helpers::stat_mul;
+use crate::game_loop::sit_stand;
 use crate::model::components::PlayerVitals;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
@@ -69,11 +70,6 @@ fn periodic_skill(id: i32, effects: Vec<SkillEffect>, toggle: bool) -> Skill {
     }
 }
 
-fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = skill_by_id(world, skill_id, 1).expect("registered");
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
-}
-
 fn hp(world: &World, oid: i32) -> f64 {
     world.objects.get_component::<Vitals>(&oid).unwrap().cur_hp
 }
@@ -114,7 +110,7 @@ fn heal_over_time_restores_hp_and_caps_at_full() {
         .unwrap()
         .cur_hp = 10.0;
 
-    land(&mut world, 9500, CASTER);
+    land_skill_on_target(&mut world, 9500, CASTER);
     advance_ticks(&mut world, ONE_TICK);
     let after = hp(&world, CASTER);
     assert!(after > 10.0, "the HoT healed: {after}");
@@ -141,7 +137,7 @@ fn negative_heal_over_time_drains_but_never_kills() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     let before = hp(&world, CASTER);
-    land(&mut world, 9501, CASTER);
+    land_skill_on_target(&mut world, 9501, CASTER);
     advance_ticks(&mut world, ONE_TICK);
     let after = hp(&world, CASTER);
     assert!(after < before, "the upkeep drained HP: {before} -> {after}");
@@ -175,7 +171,7 @@ fn mana_dam_over_time_drains_mp() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     let before = mp(&world, CASTER);
-    land(&mut world, 9510, CASTER);
+    land_skill_on_target(&mut world, 9510, CASTER);
     advance_ticks(&mut world, ONE_TICK);
     assert!(mp(&world, CASTER) < before, "MP upkeep drained");
 }
@@ -202,7 +198,7 @@ fn toggle_deactivates_when_mp_runs_out() {
         .get_component_mut::<Vitals>(&CASTER)
         .unwrap()
         .cur_mp = 1.0;
-    land(&mut world, 9511, CASTER);
+    land_skill_on_target(&mut world, 9511, CASTER);
     assert!(
         has_buff(&world, CASTER, 9511),
         "the toggle is on to begin with"
@@ -243,7 +239,7 @@ fn non_toggle_mp_drain_does_not_self_cancel() {
         .get_component_mut::<Vitals>(&CASTER)
         .unwrap()
         .cur_mp = 1.0;
-    land(&mut world, 9512, CASTER);
+    land_skill_on_target(&mut world, 9512, CASTER);
     advance_ticks(&mut world, ONE_TICK);
     assert!(has_buff(&world, CASTER, 9512), "a non-toggle keeps ticking");
     assert_eq!(mp(&world, CASTER), 0.0, "MP floors at 0");
@@ -282,14 +278,14 @@ fn heal_effect_scales_received_healing() {
             .cur_hp = 1.0;
         // 1015 is `cast_test_world`'s Battle-Heal-like skill.
         let skill = skill_by_id(world, 1015, 1).expect("heal skill");
-        crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, CASTER, &skill);
+        effects::apply_skill_effects(world, CASTER, CASTER, &skill);
         hp(world, CASTER) - 1.0
     };
 
     let unmodified = heal_once(&mut world);
     assert!(unmodified > 0.0, "baseline heal landed: {unmodified}");
 
-    land(&mut world, 9520, CASTER);
+    land_skill_on_target(&mut world, 9520, CASTER);
     let mul = stat_mul(&world, CASTER, Stat::HealEffect);
     assert!((mul - 0.5).abs() < 1e-9, "-50 PER → x0.5, got {mul}");
 
@@ -333,7 +329,7 @@ fn cp_effect_restores_and_drains() {
         .unwrap()
         .cur_cp = 0.0;
 
-    land(&mut world, 9530, CASTER);
+    land_skill_on_target(&mut world, 9530, CASTER);
     let restored = world
         .objects
         .get_component::<PlayerVitals>(&CASTER)
@@ -341,7 +337,7 @@ fn cp_effect_restores_and_drains() {
         .cur_cp;
     assert!(restored > 0.0, "CP restored: {restored}");
 
-    land(&mut world, 9531, CASTER);
+    land_skill_on_target(&mut world, 9531, CASTER);
     let drained = world
         .objects
         .get_component::<PlayerVitals>(&CASTER)
@@ -354,7 +350,7 @@ fn cp_effect_restores_and_drains() {
 
     // Repeated restores never exceed the pool.
     for _ in 0..20 {
-        land(&mut world, 9530, CASTER);
+        land_skill_on_target(&mut world, 9530, CASTER);
     }
     let capped = world
         .objects
@@ -373,11 +369,7 @@ fn cp_effect_restores_and_drains() {
 
 const RELAX: i32 = 9560;
 
-fn relax_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn relax_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     world.data.skill_data.insert_for_test(periodic_skill(
         RELAX,
@@ -403,12 +395,12 @@ fn relax_seats_its_caster() {
     let (mut world, _db, _l) = relax_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     wound(&mut world, CASTER);
-    assert!(!crate::game_loop::sit_stand::is_sitting(&world, CASTER));
+    assert!(!sit_stand::is_sitting(&world, CASTER));
 
-    land(&mut world, RELAX, CASTER);
+    land_skill_on_target(&mut world, RELAX, CASTER);
 
     assert!(
-        crate::game_loop::sit_stand::is_sitting(&world, CASTER),
+        sit_stand::is_sitting(&world, CASTER),
         "casting Relax sits the player down"
     );
 }
@@ -420,7 +412,7 @@ fn relax_drains_mp_while_seated() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     wound(&mut world, CASTER);
 
-    land(&mut world, RELAX, CASTER);
+    land_skill_on_target(&mut world, RELAX, CASTER);
     let before = mp(&world, CASTER);
     advance_ticks(&mut world, ONE_TICK);
 
@@ -445,10 +437,10 @@ fn standing_up_ends_relax_immediately() {
     let (mut world, _db, _l) = relax_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     wound(&mut world, CASTER);
-    land(&mut world, RELAX, CASTER);
+    land_skill_on_target(&mut world, RELAX, CASTER);
     assert!(has_buff(&world, CASTER, RELAX));
 
-    crate::game_loop::sit_stand::stand_up(&mut world, CASTER);
+    sit_stand::stand_up(&mut world, CASTER);
 
     assert!(
         !has_buff(&world, CASTER, RELAX),
@@ -463,7 +455,7 @@ fn relax_switches_off_when_mp_runs_out() {
     let (mut world, _db, _l) = relax_world();
     let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     wound(&mut world, CASTER);
-    land(&mut world, RELAX, CASTER);
+    land_skill_on_target(&mut world, RELAX, CASTER);
     world
         .objects
         .get_component_mut::<Vitals>(&CASTER)
@@ -475,9 +467,8 @@ fn relax_switches_off_when_mp_runs_out() {
 
     assert!(!has_buff(&world, CASTER, RELAX), "the toggle switched off");
     assert!(
-        sm_ids_of(&drain(&mut out)).contains(
-            &crate::network::server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP
-        ),
+        sm_ids_of(&drain(&mut out))
+            .contains(&server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP),
         "and said why"
     );
 }
@@ -490,7 +481,7 @@ fn relax_switches_off_at_full_hp_with_its_own_message() {
     let (mut world, _db, _l) = relax_world();
     let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     wound(&mut world, CASTER);
-    land(&mut world, RELAX, CASTER);
+    land_skill_on_target(&mut world, RELAX, CASTER);
     // Heal to full *after* it started, so `onStart` still ran normally.
     let max_hp = world
         .objects
@@ -510,14 +501,12 @@ fn relax_switches_off_at_full_hp_with_its_own_message() {
     let sms = sm_ids_of(&drain(&mut out));
     assert!(
         sms.contains(
-            &crate::network::server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED
+            &server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED
         ),
         "with the full-HP message, not the out-of-MP one"
     );
     assert!(
-        !sms.contains(
-            &crate::network::server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP
-        ),
+        !sms.contains(&server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP),
         "and not both"
     );
 }
@@ -554,11 +543,7 @@ fn the_real_relax_skill_parses_its_effect() {
 const CHAMELEON: i32 = 9561;
 const MANA_HOT: i32 = 9562;
 
-fn chameleon_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn chameleon_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     world.data.skill_data.insert_for_test(periodic_skill(
         CHAMELEON,
@@ -591,9 +576,9 @@ fn chameleon_rest_keeps_running_at_full_hp_where_relax_would_stop() {
         "the caster starts at full HP"
     );
 
-    land(&mut world, CHAMELEON, CASTER);
+    land_skill_on_target(&mut world, CHAMELEON, CASTER);
     assert!(
-        crate::game_loop::sit_stand::is_sitting(&world, CASTER),
+        sit_stand::is_sitting(&world, CASTER),
         "it seats its caster, like Relax"
     );
 
@@ -616,10 +601,10 @@ fn chameleon_rest_keeps_running_at_full_hp_where_relax_would_stop() {
 fn standing_up_ends_chameleon_rest_immediately() {
     let (mut world, _db, _l) = chameleon_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
-    land(&mut world, CHAMELEON, CASTER);
+    land_skill_on_target(&mut world, CHAMELEON, CASTER);
     assert!(has_buff(&world, CASTER, CHAMELEON));
 
-    crate::game_loop::sit_stand::stand_up(&mut world, CASTER);
+    sit_stand::stand_up(&mut world, CASTER);
 
     assert!(
         !has_buff(&world, CASTER, CHAMELEON),
@@ -652,7 +637,7 @@ fn mana_heal_over_time_restores_mp_and_stops_at_full() {
         v.cur_mp = 1.0;
     }
 
-    land(&mut world, MANA_HOT, CASTER);
+    land_skill_on_target(&mut world, MANA_HOT, CASTER);
     advance_ticks(&mut world, ONE_TICK);
     let after_one = mp(&world, CASTER);
     assert!(

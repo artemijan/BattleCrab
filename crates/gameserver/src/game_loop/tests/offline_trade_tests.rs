@@ -3,6 +3,7 @@
 //! restart.
 
 use super::*;
+use crate::game_loop::{chat, offline_trade};
 use crate::model::components::{PrivateStore, StoreItem};
 
 /// Turn the feature on the way `Custom/OfflineTrade.ini` does on this dist.
@@ -81,7 +82,7 @@ fn a_logout_with_a_store_open_leaves_the_shop_behind() {
     open_sell_store(&mut world, 5001, 4242, 3, 100);
     drain_db(&mut db_rx);
 
-    super::net::handle_logout(&mut world, 1);
+    handle_logout(&mut world, 1);
 
     assert!(
         world.clients.get(&1).is_none(),
@@ -144,7 +145,7 @@ fn a_logout_without_a_store_is_an_ordinary_logout() {
     enable_offline(&mut world);
     let _rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
 
-    super::net::handle_logout(&mut world, 1);
+    handle_logout(&mut world, 1);
 
     assert!(
         world
@@ -172,7 +173,7 @@ fn the_feature_switch_refuses_the_shop() {
     let _rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     open_sell_store(&mut world, 5001, 4242, 3, 100);
 
-    super::net::handle_logout(&mut world, 1);
+    handle_logout(&mut world, 1);
 
     assert!(
         world
@@ -192,7 +193,7 @@ fn an_arriving_player_sees_the_unattended_shop() {
     enable_offline(&mut world);
     let _seller_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     open_sell_store(&mut world, 5001, 4242, 3, 100);
-    super::net::handle_logout(&mut world, 1);
+    handle_logout(&mut world, 1);
 
     // A second player logs in right next to it.
     let mut buyer_rx = ingame_player(&mut world, 2, 5002, 120, 200, 0);
@@ -230,7 +231,7 @@ fn buying_out_an_unattended_shop_sends_it_home() {
         .unwrap()
         .object_id;
     open_sell_store(&mut world, 5001, crystal, 4, 100);
-    super::net::handle_logout(&mut world, 1);
+    handle_logout(&mut world, 1);
     assert!(world.offline_traders.contains_key(&5001));
     drain_db(&mut db_rx);
 
@@ -313,7 +314,7 @@ fn an_unattended_shop_takes_no_damage() {
     {
         v.cur_hp = 500.0;
     }
-    super::net::handle_logout(&mut world, 1);
+    handle_logout(&mut world, 1);
 
     super::combat::player_receive_damage(&mut world, 5001, 5002, 300.0);
     assert_eq!(
@@ -352,7 +353,7 @@ fn the_offline_command_confirms_before_detaching() {
     drain(&mut rx);
 
     // No store yet: "Private store already closed." and nothing happens.
-    super::chat::handle_say2(
+    chat::handle_say2(
         &mut world,
         1,
         &say2_body(
@@ -369,7 +370,7 @@ fn the_offline_command_confirms_before_detaching() {
 
     // With a store open: a ConfirmDlg, and the player is still connected.
     open_sell_store(&mut world, 5001, 4242, 3, 100);
-    super::chat::handle_say2(
+    chat::handle_say2(
         &mut world,
         1,
         &say2_body(
@@ -416,7 +417,7 @@ fn the_offline_command_confirms_before_detaching() {
 fn stored_shops_come_back_at_boot() {
     let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
     enable_offline(&mut world);
-    let now = super::offline_trade::now_millis();
+    let now = offline_trade::now_millis();
 
     let mut chr = dummy_char(5001, "Shopkeeper");
     chr.x = 100;
@@ -427,7 +428,7 @@ fn stored_shops_come_back_at_boot() {
     expired.y = 200;
 
     world.cfg.offline_trade.max_days = 7;
-    super::offline_trade::restore_offline_traders(
+    offline_trade::restore_offline_traders(
         &mut world,
         vec![
             db::OfflineTraderRow {
@@ -499,7 +500,7 @@ fn stored_shops_come_back_at_boot() {
     let (mut world, _db_tx, ..) = test_world();
     enable_offline(&mut world);
     world.cfg.offline_trade.restore_offliners = false;
-    super::offline_trade::restore_offline_traders(
+    offline_trade::restore_offline_traders(
         &mut world,
         vec![db::OfflineTraderRow {
             char: dummy_char(5003, "NotComing"),
@@ -525,11 +526,11 @@ fn a_restored_line_needs_the_item_to_still_exist() {
     let mut chr = dummy_char(5001, "Shopkeeper");
     chr.items = vec![crystal_row()];
 
-    super::offline_trade::restore_offline_traders(
+    offline_trade::restore_offline_traders(
         &mut world,
         vec![db::OfflineTraderRow {
             char: chr,
-            time: super::offline_trade::now_millis(),
+            time: offline_trade::now_millis(),
             store_type: 1,
             title: "half gone".into(),
             items: vec![(4242, 5, 250), (9999, 1, 100)],
@@ -555,7 +556,7 @@ fn entering_the_world_clears_the_stored_shop() {
     let _rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     drain_db(&mut db_rx);
 
-    super::offline_trade::on_enter_world(&mut world, 5001);
+    offline_trade::on_enter_world(&mut world, 5001);
 
     assert!(
         drain_db(&mut db_rx)
@@ -630,7 +631,7 @@ fn an_offline_shop_wears_one_of_the_configured_abnormal_effects() {
         world.login.accounts_in_gameserver.insert("bob".into(), 1);
         open_sell_store(&mut world, 5001, 4242, 3, 100);
         drain_db(&mut db_rx);
-        super::net::handle_logout(&mut world, 1);
+        handle_logout(&mut world, 1);
         crate::game_loop::abnormal::visual_effects(&world, 5001)
     };
 

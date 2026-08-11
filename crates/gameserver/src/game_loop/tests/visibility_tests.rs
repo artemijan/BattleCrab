@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::helpers;
 
 /// Leaving the world (logout here; restart/disconnect share the path)
 /// broadcasts `DeleteObject` to everyone watching and drops their target
@@ -47,7 +48,7 @@ fn clan_leader_crown_relation_sent_on_entering_view() {
     }
     let mut obs_rx = ingame_player(&mut world, 2, 6402, 200, 0, 0);
     // The observer's knownlist add exchanges CharInfo + RelationChanged.
-    super::visibility::on_enter_world(&world, 2, 6402);
+    visibility::on_enter_world(&world, 2, 6402);
     let saw_crown = drain(&mut obs_rx).iter().any(|p| {
         p[0] == server_packets::opcodes::RELATION_CHANGED
             && i32::from_le_bytes(p[2..6].try_into().unwrap()) == 6401
@@ -79,7 +80,7 @@ fn a_broadcast_reaches_the_surrounding_block_and_nothing_beyond_it() {
     drain(&mut far_rx);
 
     let packet = server_packets::action_failed();
-    super::helpers::broadcast_to_others(&world, 6401, &packet);
+    helpers::broadcast_to_others(&world, 6401, &packet);
 
     assert_eq!(drain(&mut same_rx).len(), 1, "same cell receives");
     assert_eq!(drain(&mut adjacent_rx).len(), 1, "adjacent cell receives");
@@ -101,7 +102,7 @@ fn crossing_a_region_boundary_moves_who_hears_a_broadcast() {
     drain(&mut mover_rx);
 
     let packet = server_packets::action_failed();
-    super::helpers::broadcast_to_others(&world, 6411, &packet);
+    helpers::broadcast_to_others(&world, 6411, &packet);
     assert!(
         drain(&mut mover_rx).is_empty(),
         "out of range to begin with"
@@ -110,13 +111,13 @@ fn crossing_a_region_boundary_moves_who_hears_a_broadcast() {
     // Walk into the sender's own cell.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&6412)
+        .get_component_mut::<Position>(&6412)
         .unwrap()
         .x = 100;
-    super::visibility::update_region(&mut world, 6412);
+    visibility::update_region(&mut world, 6412);
     drain(&mut mover_rx);
 
-    super::helpers::broadcast_to_others(&world, 6411, &packet);
+    helpers::broadcast_to_others(&world, 6411, &packet);
     assert_eq!(
         drain(&mut mover_rx).len(),
         1,

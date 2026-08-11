@@ -2,9 +2,8 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::helpers::skill_by_id;
-
 use crate::game_loop::helpers::stat_mul;
+use crate::game_loop::skills::effects::handle_buff_expire;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
 };
@@ -63,12 +62,6 @@ fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
         ..Default::default()
     }
 }
-
-fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = skill_by_id(world, skill_id, 1).expect("registered");
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
-}
-
 // ---------------------------------------------------------------------------
 // Debuff resistance
 // ---------------------------------------------------------------------------
@@ -95,7 +88,7 @@ fn resist_buff_pumps_a_multiplier() {
     world.data.skill_data.insert_for_test(resist);
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    land(&mut world, 9400, CASTER);
+    land_skill_on_target(&mut world, 9400, CASTER);
     let mul = stat_mul(&world, CASTER, Stat::ResistAbnormalDebuff);
     assert!((mul - 0.5).abs() < 1e-9, "-50 PER → x0.5, got {mul}");
 }
@@ -184,30 +177,30 @@ fn blocked_abnormal_types_cannot_land() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     // Baseline: with no blocker up, the buff lands.
-    land(&mut world, 9411, CASTER);
+    land_skill_on_target(&mut world, 9411, CASTER);
     assert!(
         has_buff(&world, CASTER, 9411),
         "lands freely when nothing blocks it"
     );
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9411);
+    handle_buff_expire(&mut world, CASTER, 9411);
 
     // With the blocker up it is refused, while the unrelated buff still lands.
-    land(&mut world, 9410, CASTER);
+    land_skill_on_target(&mut world, 9410, CASTER);
     assert!(has_buff(&world, CASTER, 9410), "the blocker itself lands");
-    land(&mut world, 9411, CASTER);
+    land_skill_on_target(&mut world, 9411, CASTER);
     assert!(
         !has_buff(&world, CASTER, 9411),
         "a blocked abnormal type is refused"
     );
-    land(&mut world, 9412, CASTER);
+    land_skill_on_target(&mut world, 9412, CASTER);
     assert!(
         has_buff(&world, CASTER, 9412),
         "an unblocked type is unaffected"
     );
 
     // Once the blocker goes, the previously blocked buff lands again.
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9410);
-    land(&mut world, 9411, CASTER);
+    handle_buff_expire(&mut world, CASTER, 9410);
+    land_skill_on_target(&mut world, 9411, CASTER);
     assert!(
         has_buff(&world, CASTER, 9411),
         "blocking ends with the buff"
@@ -218,11 +211,7 @@ fn blocked_abnormal_types_cannot_land() {
 // DispelBySlotProbability
 // ---------------------------------------------------------------------------
 
-fn seed_dispel_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn seed_dispel_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     // Two dispellable buffs plus one that is not on the list. The two must
     // carry *distinct* abnormal types — same-type buffs replace each other via
@@ -266,11 +255,11 @@ fn certain_dispel_strips_every_matching_buff() {
     let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
 
     for id in [9421, 9422, 9423] {
-        land(&mut world, id, VICTIM);
+        land_skill_on_target(&mut world, id, VICTIM);
         assert!(has_buff(&world, VICTIM, id));
     }
 
-    land(&mut world, 9420, VICTIM);
+    land_skill_on_target(&mut world, 9420, VICTIM);
     assert!(!has_buff(&world, VICTIM, 9421), "matching buff stripped");
     assert!(
         !has_buff(&world, VICTIM, 9422),
@@ -298,9 +287,9 @@ fn zero_rate_dispel_strips_nothing() {
     let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
 
     for id in [9421, 9422] {
-        land(&mut world, id, VICTIM);
+        land_skill_on_target(&mut world, id, VICTIM);
     }
-    land(&mut world, 9420, VICTIM);
+    land_skill_on_target(&mut world, 9420, VICTIM);
     assert!(has_buff(&world, VICTIM, 9421), "a 0% Bane strips nothing");
     assert!(has_buff(&world, VICTIM, 9422));
 }
@@ -514,7 +503,7 @@ fn a_defence_trait_buff_installs_and_removes_its_resistance() {
     world.data.skill_data.insert_for_test(buff);
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    land(&mut world, 9410, CASTER);
+    land_skill_on_target(&mut world, 9410, CASTER);
     assert!(
         has_buff(&world, CASTER, 9410),
         "an effect-less DefenceTrait buff still lands as a timed buff"
@@ -530,7 +519,7 @@ fn a_defence_trait_buff_installs_and_removes_its_resistance() {
         0.0
     );
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9410);
+    handle_buff_expire(&mut world, CASTER, 9410);
     assert!(!has_buff(&world, CASTER, 9410));
     assert_eq!(
         calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, CASTER, TraitType::Shock, false),

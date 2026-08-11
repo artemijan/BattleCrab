@@ -11,12 +11,14 @@ use super::position::*;
 use super::skills::cast::*;
 use super::skills::*;
 use super::target::*;
-use super::*;
 use crate::character::CharData;
 use crate::character::FriendInfo;
-use crate::data::MultisellData;
 use crate::data::spawn_data::Territory;
+use crate::data::{GameData, MultisellData};
 use crate::db::DbEvent;
+use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::npc::ai;
+use crate::game_loop::{apply_due_tasks, combat, items, visibility, zones};
 use crate::loginlink::LoginLinkCommand;
 use crate::model::Player;
 use crate::model::clan::Clan;
@@ -36,7 +38,11 @@ use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetT
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::{ClientSession, Session, SessionKey};
+use crate::world::World;
+use crate::{db, model};
 use commons::network::PacketWriter;
+use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::mpsc::UnboundedReceiver;
 
 mod abnormal_tests;
@@ -232,7 +238,7 @@ fn test_world() -> (
     World,
     db::CmdTx,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_rx) = tokio::sync::mpsc::unbounded_channel();
@@ -258,7 +264,7 @@ fn test_world() -> (
     (world, db_tx, db_rx, link_rx)
 }
 
-fn connect(world: &mut World, id: u32) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+fn connect(world: &mut World, id: u32) -> UnboundedReceiver<bytes::Bytes> {
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
     world.clients.insert(
         id,
@@ -355,7 +361,7 @@ fn npc_count(world: &mut World, npc_id: i32) -> usize {
     n
 }
 
-fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Option<String> {
+fn served_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Option<String> {
     drain(rx).iter().find_map(|p| decode_npc_html(p))
 }
 fn test_territory() -> Territory {
@@ -420,6 +426,22 @@ fn give_item(world: &mut World, oid: i32, obj_id: i32, item_id: i32, count: i64)
         .get_component_mut::<Inventory>(&oid)
         .unwrap()
         .add_item(&data.item_data, obj_id, item_id, count);
+}
+
+/// Land a buff straight onto the target, bypassing the cast pipeline.
+fn land_skill_on_target(world: &mut World, skill_id: i32, target: i32) {
+    let skill = skill_by_id(world, skill_id, 1).expect("registered");
+    effects::apply_skill_effects(world, target, target, &skill);
+}
+/// A zone inserted mid-test postdates every spawned player's `ZoneFlags`
+/// mask, and the sweeps gate on that mask (as Java gates on the
+/// revalidate-fed `_characterList`). Production order is zones-at-boot,
+/// players-revalidate-on-enter; re-run that revalidate here.
+fn refresh_zone_masks(world: &mut World) {
+    let ids: Vec<i32> = world.in_game_player_oids().collect();
+    for id in ids {
+        zones::revalidate_zone(world, id, true);
+    }
 }
 /// Load the real item catalog + multisell lists (the empty test data has no
 /// lists, and the loader validates ingredients/products against item templates).
@@ -535,7 +557,7 @@ fn human_fighter_template() -> crate::data::player_template::PlayerTemplate {
 
 fn character_create_body(name: &str, class_id: i32) -> Vec<u8> {
     // readImpl: name, race, isFemale, classId, 6 stat ints, hairStyle, hairColor, face.
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_string(name);
     w.write_i32(0); // race
     w.write_i32(0); // isFemale
@@ -598,7 +620,7 @@ async fn character_create_inserts_into_real_schema() {
         door_data: crate::data::DoorData::empty(),
         static_object_data: crate::data::StaticObjectData::empty(),
         buy_lists: crate::data::BuyListData::empty(),
-        multisells: crate::data::MultisellData::empty(),
+        multisells: MultisellData::empty(),
         instance_templates: crate::data::instance_data::InstanceData::empty(),
         item_auctions: crate::data::item_auction_data::ItemAuctionData::empty(),
         scheme_buffer: crate::data::SchemeBufferData::default(),
@@ -644,10 +666,7 @@ async fn character_create_inserts_into_real_schema() {
     // this test asserts on. A create that never answers still fails via the
     // recv timeout.
     let next_event = || loop {
-        match db_event_rx
-            .recv_timeout(std::time::Duration::from_secs(5))
-            .unwrap()
-        {
+        match db_event_rx.recv_timeout(Duration::from_secs(5)).unwrap() {
             crate::events::GameEvent::Db(
                 e @ (DbEvent::CharacterCreated { .. } | DbEvent::CharactersLoaded { .. }),
             ) => return e,
@@ -676,7 +695,7 @@ async fn character_create_inserts_into_real_schema() {
     }
 
     // Clean up the copied database.
-    world.db.send(crate::db::DbCommand::Shutdown).ok();
+    world.db.send(db::DbCommand::Shutdown).ok();
     tokio::task::spawn_blocking(move || db_handle.join())
         .await
         .unwrap()
@@ -716,11 +735,7 @@ fn sm_id(pkt: &[u8]) -> i16 {
 /// nuke (1177, `EnemyOnly`, `MagicalAttack` power 12, 10 s reuse), a
 /// Battle-Heal-like heal (1015, `Target`, power 83), and a Might-like
 /// buff-on-other (1068, `Target`, P.Atk +8%).
-fn cast_test_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
 
@@ -1030,7 +1045,7 @@ fn ingame_caster(
     object_id: i32,
     x: i32,
     y: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+) -> UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.level = 5;
     chr.cur_mp = 50.0;
@@ -1061,7 +1076,7 @@ fn ingame_caster(
 /// The outbound queue carries `Bytes` (shared broadcast payloads); tests
 /// assert against owned `Vec<u8>`, so materialize here rather than at every
 /// assertion.
-fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> Vec<Vec<u8>> {
+fn drain(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Vec<Vec<u8>> {
     let mut out = Vec::new();
     while let Ok(p) = rx.try_recv() {
         out.push(p.to_vec());
@@ -1096,7 +1111,7 @@ fn ingame_player(
     x: i32,
     y: i32,
     z: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+) -> UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.x = x;
     chr.y = y;
@@ -1202,7 +1217,7 @@ fn install_wall_region(world: &mut World) {
     use crate::geo::synthetic_region;
     // `world.geo` is shared with the path worker via `Arc` — in tests nothing
     // has cloned it yet, so it can be mutated in place.
-    std::sync::Arc::get_mut(&mut world.geo)
+    Arc::get_mut(&mut world.geo)
         .expect("geo Arc not shared yet")
         .set_region(20, 18, synthetic_region(crate::geo::wall_column));
 }
@@ -1248,7 +1263,7 @@ fn entering_player(
     x: i32,
     y: i32,
     z: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+) -> UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.x = x;
     chr.y = y;
@@ -1267,11 +1282,7 @@ fn entering_player(
 /// `cast_test_world` plus a synthetic exp table (level N needs (N−1)·1000)
 /// and a Monster template 40001 (level 5, pDef 40, exp 2000/sp 100, a 70%
 /// 5-adena drop line, 2 s corpse time).
-fn combat_test_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn combat_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db_rx, link_rx) = cast_test_world();
     world.data.experience = crate::data::ExperienceData::from_table(
         vec![0, 0, 1000, 2000, 3000, 4000, 5000, 50000, 100_000],
@@ -1370,7 +1381,7 @@ fn attack_request_body_shift(object_id: i32, shift: bool) -> Vec<u8> {
 /// caster's `Action` click.
 fn spawn_targeted_monster(
     world: &mut World,
-    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    a_rx: &mut UnboundedReceiver<bytes::Bytes>,
     npc_oid: i32,
     x: i32,
 ) {
@@ -1574,7 +1585,7 @@ fn make_party(world: &mut World, members: &[i32], rule: LootRule) -> u32 {
     let id = world.next_party_id;
     world.next_party_id += 1;
     let seq = world.next_request_seq();
-    let mut p = crate::model::party::Party::new(members[0], rule, seq);
+    let mut p = model::party::Party::new(members[0], rule, seq);
     for &m in &members[1..] {
         p.members.push(m);
     }
@@ -1628,11 +1639,7 @@ fn seed_friendship(world: &mut World, a: i32, b: i32) {
 /// `combat_test_world` + the real dist html root and the item/NPC templates
 /// the two shipped quests touch (pelts/bones as stackable quest items, the
 /// Q00258 reward gear, the quest NPCs and their monsters).
-fn quest_test_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn quest_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db_rx, link_rx) = combat_test_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     // Class-transfer scripts route through the G17 mechanic, which refuses a
@@ -1899,7 +1906,7 @@ fn insert_zone(
         id: 0,
         name: format!("test_{kind:?}"),
         kind,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid { x1, x2, y1, y2 },
             min_z: -1000,
             max_z: 1000,
@@ -1919,7 +1926,7 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
         id: 0,
         name: format!("test_siege_{castle_id}"),
         kind: crate::data::zone_data::ZoneKind::Siege,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid { x1, x2, y1, y2 },
             min_z: -1000,
             max_z: 1000,
@@ -1940,7 +1947,7 @@ fn insert_hq_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, 
         id: 0,
         name: format!("test_hq_{castle_id}"),
         kind: crate::data::zone_data::ZoneKind::Hq,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid { x1, x2, y1, y2 },
             min_z: -1000,
             max_z: 1000,
@@ -2044,11 +2051,7 @@ fn refund_body(list_id: i32, indexes: &[i32]) -> Vec<u8> {
 
 /// A merchant + a two-product buylist on top of `quest_test_world`; the
 /// player holds 1000 adena and targets the merchant.
-fn shop_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-) {
+fn shop_world() -> (World, db::CmdRx, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     // A stackable potion the shop sells in bulk.
     world
@@ -2086,7 +2089,7 @@ fn shop_world() -> (
         });
     add_test_npc(&mut world, NPC_OID, 30001, "Merchant", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 3001, 57, 1000);
+    items::add_inventory_item(&mut world, 3001, 57, 1000);
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     drain(&mut rx);
     (world, db_rx, rx)
@@ -2095,7 +2098,7 @@ fn shop_world() -> (
 fn adena_of(world: &World, oid: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .get_component::<Inventory>(&oid)
         .unwrap()
         .adena()
 }
@@ -2103,7 +2106,7 @@ fn adena_of(world: &World, oid: i32) -> i64 {
 fn count_of_item(world: &World, oid: i32, item_id: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .get_component::<Inventory>(&oid)
         .unwrap()
         .items()
         .iter()
@@ -2169,7 +2172,7 @@ fn quest_cond(world: &World, player: i32, quest: &str) -> Option<i32> {
 fn item_count(world: &World, player: i32, item_id: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&player)
+        .get_component::<Inventory>(&player)
         .unwrap()
         .count_of(item_id)
 }
@@ -2224,8 +2227,8 @@ fn shot_weapon(
 
 /// Equip a freshly granted item and return its object id.
 fn grant_and_equip(world: &mut World, player_oid: i32, client_id: u32, item_id: i32) -> i32 {
-    let oid = super::items::add_inventory_item(world, player_oid, item_id, 1).unwrap()[0];
-    super::items::use_equipable_item(world, client_id, player_oid, oid);
+    let oid = items::add_inventory_item(world, player_oid, item_id, 1).unwrap()[0];
+    items::use_equipable_item(world, client_id, player_oid, oid);
     oid
 }
 
@@ -2235,7 +2238,7 @@ pub(crate) fn admin_world() -> (
     World,
     db::CmdTx,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, db_tx, db_rx, link_rx) = test_world();
     world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
@@ -2248,7 +2251,7 @@ fn ingame_player_access(
     client_id: u32,
     object_id: i32,
     access_level: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+) -> UnboundedReceiver<bytes::Bytes> {
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.access_level = access_level;
     let bundle = Player::from_char(&world.data, &chr);
@@ -2346,7 +2349,7 @@ pub(crate) const FULL_PRICE_CLOCK: i64 = 1_767_787_200_000;
 /// A Teleporter NPC (template 30001) with one NORMAL destination charging
 /// 9400 adena, `MaxFreeTeleportLevel = 40` (this dist), and a player holding
 /// `adena` at (0,0) who already clicked the gatekeeper.
-fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn teleporter_world(adena: i64) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.cfg.character.max_free_teleport_level = 40;
     // Pin the clock. `TeleportHolder.calculateFee` halves the price from 20:00
@@ -2392,7 +2395,7 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
     add_test_npc(&mut world, NPC_OID, 30001, "Teleporter", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     if adena > 0 {
-        super::items::add_inventory_item(&mut world, 3001, 57, adena);
+        items::add_inventory_item(&mut world, 3001, 57, adena);
     }
     drain(&mut rx);
     (world, rx)

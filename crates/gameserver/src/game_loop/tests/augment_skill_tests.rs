@@ -10,6 +10,7 @@ use super::*;
 
 use crate::data::option_data::{OptionEntry, OptionSkillType, OptionTrigger};
 use crate::game_loop::helpers::item_id_of;
+use crate::game_loop::multisell;
 use crate::model::components::{Buffs, OptionSkills, OptionTriggers, SkillBook};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
 
@@ -22,11 +23,7 @@ const ACTIVE: i32 = 9910;
 /// The skill an option's proc fires.
 const PROC: i32 = 9911;
 
-fn augment_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn augment_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(MOB_ID);
     t.type_name = "Monster".into();
@@ -91,7 +88,7 @@ fn proc_option(id: i32, kind: OptionSkillType, chance: f64) -> OptionEntry {
 /// Equip an augmented weapon carrying `options`, through the real item path.
 fn equip_augmented(
     world: &mut World,
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    rx: &mut UnboundedReceiver<bytes::Bytes>,
     options: [i32; 2],
 ) -> i32 {
     use crate::data::item_data::{
@@ -175,7 +172,7 @@ fn an_augment_active_is_granted_castable_and_never_persisted() {
     // Castable: the cast path's known-skill lookup has to see it, or the skill
     // sits on the bar and answers every click with ActionFailed.
     assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        known_skill_level(&world, PLAYER, ACTIVE),
         Some(1),
         "the cast path resolves it"
     );
@@ -189,10 +186,7 @@ fn an_augment_active_is_granted_castable_and_never_persisted() {
             .is_some_and(|s| s.0.contains_key(&ACTIVE)),
         "taken back with the item"
     );
-    assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
-        None
-    );
+    assert_eq!(known_skill_level(&world, PLAYER, ACTIVE), None);
 }
 
 /// A player's **own** trained level wins over an option granting the same
@@ -213,10 +207,7 @@ fn the_skill_book_wins_over_an_option_granting_the_same_skill() {
         .unwrap()
         .0
         .insert(ACTIVE, 1);
-    assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
-        Some(7)
-    );
+    assert_eq!(known_skill_level(&world, PLAYER, ACTIVE), Some(7));
 }
 
 /// Java gets its augment bonuses back through `restoreCharData` re-running the
@@ -330,9 +321,7 @@ fn attack_and_critical_procs_split_on_criticality() {
             "the option registered its proc on equip"
         );
 
-        crate::game_loop::combat::handle_attack_hit(
-            &mut world, PLAYER, MOB_OID, 50, false, crit, 0,
-        );
+        combat::handle_attack_hit(&mut world, PLAYER, MOB_OID, 50, false, crit, 0);
 
         assert_eq!(
             has_buff(&world, MOB_OID, PROC),
@@ -351,9 +340,7 @@ fn a_zero_chance_proc_never_fires() {
     arm_trigger(&mut world, OptionSkillType::Attack, 0.0);
 
     for _ in 0..20 {
-        crate::game_loop::combat::handle_attack_hit(
-            &mut world, PLAYER, MOB_OID, 50, false, false, 0,
-        );
+        combat::handle_attack_hit(&mut world, PLAYER, MOB_OID, 50, false, false, 0);
     }
     assert!(!has_buff(&world, MOB_OID, PROC));
 }
@@ -377,9 +364,7 @@ fn cast_procs_split_magic_from_physical_and_skip_static() {
         add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 60, 0, 0);
         arm_trigger(&mut world, kind, 100.0);
 
-        crate::game_loop::skills::effects::fire_option_cast_triggers(
-            &mut world, PLAYER, MOB_OID, magic_type,
-        );
+        effects::fire_option_cast_triggers(&mut world, PLAYER, MOB_OID, magic_type);
 
         assert_eq!(
             has_buff(&world, MOB_OID, PROC),
@@ -399,9 +384,7 @@ fn a_critical_proc_never_fires_from_a_cast() {
         add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 60, 0, 0);
         arm_trigger(&mut world, OptionSkillType::Critical, 100.0);
 
-        crate::game_loop::skills::effects::fire_option_cast_triggers(
-            &mut world, PLAYER, MOB_OID, magic_type,
-        );
+        effects::fire_option_cast_triggers(&mut world, PLAYER, MOB_OID, magic_type);
         assert!(!has_buff(&world, MOB_OID, PROC), "magic_type={magic_type}");
     }
 }
@@ -424,7 +407,7 @@ fn destroying_a_worn_augmented_item_takes_its_option_back() {
     let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
     let item_id = item_id_of(&world, PLAYER, item_oid).expect("the augmented weapon is in the bag");
     assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        known_skill_level(&world, PLAYER, ACTIVE),
         Some(1),
         "granted while worn"
     );
@@ -440,16 +423,16 @@ fn destroying_a_worn_augmented_item_takes_its_option_back() {
         .get_component_mut::<Inventory>(&PLAYER)
         .map(|inv| inv.remove_item(item_id, 1))
         .unwrap_or_default();
-    let unequipped = crate::game_loop::items::unequipped_by_removal(&before, &changes);
+    let unequipped = items::unequipped_by_removal(&before, &changes);
     assert_eq!(
         unequipped.iter().map(|i| i.object_id).collect::<Vec<_>>(),
         vec![item_oid],
         "the protocol correctly identifies the destroyed worn item"
     );
-    crate::game_loop::items::finish_equipped_item_destroyed(&mut world, CID, PLAYER, &unequipped);
+    items::finish_equipped_item_destroyed(&mut world, CID, PLAYER, &unequipped);
 
     assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        known_skill_level(&world, PLAYER, ACTIVE),
         None,
         "the option's skill must go with the destroyed item"
     );
@@ -471,12 +454,12 @@ fn admin_destroy_takes_the_options_off_a_worn_item() {
     let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
     let item_id = item_id_of(&world, PLAYER, item_oid).expect("worn augmented weapon");
     assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        known_skill_level(&world, PLAYER, ACTIVE),
         Some(1),
         "granted while worn"
     );
 
-    crate::game_loop::items::destroy_item_by_id(&mut world, PLAYER, item_id, 1);
+    items::destroy_item_by_id(&mut world, PLAYER, item_id, 1);
 
     assert!(
         world
@@ -486,7 +469,7 @@ fn admin_destroy_takes_the_options_off_a_worn_item() {
         "the item is gone"
     );
     assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        known_skill_level(&world, PLAYER, ACTIVE),
         None,
         "and so is the option it granted"
     );
@@ -513,7 +496,7 @@ fn a_multisell_consuming_a_worn_ingredient_takes_its_option_back() {
     let item_oid = equip_augmented(&mut world, &mut rx, [4001, 0]);
     let item_id = item_id_of(&world, PLAYER, item_oid).expect("worn augmented weapon");
     assert_eq!(
-        crate::game_loop::skills::cast::known_skill_level(&world, PLAYER, ACTIVE),
+        known_skill_level(&world, PLAYER, ACTIVE),
         Some(1),
         "granted while worn"
     );

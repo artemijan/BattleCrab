@@ -2,6 +2,7 @@ use super::*;
 
 use crate::data::henna_data::Henna;
 use crate::data::item_data::{CrystalType, EtcItemType, ItemHandler, ItemKind, ItemTemplate};
+use crate::game_loop::henna;
 use crate::model::components::{BaseStats, HennaSlots};
 use crate::model::inventory::Inventory;
 

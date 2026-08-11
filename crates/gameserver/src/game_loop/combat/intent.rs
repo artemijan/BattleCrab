@@ -132,7 +132,7 @@ pub(crate) fn start_attack_intent(
                 crate::game_loop::helpers::send_sm_and_action_failed(
                     world,
                     client_id,
-                    server_packets::sm_ids::YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE,
+                    sm_ids::YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE,
                     &[],
                 );
             }
@@ -197,7 +197,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     let damage = formulas::calc_auto_attack_damage(
         attacker.p_atk,
         1.0,
-        crate::model::movement::Position::Front,
+        movement::Position::Front,
         door_pdef,
         false,
         // A door swing never crits, so the crit stats are never read.
@@ -233,7 +233,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // Land the damage at `timeToHit`, like a creature swing (Java `doAttack`
     // schedules `onHitTimeNotDual`); the shared `AttackHit` task carries the
     // door branch, and the seq guard drops it if the swing is aborted.
-    let two_handed = super::wields_two_handed(world, attacker_oid);
+    let two_handed = wields_two_handed(world, attacker_oid);
     let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
     world.scheduler.schedule(
         now + ms_to_ticks(time_to_hit),
@@ -554,11 +554,11 @@ fn maybe_move_to_pawn(
             .and_then(|p| world.data.transforms.get(p.transform_id))
             .is_some_and(|tr| !tr.combat);
         if non_combat_form {
-            if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
+            if let Some(cid) = client_for_player(world, object_id) {
                 crate::game_loop::helpers::send_sm_and_action_failed(
                     world,
                     cid,
-                    crate::network::server_packets::sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
+                    sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
                     &[],
                 );
             }

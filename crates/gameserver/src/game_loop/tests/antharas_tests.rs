@@ -1176,6 +1176,7 @@ fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::antharas::AntharasCombat;
+use crate::scheduler::ScheduledTask;
 
 const AP_PLAYER: i32 = 9700;
 

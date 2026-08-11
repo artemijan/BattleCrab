@@ -4,6 +4,7 @@ use crate::data::item_data::{
     CrystalType, EtcItemType, ItemHandler, ItemKind, ItemTemplate, SLOT_R_HAND,
 };
 use crate::data::recipe_data::{RareProduction, RecipeList};
+use crate::game_loop::crafting;
 use crate::model::components::{RecipeBook, SkillBook};
 use crate::model::inventory::Inventory;
 

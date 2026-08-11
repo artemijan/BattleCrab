@@ -3,13 +3,14 @@
 //! coverage in `teleport_cmds_tests`.
 
 use super::*;
+use crate::game_loop::user_commands;
 
 use crate::model::Player;
 use crate::model::clan::Clan;
 use crate::model::party::LootRule;
 
 fn cmd(world: &mut World, client_id: u32, id: i32) {
-    super::user_commands::handle_bypass_user_cmd(world, client_id, &user_cmd_body(id));
+    user_commands::handle_bypass_user_cmd(world, client_id, &user_cmd_body(id));
 }
 
 fn mk_clan(id: i32, name: &str, ally_id: i32, ally_name: &str) -> Clan {

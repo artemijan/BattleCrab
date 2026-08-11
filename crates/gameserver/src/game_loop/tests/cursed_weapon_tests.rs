@@ -4,6 +4,7 @@
 //! (`admin_cursed_weapons_info_add_remove`).
 
 use super::*;
+use crate::game_loop::{admin, cursed_weapon, death, ground_items, passive_skills, pvp};
 
 use crate::model::Player;
 

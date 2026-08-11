@@ -2,9 +2,7 @@
 //! Noblesse Blessing is up — then the blessing is the only thing lost.
 
 use super::*;
-use crate::game_loop::helpers::skill_by_id;
-
-use crate::game_loop::abnormal;
+use crate::game_loop::{abnormal, death};
 use crate::model::components::{Buffs, Vitals};
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType, effect_flag,
@@ -70,11 +68,7 @@ fn buff_skill(id: i32, effects: Vec<SkillEffect>, stay_after_death: bool) -> Ski
     }
 }
 
-fn death_buff_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn death_buff_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     let pump = SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
         stat: Stat::PhysicalAttack,
@@ -99,12 +93,6 @@ fn death_buff_world() -> (
         .skill_data
         .insert_for_test(buff_skill(LASTING_ID, vec![pump], true));
     (world, db, l)
-}
-
-/// Land a buff straight onto the target, bypassing the cast pipeline.
-fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = skill_by_id(world, skill_id, 1).expect("registered");
-    crate::game_loop::skills::effects::apply_skill_effects(world, target, target, &skill);
 }
 
 fn live_buffs(world: &World, oid: i32) -> Vec<i32> {
@@ -133,14 +121,14 @@ fn death_without_noblesse_strips_all_buffs() {
     let (mut world, _db, _l) = death_buff_world();
     setup(&mut world);
 
-    land(&mut world, MIGHT_ID, VICTIM);
+    land_skill_on_target(&mut world, MIGHT_ID, VICTIM);
     assert_eq!(
         live_buffs(&world, VICTIM),
         vec![MIGHT_ID],
         "the buff landed"
     );
 
-    crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
+    death::player_do_die(&mut world, VICTIM, KILLER);
 
     assert!(
         world
@@ -162,14 +150,14 @@ fn noblesse_blessing_keeps_buffs_and_consumes_itself() {
     let (mut world, _db, _l) = death_buff_world();
     setup(&mut world);
 
-    land(&mut world, MIGHT_ID, VICTIM);
-    land(&mut world, BLESS_ID, VICTIM);
+    land_skill_on_target(&mut world, MIGHT_ID, VICTIM);
+    land_skill_on_target(&mut world, BLESS_ID, VICTIM);
     assert!(
         abnormal::flags_of(&world, VICTIM) & effect_flag::NOBLESS_BLESSING != 0,
         "the blessing landed as a real buff and carries its flag"
     );
 
-    crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
+    death::player_do_die(&mut world, VICTIM, KILLER);
 
     assert_eq!(
         live_buffs(&world, VICTIM),
@@ -190,16 +178,16 @@ fn blessing_does_not_survive_to_a_second_death() {
     let (mut world, _db, _l) = death_buff_world();
     setup(&mut world);
 
-    land(&mut world, MIGHT_ID, VICTIM);
-    land(&mut world, BLESS_ID, VICTIM);
-    crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
+    land_skill_on_target(&mut world, MIGHT_ID, VICTIM);
+    land_skill_on_target(&mut world, BLESS_ID, VICTIM);
+    death::player_do_die(&mut world, VICTIM, KILLER);
     // Revive so the second `doDie` isn't the already-dead no-op.
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&VICTIM) {
         v.dead = false;
         v.cur_hp = 1.0;
     }
 
-    crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
+    death::player_do_die(&mut world, VICTIM, KILLER);
 
     assert!(
         live_buffs(&world, VICTIM).is_empty(),
@@ -214,10 +202,10 @@ fn stay_after_death_buffs_survive_an_unblessed_death() {
     let (mut world, _db, _l) = death_buff_world();
     setup(&mut world);
 
-    land(&mut world, MIGHT_ID, VICTIM);
-    land(&mut world, LASTING_ID, VICTIM);
+    land_skill_on_target(&mut world, MIGHT_ID, VICTIM);
+    land_skill_on_target(&mut world, LASTING_ID, VICTIM);
 
-    crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
+    death::player_do_die(&mut world, VICTIM, KILLER);
 
     assert_eq!(
         live_buffs(&world, VICTIM),

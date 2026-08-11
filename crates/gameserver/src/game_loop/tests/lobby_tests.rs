@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::autosave_tick;
 
 #[test]
 fn auth_then_load_reaches_lobby_with_char_list() {
@@ -137,7 +138,7 @@ fn shutdown_saves_all_online_players() {
         p.exp = 9999;
     }
 
-    super::net::save_all_players(&mut world);
+    save_all_players(&mut world);
 
     // A StorePlayer snapshot per online player (ECS iteration order isn't
     // fixed, so collect by object id).
@@ -271,7 +272,7 @@ fn autosave_flushes_one_due_player_and_reschedules() {
     world.player_autosave_due.insert(5001, world.tick);
     world.player_autosave_due.insert(5002, world.tick);
 
-    super::autosave_tick(&mut world);
+    autosave_tick(&mut world);
 
     // Exactly one StorePlayer this sweep (the lowest object id), and both players
     // are still in the world.
@@ -294,9 +295,9 @@ fn autosave_flushes_one_due_player_and_reschedules() {
     assert_eq!(world.player_autosave_due[&5002], world.tick);
 
     // Next sweep flushes the other player; a third finds nothing due.
-    super::autosave_tick(&mut world);
+    autosave_tick(&mut world);
     assert_eq!(expect_store_player(&mut db_rx).base.object_id, 5002);
-    super::autosave_tick(&mut world);
+    autosave_tick(&mut world);
     assert!(
         db_rx.try_recv().is_err(),
         "nothing due after both rescheduled"

@@ -5,7 +5,6 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
-
 use crate::model::components::{Casting, SummonerRef};
 use crate::model::skill::{
     AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillCondition,
@@ -462,7 +461,7 @@ fn plain_summon_spawns_folk_with_despawn() {
         }],
         ..Default::default()
     };
-    skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &tree);
+    effects::apply_skill_effects(&mut world, CASTER, CASTER, &tree);
 
     let tree_oid = world
         .npc_regions

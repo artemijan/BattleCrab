@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::{academy, chat, clans, helpers, pvp, subclass, warehouse};
 
 /// The `create_clan` bypass: Java's guard matrix (SM ids in `ClanTable.
 /// createClan` order), then the success path — clan registered + persisted,
@@ -284,7 +285,7 @@ fn clan_roster_notifications_and_chat() {
     assert!(sm_ids_of(&drain(&mut c_rx)).contains(&server_packets::sm_ids::YOU_ARE_NOT_IN_A_CLAN));
 
     // B leaves the world: offline ping to A.
-    net::store_and_remove_player(&mut world, 3002);
+    store_and_remove_player(&mut world, 3002);
     let a_pkts = drain(&mut a_rx);
     let upd = a_pkts
         .iter()
@@ -379,7 +380,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
         .find(|it| it.item_id == 57)
         .unwrap()
         .object_id;
-    super::warehouse::open_clan(&mut world, 1, 3001, false); // keeper bypass → active = clan
+    warehouse::open_clan(&mut world, 1, 3001, false); // keeper bypass → active = clan
     let deposit = {
         let mut w = PacketWriter::new();
         w.write_u8(cop::SEND_WARE_HOUSE_DEPOSIT_LIST);
@@ -409,7 +410,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
 
     // An unprivileged member cannot open the withdraw window.
     drain(&mut member_rx);
-    super::warehouse::open_clan(&mut world, 2, 3002, true);
+    warehouse::open_clan(&mut world, 2, 3002, true);
     let denied = drain(&mut member_rx);
     assert!(
         !denied
@@ -427,7 +428,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
         .find(|it| it.item_id == 57)
         .unwrap()
         .object_id;
-    super::warehouse::open_clan(&mut world, 1, 3001, true);
+    warehouse::open_clan(&mut world, 1, 3001, true);
     let withdraw = {
         let mut w = PacketWriter::new();
         w.write_u8(cop::SEND_WARE_HOUSE_WITH_DRAW_LIST);
@@ -912,7 +913,7 @@ fn give_clan_skills_grants_gates_and_persists() {
     );
 
     // The clan skill shows in the member's merged SkillList (opcode 0x5F).
-    let pkt = super::helpers::skill_list_packet(&world, 3001).expect("skill list");
+    let pkt = helpers::skill_list_packet(&world, 3001).expect("skill list");
     assert_eq!(pkt[0], 0x5F);
     let count_in_list = i32::from_le_bytes(pkt[1..5].try_into().unwrap());
     assert!(
@@ -1581,7 +1582,7 @@ fn clan_entry_queries() {
     );
 
     // ExPledgeRecruitApplyInfo: status DEFAULT (0) — nothing is registered.
-    super::clans::handle_request_pledge_recruit_apply_info(&world, 1);
+    clans::handle_request_pledge_recruit_apply_info(&world, 1);
     let pkts = drain(&mut rx);
     let apply = pkts
         .iter()
@@ -1590,7 +1591,7 @@ fn clan_entry_queries() {
     assert_eq!(&apply[3..7], &0i32.to_le_bytes());
 
     // ExPledgeRecruitInfo: name, leader name, level, member count, 0 sub-pledges.
-    super::clans::handle_request_pledge_recruit_info(&world, 1, &clan_id.to_le_bytes());
+    clans::handle_request_pledge_recruit_info(&world, 1, &clan_id.to_le_bytes());
     let pkts = drain(&mut rx);
     let info = pkts
         .iter()
@@ -1604,7 +1605,7 @@ fn clan_entry_queries() {
     assert_eq!(r.read_i32().unwrap(), 0); // sub-pledge count
 
     // Unknown clan id: Java's ClanTable miss returns without an answer.
-    super::clans::handle_request_pledge_recruit_info(&world, 1, &0x7999_9999i32.to_le_bytes());
+    clans::handle_request_pledge_recruit_info(&world, 1, &0x7999_9999i32.to_le_bytes());
     assert!(drain(&mut rx).is_empty());
 }
 
@@ -1629,7 +1630,7 @@ fn clan_recruit_board_search() {
     body.extend(1i32.to_le_bytes());
     body.extend(3i32.to_le_bytes());
     body.extend(0i32.to_le_bytes());
-    super::clans::handle_request_pledge_recruit_board_search(&world, 1, &body);
+    clans::handle_request_pledge_recruit_board_search(&world, 1, &body);
     let pkts = drain(&mut rx);
     let page = pkts
         .iter()
@@ -1641,7 +1642,7 @@ fn clan_recruit_board_search() {
     assert_eq!(r.read_i32().unwrap(), 0); // clans on this page
 
     // Truncated packet (missing the page int): dropped silently.
-    super::clans::handle_request_pledge_recruit_board_search(&world, 1, &body[..body.len() - 8]);
+    clans::handle_request_pledge_recruit_board_search(&world, 1, &body[..body.len() - 8]);
     assert!(drain(&mut rx).is_empty());
 }
 
@@ -2788,8 +2789,8 @@ fn clan_war_declare_and_mutual() {
 
     // Mutual: lawful PvP, both swords, freely attackable, dissolve blocked.
     assert!(clans::mutual_war_between(&world, 5000, 5001));
-    assert!(super::pvp::check_if_pvp(&world, 3001, 3003));
-    assert!(super::pvp::is_player_auto_attackable(&world, 3001, 3003));
+    assert!(pvp::check_if_pvp(&world, 3001, 3003));
+    assert!(pvp::is_player_auto_attackable(&world, 3001, 3003));
     assert_eq!(clans::war_relation_bits(&world, 3001, 3003), 0xC000);
     assert_eq!(clans::war_relation_bits(&world, 3003, 3001), 0xC000);
 

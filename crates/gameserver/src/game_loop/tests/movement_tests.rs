@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::{death, servitor};
 
 /// A move click during a cast is rejected (ActionFailed, cast keeps going)
 /// but saved as the next intention, and the move starts by itself once the
@@ -496,7 +497,7 @@ fn validate_position_ignored_while_teleporting() {
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
-    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
     // The "teleport finished" packet must reach the player, or the client
     // never leaves the loading screen.
     assert!(
@@ -522,7 +523,7 @@ fn validate_position_ignored_while_teleporting() {
     );
 
     // Appearing completes the teleport; afterwards reports count again.
-    super::death::handle_appearing(&mut world, 1);
+    death::handle_appearing(&mut world, 1);
     assert!(
         !world
             .objects
@@ -554,14 +555,14 @@ fn teleport_watchdog_off_by_default() {
     let _rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
     assert_eq!(world.cfg.character.teleport_watchdog_timeout_ticks, 0);
 
-    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
     assert!(
         world.teleport_watchdog_due.is_empty(),
         "nothing armed while the feature is disabled"
     );
 
     world.tick += 10_000; // ~16 minutes
-    super::death::teleport_watchdog_tick(&mut world);
+    death::teleport_watchdog_tick(&mut world);
     assert!(
         world
             .objects
@@ -582,7 +583,7 @@ fn teleport_watchdog_forces_completion_when_appearing_never_arrives() {
     world.cfg.character.teleport_watchdog_timeout_ticks = 600; // 60 s
     let mut rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
 
-    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
     assert_eq!(
         world.teleport_watchdog_due.get(&4001),
         Some(&(world.tick + 600)),
@@ -592,7 +593,7 @@ fn teleport_watchdog_forces_completion_when_appearing_never_arrives() {
 
     // One tick short of the deadline: still the client's turn.
     world.tick += 599;
-    super::death::teleport_watchdog_tick(&mut world);
+    death::teleport_watchdog_tick(&mut world);
     assert!(
         world
             .objects
@@ -603,7 +604,7 @@ fn teleport_watchdog_forces_completion_when_appearing_never_arrives() {
     );
 
     world.tick += 1;
-    super::death::teleport_watchdog_tick(&mut world);
+    death::teleport_watchdog_tick(&mut world);
     assert!(
         !world
             .objects
@@ -635,8 +636,8 @@ fn appearing_cancels_the_watchdog_so_the_next_teleport_arms_fresh() {
     world.cfg.character.teleport_watchdog_timeout_ticks = 600;
     let _rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
 
-    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
-    super::death::handle_appearing(&mut world, 1);
+    death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    death::handle_appearing(&mut world, 1);
     assert!(
         world.teleport_watchdog_due.is_empty(),
         "completed teleport leaves no armed watchdog"
@@ -645,7 +646,7 @@ fn appearing_cancels_the_watchdog_so_the_next_teleport_arms_fresh() {
     // A second teleport 30 s later gets its own full window, not the remains
     // of the first one's.
     world.tick += 300;
-    super::death::teleport_player(&mut world, 4001, 1000, 1000, 0);
+    death::teleport_player(&mut world, 4001, 1000, 1000, 0);
     assert_eq!(
         world.teleport_watchdog_due.get(&4001),
         Some(&(world.tick + 600))
@@ -1012,7 +1013,7 @@ fn sitting_down_and_standing_up_each_take_an_animation() {
     let seated = |w: &World| crate::game_loop::sit_stand::is_sitting(w, 3001);
     let blocked = |w: &World| crate::game_loop::abnormal::is_blocked_from_actions(w, 3001);
 
-    super::servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
     assert!(seated(&world), "seated the instant the toggle is used");
     assert!(blocked(&world), "…and blocked while the animation plays");
     let wt = drain(&mut rx)
@@ -1030,7 +1031,7 @@ fn sitting_down_and_standing_up_each_take_an_animation() {
     assert!(!blocked(&world), "but free to act again");
 
     // Stand: the flag survives until the stand animation finishes.
-    super::servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
     assert!(
         seated(&world),
         "standing up is not instant — the flag holds through the animation"
