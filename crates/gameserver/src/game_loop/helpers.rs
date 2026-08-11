@@ -442,7 +442,13 @@ pub(crate) fn count_of(world: &World, player_oid: i32, item_id: i32) -> i64 {
         .get_component::<Inventory>(&player_oid)
         .map_or(0, |inv| inv.count_of(item_id))
 }
-
+pub(crate) fn max_hate(world: &World, victim_oid: i32) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&victim_oid)
+        .map(|a| a.0.values().map(|i| i.hate).fold(0.0_f64, f64::max))
+        .unwrap_or(0.0)
+}
 pub fn player(world: &World, object_id: i32) -> Option<&Player> {
     world.objects.get_component::<Player>(&object_id)
 }
