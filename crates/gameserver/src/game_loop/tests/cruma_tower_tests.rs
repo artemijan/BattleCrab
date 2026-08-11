@@ -14,7 +14,6 @@
 //! wrong floor, the buttons addressing destinations by index) fails loudly.
 
 use super::*;
-use crate::data::spawn_data::NpcSpawnDef;
 
 const DIST: &str = crate::data::DIST_GAME;
 
