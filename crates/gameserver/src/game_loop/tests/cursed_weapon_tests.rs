@@ -85,7 +85,7 @@ fn monster_kill_drops_cursed_weapon() {
     // Force the FIRST candidate's roll to land (0 < dropRate); the loop breaks
     // before the second weapon rolls.
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     let idx = cw_idx(&world, ZARICHE);
     let cw = &world.cursed_weapons[idx];
@@ -125,7 +125,7 @@ fn missed_roll_drops_nothing() {
     // dropRate is 50; a roll of 50 is NOT < 50. Both weapons miss.
     world.forced_rolls.push_back(50);
     world.forced_rolls.push_back(50);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     assert_eq!(ground_item_count(&world), 0, "nothing dropped");
     assert!(
@@ -150,7 +150,7 @@ fn cursed_killer_gets_no_drop() {
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0); // would hit if the killer were eligible
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     assert_eq!(
         ground_item_count(&world),
@@ -170,7 +170,7 @@ fn raid_kill_drops_nothing() {
     add_test_npc(&mut world, MONSTER_OID, 900002, "RaidBoss", 60, 500, 600, 0);
 
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     assert_eq!(ground_item_count(&world), 0, "raid boss is excluded");
 }
@@ -188,7 +188,7 @@ fn pickup_curses_the_finder() {
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     drain(&mut killer_rx);
     drain(&mut picker_rx);
     while db_rx.try_recv().is_ok() {}
@@ -197,7 +197,7 @@ fn pickup_curses_the_finder() {
     let ground_oid = world.cursed_weapons[idx].dropped_item_oid;
 
     // Real pickup path (Player.doPickupItem → cursed-weapon route).
-    crate::game_loop::ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
+    ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
 
     let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
     assert_eq!(p.cursed_weapon_equipped_id, ZARICHE, "picker is now cursed");
@@ -251,11 +251,11 @@ fn already_cursed_picker_consumes_the_weapon() {
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     let idx = cw_idx(&world, ZARICHE);
     let ground_oid = world.cursed_weapons[idx].dropped_item_oid;
 
-    crate::game_loop::ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
+    ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
 
     // Zariche vanished; the picker still wields only their original weapon.
     assert!(
@@ -285,13 +285,13 @@ fn expiry_removes_ungrabbed_drop() {
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     drain(&mut rx);
     while db_rx.try_recv().is_ok() {}
 
     let idx = cw_idx(&world, ZARICHE);
     world.cursed_weapons[idx].end_time = 1; // deadline in the distant past
-    crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
+    cursed_weapon::handle_expiry(&mut world, ZARICHE);
 
     assert!(
         !world.cursed_weapons[idx].is_active(),
@@ -321,11 +321,11 @@ fn premature_expiry_is_ignored() {
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     let idx = cw_idx(&world, ZARICHE);
     world.cursed_weapons[idx].end_time = now_millis_test() + 10 * 60_000; // 10 min out
 
-    crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
+    cursed_weapon::handle_expiry(&mut world, ZARICHE);
 
     assert!(
         world.cursed_weapons[idx].is_dropped,
@@ -352,12 +352,12 @@ fn scheduled_expiry_fires_through_loop() {
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     let idx = cw_idx(&world, ZARICHE);
     // Make the deadline due now and re-arm a zero-delay task so a single tick
     // fires it through `ScheduledTask::CursedWeaponExpiry`.
     world.cursed_weapons[idx].end_time = 1;
-    crate::game_loop::cursed_weapon::arm_expiry(&mut world, idx);
+    cursed_weapon::arm_expiry(&mut world, idx);
 
     advance_ticks(&mut world, 1);
 
@@ -387,7 +387,7 @@ fn death_path_triggers_drop() {
     let idx = cw_idx(&world, ZARICHE);
     world.cursed_weapons[idx].drop_rate = 100_000;
 
-    crate::game_loop::death::npc_do_die(&mut world, MONSTER_OID, KILLER_OID);
+    death::npc_do_die(&mut world, MONSTER_OID, KILLER_OID);
 
     assert!(
         world.cursed_weapons[idx].is_dropped,
@@ -414,14 +414,7 @@ fn the_cursed_weapon_window_lists_and_locates() {
 
     // The list is the full catalogue, live or not.
     handle_request_list(&world, 1);
-    let list = drain(&mut rx)
-        .into_iter()
-        .find(|p| {
-            p.len() >= 3
-                && p[0] == 0xFE
-                && i16::from_le_bytes([p[1], p[2]])
-                    == server_packets::opcodes::EX_CURSED_WEAPON_LIST
-        })
+    let list = find_ex_opcode(&mut rx, server_packets::opcodes::EX_CURSED_WEAPON_LIST)
         .expect("the list packet");
     assert_eq!(
         i32::from_le_bytes([list[3], list[4], list[5], list[6]]),
@@ -445,14 +438,7 @@ fn the_cursed_weapon_window_lists_and_locates() {
     world.cursed_weapons[idx].is_activated = true;
     world.cursed_weapons[idx].player_id = 6100;
     handle_request_location(&world, 1);
-    let loc = drain(&mut rx)
-        .into_iter()
-        .find(|p| {
-            p.len() >= 3
-                && p[0] == 0xFE
-                && i16::from_le_bytes([p[1], p[2]])
-                    == server_packets::opcodes::EX_CURSED_WEAPON_LOCATION
-        })
+    let loc = find_ex_opcode(&mut rx, server_packets::opcodes::EX_CURSED_WEAPON_LOCATION)
         .expect("the location packet");
     assert_eq!(
         i32::from_le_bytes([loc[3], loc[4], loc[5], loc[6]]),
@@ -487,7 +473,7 @@ fn a_gm_granted_cursed_weapon_arms_its_expiry() {
     // `//cw_add <itemid>` on the GM themselves (no target → falls back to the
     // caster, as Java does).
     let id_arg = ZARICHE.to_string();
-    crate::game_loop::admin::cursed_weapons::admin_cw_add(&mut world, 1, KILLER_OID, &[&id_arg]);
+    admin::cursed_weapons::admin_cw_add(&mut world, 1, KILLER_OID, &[&id_arg]);
     let idx = cw_idx(&world, ZARICHE);
     assert!(
         world.cursed_weapons[idx].is_activated,
@@ -508,7 +494,7 @@ fn a_gm_granted_cursed_weapon_arms_its_expiry() {
 
     // Wind the weapon's own end time back and the armed task ends it.
     world.cursed_weapons[idx].end_time = now_millis_test() - 1;
-    crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
+    cursed_weapon::handle_expiry(&mut world, ZARICHE);
     assert!(
         !world.cursed_weapons[idx].is_activated,
         "the duration actually runs out"
@@ -551,9 +537,7 @@ fn load_curse_data(world: &mut World) {
 
 /// The object id of `item_id` in `owner`'s bag, but only when it is worn.
 fn equipped_oid(world: &World, owner: i32, item_id: i32) -> Option<i32> {
-    let inv = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&owner)?;
+    let inv = world.objects.get_component::<Inventory>(&owner)?;
     let oid = inv.items().iter().find(|i| i.item_id == item_id)?.object_id;
     inv.paperdoll_slot_of(oid).map(|_| oid)
 }
@@ -585,7 +569,7 @@ fn relog_restores_transform_and_curse() {
     let skill_id = world.cursed_weapons[idx].skill_id;
     drain(&mut rx);
 
-    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+    cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
 
     let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
     assert_eq!(
@@ -600,7 +584,7 @@ fn relog_restores_transform_and_curse() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&PICKER_OID)
+            .get_component::<SkillBook>(&PICKER_OID)
             .unwrap()
             .0
             .contains_key(&skill_id),
@@ -627,7 +611,7 @@ fn relog_restores_akamanah_transform() {
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     restore_activated_on(&mut world, AKAMANAH, PICKER_OID);
 
-    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+    cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
 
     assert_eq!(
         world
@@ -648,7 +632,7 @@ fn relog_of_a_bystander_restores_nothing() {
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     restore_activated_on(&mut world, ZARICHE, KILLER_OID); // owned by someone else
 
-    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+    cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
 
     let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
     assert_eq!(p.cursed_weapon_equipped_id, 0, "not this character's curse");
@@ -664,15 +648,15 @@ fn relog_destroys_a_stray_cursed_weapon() {
     load_curse_data(&mut world);
     world.id_pool = 0x3000_0000..0x3000_0100;
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
-    super::items::add_inventory_item(&mut world, PICKER_OID, ZARICHE, 1)
+    items::add_inventory_item(&mut world, PICKER_OID, ZARICHE, 1)
         .expect("the leftover sword is in the bag");
 
-    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+    cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
 
     assert!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .get_component::<Inventory>(&PICKER_OID)
             .unwrap()
             .items()
             .iter()
@@ -691,7 +675,7 @@ fn cursed_wielder_cannot_unequip_the_weapon() {
     world.id_pool = 0x3000_0000..0x3000_0100;
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     let idx = cw_idx(&world, ZARICHE);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
     assert!(
         equipped_oid(&world, PICKER_OID, ZARICHE).is_some(),
         "activate equipped the weapon"
@@ -699,7 +683,7 @@ fn cursed_wielder_cannot_unequip_the_weapon() {
 
     let mut body = Vec::new();
     body.extend_from_slice(&crate::data::item_data::SLOT_LR_HAND.to_le_bytes());
-    crate::game_loop::items::handle_request_un_equip_item(&mut world, 1, &body);
+    items::handle_request_un_equip_item(&mut world, 1, &body);
 
     assert!(
         equipped_oid(&world, PICKER_OID, ZARICHE).is_some(),
@@ -716,19 +700,19 @@ fn cursed_wielder_cannot_equip_another_weapon() {
     world.id_pool = 0x3000_0000..0x3000_0100;
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     let idx = cw_idx(&world, ZARICHE);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
-    let sword_oid = super::items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    let sword_oid = items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
         .expect("spare sword added")[0];
 
     let mut body = Vec::new();
     body.extend_from_slice(&sword_oid.to_le_bytes());
     body.extend_from_slice(&0i32.to_le_bytes()); // ctrlPressed
-    crate::game_loop::items::handle_use_item(&mut world, 1, &body);
+    items::handle_use_item(&mut world, 1, &body);
 
     assert!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .get_component::<Inventory>(&PICKER_OID)
             .unwrap()
             .paperdoll_slot_of(sword_oid)
             .is_none(),
@@ -748,18 +732,18 @@ fn uncursed_player_can_still_equip_a_weapon() {
     load_curse_data(&mut world);
     world.id_pool = 0x3000_0000..0x3000_0100;
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
-    let sword_oid = super::items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
+    let sword_oid = items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
         .expect("sword added")[0];
 
     let mut body = Vec::new();
     body.extend_from_slice(&sword_oid.to_le_bytes());
     body.extend_from_slice(&0i32.to_le_bytes());
-    crate::game_loop::items::handle_use_item(&mut world, 1, &body);
+    items::handle_use_item(&mut world, 1, &body);
 
     assert!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .get_component::<Inventory>(&PICKER_OID)
             .unwrap()
             .paperdoll_slot_of(sword_oid)
             .is_some(),
@@ -784,7 +768,7 @@ fn offline_expiry_restores_the_owner_in_the_db() {
     world.cursed_weapons[idx].end_time = now_millis_test() - 1;
     while db_rx.try_recv().is_ok() {}
 
-    crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
+    cursed_weapon::handle_expiry(&mut world, ZARICHE);
 
     let restore = drain_db(&mut db_rx).into_iter().find_map(|c| match c {
         db::DbCommand::RestoreOfflineCursedOwner {
@@ -840,8 +824,7 @@ fn cursed_kill_scores_and_burns_time() {
     let duration_lost = world.cursed_weapons[idx].duration_lost as i64;
     while db_rx.try_recv().is_ok() {}
 
-    let handled =
-        crate::game_loop::cursed_weapon::on_player_kill(&mut world, KILLER_OID, PICKER_OID);
+    let handled = cursed_weapon::on_player_kill(&mut world, KILLER_OID, PICKER_OID);
 
     assert!(handled, "the cursed branch claims the kill");
     assert_eq!(world.cursed_weapons[idx].nb_kills, 1, "kill counted");
@@ -883,7 +866,7 @@ fn cursed_kill_skips_normal_pvp_reputation() {
         .unwrap()
         .cursed_weapon_equipped_id = ZARICHE;
 
-    crate::game_loop::pvp::on_kill_update_pvp_reputation(&mut world, KILLER_OID, PICKER_OID);
+    pvp::on_kill_update_pvp_reputation(&mut world, KILLER_OID, PICKER_OID);
 
     let p = world.objects.get_component::<Player>(&KILLER_OID).unwrap();
     assert_eq!(p.pvp_kills, 0, "no pvp kill credited");
@@ -917,20 +900,20 @@ fn stage_boundary_levels_the_skill() {
     assert!(stage > 1, "fixture assumes a multi-kill stage");
     // One short of the boundary: still level 1.
     world.cursed_weapons[idx].nb_kills = stage - 2;
-    crate::game_loop::cursed_weapon::increase_kills(&mut world, idx);
+    cursed_weapon::increase_kills(&mut world, idx);
     let lvl_before = *world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&KILLER_OID)
+        .get_component::<SkillBook>(&KILLER_OID)
         .unwrap()
         .0
         .get(&skill_id)
         .unwrap_or(&1);
 
-    crate::game_loop::cursed_weapon::increase_kills(&mut world, idx); // hits the boundary
+    cursed_weapon::increase_kills(&mut world, idx); // hits the boundary
 
     let lvl_after = *world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&KILLER_OID)
+        .get_component::<SkillBook>(&KILLER_OID)
         .unwrap()
         .0
         .get(&skill_id)
@@ -952,13 +935,13 @@ fn wielder_death_drops_the_weapon() {
     let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     let _k = ingame_player_access(&mut world, 2, KILLER_OID, 0);
     let idx = cw_idx(&world, ZARICHE);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
     world.cursed_weapons[idx].player_reputation = 1234;
     world.cursed_weapons[idx].player_pk_kills = 5;
 
     // dropRate roll: disapearChance is 50 and Java tests `<= 50`, so 51 misses.
     world.forced_rolls.push_back(51);
-    crate::game_loop::cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
+    cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
 
     let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
     assert_eq!(p.cursed_weapon_equipped_id, 0, "curse lifted");
@@ -990,20 +973,20 @@ fn wielder_death_resends_the_paperdoll_snapshot() {
     let mut v_rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     let _k = ingame_player_access(&mut world, 2, KILLER_OID, 0);
     let idx = cw_idx(&world, ZARICHE);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
 
     // Pre-condition: the curse really is on the paperdoll, or the assertion
     // below would pass against an empty slot for the wrong reason.
     let weapon_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+        .get_component::<Inventory>(&PICKER_OID)
         .and_then(|inv| inv.items().iter().find(|i| i.item_id == ZARICHE).copied())
         .expect("the curse put Zariche in the bag")
         .object_id;
     assert!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .get_component::<Inventory>(&PICKER_OID)
             .unwrap()
             .paperdoll_slot_of(weapon_oid)
             .is_some(),
@@ -1012,7 +995,7 @@ fn wielder_death_resends_the_paperdoll_snapshot() {
     drain(&mut v_rx);
 
     world.forced_rolls.push_back(51); // 51 > disapearChance → drops, not destroyed
-    crate::game_loop::cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
+    cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
 
     let packets = drain(&mut v_rx);
     assert_eq!(
@@ -1031,10 +1014,10 @@ fn wielder_death_can_destroy_the_weapon() {
     world.id_pool = 0x3000_0000..0x3000_0100;
     let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     let idx = cw_idx(&world, ZARICHE);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
 
     world.forced_rolls.push_back(0); // 0 <= disapearChance → destroyed
-    crate::game_loop::cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
+    cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
 
     assert!(
         !world.cursed_weapons[idx].is_active(),
@@ -1091,11 +1074,11 @@ fn real_death_path_drops_the_cursed_weapon() {
     let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     let _k = ingame_player_access(&mut world, 2, KILLER_OID, 0);
     let idx = cw_idx(&world, ZARICHE);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
     assert!(world.cursed_weapons[idx].is_activated, "wielded to start");
 
     world.forced_rolls.push_back(51); // miss the disappear roll → it drops
-    crate::game_loop::death::player_do_die(&mut world, PICKER_OID, KILLER_OID);
+    death::player_do_die(&mut world, PICKER_OID, KILLER_OID);
 
     assert!(
         world.cursed_weapons[idx].is_dropped,
@@ -1124,7 +1107,7 @@ fn pickup_inherits_the_drops_deadline() {
     let _picker = ingame_player_access(&mut world, 2, PICKER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
     world.forced_rolls.push_back(0);
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     drain(&mut killer_rx);
 
     let idx = cw_idx(&world, ZARICHE);
@@ -1133,7 +1116,7 @@ fn pickup_inherits_the_drops_deadline() {
     world.cursed_weapons[idx].end_time = inherited;
     let ground_oid = world.cursed_weapons[idx].dropped_item_oid;
 
-    crate::game_loop::ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
+    ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
 
     assert!(world.cursed_weapons[idx].is_activated, "picker is cursed");
     assert_eq!(
@@ -1153,7 +1136,7 @@ fn gm_grant_starts_a_fresh_life() {
     drain(&mut gm_rx);
 
     let id_arg = ZARICHE.to_string();
-    crate::game_loop::admin::cursed_weapons::admin_cw_add(&mut world, 1, KILLER_OID, &[&id_arg]);
+    admin::cursed_weapons::admin_cw_add(&mut world, 1, KILLER_OID, &[&id_arg]);
 
     let idx = cw_idx(&world, ZARICHE);
     let duration_ms = world.cursed_weapons[idx].duration as i64 * 60_000;
@@ -1186,18 +1169,11 @@ fn char_selection_shows_the_cursed_transform() {
     load_curse_data(&mut world);
     let chars = vec![dummy_char(PICKER_OID, "Cursed")];
 
-    let plain = crate::network::server_packets::char_selection_info(
-        "acct",
-        1,
-        &chars,
-        -1,
-        7,
-        &world.data.experience,
-        &[],
-    );
+    let plain =
+        server_packets::char_selection_info("acct", 1, &chars, -1, 7, &world.data.experience, &[]);
 
     restore_activated_on(&mut world, AKAMANAH, PICKER_OID);
-    let cursed = crate::network::server_packets::char_selection_info(
+    let cursed = server_packets::char_selection_info(
         "acct",
         1,
         &chars,
@@ -1245,10 +1221,10 @@ fn guard_kill_also_drops_the_cursed_weapon() {
     let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900003, "Guard", 40, 500, 600, 0);
     let idx = cw_idx(&world, ZARICHE);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
 
     world.forced_rolls.push_back(51); // miss the disappear roll → it drops
-    crate::game_loop::death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
+    death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
 
     assert_eq!(
         world
@@ -1262,7 +1238,7 @@ fn guard_kill_also_drops_the_cursed_weapon() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .get_component::<Inventory>(&PICKER_OID)
             .unwrap()
             .items()
             .iter()
@@ -1313,7 +1289,7 @@ fn cursed_weapon_moves_max_cp_and_gives_it_back() {
     assert!(base_cp > 0, "the template gives the class a CP bar to grow");
 
     let idx = cw_idx(&world, AKAMANAH);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
 
     let expected = (11.5 * f64::from(base_cp) + 1300.0) as i32;
     let cursed_cp = pcp(&world, PICKER_OID).max_cp;
@@ -1327,7 +1303,7 @@ fn cursed_weapon_moves_max_cp_and_gives_it_back() {
         "and Java's `setCurrentCp(getMaxCp())` fills the grown bar"
     );
 
-    crate::game_loop::admin::cursed_weapons::end_of_life(&mut world, idx);
+    admin::cursed_weapons::end_of_life(&mut world, idx);
 
     assert_eq!(
         pcp(&world, PICKER_OID).max_cp,
@@ -1354,14 +1330,14 @@ fn death_drop_takes_the_cursed_cp_back() {
 
     let base_cp = pcp(&world, PICKER_OID).max_cp;
     let idx = cw_idx(&world, AKAMANAH);
-    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
     assert!(
         pcp(&world, PICKER_OID).max_cp > base_cp,
         "cursed CP is up while the sword is held"
     );
 
     world.forced_rolls.push_back(51); // miss the disappear roll → it drops
-    crate::game_loop::death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
+    death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
 
     assert_eq!(
         pcp(&world, PICKER_OID).max_cp,
@@ -1400,7 +1376,7 @@ fn enter_world_scrubs_a_cursed_skill_with_no_curse_behind_it() {
         .unwrap()
         .0
         .insert(3629, 1);
-    crate::game_loop::passive_skills::refresh_conditioned_passives(&mut world, PICKER_OID);
+    passive_skills::refresh_conditioned_passives(&mut world, PICKER_OID);
     assert_eq!(
         pcp(&world, PICKER_OID).max_cp,
         (11.5 * f64::from(base_cp) + 1300.0) as i32,
@@ -1411,7 +1387,7 @@ fn enter_world_scrubs_a_cursed_skill_with_no_curse_behind_it() {
         "and nothing in the world justifies it"
     );
 
-    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+    cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
 
     assert!(
         !world
@@ -1460,7 +1436,7 @@ fn the_drop_announce_carries_the_zone_coordinates() {
     );
     world.forced_rolls.push_back(0);
 
-    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     let pkt = drain(&mut killer_rx)
         .into_iter()
@@ -1508,17 +1484,12 @@ fn cw_goto_reaches_a_weapon_lying_on_the_ground() {
     // stays put. Without this the assertion below could pass on a no-op.
     let home = *world
         .objects
-        .get_component::<crate::model::components::Position>(&KILLER_OID)
+        .get_component::<Position>(&KILLER_OID)
         .unwrap();
-    crate::game_loop::admin::use_admin_command(
-        &mut world,
-        1,
-        &format!("admin_cw_goto {id_arg}"),
-        false,
-    );
+    admin::use_admin_command(&mut world, 1, &format!("admin_cw_goto {id_arg}"), false);
     let now = *world
         .objects
-        .get_component::<crate::model::components::Position>(&KILLER_OID)
+        .get_component::<Position>(&KILLER_OID)
         .unwrap();
     assert_eq!((now.x, now.y), (home.x, home.y), "nothing to go to");
 
@@ -1527,7 +1498,7 @@ fn cw_goto_reaches_a_weapon_lying_on_the_ground() {
     world.cursed_weapons[idx].dropped_item_oid = GROUND_ITEM;
     world.objects.spawn(
         GROUND_ITEM,
-        crate::model::components::Position {
+        Position {
             x: AWAY.0,
             y: AWAY.1,
             z: AWAY.2,
@@ -1535,15 +1506,10 @@ fn cw_goto_reaches_a_weapon_lying_on_the_ground() {
         },
     );
 
-    crate::game_loop::admin::use_admin_command(
-        &mut world,
-        1,
-        &format!("admin_cw_goto {id_arg}"),
-        false,
-    );
+    admin::use_admin_command(&mut world, 1, &format!("admin_cw_goto {id_arg}"), false);
     let at = *world
         .objects
-        .get_component::<crate::model::components::Position>(&KILLER_OID)
+        .get_component::<Position>(&KILLER_OID)
         .unwrap();
     // x/y exactly; z within a few units, because `teleport_player` snaps the
     // arrival to the ground the way every other teleport does.

@@ -362,13 +362,7 @@ fn enter_world_replays_the_saved_key_layout() {
     handle_character_select(&mut world, 1, &w.into_bytes());
     handle_enter_world(&mut world, 1);
 
-    let ui = drain(&mut out_rx)
-        .into_iter()
-        .find(|p| {
-            p.len() >= 3
-                && p[0] == 0xFE
-                && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_UI_SETTING
-        })
+    let ui = find_ex_opcode(&mut out_rx, server_packets::opcodes::EX_UI_SETTING)
         .expect("the enter-world burst carries ExUISetting");
     assert_eq!(
         i32::from_le_bytes([ui[3], ui[4], ui[5], ui[6]]),

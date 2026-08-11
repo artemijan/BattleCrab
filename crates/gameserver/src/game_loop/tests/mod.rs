@@ -37,6 +37,7 @@ use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::{ClientSession, Session, SessionKey};
 use commons::network::PacketWriter;
+use tokio::sync::mpsc::UnboundedReceiver;
 
 mod abnormal_tests;
 mod admin_tests;
@@ -408,7 +409,11 @@ fn has_sm(out: &[Vec<u8>], id: i16) -> bool {
     out.iter()
         .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
 }
-
+fn find_ex_opcode(out_rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: i16) -> Option<Vec<u8>> {
+    drain(out_rx)
+        .into_iter()
+        .find(|p| p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == opcode)
+}
 fn give_item(world: &mut World, oid: i32, obj_id: i32, item_id: i32, count: i64) {
     let World { objects, data, .. } = world;
     objects
