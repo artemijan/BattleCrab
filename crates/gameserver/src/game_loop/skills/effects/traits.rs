@@ -651,6 +651,9 @@ fn skill_rate(world: &World, caster_oid: i32, skill: &Skill, kind: RateKind) -> 
 /// The level a live buff was cast at, so its effect list can be looked back up
 /// on expiry (a resistance's value is per level).
 pub(crate) fn buff_level(world: &World, object_id: i32, skill_id: i32) -> i32 {
+    maybe_buff_level(world, object_id, skill_id).unwrap_or(1)
+}
+pub(crate) fn maybe_buff_level(world: &World, object_id: i32, skill_id: i32) -> Option<i32> {
     world
         .objects
         .get_component::<Buffs>(&object_id)
@@ -659,5 +662,4 @@ pub(crate) fn buff_level(world: &World, object_id: i32, skill_id: i32) -> i32 {
                 .find(|x| x.skill_id == skill_id)
                 .map(|x| x.skill_level)
         })
-        .unwrap_or(1)
 }

@@ -376,15 +376,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     // `Grow.onExit` — put the normal collision cylinder back. Runs on every
     // removal path (timeout, dispel, death), which is what Java's `onExit`
     // does too: the swell must not outlive the buff that caused it.
-    let expiring_level = world
-        .objects
-        .get_component::<Buffs>(&player_object_id)
-        .and_then(|b| {
-            b.0.iter()
-                .find(|b| b.skill_id == skill_id)
-                .map(|b| b.skill_level)
-        })
-        .unwrap_or(1);
+    let expiring_level = buff_level(world, player_object_id, skill_id);
     if world
         .data
         .skill_data
@@ -550,6 +542,15 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
             b.0.iter()
                 .any(|x| x.skill_id == skill_id && !x.abnormal_visuals.is_empty())
         });
+    fn is_effect(world: &World, object_id: i32, skill_id: i32, effect: u32) -> bool {
+        world
+            .objects
+            .get_component::<Buffs>(&object_id)
+            .is_some_and(|b| {
+                b.0.iter()
+                    .any(|x| x.skill_id == skill_id && x.effect_flags & effect != 0)
+            })
+    }
     // NPC: drop the buff and recompute from the template (no icons/broadcast).
     if crate::game_loop::combat::is_npc_oid(player_object_id) {
         // `Fear.onExit`: `if (!effected.isPlayer()) notifyEvent(EVT_THINK)` —
@@ -558,15 +559,12 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
         // before ever re-engaging. Reading the flag *before* the buff is
         // dropped is what makes this specific to fear rather than to any
         // expiring NPC buff.
-        let was_afraid = world
-            .objects
-            .get_component::<Buffs>(&player_object_id)
-            .is_some_and(|b| {
-                b.0.iter().any(|x| {
-                    x.skill_id == skill_id
-                        && x.effect_flags & crate::model::skill::effect_flag::FEAR != 0
-                })
-            });
+        let was_afraid = is_effect(
+            world,
+            player_object_id,
+            skill_id,
+            crate::model::skill::effect_flag::FEAR,
+        );
         if let Some(b) = world.objects.get_component_mut::<Buffs>(&player_object_id) {
             b.0.retain(|x| x.skill_id != skill_id);
         }
@@ -590,14 +588,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     // granted skills before the generic removal, and defer the extra self
     // packets (AVE + SkillList) to piggyback on the `broadcast_user_info` call
     // a few lines down rather than sending a second `UserInfo`.
-    let skill_level = world
-        .objects
-        .get_component::<Buffs>(&player_object_id)
-        .and_then(|b| {
-            b.0.iter()
-                .find(|x| x.skill_id == skill_id)
-                .map(|x| x.skill_level)
-        });
+    let skill_level = maybe_buff_level(world, player_object_id, skill_id);
     let is_transform = skill_level.is_some_and(|lvl| {
         world.data.skill_data.get(skill_id, lvl).is_some_and(|s| {
             s.effects
@@ -612,15 +603,12 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     // (not the skill template) so this fires only for fake death, and keeps
     // working for a buff whose skill row is no longer loadable — the same
     // source `Fear`'s own `onExit` and `break_fake_death_on_damage` use.
-    let was_fake_dead = world
-        .objects
-        .get_component::<Buffs>(&player_object_id)
-        .is_some_and(|b| {
-            b.0.iter().any(|x| {
-                x.skill_id == skill_id
-                    && x.effect_flags & crate::model::skill::effect_flag::FAKE_DEATH != 0
-            })
-        });
+    let was_fake_dead = is_effect(
+        world,
+        player_object_id,
+        skill_id,
+        crate::model::skill::effect_flag::FAKE_DEATH,
+    );
     if was_fake_dead {
         stop_fake_death(world, player_object_id);
     }
