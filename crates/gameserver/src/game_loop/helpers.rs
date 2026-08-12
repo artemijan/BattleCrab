@@ -864,6 +864,29 @@ pub(crate) fn remove_inventory_item_change(
         .and_then(|inv| inv.remove_by_object_id(item_object_id, count))
 }
 
+/// Hand `receiver` a fresh instance of an item that changed hands, preserving
+/// its enchant. The receiving half of every player-to-player transfer (trade,
+/// private sell store, private buy store): the sender's instance is removed and
+/// the receiver gets a newly-allocated object id, never the sender's.
+///
+/// A no-op when object ids are exhausted or `receiver` holds no inventory.
+///
+/// `mana` -1: these paths only move tradable items, and every shadow item is
+/// `is_tradable="false"`, so none can reach here.
+pub(crate) fn give_transferred_item(
+    world: &mut World,
+    receiver: i32,
+    item_id: i32,
+    count: i64,
+    enchant: i32,
+) {
+    if let Some(new_oid) = world.alloc_object_id()
+        && let Some(inv) = world.objects.get_component_mut::<Inventory>(&receiver)
+    {
+        inv.insert_instance(&world.data.item_data, new_oid, item_id, count, enchant, -1);
+    }
+}
+
 /// The full `SkillList` packet for an in-world player — their skill book plus
 /// any transiently-granted clan skills (Java `sendSkillList`). `None` when the
 /// object carries no skill book (not a live player). The single funnel every

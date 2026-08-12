@@ -337,13 +337,7 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
             seller_changes.push(change);
         }
         // Buyer gets a fresh instance preserving enchant.
-        if let Some(new_oid) = world.alloc_object_id()
-            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&buyer)
-        {
-            // `mana` -1: a private store only moves tradable items, and every
-            // shadow item is `is_tradable="false"`, so none can reach here.
-            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant, -1);
-        }
+        super::helpers::give_transferred_item(world, buyer, item_id, n, enchant);
         // Reduce the store line.
         if let Some(store) = world.objects.get_component_mut::<PrivateStore>(&seller) {
             if let Some(line) = store.items.iter_mut().find(|s| s.object_id == obj_id) {
@@ -836,13 +830,7 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
             .and_then(|s| s.items.iter().find(|w| w.item_id == item_id))
             .map(|w| w.enchant)
             .unwrap_or(0);
-        if let Some(new_oid) = world.alloc_object_id()
-            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&owner)
-        {
-            // `mana` -1: a private store only moves tradable items, and every
-            // shadow item is `is_tradable="false"`, so none can reach here.
-            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant, -1);
-        }
+        super::helpers::give_transferred_item(world, owner, item_id, n, enchant);
         if let Some(store) = world.objects.get_component_mut::<PrivateBuyStore>(&owner) {
             if let Some(w) = store.items.iter_mut().find(|w| w.item_id == item_id) {
                 w.count -= n;

@@ -326,19 +326,6 @@ fn transfer_side(world: &mut World, from: i32, to: i32) {
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&from) {
             inv.remove_by_object_id(line.object_id, n);
         }
-        if let Some(new_oid) = world.alloc_object_id()
-            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&to)
-        {
-            // `mana` -1: a trade only moves tradable items, and every shadow
-            // item is `is_tradable="false"`, so none can reach here.
-            inv.insert_instance(
-                &world.data.item_data,
-                new_oid,
-                line.item_id,
-                n,
-                line.enchant,
-                -1,
-            );
-        }
+        super::helpers::give_transferred_item(world, to, line.item_id, n, line.enchant);
     }
 }
