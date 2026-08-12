@@ -31,22 +31,15 @@ impl GmFlag {
 
 /// Flip a GM flag on `target`, returning its new state.
 fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
-    let mut flags = world
-        .objects
-        .get_component::<AdminFlags>(&target)
-        .copied()
-        .unwrap_or_default();
-    let now = match flag {
-        GmFlag::Invul => {
-            flags.invul = !flags.invul;
-            flags.invul
-        }
-        GmFlag::Undying => {
-            flags.undying = !flags.undying;
-            flags.undying
-        }
-    };
-    world.objects.add_components(&target, flags);
+    let mut now = false;
+    crate::game_loop::helpers::update_admin_flags(world, target, |flags| {
+        let bit = match flag {
+            GmFlag::Invul => &mut flags.invul,
+            GmFlag::Undying => &mut flags.undying,
+        };
+        *bit = !*bit;
+        now = *bit;
+    });
     now
 }
 

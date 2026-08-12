@@ -197,6 +197,31 @@ pub(crate) fn is_gm(world: &World, object_id: i32) -> bool {
         .is_some_and(|p| p.is_gm(&world.data))
 }
 
+/// Read-modify-write one object's [`AdminFlags`](crate::model::components::AdminFlags),
+/// creating the component from its all-false default when absent.
+///
+/// The systems' half of the GM flags: olympiad observer mode, TvT's freeze and
+/// the `//invul`-style toggles all set *one* bit on a component that may or may
+/// not be there yet, and must leave every other bit alone — a GM who enters
+/// observer mode keeps their `//hide`. Absent and all-false are the same state
+/// to every reader (they all go through `is_some_and`/`map_or` on a field), so
+/// inserting the default and then flipping the bit is the whole operation.
+///
+/// A no-op for an object that has left the world, like `add_components` itself.
+pub(crate) fn update_admin_flags(
+    world: &mut World,
+    object_id: i32,
+    edit: impl FnOnce(&mut crate::model::components::AdminFlags),
+) {
+    let mut flags = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .copied()
+        .unwrap_or_default();
+    edit(&mut flags);
+    world.objects.add_components(&object_id, flags);
+}
+
 /// Whether an object currently stands inside `zone` — Java
 /// `ZoneType.isInsideZone(object)`.
 ///

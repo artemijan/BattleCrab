@@ -1130,16 +1130,7 @@ fn set_frozen(world: &mut World, player: i32, frozen: bool) {
 }
 
 fn set_invul(world: &mut World, player: i32, value: bool) {
-    use crate::model::components::AdminFlags;
-    if world.objects.get_component::<AdminFlags>(&player).is_none() {
-        if !value {
-            return; // absent already means every flag false
-        }
-        world.objects.add_components(&player, AdminFlags::default());
-    }
-    if let Some(f) = world.objects.get_component_mut::<AdminFlags>(&player) {
-        f.invul = value;
-    }
+    crate::game_loop::helpers::update_admin_flags(world, player, |f| f.invul = value);
 }
 
 /// The winner's firework flourish (Java `broadcastPacket(new MagicSkillUse(...))`).

@@ -1398,23 +1398,10 @@ pub(crate) fn enter_observer(world: &mut World, client_id: u32, player_oid: i32,
 /// mode's `setInvul`/`setInvisible`), adding the `AdminFlags` component on first
 /// use and preserving any other flags already set (e.g. a GM's).
 fn set_observer_flags(world: &mut World, player_oid: i32, on: bool) {
-    use crate::model::components::AdminFlags;
-    if world
-        .objects
-        .get_component::<AdminFlags>(&player_oid)
-        .is_none()
-    {
-        if !on {
-            return; // absent already means every flag false
-        }
-        world
-            .objects
-            .add_components(&player_oid, AdminFlags::default());
-    }
-    if let Some(f) = world.objects.get_component_mut::<AdminFlags>(&player_oid) {
+    crate::game_loop::helpers::update_admin_flags(world, player_oid, |f| {
         f.invul = on;
         f.hidden = on;
-    }
+    });
 }
 
 /// Java `RequestOlympiadObserverEnd` → `Player.leaveOlympiadObserverMode`:

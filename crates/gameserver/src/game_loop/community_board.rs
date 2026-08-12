@@ -42,14 +42,14 @@
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
-use tracing::warn;
-
+use crate::game_loop::user_commands::in_combat;
 use crate::model::Player;
 use crate::model::components::Casting;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets as sp;
 use crate::session::ClientSession;
 use crate::world::World;
+use tracing::warn;
 
 /// `Util.sendCBHtml`'s single-packet chunk size (client reassembles 101/102/103).
 const CHUNK: usize = 16250;
@@ -1521,10 +1521,7 @@ fn is_busy(world: &World, object_id: i32) -> bool {
         .is_some_and(|s| s.flag > 0);
     let dead = is_dead(world, object_id);
     // `isInCombat()` — the 15 s attack stance, not merely mid-swing.
-    let in_combat = world
-        .objects
-        .get_component::<crate::model::components::AttackState>(&object_id)
-        .is_some_and(|a| a.stance_until_tick > world.tick);
+    let is_in_combat = in_combat(world, object_id);
     let in_duel = crate::game_loop::duel::is_in_duel(world, object_id);
     // `isInOlympiadMode()` — the set the match runner maintains.
     let in_olympiad = world.olympiad.in_competition.contains(&object_id);
@@ -1534,7 +1531,7 @@ fn is_busy(world: &World, object_id: i32) -> bool {
         || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Siege)
         || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Pvp);
     let on_event = crate::game_loop::events::tvt::is_on_event(world, object_id);
-    casting || pvp || dead || in_combat || in_duel || in_olympiad || in_pvp_zone || on_event
+    casting || pvp || dead || is_in_combat || in_duel || in_olympiad || in_pvp_zone || on_event
 }
 
 /// `player.isInsideZone(kind)` — read off the cached `ZoneFlags` the movement
