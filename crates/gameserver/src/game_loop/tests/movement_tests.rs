@@ -304,7 +304,7 @@ fn move_destination_is_clamped_by_geodata() {
 #[test]
 fn path_worker_round_trip_walks_around_wall() {
     use crate::geo::path::PathConfig;
-    use crate::geo::{NSWE_ALL, NSWE_EAST, synthetic_region};
+    use crate::geo::{synthetic_region, wall_column_with_gap};
     use crate::model::components::PathWait;
 
     let (mut world, ..) = test_world();
@@ -312,20 +312,7 @@ fn path_worker_round_trip_walks_around_wall() {
     // from region edges so the search can't skirt through unloaded void.
     std::sync::Arc::get_mut(&mut world.geo)
         .expect("geo Arc not shared yet")
-        .set_region(
-            20,
-            18,
-            synthetic_region(|x, y| {
-                let in_gap = (1010..1014).contains(&y);
-                if x == 10 && !in_gap {
-                    (200, 0)
-                } else if x == 9 && !in_gap {
-                    (0, NSWE_ALL & !NSWE_EAST)
-                } else {
-                    (0, NSWE_ALL)
-                }
-            }),
-        );
+        .set_region(20, 18, synthetic_region(wall_column_with_gap(1010..1014)));
     let (req_tx, req_rx) = std::sync::mpsc::channel();
     let (ev_tx, ev_rx) = std::sync::mpsc::channel();
     let worker = crate::geo::worker::spawn(

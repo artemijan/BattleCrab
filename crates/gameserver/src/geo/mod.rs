@@ -672,6 +672,35 @@ pub fn wall_column(x: i32, _y: i32) -> (i16, u8) {
     }
 }
 
+/// [`wall_column`] lowered to a 32-unit fence: under `MAX_SEE_OVER_HEIGHT`, so
+/// LOS passes over it while movement is still blocked. Shared for the same
+/// reason as `wall_column` — the "sees but cannot walk" tests are only testing
+/// anything as long as every copy of the terrain keeps both halves of that.
+pub fn fence_column(x: i32, y: i32) -> (i16, u8) {
+    match wall_column(x, y) {
+        (200, nswe) => (32, nswe),
+        cell => cell,
+    }
+}
+
+/// [`wall_column`] pierced by an open doorway over the local cell rows in
+/// `gap` — the classic walk-around case for the path search, which must find
+/// the gap instead of the blocked straight line.
+///
+/// Callers pick the rows: the scene has to sit far from the region edges,
+/// because cells outside a loaded region are fully passable (Java
+/// `NullRegion`) and a wall near an edge can be legally skirted through the
+/// void rather than through the gap under test.
+pub fn wall_column_with_gap(gap: std::ops::Range<i32>) -> impl Fn(i32, i32) -> (i16, u8) {
+    move |x, y| {
+        if gap.contains(&y) {
+            (0, NSWE_ALL) // the doorway: open ground straight through
+        } else {
+            wall_column(x, y)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -797,15 +826,7 @@ mod tests {
     /// not walked through.
     #[test]
     fn low_fence_allows_sight_but_not_movement() {
-        let g = engine_with(|x, _y| {
-            if x == 10 {
-                (32, 0)
-            } else if x == 9 {
-                (0, NSWE_ALL & !NSWE_EAST)
-            } else {
-                (0, NSWE_ALL)
-            }
-        });
+        let g = engine_with(fence_column);
         let (x0, y0) = world(&g, 5, 5);
         let (x1, y1) = world(&g, 15, 5);
         assert!(g.can_see_target(x0, y0, 0, x1, y1, 0), "48-unit see-over");

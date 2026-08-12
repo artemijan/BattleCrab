@@ -12,7 +12,6 @@ use super::*;
 use crate::data::npc_data::AiType;
 
 use crate::geo::worker::PathRequest;
-use crate::geo::{NSWE_ALL, NSWE_EAST};
 use crate::model::components::{AttackState, Movement, PathWait, Position, Vitals};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 
@@ -195,15 +194,8 @@ fn a_chase_with_sight_but_no_walkable_line_asks_for_a_route() {
     engine.set_region(
         11,
         10,
-        crate::geo::synthetic_region(|x, _y| {
-            if x == 10 {
-                (32, 0) // a fence: seen over, not stepped through
-            } else if x == 9 {
-                (0, NSWE_ALL & !NSWE_EAST)
-            } else {
-                (0, NSWE_ALL)
-            }
-        }),
+        // a fence: seen over, not stepped through
+        crate::geo::synthetic_region(crate::geo::fence_column),
     );
     let engine = Arc::new(engine);
     world.geo = engine.clone();

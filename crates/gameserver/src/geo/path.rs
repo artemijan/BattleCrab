@@ -474,33 +474,18 @@ pub fn find_path(
 mod tests {
     use super::*;
     use crate::geo::region::{REGION_CELLS_X, REGION_CELLS_Y};
-    use crate::geo::{NSWE_ALL, synthetic_region, wall_column};
+    use crate::geo::{synthetic_region, wall_column, wall_column_with_gap};
 
     const BASE_GEO_X: i32 = 11 * REGION_CELLS_X;
     const BASE_GEO_Y: i32 = 10 * REGION_CELLS_Y;
 
     /// Flat ground with a north-south wall at local cell x == 10, open only
     /// at local y ∈ [1000, 1004) — the classic walk-around case. The scene
-    /// sits ~1000 cells from the region edges: cells outside a loaded region
-    /// are fully passable (Java `NullRegion`), so a wall near the edge could
-    /// be legally skirted through the void — keeping the action mid-region
-    /// forces the search to use the gap.
+    /// sits ~1000 cells from the region edges so the search cannot skirt the
+    /// wall through unloaded void (see [`wall_column_with_gap`]).
     fn walled_engine() -> GeoEngine {
         let mut engine = GeoEngine::empty();
-        engine.set_region(
-            11,
-            10,
-            synthetic_region(|x, y| {
-                let in_gap = (1000..1004).contains(&y);
-                if x == 10 && !in_gap {
-                    (200, 0)
-                } else if x == 9 && !in_gap {
-                    (0, NSWE_ALL & !NSWE_EAST)
-                } else {
-                    (0, NSWE_ALL)
-                }
-            }),
-        );
+        engine.set_region(11, 10, synthetic_region(wall_column_with_gap(1000..1004)));
         engine
     }
 
