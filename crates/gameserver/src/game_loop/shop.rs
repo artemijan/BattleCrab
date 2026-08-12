@@ -369,16 +369,14 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
             continue;
         };
         let t = world.data.item_data.get(item_id);
-        let price = t.map(|t| t.price).unwrap_or(0);
+        let unit_price = t.map(|t| t.sell_price()).unwrap_or(0);
         let quest = t.map(|t| t.is_quest_item).unwrap_or(false);
         let sellable = t.map(|t| t.is_sellable).unwrap_or(false);
         if equipped || quest || !sellable || inst.is_augmented() {
             continue;
         }
         let sell = count.min(inst.count);
-        total_price = total_price
-            .saturating_add((price / 2) * sell)
-            .min(MAX_ADENA);
+        total_price = total_price.saturating_add(unit_price * sell).min(MAX_ADENA);
         if let Some(change) =
             super::helpers::remove_inventory_item_change(world, player, obj_id, sell)
         {
@@ -494,13 +492,13 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
             return;
         }
         let inst = &refund_items[idx as usize];
-        let price = world
+        let unit_price = world
             .data
             .item_data
             .get(inst.item_id)
-            .map(|t| t.price)
+            .map(|t| t.sell_price())
             .unwrap_or(0);
-        adena_cost = adena_cost.saturating_add((price / 2) * inst.count);
+        adena_cost = adena_cost.saturating_add(unit_price * inst.count);
     }
 
     let held_adena = world

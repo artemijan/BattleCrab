@@ -150,7 +150,7 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                             attr(b"price").and_then(|v| v.parse().ok()).unwrap_or(-1);
                         // `Config.CORRECT_PRICES` (True on this dist): never
                         // sell below the item's own sell value.
-                        let sell_price = template.price / 2;
+                        let sell_price = template.sell_price();
                         if price > -1 && sell_price > price {
                             price = sell_price;
                         }
@@ -227,7 +227,7 @@ mod tests {
                     && let Some(t) = items.get(p.item_id)
                 {
                     assert!(
-                        p.price >= t.price / 2,
+                        p.price >= t.sell_price(),
                         "buylist {} item {}",
                         list.list_id,
                         p.item_id

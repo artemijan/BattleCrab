@@ -103,7 +103,7 @@ pub fn ex_buy_sell_list_sell(
     w.write_i16(sellable.len() as i16);
     for (item, t) in sellable {
         super::enter_world::write_item_entry(&mut w, item, t, false);
-        w.write_i64(t.price / 2);
+        w.write_i64(t.sell_price());
     }
     // The written index is the container position — `RequestRefundItem`
     // addresses the `Refund` vec with it, so it must survive the template
@@ -117,7 +117,7 @@ pub fn ex_buy_sell_list_sell(
     for (idx, item, t) in refundable {
         super::enter_world::write_item_entry(&mut w, item, t, false);
         w.write_i32(idx as i32);
-        w.write_i64((t.price / 2) * item.count);
+        w.write_i64(t.sell_price() * item.count);
     }
     w.write_u8(done as u8);
     w.into_bytes()

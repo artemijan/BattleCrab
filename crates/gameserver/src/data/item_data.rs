@@ -891,6 +891,17 @@ impl ItemTemplate {
     pub fn is_time_limited(&self) -> bool {
         self.time > 0
     }
+
+    /// What a merchant pays for one of these: half the reference price (Java
+    /// `getReferencePrice() / 2`, spelled out at every use site there). Also
+    /// the `Config.CORRECT_PRICES` floor a buy-list product may not undercut.
+    ///
+    /// Per **unit** — a stack costs `sell_price() * count`, halving before the
+    /// multiply, which is what Java does and what the odd-priced items round
+    /// against.
+    pub fn sell_price(&self) -> i64 {
+        self.price / 2
+    }
 }
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]

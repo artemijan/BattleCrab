@@ -20,6 +20,25 @@ pub struct StoreLine<'a> {
     pub price: i64,
 }
 
+impl StoreLine<'_> {
+    /// The price the client pre-fills / shows as a hint: reference price × 2.
+    fn suggested_price(&self) -> i64 {
+        self.template.price * 2
+    }
+
+    /// The item block every store line starts with.
+    fn write_entry(&self, w: &mut PacketWriter) {
+        write_item_entry(w, &self.item, self.template, false);
+    }
+
+    /// The price pair a line carries once a price is set on it: the owner's
+    /// price, then the reference × 2 suggestion.
+    fn write_prices(&self, w: &mut PacketWriter) {
+        w.write_i64(self.price);
+        w.write_i64(self.suggested_price());
+    }
+}
+
 /// `PrivateStoreManageListSell` (0xA0): the owner's setup window — every
 /// inventory item they *could* sell (with the reference-price×2 suggestion) then
 /// the items already added to the store (with their set price).
@@ -37,14 +56,13 @@ pub fn manage_list_sell(
     w.write_i64(owner_adena);
     w.write_i32(sellable.len() as i32);
     for line in sellable {
-        write_item_entry(&mut w, &line.item, line.template, false);
-        w.write_i64(line.template.price * 2); // reference price × 2 suggestion
+        line.write_entry(&mut w);
+        w.write_i64(line.suggested_price()); // no price set yet, just the hint
     }
     w.write_i32(in_store.len() as i32);
     for line in in_store {
-        write_item_entry(&mut w, &line.item, line.template, false);
-        w.write_i64(line.price);
-        w.write_i64(line.template.price * 2);
+        line.write_entry(&mut w);
+        line.write_prices(&mut w);
     }
     w.into_bytes()
 }
@@ -64,9 +82,8 @@ pub fn list_sell(
     w.write_i32(0);
     w.write_i32(items.len() as i32);
     for line in items {
-        write_item_entry(&mut w, &line.item, line.template, false);
-        w.write_i64(line.price);
-        w.write_i64(line.template.price * 2);
+        line.write_entry(&mut w);
+        line.write_prices(&mut w);
     }
     w.into_bytes()
 }
@@ -99,14 +116,13 @@ pub fn manage_list_buy(
     w.write_i64(owner_adena);
     w.write_i32(inventory.len() as i32);
     for line in inventory {
-        write_item_entry(&mut w, &line.item, line.template, false);
-        w.write_i64(line.template.price * 2);
+        line.write_entry(&mut w);
+        w.write_i64(line.suggested_price());
     }
     w.write_i32(wanted.len() as i32);
     for line in wanted {
-        write_item_entry(&mut w, &line.item, line.template, false);
-        w.write_i64(line.price);
-        w.write_i64(line.template.price * 2);
+        line.write_entry(&mut w);
+        line.write_prices(&mut w);
         w.write_i64(line.item.count);
     }
     w.into_bytes()
@@ -123,10 +139,9 @@ pub fn list_buy(owner_object_id: i32, viewer_adena: i64, items: &[StoreLine]) ->
     w.write_i32(0); // "viewer's item count?" — Java writes a hard 0
     w.write_i32(items.len() as i32);
     for (idx, line) in items.iter().enumerate() {
-        write_item_entry(&mut w, &line.item, line.template, false);
+        line.write_entry(&mut w);
         w.write_i32(idx as i32 + 1); // slot in shop, 1-based
-        w.write_i64(line.price);
-        w.write_i64(line.template.price * 2);
+        line.write_prices(&mut w);
         w.write_i64(line.item.count);
     }
     w.into_bytes()
