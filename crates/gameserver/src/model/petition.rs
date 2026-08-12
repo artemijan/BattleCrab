@@ -182,6 +182,20 @@ impl PetitionManager {
             .map(|p| p.id)
     }
 
+    /// The pending petition this player participates in, as `(id, is_petitioner)`
+    /// — `false` means they are the responding GM.
+    pub fn participation_of(&self, object_id: i32) -> Option<(i32, bool)> {
+        self.pending.values().find_map(|p| {
+            if p.petitioner == object_id {
+                Some((p.id, true))
+            } else if p.responder == Some(object_id) {
+                Some((p.id, false))
+            } else {
+                None
+            }
+        })
+    }
+
     /// Java `isPetitionInProcess()`: any petition currently under consultation.
     pub fn any_in_process(&self) -> bool {
         self.pending

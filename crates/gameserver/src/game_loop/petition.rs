@@ -232,15 +232,7 @@ pub(crate) fn on_request_petition_feedback(world: &mut World, client_id: u32, bo
 pub(crate) fn send_active_petition_message(world: &mut World, speaker: i32, text: &str) -> bool {
     let name = player_name_or_empty(world, speaker);
     // Find the petition the speaker participates in and its role.
-    let Some((id, as_petitioner)) = world.petitions.pending.values().find_map(|p| {
-        if p.petitioner == speaker {
-            Some((p.id, true))
-        } else if p.responder == Some(speaker) {
-            Some((p.id, false))
-        } else {
-            None
-        }
-    }) else {
+    let Some((id, as_petitioner)) = world.petitions.participation_of(speaker) else {
         return false;
     };
     let chat_type = if as_petitioner {
@@ -423,15 +415,7 @@ pub(crate) fn send_pending_list(world: &World, gm: i32) {
 /// player owns (or, for a responding GM, is handling) with the matching cancel
 /// state. Returns whether one was ended.
 fn cancel_pending(world: &mut World, player: i32) -> bool {
-    let Some((id, as_petitioner)) = world.petitions.pending.values().find_map(|p| {
-        if p.petitioner == player {
-            Some((p.id, true))
-        } else if p.responder == Some(player) {
-            Some((p.id, false))
-        } else {
-            None
-        }
-    }) else {
+    let Some((id, as_petitioner)) = world.petitions.participation_of(player) else {
         return false;
     };
     let end_state = if as_petitioner {
