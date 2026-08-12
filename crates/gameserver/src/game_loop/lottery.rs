@@ -602,12 +602,10 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
         ),
     );
 
-    let mut changes: Vec<ItemChange> = world
-        .objects
-        .get_component_mut::<Inventory>(&player)
-        .and_then(|inv| inv.remove_by_object_id(item_oid, 1))
-        .into_iter()
-        .collect();
+    let mut changes: Vec<ItemChange> =
+        super::helpers::remove_inventory_item_change(world, player, item_oid, 1)
+            .into_iter()
+            .collect();
     if prize > 0
         && let Some(oids) = super::items::add_inventory_item(world, player, ADENA_ID, prize)
         && let Some(inv) = world.objects.get_component::<Inventory>(&player)

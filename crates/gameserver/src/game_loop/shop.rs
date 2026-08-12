@@ -379,10 +379,8 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         total_price = total_price
             .saturating_add((price / 2) * sell)
             .min(MAX_ADENA);
-        if let Some(change) = world
-            .objects
-            .get_component_mut::<Inventory>(&player)
-            .and_then(|inv| inv.remove_by_object_id(obj_id, sell))
+        if let Some(change) =
+            super::helpers::remove_inventory_item_change(world, player, obj_id, sell)
         {
             // The refund entry is the sold chunk. A full removal keeps the
             // instance's identity; a partial one (stackables) leaves the

@@ -1208,10 +1208,8 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
         if fee > 0 {
             super::quests::take_items(world, client_id, player_oid, ADENA_ID, fee);
         }
-        if let Some(change) = world
-            .objects
-            .get_component_mut::<Inventory>(&player_oid)
-            .and_then(|inv| inv.remove_by_object_id(obj_id, cnt))
+        if let Some(change) =
+            super::helpers::remove_inventory_item_change(world, player_oid, obj_id, cnt)
         {
             crop_changes.push(change);
         }

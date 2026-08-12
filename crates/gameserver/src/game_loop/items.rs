@@ -528,10 +528,8 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         });
     }
 
-    let Some(change) = world
-        .objects
-        .get_component_mut::<Inventory>(&object_id)
-        .and_then(|inv| inv.remove_by_object_id(pkt.object_id, count))
+    let Some(change) =
+        super::helpers::remove_inventory_item_change(world, object_id, pkt.object_id, count)
     else {
         return;
     };
@@ -630,10 +628,8 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
 
     // Unequip first if worn, then destroy, then award the crystals.
     unequip_if_worn(world, client_id, player_oid, pkt.object_id);
-    let Some(removed) = world
-        .objects
-        .get_component_mut::<Inventory>(&player_oid)
-        .and_then(|inv| inv.remove_by_object_id(pkt.object_id, count))
+    let Some(removed) =
+        super::helpers::remove_inventory_item_change(world, player_oid, pkt.object_id, count)
     else {
         return;
     };

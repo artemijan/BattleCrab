@@ -246,10 +246,8 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     }
 
     // Consume the recipe item + notify.
-    if let Some(destroyed) = world
-        .objects
-        .get_component_mut::<Inventory>(&object_id)
-        .and_then(|inv| inv.remove_by_object_id(item_object_id, 1))
+    if let Some(destroyed) =
+        super::helpers::remove_inventory_item_change(world, object_id, item_object_id, 1)
     {
         super::helpers::send_inventory_update(world, object_id, vec![destroyed]);
     }

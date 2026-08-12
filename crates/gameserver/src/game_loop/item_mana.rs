@@ -216,10 +216,7 @@ pub(crate) fn decrease_mana(
     // `finish_equip_change` inside the helper is that pair plus the stat
     // recompute the paperdoll change owes (see its own doc comment).
     super::items::unequip_if_worn(world, client_id, player_oid, item_oid);
-    let Some(change) = world
-        .objects
-        .get_component_mut::<Inventory>(&player_oid)
-        .and_then(|inv| inv.remove_by_object_id(item_oid, 1))
+    let Some(change) = super::helpers::remove_inventory_item_change(world, player_oid, item_oid, 1)
     else {
         warn!("item_mana: {item_oid} vanished before its mana-0 destroy.");
         return;

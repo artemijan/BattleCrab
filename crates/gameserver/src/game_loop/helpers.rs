@@ -846,6 +846,24 @@ pub(crate) fn add_inventory_item_changes(
     Some(added_changes(world, owner, &added))
 }
 
+/// The loss counterpart of [`add_inventory_item_changes`]: take `count` off the
+/// instance `item_object_id` in `owner`'s bag and report it as the
+/// [`ItemChange`](model::inventory::ItemChange) the `InventoryUpdate` needs
+/// (`Removed` when the stack ran out, `Modified` when it shrank). `None` when
+/// the object holds no inventory or the instance can't cover the count —
+/// nothing was taken in that case, so callers can treat it as a failed removal.
+pub(crate) fn remove_inventory_item_change(
+    world: &mut World,
+    owner: i32,
+    item_object_id: i32,
+    count: i64,
+) -> Option<model::inventory::ItemChange> {
+    world
+        .objects
+        .get_component_mut::<Inventory>(&owner)
+        .and_then(|inv| inv.remove_by_object_id(item_object_id, count))
+}
+
 /// The full `SkillList` packet for an in-world player — their skill book plus
 /// any transiently-granted clan skills (Java `sendSkillList`). `None` when the
 /// object carries no skill book (not a live player). The single funnel every

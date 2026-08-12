@@ -263,10 +263,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     } else {
         requested.min(stack_count)
     };
-    let Some(change) = world
-        .objects
-        .get_component_mut::<Inventory>(&owner)
-        .and_then(|inv| inv.remove_by_object_id(item_oid, count))
+    let Some(change) = super::helpers::remove_inventory_item_change(world, owner, item_oid, count)
     else {
         send_message(world, client_id, "Item could not be destroyed.");
         return;

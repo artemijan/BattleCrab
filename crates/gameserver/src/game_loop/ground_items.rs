@@ -524,10 +524,8 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // Unequip first if worn (Java unequips before the drop, with its own update).
     super::items::unequip_if_worn(world, client_id, player_oid, pkt.object_id);
 
-    let Some(change) = world
-        .objects
-        .get_component_mut::<Inventory>(&player_oid)
-        .and_then(|inv| inv.remove_by_object_id(pkt.object_id, count))
+    let Some(change) =
+        super::helpers::remove_inventory_item_change(world, player_oid, pkt.object_id, count)
     else {
         return;
     };

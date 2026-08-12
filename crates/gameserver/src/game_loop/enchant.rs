@@ -455,11 +455,8 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
 
     // Consume one scroll (Java destroyItem). If it's gone, error out — and
     // punish: the client can't press Enchant without the scroll in the bag.
-    let removed = world
-        .objects
-        .get_component_mut::<Inventory>(&player)
-        .and_then(|inv| inv.remove_by_object_id(scroll_oid, 1))
-        .is_some();
+    let removed =
+        super::helpers::remove_inventory_item_change(world, player, scroll_oid, 1).is_some();
     if !removed {
         super::punishment::illegal_action(
             world,
@@ -471,11 +468,8 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     }
     // Consume the support item too, if present; same reasoning as the scroll.
     if support.is_some() {
-        let removed = world
-            .objects
-            .get_component_mut::<Inventory>(&player)
-            .and_then(|inv| inv.remove_by_object_id(support_oid, 1))
-            .is_some();
+        let removed =
+            super::helpers::remove_inventory_item_change(world, player, support_oid, 1).is_some();
         if !removed {
             super::punishment::illegal_action(
                 world,

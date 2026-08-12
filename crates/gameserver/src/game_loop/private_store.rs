@@ -332,10 +332,7 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     // Move the items seller → buyer.
     let mut seller_changes = Vec::new();
     for &(obj_id, item_id, n, enchant) in &buys {
-        if let Some(change) = world
-            .objects
-            .get_component_mut::<Inventory>(&seller)
-            .and_then(|inv| inv.remove_by_object_id(obj_id, n))
+        if let Some(change) = super::helpers::remove_inventory_item_change(world, seller, obj_id, n)
         {
             seller_changes.push(change);
         }
@@ -830,12 +827,7 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
     }
 
     for &(obj_id, item_id, n, _price) in &sales {
-        if world
-            .objects
-            .get_component_mut::<Inventory>(&seller)
-            .and_then(|inv| inv.remove_by_object_id(obj_id, n))
-            .is_none()
-        {
+        if super::helpers::remove_inventory_item_change(world, seller, obj_id, n).is_none() {
             continue;
         }
         let enchant = world

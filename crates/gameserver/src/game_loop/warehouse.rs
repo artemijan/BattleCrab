@@ -663,10 +663,7 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
     // Move the items out of the sender…
     let mut rows = Vec::new();
     for &(object_id, item_id, count, enchant) in &moving {
-        if world
-            .objects
-            .get_component_mut::<Inventory>(&player_oid)
-            .and_then(|inv| inv.remove_by_object_id(object_id, count))
+        if super::helpers::remove_inventory_item_change(world, player_oid, object_id, count)
             .is_none()
         {
             continue;

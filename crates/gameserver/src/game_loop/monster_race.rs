@@ -602,10 +602,7 @@ fn calculate_win(world: &mut World, player: i32, command: &str) {
         return;
     };
     // Destroy the ticket, then pay out.
-    let removed = world
-        .objects
-        .get_component_mut::<Inventory>(&player)
-        .and_then(|inv| inv.remove_by_object_id(oid, 1));
+    let removed = super::helpers::remove_inventory_item_change(world, player, oid, 1);
     if removed.is_none() {
         return;
     }

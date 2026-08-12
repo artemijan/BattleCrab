@@ -1935,10 +1935,7 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
     // `destroyControlItem` — the collar is consumed, and with it the pet's
     // identity: the saved row is keyed by that object id.
     let collar = pet.collar_object_id;
-    let removed = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&owner)
-        .and_then(|inv| inv.remove_by_object_id(collar, 1));
+    let removed = super::helpers::remove_inventory_item_change(world, owner, collar, 1);
     if let Some(change) = removed {
         send_inventory_update(world, owner, vec![change]);
     }
