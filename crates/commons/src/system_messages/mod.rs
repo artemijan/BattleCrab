@@ -213,6 +213,26 @@ pub struct MessageInfo {
     pub msg_type: Option<&'static str>,
 }
 
+/// The `C<n>`/`S<n>` tokens in a message name, in the order they appear.
+///
+/// The name is the only description a message has of its own parameters, and
+/// Java's `parseMessageParameters` reads it exactly this way. Yields the kind
+/// byte (`b'C'` or `b'S'`) and the 1-based position it labels; a name mentions
+/// its tokens in sentence order, so the positions do not arrive sorted.
+pub fn param_tokens(name: &str) -> impl Iterator<Item = (u8, usize)> {
+    let bytes = name.as_bytes();
+    (0..bytes.len().saturating_sub(1)).filter_map(move |i| {
+        let (kind, digit) = (bytes[i], bytes[i + 1]);
+        ((kind == b'C' || kind == b'S') && digit.is_ascii_digit())
+            .then(|| (kind, (digit - b'0') as usize))
+    })
+}
+
+/// How many parameters a name implies — its highest `C<n>`/`S<n>`.
+pub fn arity(name: &str) -> usize {
+    param_tokens(name).map(|(_, pos)| pos).max().unwrap_or(0)
+}
+
 /// Look a message up by id — for tooling and diagnostics, not the send path.
 pub fn by_id(id: i32) -> Option<&'static MessageInfo> {
     generated::ALL.iter().find(|m| m.id == id)
@@ -251,14 +271,7 @@ mod tests {
     #[test]
     fn declared_param_counts_match_the_names() {
         for m in generated::ALL {
-            let mut expect = 0usize;
-            let bytes = m.name.as_bytes();
-            for i in 0..bytes.len().saturating_sub(1) {
-                if (bytes[i] == b'C' || bytes[i] == b'S') && bytes[i + 1].is_ascii_digit() {
-                    expect = expect.max((bytes[i + 1] - b'0') as usize);
-                }
-            }
-            assert_eq!(m.params, expect, "{}", m.name);
+            assert_eq!(m.params, arity(m.name), "{}", m.name);
         }
     }
 

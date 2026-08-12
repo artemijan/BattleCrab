@@ -22,6 +22,7 @@
 //! client or Java drop and the diff reviewed. Run `cargo fmt` afterwards — the
 //! emitted lines are not pre-wrapped and the repo gates on formatting.
 
+use commons::system_messages::{arity, param_tokens};
 use std::collections::{HashMap, HashSet};
 
 /// A message this server adds on top of the retail table. Ids continue the
@@ -88,18 +89,6 @@ pub struct Report {
     pub custom: usize,
 }
 
-/// Highest `C<n>`/`S<n>` in the name — Java's `parseMessageParameters`.
-fn arity(name: &str) -> usize {
-    let bytes = name.as_bytes();
-    let mut count = 0usize;
-    for i in 0..bytes.len().saturating_sub(1) {
-        if (bytes[i] == b'C' || bytes[i] == b'S') && bytes[i + 1].is_ascii_digit() {
-            count = count.max((bytes[i + 1] - b'0') as usize);
-        }
-    }
-    count
-}
-
 /// Which parameter positions are names (`C`) and which are values (`S`).
 ///
 /// A name mentions its tokens in sentence order, not parameter order, so this
@@ -107,13 +96,7 @@ fn arity(name: &str) -> usize {
 /// means the name skips an index (e.g. `C1` and `S3` with no 2); any unnamed
 /// position is a value — the client still expects it to be sent.
 fn slots(name: &str, n: usize) -> Vec<u8> {
-    let bytes = name.as_bytes();
-    let mut kind: HashMap<usize, u8> = HashMap::new();
-    for i in 0..bytes.len().saturating_sub(1) {
-        if (bytes[i] == b'C' || bytes[i] == b'S') && bytes[i + 1].is_ascii_digit() {
-            kind.insert((bytes[i + 1] - b'0') as usize, bytes[i]);
-        }
-    }
+    let kind: HashMap<usize, u8> = param_tokens(name).map(|(k, pos)| (pos, k)).collect();
     (1..=n)
         .map(|i| kind.get(&i).copied().unwrap_or(b'S'))
         .collect()
