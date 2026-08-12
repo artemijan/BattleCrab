@@ -1,6 +1,14 @@
 use super::*;
 use crate::game_loop::helpers::skill_by_id;
 
+fn known_buffs(buffs: &Buffs) -> Vec<(i32, i32)> {
+    buffs
+        .0
+        .iter()
+        .filter(|a| !a.passive)
+        .map(|a| (a.skill_id, a.skill_level))
+        .collect()
+}
 /// `TriggerSkillByDamage`'s `onDamageReceivedEvent` — the mirror of
 /// [`fire_attack_triggers`], evaluated for every hit the **bearer takes**.
 ///
@@ -31,12 +39,7 @@ pub(crate) fn fire_damage_received_triggers(
     let Some(buffs) = world.objects.get_component::<Buffs>(&victim_oid) else {
         return;
     };
-    let known: Vec<(i32, i32)> = buffs
-        .0
-        .iter()
-        .filter(|a| !a.passive)
-        .map(|a| (a.skill_id, a.skill_level))
-        .collect();
+    let known: Vec<(i32, i32)> = known_buffs(buffs);
 
     let attacker_is_playable = crate::game_loop::helpers::is_playable(world, attacker_oid);
 
@@ -121,12 +124,7 @@ pub(crate) fn fire_magic_type_triggers(
     let Some(buffs) = world.objects.get_component::<Buffs>(&caster_oid) else {
         return;
     };
-    let known: Vec<(i32, i32)> = buffs
-        .0
-        .iter()
-        .filter(|a| !a.passive)
-        .map(|a| (a.skill_id, a.skill_level))
-        .collect();
+    let known: Vec<(i32, i32)> = known_buffs(buffs);
 
     let mut fired: Vec<(i32, i32, bool)> = Vec::new();
     for (skill_id, skill_level) in known {
