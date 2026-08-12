@@ -83,7 +83,13 @@ pub(super) fn admin_instance_create(world: &mut World, client_id: u32, gm_oid: i
     }
     send_template_details(world, client_id, template_id);
 }
-
+fn check_instance_template_for(world: &World, id: i32, client_id: u32) -> Option<i32> {
+    let t = world.instances.get(id).map(|i| i.template_id);
+    if t.is_none() {
+        send_message(world, client_id, &format!("No instance {id}."));
+    }
+    t
+}
 /// `//instanceteleport <instanceId>`: enter an existing instance, then redraw
 /// its detail page.
 pub(super) fn admin_instance_teleport(
@@ -96,8 +102,7 @@ pub(super) fn admin_instance_teleport(
         send_message(world, client_id, "Usage: //instanceteleport <instanceId>");
         return;
     };
-    let Some(template_id) = world.instances.get(id).map(|i| i.template_id) else {
-        send_message(world, client_id, &format!("No instance {id}."));
+    let Some(template_id) = check_instance_template_for(world, id, client_id) else {
         return;
     };
     instances::enter(world, gm_oid, id);
@@ -111,8 +116,7 @@ pub(super) fn admin_instance_destroy(world: &mut World, client_id: u32, args: &[
         send_message(world, client_id, "Usage: //instancedestroy <instanceId>");
         return;
     };
-    let Some(template_id) = world.instances.get(id).map(|i| i.template_id) else {
-        send_message(world, client_id, &format!("No instance {id}."));
+    let Some(template_id) = check_instance_template_for(world, id, client_id) else {
         return;
     };
     let count = world.instances.member_count(id);
