@@ -71,7 +71,7 @@ fn jail_silences_four_channels_and_leaves_the_rest_open() {
         // Java answers with `sendMessage(String)`, which is SM `S1_TEXT` — not
         // one of the prohibition SystemMessages the chat-ban path sends.
         assert_eq!(
-            sm_ids_of(&drain(&mut rx)),
+            ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
             vec![sm_ids::S1_TEXT],
             "{ty:?} refused with Java's literal jail line"
         );
@@ -134,7 +134,7 @@ fn the_olympiad_gate_silences_every_channel() {
             "{ty:?} must not reach anyone while registered"
         );
         assert_eq!(
-            sm_ids_of(&drain(&mut rx)),
+            ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
             vec![sm_ids::YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD],
             "{ty:?} refused with the olympiad line"
         );

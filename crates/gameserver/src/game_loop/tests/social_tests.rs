@@ -210,7 +210,7 @@ fn party_invite_accept_builds_party_and_windows() {
     );
     let a_pkts = drain(&mut a_rx);
     assert_eq!(
-        sm_ids_of(&a_pkts),
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::C1_HAS_BEEN_INVITED_TO_THE_PARTY]
     );
     let b_pkts = drain(&mut b_rx);
@@ -239,7 +239,10 @@ fn party_invite_accept_builds_party_and_windows() {
         has_opcode(&a_pkts, server_packets::opcodes::PARTY_SMALL_WINDOW_ADD),
         "leader window gains the member"
     );
-    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::C1_HAS_JOINED_THE_PARTY));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::C1_HAS_JOINED_THE_PARTY)
+    );
 
     let b_pkts = drain(&mut b_rx);
     let all = b_pkts
@@ -253,7 +256,7 @@ fn party_invite_accept_builds_party_and_windows() {
         assert_eq!(r.read_u8().unwrap(), 1, "one other member");
         assert_eq!(r.read_i32().unwrap(), 3001, "the leader's entry");
     }
-    let b_sms = sm_ids_of(&b_pkts);
+    let b_sms = ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(b_sms.contains(&server_packets::sm_ids::YOU_HAVE_JOINED_S1_S_PARTY));
     assert!(b_sms.contains(&server_packets::sm_ids::C1_HAS_JOINED_THE_PARTY));
 
@@ -302,7 +305,7 @@ fn party_invite_decline_and_guards() {
         3,
         [vec![cop::REQUEST_JOIN_PARTY], join_party_body("P3002", 0)].concat(),
     );
-    let c_sms = sm_ids_of(&drain(&mut c_rx));
+    let c_sms = ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         c_sms.contains(&server_packets::sm_ids::WAITING_FOR_ANOTHER_REPLY),
         "busy target: {c_sms:?}"
@@ -337,7 +340,7 @@ fn party_invite_decline_and_guards() {
         2,
         [vec![cop::REQUEST_JOIN_PARTY], join_party_body("P3003", 0)].concat(),
     );
-    let b_sms = sm_ids_of(&drain(&mut b_rx));
+    let b_sms = ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         b_sms.contains(&server_packets::sm_ids::ONLY_THE_LEADER_CAN_GIVE_OUT_INVITATIONS),
         "{b_sms:?}"
@@ -348,7 +351,7 @@ fn party_invite_decline_and_guards() {
         3,
         [vec![cop::REQUEST_JOIN_PARTY], join_party_body("P3002", 0)].concat(),
     );
-    let c_sms = sm_ids_of(&drain(&mut c_rx));
+    let c_sms = ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         c_sms.contains(
             &server_packets::sm_ids::C1_IS_A_MEMBER_OF_ANOTHER_PARTY_AND_CANNOT_BE_INVITED
@@ -391,7 +394,10 @@ fn party_withdrawal_two_members_disbands() {
     on_packet(&mut world, 2, vec![cop::REQUEST_WITH_DRAWAL_PARTY]);
     for rx in [&mut a_rx, &mut b_rx] {
         let pkts = drain(rx);
-        assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::THE_PARTY_HAS_DISPERSED));
+        assert!(
+            ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+                .contains(&server_packets::sm_ids::THE_PARTY_HAS_DISPERSED)
+        );
         assert!(has_opcode(
             &pkts,
             server_packets::opcodes::PARTY_SMALL_WINDOW_DELETE_ALL
@@ -420,7 +426,10 @@ fn party_leadership_oust_and_change() {
     world.clients.remove(&1);
     store_and_remove_player(&mut world, 3001);
     let b_pkts = drain(&mut b_rx);
-    assert!(sm_ids_of(&b_pkts).contains(&server_packets::sm_ids::C1_HAS_BECOME_THE_PARTY_LEADER));
+    assert!(
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::C1_HAS_BECOME_THE_PARTY_LEADER)
+    );
     assert!(
         has_opcode(&b_pkts, server_packets::opcodes::PARTY_SMALL_WINDOW_ALL),
         "window rebuilt"
@@ -435,7 +444,10 @@ fn party_leadership_oust_and_change() {
         [vec![cop::REQUEST_OUST_PARTY_MEMBER], name_body("P3003")].concat(),
     );
     let c_pkts = drain(&mut c_rx);
-    assert!(sm_ids_of(&c_pkts).contains(&server_packets::sm_ids::THE_PARTY_HAS_DISPERSED));
+    assert!(
+        ids_after_opcode(&c_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THE_PARTY_HAS_DISPERSED)
+    );
     assert!(world.parties.is_empty());
 
     // Fresh 3-member party exercises oust + leader change proper.
@@ -451,14 +463,18 @@ fn party_leadership_oust_and_change() {
     );
     let b_pkts = drain(&mut b_rx);
     assert!(
-        sm_ids_of(&b_pkts).contains(&server_packets::sm_ids::YOU_HAVE_BEEN_EXPELLED_FROM_THE_PARTY)
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_BEEN_EXPELLED_FROM_THE_PARTY)
     );
     assert!(has_opcode(
         &b_pkts,
         server_packets::opcodes::PARTY_SMALL_WINDOW_DELETE_ALL
     ));
     let c_pkts = drain(&mut c_rx);
-    assert!(sm_ids_of(&c_pkts).contains(&server_packets::sm_ids::C1_WAS_EXPELLED_FROM_THE_PARTY));
+    assert!(
+        ids_after_opcode(&c_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::C1_WAS_EXPELLED_FROM_THE_PARTY)
+    );
     assert!(has_opcode(
         &c_pkts,
         server_packets::opcodes::PARTY_SMALL_WINDOW_DELETE
@@ -472,7 +488,7 @@ fn party_leadership_oust_and_change() {
     assert_eq!(world.parties[&party_id].members, vec![3003, 3004]);
     drain(&mut c_rx);
     on_packet(&mut world, 3, ex_packet(0x0C, &name_body("P3003")));
-    let c_sms = sm_ids_of(&drain(&mut c_rx));
+    let c_sms = ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         c_sms.contains(&server_packets::sm_ids::SLOW_DOWN_YOU_ARE_ALREADY_THE_PARTY_LEADER),
         "{c_sms:?}"
@@ -494,9 +510,9 @@ fn party_loot_change_vote_and_timeout() {
 
     // Leader proposes Random (1): members get the FE:C0 ask, leader SM 3135.
     on_packet(&mut world, 1, ex_packet(0x75, &int_body(1)));
-    assert!(ex_subs_of(&drain(&mut b_rx)).contains(&0xC0));
+    assert!(ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::EX).contains(&0xC0));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::REQUESTING_APPROVAL_FOR_CHANGING_PARTY_LOOT_TO_S1)
     );
 
@@ -504,8 +520,14 @@ fn party_loot_change_vote_and_timeout() {
     on_packet(&mut world, 2, ex_packet(0x76, &int_body(1)));
     on_packet(&mut world, 3, ex_packet(0x76, &int_body(1)));
     let a_pkts = drain(&mut a_rx);
-    assert!(ex_subs_of(&a_pkts).contains(&0xC1), "ExSetPartyLooting");
-    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::PARTY_LOOT_WAS_CHANGED_TO_S1));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::EX).contains(&0xC1),
+        "ExSetPartyLooting"
+    );
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::PARTY_LOOT_WAS_CHANGED_TO_S1)
+    );
     assert_eq!(world.parties[&party_id].distribution, LootRule::Random);
 
     // Second proposal times out → cancelled, rule unchanged.
@@ -513,7 +535,10 @@ fn party_loot_change_vote_and_timeout() {
     drain(&mut a_rx);
     advance_ticks(&mut world, 151);
     let a_pkts = drain(&mut a_rx);
-    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::PARTY_LOOT_CHANGE_WAS_CANCELLED));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::PARTY_LOOT_CHANGE_WAS_CANCELLED)
+    );
     assert_eq!(world.parties[&party_id].distribution, LootRule::Random);
 }
 
@@ -789,7 +814,10 @@ fn party_loot_split_and_rotation() {
     assert!(has_item(&world, 3001), "rotation skipped the far member");
     assert!(!has_item(&world, 3003));
     // The non-looting members saw the "C1 has obtained" line.
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::C1_HAS_OBTAINED_S2));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::C1_HAS_OBTAINED_S2)
+    );
 }
 
 /// Invite → accept: FriendAddRequest popup, both sides' SMs +
@@ -809,7 +837,7 @@ fn friend_invite_accept_and_whisper_mask() {
         [vec![cop::REQUEST_FRIEND_INVITE], name_body("p3002")].concat(),
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_VE_REQUESTED_C1_TO_BE_ON_YOUR_FRIENDS_LIST)
     );
     assert!(has_opcode(
@@ -827,7 +855,7 @@ fn friend_invite_accept_and_whisper_mask() {
         .concat(),
     );
     let a_pkts = drain(&mut a_rx);
-    let a_sms = sm_ids_of(&a_pkts);
+    let a_sms = ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         a_sms.contains(&server_packets::sm_ids::FRIEND_ADDED_SUCCESSFULLY),
         "{a_sms:?}"
@@ -839,7 +867,7 @@ fn friend_invite_accept_and_whisper_mask() {
     ));
     let b_pkts = drain(&mut b_rx);
     assert!(
-        sm_ids_of(&b_pkts)
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_HAS_BEEN_ADDED_TO_YOUR_FRIENDS_LIST_2)
     );
     assert!(has_opcode(
@@ -917,7 +945,7 @@ fn friend_delete_and_messages() {
     );
     let a_pkts = drain(&mut a_rx);
     assert!(
-        sm_ids_of(&a_pkts)
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_HAS_BEEN_REMOVED_FROM_YOUR_FRIENDS_LIST_2)
     );
     assert!(has_opcode(&a_pkts, server_packets::opcodes::FRIEND_REMOVE));
@@ -960,7 +988,8 @@ fn friend_delete_and_messages() {
         [vec![cop::REQUEST_SEND_FRIEND_MSG], msg.into_bytes()].concat(),
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::THAT_PLAYER_IS_NOT_ONLINE)
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THAT_PLAYER_IS_NOT_ONLINE)
     );
     on_packet(
         &mut world,
@@ -968,7 +997,7 @@ fn friend_delete_and_messages() {
         [vec![cop::REQUEST_FRIEND_DEL], name_body("P3002")].concat(),
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::C1_IS_NOT_ON_YOUR_FRIEND_LIST)
     );
 }
@@ -1026,7 +1055,10 @@ fn friend_login_logout_notifications() {
     assert_eq!(r.read_i32().unwrap(), 1, "online");
 
     let a_pkts = drain(&mut a_rx);
-    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::YOUR_FRIEND_S1_JUST_LOGGED_IN));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOUR_FRIEND_S1_JUST_LOGGED_IN)
+    );
     let status = a_pkts
         .iter()
         .find(|p| p[0] == server_packets::opcodes::FRIEND_STATUS)

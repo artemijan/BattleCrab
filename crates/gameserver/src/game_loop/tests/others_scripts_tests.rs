@@ -1728,7 +1728,7 @@ fn mercenary_ticket_pickup_needs_the_privilege() {
         [vec![cop::ACTION], action_body(ticket, 0)].concat(),
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&654),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(&654),
         "SM 654: no authority to cancel mercenary positioning"
     );
     assert!(

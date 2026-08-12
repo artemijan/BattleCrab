@@ -262,7 +262,7 @@ fn siege_zone_combat_messages_and_leave_flag() {
             .in_active_siege
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_ENTERED_A_COMBAT_ZONE),
         "entered-combat-zone message"
     );
@@ -287,7 +287,8 @@ fn siege_zone_combat_messages_and_leave_flag() {
             .in_active_siege
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE),
         "left-combat-zone message"
     );
     assert_eq!(

@@ -25,7 +25,7 @@ fn clan_create_guards_and_success() {
     create(&mut world, 1, "Myclan");
     let pkts = drain(&mut a_rx);
     assert!(
-        sm_ids_of(&pkts).contains(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::YOU_DO_NOT_MEET_THE_CRITERIA_IN_ORDER_TO_CREATE_A_CLAN
         )
     );
@@ -38,16 +38,25 @@ fn clan_create_guards_and_success() {
 
     // Name with a space arrives as two tokens → invalid.
     create(&mut world, 1, "My clan");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID)
+    );
     // Non-alphanumeric.
     create(&mut world, 1, "Cl@n");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID)
+    );
     // Too short / too long.
     create(&mut world, 1, "C");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::CLAN_NAME_IS_INVALID)
+    );
     create(&mut world, 1, "Averyveryverylongclanname");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_NAME_S_LENGTH_IS_INCORRECT)
     );
     // Recreate cooldown.
@@ -58,7 +67,7 @@ fn clan_create_guards_and_success() {
         .clan_create_expiry_time = i64::MAX;
     create(&mut world, 1, "Myclan");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_MUST_WAIT_10_DAYS_BEFORE_CREATING_A_NEW_CLAN)
     );
     world
@@ -94,7 +103,10 @@ fn clan_create_guards_and_success() {
         pkts.iter()
             .any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_UPDATE)
     );
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOUR_CLAN_HAS_BEEN_CREATED));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOUR_CLAN_HAS_BEEN_CREATED)
+    );
     assert!(
         pkts.iter().any(|p| p[0] == 0x32),
         "fresh UserInfo with the clan id"
@@ -111,7 +123,7 @@ fn clan_create_guards_and_success() {
     // Already in a clan.
     create(&mut world, 1, "Another");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_FAILED_TO_CREATE_A_CLAN)
     );
 
@@ -123,7 +135,10 @@ fn clan_create_guards_and_success() {
         .unwrap()
         .level = 10;
     create(&mut world, 2, "MYCLAN");
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::S1_ALREADY_EXISTS));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_ALREADY_EXISTS)
+    );
 }
 
 /// ClanMaster dialog navigation: `Quest ClanMaster <page>` events render
@@ -282,7 +297,10 @@ fn clan_roster_notifications_and_chat() {
         3,
         &say2_body("hail", crate::enums::ChatType::Clan.client_id(), None),
     );
-    assert!(sm_ids_of(&drain(&mut c_rx)).contains(&server_packets::sm_ids::YOU_ARE_NOT_IN_A_CLAN));
+    assert!(
+        ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_ARE_NOT_IN_A_CLAN)
+    );
 
     // B leaves the world: offline ping to A.
     store_and_remove_player(&mut world, 3002);
@@ -1754,14 +1772,14 @@ fn clan_invite_guards_decline_and_accept() {
     // Wrong target: the object id is not an online player.
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(9999, 0));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_INVITED_THE_WRONG_TARGET)
     );
 
     // Self-invite.
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3001, 0));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_ASK_YOURSELF_TO_APPLY_TO_A_CLAN)
     );
 
@@ -1770,14 +1788,14 @@ fn clan_invite_guards_decline_and_accept() {
     install_clan(&mut world, 5001, &[3004, 3003]); // 3003 is a plain member of another clan
     clans::handle_request_join_pledge(&mut world, 3, &invite_body(3002, 0));
     assert!(
-        sm_ids_of(&drain(&mut c_rx))
+        ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT)
     );
 
     // Target already clanned.
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3003, 0));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_IS_ALREADY_A_MEMBER_OF_ANOTHER_CLAN)
     );
 
@@ -1788,9 +1806,11 @@ fn clan_invite_guards_decline_and_accept() {
         .unwrap()
         .clan_join_expiry_time = i64::MAX;
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::C1_CANNOT_JOIN_THE_CLAN_ONE_DAY_HAS_NOT_PASSED_SINCE_LEAVING
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::C1_CANNOT_JOIN_THE_CLAN_ONE_DAY_HAS_NOT_PASSED_SINCE_LEAVING
+        )
+    );
     world
         .objects
         .get_component_mut::<Player>(&3002)
@@ -1800,9 +1820,11 @@ fn clan_invite_guards_decline_and_accept() {
     // Clan under the post-oust penalty.
     world.clans.get_mut(&5000).unwrap().char_penalty_expiry_time = i64::MAX;
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::AFTER_A_CLAN_MEMBER_IS_DISMISSED_THE_CLAN_MUST_WAIT_A_DAY
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::AFTER_A_CLAN_MEMBER_IS_DISMISSED_THE_CLAN_MUST_WAIT_A_DAY
+        )
+    );
     world.clans.get_mut(&5000).unwrap().char_penalty_expiry_time = 0;
 
     // Clan full (level 1 main pledge caps at 15).
@@ -1824,7 +1846,7 @@ fn clan_invite_guards_decline_and_accept() {
     }
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::S1_IS_FULL_AND_CANNOT_ACCEPT_ADDITIONAL_CLAN_MEMBERS
         )
     );
@@ -1856,18 +1878,20 @@ fn clan_invite_guards_decline_and_accept() {
     // A second invite while the slot is busy → "on another task".
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER)
     );
 
     // Decline: both sides notified, slots freed.
     clans::handle_request_answer_join_pledge(&mut world, 2, &answer_body(0));
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(
+    assert!(ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
         &server_packets::sm_ids::YOU_DIDN_T_RESPOND_TO_S1_S_INVITATION_JOINING_HAS_BEEN_CANCELLED
     ));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::S1_DID_NOT_RESPOND_INVITATION_TO_THE_CLAN_HAS_BEEN_CANCELLED
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::S1_DID_NOT_RESPOND_INVITATION_TO_THE_CLAN_HAS_BEEN_CANCELLED
+        )
+    );
     assert!(
         !world
             .objects
@@ -1904,7 +1928,7 @@ fn clan_invite_guards_decline_and_accept() {
             .iter()
             .any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_ALL)
     );
-    let b_sms = sm_ids_of(&b_pkts);
+    let b_sms = ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(b_sms.contains(&server_packets::sm_ids::ENTERED_THE_CLAN));
     assert!(b_sms.contains(&server_packets::sm_ids::S1_HAS_JOINED_THE_CLAN));
     let a_pkts = drain(&mut a_rx);
@@ -1918,7 +1942,10 @@ fn clan_invite_guards_decline_and_accept() {
             .iter()
             .any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_INFO_UPDATE)
     );
-    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::S1_HAS_JOINED_THE_CLAN));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_HAS_JOINED_THE_CLAN)
+    );
     let cmds = drain_db(&mut db_rx);
     assert!(cmds.iter().any(|c| matches!(
         c,
@@ -1950,14 +1977,16 @@ fn clan_withdraw_and_oust() {
     // Clanless player withdrawing.
     let mut c_rx = ingame_player(&mut world, 3, 3003, 0, 0, 0);
     clans::handle_request_withdrawal_pledge(&mut world, 3);
-    assert!(sm_ids_of(&drain(&mut c_rx)).contains(
-        &server_packets::sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION
+        )
+    );
 
     // The leader cannot withdraw.
     clans::handle_request_withdrawal_pledge(&mut world, 1);
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::A_CLAN_LEADER_CANNOT_WITHDRAW_FROM_THEIR_OWN_CLAN)
     );
 
@@ -1965,12 +1994,12 @@ fn clan_withdraw_and_oust() {
     super::combat::refresh_attack_stance(&mut world, 3002);
     clans::handle_request_withdrawal_pledge(&mut world, 2);
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_LEAVE_A_CLAN_WHILE_ENGAGED_IN_COMBAT)
     );
     clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3002"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::A_CLAN_MEMBER_MAY_NOT_BE_DISMISSED_DURING_COMBAT)
     );
     world.tick += 10_000; // combat stance expires
@@ -1978,7 +2007,8 @@ fn clan_withdraw_and_oust() {
     // Self-oust.
     clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3001"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_CANNOT_DISMISS_YOURSELF)
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_CANNOT_DISMISS_YOURSELF)
     );
 
     // Withdraw: penalty stamped, roster shrinks, both sides messaged.
@@ -1993,13 +2023,16 @@ fn clan_withdraw_and_oust() {
             .iter()
             .any(|p| p[0] == server_packets::opcodes::PLEDGE_SHOW_MEMBER_LIST_DELETE_ALL)
     );
-    let b_sms = sm_ids_of(&b_pkts);
+    let b_sms = ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(b_sms.contains(&server_packets::sm_ids::YOU_HAVE_WITHDRAWN_FROM_THE_CLAN));
     assert!(b_sms.contains(
         &server_packets::sm_ids::AFTER_LEAVING_A_CLAN_YOU_MUST_WAIT_A_DAY_BEFORE_JOINING_ANOTHER
     ));
     let a_pkts = drain(&mut a_rx);
-    assert!(sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::S1_HAS_WITHDRAWN_FROM_THE_CLAN));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_HAS_WITHDRAWN_FROM_THE_CLAN)
+    );
     assert!(
         a_pkts
             .iter()
@@ -2037,7 +2070,7 @@ fn clan_withdraw_and_oust() {
         world.clans[&5000].char_penalty_expiry_time > 0,
         "clan invite penalty stamped"
     );
-    let a_sms = sm_ids_of(&drain(&mut a_rx));
+    let a_sms = ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(a_sms.contains(&server_packets::sm_ids::CLAN_MEMBER_S1_HAS_BEEN_EXPELLED));
     assert!(
         a_sms.contains(&server_packets::sm_ids::YOU_HAVE_SUCCEEDED_IN_EXPELLING_THE_CLAN_MEMBER)
@@ -2076,7 +2109,7 @@ fn clan_dissolve_and_recover() {
     // A non-leader asking for dissolution.
     bypass(&mut world, 2, "dissolve_clan");
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT)
     );
 
@@ -2090,9 +2123,11 @@ fn clan_dissolve_and_recover() {
 
     // Asking again while pending.
     bypass(&mut world, 1, "dissolve_clan");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::YOU_HAVE_ALREADY_REQUESTED_THE_DISSOLUTION_OF_YOUR_CLAN
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::YOU_HAVE_ALREADY_REQUESTED_THE_DISSOLUTION_OF_YOUR_CLAN
+        )
+    );
 
     // Recover: the stamp is zeroed and a firing task no-ops.
     bypass(&mut world, 1, "recover_clan");
@@ -2125,7 +2160,10 @@ fn clan_dissolve_and_recover() {
             .clan_id,
         0
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::CLAN_HAS_DISPERSED));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::CLAN_HAS_DISPERSED)
+    );
     assert!(
         drain(&mut b_rx)
             .iter()
@@ -2163,23 +2201,25 @@ fn clan_level_up_ladder() {
     // Non-leader.
     bypass(&mut world, 2);
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT)
     );
 
     // Pending dissolution.
     world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = i64::MAX;
     bypass(&mut world, 1);
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
+    assert!(ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
         &server_packets::sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_LEVEL_CANNOT_INCREASE
     ));
     world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = 0;
 
     // No SP / no adena.
     bypass(&mut world, 1);
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::THE_CONDITIONS_TO_INCREASE_THE_CLAN_S_LEVEL_HAVE_NOT_BEEN_MET
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::THE_CONDITIONS_TO_INCREASE_THE_CLAN_S_LEVEL_HAVE_NOT_BEEN_MET
+        )
+    );
 
     // 0 → 1: 1000 SP + 150k adena.
     {
@@ -2197,7 +2237,7 @@ fn clan_level_up_ladder() {
     assert_eq!(p.sp, 4_000, "1000 SP consumed");
     assert_eq!(adena_of(&world, 3001), 50_000, "150k adena consumed");
     let a_pkts = drain(&mut a_rx);
-    let a_sms = sm_ids_of(&a_pkts);
+    let a_sms = ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(a_sms.contains(&server_packets::sm_ids::S1_ADENA_DISAPPEARED));
     assert!(a_sms.contains(&server_packets::sm_ids::YOUR_SP_HAS_DECREASED_BY_S1));
     assert!(a_sms.contains(&server_packets::sm_ids::YOUR_CLAN_S_LEVEL_HAS_INCREASED));
@@ -2208,7 +2248,7 @@ fn clan_level_up_ladder() {
         "level-up FX"
     );
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOUR_CLAN_S_LEVEL_HAS_INCREASED)
     );
     assert!(drain_db(&mut db_rx).iter().any(|c| matches!(
@@ -2241,7 +2281,10 @@ fn clan_level_up_ladder() {
         world.objects.get_component::<Player>(&3001).unwrap().sp,
         100_000
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::S1_DISAPPEARED));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_DISAPPEARED)
+    );
 }
 
 /// The pledge-skill learn flow: the leader-only list (`ExAcquirableSkillListBy
@@ -2318,7 +2361,7 @@ fn pledge_skill_learning_spends_reputation() {
     // Learning without reputation fails.
     clans::handle_learn_pledge_skill(&mut world, 1, 370, 1);
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::SKILL_ACQUIRE_FAILED_INSUFFICIENT_CLAN_REPUTATION)
     );
     assert!(world.clans[&5000].skills.is_empty());
@@ -2334,7 +2377,7 @@ fn pledge_skill_learning_spends_reputation() {
     assert_eq!(world.clans[&5000].skills.get(&370), Some(&1));
     assert_eq!(world.clans[&5000].reputation_score, 8_500);
     let a_pkts = drain(&mut a_rx);
-    let a_sms = sm_ids_of(&a_pkts);
+    let a_sms = ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(a_sms.contains(
         &server_packets::sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_S_REPUTATION
     ));
@@ -2515,9 +2558,11 @@ fn member_power_grade_and_info_panes() {
             .power_grade,
         4
     );
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(
-        &server_packets::sm_ids::CLAN_MEMBER_C1_S_PRIVILEGE_LEVEL_HAS_BEEN_CHANGED_TO_S2
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::CLAN_MEMBER_C1_S_PRIVILEGE_LEVEL_HAS_BEEN_CHANGED_TO_S2
+        )
+    );
     assert!(drain_db(&mut db_rx).iter().any(|c| matches!(
         c,
         db::DbCommand::UpdateCharPowerGrade {
@@ -2610,13 +2655,16 @@ fn delegated_leader_transfer() {
     // Non-leader.
     bypass(&mut world, 2, "change_clan_leader P3001");
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT)
     );
 
     // Unknown member.
     bypass(&mut world, 1, "change_clan_leader Nobody");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::S1_DOES_NOT_EXIST));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_DOES_NOT_EXIST)
+    );
 
     // Success: stamp + persist + html.
     bypass(&mut world, 1, "change_clan_leader P3002");
@@ -2694,7 +2742,7 @@ fn clan_war_declare_and_mutual() {
     // Below level 3 / 15 members.
     clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Clan5001"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_WAR_NEEDS_LEVEL_3_AND_15_MEMBERS)
     );
 
@@ -2706,14 +2754,14 @@ fn clan_war_declare_and_mutual() {
     // Unknown target clan.
     clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Ghosts"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_WAR_TARGET_DOES_NOT_EXIST)
     );
 
     // Own clan.
     clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Clan5000"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::FOOL_YOU_CANNOT_DECLARE_WAR_AGAINST_YOUR_OWN_CLAN)
     );
 
@@ -2721,7 +2769,7 @@ fn clan_war_declare_and_mutual() {
     world.clans.get_mut(&5001).unwrap().dissolving_expiry_time = i64::MAX;
     clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Clan5001"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CANNOT_DECLARE_WAR_ON_DISSOLVING_CLAN)
     );
     world.clans.get_mut(&5001).unwrap().dissolving_expiry_time = 0;
@@ -2736,7 +2784,8 @@ fn clan_war_declare_and_mutual() {
     assert_eq!(war.attacker_id, 5000);
     let a_pkts = drain(&mut a_rx);
     assert!(
-        sm_ids_of(&a_pkts).contains(&server_packets::sm_ids::YOU_HAVE_DECLARED_A_CLAN_WAR_WITH_S1)
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_DECLARED_A_CLAN_WAR_WITH_S1)
     );
     assert!(
         a_pkts
@@ -2745,7 +2794,7 @@ fn clan_war_declare_and_mutual() {
         "war list sent"
     );
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_HAS_DECLARED_A_CLAN_WAR_KILL_5_TO_START)
     );
     assert!(drain_db(&mut db_rx).iter().any(|c| matches!(
@@ -2776,11 +2825,11 @@ fn clan_war_declare_and_mutual() {
     let war = clans::war_between(&world, 5000, 5001).expect("war kept");
     assert_eq!(war.state, crate::model::clan::ClanWarState::Mutual);
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_WAR_STARTED_WITH_CLAN_S1)
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_WAR_STARTED_WITH_CLAN_S1)
     );
 
@@ -2793,7 +2842,10 @@ fn clan_war_declare_and_mutual() {
 
     // Redeclaring against a mutual war is refused (plain-text SM 1983).
     clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Clan5001"));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::S1_TEXT));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_TEXT)
+    );
 }
 
 /// The kill pipeline: five attacked-side kills force a blood declaration
@@ -2827,7 +2879,7 @@ fn clan_war_kills_drive_state_and_reputation() {
         (crate::model::clan::ClanWarState::BloodDeclaration, 4)
     );
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_MEMBER_KILLED_S2_MORE_KILLS_TO_START_WAR)
     );
 
@@ -2838,7 +2890,7 @@ fn clan_war_kills_drive_state_and_reputation() {
         crate::model::clan::ClanWarState::Mutual
     );
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_WAR_STARTED_WITH_CLAN_S1)
     );
     drain(&mut a_rx);
@@ -2903,14 +2955,14 @@ fn clan_war_stop_surrender_timeout() {
         &bypass_body(&format!("npc_{NPC_OID}_dissolve_clan")),
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_DISSOLVE_A_CLAN_WHILE_ENGAGED_IN_A_WAR)
     );
 
     // Stop: too little reputation first, then a successful cease-fire.
     clans::handle_request_stop_pledge_war(&mut world, 1, &name_body("Clan5001"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_CLAN_REPUTATION_IS_TOO_LOW)
     );
     world.clans.get_mut(&5000).unwrap().reputation_score = 1_000;
@@ -2923,9 +2975,11 @@ fn clan_war_stop_surrender_timeout() {
         world.clans[&5000].reputation_score, 500,
         "500 reputation paid"
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::YOUR_CLAN_LOST_500_REPUTATION_FOR_WITHDRAWING_FROM_THE_WAR
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::YOUR_CLAN_LOST_500_REPUTATION_FOR_WITHDRAWING_FROM_THE_WAR
+        )
+    );
     assert!(
         drain_db(&mut db_rx)
             .iter()
@@ -2938,7 +2992,7 @@ fn clan_war_stop_surrender_timeout() {
     world.clan_wars.push(blood);
     clans::handle_request_surrender_pledge_war(&mut world, 1, &name_body("Clan5001"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CANNOT_DECLARE_DEFEAT_BEFORE_7_DAYS_WITH_CLAN_S1)
     );
     world.clan_wars.last_mut().unwrap().state = crate::model::clan::ClanWarState::Mutual;
@@ -2954,11 +3008,13 @@ fn clan_war_stop_surrender_timeout() {
             .iter()
             .any(|p| p[0] == server_packets::opcodes::SURRENDER_PLEDGE_WAR)
     );
-    assert!(sm_ids_of(&a_pkts).contains(
-        &server_packets::sm_ids::THE_WAR_ENDED_BY_YOUR_DEFEAT_DECLARATION_WITH_THE_S1_CLAN
-    ));
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::THE_WAR_ENDED_BY_YOUR_DEFEAT_DECLARATION_WITH_THE_S1_CLAN
+        )
+    );
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_WAR_ENDED_BY_THE_S1_CLAN_S_DEFEAT_DECLARATION)
     );
     // The WIN state blocks a redeclaration by the loser… er, by the winner side
@@ -2969,7 +3025,7 @@ fn clan_war_stop_surrender_timeout() {
     pad_clan(&mut world, 5001, 15);
     clans::handle_request_start_pledge_war(&mut world, 2, &name_body("Clan5000"));
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CANNOT_DECLARE_WAR_21_DAYS_AFTER_DEFEAT_WITH_S1)
     );
     // The delete task tears it down.
@@ -2983,11 +3039,13 @@ fn clan_war_stop_surrender_timeout() {
     clans::handle_clan_war_timeout(&mut world, 5000, 5001);
     let war = clans::war_between(&world, 5000, 5001).unwrap();
     assert_eq!(war.state, crate::model::clan::ClanWarState::Tie);
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::BECAUSE_CLAN_S1_DID_NOT_FIGHT_BACK_THE_WAR_WAS_CANCELLED
-    ));
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::BECAUSE_CLAN_S1_DID_NOT_FIGHT_BACK_THE_WAR_WAS_CANCELLED
+        )
+    );
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::A_CLAN_WAR_DECLARED_BY_CLAN_S1_WAS_CANCELLED)
     );
     world.clan_wars.clear();
@@ -3030,16 +3088,19 @@ fn ally_create_join_and_interlocks() {
 
     // Clan level < 5.
     bypass(&mut world, 1, "create_ally GoldenPact");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::TO_CREATE_AN_ALLIANCE_YOUR_CLAN_MUST_BE_LEVEL_5_OR_HIGHER
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::TO_CREATE_AN_ALLIANCE_YOUR_CLAN_MUST_BE_LEVEL_5_OR_HIGHER
+        )
+    );
     world.clans.get_mut(&5000).unwrap().level = 5;
     world.clans.get_mut(&5001).unwrap().level = 5;
 
     // Bad name.
     bypass(&mut world, 1, "create_ally Bad Name");
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::INCORRECT_ALLIANCE_NAME)
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::INCORRECT_ALLIANCE_NAME)
     );
 
     // Success: the clan becomes its own alliance.
@@ -3072,7 +3133,7 @@ fn ally_create_join_and_interlocks() {
     world.clans.get_mut(&5001).unwrap().level = 5;
     bypass(&mut world, 2, "create_ally GoldenPact");
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THAT_ALLIANCE_NAME_ALREADY_EXISTS)
     );
 
@@ -3089,7 +3150,7 @@ fn ally_create_join_and_interlocks() {
     });
     clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_MAY_NOT_ALLY_WITH_A_CLAN_YOU_ARE_AT_WAR_WITH)
     );
     world.clan_wars.clear();
@@ -3103,16 +3164,20 @@ fn ally_create_join_and_interlocks() {
             .any(|p| p[0] == server_packets::opcodes::ASK_JOIN_ALLIANCE)
     );
     assert!(
-        sm_ids_of(&b_pkts)
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_LEADER_S2_HAS_REQUESTED_AN_ALLIANCE)
     );
     clans::handle_request_answer_join_ally(&mut world, 2, &answer_body(0));
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(
-        &server_packets::sm_ids::NO_RESPONSE_YOUR_ENTRANCE_TO_THE_ALLIANCE_HAS_BEEN_CANCELLED
-    ));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::NO_RESPONSE_INVITATION_TO_JOIN_AN_ALLIANCE_HAS_BEEN_CANCELLED
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::NO_RESPONSE_YOUR_ENTRANCE_TO_THE_ALLIANCE_HAS_BEEN_CANCELLED
+        )
+    );
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::NO_RESPONSE_INVITATION_TO_JOIN_AN_ALLIANCE_HAS_BEEN_CANCELLED
+        )
+    );
 
     // Accept: the whole clan joins.
     clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
@@ -3129,7 +3194,7 @@ fn ally_create_join_and_interlocks() {
         5000
     );
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_ACCEPTED_THE_ALLIANCE)
     );
 
@@ -3140,7 +3205,8 @@ fn ally_create_join_and_interlocks() {
     world.clans.get_mut(&5002).unwrap().ally_id = 5000;
     clans::handle_request_join_ally(&mut world, 1, &oid_body(3007));
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_LIMIT)
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_LIMIT)
     );
     drain(&mut c_rx);
 
@@ -3152,7 +3218,10 @@ fn ally_create_join_and_interlocks() {
             .iter()
             .any(|p| p[0] == server_packets::opcodes::ALLIANCE_INFO)
     );
-    assert!(sm_ids_of(&b_pkts).contains(&server_packets::sm_ids::ALLIANCE_INFORMATION));
+    assert!(
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::ALLIANCE_INFORMATION)
+    );
 
     // Same-ally war declaration is refused; an allied clan cannot dissolve.
     world.clans.get_mut(&5000).unwrap().level = 3;
@@ -3161,12 +3230,12 @@ fn ally_create_join_and_interlocks() {
     pad_clan(&mut world, 5001, 15);
     clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Clan5001"));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CANNOT_DECLARE_WAR_ON_ALLIED_CLAN)
     );
     bypass(&mut world, 1, "dissolve_clan");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_DISPERSE_THE_CLANS_IN_YOUR_ALLIANCE)
     );
 }
@@ -3191,7 +3260,7 @@ fn ally_leave_dismiss_dissolve_penalties() {
     // The alliance leader cannot leave their own alliance.
     clans::handle_ally_leave(&mut world, 1);
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::ALLIANCE_LEADERS_CANNOT_WITHDRAW)
     );
 
@@ -3205,14 +3274,14 @@ fn ally_leave_dismiss_dissolve_penalties() {
     );
     assert!(b.ally_penalty_expiry_time > 0);
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_WITHDRAWN_FROM_THE_ALLIANCE)
     );
 
     // The leave penalty blocks rejoining.
     clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_CLAN_CANNOT_JOIN_ALLIANCE_ONE_DAY_NOT_PASSED)
     );
 
@@ -3235,7 +3304,7 @@ fn ally_leave_dismiss_dissolve_penalties() {
         crate::model::clan::ALLY_PENALTY_TYPE_DISMISS_CLAN
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_SUCCEEDED_IN_EXPELLING_THE_CLAN)
     );
 
@@ -3247,7 +3316,7 @@ fn ally_leave_dismiss_dissolve_penalties() {
     }
     clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::MAY_NOT_ACCEPT_ANY_CLAN_WITHIN_A_DAY_AFTER_EXPELLING
         )
     );
@@ -3270,11 +3339,11 @@ fn ally_leave_dismiss_dissolve_penalties() {
         crate::model::clan::ALLY_PENALTY_TYPE_DISSOLVE_ALLY
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_ALLIANCE_HAS_BEEN_DISSOLVED)
     );
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_ALLIANCE_HAS_BEEN_DISSOLVED)
     );
     handle_request_bypass_to_server(
@@ -3282,9 +3351,11 @@ fn ally_leave_dismiss_dissolve_penalties() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_create_ally NewPact")),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::CANNOT_CREATE_A_NEW_ALLIANCE_WITHIN_1_DAY_OF_DISSOLUTION
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::CANNOT_CREATE_A_NEW_ALLIANCE_WITHIN_1_DAY_OF_DISSOLUTION
+        )
+    );
 }
 
 // --- G18 slice 6: sub-pledges & academy ---
@@ -3325,7 +3396,7 @@ fn academy_create_and_join() {
 
     // Below level 5.
     create_academy_bypass(&mut world, 1, "YoungGuns");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
+    assert!(ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
         &server_packets::sm_ids::TO_ESTABLISH_A_CLAN_ACADEMY_YOUR_CLAN_MUST_BE_LEVEL_5_OR_HIGHER
     ));
     world.clans.get_mut(&5000).unwrap().level = 5;
@@ -3338,7 +3409,7 @@ fn academy_create_and_join() {
             .contains_key(&crate::model::clan::SUBUNIT_ACADEMY)
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::CONGRATULATIONS_THE_S1_S_CLAN_ACADEMY_HAS_BEEN_CREATED
         )
     );
@@ -3354,7 +3425,7 @@ fn academy_create_and_join() {
     // A second academy is refused (already established).
     create_academy_bypass(&mut world, 1, "Another");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOUR_CLAN_HAS_ALREADY_ESTABLISHED_A_CLAN_ACADEMY)
     );
 
@@ -3362,7 +3433,7 @@ fn academy_create_and_join() {
     world.clans.get_mut(&5000).unwrap().level = 6;
     create_royal_bypass(&mut world, 1, "YoungGuns", "P3001");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::ANOTHER_MILITARY_UNIT_ALREADY_USES_THAT_NAME)
     );
 
@@ -3416,7 +3487,7 @@ fn royal_and_knight_creation_and_pledge_class() {
     // Insufficient reputation.
     create_royal_bypass(&mut world, 1, "Vanguard", "P3003");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_CLAN_REPUTATION_IS_TOO_LOW)
     );
 
@@ -3424,7 +3495,7 @@ fn royal_and_knight_creation_and_pledge_class() {
     // Unknown / ineligible leader name.
     create_royal_bypass(&mut world, 1, "Vanguard", "Nobody");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_ROYAL_GUARD_CAPTAIN_CANNOT_BE_APPOINTED)
     );
 
@@ -3454,7 +3525,7 @@ fn royal_and_knight_creation_and_pledge_class() {
     assert_eq!(world.clans[&5000].reputation_score, 10_000);
     drain(&mut a_rx);
     create_royal_bypass(&mut world, 1, "Thirdguard", "P3001");
-    let a_sms = sm_ids_of(&drain(&mut a_rx));
+    let a_sms = ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         a_sms.contains(&server_packets::sm_ids::S1_TEXT),
         "family-full plain message"
@@ -3466,9 +3537,11 @@ fn royal_and_knight_creation_and_pledge_class() {
 
     // Knight unit: captain must not already lead the royal unit.
     create_knight_bypass(&mut world, 1, "Blades", "P3003");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::THE_CAPTAIN_OF_THE_ORDER_OF_KNIGHTS_CANNOT_BE_APPOINTED
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::THE_CAPTAIN_OF_THE_ORDER_OF_KNIGHTS_CANNOT_BE_APPOINTED
+        )
+    );
     world
         .objects
         .get_component_mut::<Player>(&3001)
@@ -3521,7 +3594,7 @@ fn rename_assign_reorganize_and_vacate_on_leave() {
     );
     assert_eq!(world.clans[&5000].sub_pledges[&100].leader_id, 3005);
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::C1_HAS_BEEN_SELECTED_AS_THE_CAPTAIN_OF_S2)
     );
 
@@ -3609,19 +3682,19 @@ fn small_pledge_crest_set_query_delete() {
     // Below level 3.
     let img = crest_bytes(64, 7);
     clans::handle_request_set_pledge_crest(&mut world, 1, &set_pledge_crest_body(&img));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::A_CLAN_CREST_CAN_ONLY_BE_REGISTERED_WHEN_THE_CLAN_S_SKILL_LEVEL_IS_3_OR_ABOVE));
+    assert!(ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(&server_packets::sm_ids::A_CLAN_CREST_CAN_ONLY_BE_REGISTERED_WHEN_THE_CLAN_S_SKILL_LEVEL_IS_3_OR_ABOVE));
 
     // Dissolving gate.
     world.clans.get_mut(&5000).unwrap().level = 3;
     world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = i64::MAX;
     clans::handle_request_set_pledge_crest(&mut world, 1, &set_pledge_crest_body(&img));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&server_packets::sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST));
+    assert!(ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(&server_packets::sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST));
     world.clans.get_mut(&5000).unwrap().dissolving_expiry_time = 0;
 
     // No CL_REGISTER_CREST privilege.
     clans::handle_request_set_pledge_crest(&mut world, 2, &set_pledge_crest_body(&img));
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT)
     );
 
@@ -3639,7 +3712,7 @@ fn small_pledge_crest_set_query_delete() {
         crest_id
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_CREST_WAS_SUCCESSFULLY_REGISTERED)
     );
     assert!(
@@ -3673,7 +3746,7 @@ fn small_pledge_crest_set_query_delete() {
         0
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_CLAN_MARK_HAS_BEEN_DELETED)
     );
 }
@@ -3702,7 +3775,7 @@ fn large_pledge_crest_set_and_chunked_query() {
     assert_ne!(crest_id, 0);
     assert_eq!(world.crests[&crest_id].data, img);
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_CLAN_MARK_WAS_SUCCESSFULLY_REGISTERED_ON_ITEMS)
     );
 
@@ -3757,7 +3830,7 @@ fn ally_crest_set_and_sync_on_membership_change() {
     w.write_bytes(&img);
     clans::handle_request_set_ally_crest(&mut world, 2, &w.into_bytes());
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THIS_FEATURE_IS_ONLY_AVAILABLE_TO_ALLIANCE_LEADERS)
     );
 
@@ -3781,7 +3854,7 @@ fn ally_crest_set_and_sync_on_membership_change() {
         crest_id
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_CREST_WAS_SUCCESSFULLY_REGISTERED)
     );
 
@@ -3872,9 +3945,11 @@ fn recruit_board_register_update_remove_and_search() {
         2,
         &board_access_body(1, 0, "Hi", "Details", 0, 0),
     );
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(
-        &server_packets::sm_ids::ONLY_THE_CLAN_LEADER_OR_RANK_MANAGER_MAY_REGISTER_THE_CLAN
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::ONLY_THE_CLAN_LEADER_OR_RANK_MANAGER_MAY_REGISTER_THE_CLAN
+        )
+    );
 
     // The leader registers.
     clans::handle_request_pledge_recruit_board_access(
@@ -3883,9 +3958,11 @@ fn recruit_board_register_update_remove_and_search() {
         &board_access_body(1, 3, "LookingForMembers", "Come raid with us", 1, 0),
     );
     assert!(world.recruit_clans.contains_key(&5000));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::ENTRY_APPLICATION_COMPLETE_AUTO_CANCELLED_AFTER_30_DAYS
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::ENTRY_APPLICATION_COMPLETE_AUTO_CANCELLED_AFTER_30_DAYS
+        )
+    );
     assert!(
         drain_db(&mut db_rx)
             .iter()
@@ -3949,9 +4026,11 @@ fn recruit_board_register_update_remove_and_search() {
         &board_access_body(1, 3, "Again", "Details", 1, 0),
     );
     assert!(!world.recruit_clans.contains_key(&5000), "locked out");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::YOU_MAY_APPLY_FOR_ENTRY_AFTER_S1_MINUTES_DUE_TO_CANCELLING
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::YOU_MAY_APPLY_FOR_ENTRY_AFTER_S1_MINUTES_DUE_TO_CANCELLING
+        )
+    );
 }
 
 /// A clanless player applies to a specific clan; the leader gets the alarm,
@@ -4039,7 +4118,10 @@ fn recruit_applicant_apply_and_accept() {
             .get(&5000)
             .is_some_and(|m| m.contains_key(&3003))
     );
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::ENTERED_THE_CLAN));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::ENTERED_THE_CLAN)
+    );
 }
 
 /// Rejecting an applicant just drops the row; the draft list (global
@@ -4085,7 +4167,7 @@ fn recruit_reject_and_draft_list_lifecycle() {
     clans::handle_request_pledge_draft_list_apply(&mut world, 2, &draft_list_apply_body(1, 0));
     assert!(world.recruit_waiting.contains_key(&3003));
     assert!(
-        sm_ids_of(&drain(&mut b_rx)).contains(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::ENTERED_INTO_WAITING_LIST_AUTO_DELETED_AFTER_30_DAYS
         )
     );
@@ -4108,9 +4190,11 @@ fn recruit_reject_and_draft_list_lifecycle() {
 
     clans::handle_request_pledge_draft_list_apply(&mut world, 2, &draft_list_apply_body(0, 0));
     assert!(!world.recruit_waiting.contains_key(&3003));
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(
-        &server_packets::sm_ids::ENTRY_APPLICATION_CANCELLED_YOU_MAY_APPLY_AFTER_5_MINUTES
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::ENTRY_APPLICATION_CANCELLED_YOU_MAY_APPLY_AFTER_5_MINUTES
+        )
+    );
     clans::handle_request_pledge_draft_list_apply(&mut world, 2, &draft_list_apply_body(1, 0));
     assert!(
         !world.recruit_waiting.contains_key(&3003),
@@ -4147,7 +4231,10 @@ fn recruit_open_joining_sign_in() {
             .clan_id,
         5000
     );
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&server_packets::sm_ids::ENTERED_THE_CLAN));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::ENTERED_THE_CLAN)
+    );
 
     // A full clan (level-1 cap 15) refuses, and reuses the applicant-removal
     // path even though this player was never actually in the queue (a no-op).
@@ -4186,7 +4273,7 @@ fn recruit_open_joining_sign_in() {
         "clan full, join refused"
     );
     assert!(
-        sm_ids_of(&drain(&mut c_rx)).contains(
+        ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::S1_IS_FULL_AND_CANNOT_ACCEPT_ADDITIONAL_CLAN_MEMBERS
         )
     );
@@ -4502,12 +4589,12 @@ fn graduating_pays_the_clan_and_frees_the_graduate() {
         1,
         "the Clan Academy Circlet"
     );
-    let sms = sm_ids_of(&drain(&mut b_rx));
+    let sms = ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(sms.contains(
         &server_packets::sm_ids::CONGRATULATIONS_YOU_WILL_NOW_GRADUATE_FROM_THE_CLAN_ACADEMY
     ));
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_MEMBER_S1_HAS_BEEN_EXPELLED),
         "the clan is told"
     );
@@ -4563,9 +4650,11 @@ fn academy_members_are_barred_from_rank_and_leadership() {
     w.write_string("P3003");
     w.write_i32(6);
     clans::handle_request_pledge_set_member_power_grade(&mut world, 1, &w.into_bytes());
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &server_packets::sm_ids::THAT_PRIVILEGE_CANNOT_BE_GRANTED_TO_A_CLAN_ACADEMY_MEMBER
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::THAT_PRIVILEGE_CANNOT_BE_GRANTED_TO_A_CLAN_ACADEMY_MEMBER
+        )
+    );
     assert_eq!(
         world.clans[&5000].member(3003).unwrap().power_grade,
         9,
@@ -4625,9 +4714,11 @@ fn a_sponsor_can_be_paired_and_unpaired() {
         2,
         "both rows are written at once — Java: 'both must match'"
     );
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(
-        &server_packets::sm_ids::S2_HAS_BEEN_DESIGNATED_AS_THE_APPRENTICE_OF_CLAN_MEMBER_S1
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &server_packets::sm_ids::S2_HAS_BEEN_DESIGNATED_AS_THE_APPRENTICE_OF_CLAN_MEMBER_S1
+        )
+    );
 
     // A second pairing is refused while the first stands.
     drain(&mut a_rx);

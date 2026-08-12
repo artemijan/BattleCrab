@@ -1472,7 +1472,7 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
     crate::game_loop::siege::end_siege(&mut world, 3);
     assert!(!world.sieges[&3].in_progress, "siege ended");
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE),
         "victor announced"
     );

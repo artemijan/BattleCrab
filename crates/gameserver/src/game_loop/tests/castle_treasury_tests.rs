@@ -472,7 +472,8 @@ fn depositing_more_than_you_hold_is_refused() {
     assert_eq!(treasury(&world, GLUDIO), 0, "the vault is untouched");
     assert_eq!(adena_of(&world, 100), 100, "and so is the purse");
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA),
         "the shortfall is reported"
     );
 }

@@ -138,7 +138,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
          would let you hold your breath forever"
     );
     let pkts = drain(&mut rx);
-    let msgs = sm_ids_of(&pkts);
+    let msgs = ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert_eq!(
         msgs.iter()
             .filter(|&&id| id

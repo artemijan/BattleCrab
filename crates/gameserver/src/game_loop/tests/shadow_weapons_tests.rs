@@ -56,15 +56,6 @@ fn talk_shadow_desk(world: &mut World) {
     );
 }
 
-/// The `SystemMessage` ids among a packet batch (`sm_id` panics on anything
-/// else, and these paths also send InventoryUpdate/UserInfo).
-fn sm_ids_of(pkts: &[Vec<u8>]) -> Vec<i16> {
-    pkts.iter()
-        .filter(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE)
-        .map(|p| sm_id(p))
-        .collect()
-}
-
 fn mana_of(world: &World, player: i32, item_id: i32) -> Option<i32> {
     world
         .objects
@@ -329,7 +320,7 @@ fn at_zero_mana_the_shadow_weapon_unequips_and_disappears() {
         "and no longer on the paperdoll"
     );
     assert!(
-        sm_ids_of(&pkts).contains(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::S1_S_REMAINING_MANA_IS_NOW_0_AND_THE_ITEM_HAS_DISAPPEARED
         ),
         "the disappearance message is sent"
@@ -361,7 +352,10 @@ fn the_mana_countdown_warns_at_ten_five_and_one() {
             &mut world,
             crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS,
         );
-        seen.extend(sm_ids_of(&drain(&mut rx)));
+        seen.extend(ids_after_opcode(
+            &drain(&mut rx),
+            server_packets::opcodes::SYSTEM_MESSAGE,
+        ));
     }
     for id in [
         server_packets::sm_ids::S1_S_REMAINING_MANA_IS_NOW_10,

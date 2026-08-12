@@ -92,7 +92,7 @@ fn sow_then_harvest_yields_the_crop() {
         // sent solo here because this sower has no party.
         let pkts = drain(&mut rx);
         assert!(
-            sm_ids_of(&pkts)
+            ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
                 .contains(&crate::network::server_packets::sm_ids::THE_SEED_WAS_SUCCESSFULLY_SOWN),
             "the sower is told the seed took"
         );
@@ -170,7 +170,7 @@ fn harvest_refused_when_not_the_seeder() {
     apply_harvesting(&mut world, 999, NPC_OID);
     assert_eq!(inv_count(&world, 5073), 0, "a non-seeder harvests nothing");
     assert!(
-        sm_ids_of(&drain(&mut rx2))
+        ids_after_opcode(&drain(&mut rx2), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&crate::network::server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_HARVEST),
         "Java tells the interloper why nothing happened"
     );
@@ -1254,7 +1254,7 @@ fn maintenance_notifies_the_online_clan_leader() {
     crate::game_loop::manor::advance_manor_mode(&mut world);
 
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_MANOR_INFORMATION_HAS_BEEN_UPDATED),
         "the leader is told the manor information has been updated"
     );
@@ -1322,7 +1322,7 @@ fn a_castle_that_cannot_pay_or_store_loses_its_setup() {
         "the unaffordable setup is cleared"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::NOT_ENOUGH_FUNDS_IN_CLAN_WAREHOUSE_FOR_MANOR),
         "and the leader is warned"
     );
@@ -1460,7 +1460,7 @@ fn buy_seed_refused_when_it_would_exceed_the_weight_limit() {
         "stock unchanged"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&crate::network::server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT),
         "the buyer is told it is the weight, not the money"
     );

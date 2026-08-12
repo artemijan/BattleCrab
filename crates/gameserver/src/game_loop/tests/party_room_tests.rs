@@ -187,7 +187,7 @@ fn a_party_member_who_is_not_the_leader_cannot_browse() {
 
     open_board(&mut world, 2);
     assert_eq!(
-        sm_ids_of(&drain(&mut member_rx)),
+        ids_after_opcode(&drain(&mut member_rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::THE_LIST_OF_PARTY_ROOMS_CAN_ONLY_BE_VIEWED_BY_A_PERSON_WHO_IS_NOT_PART_OF_A_PARTY]
     );
     assert!(!world.matching_rooms.is_waiting(3002));
@@ -244,9 +244,12 @@ fn creating_a_room_leaves_the_waiting_list_and_sends_the_room_windows() {
     let pkts = drain(&mut rx);
     assert!(has_opcode(&pkts, opcodes::PARTY_ROOM_INFO));
     assert!(has_opcode(&pkts, opcodes::LIST_PARTY_WAITING));
-    assert!(ex_subs_of(&pkts).contains(&opcodes::EX_PARTY_ROOM_MEMBER));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::EX)
+            .contains(&opcodes::EX_PARTY_ROOM_MEMBER)
+    );
     assert_eq!(
-        sm_ids_of(&pkts),
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_HAVE_CREATED_A_PARTY_ROOM]
     );
 
@@ -516,8 +519,14 @@ fn joining_a_room_notifies_both_sides() {
 
     // The leader is told someone entered and gets a refreshed member list.
     let a_pkts = drain(&mut a_rx);
-    assert!(sm_ids_of(&a_pkts).contains(&sm_ids::C1_HAS_ENTERED_THE_PARTY_ROOM));
-    assert!(ex_subs_of(&a_pkts).contains(&opcodes::EX_PARTY_ROOM_MEMBER));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::C1_HAS_ENTERED_THE_PARTY_ROOM)
+    );
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::EX)
+            .contains(&opcodes::EX_PARTY_ROOM_MEMBER)
+    );
 
     // The joiner gets the room window + the member list, listed as a plain
     // waiting player (they are not in the leader's party).
@@ -560,7 +569,7 @@ fn a_joiner_outside_the_level_band_is_refused() {
         vec![3001]
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut b_rx)),
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_DO_NOT_MEET_THE_REQUIREMENTS_TO_ENTER_THAT_PARTY_ROOM]
     );
 }
@@ -589,7 +598,7 @@ fn a_full_room_refuses_further_joiners() {
         vec![3001, 3002]
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut c_rx)),
+        ids_after_opcode(&drain(&mut c_rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_DO_NOT_MEET_THE_REQUIREMENTS_TO_ENTER_THAT_PARTY_ROOM]
     );
 }
@@ -627,9 +636,18 @@ fn withdrawing_returns_the_member_to_the_waiting_list() {
     assert!(!world.objects.has_component::<InMatchingRoom>(&3002));
 
     let b_pkts = drain(&mut b_rx);
-    assert!(sm_ids_of(&b_pkts).contains(&sm_ids::YOU_HAVE_EXITED_THE_PARTY_ROOM));
-    assert!(ex_subs_of(&b_pkts).contains(&opcodes::EX_CLOSE_PARTY_ROOM));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::C1_HAS_LEFT_THE_PARTY_ROOM));
+    assert!(
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_HAVE_EXITED_THE_PARTY_ROOM)
+    );
+    assert!(
+        ids_after_opcode(&b_pkts, server_packets::opcodes::EX)
+            .contains(&opcodes::EX_CLOSE_PARTY_ROOM)
+    );
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::C1_HAS_LEFT_THE_PARTY_ROOM)
+    );
 }
 
 #[test]
@@ -659,9 +677,13 @@ fn the_leader_can_kick_a_member() {
         vec![3001]
     );
     assert!(
-        sm_ids_of(&drain(&mut b_rx)).contains(&sm_ids::YOU_HAVE_BEEN_OUSTED_FROM_THE_PARTY_ROOM)
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_HAVE_BEEN_OUSTED_FROM_THE_PARTY_ROOM)
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::C1_HAS_BEEN_KICKED_FROM_THE_PARTY_ROOM));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::C1_HAS_BEEN_KICKED_FROM_THE_PARTY_ROOM)
+    );
 }
 
 #[test]
@@ -707,7 +729,8 @@ fn a_member_cannot_kick_and_a_partymate_cannot_be_kicked() {
         "a party-mate must be removed through the party UI"
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::YOU_CANNOT_DISMISS_A_PARTY_MEMBER_BY_FORCE)
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_CANNOT_DISMISS_A_PARTY_MEMBER_BY_FORCE)
     );
 }
 
@@ -736,8 +759,14 @@ fn the_leader_can_disband_the_room() {
     assert!(world.matching_rooms.rooms.is_empty());
     for (rx, oid) in [(&mut a_rx, 3001), (&mut b_rx, 3002)] {
         let pkts = drain(rx);
-        assert!(sm_ids_of(&pkts).contains(&sm_ids::THE_PARTY_ROOM_HAS_BEEN_DISBANDED));
-        assert!(ex_subs_of(&pkts).contains(&opcodes::EX_CLOSE_PARTY_ROOM));
+        assert!(
+            ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+                .contains(&sm_ids::THE_PARTY_ROOM_HAS_BEEN_DISBANDED)
+        );
+        assert!(
+            ids_after_opcode(&pkts, server_packets::opcodes::EX)
+                .contains(&opcodes::EX_CLOSE_PARTY_ROOM)
+        );
         assert!(world.matching_rooms.is_waiting(oid));
         assert!(!world.objects.has_component::<InMatchingRoom>(&oid));
     }
@@ -790,7 +819,8 @@ fn the_leader_leaving_promotes_the_next_member_and_announces_it() {
     assert_eq!(room.leader, 3002);
     assert_eq!(room.all_members(), vec![3002]);
     assert!(
-        sm_ids_of(&drain(&mut b_rx)).contains(&sm_ids::THE_LEADER_OF_THE_PARTY_ROOM_HAS_CHANGED)
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::THE_LEADER_OF_THE_PARTY_ROOM_HAS_CHANGED)
     );
 }
 
@@ -816,7 +846,7 @@ fn a_solo_leader_leaving_deletes_the_room_without_a_leader_change_message() {
     );
 
     assert!(world.matching_rooms.rooms.is_empty());
-    let sms = sm_ids_of(&drain(&mut rx));
+    let sms = ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(sms.contains(&sm_ids::YOU_HAVE_EXITED_THE_PARTY_ROOM));
     assert!(!sms.contains(&sm_ids::THE_LEADER_OF_THE_PARTY_ROOM_HAS_CHANGED));
 }
@@ -903,9 +933,11 @@ fn declining_an_invitation_tells_the_inviter_and_frees_both_slots() {
         world.matching_rooms.get(room_id).unwrap().all_members(),
         vec![3001]
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &sm_ids::THE_RECIPIENT_OF_YOUR_INVITATION_DID_NOT_ACCEPT_THE_PARTY_MATCHING_INVITATION
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &sm_ids::THE_RECIPIENT_OF_YOUR_INVITATION_DID_NOT_ACCEPT_THE_PARTY_MATCHING_INVITATION
+        )
+    );
     // Java's decline path leaves `activeRequester` set on one branch; both
     // sides must be free here.
     assert!(!world.objects.has_component::<PendingRequest>(&3001));
@@ -956,7 +988,10 @@ fn logging_out_removes_the_player_from_the_room_and_the_waiting_list() {
         !world.matching_rooms.is_waiting(3002),
         "the leaver must not be left advertising themselves"
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::C1_HAS_LEFT_THE_PARTY_ROOM));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::C1_HAS_LEFT_THE_PARTY_ROOM)
+    );
 }
 
 #[test]

@@ -885,7 +885,8 @@ fn the_mount_feed_gauge_drains_and_force_dismounts() {
         "out of feed → dismounted"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED),
         "the cancellation message is sent"
     );
 }

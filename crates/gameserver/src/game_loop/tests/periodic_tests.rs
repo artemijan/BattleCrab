@@ -467,7 +467,7 @@ fn relax_switches_off_when_mp_runs_out() {
 
     assert!(!has_buff(&world, CASTER, RELAX), "the toggle switched off");
     assert!(
-        sm_ids_of(&drain(&mut out))
+        ids_after_opcode(&drain(&mut out), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP),
         "and said why"
     );
@@ -498,7 +498,7 @@ fn relax_switches_off_at_full_hp_with_its_own_message() {
     advance_ticks(&mut world, ONE_TICK);
 
     assert!(!has_buff(&world, CASTER, RELAX), "the toggle switched off");
-    let sms = sm_ids_of(&drain(&mut out));
+    let sms = ids_after_opcode(&drain(&mut out), server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         sms.contains(
             &server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED

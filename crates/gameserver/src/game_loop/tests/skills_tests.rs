@@ -3676,7 +3676,7 @@ fn skill_acquire_gates_send_system_messages() {
         &acquire_skill_body(1001, 1, cp::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS],
     );
 
@@ -3686,7 +3686,7 @@ fn skill_acquire_gates_send_system_messages() {
         &acquire_skill_body(1002, 1, cp::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL],
     );
 
@@ -3731,7 +3731,7 @@ fn skill_acquire_requires_and_consumes_the_book() {
         &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL],
     );
     assert!(
@@ -3784,7 +3784,8 @@ fn skill_acquire_requires_and_consumes_the_book() {
         "500 SP - levelUpSp(100)"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::S1_DISAPPEARED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_DISAPPEARED),
         "the disappear message for the consumed book"
     );
 }
@@ -3907,7 +3908,7 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
         &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL],
         "the waiver is keyed to skill 1405 alone"
     );
@@ -6225,7 +6226,7 @@ fn a_non_combat_transform_is_refused_a_walk_to_cast() {
         set_target(&mut world, 1, 3001, Some(3002));
         drain(&mut rx);
         handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
-        sm_ids_of(&drain(&mut rx)).contains(
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
         )
     };

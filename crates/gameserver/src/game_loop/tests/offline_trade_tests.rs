@@ -363,7 +363,8 @@ fn the_offline_command_confirms_before_detaching() {
         ),
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::PRIVATE_STORE_ALREADY_CLOSED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::PRIVATE_STORE_ALREADY_CLOSED),
         "refused without a store"
     );
     assert!(world.clients.contains_key(&1));

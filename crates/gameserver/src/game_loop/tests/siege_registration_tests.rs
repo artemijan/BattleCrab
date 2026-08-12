@@ -923,7 +923,7 @@ fn a_headquarters_needs_an_hq_zone() {
         "no camp outside an HQ zone"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CAN_T_BUILD_HEADQUARTERS_HERE),
         "and the client is told why"
     );
@@ -962,7 +962,8 @@ fn each_registration_refusal_sends_its_own_message() {
     drain(&mut rx);
     crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 0, 1));
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::S1_TEXT),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::S1_TEXT),
         "the NPC-castle refusal is a text line, not a message id"
     );
 
@@ -973,7 +974,7 @@ fn each_registration_refusal_sends_its_own_message() {
     drain(&mut rx);
     crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 1));
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &sm_ids::YOU_CANNOT_REGISTER_AS_AN_ATTACKER_BECAUSE_YOU_ARE_IN_AN_ALLIANCE_WITH_THE_CASTLE_OWNING_CLAN
         ),
         "the ally is told why"
@@ -987,7 +988,7 @@ fn each_registration_refusal_sends_its_own_message() {
     drain(&mut rx);
     crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 1));
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &sm_ids::YOUR_CLAN_MAY_NOT_REGISTER_TO_PARTICIPATE_IN_A_SIEGE_WHILE_UNDER_A_GRACE_PERIOD_OF_THE_CLAN_S_DISSOLUTION
         ),
         "a dissolving clan is told why"

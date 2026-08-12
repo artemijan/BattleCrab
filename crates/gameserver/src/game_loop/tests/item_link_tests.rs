@@ -198,7 +198,7 @@ fn an_item_link_raises_the_chat_length_cap() {
     );
     say(&mut world, 1, &long);
     assert_eq!(
-        sm_ids_of(&drain(&mut a_rx)),
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::KEYBOARD_INPUT_SPAM_WARNING]
     );
     assert!(

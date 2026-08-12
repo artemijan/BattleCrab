@@ -1281,6 +1281,25 @@ fn entering_player(
     out_rx
 }
 
+/// The Adena (57) template — stackable Etc, type1/type2 as the dist item data
+/// has them — so inventory code can stack it.
+fn insert_adena_template(world: &mut World) {
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            item_id: 57,
+            name: "Adena".into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            is_stackable: true,
+            type1: 4,
+            type2: 5,
+            is_quest_item: false,
+            ..crate::data::item_data::ItemTemplate::for_test()
+        });
+}
+
 /// A world tuned for melee combat: the fighter-ish class-0 template from
 /// `cast_test_world` plus a synthetic exp table (level N needs (N−1)·1000)
 /// and a Monster template 40001 (level 5, pDef 40, exp 2000/sp 100, a 70%
@@ -1307,20 +1326,7 @@ fn combat_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>
         world.data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![t]);
     }
     // Adena template so auto-loot stacks it.
-    world
-        .data
-        .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
-            item_id: 57,
-            name: "Adena".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
-            body_part: 0,
-            is_stackable: true,
-            type1: 4,
-            type2: 5,
-            is_quest_item: false,
-            ..crate::data::item_data::ItemTemplate::for_test()
-        });
+    insert_adena_template(&mut world);
     let mut t = crate::data::npc_data::default_template(40001);
     t.type_name = "Monster".into();
     t.name = "Test Gremlin".into();
@@ -1509,9 +1515,12 @@ fn has_opcode(pkts: &[Vec<u8>], opcode: u8) -> bool {
     pkts.iter().any(|p| p[0] == opcode)
 }
 
-fn sm_ids_of(pkts: &[Vec<u8>]) -> Vec<i16> {
+/// The i16 that follows the opcode byte on every packet in `pkts` whose opcode
+/// is `opcode` — a SystemMessage id, an `EX` sub-opcode, whichever the caller
+/// asked for.
+fn ids_after_opcode(pkts: &[Vec<u8>], opcode: u8) -> Vec<i16> {
     pkts.iter()
-        .filter(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE)
+        .filter(|p| p[0] == opcode)
         .map(|p| i16::from_le_bytes([p[1], p[2]]))
         .collect()
 }
@@ -1574,13 +1583,6 @@ fn sysmsg_int(p: &[u8]) -> Option<i32> {
         }
     }
     None
-}
-
-fn ex_subs_of(pkts: &[Vec<u8>]) -> Vec<i16> {
-    pkts.iter()
-        .filter(|p| p[0] == server_packets::opcodes::EX)
-        .map(|p| i16::from_le_bytes([p[1], p[2]]))
-        .collect()
 }
 
 /// Directly install a formed party (the invite flow has its own tests).
@@ -2361,20 +2363,7 @@ fn teleporter_world(adena: i64) -> (World, UnboundedReceiver<bytes::Bytes>) {
     world.forced_now_millis = Some(FULL_PRICE_CLOCK);
     world.id_pool = 0x5000_0000..0x5000_0100; // item oids for the seeded adena
     // Adena template so `add_inventory_item`/`take_items` can stack it.
-    world
-        .data
-        .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
-            item_id: 57,
-            name: "Adena".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
-            body_part: 0,
-            is_stackable: true,
-            type1: 4,
-            type2: 5,
-            is_quest_item: false,
-            ..crate::data::item_data::ItemTemplate::for_test()
-        });
+    insert_adena_template(&mut world);
     world.data.teleporters.insert_for_test(
         30001,
         crate::data::teleporter_data::TeleportHolder {

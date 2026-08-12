@@ -4620,7 +4620,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
     // The exploit attempt punishes: the immediate warning line (S1_TEXT) is
     // the only system message, and the kick lands 5 s later.
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::S1_TEXT]
     );
     advance_ticks(&mut world, 51);

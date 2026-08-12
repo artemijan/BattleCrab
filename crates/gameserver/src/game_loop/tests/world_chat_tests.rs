@@ -118,7 +118,7 @@ fn level_quota_and_reuse_each_refuse_with_their_own_message() {
 
     chat::handle_say2(&mut world, 1, &world_body("too low"));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1],
         "the level check precedes the quota check"
     );
@@ -132,7 +132,7 @@ fn level_quota_and_reuse_each_refuse_with_their_own_message() {
         .level = 40;
     chat::handle_say2(&mut world, 1, &world_body("no points"));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_HAVE_SPENT_YOUR_WORLD_CHAT_QUOTA_FOR_THE_DAY]
     );
     assert!(drain(&mut listener_rx).is_empty(), "nothing broadcast");
@@ -153,7 +153,7 @@ fn level_quota_and_reuse_each_refuse_with_their_own_message() {
 
     chat::handle_say2(&mut world, 1, &world_body("too soon"));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_HAVE_S1_SEC_UNTIL_YOU_ARE_ABLE_TO_USE_WORLD_CHAT],
         "the 20s WorldChatInterval refuses the second line"
     );
@@ -212,7 +212,7 @@ fn jail_silences_world_chat_unless_the_cond_is_overridden() {
 
     chat::handle_say2(&mut world, 1, &world_body("let me out"));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED]
     );
     assert!(drain(&mut listener_rx).is_empty());

@@ -496,7 +496,8 @@ fn the_owning_clan_hears_about_the_overdue_lease() {
     drain(&mut rx);
     crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::PAYMENT_FOR_YOUR_CLAN_HALL_HAS_NOT_BEEN_MADE),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::PAYMENT_FOR_YOUR_CLAN_HALL_HAS_NOT_BEEN_MADE),
         "the clan is reminded while it still has time"
     );
 
@@ -514,7 +515,8 @@ fn the_owning_clan_hears_about_the_overdue_lease() {
     drain(&mut rx);
     crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&sm_ids::THE_CLAN_HALL_FEE_IS_ONE_WEEK_OVERDUE),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::THE_CLAN_HALL_FEE_IS_ONE_WEEK_OVERDUE),
         "and told why the hall is gone"
     );
     assert_eq!(world.clan_halls[&ONYX].owner_id, 0);

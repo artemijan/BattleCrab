@@ -891,7 +891,7 @@ fn admin_cursed_weapons_info_add_remove() {
         "persisted"
     );
     assert!(
-        sm_ids_of(&add_pkts)
+        ids_after_opcode(&add_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION),
         "appearance announced"
     );
@@ -939,7 +939,8 @@ fn admin_cursed_weapons_info_add_remove() {
         "db row dropped"
     );
     assert!(
-        sm_ids_of(&rm_pkts).contains(&server_packets::sm_ids::S1_HAS_DISAPPEARED),
+        ids_after_opcode(&rm_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_HAS_DISAPPEARED),
         "disappearance announced"
     );
 }
@@ -3257,7 +3258,7 @@ fn admin_transform_refused_in_water() {
         "//transform refused in water"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &crate::network::server_packets::sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER
         ),
         "and says why"
@@ -3998,7 +3999,7 @@ fn admin_castlemanage_siege_registration_and_state() {
         .concat(),
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE),
         "duplicate registration refused"
     );
@@ -4016,7 +4017,8 @@ fn admin_castlemanage_siege_registration_and_state() {
     );
     assert!(world.sieges[&3].in_progress, "siege started");
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_STARTED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_STARTED),
         "start announced"
     );
     // stopSiege → ended + "siege has finished".
@@ -4031,7 +4033,8 @@ fn admin_castlemanage_siege_registration_and_state() {
     );
     assert!(!world.sieges[&3].in_progress, "siege stopped");
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_FINISHED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_FINISHED),
         "end announced"
     );
 
@@ -4054,7 +4057,8 @@ fn admin_castlemanage_siege_registration_and_state() {
         "auto-ended after the siege window"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_FINISHED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THE_S1_SIEGE_HAS_FINISHED),
         "auto-end announced"
     );
 
@@ -6810,20 +6814,14 @@ fn admin_teleportto_moves_the_gm_to_a_named_player() {
     let start = gm_pos(&world);
     drain(&mut gm_rx);
 
-    // The system-message *ids*, not just a count: a self-teleport is
-    // positionally invisible (you land where you already are), so the refusal
-    // message is the only witness that the guard fired at all.
-    let sm_ids_of = |pkts: &[Vec<u8>]| -> Vec<i16> {
-        pkts.iter()
-            .filter(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE)
-            .map(|p| i16::from_le_bytes([p[1], p[2]]))
-            .collect()
-    };
+    // The assertions below check system-message *ids*, not just a count: a
+    // self-teleport is positionally invisible (you land where you already are),
+    // so the refusal message is the only witness that the guard fired at all.
 
     // Unknown name: INVALID_TARGET, nobody moves.
     on_packet(&mut world, 1, build_admin("teleportto Nobody"));
     assert_eq!(
-        sm_ids_of(&drain(&mut gm_rx)),
+        ids_after_opcode(&drain(&mut gm_rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::INVALID_TARGET],
         "an unknown name answers INVALID_TARGET"
     );
@@ -6838,7 +6836,7 @@ fn admin_teleportto_moves_the_gm_to_a_named_player() {
         .clone();
     on_packet(&mut world, 1, build_admin(&format!("teleportto {gm_name}")));
     assert_eq!(
-        sm_ids_of(&drain(&mut gm_rx)),
+        ids_after_opcode(&drain(&mut gm_rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF],
         "targeting yourself is refused — and refusing is only observable here, \
          since teleporting to yourself would not move you"

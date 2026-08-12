@@ -68,11 +68,11 @@ fn blocking_adds_one_row_notifies_both_and_is_not_mutual() {
         "blocking is one-directional — 2002's own list is untouched"
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::S1_HAS_BEEN_ADDED_TO_YOUR_IGNORE_LIST]
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_b)),
+        ids_after_opcode(&drain(&mut rx_b), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::C1_HAS_PLACED_YOU_ON_HIS_HER_IGNORE_LIST],
         "the blocked player is told, if online"
     );
@@ -99,7 +99,7 @@ fn blocking_adds_one_row_notifies_both_and_is_not_mutual() {
     block_list::handle_request_block(&mut world, 1, &block_body(UNBLOCK, Some("P2002")));
     assert!(!block_list::is_blocked(&world, 2001, 2002));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::S1_HAS_BEEN_REMOVED_FROM_YOUR_IGNORE_LIST]
     );
     let mut cmds = Vec::new();
@@ -125,7 +125,7 @@ fn the_block_refusals_each_have_their_own_answer() {
     drain(&mut rx_a);
     block_list::handle_request_block(&mut world, 1, &block_body(BLOCK, Some("Nobody")));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_HAVE_FAILED_TO_REGISTER_THE_USER_TO_YOUR_IGNORE_LIST]
     );
 
@@ -149,7 +149,7 @@ fn the_block_refusals_each_have_their_own_answer() {
     drain(&mut rx_a);
     block_list::handle_request_block(&mut world, 1, &block_body(BLOCK, Some("P2002")));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_MAY_NOT_IMPOSE_A_BLOCK_ON_A_GM]
     );
     assert!(!block_list::is_blocked(&world, 2001, 2002));
@@ -172,7 +172,7 @@ fn the_block_refusals_each_have_their_own_answer() {
     drain(&mut rx_a);
     block_list::handle_request_block(&mut world, 1, &block_body(UNBLOCK, Some("P2002")));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::THAT_IS_AN_INCORRECT_TARGET]
     );
 }
@@ -188,7 +188,7 @@ fn all_block_blocks_everyone_without_touching_the_list() {
 
     block_list::handle_request_block(&mut world, 1, &block_body(ALLBLOCK, None));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::MESSAGE_REFUSAL_MODE]
     );
     assert!(
@@ -208,7 +208,7 @@ fn all_block_blocks_everyone_without_touching_the_list() {
 
     block_list::handle_request_block(&mut world, 1, &block_body(ALLUNBLOCK, None));
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::MESSAGE_ACCEPTANCE_MODE]
     );
     assert!(!block_list::is_blocked(&world, 2001, 2002));
@@ -307,7 +307,7 @@ fn a_whisper_to_a_blocker_is_refused_indistinguishably() {
         &say2_body("psst", ChatType::Whisper.client_id(), Some("P2002")),
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx_a)),
+        ids_after_opcode(&drain(&mut rx_a), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE]
     );
     assert!(drain(&mut rx_b).is_empty(), "nothing delivered");

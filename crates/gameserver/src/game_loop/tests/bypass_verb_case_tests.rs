@@ -121,7 +121,7 @@ fn an_npc_instance_verb_stays_case_sensitive() {
         &bypass_body(&format!("npc_{NPC_OID}_create_clan Myclan")),
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::YOU_DO_NOT_MEET_THE_CRITERIA_IN_ORDER_TO_CREATE_A_CLAN
         ),
         "the exact spelling routes"
@@ -133,7 +133,7 @@ fn an_npc_instance_verb_stays_case_sensitive() {
         &bypass_body(&format!("npc_{NPC_OID}_Create_Clan Myclan")),
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).is_empty(),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).is_empty(),
         "a re-cased instance verb is unhandled, like Java's startsWith"
     );
 }

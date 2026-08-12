@@ -51,7 +51,7 @@ fn time_reports_the_game_clock() {
 
     cmd(&mut world, 1, 77);
 
-    let ids = sm_ids_of(&drain(&mut rx));
+    let ids = ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert_eq!(ids.len(), 1, "one message");
     assert!(
         ids[0] == server_packets::sm_ids::THE_CURRENT_TIME_IS_S1_S2
@@ -85,7 +85,7 @@ fn party_info_reports_the_loot_rule() {
 
     cmd(&mut world, 1, 81);
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![
             server_packets::sm_ids::PARTY_INFORMATION,
             server_packets::sm_ids::EMPTY_3
@@ -104,7 +104,7 @@ fn party_info_reports_the_loot_rule() {
         .add_components(&3001, crate::model::components::PartyRef(party_id));
     cmd(&mut world, 1, 81);
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![
             server_packets::sm_ids::PARTY_INFORMATION,
             server_packets::sm_ids::LOOTING_METHOD_RANDOM,
@@ -127,7 +127,7 @@ fn clan_war_lists_exclude_mutual_wars() {
     // No clan → "not joined in any clan".
     cmd(&mut world, 1, 88);
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::NOT_JOINED_IN_ANY_CLAN]
     );
 
@@ -154,7 +154,7 @@ fn clan_war_lists_exclude_mutual_wars() {
     world.clan_wars.push(war(12, 10));
 
     cmd(&mut world, 1, 88);
-    let ids = sm_ids_of(&drain(&mut rx));
+    let ids = ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE);
     assert_eq!(
         ids,
         vec![
@@ -214,7 +214,7 @@ fn my_birthday_reports_the_creation_date() {
     cmd(&mut world, 1, 126);
 
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::C1_S_BIRTHDAY_IS_S3_S4_S2]
     );
 }
@@ -231,7 +231,7 @@ fn olympiad_stat_needs_a_second_class_target() {
     // No target at all.
     cmd(&mut world, 1, 109);
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::COMMAND_AVAILABLE_AFTER_THE_2ND_CLASS_TRANSFER]
     );
 
@@ -252,7 +252,7 @@ fn olympiad_stat_needs_a_second_class_target() {
         .add_components(&3001, crate::model::components::TargetRef(Some(3002)));
     cmd(&mut world, 1, 109);
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![
             server_packets::sm_ids::FOR_THE_CURRENT_OLYMPIAD_YOU_HAVE_PARTICIPATED,
             server_packets::sm_ids::THE_MATCHES_THIS_WEEK_ARE_ALL_CLASS_BATTLES
@@ -270,7 +270,7 @@ fn siege_status_needs_a_noble_leader_in_a_siege() {
 
     cmd(&mut world, 1, 99);
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::ONLY_A_NOBLE_CLAN_LEADER_CAN_VIEW_THE_SIEGE_STATUS],
         "a plain player is refused"
     );
@@ -293,7 +293,7 @@ fn siege_status_needs_a_noble_leader_in_a_siege() {
     // In the clan, in the siege — but not a noble leader: still refused.
     cmd(&mut world, 1, 99);
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::ONLY_A_NOBLE_CLAN_LEADER_CAN_VIEW_THE_SIEGE_STATUS],
         "the noble + leader gate still refuses"
     );

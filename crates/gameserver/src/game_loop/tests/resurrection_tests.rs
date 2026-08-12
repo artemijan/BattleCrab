@@ -376,7 +376,7 @@ fn the_refusal_message_depends_on_the_side_and_the_towers() {
         setup(&mut world);
         drain(&mut rx);
         revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
     };
 
     // Clanless corpse → the generic line.

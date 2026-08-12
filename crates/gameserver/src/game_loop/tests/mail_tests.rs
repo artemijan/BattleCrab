@@ -275,7 +275,7 @@ fn the_attachable_item_list_needs_a_peace_zone() {
         ex_packet(cp::ex_opcodes::REQUEST_POST_ITEM_LIST, &[]),
     );
     assert_eq!(
-        sm_ids_of(&drain(&mut rx)),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS]
     );
 }
@@ -438,7 +438,10 @@ fn sending_a_mail_charges_the_flat_fee_and_reaches_the_recipient() {
     assert!(inbox[0].unread && !inbox[0].has_attachments);
 
     let a_pkts = drain(&mut a_rx);
-    assert!(sm_ids_of(&a_pkts).contains(&sm_ids::MAIL_SUCCESSFULLY_SENT));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::MAIL_SUCCESSFULLY_SENT)
+    );
     assert!(ex_body_of(&a_pkts, opcodes::EX_REPLY_WRITE_POST).is_some());
     // The recipient is chimed and re-badged live.
     let b_pkts = drain(&mut b_rx);
@@ -513,7 +516,7 @@ fn a_sender_who_cannot_cover_the_fee_is_refused() {
     assert!(world.mail.inbox(3002).is_empty());
     assert_eq!(adena_of(&world, 3001), 50, "nothing is charged on refusal");
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
     );
 }
@@ -544,7 +547,7 @@ fn attached_adena_cannot_also_pay_the_fee() {
     );
     assert!(world.mail.inbox(3002).is_empty());
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
     );
 }
@@ -564,7 +567,7 @@ fn mail_to_an_unknown_name_or_to_yourself_is_refused() {
         ),
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::WHEN_THE_RECIPIENT_DOESN_T_EXIST_SENDING_MAIL_IS_NOT_POSSIBLE)
     );
 
@@ -576,7 +579,10 @@ fn mail_to_an_unknown_name_or_to_yourself_is_refused() {
             &send_post_body("P3001", false, "hi", "", &[], 0),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::YOU_CANNOT_SEND_A_MAIL_TO_YOURSELF));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_CANNOT_SEND_A_MAIL_TO_YOURSELF)
+    );
     assert_eq!(adena_of(&world, 3001), 10_000);
 }
 
@@ -617,9 +623,11 @@ fn a_cod_mail_needs_a_price_and_an_item() {
             &send_post_body("P3002", true, "pay", "", &[], 0),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
-        &sm_ids::WHEN_NOT_ENTERING_THE_AMOUNT_FOR_THE_PAYMENT_REQUEST_YOU_CANNOT_SEND_ANY_MAIL
-    ));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+            &sm_ids::WHEN_NOT_ENTERING_THE_AMOUNT_FOR_THE_PAYMENT_REQUEST_YOU_CANNOT_SEND_ANY_MAIL
+        )
+    );
 
     on_packet(
         &mut world,
@@ -630,7 +638,7 @@ fn a_cod_mail_needs_a_price_and_an_item() {
         ),
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::IT_S_A_PAYMENT_REQUEST_TRANSACTION_PLEASE_ATTACH_THE_ITEM)
     );
     assert!(world.mail.inbox(3002).is_empty());
@@ -897,12 +905,13 @@ fn receiving_an_attachment_moves_the_item_and_clears_the_flag() {
     assert!(world.mail.attachments.get(&77).is_none());
 
     let b_pkts = drain(&mut b_rx);
-    let sms = sm_ids_of(&b_pkts);
+    let sms = ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(sms.contains(&sm_ids::YOU_HAVE_ACQUIRED_S2_S1));
     assert!(sms.contains(&sm_ids::MAIL_SUCCESSFULLY_RECEIVED));
     // The sender is told their parcel was collected.
     assert!(
-        sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::S1_ACQUIRED_THE_ATTACHED_ITEM_TO_YOUR_MAIL)
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::S1_ACQUIRED_THE_ATTACHED_ITEM_TO_YOUR_MAIL)
     );
 }
 
@@ -930,7 +939,7 @@ fn a_cod_receiver_pays_and_the_sender_is_credited() {
         "and paid to the sender"
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::S2_HAS_MADE_A_PAYMENT_OF_S1_ADENA_PER_YOUR_PAYMENT_REQUEST_MAIL)
     );
 }
@@ -952,7 +961,7 @@ fn a_cod_receiver_who_cannot_pay_gets_nothing() {
     assert_eq!(adena_of(&world, 3002), 100, "nothing was charged");
     assert!(world.mail.get(77).unwrap().has_attachments);
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_RECEIVE_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
     );
 }
@@ -999,8 +1008,14 @@ fn the_sender_can_cancel_and_take_the_items_back() {
 
     assert_eq!(count_of(&world, 3001, 1060), 3, "items returned to sender");
     assert!(world.mail.get(77).is_none(), "the mail is gone entirely");
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::MAIL_SUCCESSFULLY_CANCELLED));
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&sm_ids::S1_CANCELED_THE_SENT_MAIL));
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::MAIL_SUCCESSFULLY_CANCELLED)
+    );
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::S1_CANCELED_THE_SENT_MAIL)
+    );
 }
 
 #[test]
@@ -1021,7 +1036,7 @@ fn cancelling_after_the_receiver_took_the_items_is_refused() {
         ),
     );
     assert!(
-        sm_ids_of(&drain(&mut a_rx))
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_CANCEL_SENT_MAIL_SINCE_THE_RECIPIENT_RECEIVED_IT)
     );
     assert_eq!(count_of(&world, 3001, 1060), 0);
@@ -1055,8 +1070,14 @@ fn rejecting_returns_the_parcel_to_the_sender_as_a_new_message() {
     assert_eq!(attached.items()[0].item_id, 1060);
     assert_eq!(attached.items()[0].count, 2);
 
-    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&sm_ids::MAIL_SUCCESSFULLY_RETURNED));
-    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::S1_RETURNED_THE_MAIL));
+    assert!(
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::MAIL_SUCCESSFULLY_RETURNED)
+    );
+    assert!(
+        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::S1_RETURNED_THE_MAIL)
+    );
 }
 
 #[test]
@@ -1077,7 +1098,7 @@ fn attachment_actions_need_a_peace_zone() {
     );
     assert_eq!(count_of(&world, 3002, 1060), 0);
     assert!(
-        sm_ids_of(&drain(&mut b_rx))
+        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_RECEIVE_IN_A_NON_PEACE_ZONE_LOCATION)
     );
 }
@@ -1119,7 +1140,7 @@ fn an_expired_mail_is_deleted_and_its_parcel_goes_to_the_senders_warehouse() {
     assert_eq!(wh.0.count_of(1060), 4, "the parcel went to the warehouse");
     for rx in [&mut a_rx, &mut b_rx] {
         assert!(
-            sm_ids_of(&drain(rx))
+            ids_after_opcode(&drain(rx), server_packets::opcodes::SYSTEM_MESSAGE)
                 .contains(&sm_ids::THE_MAIL_WAS_RETURNED_DUE_TO_THE_EXCEEDED_WAITING_TIME)
         );
     }

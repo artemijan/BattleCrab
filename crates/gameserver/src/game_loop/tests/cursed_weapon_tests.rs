@@ -97,7 +97,8 @@ fn monster_kill_drops_cursed_weapon() {
 
     let pkts = drain(&mut killer_rx);
     assert!(
-        sm_ids_of(&pkts).contains(&server_packets::sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION),
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION),
         "drop announced"
     );
     assert!(
@@ -216,7 +217,8 @@ fn pickup_curses_the_finder() {
 
     let picked = drain(&mut picker_rx);
     assert!(
-        sm_ids_of(&picked).contains(&server_packets::sm_ids::YOU_HAVE_EQUIPPED_YOUR_S1),
+        ids_after_opcode(&picked, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_EQUIPPED_YOUR_S1),
         "equip message to the picker"
     );
     // Persisted to the DB (activate's saveData).
@@ -301,7 +303,8 @@ fn expiry_removes_ungrabbed_drop() {
     assert_eq!(ground_item_count(&world), 0, "ground item removed");
     let disappeared = drain(&mut rx);
     assert!(
-        sm_ids_of(&disappeared).contains(&server_packets::sm_ids::S1_HAS_DISAPPEARED),
+        ids_after_opcode(&disappeared, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_HAS_DISAPPEARED),
         "disappearance announced"
     );
     let mut saw_remove = false;
@@ -593,7 +596,7 @@ fn relog_restores_transform_and_curse() {
     );
 
     let pkts = drain(&mut rx);
-    let sms = sm_ids_of(&pkts);
+    let sms = ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     assert!(
         sms.contains(&server_packets::sm_ids::S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION),
         "the login is announced"

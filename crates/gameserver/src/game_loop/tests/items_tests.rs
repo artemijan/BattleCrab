@@ -707,7 +707,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     );
 
     let packets = drain(&mut rx);
-    let obtained_count = sm_ids_of(&packets)
+    let obtained_count = ids_after_opcode(&packets, server_packets::opcodes::SYSTEM_MESSAGE)
         .into_iter()
         .filter(|&id| id == server_packets::sm_ids::YOU_HAVE_OBTAINED_S1)
         .count();
@@ -852,7 +852,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
     }
 
     let packets = drain(&mut rx);
-    let obtained_two = sm_ids_of(&packets)
+    let obtained_two = ids_after_opcode(&packets, server_packets::opcodes::SYSTEM_MESSAGE)
         .into_iter()
         .any(|id| id == server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1);
     assert!(obtained_two, "message reports the pair as a count-2 grant");
@@ -954,7 +954,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
     );
 
     let packets = drain(&mut rx);
-    let full_count = sm_ids_of(&packets)
+    let full_count = ids_after_opcode(&packets, server_packets::opcodes::SYSTEM_MESSAGE)
         .into_iter()
         .filter(|&id| id == server_packets::sm_ids::YOUR_INVENTORY_IS_FULL)
         .count();
@@ -1419,7 +1419,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
 
     let packets = drain(&mut rx);
     assert!(
-        sm_ids_of(&packets)
+        ids_after_opcode(&packets, server_packets::opcodes::SYSTEM_MESSAGE)
             .into_iter()
             .any(|id| id == server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1),
         "reward message sent"
@@ -1784,7 +1784,8 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         "Rnd.get(3, 5) with forced roll 1 -> +4"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_OBTAINED_A_S1_S2),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_OBTAINED_A_S1_S2),
         "enchanted single grant uses the +S1 S2 message",
     );
 }
@@ -2710,7 +2711,7 @@ fn drop_beyond_150_units_is_refused() {
         "the adena stays in the inventory"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU),
         "the client is told the spot is too far away"
     );
@@ -2743,7 +2744,7 @@ fn drop_more_than_50_units_below_is_refused() {
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU),
         "the client is told the spot is too far away"
     );
@@ -2810,7 +2811,8 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
         "the client is told the item cannot be discarded"
     );
 }
@@ -2912,7 +2914,8 @@ fn drop_of_more_than_is_held_is_refused() {
         "the whole stack is still held"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
         "the client is told the item cannot be discarded"
     );
 }
@@ -2968,7 +2971,8 @@ fn bound_item_cannot_be_discarded() {
         "nothing reached the ground"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
         "the client is told the item cannot be discarded"
     );
 }
@@ -4957,7 +4961,10 @@ fn the_augment_window_confirms_each_slot() {
         )),
         "an unsuitable item is not echoed"
     );
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM)
+    );
 
     // (2) gemstone: the fee the refiner step quoted is echoed back.
     let mut w = PacketWriter::new();
@@ -4987,7 +4994,7 @@ fn the_augment_window_confirms_each_slot() {
         ex_packet(cp::ex_opcodes::REQUEST_CONFIRM_CANCEL_ITEM, &w.into_bytes()),
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::AUGMENTATION_REMOVAL_ONLY_ON_AN_AUGMENTED_ITEM)
     );
 

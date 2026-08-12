@@ -259,7 +259,8 @@ fn quest_q00258_accept_collect_turn_in() {
     };
     assert_eq!(inv_count(&world), 1);
     assert!(
-        sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1),
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1),
         "earned SM"
     );
     // Java refreshes the client purely through `InventoryUpdate`, and a
@@ -459,7 +460,10 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     let pkts = drain(&mut rx);
     assert_eq!(count_of(&world, 809), 0);
     assert_eq!(count_of(&world, 57), 500, "500 adena at ×1 rates");
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1_ADENA));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1_ADENA)
+    );
     assert!(
         world
             .objects
@@ -641,12 +645,15 @@ fn request_buy_item_purchases_and_guards() {
         .find(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST))
         .expect("sell refresh");
     assert_eq!(*sell_done.last().unwrap(), 1, "done flag");
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::EXCHANGE_IS_SUCCESSFUL));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::EXCHANGE_IS_SUCCESSFUL)
+    );
 
     // Non-stackable quantity > 1: SM 1036, nothing purchased.
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 2)]));
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED)
     );
     assert_eq!(adena_of(&world, 3001), 850);
@@ -654,7 +661,8 @@ fn request_buy_item_purchases_and_guards() {
     // Too expensive: SM 279.
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(1061, 100)]));
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA)
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA)
     );
     assert_eq!(adena_of(&world, 3001), 850);
 
@@ -19289,7 +19297,7 @@ fn quest_q00350_enhance_your_weapon() {
     // Java bails before `levelCrystal` when the absorb gate is unmet, so none
     // of the flavour lines fire — the zero case, which is the half a
     // "message is sent" assertion cannot see on its own.
-    let quiet = sm_ids_of(&drain(&mut rx));
+    let quiet = ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE);
     for id in [
         smid::THE_SOUL_CRYSTAL_SUCCEEDED_IN_ABSORBING_A_SOUL,
         smid::THE_SOUL_CRYSTAL_WAS_NOT_ABLE_TO_ABSORB_THE_SOUL,
@@ -19325,7 +19333,7 @@ fn quest_q00350_enhance_your_weapon() {
     // Java's `exchangeCrystal` sends the success line before the
     // `YOU_HAVE_EARNED_S1` that `give_items` emits — assert the order, not
     // just the presence.
-    let ids = sm_ids_of(&drain(&mut rx));
+    let ids = ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE);
     let succeeded = ids
         .iter()
         .position(|&i| i == smid::THE_SOUL_CRYSTAL_SUCCEEDED_IN_ABSORBING_A_SOUL)
@@ -19361,7 +19369,7 @@ fn quest_q00350_enhance_your_weapon() {
         "a failed roll neither consumes nor levels the crystal"
     );
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&smid::THE_SOUL_CRYSTAL_WAS_NOT_ABLE_TO_ABSORB_THE_SOUL),
         "the failure line is sent"
     );

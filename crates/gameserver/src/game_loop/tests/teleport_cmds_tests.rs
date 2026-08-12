@@ -121,7 +121,10 @@ fn teleporter_charges_fee_and_teleports() {
         &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
     );
     let pkts = drain(&mut rx);
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA)
+    );
     assert!(
         !pkts
             .iter()
@@ -272,7 +275,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     // YOU_USE_S1 ("You use Escape (5-minute).", named by the *client* after
     // skill 2099) reaches the player before the handler's own
     // "You use Escape: 30 seconds." chat line on `Unstuck.java:147`.
-    let sms = sm_ids_of(&pkts);
+    let sms = ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE);
     let use_s1 = sms
         .iter()
         .position(|id| *id == server_packets::sm_ids::YOU_USE_S1)
@@ -369,7 +372,8 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
         "the cast must not have started"
     );
     assert!(
-        !sm_ids_of(&pkts).contains(&server_packets::sm_ids::S1_TEXT),
+        !ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::S1_TEXT),
         "no 'You use Escape' line when the escape was refused"
     );
     assert!(
@@ -398,7 +402,11 @@ fn loc_user_command_reports_region() {
     drain(&mut rx);
     user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(0));
     let pkts = drain(&mut rx);
-    assert_eq!(sm_ids_of(&pkts), vec![924], "region locId is the SM id");
+    assert_eq!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE),
+        vec![924],
+        "region locId is the SM id"
+    );
 
     // Far outside every region tile: the plain-text fallback.
     let mut rx2 = ingame_player(&mut world, 2, 3002, 500_000, 500_000, 0);
@@ -406,7 +414,7 @@ fn loc_user_command_reports_region() {
     user_commands::handle_bypass_user_cmd(&mut world, 2, &user_cmd_body(0));
     let pkts = drain(&mut rx2);
     assert_eq!(
-        sm_ids_of(&pkts),
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE),
         vec![server_packets::sm_ids::CURRENT_LOCATION_S1]
     );
 
@@ -560,7 +568,7 @@ fn a_besieged_destination_is_refused() {
     );
 
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE)
     );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
@@ -593,7 +601,7 @@ fn a_ward_carrier_cannot_teleport() {
     );
 
     assert!(
-        sm_ids_of(&drain(&mut rx))
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD)
     );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();

@@ -72,7 +72,7 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
             &name_body("P3003"),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut rxs[0])).contains(
+    assert!(ids_after_opcode(&drain(&mut rxs[0]), server_packets::opcodes::SYSTEM_MESSAGE).contains(
         &sm_ids::COMMAND_CHANNELS_CAN_ONLY_BE_FORMED_BY_A_PARTY_LEADER_WHO_IS_ALSO_THE_LEADER_OF_A_LEVEL_5_CLAN
     ));
     assert!(drain(&mut rxs[2]).is_empty());
@@ -87,7 +87,7 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
         ),
     );
     assert!(
-        sm_ids_of(&drain(&mut rxs[1]))
+        ids_after_opcode(&drain(&mut rxs[1]), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_DO_NOT_HAVE_AUTHORITY_TO_INVITE_SOMEONE_TO_THE_COMMAND_CHANNEL)
     );
 
@@ -110,7 +110,7 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
         "ExAskJoinMPCC lands on the target party's leader"
     );
     assert!(
-        sm_ids_of(&leader_pkts)
+        ids_after_opcode(&leader_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::C1_IS_INVITING_YOU_TO_A_COMMAND_CHANNEL_DO_YOU_ACCEPT)
     );
     assert!(
@@ -132,7 +132,10 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
     // A's side: formation SM + open window; the joining party's add was
     // announced to the pre-existing channel (party A) via ExMPCCPartyInfoUpdate.
     let a_pkts = drain(&mut rxs[0]);
-    assert!(sm_ids_of(&a_pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_HAS_BEEN_FORMED));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::THE_COMMAND_CHANNEL_HAS_BEEN_FORMED)
+    );
     assert!(a_pkts.iter().any(|p| is_ex(p, opcodes::EX_OPEN_MPCC)));
     assert!(
         a_pkts
@@ -141,7 +144,10 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
     );
     // B's side: joined SM + open window.
     let b_pkts = drain(&mut rxs[2]);
-    assert!(sm_ids_of(&b_pkts).contains(&sm_ids::YOU_HAVE_JOINED_THE_COMMAND_CHANNEL));
+    assert!(
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_HAVE_JOINED_THE_COMMAND_CHANNEL)
+    );
     assert!(b_pkts.iter().any(|p| is_ex(p, opcodes::EX_OPEN_MPCC)));
 
     // Re-inviting an already-channelled party: SM 1594.
@@ -154,7 +160,7 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
         ),
     );
     assert!(
-        sm_ids_of(&drain(&mut rxs[0]))
+        ids_after_opcode(&drain(&mut rxs[0]), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::C1_S_PARTY_IS_ALREADY_A_MEMBER_OF_THE_COMMAND_CHANNEL)
     );
 }
@@ -177,7 +183,10 @@ fn ousting_the_second_party_disbands_the_channel() {
             &name_body("P3001"),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut rxs[2])).contains(&sm_ids::YOUR_TARGET_CANNOT_BE_FOUND));
+    assert!(
+        ids_after_opcode(&drain(&mut rxs[2]), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOUR_TARGET_CANNOT_BE_FOUND)
+    );
     assert_eq!(world.command_channels.len(), 1);
 
     // The CC leader ousts B (named by its member): both parties' windows
@@ -193,9 +202,15 @@ fn ousting_the_second_party_disbands_the_channel() {
     assert!(world.command_channels.is_empty());
     let b_pkts = drain(&mut rxs[3]);
     assert!(b_pkts.iter().any(|p| is_ex(p, opcodes::EX_CLOSE_MPCC)));
-    assert!(sm_ids_of(&b_pkts).contains(&sm_ids::YOU_WERE_DISMISSED_FROM_THE_COMMAND_CHANNEL));
+    assert!(
+        ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_WERE_DISMISSED_FROM_THE_COMMAND_CHANNEL)
+    );
     let a_pkts = drain(&mut rxs[0]);
-    assert!(sm_ids_of(&a_pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_HAS_BEEN_DISBANDED));
+    assert!(
+        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::THE_COMMAND_CHANNEL_HAS_BEEN_DISBANDED)
+    );
     assert!(a_pkts.iter().any(|p| is_ex(p, opcodes::EX_CLOSE_MPCC)));
 }
 
@@ -310,7 +325,7 @@ fn mpcc_room_lifecycle() {
 
     // A channelled non-CC-leader may not use the matching screen.
     on_packet(&mut world, 3, req_party_match_cfg());
-    assert!(sm_ids_of(&drain(&mut rxs[2])).contains(
+    assert!(ids_after_opcode(&drain(&mut rxs[2]), server_packets::opcodes::SYSTEM_MESSAGE).contains(
         &sm_ids::THE_COMMAND_CHANNEL_AFFILIATED_PARTY_S_PARTY_MEMBER_CANNOT_USE_THE_MATCHING_SCREEN
     ));
 
@@ -318,7 +333,8 @@ fn mpcc_room_lifecycle() {
     on_packet(&mut world, 1, req_party_match_cfg());
     let leader_pkts = drain(&mut rxs[0]);
     assert!(
-        sm_ids_of(&leader_pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CREATED)
+        ids_after_opcode(&leader_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CREATED)
     );
     assert!(
         leader_pkts
@@ -401,7 +417,8 @@ fn mpcc_room_lifecycle() {
             .any(|p| is_ex(p, opcodes::EX_MANAGE_PARTY_ROOM_MEMBER))
     );
     assert!(
-        sm_ids_of(&leader_pkts).contains(&sm_ids::C1_ENTERED_THE_COMMAND_CHANNEL_MATCHING_ROOM)
+        ids_after_opcode(&leader_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::C1_ENTERED_THE_COMMAND_CHANNEL_MATCHING_ROOM)
     );
 
     // The member-type rows: leader = 3 (CC leader), solo joiner = 6 (no party).
@@ -420,8 +437,11 @@ fn mpcc_room_lifecycle() {
         ex_packet(cp::ex_opcodes::REQUEST_EX_WITHDRAW_MPCC_ROOM, &[]),
     );
     assert!(
-        sm_ids_of(&drain(&mut solo_rx))
-            .contains(&sm_ids::YOU_EXITED_FROM_THE_COMMAND_CHANNEL_MATCHING_ROOM)
+        ids_after_opcode(
+            &drain(&mut solo_rx),
+            server_packets::opcodes::SYSTEM_MESSAGE
+        )
+        .contains(&sm_ids::YOU_EXITED_FROM_THE_COMMAND_CHANNEL_MATCHING_ROOM)
     );
     assert!(world.matching_rooms.is_waiting(3005));
     drain(&mut rxs[0]);
@@ -433,7 +453,10 @@ fn mpcc_room_lifecycle() {
         ex_packet(cp::ex_opcodes::REQUEST_EX_DISMISS_MPCC_ROOM, &[]),
     );
     let pkts = drain(&mut rxs[0]);
-    assert!(sm_ids_of(&pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CANCELLED));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CANCELLED)
+    );
     assert!(
         pkts.iter()
             .any(|p| is_ex(p, opcodes::EX_DISSMISS_MPCC_ROOM))
@@ -545,7 +568,10 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
         pkts.iter()
             .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL)
     );
-    assert!(sm_ids_of(&pkts).contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1));
+    assert!(
+        ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1)
+    );
     assert!(
         world
             .objects
@@ -590,7 +616,13 @@ fn ordinary_drop_is_killer_protected_for_15s() {
 
     // The stranger is refused while protected…
     ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
-    assert!(sm_ids_of(&drain(&mut stranger_rx)).contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1));
+    assert!(
+        ids_after_opcode(
+            &drain(&mut stranger_rx),
+            server_packets::opcodes::SYSTEM_MESSAGE
+        )
+        .contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1)
+    );
     // …and succeeds once the 15 s lapse.
     advance_ticks(&mut world, 151);
     ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
