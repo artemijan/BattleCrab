@@ -76,38 +76,13 @@ pub(crate) fn on_orfen_spawned(world: &mut World, orfen_oid: i32) {
 /// Java `DISTANCE_CHECK`: dragged more than `LEASH_RANGE` from her spawn, Orfen
 /// drops her hate and walks back — the anti-drag rule.
 pub(crate) fn handle_distance_check(world: &mut World, orfen_oid: i32) {
-    let alive = world
-        .objects
-        .get_component::<Vitals>(&orfen_oid)
-        .is_some_and(|v| !v.dead);
-    if !alive {
-        return; // Java cancels the timer on death
-    }
     let home = world
         .objects
         .get_component::<OrfenState>(&orfen_oid)
         .map(|s| s.home)
         .unwrap_or(HOME);
-    let far = world
-        .objects
-        .get_component::<Position>(&orfen_oid)
-        .is_some_and(|p| {
-            let anchor = Position {
-                x: home.0,
-                y: home.1,
-                z: home.2,
-                heading: 0,
-            };
-            p.distance_2d(&anchor) > LEASH_RANGE
-        });
-    if far {
-        if let Some(a) = world
-            .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&orfen_oid)
-        {
-            a.0.clear();
-        }
-        crate::game_loop::ai::move_npc_to(world, orfen_oid, home.0, home.1, home.2);
+    if !crate::game_loop::grand_boss::leash_to_home(world, orfen_oid, home, LEASH_RANGE) {
+        return; // Java cancels the timer on death
     }
     world.scheduler.schedule(
         world.tick + DISTANCE_TICK_TICKS,

@@ -123,6 +123,46 @@ pub(crate) fn find_spawned(world: &World, npc_id: i32) -> Option<i32> {
     })
 }
 
+/// The body of Java's `DISTANCE_CHECK` timer, shared by the scripts that arm
+/// one (Queen Ant, Orfen): a boss dragged more than `leash` from `home` drops
+/// its hate and walks back — the anti-drag rule.
+///
+/// Returns whether the timer should keep beating: `false` once the boss is
+/// dead, matching Java's `cancelQuestTimer` on death. A boss with no
+/// [`Position`] is *not* treated as far away — it has left the world, and
+/// leashing a ghost would only queue a move for an object that cannot receive
+/// it.
+pub(crate) fn leash_to_home(
+    world: &mut World,
+    boss_oid: i32,
+    home: (i32, i32, i32),
+    leash: f64,
+) -> bool {
+    use crate::model::components::{Position, Vitals};
+
+    let alive = world
+        .objects
+        .get_component::<Vitals>(&boss_oid)
+        .is_some_and(|v| !v.dead);
+    if !alive {
+        return false;
+    }
+    let far = world
+        .objects
+        .get_component::<Position>(&boss_oid)
+        .is_some_and(|p| crate::geo::distance::distance_2d_xy(p.x, p.y, home.0, home.1) > leash);
+    if far {
+        if let Some(aggro) = world
+            .objects
+            .get_component_mut::<crate::model::npc::AggroList>(&boss_oid)
+        {
+            aggro.0.clear();
+        }
+        crate::game_loop::ai::move_npc_to(world, boss_oid, home.0, home.1, home.2);
+    }
+    true
+}
+
 /// A grand boss died: mark it dead, roll the respawn window, persist, and arm
 /// the timer.
 ///

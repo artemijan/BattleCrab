@@ -6,7 +6,7 @@
 //! rotation is the actual fight.
 
 use crate::game_loop::helpers::region_cell_of;
-use crate::model::components::{AdminFlags, Position, Vitals};
+use crate::model::components::{AdminFlags, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -81,39 +81,8 @@ pub(crate) fn on_queen_killed(world: &mut World) {
 /// Java `DISTANCE_CHECK`: dragged more than `LEASH_RANGE` from home, the Queen
 /// drops her hate and walks back — the anti-drag rule.
 pub(crate) fn handle_distance_check(world: &mut World, queen_oid: i32) {
-    let queen_alive = world
-        .objects
-        .get_component::<Vitals>(&queen_oid)
-        .is_some_and(|v| !v.dead);
-    if !queen_alive {
+    if !crate::game_loop::grand_boss::leash_to_home(world, queen_oid, QUEEN_HOME, LEASH_RANGE) {
         return; // Java cancels the timer on death
-    }
-    let far = world
-        .objects
-        .get_component::<Position>(&queen_oid)
-        .is_some_and(|p| {
-            let home = Position {
-                x: QUEEN_HOME.0,
-                y: QUEEN_HOME.1,
-                z: QUEEN_HOME.2,
-                heading: 0,
-            };
-            p.distance_2d(&home) > LEASH_RANGE
-        });
-    if far {
-        if let Some(aggro) = world
-            .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&queen_oid)
-        {
-            aggro.0.clear();
-        }
-        crate::game_loop::ai::move_npc_to(
-            world,
-            queen_oid,
-            QUEEN_HOME.0,
-            QUEEN_HOME.1,
-            QUEEN_HOME.2,
-        );
     }
     world.scheduler.schedule(
         world.tick + DISTANCE_TICK_TICKS,
