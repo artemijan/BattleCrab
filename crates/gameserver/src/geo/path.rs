@@ -335,6 +335,20 @@ impl<'a> CellNodeBuffer<'a> {
         Some(new_idx)
     }
 
+    /// `CellNodeBuffer.isHighWeight` — is the cell beside a neighbour off the
+    /// buffer, impassable, or a step of more than 16 from `z`?
+    ///
+    /// `&mut self` despite the `is_` name, and deliberately so: [`get_node`]
+    /// *creates* the node on first touch, and for the cells one ring out from
+    /// the frontier this probe is usually what touches them first. Nodes are
+    /// keyed by (x, y) alone, while their `nswe` and `geo_height` are resolved
+    /// from whatever `z` created them ([`NodeLoc::new`]) — so a version of this
+    /// that peeked without inserting would leave those cells to be created
+    /// later, from a different `z`, and the search would see different heights
+    /// and exits there. Java allocates here too; the side effect is part of the
+    /// algorithm, not a wart to be borrowed away.
+    ///
+    /// [`get_node`]: Self::get_node
     fn is_high_weight(&mut self, x: i32, y: i32, z: i32) -> bool {
         match self.get_node(x, y, z) {
             None => true,
