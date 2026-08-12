@@ -167,32 +167,9 @@ fn verify(
     Ok(())
 }
 
-/// The most common value of each field across the file.
+/// [`dat_text::modal_fields`] for this table's rows.
 fn modal_fields(lines: &[String]) -> Result<Vec<String>, String> {
-    let mut counts: Vec<std::collections::HashMap<&str, usize>> = vec![Default::default(); FIELDS];
-    let mut rows = 0usize;
-    for line in lines {
-        let fields: Vec<&str> = line.split('\t').collect();
-        if fields.first() != Some(&"msg_begin") || fields.len() != FIELDS {
-            continue;
-        }
-        rows += 1;
-        for (i, value) in fields.iter().enumerate() {
-            *counts[i].entry(value).or_default() += 1;
-        }
-    }
-    if rows == 0 {
-        return Err("no msg_begin rows to derive defaults from".to_string());
-    }
-    Ok(counts
-        .into_iter()
-        .map(|c| {
-            c.into_iter()
-                .max_by_key(|&(_, n)| n)
-                .map(|(v, _)| v.to_string())
-                .unwrap_or_default()
-        })
-        .collect())
+    dat_text::modal_fields(lines, "msg_begin", FIELDS)
 }
 
 /// A record for a message the client has never seen.

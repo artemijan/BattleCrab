@@ -122,6 +122,59 @@ pub fn npc_title(
     title
 }
 
+/// The mask bytes and the two block sizes of a masked `NpcInfoType` packet,
+/// grown together as the components are selected.
+///
+/// Java's `NpcInfo` and `SummonInfo` both call `addComponentType` and then
+/// `calcBlockSize` on every type they set; the two block sizes have to agree
+/// with the mask and with what is actually written, or the client reads the
+/// next NPC's bytes as this one's. Keeping the three in one place is what makes
+/// them agree by construction — [`npc_info`] and [`summon_info`] carried a copy
+/// of the same arithmetic each.
+struct Blocks<'a> {
+    mask_bytes: [u8; 5],
+    /// Block 1: ATTACKABLE, RELATIONS, TITLE.
+    init_size: i32,
+    /// Block 2: everything else.
+    block_size: i32,
+    /// What TITLE writes — the decorated npc title, or a servitor's owner.
+    title: &'a str,
+    /// What NAME writes.
+    name: &'a str,
+}
+
+impl<'a> Blocks<'a> {
+    /// Java `NpcInfo._masks` starts with the two unnamed always-on component
+    /// pairs (0x0C/0x0D and 0x14/0x15) pre-set.
+    fn new(title: &'a str, name: &'a str) -> Self {
+        Self {
+            mask_bytes: [0x00, 0x0C, 0x0C, 0x00, 0x00],
+            init_size: 0,
+            block_size: 0,
+            title,
+            name,
+        }
+    }
+
+    /// `addComponentType` + `calcBlockSize`: ATTACKABLE/RELATIONS/TITLE go in
+    /// block 1, the rest in block 2; the string components add their chars on
+    /// top.
+    fn add(&mut self, ty: NpcInfoType) {
+        use NpcInfoType as T;
+        masks::add_mask(&mut self.mask_bytes, ty.mask());
+        match ty {
+            T::Attackable | T::Relations => self.init_size += ty.block_length(),
+            T::Title => self.init_size += ty.block_length() + self.title.len() as i32 * 2,
+            T::Name => self.block_size += ty.block_length() + self.name.len() as i32 * 2,
+            _ => self.block_size += ty.block_length(),
+        }
+    }
+
+    fn contains(&self, ty: NpcInfoType) -> bool {
+        masks::contains_mask(&self.mask_bytes, ty.mask())
+    }
+}
+
 /// Port of `serverpackets/NpcInfo` (masked, 5 mask bytes / "mask_bits_37").
 /// Component selection follows the Java constructor with the not-yet-modeled
 /// state at its defaults: no summon animation, no water/fly/clone/transform,
@@ -171,55 +224,40 @@ pub fn npc_info(
         None => npc_title(t, cfg, champion_title),
     };
 
-    // Java `NpcInfo._masks` starts with the two unnamed always-on component
-    // pairs (0x0C/0x0D and 0x14/0x15) pre-set.
-    let mut mask_bytes: [u8; 5] = [0x00, 0x0C, 0x0C, 0x00, 0x00];
-    let mut init_size: i32 = 0;
-    let mut block_size: i32 = 0;
-    let mut add = |mask_bytes: &mut [u8; 5], ty: T| {
-        masks::add_mask(mask_bytes, ty.mask());
-        // `calcBlockSize`: ATTACKABLE/RELATIONS/TITLE go in block 1, the rest
-        // in block 2; the string components add their chars on top.
-        match ty {
-            T::Attackable | T::Relations => init_size += ty.block_length(),
-            T::Title => init_size += ty.block_length() + title.len() as i32 * 2,
-            T::Name => block_size += ty.block_length() + t.name.len() as i32 * 2,
-            _ => block_size += ty.block_length(),
-        }
-    };
+    let mut b = Blocks::new(&title, &t.name);
 
-    add(&mut mask_bytes, T::Attackable);
-    add(&mut mask_bytes, T::Relations);
-    add(&mut mask_bytes, T::Id);
-    add(&mut mask_bytes, T::Position);
-    add(&mut mask_bytes, T::StopMode);
-    add(&mut mask_bytes, T::MoveMode);
+    b.add(T::Attackable);
+    b.add(T::Relations);
+    b.add(T::Id);
+    b.add(T::Position);
+    b.add(T::StopMode);
+    b.add(T::MoveMode);
     if pos.heading > 0 {
-        add(&mut mask_bytes, T::Heading);
+        b.add(T::Heading);
     }
     if t.base_p_atk_spd > 0 || t.base_m_atk_spd > 0 {
-        add(&mut mask_bytes, T::AtkCastSpeed);
+        b.add(T::AtkCastSpeed);
     }
     if t.base_run_spd > 0.0 {
-        add(&mut mask_bytes, T::SpeedMultiplier);
+        b.add(T::SpeedMultiplier);
     }
     if t.rhand > 0 || t.lhand > 0 {
-        add(&mut mask_bytes, T::Equipped);
+        b.add(T::Equipped);
     }
     if vitals.max_hp > 0 {
-        add(&mut mask_bytes, T::MaxHp);
+        b.add(T::MaxHp);
     }
     if vitals.max_mp > 0 {
-        add(&mut mask_bytes, T::MaxMp);
+        b.add(T::MaxMp);
     }
     if vitals.cur_hp <= vitals.max_hp as f64 {
-        add(&mut mask_bytes, T::CurrentHp);
+        b.add(T::CurrentHp);
     }
     if vitals.cur_mp <= vitals.max_mp as f64 {
-        add(&mut mask_bytes, T::CurrentMp);
+        b.add(T::CurrentMp);
     }
     if t.server_side_name {
-        add(&mut mask_bytes, T::Name);
+        b.add(T::Name);
     }
     // Java: `isUsingServerSideTitle() || (isMonster() && (SHOW_NPC_LEVEL ||
     // SHOW_NPC_AGGRESSION)) || npc.isChampion() || npc.isTrap()`. The champion
@@ -232,30 +270,30 @@ pub fn npc_info(
         || (t.is_monster() && (cfg.show_npc_level || cfg.show_npc_aggression))
         || is_champion
     {
-        add(&mut mask_bytes, T::Title);
+        b.add(T::Title);
     }
     // Java `if (npc.getEnchantEffect() > 0)` — the weapon glow. Rolled per
     // instance at spawn (`EnableRandomEnchantEffect`), so it rides along on
     // every `NpcInfo` for this NPC's whole life.
     if npc.enchant_effect > 0 {
-        add(&mut mask_bytes, T::Enchant);
+        b.add(T::Enchant);
     }
     // Java `if (npc.getTeam() != Team.NONE)` / `if (npc.getDisplayEffect() > 0)`
     // — the aura and the model's visual state. Both are *stored* on the NPC, so
     // an observer who arrives later still sees them; broadcasting only the
     // change packet would leave them out of sync.
     if team != TEAM_NONE {
-        add(&mut mask_bytes, T::Team);
+        b.add(T::Team);
     }
     if npc.display_effect > 0 {
-        add(&mut mask_bytes, T::DisplayEffect);
+        b.add(T::DisplayEffect);
     }
     // Java `if (npc.getClanId() > 0)` + its non-monster/peace-zone gate —
     // both already resolved into `clan_block` by the caller.
     if clan_block.is_some() {
-        add(&mut mask_bytes, T::Clan);
+        b.add(T::Clan);
     }
-    add(&mut mask_bytes, T::PetEvolutionId);
+    b.add(T::PetEvolutionId);
     // Status mask: 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 show name.
     let mut status_mask = 0u8;
     if t.targetable {
@@ -268,13 +306,11 @@ pub fn npc_info(
     // Declared before VISUAL_STATE because that is the order the blocks are
     // written in below, and the client reads them positionally.
     if !abnormal_visuals.is_empty() {
-        add(&mut mask_bytes, T::Abnormals);
+        b.add(T::Abnormals);
     }
     if status_mask != 0 {
-        add(&mut mask_bytes, T::VisualState);
+        b.add(T::VisualState);
     }
-
-    let contains = |ty: T| masks::contains_mask(&mask_bytes, ty.mask());
 
     // One per NPC entering a player's 3×3 block, so a region crossing sends
     // a burst of them — sized up front.
@@ -283,35 +319,35 @@ pub fn npc_info(
     w.write_i32(npc.object_id);
     w.write_u8(0); // 0=teleported 1=default 2=summoned
     w.write_i16(37); // mask_bits_37
-    w.write_bytes(&mask_bytes);
+    w.write_bytes(&b.mask_bytes);
 
     // Block 1.
-    w.write_u8(init_size as u8);
+    w.write_u8(b.init_size as u8);
     w.write_u8(u8::from(t.is_attackable_class() && t.type_name != "Guard"));
     w.write_i32(0); // relations
-    if contains(T::Title) {
+    if b.contains(T::Title) {
         w.write_string(&title);
     }
 
     // Block 2.
-    w.write_i16(block_size as i16);
+    w.write_i16(b.block_size as i16);
     w.write_i32(t.display_id + 1_000_000);
     w.write_i32(pos.x);
     w.write_i32(pos.y);
     w.write_i32(pos.z);
-    if contains(T::Heading) {
+    if b.contains(T::Heading) {
         w.write_i32(pos.heading);
     }
-    if contains(T::AtkCastSpeed) {
+    if b.contains(T::AtkCastSpeed) {
         w.write_i32(t.base_p_atk_spd);
         w.write_i32(t.base_m_atk_spd);
     }
-    if contains(T::SpeedMultiplier) {
+    if b.contains(T::SpeedMultiplier) {
         // Current speed / template base speed — 1.0 until buffs/AI exist.
         w.write_f32(1.0); // movement speed multiplier
         w.write_f32(1.0); // attack speed multiplier
     }
-    if contains(T::Equipped) {
+    if b.contains(T::Equipped) {
         w.write_i32(t.rhand);
         w.write_i32(0); // armor id (Java writes 0)
         w.write_i32(t.lhand);
@@ -322,44 +358,44 @@ pub fn npc_info(
     // fly state), TEAM, ENCHANT, FLYING, CLONE, PET_EVOLUTION_ID,
     // DISPLAY_EFFECT. The client reads them positionally, so the order matters
     // more than the individual fields.
-    if contains(T::Team) {
+    if b.contains(T::Team) {
         w.write_u8(team);
     }
-    if contains(T::Enchant) {
+    if b.contains(T::Enchant) {
         w.write_i32(npc.enchant_effect);
     }
     w.write_i32(0); // PET_EVOLUTION_ID
-    if contains(T::DisplayEffect) {
+    if b.contains(T::DisplayEffect) {
         w.write_i32(npc.display_effect);
     }
-    if contains(T::CurrentHp) {
+    if b.contains(T::CurrentHp) {
         w.write_i32(vitals.cur_hp as i32);
     }
-    if contains(T::CurrentMp) {
+    if b.contains(T::CurrentMp) {
         w.write_i32(vitals.cur_mp as i32);
     }
-    if contains(T::MaxHp) {
+    if b.contains(T::MaxHp) {
         w.write_i32(vitals.max_hp);
     }
-    if contains(T::MaxMp) {
+    if b.contains(T::MaxMp) {
         w.write_i32(vitals.max_mp);
     }
-    if contains(T::Name) {
+    if b.contains(T::Name) {
         w.write_string(&t.name);
     }
-    if contains(T::Clan) {
+    if b.contains(T::Clan) {
         // clanId, clanCrest, clanLargeCrest, allyId, allyCrest.
         for v in clan_block.unwrap_or_default() {
             w.write_i32(v);
         }
     }
-    if contains(T::Abnormals) {
+    if b.contains(T::Abnormals) {
         w.write_i16(abnormal_visuals.len() as i16);
         for id in abnormal_visuals {
             w.write_i16(*id);
         }
     }
-    if contains(T::VisualState) {
+    if b.contains(T::VisualState) {
         w.write_u8(status_mask);
     }
     w.into_bytes()
@@ -436,59 +472,48 @@ pub fn summon_info(
 ) -> Vec<u8> {
     use NpcInfoType as T;
 
-    let mut mask_bytes: [u8; 5] = [0x00, 0x0C, 0x0C, 0x00, 0x00];
-    let mut init_size: i32 = 0;
-    let mut block_size: i32 = 0;
-    let mut add = |mask_bytes: &mut [u8; 5], ty: T| {
-        masks::add_mask(mask_bytes, ty.mask());
-        match ty {
-            T::Attackable | T::Relations => init_size += ty.block_length(),
-            T::Title => init_size += ty.block_length() + owner_name.len() as i32 * 2,
-            T::Name => block_size += ty.block_length() + t.name.len() as i32 * 2,
-            _ => block_size += ty.block_length(),
-        }
-    };
+    let mut b = Blocks::new(owner_name, &t.name);
 
     // Java's unconditional set for a summon.
-    add(&mut mask_bytes, T::Attackable);
-    add(&mut mask_bytes, T::Relations);
-    add(&mut mask_bytes, T::Title);
-    add(&mut mask_bytes, T::Id);
-    add(&mut mask_bytes, T::Position);
-    add(&mut mask_bytes, T::StopMode);
-    add(&mut mask_bytes, T::MoveMode);
-    add(&mut mask_bytes, T::PvpFlag);
+    b.add(T::Attackable);
+    b.add(T::Relations);
+    b.add(T::Title);
+    b.add(T::Id);
+    b.add(T::Position);
+    b.add(T::StopMode);
+    b.add(T::MoveMode);
+    b.add(T::PvpFlag);
     if t.display_id != t.id {
-        add(&mut mask_bytes, T::Name);
+        b.add(T::Name);
     }
     if pos.heading > 0 {
-        add(&mut mask_bytes, T::Heading);
+        b.add(T::Heading);
     }
     if combat.p_atk_spd > 0 || combat.m_atk_spd > 0 {
-        add(&mut mask_bytes, T::AtkCastSpeed);
+        b.add(T::AtkCastSpeed);
     }
     if speeds.run_spd > 0.0 {
-        add(&mut mask_bytes, T::SpeedMultiplier);
+        b.add(T::SpeedMultiplier);
     }
     if vitals.max_hp > 0 {
-        add(&mut mask_bytes, T::MaxHp);
+        b.add(T::MaxHp);
     }
     if vitals.max_mp > 0 {
-        add(&mut mask_bytes, T::MaxMp);
+        b.add(T::MaxMp);
     }
     if vitals.cur_hp <= vitals.max_hp as f64 {
-        add(&mut mask_bytes, T::CurrentHp);
+        b.add(T::CurrentHp);
     }
     if vitals.cur_mp <= vitals.max_mp as f64 {
-        add(&mut mask_bytes, T::CurrentMp);
+        b.add(T::CurrentMp);
     }
     if summoned {
-        add(&mut mask_bytes, T::Summoned);
+        b.add(T::Summoned);
     }
     if t.weapon_enchant > 0 {
-        add(&mut mask_bytes, T::Enchant);
+        b.add(T::Enchant);
     }
-    add(&mut mask_bytes, T::PetEvolutionId);
+    b.add(T::PetEvolutionId);
     // 0x01 auto-attackable (Java `isBetrayed()`), 0x02 dead, 0x04 targetable,
     // 0x08 always.
     let mut status_mask = 0x08u8;
@@ -501,19 +526,17 @@ pub fn summon_info(
     if t.targetable {
         status_mask |= 0x04;
     }
-    add(&mut mask_bytes, T::VisualState);
-
-    let contains = |ty: T| masks::contains_mask(&mask_bytes, ty.mask());
+    b.add(T::VisualState);
 
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::SUMMON_INFO);
     w.write_i32(object_id);
     w.write_u8(if summoned { 2 } else { 1 }); // 0=teleported 1=default 2=summoned
     w.write_i16(37); // mask_bits_37
-    w.write_bytes(&mask_bytes);
+    w.write_bytes(&b.mask_bytes);
 
     // Block 1.
-    w.write_u8(init_size as u8);
+    w.write_u8(b.init_size as u8);
     // `isAutoAttackable(attacker)` — a servitor is only auto-attackable in a
     // PvP state this port doesn't resolve per-viewer yet, so 0.
     w.write_u8(0);
@@ -521,44 +544,44 @@ pub fn summon_info(
     w.write_string(owner_name);
 
     // Block 2.
-    w.write_i16(block_size as i16);
+    w.write_i16(b.block_size as i16);
     w.write_i32(t.display_id + 1_000_000);
     w.write_i32(pos.x);
     w.write_i32(pos.y);
     w.write_i32(pos.z);
-    if contains(T::Heading) {
+    if b.contains(T::Heading) {
         w.write_i32(pos.heading);
     }
-    if contains(T::AtkCastSpeed) {
+    if b.contains(T::AtkCastSpeed) {
         w.write_i32(combat.p_atk_spd);
         w.write_i32(combat.m_atk_spd);
     }
-    if contains(T::SpeedMultiplier) {
+    if b.contains(T::SpeedMultiplier) {
         w.write_f32(speeds.move_multiplier as f32);
         w.write_f32(1.0);
     }
     w.write_u8(u8::from(!vitals.dead)); // STOP_MODE
     w.write_u8(speeds.running as u8); // MOVE_MODE
-    if contains(T::Enchant) {
+    if b.contains(T::Enchant) {
         w.write_i32(t.weapon_enchant);
     }
     w.write_i32(0); // PET_EVOLUTION_ID
-    if contains(T::CurrentHp) {
+    if b.contains(T::CurrentHp) {
         w.write_i32(vitals.cur_hp as i32);
     }
-    if contains(T::CurrentMp) {
+    if b.contains(T::CurrentMp) {
         w.write_i32(vitals.cur_mp as i32);
     }
-    if contains(T::MaxHp) {
+    if b.contains(T::MaxHp) {
         w.write_i32(vitals.max_hp);
     }
-    if contains(T::MaxMp) {
+    if b.contains(T::MaxMp) {
         w.write_i32(vitals.max_mp);
     }
-    if contains(T::Summoned) {
+    if b.contains(T::Summoned) {
         w.write_u8(2); // "do some animation on spawn"
     }
-    if contains(T::Name) {
+    if b.contains(T::Name) {
         w.write_string(&t.name);
     }
     w.write_u8(0); // PVP_FLAG

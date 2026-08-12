@@ -621,44 +621,9 @@ fn new_row(id: i32, t: &NpcTemplate, defaults: &[String]) -> String {
     fields.join("\t")
 }
 
-/// The most common value of each column, over rows of the most common arity.
-///
-/// The arity is derived rather than assumed: `NpcName` has four columns in
-/// every chronicle this tree ships, but a table that grew a fifth should carry
-/// it through, not be truncated to what this file expected.
+/// [`dat_text::modal_fields`] for this table's rows.
 fn modal_fields(lines: &[String]) -> Result<Vec<String>, String> {
-    let mut arities: HashMap<usize, usize> = HashMap::new();
-    for line in lines {
-        let fields: Vec<&str> = line.split('\t').collect();
-        if fields.first() == Some(&"npc_begin") && fields.len() >= MIN_FIELDS {
-            *arities.entry(fields.len()).or_default() += 1;
-        }
-    }
-    let width = arities
-        .into_iter()
-        .max_by_key(|&(_, n)| n)
-        .map(|(w, _)| w)
-        .ok_or_else(|| "no npc_begin rows to derive defaults from".to_string())?;
-
-    let mut counts: Vec<HashMap<&str, usize>> = vec![HashMap::new(); width];
-    for line in lines {
-        let fields: Vec<&str> = line.split('\t').collect();
-        if fields.first() != Some(&"npc_begin") || fields.len() != width {
-            continue;
-        }
-        for (i, value) in fields.iter().enumerate() {
-            *counts[i].entry(value).or_default() += 1;
-        }
-    }
-    Ok(counts
-        .into_iter()
-        .map(|c| {
-            c.into_iter()
-                .max_by_key(|&(_, n)| n)
-                .map(|(v, _)| v.to_string())
-                .unwrap_or_default()
-        })
-        .collect())
+    dat_text::modal_fields(lines, "npc_begin", MIN_FIELDS)
 }
 
 fn verify(

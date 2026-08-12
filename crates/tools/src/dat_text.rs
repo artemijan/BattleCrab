@@ -561,6 +561,56 @@ pub fn bracket(text: &str) -> String {
     }
 }
 
+/// The most common value of each column of `tag` rows, over the rows of the
+/// most common arity.
+///
+/// This is what an appended row takes for every column the caller does not
+/// model: the file's own habit rather than a value invented here. It keeps the
+/// guess visible too — the values are derived at run time, not baked into a
+/// sync tool.
+///
+/// The arity is derived rather than assumed: `NpcName` has four columns in
+/// every chronicle this tree ships, but a table that grew a fifth should carry
+/// it through, not be truncated to what the caller expected. Rows that are not
+/// `tag` rows, or that are shorter than `min_fields`, are ignored; `Err` when
+/// that leaves nothing to derive from.
+///
+/// Public because both sync tools need it and each carried its own copy.
+pub fn modal_fields(lines: &[String], tag: &str, min_fields: usize) -> Result<Vec<String>, String> {
+    let rows = || {
+        lines.iter().filter_map(move |line| {
+            let fields: Vec<&str> = line.split('\t').collect();
+            (fields.first() == Some(&tag) && fields.len() >= min_fields).then_some(fields)
+        })
+    };
+
+    let mut arities: HashMap<usize, usize> = HashMap::new();
+    for fields in rows() {
+        *arities.entry(fields.len()).or_default() += 1;
+    }
+    let width = arities
+        .into_iter()
+        .max_by_key(|&(_, n)| n)
+        .map(|(w, _)| w)
+        .ok_or_else(|| format!("no {tag} rows to derive defaults from"))?;
+
+    let mut counts: Vec<HashMap<&str, usize>> = vec![HashMap::new(); width];
+    for fields in rows().filter(|fields| fields.len() == width) {
+        for (i, value) in fields.iter().enumerate() {
+            *counts[i].entry(value).or_default() += 1;
+        }
+    }
+    Ok(counts
+        .into_iter()
+        .map(|c| {
+            c.into_iter()
+                .max_by_key(|&(_, n)| n)
+                .map(|(v, _)| v.to_string())
+                .unwrap_or_default()
+        })
+        .collect())
+}
+
 /// Inverse of [`escape_string`].
 pub fn unescape_string(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
