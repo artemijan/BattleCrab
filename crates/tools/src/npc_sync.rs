@@ -143,6 +143,30 @@ pub struct Report {
     pub written: bool,
 }
 
+impl Report {
+    /// An empty report for a run over `file`, holding the two facts known
+    /// before the comparison starts: how many templates are in play, and which
+    /// display ids were dropped as contested. Every other field is a tally the
+    /// run fills in.
+    fn new(file: &str, templates: usize, conflicts: Vec<i32>) -> Self {
+        Self {
+            file: file.to_string(),
+            total_rows: 0,
+            templates,
+            changed: Vec::new(),
+            missing: Vec::new(),
+            orphans: Vec::new(),
+            kept: Vec::new(),
+            skipped_blank: 0,
+            conflicts,
+            server_side_name: 0,
+            server_side_title: 0,
+            files_written: Vec::new(),
+            written: false,
+        }
+    }
+}
+
 /// The client's table, decrypted and rendered as the reader's text.
 struct Table {
     path: std::path::PathBuf,
@@ -206,21 +230,7 @@ pub fn sync_to_client(
     let defaults = modal_fields(&lines)?;
     let (wanted, conflicts) = by_display_id(npcs);
 
-    let mut report = Report {
-        file: name.to_string(),
-        total_rows: 0,
-        templates: wanted.len(),
-        changed: Vec::new(),
-        missing: Vec::new(),
-        orphans: Vec::new(),
-        kept: Vec::new(),
-        skipped_blank: 0,
-        conflicts,
-        server_side_name: 0,
-        server_side_title: 0,
-        files_written: Vec::new(),
-        written: false,
-    };
+    let mut report = Report::new(name, wanted.len(), conflicts);
     let mut seen: HashSet<i32> = HashSet::new();
 
     for line in &mut lines {
@@ -360,21 +370,7 @@ pub fn sync_to_datapack(
     // Keyed the way the client keys it: the row that governs template X is the
     // one for X's display id, so that is the row X's strings come from.
     let (wanted, conflicts) = by_display_id(npcs);
-    let mut report = Report {
-        file: name.to_string(),
-        total_rows: 0,
-        templates: sites.len(),
-        changed: Vec::new(),
-        missing: Vec::new(),
-        orphans: Vec::new(),
-        kept: Vec::new(),
-        skipped_blank: 0,
-        conflicts,
-        server_side_name: 0,
-        server_side_title: 0,
-        files_written: Vec::new(),
-        written: false,
-    };
+    let mut report = Report::new(name, sites.len(), conflicts);
 
     let mut seen: HashSet<i32> = HashSet::new();
     for line in &table.lines {
