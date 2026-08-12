@@ -20,6 +20,7 @@
 use crate::game_loop::bot_report;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_to_client;
@@ -593,11 +594,7 @@ pub(crate) fn apply_skill_effects(
                     let cs = world.objects.get_component::<CombatStats>(&caster_oid);
                     let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
                     let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
-                    let str_bonus = world
-                        .objects
-                        .get_component::<BaseStats>(&caster_oid)
-                        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Str, b.str_))
-                        .unwrap_or(1.0);
+                    let str_bonus = caster_str_bonus(world, caster_oid);
                     (p_atk, caster_level(world, caster_oid), str_bonus, random_dmg, caster_display_name(world, caster_oid))
                 };
                 // Java folds `pDefMod` in *before* the shield add, so the
@@ -767,11 +764,7 @@ pub(crate) fn apply_skill_effects(
             // packets is what the client animates, and the server-side heading
             // change is what makes a subsequent Backstab land.
             SkillEffect::Bluff { chance } => {
-                let is_raid = world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&target_oid)
-                    .and_then(|n| world.data.npc_data.get(n.npc_id))
-                    .is_some_and(|t| t.is_raid())
+                let is_raid = is_raid_npc(world, target_oid)
                     // Java's `isRaidMinion()` is `Monster.onSpawn`'s
                     // `setIsRaidMinion(_master.isRaid())` — a minion inherits
                     // its master's raid immunity. The port tracks the link as
@@ -1291,11 +1284,7 @@ pub(crate) fn apply_skill_effects(
                 chance,
                 static_chance,
             } => {
-                let is_raid = world
-                    .objects
-                    .get_component::<crate::model::npc::Npc>(&target_oid)
-                    .and_then(|n| world.data.npc_data.get(n.npc_id))
-                    .is_some_and(|t| t.is_raid());
+                let is_raid = is_raid_npc(world, target_oid);
                 if caster_oid == target_oid || is_raid {
                     continue;
                 }

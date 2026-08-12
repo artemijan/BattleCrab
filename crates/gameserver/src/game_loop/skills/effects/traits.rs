@@ -23,6 +23,22 @@ pub(crate) fn caster_level(world: &World, oid: i32) -> i32 {
     npc_template(world, oid).map(|t| t.level).unwrap_or(1)
 }
 
+/// The caster's STR bonus for `calcPhysicalSkillCrit`'s `critical_chance ×
+/// STR bonus`. A caster without `BaseStats` (nothing in the dist, but the
+/// component is optional) falls back to the neutral 1.0.
+pub(crate) fn caster_str_bonus(world: &World, oid: i32) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::BaseStats>(&oid)
+        .map(|b| {
+            world
+                .data
+                .stat_bonus
+                .bonus(crate::model::stats::BaseStat::Str, b.str_)
+        })
+        .unwrap_or(1.0)
+}
+
 /// Java `Formulas.calcGeneralTraitBonus(attacker, target, traitType, false)` —
 /// how much a debuff's landing chance is scaled by the target's resistance to
 /// its trait. **The clause order is Java's and is load-bearing:** `NONE` first,

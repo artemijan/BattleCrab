@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
@@ -314,7 +315,7 @@ pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &S
     if !mutes {
         return;
     }
-    let is_raid = npc_template(world, target_oid).is_some_and(|t| t.is_raid());
+    let is_raid = is_raid_npc(world, target_oid);
     if is_raid {
         return;
     }

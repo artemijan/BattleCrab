@@ -30,6 +30,7 @@ use crate::game_loop::guard::{maybe_position, position};
 use crate::game_loop::helpers::hp_fraction;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::pos_of;
 use std::collections::HashSet;
@@ -1759,7 +1760,7 @@ pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bo
         return false;
     }
     if flags & effect_flag::SILENT_MOVE != 0 {
-        let is_raid = npc_template(world, npc_oid).is_some_and(|t| t.is_raid());
+        let is_raid = is_raid_npc(world, npc_oid);
         if !is_raid {
             return false;
         }

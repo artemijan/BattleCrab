@@ -349,6 +349,15 @@ pub(crate) fn npc_template(
         .and_then(|n| n.template(world))
 }
 
+/// Java `Creature.isRaid()` — true only for a `RaidBoss`/`GrandBoss` NPC. A
+/// player, a door, or a plain monster is false, and so is a raid *minion*: Java
+/// tracks that separately as `isRaidMinion()`, which the port answers with
+/// [`crate::game_loop::minions::is_raid_minion`]. Callers that gate on either
+/// (most of the boss-immunity checks) have to ask both.
+pub(crate) fn is_raid_npc(world: &World, object_id: i32) -> bool {
+    npc_template(world, object_id).is_some_and(|t| t.is_raid())
+}
+
 /// An NPC's template name, empty when the object is gone or has no template.
 ///
 /// The NPC counterpart of [`player_name_or_empty`] — the pet/servitor persist

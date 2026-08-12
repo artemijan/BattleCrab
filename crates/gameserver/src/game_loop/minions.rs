@@ -17,6 +17,7 @@
 
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::set_attack_intention;
 use commons::util::rnd;
@@ -208,7 +209,7 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
 /// between the two points (it has not been introduced to any client yet), so
 /// this is the same outcome, including the team aura the roll would have set.
 fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid: i32) {
-    let master_is_raid = npc_template(world, master_oid).is_some_and(|t| t.is_raid());
+    let master_is_raid = is_raid_npc(world, master_oid);
     if !master_is_raid {
         return;
     }
@@ -411,9 +412,5 @@ pub(crate) fn is_raid_minion(world: &World, npc_oid: i32) -> bool {
     let Some(MinionOf(master)) = world.objects.get_component::<MinionOf>(&npc_oid).copied() else {
         return false;
     };
-    world
-        .objects
-        .get_component::<Npc>(&master)
-        .and_then(|n| world.data.npc_data.get(n.npc_id))
-        .is_some_and(|t| t.is_raid())
+    is_raid_npc(world, master)
 }

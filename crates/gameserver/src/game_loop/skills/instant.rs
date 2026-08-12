@@ -8,10 +8,11 @@
 
 use crate::game_loop::guard::target_is_chest;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{absorb_into_hp, client_for_player};
-use crate::model::components::{BaseStats, Buffs, CombatStats, Vitals};
+use crate::model::components::{Buffs, CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -19,7 +20,7 @@ use crate::world::World;
 
 use super::effects::{
     SkillHit, apply_skill_damage, attribute_mod, broadcast_social_action, broadcast_vitals,
-    calc_general_trait_bonus, caster_display_name, caster_level, caster_m_atk,
+    calc_general_trait_bonus, caster_display_name, caster_level, caster_m_atk, caster_str_bonus,
     confuse_chance_passes, creature_level, defence_after_shield, handle_buff_expire,
     max_recoverable, pvp_pve_bonus, roll_magic_failure, send_sm, servitor_owner_of,
     skill_power_mul, skill_trait_mod, target_m_def, target_p_def,
@@ -357,16 +358,7 @@ pub(super) fn blow(
         let cs = world.objects.get_component::<CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
-        let str_bonus = world
-            .objects
-            .get_component::<BaseStats>(&caster_oid)
-            .map(|b| {
-                world
-                    .data
-                    .stat_bonus
-                    .bonus(crate::model::stats::BaseStat::Str, b.str_)
-            })
-            .unwrap_or(1.0);
+        let str_bonus = caster_str_bonus(world, caster_oid);
         // `Stat.BLOW_RATE` (`FatalBlowRate` — Focus Death, Critical
         // Blow, Mortal Strike, Assassination), default 1.0.
         let blow_rate_mod = stat_mul(world, caster_oid, crate::model::stats::Stat::BlowRate);
@@ -505,7 +497,7 @@ pub(super) fn lethal(
     // constructors, and the `NonLethalableNpcs` script sets it on the siege
     // Headquarters. `is_raid()` matches the `GrandBoss` type name as well as
     // `RaidBoss`, so the grand bosses need no separate test.
-    let is_raid = npc_template(world, target_oid).is_some_and(|t| t.is_raid());
+    let is_raid = is_raid_npc(world, target_oid);
     if is_raid
         || world
             .objects
@@ -1101,16 +1093,7 @@ pub(super) fn energy_attack(
             .get_component::<CombatStats>(&caster_oid)
             .map(|c| c.p_atk)
             .unwrap_or(0.0);
-        let str_bonus = world
-            .objects
-            .get_component::<BaseStats>(&caster_oid)
-            .map(|b| {
-                world
-                    .data
-                    .stat_bonus
-                    .bonus(crate::model::stats::BaseStat::Str, b.str_)
-            })
-            .unwrap_or(1.0);
+        let str_bonus = caster_str_bonus(world, caster_oid);
         (
             p_atk,
             caster_level(world, caster_oid),
@@ -1168,11 +1151,7 @@ pub(super) fn hp(world: &mut World, ctx: &CastCtx, amount: f64, percent: bool) {
     let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
         return;
     };
-    let is_raid = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
-        .and_then(|n| world.data.npc_data.get(n.npc_id))
-        .is_some_and(|t| t.is_raid());
+    let is_raid = is_raid_npc(world, target_oid);
     if v.dead
         || is_raid
         || world
