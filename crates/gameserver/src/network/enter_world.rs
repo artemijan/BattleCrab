@@ -12,6 +12,7 @@ use commons::network::PacketWriter;
 use crate::data::GameData;
 use crate::data::item_data::ItemTemplate;
 use crate::enums::InventorySlot;
+use crate::game_loop::weight::total_load;
 use crate::model::Player;
 use crate::model::inventory::ItemInstance;
 use crate::network::masks;
@@ -624,15 +625,7 @@ pub fn ex_user_info_inven_weight(
     data: &GameData,
     max_load: i32,
 ) -> Vec<u8> {
-    let load: i64 = inventory
-        .items()
-        .iter()
-        .map(|item| {
-            data.item_data
-                .get(item.item_id)
-                .map_or(0, |t| t.weight as i64 * item.count)
-        })
-        .sum();
+    let load: i64 = total_load(inventory, data);
     let mut w = ex(0x166);
     w.write_i32(object_id);
     w.write_i32(load as i32);
