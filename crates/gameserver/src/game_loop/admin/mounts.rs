@@ -139,7 +139,7 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
         })
         .map(|p| p.fed);
     start_feed(world, target, inherited);
-    super::transforms::recompute_speeds(world, target);
+    crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     broadcast_ride(world, target, true);
     super::party::broadcast_user_info(world, target);
     // The visual list has to follow *after* the client has rebuilt the actor
@@ -314,7 +314,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
         server_packets::setup_gauge_range(target, GAUGE_GREEN, 0, 0),
     );
     super::transforms::restore_class_collision(world, target);
-    super::transforms::recompute_speeds(world, target);
+    crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     broadcast_ride(world, target, false);
     super::party::broadcast_user_info(world, target);
     // Same on the way down, and this leg is a *fix*, not a port: Java's

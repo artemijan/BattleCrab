@@ -149,18 +149,7 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         }
         // Speeds only — the swamp multiplier is applied inside
         // `recalculate_stats`, so a plain recompute picks it up.
-        if let Some((player, base, mods, inventory, mut speeds, mut combat)) =
-            world.objects.get_many_mut::<(
-                &crate::model::Player,
-                &crate::model::components::BaseStats,
-                &crate::model::components::StatModifiers,
-                &crate::model::inventory::Inventory,
-                &mut Speeds,
-                &mut crate::model::components::CombatStats,
-            )>(&object_id)
-        {
-            player.recalculate_stats(&world.data, base, mods, inventory, &mut speeds, &mut combat);
-        }
+        super::helpers::recalculate_player_stats(world, object_id);
         super::party::broadcast_user_info(world, object_id);
     }
 

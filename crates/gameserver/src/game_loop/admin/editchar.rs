@@ -593,7 +593,7 @@ pub(super) fn admin_setparam(
             &format!("Fixed stat {} has been removed.", args[0]),
         );
     }
-    recompute_combat_stats(world, target);
+    crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     super::party::broadcast_user_info(world, target);
 }
 
@@ -618,26 +618,6 @@ fn stat_from_name(name: &str) -> Option<crate::model::stats::Stat> {
         "walkSpd" => Stat::WalkSpeed,
         _ => return None,
     })
-}
-
-/// Re-run `recalculate_stats` (which folds `StatModifiers.fixed`) and push the
-/// new `CombatStats`/`Speeds` into the entity.
-fn recompute_combat_stats(world: &mut World, target: i32) {
-    use crate::model::components::{BaseStats, CombatStats, Speeds, StatModifiers};
-    use crate::model::inventory::Inventory;
-    let data = &world.data;
-    if let Some((p, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-        &Player,
-        &BaseStats,
-        &StatModifiers,
-        &Inventory,
-        &mut Speeds,
-        &mut CombatStats,
-    )>(&target)
-    {
-        p.recalculate_stats(data, base, mods, inventory, &mut speeds, &mut combat);
-    }
-    crate::game_loop::skills::effects::recompute_max_vitals(world, target);
 }
 
 /// `//remove_clan_penalty create|join <name>` — clear a clan cooldown. Only the

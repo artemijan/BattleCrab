@@ -18,10 +18,7 @@
 use super::mounts::ride_target;
 use crate::game_loop::helpers::nth_arg;
 use crate::model::Player;
-use crate::model::components::{
-    BaseStats, Collision, CombatStats, SkillBook, Speeds, StatModifiers,
-};
-use crate::model::inventory::Inventory;
+use crate::model::components::{Collision, SkillBook};
 use crate::world::World;
 
 use super::{send_message, send_sm};
@@ -212,7 +209,7 @@ pub(crate) fn apply_transform_state(world: &mut World, target: i32, transform_id
             crate::network::enter_world::ex_basic_action_list_ids(&actions),
         );
     }
-    recompute_speeds(world, target);
+    crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
 }
 
 /// Remove a transform: clear the display state, restore the class collision,
@@ -306,27 +303,8 @@ pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
     // can never be left holding a previous transform's action list.
     let default_bar = crate::network::enter_world::ex_basic_action_list(&world.data);
     crate::game_loop::helpers::send_to_player(world, target, default_bar);
-    recompute_speeds(world, target);
+    crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     true
-}
-
-/// Gather the stat components and re-run `recalculate_stats` so the transform
-/// or mount speed override (in `Player::recalculate_stats`) takes effect.
-/// Shared with the mount module (`mounts.rs`).
-pub(super) fn recompute_speeds(world: &mut World, target: i32) {
-    let data = &world.data;
-    if let Some((p, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-        &Player,
-        &BaseStats,
-        &StatModifiers,
-        &Inventory,
-        &mut Speeds,
-        &mut CombatStats,
-    )>(&target)
-    {
-        p.recalculate_stats(data, base, mods, inventory, &mut speeds, &mut combat);
-    }
-    crate::game_loop::skills::effects::recompute_max_vitals(world, target);
 }
 
 /// Broadcast the transform change: UserInfo to self + CharInfo to nearby (via

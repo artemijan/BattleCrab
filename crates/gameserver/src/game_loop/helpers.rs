@@ -306,6 +306,41 @@ pub(crate) fn restore_hp_mp(world: &mut World, object_id: i32) {
     }
 }
 
+/// Re-run [`Player::recalculate_stats`] for a player, folding the current
+/// `BaseStats`/`StatModifiers`/paperdoll into `Speeds` + `CombatStats`.
+///
+/// No-op for anything that isn't a player with the full stat component set
+/// (NPCs recompute through `recompute_npc_stats_from_buffs` instead).
+///
+/// Callers that mutate one of the inputs (`StatModifiers`, `BaseStats`) have to
+/// do that in their own borrow *before* calling this; the recompute reads them
+/// back through a fresh lookup.
+pub(crate) fn recalculate_player_stats(world: &mut World, object_id: i32) {
+    use crate::model::components::{BaseStats, CombatStats, Speeds};
+    if let Some((p, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
+        &Player,
+        &BaseStats,
+        &StatModifiers,
+        &Inventory,
+        &mut Speeds,
+        &mut CombatStats,
+    )>(&object_id)
+    {
+        p.recalculate_stats(&world.data, base, mods, inventory, &mut speeds, &mut combat);
+    }
+}
+
+/// [`recalculate_player_stats`] plus the max HP/MP/CP pass, which Java runs
+/// inside the same `recalculateStats` but which lives on a separate path here
+/// (`Vitals`/`PlayerVitals` aren't touched by `recalculate_stats`).
+///
+/// This is the one to call after anything that can move both the combat stats
+/// and the vitals caps — transform/mount speed overrides, `//set` stat edits.
+pub(crate) fn recalculate_player_stats_and_vitals(world: &mut World, object_id: i32) {
+    recalculate_player_stats(world, object_id);
+    crate::game_loop::skills::effects::recompute_max_vitals(world, object_id);
+}
+
 pub(crate) fn send_inventory_item_list(world: &World, player: i32) {
     if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
         send_to_player(
