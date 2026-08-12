@@ -48,7 +48,13 @@ pub(crate) fn player_of(world: &World, client_id: u32) -> Option<i32> {
         _ => None,
     }
 }
-
+pub(crate) fn set_npc_title(world: &mut World, npc_oid: i32, name: String) {
+    // `npc.setTitle(npcTemplate.getName())` — a plain summon wears its own
+    // name as its title (the name itself already defaults to the template's).
+    if let Some(npc) = world.objects.get_component_mut::<Npc>(&npc_oid) {
+        npc.title_override = Some(name);
+    }
+}
 /// The world coordinates of any object carrying a [`Position`], or `None` if
 /// it has despawned.
 ///

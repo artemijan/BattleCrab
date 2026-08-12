@@ -5,8 +5,8 @@
 //! `model/actor/instance/EffectPoint.java` (the fixed-rate `union_skill` cast
 //! task + the despawn schedule); both halves live here.
 
-use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{npc_template, set_npc_title};
 use crate::model::components::{SummonerRef, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -42,12 +42,8 @@ pub(crate) fn spawn_effect_point(
         .objects
         .get_component::<crate::model::Player>(&owner_oid)
         .map(|p| p.name.clone());
-    if let Some(name) = owner_name
-        && let Some(npc) = world
-            .objects
-            .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
-    {
-        npc.title_override = Some(name);
+    if let Some(name) = owner_name {
+        set_npc_title(world, npc_oid, name);
     }
 
     let Some(template) = world.data.npc_data.get(npc_id) else {
@@ -122,12 +118,8 @@ pub(crate) fn spawn_plain_summon(
     // `npc.setTitle(npcTemplate.getName())` — a plain summon wears its own
     // name as its title (the name itself already defaults to the template's).
     let template_name = world.data.npc_data.get(npc_id).map(|t| t.name.clone());
-    if let Some(name) = template_name
-        && let Some(npc) = world
-            .objects
-            .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
-    {
-        npc.title_override = Some(name);
+    if let Some(name) = template_name {
+        set_npc_title(world, npc_id, name);
     }
     if despawn_ms > 0 {
         world.scheduler.schedule(
