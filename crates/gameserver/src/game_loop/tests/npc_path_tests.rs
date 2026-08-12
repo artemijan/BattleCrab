@@ -48,15 +48,6 @@ fn path_world() -> (World, std::sync::mpsc::Receiver<PathRequest>, i32) {
     );
     (world, rx, NPC_OID)
 }
-
-fn requests(rx: &std::sync::mpsc::Receiver<PathRequest>) -> Vec<PathRequest> {
-    let mut out = Vec::new();
-    while let Ok(r) = rx.try_recv() {
-        out.push(r);
-    }
-    out
-}
-
 // ---------------------------------------------------------------------------
 
 #[test]

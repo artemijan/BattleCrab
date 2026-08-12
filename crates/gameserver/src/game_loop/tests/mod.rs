@@ -19,6 +19,7 @@ use crate::db::DbEvent;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::npc::ai;
 use crate::game_loop::{apply_due_tasks, combat, items, visibility, zones};
+use crate::geo::worker::PathRequest;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::clan::Clan;
 use crate::model::components::Friends;
@@ -1112,6 +1113,15 @@ fn drain(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Vec<Vec<u8>> {
     }
     out
 }
+
+fn requests(rx: &std::sync::mpsc::Receiver<PathRequest>) -> Vec<PathRequest> {
+    let mut out = Vec::new();
+    while let Ok(r) = rx.try_recv() {
+        out.push(r);
+    }
+    out
+}
+
 fn test_stat_modifier_effect() -> model::skill::StatModifierEffect {
     model::skill::StatModifierEffect {
         stat: Stat::PhysicalAttack,

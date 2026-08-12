@@ -9,6 +9,7 @@
 //! monster teleports back to its spawn.
 
 use super::*;
+use crate::data::npc_data::AiType;
 
 use crate::geo::worker::PathRequest;
 use crate::geo::{NSWE_ALL, NSWE_EAST};
@@ -92,14 +93,6 @@ fn observe_paths(world: &mut World) -> std::sync::mpsc::Receiver<PathRequest> {
     rx
 }
 
-fn requests(rx: &std::sync::mpsc::Receiver<PathRequest>) -> Vec<PathRequest> {
-    let mut out = Vec::new();
-    while let Ok(r) = rx.try_recv() {
-        out.push(r);
-    }
-    out
-}
-
 // ---------------------------------------------------------------------------
 
 /// `World.forEachVisibleObjectInRange` measures in 3D: a player 380 units
@@ -152,7 +145,7 @@ fn a_mob_refuses_to_engage_a_target_it_cannot_see() {
         10,
         crate::geo::synthetic_region(crate::geo::wall_column),
     );
-    let engine = std::sync::Arc::new(engine);
+    let engine = Arc::new(engine);
     world.geo = engine.clone();
     let prx = observe_paths(&mut world);
 
@@ -212,7 +205,7 @@ fn a_chase_with_sight_but_no_walkable_line_asks_for_a_route() {
             }
         }),
     );
-    let engine = std::sync::Arc::new(engine);
+    let engine = Arc::new(engine);
     world.geo = engine.clone();
     let prx = observe_paths(&mut world);
 
@@ -256,7 +249,7 @@ fn a_tower_mob_neither_aggros_nor_glides_to_the_floor_above() {
     // Wide range so the 3D sphere covers the player and geodata LOS is the
     // deciding gate.
     aggressive_template(&mut world, 1000);
-    let geo = std::sync::Arc::new(crate::geo::GeoEngine::load(std::path::Path::new(concat!(
+    let geo = Arc::new(crate::geo::GeoEngine::load(std::path::Path::new(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/data/geodata"
     ))));
@@ -375,7 +368,7 @@ fn a_timed_out_fighting_monster_teleports_home() {
     // (1500), so the timeout branch (not the leash) is what fires here.
     world
         .objects
-        .get_component_mut::<crate::model::npc::Npc>(&NPC_OID)
+        .get_component_mut::<model::npc::Npc>(&NPC_OID)
         .unwrap()
         .spawn_loc = (800, 800, 0);
     force_attack(&mut world, NPC_OID, PLAYER);
@@ -417,7 +410,7 @@ fn a_timed_out_idle_monster_with_company_stays_put() {
     add_test_npc(&mut world, NPC_OID, MOB_ID, "Monster", 20, 0, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::npc::Npc>(&NPC_OID)
+        .get_component_mut::<model::npc::Npc>(&NPC_OID)
         .unwrap()
         .spawn_loc = (800, 800, 0);
     force_attack(&mut world, NPC_OID, PLAYER);
@@ -438,7 +431,12 @@ fn a_timed_out_idle_monster_with_company_stays_put() {
     );
     assert_eq!(intention(&world, NPC_OID), NpcIntention::Active);
 }
-
+fn test_ai_type(world: &mut World, ai_type: AiType) {
+    let mut t = world.data.npc_data.get(MOB_ID).unwrap().clone();
+    t.ai_type = ai_type;
+    t.base_atk_range = 40;
+    world.data.npc_data.insert_for_test(t);
+}
 /// `thinkAttack`'s archer range override: `if (npc.getAiType() == AIType.ARCHER)
 /// range = 850 + combinedCollision`.
 ///
@@ -450,12 +448,7 @@ fn a_timed_out_idle_monster_with_company_stays_put() {
 fn an_archer_mob_shoots_from_bow_range_instead_of_closing() {
     let (mut world, _db, _l) = combat_test_world();
     aggressive_template(&mut world, 300);
-    {
-        let mut t = world.data.npc_data.get(MOB_ID).unwrap().clone();
-        t.ai_type = crate::data::npc_data::AiType::Archer;
-        t.base_atk_range = 40;
-        world.data.npc_data.insert_for_test(t);
-    }
+    test_ai_type(&mut world, AiType::Archer);
     // 400 units: far outside the 40-unit melee reach, well inside 850.
     let mut rx = ingame_player(&mut world, CID, PLAYER, 400, 0, 0);
     add_test_npc(&mut world, NPC_OID, MOB_ID, "Monster", 20, 0, 0, 0);
@@ -480,12 +473,7 @@ fn an_archer_mob_shoots_from_bow_range_instead_of_closing() {
 fn a_melee_mob_at_the_same_distance_closes_first() {
     let (mut world, _db, _l) = combat_test_world();
     aggressive_template(&mut world, 300);
-    {
-        let mut t = world.data.npc_data.get(MOB_ID).unwrap().clone();
-        t.ai_type = crate::data::npc_data::AiType::Fighter;
-        t.base_atk_range = 40;
-        world.data.npc_data.insert_for_test(t);
-    }
+    test_ai_type(&mut world, AiType::Fighter);
     let mut rx = ingame_player(&mut world, CID, PLAYER, 400, 0, 0);
     add_test_npc(&mut world, NPC_OID, MOB_ID, "Monster", 20, 0, 0, 0);
     force_attack(&mut world, NPC_OID, PLAYER);
