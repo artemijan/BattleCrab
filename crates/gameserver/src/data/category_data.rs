@@ -3,9 +3,9 @@
 //! `player.isInCategory(CategoryType.X)` checks (the village-master
 //! class-transfer gates are the first consumer).
 
+use crate::data::xml;
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -24,10 +24,9 @@ impl CategoryData {
     pub fn load_from(file_path: &str) -> Self {
         let mut by_name: HashMap<String, HashSet<i32>> = HashMap::new();
         if let Ok(content) = std::fs::read_to_string(format!("{file_path}{CATEGORY_FILE}")) {
-            let mut reader = Reader::from_str(&content);
             let mut current: Option<String> = None;
             let mut in_id = false;
-            while let Ok(event) = reader.read_event() {
+            for event in xml::events(&content) {
                 match event {
                     Event::Start(e) => match e.name().as_ref() {
                         b"category" => {
@@ -55,7 +54,6 @@ impl CategoryData {
                         b"id" => in_id = false,
                         _ => {}
                     },
-                    Event::Eof => break,
                     _ => {}
                 }
             }

@@ -5,8 +5,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::{attr_i32_trimmed as attr_i32, attr_str};
-use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
 use tracing::info;
 
@@ -131,7 +131,6 @@ fn collect_xml(dir: &str, out: &mut Vec<std::path::PathBuf>) {
 }
 
 fn parse(content: &str) -> Option<InstanceTemplate> {
-    let mut reader = Reader::from_str(content);
     let mut id = None;
     let mut name = None;
     let mut max_worlds = -1;
@@ -145,7 +144,7 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
     let mut in_enter = false;
     let mut in_exit = false;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
                 handle_open(
@@ -173,7 +172,6 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
                 }
                 _ => {}
             },
-            Event::Eof => break,
             _ => {}
         }
     }

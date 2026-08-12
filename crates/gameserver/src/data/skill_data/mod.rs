@@ -26,7 +26,6 @@
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 

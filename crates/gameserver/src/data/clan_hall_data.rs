@@ -5,6 +5,7 @@ use std::collections::HashMap;
 
 use quick_xml::events::Event;
 
+use crate::data::xml;
 use crate::data::xml::attr_str as attr;
 use crate::data::xml::{attr_i32, attr_i64};
 use crate::model::clan_hall::{ClanHall, ClanHallGrade, ClanHallType};
@@ -53,13 +54,10 @@ fn point(e: &quick_xml::events::BytesStart) -> (i32, i32, i32) {
 }
 
 fn parse_file(content: &str, out: &mut HashMap<i32, ClanHall>) {
-    let mut reader = quick_xml::Reader::from_str(content);
-    reader.config_mut().trim_text(true);
     let mut current: Option<ClanHall> = None;
-    loop {
-        match reader.read_event() {
-            Ok(Event::Eof) | Err(_) => break,
-            Ok(Event::Start(e)) if e.name().as_ref() == b"clanHall" => {
+    for event in xml::events_trimmed(content) {
+        match event {
+            Event::Start(e) if e.name().as_ref() == b"clanHall" => {
                 current = Some(ClanHall {
                     id: attr_i32(&e, b"id").unwrap_or(0),
                     name: attr(&e, b"name").unwrap_or_default(),
@@ -76,12 +74,12 @@ fn parse_file(content: &str, out: &mut HashMap<i32, ClanHall>) {
                     paid_until: 0,
                 });
             }
-            Ok(Event::End(e)) if e.name().as_ref() == b"clanHall" => {
+            Event::End(e) if e.name().as_ref() == b"clanHall" => {
                 if let Some(hall) = current.take() {
                     out.insert(hall.id, hall);
                 }
             }
-            Ok(Event::Empty(e)) | Ok(Event::Start(e)) => {
+            Event::Empty(e) | Event::Start(e) => {
                 let Some(hall) = current.as_mut() else {
                     continue;
                 };

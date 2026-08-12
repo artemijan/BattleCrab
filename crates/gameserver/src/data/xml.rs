@@ -17,8 +17,46 @@
 //! not any more: every one of its call sites either parses a number or compares
 //! against a literal, so strict and lossy cannot produce different answers.
 
-use quick_xml::events::BytesStart;
+use quick_xml::Reader;
+use quick_xml::events::{BytesStart, Event};
 use std::path::{Path, PathBuf};
+
+/// Every event in `content`, stopping at `Eof` **and at the first parse error**.
+///
+/// The loop body each loader used to open with: build a `Reader`, pump
+/// `read_event()`, break on `Eof`, break on `Err`. Written out ~40 times in
+/// four spellings — `while let Ok(event) =`, `match … { Ok(e) => e, Err(_) =>
+/// break }`, and two flavours of matching the `Result` arm-by-arm — all with
+/// the same meaning, which is why they are one iterator now. Yielding only the
+/// events lets a caller keep its `match` (and its `continue`) exactly as it was,
+/// minus the two arms that were never about the data.
+///
+/// Swallowing the error is the ported behaviour, not an oversight: a datapack
+/// file that goes malformed halfway keeps whatever it declared up to that point,
+/// so one bad edit costs the entries after it rather than the whole file. The
+/// two loaders that would rather die — `experience` and `stat_bonus`, whose
+/// tables the formulas cannot run without — panic in their own `Err` arm and so
+/// keep their own loop.
+pub(crate) fn events(content: &str) -> impl Iterator<Item = Event<'_>> {
+    events_with(content, false)
+}
+
+/// [`events`] with `trim_text(true)`: the text events arrive stripped of the
+/// indentation around them, and whitespace-only ones are dropped entirely. What
+/// the loaders that read element *text* (`<classId>44</classId>`) want, and
+/// nothing the attribute-only ones would notice.
+pub(crate) fn events_trimmed(content: &str) -> impl Iterator<Item = Event<'_>> {
+    events_with(content, true)
+}
+
+fn events_with(content: &str, trim_text: bool) -> impl Iterator<Item = Event<'_>> {
+    let mut reader = Reader::from_str(content);
+    reader.config_mut().trim_text(trim_text);
+    std::iter::from_fn(move || match reader.read_event() {
+        Ok(Event::Eof) | Err(_) => None,
+        Ok(event) => Some(event),
+    })
+}
 
 /// Every `.xml` file directly inside `dir`, **sorted by path**.
 ///

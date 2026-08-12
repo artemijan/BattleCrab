@@ -5,9 +5,9 @@
 //! the feature is genuinely reachable rather than an off-chronicle leftover
 //! (the rest are later-chronicle ISS buffs a character here cannot know).
 
+use crate::data::xml;
 use std::collections::HashSet;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -24,11 +24,10 @@ impl SellBuffData {
         let Ok(content) = std::fs::read_to_string(&path) else {
             return Self::default();
         };
-        let mut reader = Reader::from_str(&content);
         let mut allowed = HashSet::new();
-        loop {
-            match reader.read_event() {
-                Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"skill" => {
+        for event in xml::events(&content) {
+            match event {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"skill" => {
                     if let Some(id) = e
                         .attributes()
                         .flatten()
@@ -38,7 +37,6 @@ impl SellBuffData {
                         allowed.insert(id);
                     }
                 }
-                Ok(Event::Eof) | Err(_) => break,
                 _ => {}
             }
         }

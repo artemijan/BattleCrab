@@ -7,8 +7,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
@@ -131,13 +131,8 @@ impl FishingData {
     }
 
     fn parse(&mut self, content: &str) {
-        let mut reader = Reader::from_str(content);
         let mut cur_bait: Option<(i32, FishingBait)> = None;
-        loop {
-            let ev = match reader.read_event() {
-                Ok(e) => e,
-                Err(_) => break,
-            };
+        for ev in xml::events(content) {
             match ev {
                 Event::Start(e) | Event::Empty(e) => {
                     let attr = |key: &[u8]| attr_str(&e, key);
@@ -212,7 +207,6 @@ impl FishingData {
                         self.baits.insert(id, bait);
                     }
                 }
-                Event::Eof => break,
                 _ => {}
             }
         }

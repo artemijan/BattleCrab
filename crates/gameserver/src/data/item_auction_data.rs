@@ -5,8 +5,8 @@
 //! commented out, so it loads empty; the engine exists so an operator can add
 //! auctions (`AltItemAuctionEnabled` is already `True`).
 
+use crate::data::xml;
 use crate::data::xml::attr_i32_trimmed as attr_i32;
-use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
 use tracing::info;
 
@@ -97,12 +97,11 @@ impl ItemAuctionData {
 
 /// Parse `<list><instance …><item …><extra …/></item></instance></list>`.
 fn parse(content: &str) -> Vec<AuctionInstanceCfg> {
-    let mut reader = Reader::from_str(content);
     let mut out = Vec::new();
     let mut cur: Option<AuctionInstanceCfg> = None;
-    loop {
-        match reader.read_event() {
-            Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
+    for event in xml::events(content) {
+        match event {
+            Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
                 b"instance" => {
                     if let Some(cfg) = parse_instance(&e) {
                         cur = Some(cfg);
@@ -123,7 +122,7 @@ fn parse(content: &str) -> Vec<AuctionInstanceCfg> {
                 }
                 _ => {}
             },
-            Ok(Event::End(e)) if e.name().as_ref() == b"instance" => {
+            Event::End(e) if e.name().as_ref() == b"instance" => {
                 // Java drops an instance with no items ("No items defined").
                 if let Some(cfg) = cur.take()
                     && !cfg.items.is_empty()
@@ -131,8 +130,6 @@ fn parse(content: &str) -> Vec<AuctionInstanceCfg> {
                     out.push(cfg);
                 }
             }
-            Ok(Event::Eof) => break,
-            Err(_) => break,
             _ => {}
         }
     }

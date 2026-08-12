@@ -5,8 +5,8 @@
 //! plumbing, thrones need castles — both G14+). The `texture`/`map_x/y`
 //! attributes only feed that click behavior, so they are not stored.
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -38,11 +38,9 @@ impl StaticObjectData {
     pub fn load_from(file_path: &str) -> Self {
         let mut objects = Vec::new();
         if let Ok(content) = std::fs::read_to_string(format!("{file_path}{STATIC_OBJECT_FILE}")) {
-            let mut reader = Reader::from_str(&content);
-            while let Ok(event) = reader.read_event() {
+            for event in xml::events(&content) {
                 let e = match event {
                     Event::Start(e) | Event::Empty(e) => e,
-                    Event::Eof => break,
                     _ => continue,
                 };
                 if e.name().as_ref() != b"object" {

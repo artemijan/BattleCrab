@@ -804,6 +804,20 @@ fn fail(world: &World, client_id: u32) -> Option<i32> {
     None
 }
 
+/// The `(manorId, count)` header every batched manor packet opens with, with
+/// Java's `if ((count < 1) || (count > MAX) || ((count * BATCH) != available))`
+/// sanity check folded in: a count that doesn't match the bytes actually on the
+/// wire is a hand-built packet, and reading it would either truncate the batch
+/// or spin allocating 2³¹ empty lines.
+fn read_batch_header(r: &mut PacketReader, batch: usize) -> Option<(i32, i32)> {
+    /// Java `Config.ALT_MANOR_MAX_ITEMS` / the client's own list cap.
+    const MAX_LINES: i32 = 1000;
+
+    let (manor_id, count) = (r.read_i32()?, r.read_i32()?);
+    (count > 0 && count <= MAX_LINES && r.remaining() == count as usize * batch)
+        .then_some((manor_id, count))
+}
+
 /// Port of `clientpackets/RequestSetSeed` — the owner submits the next-period
 /// seed setup. Reads `manorId, count, [seedId, sales, price]*`; keeps only known
 /// seeds within their limit/price band; replaces the castle's next-period seed
@@ -811,12 +825,9 @@ fn fail(world: &World, client_id: u32) -> Option<i32> {
 pub(crate) fn handle_request_set_seed(world: &mut World, client_id: u32, body: &[u8]) {
     const BATCH: usize = 4 + 8 + 8; // seedId + sales + price
     let mut r = PacketReader::new(body);
-    let (Some(manor_id), Some(count)) = (r.read_i32(), r.read_i32()) else {
+    let Some((manor_id, count)) = read_batch_header(&mut r, BATCH) else {
         return;
     };
-    if count <= 0 || count > 1000 || r.remaining() != count as usize * BATCH {
-        return;
-    }
     let mut items = Vec::with_capacity(count as usize);
     for _ in 0..count {
         let (Some(item_id), Some(sales), Some(price)) = (r.read_i32(), r.read_i64(), r.read_i64())
@@ -865,12 +876,9 @@ pub(crate) fn handle_request_set_seed(world: &mut World, client_id: u32, body: &
 pub(crate) fn handle_request_set_crop(world: &mut World, client_id: u32, body: &[u8]) {
     const BATCH: usize = 4 + 8 + 8 + 1; // cropId + sales + price + type
     let mut r = PacketReader::new(body);
-    let (Some(manor_id), Some(count)) = (r.read_i32(), r.read_i32()) else {
+    let Some((manor_id, count)) = read_batch_header(&mut r, BATCH) else {
         return;
     };
-    if count <= 0 || count > 1000 || r.remaining() != count as usize * BATCH {
-        return;
-    }
     let mut items = Vec::with_capacity(count as usize);
     for _ in 0..count {
         let (Some(item_id), Some(sales), Some(price), Some(reward_type)) =
@@ -943,12 +951,9 @@ fn manor_manager_castle(world: &World, player_oid: i32) -> Option<i32> {
 pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &[u8]) {
     const BATCH: usize = 4 + 8; // itemId + count
     let mut r = PacketReader::new(body);
-    let (Some(manor_id), Some(count)) = (r.read_i32(), r.read_i32()) else {
+    let Some((manor_id, count)) = read_batch_header(&mut r, BATCH) else {
         return;
     };
-    if count <= 0 || count > 1000 || r.remaining() != count as usize * BATCH {
-        return;
-    }
     let mut items = Vec::with_capacity(count as usize);
     for _ in 0..count {
         let (Some(item_id), Some(cnt)) = (r.read_i32(), r.read_i64()) else {

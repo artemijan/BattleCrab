@@ -8,8 +8,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
@@ -126,16 +126,11 @@ impl SoulCrystalData {
     }
 
     fn parse(&mut self, content: &str) {
-        let mut reader = Reader::from_str(content);
         // Which section we are inside (`<item>` means different things in each).
         let mut in_npc_section = false;
         // The npc id of the `<item>` currently open in the npc section.
         let mut cur_npc: Option<i32> = None;
-        loop {
-            let event = match reader.read_event() {
-                Ok(e) => e,
-                Err(_) => break,
-            };
+        for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => {
                     let attr = |key: &[u8]| attr_str(&e, key);
@@ -194,7 +189,6 @@ impl SoulCrystalData {
                         cur_npc = None;
                     }
                 }
-                Event::Eof => break,
                 _ => {}
             }
         }

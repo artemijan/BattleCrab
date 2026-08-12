@@ -522,18 +522,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     let count = pkt.count;
 
     // Unequip first if worn (Java unequips before the drop, with its own update).
-    if world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some())
-    {
-        let changed = world
-            .objects
-            .get_component_mut::<Inventory>(&player_oid)
-            .map(|inv| inv.unequip_item(pkt.object_id))
-            .unwrap_or_default();
-        super::items::finish_equip_change(world, client_id, player_oid, &changed);
-    }
+    super::items::unequip_if_worn(world, client_id, player_oid, pkt.object_id);
 
     let Some(change) = world
         .objects

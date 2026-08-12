@@ -7,17 +7,11 @@
 
 use commons::network::PacketWriter;
 
+use super::ex;
 use super::opcodes;
 use crate::data::item_data::ItemTemplate;
 use crate::model::inventory::ItemInstance;
 use crate::network::enter_world::write_item_entry;
-
-fn ex(sub: i16) -> PacketWriter {
-    let mut w = PacketWriter::new();
-    w.write_u8(opcodes::EX);
-    w.write_i16(sub);
-    w
-}
 
 /// Java `RequestSendPost.MESSAGE_FEE` — the flat adena cost of sending mail.
 pub const MESSAGE_FEE: i64 = 100;

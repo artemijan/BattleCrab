@@ -10,10 +10,10 @@
 
 use std::collections::HashMap;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
 use crate::model::stats::BaseStat;
 
@@ -141,13 +141,8 @@ impl HennaData {
     }
 
     fn parse(&mut self, content: &str) {
-        let mut reader = Reader::from_str(content);
         let mut cur: Option<Henna> = None;
-        loop {
-            let event = match reader.read_event() {
-                Ok(e) => e,
-                Err(_) => break,
-            };
+        for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => {
                     let attr = |key: &[u8]| attr_str(&e, key);
@@ -216,7 +211,6 @@ impl HennaData {
                         self.hennas.insert(h.dye_id, h);
                     }
                 }
-                Event::Eof => break,
                 _ => {}
             }
         }

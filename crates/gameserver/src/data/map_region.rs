@@ -16,13 +16,13 @@
 
 use std::collections::HashMap;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
 use crate::enums::Race;
 
 use super::spawn_data::Territory;
+use crate::data::xml;
 use crate::data::xml::attr_str;
 
 pub const MAPREGION_DIR: &str = "data/mapregion";
@@ -195,10 +195,9 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
     let mut cur: Option<MapRegion> = None;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
@@ -209,7 +208,6 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
                 }
                 continue;
             }
-            Event::Eof => break,
             _ => continue,
         };
         let attr = |key: &[u8]| attr_str(&e, key);
@@ -259,7 +257,6 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
     let Ok(content) = std::fs::read_to_string(path) else {
         return out;
     };
-    let mut reader = Reader::from_str(&content);
 
     struct Pending {
         name: String,
@@ -274,7 +271,7 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
     }
     let mut cur: Option<Pending> = None;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
@@ -296,7 +293,6 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
                 }
                 continue;
             }
-            Event::Eof => break,
             _ => continue,
         };
         let attr = |key: &[u8]| attr_str(&e, key);

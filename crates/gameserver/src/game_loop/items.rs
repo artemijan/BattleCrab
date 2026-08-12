@@ -499,18 +499,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     let count = pkt.count.min(held);
 
     // Unequip first if it's worn (Java unequips, sending its own InventoryUpdate).
-    if world
-        .objects
-        .get_component::<Inventory>(&object_id)
-        .is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some())
-    {
-        let changed = world
-            .objects
-            .get_component_mut::<Inventory>(&object_id)
-            .map(|inv| inv.unequip_item(pkt.object_id))
-            .unwrap_or_default();
-        finish_equip_change(world, client_id, object_id, &changed);
-    }
+    unequip_if_worn(world, client_id, object_id, pkt.object_id);
 
     // `if (itemToRemove.getTemplate().isPetItem())` — destroying a collar
     // destroys the pet bound to it: unsummon it if it's out, then drop the
@@ -640,18 +629,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     let count = pkt.count.min(held);
 
     // Unequip first if worn, then destroy, then award the crystals.
-    if world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some())
-    {
-        let changed = world
-            .objects
-            .get_component_mut::<Inventory>(&player_oid)
-            .map(|inv| inv.unequip_item(pkt.object_id))
-            .unwrap_or_default();
-        finish_equip_change(world, client_id, player_oid, &changed);
-    }
+    unequip_if_worn(world, client_id, player_oid, pkt.object_id);
     let Some(removed) = world
         .objects
         .get_component_mut::<Inventory>(&player_oid)
@@ -754,6 +732,25 @@ pub(crate) fn finish_equip_change(
     // shadow weapon die early for reasons Java never charges for; the call
     // lives at the `use_equipable_item` equip branch instead. See
     // [`super::item_mana`].
+}
+
+/// Take `item_oid` off the paperdoll if the owner is wearing it, with the full
+/// client refresh [`finish_equip_change`] owes. The shared prologue of every
+/// path that takes an item away from under its owner — destroy, crystallize,
+/// drop, a failed enchant, a shadow item hitting mana 0, `//mount` disarming a
+/// hand.
+///
+/// No `paperdoll_slot_of` guard: [`Inventory::unequip_item`] already returns an
+/// empty change list for an item that isn't on the paperdoll, and
+/// [`finish_equip_change`] early-returns on one — so the guard call sites used
+/// to write only repeated the lookup `unequip_item` does internally.
+pub(crate) fn unequip_if_worn(world: &mut World, client_id: u32, object_id: i32, item_oid: i32) {
+    let changed = world
+        .objects
+        .get_component_mut::<Inventory>(&object_id)
+        .map(|inv| inv.unequip_item(item_oid))
+        .unwrap_or_default();
+    finish_equip_change(world, client_id, object_id, &changed);
 }
 
 /// The head of [`finish_equip_change`]: re-apply or drop each changed item's
@@ -955,8 +952,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         let t = world
             .data
             .player_templates
-            .get(player.class_id)
-            .or_else(|| world.data.player_templates.get(player.base_class_id))
+            .get_or_base(player.class_id, player.base_class_id)
             .cloned()
             .unwrap_or_default();
         vitals.max_hp =

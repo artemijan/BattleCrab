@@ -1039,8 +1039,7 @@ impl Player {
         // The active class's template (base classes only in G4).
         let t = data
             .player_templates
-            .get(c.class_id)
-            .or_else(|| data.player_templates.get(c.base_class_id))
+            .get_or_base(c.class_id, c.base_class_id)
             .cloned()
             .unwrap_or_default();
 
@@ -1455,8 +1454,7 @@ impl Player {
     ) {
         let t = data
             .player_templates
-            .get(self.class_id)
-            .or_else(|| data.player_templates.get(self.base_class_id))
+            .get_or_base(self.class_id, self.base_class_id)
             .cloned()
             .unwrap_or_default();
         let eq = EquippedBonuses::from_inventory(inventory, data, &t);
@@ -2223,8 +2221,7 @@ pub(crate) fn compose_base_stats(
     let t = world
         .data
         .player_templates
-        .get(class_id)
-        .or_else(|| world.data.player_templates.get(base_class_id))
+        .get_or_base(class_id, base_class_id)
         .cloned()
         .unwrap_or_default();
     let slots = world

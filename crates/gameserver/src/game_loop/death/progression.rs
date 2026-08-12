@@ -239,8 +239,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
         };
         let t = data
             .player_templates
-            .get(p.class_id)
-            .or_else(|| data.player_templates.get(p.base_class_id))
+            .get_or_base(p.class_id, p.base_class_id)
             .cloned()
             .unwrap_or_default();
         vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level, Some(inventory), mods) as i32;

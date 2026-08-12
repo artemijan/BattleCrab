@@ -274,8 +274,7 @@ pub(crate) fn regen_player(
         std::sync::LazyLock::new(Default::default);
     let t = data
         .player_templates
-        .get(p.class_id)
-        .or_else(|| data.player_templates.get(p.base_class_id))
+        .get_or_base(p.class_id, p.base_class_id)
         .unwrap_or(&DEFAULT_TEMPLATE);
     let level_mod = (p.level as f64 + 89.0) / 100.0;
     let con_bonus = data.stat_bonus.bonus(BaseStat::Con, base.con);

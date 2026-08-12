@@ -22,8 +22,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_strict as attr;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -209,8 +209,6 @@ impl VariationData {
     // ---- parsing -------------------------------------------------------
 
     fn parse(&mut self, content: &str) {
-        let mut reader = Reader::from_str(content);
-
         // variation-building state
         let mut cur_variation = Variation::default();
         let mut cur_mineral: Option<i32> = None;
@@ -226,9 +224,9 @@ impl VariationData {
         let mut cur_fee: Option<(i32, VariationFee)> = None; // (itemGroup id, fee)
         let mut cur_fee_minerals: Vec<i32> = Vec::new();
 
-        loop {
-            match reader.read_event() {
-                Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
+        for event in xml::events(content) {
+            match event {
+                Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
                     b"variation" => cur_mineral = attr(&e, "mineralId").and_then(parse_i32),
                     b"optionGroup" => {
                         cur_kind = match attr(&e, "weaponType").as_deref() {
@@ -299,7 +297,7 @@ impl VariationData {
                     }
                     _ => {}
                 },
-                Ok(Event::End(e)) => match e.name().as_ref() {
+                Event::End(e) => match e.name().as_ref() {
                     b"optionCategory" => {
                         cur_group.categories.push(std::mem::take(&mut cur_category))
                     }
@@ -336,8 +334,6 @@ impl VariationData {
                     }
                     _ => {}
                 },
-                Ok(Event::Eof) => break,
-                Err(_) => break,
                 _ => {}
             }
         }

@@ -10,16 +10,8 @@
 //! `/channelinfo` user command (`usercommandhandlers/ChannelInfo`), which the
 //! G15.5 user-command sweep wired; an earlier note here called it dead code.
 
-use commons::network::PacketWriter;
-
+use super::ex;
 use super::opcodes;
-
-fn ex(sub: i16) -> PacketWriter {
-    let mut w = PacketWriter::new();
-    w.write_u8(opcodes::EX);
-    w.write_i16(sub);
-    w
-}
 
 /// `ExOpenMPCC` — open the command channel window. No body.
 pub fn ex_open_mpcc() -> Vec<u8> {

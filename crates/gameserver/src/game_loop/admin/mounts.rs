@@ -183,12 +183,7 @@ fn disarm_hands(world: &mut World, target: i32) -> bool {
         else {
             continue;
         };
-        let changed = world
-            .objects
-            .get_component_mut::<Inventory>(&target)
-            .map(|inv| inv.unequip_item(item_object_id))
-            .unwrap_or_default();
-        crate::game_loop::items::finish_equip_change(world, client_id, target, &changed);
+        crate::game_loop::items::unequip_if_worn(world, client_id, target, item_object_id);
         if enchant > 0 {
             super::helpers::send_sm_to_client(
                 world,

@@ -251,8 +251,7 @@ pub(super) fn restore_class_collision(world: &mut World, target: i32) {
     if let Some(t) = world
         .data
         .player_templates
-        .get(class_id)
-        .or_else(|| world.data.player_templates.get(base_class_id))
+        .get_or_base(class_id, base_class_id)
     {
         world.objects.add_components(
             &target,

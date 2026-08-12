@@ -11,9 +11,9 @@
 //! parsed into the level table but not yet consumed — the NPC template's own
 //! stats stand in until pet levelling lands.
 
+use crate::data::xml;
 use std::collections::HashMap;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -199,14 +199,13 @@ fn parse_str(
     by_npc: &mut HashMap<i32, PetTemplate>,
     by_item: &mut HashMap<i32, i32>,
 ) {
-    let mut reader = Reader::from_str(content);
     let mut cur: Option<PetTemplate> = None;
     let mut cur_level: i32 = 0;
     let mut in_stats = false;
 
-    loop {
-        match reader.read_event() {
-            Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
+    for event in xml::events(content) {
+        match event {
+            Event::Start(e) | Event::Empty(e) => {
                 let name = e.name().as_ref().to_vec();
                 match name.as_slice() {
                     b"pet" => {
@@ -308,7 +307,7 @@ fn parse_str(
                     _ => {}
                 }
             }
-            Ok(Event::End(e)) => match e.name().as_ref() {
+            Event::End(e) => match e.name().as_ref() {
                 b"stats" => in_stats = false,
                 b"pet" => {
                     if let Some(t) = cur.take()
@@ -322,8 +321,6 @@ fn parse_str(
                 }
                 _ => {}
             },
-            Ok(Event::Eof) => break,
-            Err(_) => break,
             _ => {}
         }
     }

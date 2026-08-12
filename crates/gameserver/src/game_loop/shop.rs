@@ -33,6 +33,21 @@ pub(crate) fn is_merchant(world: &World, npc_object_id: i32) -> bool {
         .is_some_and(|t| t.type_name == "Merchant" || t.type_name == "Fisherman")
 }
 
+/// The `Merchant merchant = (target instanceof Merchant) ? … : null` prologue
+/// the buy / sell / refund packets all open with: the *currently selected*
+/// target, but only if it is a merchant still in interaction range. Reading
+/// the target instead of trusting the packet is what stops a hand-built
+/// `RequestBuyItem` from shopping at an NPC across the map.
+fn targeted_merchant(world: &World, player: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<TargetRef>(&player)
+        .copied()
+        .unwrap_or_default()
+        .0
+        .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
+}
+
 /// `bypasshandlers/Buy.java` → `Merchant.showBuyWindow`: the buy tab +
 /// the accompanying sell tab. The caller (bypass router) already verified
 /// existence and interaction distance.
@@ -116,15 +131,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     };
 
     // The target must be a merchant within interaction distance.
-    let target = world
-        .objects
-        .get_component::<TargetRef>(&player)
-        .copied()
-        .unwrap_or_default()
-        .0;
-    let Some(merchant_oid) =
-        target.filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
-    else {
+    let Some(merchant_oid) = targeted_merchant(world, player) else {
         send_action_failed(world, client_id);
         return;
     };
@@ -338,16 +345,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         return;
     };
 
-    let target = world
-        .objects
-        .get_component::<TargetRef>(&player)
-        .copied()
-        .unwrap_or_default()
-        .0;
-    if target
-        .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
-        .is_none()
-    {
+    if targeted_merchant(world, player).is_none() {
         send_action_failed(world, client_id);
         return;
     }
@@ -483,16 +481,7 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         return;
     };
 
-    let target = world
-        .objects
-        .get_component::<TargetRef>(&player)
-        .copied()
-        .unwrap_or_default()
-        .0;
-    if target
-        .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
-        .is_none()
-    {
+    if targeted_merchant(world, player).is_none() {
         send_action_failed(world, client_id);
         return;
     }

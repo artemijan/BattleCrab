@@ -18,11 +18,11 @@
 
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ItemData;
+use crate::data::xml;
 use crate::data::xml::attr_str;
 
 pub const MULTISELL_DIR: &str = "data/multisell";
@@ -191,7 +191,6 @@ fn item_exists(id: i32, count: i64, items: &ItemData) -> bool {
 
 fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<MultisellList> {
     let content = std::fs::read_to_string(path).ok()?;
-    let mut reader = Reader::from_str(&content);
 
     let mut list = MultisellList {
         list_id,
@@ -207,7 +206,7 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
     let mut npcs: Option<HashSet<i32>> = None;
     let mut in_npc = false;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
                 let attr = |key: &[u8]| attr_str(&e, key);
@@ -326,7 +325,6 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                 }
                 _ => {}
             },
-            Event::Eof => break,
             _ => {}
         }
     }

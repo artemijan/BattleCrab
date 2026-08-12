@@ -2,14 +2,8 @@
 
 use commons::network::PacketWriter;
 
+use super::ex;
 use super::opcodes;
-
-fn ex(sub: i16) -> PacketWriter {
-    let mut w = PacketWriter::new();
-    w.write_u8(opcodes::EX);
-    w.write_i16(sub);
-    w
-}
 
 /// Port of `serverpackets/ExWorldChatCnt` — how many world-chat lines the
 /// player has left today.

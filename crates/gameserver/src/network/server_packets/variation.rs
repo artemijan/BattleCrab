@@ -3,14 +3,8 @@
 
 use commons::network::PacketWriter;
 
+use super::ex;
 use super::opcodes;
-
-fn ex(sub: i16) -> PacketWriter {
-    let mut w = PacketWriter::new();
-    w.write_u8(opcodes::EX);
-    w.write_i16(sub);
-    w
-}
 
 /// `ExShowVariationMakeWindow` — open the augment (make) UI. Empty body.
 pub fn ex_show_variation_make_window() -> Vec<u8> {

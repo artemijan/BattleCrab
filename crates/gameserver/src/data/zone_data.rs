@@ -17,11 +17,11 @@
 //! other consumers (nothing in this Mobius version reads `ZoneId.NO_RESTART`
 //! after it's set), so the zone only tracks membership for now.
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
 use super::spawn_data::Territory;
+use crate::data::xml;
 use crate::data::xml::{attr_i32, attr_str};
 
 /// Java `ZoneManager.SHIFT_BY` (15) — zone-grid cells are one map tile, not
@@ -599,7 +599,6 @@ fn parse_file(
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
 
     struct Pending {
         id: i32,
@@ -629,7 +628,7 @@ fn parse_file(
     }
     let mut cur: Option<Pending> = None;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
@@ -689,7 +688,6 @@ fn parse_file(
                 }
                 continue;
             }
-            Event::Eof => break,
             _ => continue,
         };
         match e.name().as_ref() {

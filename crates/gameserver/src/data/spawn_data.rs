@@ -8,8 +8,8 @@
 //! (consumed by AI scripts only, G11). `dbSave` raid persistence
 //! (`DBSpawnManager`) is ported — see [`crate::game_loop::boss_respawn`].
 
+use crate::data::xml;
 use crate::data::xml::{attr_i32, attr_str};
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -285,7 +285,6 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
 
     let mut cur_spawn: Option<SpawnTemplate> = None;
     // The group being filled: an explicit `<group>` while inside one, else the
@@ -297,7 +296,7 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
     // open, else to the spawn template.
     let mut cur_territory: Option<PendingTerritory> = None;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         let (e, self_closing) = match event {
             Event::Start(e) => (e, false),
             Event::Empty(e) => (e, true),
@@ -327,7 +326,6 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                 }
                 continue;
             }
-            Event::Eof => break,
             _ => continue,
         };
 

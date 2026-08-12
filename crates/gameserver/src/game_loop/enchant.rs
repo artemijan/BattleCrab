@@ -39,7 +39,7 @@ use crate::network::server_packets::{self as sp, enchant_result};
 use crate::world::World;
 
 use super::helpers::{player_of, send_inventory_item_list, send_to_client as send};
-use super::items::finish_equip_change;
+use super::items::{finish_equip_change, unequip_if_worn};
 
 /// Facts about an inventory item the enchant flow needs (item id + current
 /// enchant), or `None` if the object id isn't in the player's inventory.
@@ -646,18 +646,7 @@ fn apply_failure(
     }
 
     // An equipped item is unequipped on a non-safe failure.
-    if world
-        .objects
-        .get_component::<Inventory>(&player)
-        .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some())
-    {
-        let changed = world
-            .objects
-            .get_component_mut::<Inventory>(&player)
-            .map(|inv| inv.unequip_item(item_oid))
-            .unwrap_or_default();
-        finish_equip_change(world, client_id, player, &changed);
-    }
+    unequip_if_worn(world, client_id, player, item_oid);
 
     // Blessed / blessed-down: the item survives; blessed resets to 0,
     // blessed-down drops by 1.

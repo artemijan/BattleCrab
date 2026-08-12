@@ -8,7 +8,7 @@
 //! (teleport to the first node) and `random` are parsed for shape but never
 //! selected by this datapack.
 
-use quick_xml::Reader;
+use crate::data::xml;
 use quick_xml::events::Event;
 use std::collections::HashMap;
 use tracing::info;
@@ -67,12 +67,11 @@ impl RouteData {
         let Ok(content) = std::fs::read_to_string(&path) else {
             return Self::default();
         };
-        let mut reader = Reader::from_str(&content);
         let mut routes: Vec<WalkRoute> = Vec::new();
         let mut by_npc = HashMap::new();
         let mut cur: Option<WalkRoute> = None;
 
-        while let Ok(event) = reader.read_event() {
+        for event in xml::events(&content) {
             let e = match event {
                 Event::Start(e) | Event::Empty(e) => e,
                 Event::End(e) => {
@@ -84,7 +83,6 @@ impl RouteData {
                     }
                     continue;
                 }
-                Event::Eof => break,
                 _ => continue,
             };
             match e.name().as_ref() {

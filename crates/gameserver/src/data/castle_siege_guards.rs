@@ -5,6 +5,7 @@
 //! ground inside its castle's siege zone (a player can buy one from the
 //! mercenary manager's list and drop it).
 
+use crate::data::xml;
 use std::collections::HashMap;
 
 use quick_xml::events::Event;
@@ -53,11 +54,10 @@ impl CastleSiegeGuards {
 }
 
 fn parse_file(content: &str, out: &mut HashMap<i32, i32>) {
-    let mut reader = quick_xml::Reader::from_str(content);
     let mut castle_id = 0;
-    loop {
-        match reader.read_event() {
-            Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
+    for event in xml::events(content) {
+        match event {
+            Event::Start(e) | Event::Empty(e) => {
                 let name = e.name();
                 let attr = |key: &[u8]| super::xml::attr_i32(&e, key);
                 match name.as_ref() {
@@ -72,7 +72,6 @@ fn parse_file(content: &str, out: &mut HashMap<i32, i32>) {
                     _ => {}
                 }
             }
-            Ok(Event::Eof) | Err(_) => break,
             _ => {}
         }
     }

@@ -30,11 +30,11 @@
 
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
 use super::item_data::{CrystalType, ItemTemplate, slot_mask};
+use crate::data::xml;
 use crate::data::xml::attr_strict as attr;
 
 pub const GROUPS_FILE: &str = "data/EnchantItemGroups.xml";
@@ -369,7 +369,6 @@ impl EnchantData {
     // ---- parsing -------------------------------------------------------
 
     fn parse_groups(&mut self, content: &str) {
-        let mut reader = Reader::from_str(content);
         // Which top-level block we're inside, plus the accumulator for it.
         let mut cur_group_name: Option<String> = None;
         let mut cur_group = EnchantItemGroup::default();
@@ -377,9 +376,9 @@ impl EnchantData {
         let mut cur_scroll = EnchantScrollGroup::default();
         let mut cur_rate: Option<EnchantRateItem> = None;
 
-        loop {
-            match reader.read_event() {
-                Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
+        for event in xml::events(content) {
+            match event {
+                Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
                     b"enchantRateGroup" => {
                         cur_group_name = attr(&e, "name");
                         cur_group = EnchantItemGroup::default();
@@ -417,7 +416,7 @@ impl EnchantData {
                     }
                     _ => {}
                 },
-                Ok(Event::End(e)) => match e.name().as_ref() {
+                Event::End(e) => match e.name().as_ref() {
                     b"enchantRateGroup" => {
                         if let Some(name) = cur_group_name.take() {
                             self.item_groups
@@ -437,49 +436,44 @@ impl EnchantData {
                     }
                     _ => {}
                 },
-                Ok(Event::Eof) => break,
-                Err(_) => break,
                 _ => {}
             }
         }
     }
 
     fn parse_scrolls(&mut self, content: &str) {
-        let mut reader = Reader::from_str(content);
         let mut cur: Option<EnchantScroll> = None;
 
-        loop {
-            match reader.read_event() {
+        for event in xml::events(content) {
+            match event {
                 // Self-closing `<enchant .../>` (no whitelist) — build and store
                 // at once; the child-bearing form is the `Start`/`End` arms below.
-                Ok(Event::Empty(e)) if e.name().as_ref() == b"enchant" => {
+                Event::Empty(e) if e.name().as_ref() == b"enchant" => {
                     if let Some(s) = build_scroll(&e) {
                         self.scrolls.insert(s.id, s);
                     }
                 }
-                Ok(Event::Start(e)) if e.name().as_ref() == b"enchant" => {
+                Event::Start(e) if e.name().as_ref() == b"enchant" => {
                     cur = build_scroll(&e);
                 }
-                Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"item" => {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"item" => {
                     if let (Some(c), Some(id)) =
                         (cur.as_mut(), attr(&e, "id").and_then(|s| s.parse().ok()))
                     {
                         c.item_ids.insert(id);
                     }
                 }
-                Ok(Event::End(e)) if e.name().as_ref() == b"enchant" => {
+                Event::End(e) if e.name().as_ref() == b"enchant" => {
                     if let Some(c) = cur.take() {
                         self.scrolls.insert(c.id, c);
                     }
                 }
                 // `<support .../>` — always self-closing.
-                Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"support" => {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"support" => {
                     if let Some(s) = build_support(&e) {
                         self.supports.insert(s.id, s);
                     }
                 }
-                Ok(Event::Eof) => break,
-                Err(_) => break,
                 _ => {}
             }
         }

@@ -85,3 +85,13 @@ pub use target::*;
 pub use variation::*;
 pub use vehicle::*;
 pub use warehouse::*;
+
+/// An extended packet's header: the `0xFE` opcode plus its sub-opcode, ready
+/// for the builder to append its own body. Every `Ex…` builder starts here, so
+/// it lives beside the submodules rather than being redefined in each of them.
+fn ex(sub: i16) -> commons::network::PacketWriter {
+    let mut w = commons::network::PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(sub);
+    w
+}

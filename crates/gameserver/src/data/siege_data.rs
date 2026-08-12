@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 use commons::config::PropertiesParser;
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
 use crate::model::siege::SiegeSpawn;
 
@@ -103,12 +104,9 @@ pub fn load_siege_schedule(file_path: &str) -> HashMap<i32, SiegeScheduleEntry> 
     let Ok(content) = std::fs::read_to_string(&path) else {
         return out;
     };
-    let mut reader = quick_xml::Reader::from_str(&content);
-    reader.config_mut().trim_text(true);
-    loop {
-        match reader.read_event() {
-            Ok(quick_xml::events::Event::Eof) | Err(_) => break,
-            Ok(quick_xml::events::Event::Empty(e)) | Ok(quick_xml::events::Event::Start(e))
+    for event in xml::events_trimmed(&content) {
+        match event {
+            quick_xml::events::Event::Empty(e) | quick_xml::events::Event::Start(e)
                 if e.name().as_ref() == b"schedule" =>
             {
                 let attr = |k: &[u8]| attr_str(&e, k);

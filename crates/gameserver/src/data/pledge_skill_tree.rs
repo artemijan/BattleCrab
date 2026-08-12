@@ -5,10 +5,10 @@
 //! a clan skill is granted / a member logs in ([`PledgeSkillTreeData::
 //! social_class_of`], Java `getPledgeSkill`/`getSubPledgeSkill`).
 
+use crate::data::xml;
 use crate::data::xml::{attr_i32, attr_str};
 use std::collections::HashMap;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -222,33 +222,32 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
     let Ok(content) = std::fs::read_to_string(path) else {
         return Vec::new();
     };
-    let mut reader = Reader::from_str(&content);
     let mut out = Vec::new();
     let mut in_tree = false;
     let mut cur: Option<PledgeSkillLearn> = None;
     let mut in_social = false;
     let mut in_residence = false;
-    loop {
-        match reader.read_event() {
-            Ok(Event::Start(e)) => match e.name().as_ref() {
+    for event in xml::events(&content) {
+        match event {
+            Event::Start(e) => match e.name().as_ref() {
                 b"skillTree" => in_tree = attr_str(&e, b"type").as_deref() == Some(tree_type),
                 b"skill" if in_tree => cur = Some(new_learn(&e)),
                 b"socialClass" if cur.is_some() => in_social = true,
                 b"residenceId" if cur.is_some() => in_residence = true,
                 _ => {}
             },
-            Ok(Event::Empty(e)) if in_tree && e.name().as_ref() == b"skill" => {
+            Event::Empty(e) if in_tree && e.name().as_ref() == b"skill" => {
                 let learn = new_learn(&e);
                 if learn.skill_id > 0 {
                     out.push(learn);
                 }
             }
-            Ok(Event::Text(t)) if in_social => {
+            Event::Text(t) if in_social => {
                 if let Some(c) = cur.as_mut() {
                     c.social_class = social_class_ordinal(&t.unescape().unwrap_or_default());
                 }
             }
-            Ok(Event::Text(t)) if in_residence => {
+            Event::Text(t) if in_residence => {
                 if let (Some(c), Ok(id)) = (
                     cur.as_mut(),
                     t.unescape().unwrap_or_default().trim().parse(),
@@ -256,7 +255,7 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
                     c.residence_ids.push(id);
                 }
             }
-            Ok(Event::End(e)) => match e.name().as_ref() {
+            Event::End(e) => match e.name().as_ref() {
                 b"socialClass" => in_social = false,
                 b"residenceId" => in_residence = false,
                 b"skill" => {
@@ -269,7 +268,6 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
                 b"skillTree" => in_tree = false,
                 _ => {}
             },
-            Ok(Event::Eof) | Err(_) => break,
             _ => {}
         }
     }

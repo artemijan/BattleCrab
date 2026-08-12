@@ -2,6 +2,7 @@
 
 use commons::network::PacketWriter;
 
+use super::ex;
 use super::opcodes;
 
 /// Port of `serverpackets/PledgeShowInfoUpdate` — the clan-info refresh
@@ -309,13 +310,6 @@ pub fn gm_view_pledge_info(
 // Clan entry (recruitment) — the query slice; the full ClanEntryManager
 // board/waiting-list system is G18.
 // ---------------------------------------------------------------------------
-
-fn ex(sub: i16) -> PacketWriter {
-    let mut w = PacketWriter::new();
-    w.write_u8(opcodes::EX);
-    w.write_i16(sub);
-    w
-}
 
 /// Port of `serverpackets/ExPledgeRecruitApplyInfo` (0xFE:0x140) — the
 /// player's clan-entry state, driving which recruitment buttons the clan

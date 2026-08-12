@@ -3,8 +3,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::{attr_i32, attr_str};
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -31,17 +31,16 @@ impl InitialEquipmentData {
         let mut by_class: HashMap<i32, Vec<InitialEquipmentItem>> = HashMap::new();
         let full_path = format!("{file_path}{INITIAL_EQUIPMENT_FILE}");
         if let Ok(content) = std::fs::read_to_string(&full_path) {
-            let mut reader = Reader::from_str(&content);
             let mut cur_class: Option<i32> = None;
-            loop {
-                match reader.read_event() {
-                    Ok(Event::Start(e)) if e.name().as_ref() == b"equipment" => {
+            for event in xml::events(&content) {
+                match event {
+                    Event::Start(e) if e.name().as_ref() == b"equipment" => {
                         cur_class = attr_i32(&e, b"classId");
                     }
-                    Ok(Event::End(e)) if e.name().as_ref() == b"equipment" => {
+                    Event::End(e) if e.name().as_ref() == b"equipment" => {
                         cur_class = None;
                     }
-                    Ok(Event::Empty(e)) if e.name().as_ref() == b"item" => {
+                    Event::Empty(e) if e.name().as_ref() == b"item" => {
                         let Some(class_id) = cur_class else { continue };
                         let Some(item_id) = attr_i32(&e, b"id") else {
                             continue;
@@ -57,8 +56,6 @@ impl InitialEquipmentData {
                                 equipped,
                             });
                     }
-                    Ok(Event::Eof) => break,
-                    Err(_) => break,
                     _ => {}
                 }
             }

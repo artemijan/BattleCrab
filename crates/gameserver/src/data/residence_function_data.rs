@@ -5,6 +5,7 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_str as attr;
 use crate::data::xml::{attr_i32, attr_i64};
 use quick_xml::events::Event;
@@ -68,13 +69,10 @@ impl ResidenceFunctionData {
         let Ok(content) = std::fs::read_to_string(&path) else {
             return Self { by_id };
         };
-        let mut reader = quick_xml::Reader::from_str(&content);
-        reader.config_mut().trim_text(true);
         let mut current: Option<ResidenceFunctionDef> = None;
-        loop {
-            match reader.read_event() {
-                Ok(Event::Eof) | Err(_) => break,
-                Ok(Event::Start(e)) if e.name().as_ref() == b"function" => {
+        for event in xml::events_trimmed(&content) {
+            match event {
+                Event::Start(e) if e.name().as_ref() == b"function" => {
                     // The outer <function id type> — start a new def.
                     current = Some(ResidenceFunctionDef {
                         func_id: attr_i32(&e, b"id").unwrap_or(0),
@@ -82,7 +80,7 @@ impl ResidenceFunctionData {
                         levels: HashMap::new(),
                     });
                 }
-                Ok(Event::Empty(e)) if e.name().as_ref() == b"function" => {
+                Event::Empty(e) if e.name().as_ref() == b"function" => {
                     // An inner <function level costId costCount duration value>.
                     if let Some(def) = current.as_mut()
                         && let Some(level) = attr_i32(&e, b"level")
@@ -102,7 +100,7 @@ impl ResidenceFunctionData {
                         );
                     }
                 }
-                Ok(Event::End(e)) if e.name().as_ref() == b"function" => {
+                Event::End(e) if e.name().as_ref() == b"function" => {
                     if let Some(def) = current.take() {
                         by_id.insert(def.func_id, def);
                     }

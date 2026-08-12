@@ -12,8 +12,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -117,11 +117,9 @@ impl AdminData {
         else {
             return;
         };
-        let mut reader = Reader::from_str(&content);
-        while let Ok(event) = reader.read_event() {
+        for event in xml::events(&content) {
             let e = match event {
                 Event::Start(e) | Event::Empty(e) => e,
-                Event::Eof => break,
                 _ => continue,
             };
             if e.name().as_ref() != b"access" {
@@ -173,11 +171,9 @@ impl AdminData {
         else {
             return;
         };
-        let mut reader = Reader::from_str(&content);
-        while let Ok(event) = reader.read_event() {
+        for event in xml::events(&content) {
             let e = match event {
                 Event::Start(e) | Event::Empty(e) => e,
-                Event::Eof => break,
                 _ => continue,
             };
             if e.name().as_ref() != b"admin" {

@@ -38,35 +38,7 @@ pub struct Door {
 pub fn spawn_doors(world: &mut World) -> usize {
     let mut placed = 0;
     for i in 0..world.data.door_data.doors.len() {
-        let t = &world.data.door_data.doors[i];
-        let (door_id, x, y, z, hp) = (t.id, t.x, t.y, t.z, t.hp_max);
-        let object_id = world.next_npc_object_id;
-        world.next_npc_object_id += 1;
-
-        let region = region_of(x, y);
-        world.objects.spawn(
-            object_id,
-            (
-                Door {
-                    object_id,
-                    door_id,
-                    auto_close_seq: 0,
-                    current_hp: hp,
-                },
-                Position {
-                    x,
-                    y,
-                    z,
-                    heading: 0,
-                },
-                RegionCell(region),
-            ),
-        );
-        world
-            .door_regions
-            .entry(region)
-            .or_default()
-            .push(object_id);
+        spawn_door_at(world, i);
         placed += 1;
     }
     if placed > 0 {
@@ -93,8 +65,18 @@ pub fn spawn_door_for_test(
         );
     }
     world.data.door_data.insert_for_test(template);
-    let idx = world.data.door_data.doors.len() - 1;
-    let t = &world.data.door_data.doors[idx];
+    spawn_door_at(world, world.data.door_data.doors.len() - 1)
+}
+
+/// Spawn the loaded template at `index` as a world entity and index it by
+/// region — the body [`spawn_doors`] runs per template, and the one
+/// [`spawn_door_for_test`] runs for the template it just appended. Returns the
+/// new object id.
+///
+/// Takes an index rather than a `&DoorTemplate` because the spawn needs `world`
+/// mutably while the template lives inside `world.data`.
+fn spawn_door_at(world: &mut World, index: usize) -> i32 {
+    let t = &world.data.door_data.doors[index];
     let (door_id, x, y, z, hp) = (t.id, t.x, t.y, t.z, t.hp_max);
     let object_id = world.next_npc_object_id;
     world.next_npc_object_id += 1;

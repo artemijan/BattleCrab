@@ -1,8 +1,7 @@
 use super::*;
+use crate::data::xml;
 
 pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
-    let mut reader = Reader::from_str(content);
-
     // Current `<skill>` being built (id/name/toLevel + the generic field map).
     let mut skill_id = -1;
     let mut skill_name = String::new();
@@ -61,9 +60,9 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
     // Tag-name stack relative to `<skill>` (path[0] == "skill" once inside one).
     let mut path: Vec<String> = Vec::new();
 
-    loop {
-        match reader.read_event() {
-            Ok(Event::Empty(e)) => {
+    for event in xml::events(content) {
+        match event {
+            Event::Empty(e) => {
                 // A param-less `<condition name="X" />` — by far the common
                 // shape (`OpCanEscape`, `CanSummon`, `EquipShield`, …). No
                 // Start/End pair fires for an `Empty`, so the coverage record
@@ -141,7 +140,7 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                     }
                 }
             }
-            Ok(Event::Start(e)) => {
+            Event::Start(e) => {
                 let name = String::from_utf8_lossy(e.name().as_ref()).into_owned();
 
                 // Coverage record (PLAN_G34 §S0) — every `<condition>` in any
@@ -222,7 +221,7 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                 }
                 path.push(name);
             }
-            Ok(Event::Text(txt)) => {
+            Event::Text(txt) => {
                 let text = txt.unescape().unwrap_or_default();
                 let text = text.trim();
                 if text.is_empty() {
@@ -336,7 +335,7 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                     }
                 }
             }
-            Ok(Event::End(_)) => {
+            Event::End(_) => {
                 let closed = path.pop().unwrap_or_default();
                 if closed == "skill" {
                     finalize_skill(
@@ -395,8 +394,6 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                     });
                 }
             }
-            Ok(Event::Eof) => break,
-            Err(_) => break,
             _ => {}
         }
     }

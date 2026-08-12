@@ -218,6 +218,14 @@ impl PlayerTemplateData {
         self.templates.get(&class_id)
     }
 
+    /// The template every *stat* path wants: the active class's, falling back
+    /// to the base class's. A subclass id that never got its own template file
+    /// would otherwise recompute a player's stats off `PlayerTemplate::default`
+    /// — zeroed base stats and collision box — the moment they switched to it.
+    pub fn get_or_base(&self, class_id: i32, base_class_id: i32) -> Option<&PlayerTemplate> {
+        self.get(class_id).or_else(|| self.get(base_class_id))
+    }
+
     #[doc(hidden)]
     pub fn empty() -> Self {
         Self {

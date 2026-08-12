@@ -6,11 +6,11 @@
 
 use std::collections::HashMap;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ADENA_ID;
+use crate::data::xml;
 use crate::data::xml::attr_str;
 
 pub const TELEPORTERS_DIR: &str = "data/teleporters";
@@ -144,7 +144,6 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
 
     // Per `<npc>` element: the named lists being built plus the alias ids from
     // a nested `<npcs><npc id=…/></npcs>` block (which shares the same lists).
@@ -154,11 +153,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
     let mut in_npcs = false;
     let mut current: Option<TeleportHolder> = None;
 
-    loop {
-        let event = match reader.read_event() {
-            Ok(e) => e,
-            Err(_) => break,
-        };
+    for event in xml::events(&content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
                 let attr = |key: &[u8]| attr_str(&e, key);
@@ -244,7 +239,6 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
                 }
                 _ => {}
             },
-            Event::Eof => break,
             _ => {}
         }
     }

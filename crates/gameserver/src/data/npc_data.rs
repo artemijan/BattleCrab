@@ -4,10 +4,10 @@
 //! attributes, mp rewards, and AI parameters wait for the combat/AI milestone
 //! (G9) — same "parse what the milestone consumes" pattern as `ItemData` (G5).
 
+use crate::data::xml;
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -591,7 +591,6 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
 
     let mut cur: Option<NpcTemplate> = None;
     // `<attack>`/`<defence>` exist both under `<stats>` (what we want) and
@@ -629,7 +628,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     // `<race>` text scope (Java `NpcTemplate.setRace`).
     let mut in_race = false;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         let (e, self_closing) = match event {
             Event::Start(e) => (e, false),
             Event::Empty(e) => (e, true),
@@ -685,7 +684,6 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                 }
                 continue;
             }
-            Event::Eof => break,
             _ => continue,
         };
         let name = e.name().as_ref().to_ascii_lowercase();

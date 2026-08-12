@@ -11,8 +11,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_i32;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -120,7 +120,6 @@ fn parse_file(path: &str, out: &mut Vec<DoorTemplate>) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
 
     // Flat per-door attribute bag (Java's StatSet) + the node list.
     let mut attrs: HashMap<String, String> = HashMap::new();
@@ -128,7 +127,7 @@ fn parse_file(path: &str, out: &mut Vec<DoorTemplate>) {
     let mut ys: Vec<i32> = Vec::new();
     let mut in_door = false;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
@@ -140,7 +139,6 @@ fn parse_file(path: &str, out: &mut Vec<DoorTemplate>) {
                 }
                 continue;
             }
-            Event::Eof => break,
             _ => continue,
         };
         match e.name().as_ref() {

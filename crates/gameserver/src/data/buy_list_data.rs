@@ -14,11 +14,11 @@
 
 use std::collections::HashMap;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ItemData;
+use crate::data::xml;
 use crate::data::xml::attr_str;
 
 pub const BUYLISTS_DIR: &str = "data/buylists";
@@ -119,7 +119,6 @@ fn load_dir(dir: &str, items: &ItemData, by_id: &mut HashMap<i32, BuyList>) {
 
 fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<BuyList> {
     let content = std::fs::read_to_string(path).ok()?;
-    let mut reader = Reader::from_str(&content);
     let mut list = BuyList {
         list_id,
         ..Default::default()
@@ -128,7 +127,7 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
     let mut in_npcs = false;
     let mut in_npc = false;
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
                 let attr = |key: &[u8]| attr_str(&e, key);
@@ -180,7 +179,6 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                 b"npc" => in_npc = false,
                 _ => {}
             },
-            Event::Eof => break,
             _ => {}
         }
     }

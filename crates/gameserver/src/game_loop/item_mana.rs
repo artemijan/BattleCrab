@@ -212,17 +212,10 @@ pub(crate) fn decrease_mana(
         ),
     );
     world.item_mana_consuming.remove(&item_oid);
-    if is_equipped(world, player_oid, item_oid) {
-        let changed = world
-            .objects
-            .get_component_mut::<Inventory>(&player_oid)
-            .map(|inv| inv.unequip_item(item_oid))
-            .unwrap_or_default();
-        // Java sends the unequip `InventoryUpdate` and `broadcastUserInfo`
-        // here; `finish_equip_change` is that pair plus the stat recompute the
-        // paperdoll change owes (see its own doc comment).
-        super::items::finish_equip_change(world, client_id, player_oid, &changed);
-    }
+    // Java sends the unequip `InventoryUpdate` and `broadcastUserInfo` here;
+    // `finish_equip_change` inside the helper is that pair plus the stat
+    // recompute the paperdoll change owes (see its own doc comment).
+    super::items::unequip_if_worn(world, client_id, player_oid, item_oid);
     let Some(change) = world
         .objects
         .get_component_mut::<Inventory>(&player_oid)

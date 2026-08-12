@@ -11,14 +11,8 @@
 
 use commons::network::PacketWriter;
 
+use super::ex;
 use super::opcodes;
-
-fn ex(sub: i16) -> PacketWriter {
-    let mut w = PacketWriter::new();
-    w.write_u8(opcodes::EX);
-    w.write_i16(sub);
-    w
-}
 
 /// Java's page size for both matching lists (`NUM_PER_PAGE`).
 pub const ROOMS_PER_PAGE: usize = 64;

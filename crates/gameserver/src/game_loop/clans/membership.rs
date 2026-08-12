@@ -502,13 +502,7 @@ pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32
         return;
     };
     let clan_id = p.clan_id;
-    if clan_id == 0 {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
-            &[],
-        );
+    if super::refuse_if_clanless(world, player, clan_id) {
         return;
     }
     if p.clan_leader {
@@ -575,13 +569,7 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
     };
     let clan_id = p.clan_id;
     let privs = p.clan_privs;
-    if clan_id == 0 {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
-            &[],
-        );
+    if super::refuse_if_clanless(world, player, clan_id) {
         return;
     }
     let Some(clan) = world.clans.get(&clan_id) else {

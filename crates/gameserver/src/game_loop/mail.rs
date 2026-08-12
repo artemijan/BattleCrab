@@ -162,6 +162,25 @@ pub(crate) fn in_peace_zone(world: &World, object_id: i32) -> bool {
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace))
 }
 
+/// Java's `if (!player.isInsideZone(ZoneId.PEACE)) { sendPacket(CANT_SEND_MAIL
+/// _WITH_ATTACHMENTS_OUTSIDE_PEACE_ZONE); return; }` — the gate in front of
+/// every attachment-bearing mail operation, so a besieged player can neither
+/// stash loot into the post nor pull it back out mid-fight.
+///
+/// `true` means the caller should stop.
+fn refuse_attachments_outside_peace_zone(world: &World, player: i32) -> bool {
+    if in_peace_zone(world, player) {
+        return false;
+    }
+    send_sm(
+        world,
+        player,
+        sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS,
+        &[],
+    );
+    true
+}
+
 fn now_seconds() -> i32 {
     (commons::util::now_millis() / 1000) as i32
 }
@@ -283,13 +302,7 @@ pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
     if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
         return;
     }
-    if !in_peace_zone(world, player) {
-        send_sm(
-            world,
-            player,
-            sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS,
-            &[],
-        );
+    if refuse_attachments_outside_peace_zone(world, player) {
         return;
     }
     // Java `PlayerInventory.getAvailableItems(allowAdena=true,
@@ -679,13 +692,7 @@ pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8
     if m.deleted_by_receiver {
         return;
     }
-    if m.has_attachments && !in_peace_zone(world, player) {
-        send_sm(
-            world,
-            player,
-            sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS,
-            &[],
-        );
+    if m.has_attachments && refuse_attachments_outside_peace_zone(world, player) {
         return;
     }
 
@@ -755,13 +762,7 @@ pub(crate) fn handle_sent_post(world: &mut World, client_id: u32, body: &[u8]) {
     if m.deleted_by_sender {
         return;
     }
-    if m.has_attachments && !in_peace_zone(world, player) {
-        send_sm(
-            world,
-            player,
-            sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS,
-            &[],
-        );
+    if m.has_attachments && refuse_attachments_outside_peace_zone(world, player) {
         return;
     }
     let receiver_name = char_name_by_id(world, m.receiver_id);
@@ -811,13 +812,7 @@ fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: 
     let Some(pkt) = crate::network::client_packets::DeletePostList::read(body) else {
         return;
     };
-    if !in_peace_zone(world, player) {
-        send_sm(
-            world,
-            player,
-            sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS,
-            &[],
-        );
+    if refuse_attachments_outside_peace_zone(world, player) {
         return;
     }
 
@@ -1228,13 +1223,7 @@ pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, b
     let Some(message_id) = commons::network::PacketReader::new(body).read_i32() else {
         return;
     };
-    if !in_peace_zone(world, player) {
-        send_sm(
-            world,
-            player,
-            sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS,
-            &[],
-        );
+    if refuse_attachments_outside_peace_zone(world, player) {
         return;
     }
     let Some(m) = world.mail.get(message_id) else {

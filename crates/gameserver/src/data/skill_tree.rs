@@ -23,6 +23,7 @@
 
 use std::collections::{HashMap, HashSet};
 
+use crate::data::xml;
 use crate::data::xml::{attr_i32, attr_i64, attr_str};
 use quick_xml::Reader;
 use quick_xml::events::Event;
@@ -570,19 +571,16 @@ fn parse_hero_tree(path: &str) -> Vec<Skill> {
     let Ok(content) = std::fs::read_to_string(path) else {
         return Vec::new();
     };
-    let mut reader = Reader::from_str(&content);
     let mut out = Vec::new();
-    loop {
-        match reader.read_event() {
-            Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"skill" => {
+    for event in xml::events(&content) {
+        match event {
+            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"skill" => {
                 let id = attr_i32(&e, b"skillId").unwrap_or(-1);
                 let level = attr_i32(&e, b"skillLevel").unwrap_or(1);
                 if id > 0 {
                     out.push((id, level));
                 }
             }
-            Ok(Event::Eof) => break,
-            Err(_) => break,
             _ => {}
         }
     }

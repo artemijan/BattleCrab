@@ -3,6 +3,8 @@
 //! (the datapack file the Java script's own `IXmlReader` loads): one row per
 //! monster, keyed by sepulcher (1–4) and wave (1–7).
 
+use crate::data::xml;
+
 /// One `<spawn>` row.
 #[derive(Debug, Clone, Copy)]
 pub struct FsSpawn {
@@ -33,10 +35,9 @@ impl FourSepulchersData {
             return Self::default();
         };
         let mut out = Self::default();
-        let mut reader = quick_xml::Reader::from_str(&text);
-        loop {
-            match reader.read_event() {
-                Ok(quick_xml::events::Event::Empty(e) | quick_xml::events::Event::Start(e))
+        for event in xml::events(&text) {
+            match event {
+                quick_xml::events::Event::Empty(e) | quick_xml::events::Event::Start(e)
                     if e.name().as_ref() == b"spawn" =>
                 {
                     let attr = |key: &[u8]| super::xml::attr_i32(&e, key).unwrap_or(0);
@@ -50,7 +51,6 @@ impl FourSepulchersData {
                         heading: attr(b"heading"),
                     });
                 }
-                Ok(quick_xml::events::Event::Eof) | Err(_) => break,
                 _ => {}
             }
         }

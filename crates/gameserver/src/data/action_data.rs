@@ -6,7 +6,7 @@
 //! resolved here; the rest are dispatched by hard-coded id in the game loop,
 //! because they are one-offs (sit, private store, emotes) rather than a table.
 
-use quick_xml::Reader;
+use crate::data::xml;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -33,10 +33,9 @@ impl ActionData {
             let cwd = std::env::current_dir().unwrap();
             panic!("ActionData: cannot read {full_path}: {e}, CWD: {cwd:?}")
         });
-        let mut reader = Reader::from_str(&content);
-        loop {
-            match reader.read_event() {
-                Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"action" => {
+        for event in xml::events(&content) {
+            match event {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"action" => {
                     let attr = |key: &[u8]| super::xml::attr_str(&e, key);
                     let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
                         continue;
@@ -48,8 +47,6 @@ impl ActionData {
                         servitor_skills.insert(id, skill_id);
                     }
                 }
-                Ok(Event::Eof) => break,
-                Err(_) => break,
                 _ => {}
             }
         }

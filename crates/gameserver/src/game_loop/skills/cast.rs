@@ -1259,15 +1259,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
 
     // Stale guard, like every scheduled cast phase: the tick belongs to one
     // specific cast generation.
-    let Some(cast) = live_cast(world, player_object_id, cast_seq) else {
-        return;
-    };
-    let Some(skill) = world
-        .data
-        .skill_data
-        .get_enchanted(cast.skill_id, cast.skill_level, cast.skill_sub_level)
-        .cloned()
-    else {
+    let Some((cast, skill)) = live_cast_skill(world, player_object_id, cast_seq) else {
         return;
     };
     let client_id = client_for_player(world, player_object_id);
@@ -1512,20 +1504,30 @@ pub(crate) fn live_cast(
         .filter(|c| c.seq == cast_seq)
 }
 
+/// [`live_cast`] plus the skill row it names — the prologue every scheduled
+/// cast phase (channeling tick, launch, finish) opens with. Both halves are
+/// stale guards: the phase belongs to one cast generation, and a skill whose
+/// row vanished under a reload has nothing left to resolve.
+fn live_cast_skill(
+    world: &World,
+    player_object_id: i32,
+    cast_seq: u64,
+) -> Option<(crate::model::CastState, crate::model::skill::Skill)> {
+    let cast = live_cast(world, player_object_id, cast_seq)?;
+    let skill = world
+        .data
+        .skill_data
+        .get_enchanted(cast.skill_id, cast.skill_level, cast.skill_sub_level)
+        .cloned()?;
+    Some((cast, skill))
+}
+
 /// Port of `SkillCaster.launchSkill` (phase 1): re-check `effectRange`
 /// (failure → SM 748 + a *quiet* stop, `stopCasting(false)` — Java only
 /// sends `MagicSkillCanceled` on explicit aborts), broadcast
 /// `MagicSkillLaunched`, mark the cast unabortable, schedule the finish.
 pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast_seq: u64) {
-    let Some(cast) = live_cast(world, player_object_id, cast_seq) else {
-        return;
-    };
-    let Some(skill) = world
-        .data
-        .skill_data
-        .get_enchanted(cast.skill_id, cast.skill_level, cast.skill_sub_level)
-        .cloned()
-    else {
+    let Some((cast, skill)) = live_cast_skill(world, player_object_id, cast_seq) else {
         return;
     };
 
@@ -1587,15 +1589,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
 pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast_seq: u64) {
     use server_packets::sm_ids;
 
-    let Some(cast) = live_cast(world, player_object_id, cast_seq) else {
-        return;
-    };
-    let Some(skill) = world
-        .data
-        .skill_data
-        .get_enchanted(cast.skill_id, cast.skill_level, cast.skill_sub_level)
-        .cloned()
-    else {
+    let Some((cast, skill)) = live_cast_skill(world, player_object_id, cast_seq) else {
         return;
     };
     let client_id = client_for_player(world, player_object_id);
@@ -2109,14 +2103,25 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
     if !abortable {
         return;
     }
+    // Java `stopCasting(true)` also ends with `EVT_FINISH_CASTING`, so an
+    // interrupted cast still releases the click it held back.
+    emit_cast_abort(world, object_id);
+}
+
+/// `stopCasting(aborted == true)`'s payload, shared by every abort gate above
+/// it: `MagicSkillCanceled` broadcast **including self** — it is the only
+/// packet that stops the cast animation client-side, so leaving it out keeps
+/// the caster visibly channelling for the rest of the client-side cast time —
+/// then `ActionFailed` to the caster (`caster.sendPacket`, a no-op for an NPC,
+/// which is why it isn't gated on the victim being a player), then the stop
+/// itself. The gates differ; this tail never does.
+fn emit_cast_abort(world: &mut World, object_id: i32) {
     broadcast_including_self(
         world,
         object_id,
         &server_packets::magic_skill_canceld(object_id),
     );
     send_to_player(world, object_id, server_packets::action_failed());
-    // Java `stopCasting(true)` also ends with `EVT_FINISH_CASTING`, so an
-    // interrupted cast still releases the click it held back.
     stop_casting(world, object_id);
 }
 
@@ -2128,24 +2133,11 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
 /// That distinction is the whole point of the call site — `BlockActions.onStart`
 /// (stun / sleep / paralyze) uses this, not `abortCast`, so a stun landing in
 /// the launched window still stops the skill instead of letting it resolve.
-///
-/// `MagicSkillCanceled` is broadcast *including self*: it is the only packet
-/// that stops the cast animation client-side, so without it the victim keeps
-/// visibly channelling for the rest of the client-side cast time even though
-/// the server already dropped the cast.
 pub(crate) fn abort_all_skill_casters(world: &mut World, object_id: i32) {
     if !world.objects.has_component::<Casting>(&object_id) {
         return;
     }
-    broadcast_including_self(
-        world,
-        object_id,
-        &server_packets::magic_skill_canceld(object_id),
-    );
-    // `caster.sendPacket(ActionFailed)` — a no-op for an NPC caster, which is
-    // why this is not gated on the victim being a player.
-    send_to_player(world, object_id, server_packets::action_failed());
-    stop_casting(world, object_id);
+    emit_cast_abort(world, object_id);
 }
 
 /// `Creature.abortCast()` with Java's *real* gate: `abortCast` resolves its
@@ -2176,13 +2168,7 @@ pub(crate) fn abort_cast_when_untargeted(world: &mut World, object_id: i32) {
     if has_target {
         return;
     }
-    broadcast_including_self(
-        world,
-        object_id,
-        &server_packets::magic_skill_canceld(object_id),
-    );
-    send_to_player(world, object_id, server_packets::action_failed());
-    stop_casting(world, object_id);
+    emit_cast_abort(world, object_id);
 }
 
 /// Port of `Creature.breakCast`: a cast broken by *incoming damage* (as opposed

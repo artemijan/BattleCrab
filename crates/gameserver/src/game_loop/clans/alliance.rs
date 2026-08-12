@@ -409,13 +409,7 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
         return;
     }
     let clan_id = clan_of_or_zero(world, player);
-    if clan_id == 0 {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
-            &[],
-        );
+    if super::refuse_if_clanless(world, player, clan_id) {
         return;
     }
     if !check_ally_join_condition(world, player, target_oid) {
@@ -541,13 +535,7 @@ pub(crate) fn handle_ally_leave(world: &mut World, client_id: u32) {
         return;
     };
     let clan_id = p.clan_id;
-    if clan_id == 0 {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
-            &[],
-        );
+    if super::refuse_if_clanless(world, player, clan_id) {
         return;
     }
     if !p.clan_leader {
@@ -597,13 +585,7 @@ pub(crate) fn handle_ally_dismiss(world: &mut World, client_id: u32, body: &[u8]
     };
     let clan_id = p.clan_id;
     let is_leader = p.clan_leader;
-    if clan_id == 0 {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
-            &[],
-        );
+    if super::refuse_if_clanless(world, player, clan_id) {
         return;
     }
     let Some(leader_clan) = world.clans.get(&clan_id) else {

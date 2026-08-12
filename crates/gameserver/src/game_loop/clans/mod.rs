@@ -690,6 +690,25 @@ pub(crate) fn refuse_if_busy(world: &World, player: i32, target_oid: i32) -> boo
     busy
 }
 
+/// Java's `if (clan == null) { sendPacket(NOT_A_CLAN_MEMBER); return; }` — the
+/// prologue every clan and alliance packet opens with, taking the `clan_id` the
+/// caller already read off the `Player` component alongside the leader flag or
+/// privilege mask it also needs.
+///
+/// `true` means the caller should stop.
+pub(crate) fn refuse_if_clanless(world: &World, player_oid: i32, clan_id: i32) -> bool {
+    if clan_id != 0 {
+        return false;
+    }
+    send_sm_with(
+        world,
+        player_oid,
+        sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
+        &[],
+    );
+    true
+}
+
 /// A clan's name, or `None` when no clan carries that id — a disbanded clan,
 /// or the sentinel `0` a clanless player reports.
 pub(crate) fn clan_name(world: &World, clan_id: i32) -> Option<String> {

@@ -7,8 +7,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::{attr_i32, attr_str};
-use quick_xml::Reader;
 use quick_xml::events::Event;
 
 const CASTLE_HALL_FILE: &str = "data/zones/castle_hall.xml";
@@ -56,14 +56,13 @@ pub fn load_castle_restart_points(file_path: &str) -> HashMap<i32, CastleRespawn
         return HashMap::new();
     };
     let mut out: HashMap<i32, CastleRespawnPoints> = HashMap::new();
-    let mut reader = Reader::from_str(&content);
 
     // `castleId` and the `<spawn>` list both sit under the open `<zone>`, so we
     // accumulate the spawns and only commit them once the id is known.
     let mut castle_id = 0i32;
     let mut pts = CastleRespawnPoints::default();
 
-    while let Ok(event) = reader.read_event() {
+    for event in xml::events(&content) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
@@ -80,7 +79,6 @@ pub fn load_castle_restart_points(file_path: &str) -> HashMap<i32, CastleRespawn
                 }
                 continue;
             }
-            Event::Eof => break,
             _ => continue,
         };
         match e.name().as_ref() {

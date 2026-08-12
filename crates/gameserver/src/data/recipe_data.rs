@@ -9,8 +9,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::{info, warn};
 
@@ -106,14 +106,9 @@ impl RecipeData {
     }
 
     fn parse(&mut self, content: &str) {
-        let mut reader = Reader::from_str(content);
         // The item currently being built plus its child lists.
         let mut cur: Option<RecipeList> = None;
-        loop {
-            let event = match reader.read_event() {
-                Ok(e) => e,
-                Err(_) => break,
-            };
+        for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => {
                     let attr = |key: &[u8]| attr_str(&e, key);
@@ -209,7 +204,6 @@ impl RecipeData {
                         self.recipes.insert(r.id, r);
                     }
                 }
-                Event::Eof => break,
                 _ => {}
             }
         }

@@ -6,8 +6,8 @@
 
 use std::collections::HashMap;
 
+use crate::data::xml;
 use crate::data::xml::attr_str;
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -75,14 +75,8 @@ impl EnchantSkillGroups {
 }
 
 fn parse_str(content: &str, out: &mut HashMap<i32, EnchantSkillCost>) {
-    let mut reader = Reader::from_str(content);
-    reader.config_mut().trim_text(true);
     let mut cur: Option<EnchantSkillCost> = None;
-    loop {
-        let event = match reader.read_event() {
-            Ok(Event::Eof) | Err(_) => break,
-            Ok(e) => e,
-        };
+    for event in xml::events_trimmed(content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
                 let attr = |key: &[u8]| attr_str(&e, key);

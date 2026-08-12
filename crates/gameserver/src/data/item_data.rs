@@ -8,10 +8,10 @@
 
 use std::collections::HashMap;
 
-use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
+use crate::data::xml;
 use crate::data::xml::{attr_f64, attr_i32, attr_i64, attr_str};
 use crate::model::stats::Stat;
 
@@ -1124,7 +1124,6 @@ fn parse_file(
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
-    let mut reader = Reader::from_str(&content);
 
     let mut cur_id: Option<i32> = None;
     let mut cur_name = String::new();
@@ -1138,9 +1137,9 @@ fn parse_file(
     let mut cur_stat_type: Option<String> = None;
     let mut cur_stats = ItemStats::default();
 
-    loop {
-        match reader.read_event() {
-            Ok(Event::Start(e)) if e.name().as_ref() == b"item" => {
+    for event in xml::events(&content) {
+        match event {
+            Event::Start(e) if e.name().as_ref() == b"item" => {
                 cur_id = attr_i32(&e, b"id");
                 cur_name = attr_str(&e, b"name").unwrap_or_default();
                 cur_kind = match attr_str(&e, b"type").as_deref() {
@@ -1153,19 +1152,19 @@ fn parse_file(
                 cur_item_skills.clear();
                 cur_stats = ItemStats::default();
             }
-            Ok(Event::Start(e)) if e.name().as_ref() == b"stats" => {
+            Event::Start(e) if e.name().as_ref() == b"stats" => {
                 in_stats = true;
             }
-            Ok(Event::End(e)) if e.name().as_ref() == b"stats" => {
+            Event::End(e) if e.name().as_ref() == b"stats" => {
                 in_stats = false;
             }
-            Ok(Event::Start(e)) if in_stats && e.name().as_ref() == b"stat" => {
+            Event::Start(e) if in_stats && e.name().as_ref() == b"stat" => {
                 cur_stat_type = attr_str(&e, b"type");
             }
-            Ok(Event::End(e)) if in_stats && e.name().as_ref() == b"stat" => {
+            Event::End(e) if in_stats && e.name().as_ref() == b"stat" => {
                 cur_stat_type = None;
             }
-            Ok(Event::Text(t)) if in_stats && cur_stat_type.is_some() => {
+            Event::Text(t) if in_stats && cur_stat_type.is_some() => {
                 let ty = cur_stat_type.as_deref().unwrap();
                 if let Ok(text) = t.unescape()
                     && let Ok(val) = text.trim().parse::<f64>()
@@ -1183,7 +1182,7 @@ fn parse_file(
                     }
                 }
             }
-            Ok(Event::Empty(e)) if e.name().as_ref() == b"set" => {
+            Event::Empty(e) if e.name().as_ref() == b"set" => {
                 if cur_id.is_none() {
                     continue;
                 }
@@ -1191,13 +1190,13 @@ fn parse_file(
                     attrs.insert(name, val);
                 }
             }
-            Ok(Event::Start(e)) if e.name().as_ref() == b"capsuled_items" => {
+            Event::Start(e) if e.name().as_ref() == b"capsuled_items" => {
                 in_capsules = true;
             }
-            Ok(Event::End(e)) if e.name().as_ref() == b"capsuled_items" => {
+            Event::End(e) if e.name().as_ref() == b"capsuled_items" => {
                 in_capsules = false;
             }
-            Ok(Event::Empty(e)) if in_capsules && e.name().as_ref() == b"item" => {
+            Event::Empty(e) if in_capsules && e.name().as_ref() == b"item" => {
                 if let (Some(item_id), Some(min), Some(max), Some(chance)) = (
                     attr_i32(&e, b"id"),
                     attr_i64(&e, b"min"),
@@ -1212,18 +1211,18 @@ fn parse_file(
                     });
                 }
             }
-            Ok(Event::Start(e)) if e.name().as_ref() == b"skills" => {
+            Event::Start(e) if e.name().as_ref() == b"skills" => {
                 in_skills = true;
             }
-            Ok(Event::End(e)) if e.name().as_ref() == b"skills" => {
+            Event::End(e) if e.name().as_ref() == b"skills" => {
                 in_skills = false;
             }
-            Ok(Event::Empty(e)) if in_skills && e.name().as_ref() == b"skill" => {
+            Event::Empty(e) if in_skills && e.name().as_ref() == b"skill" => {
                 if let (Some(id), Some(level)) = (attr_i32(&e, b"id"), attr_i32(&e, b"level")) {
                     cur_item_skills.push((id, level));
                 }
             }
-            Ok(Event::End(e)) if e.name().as_ref() == b"item" => {
+            Event::End(e) if e.name().as_ref() == b"item" => {
                 if let Some(item_id) = cur_id.take() {
                     out.insert(
                         item_id,
@@ -1271,8 +1270,6 @@ fn parse_file(
                     }
                 }
             }
-            Ok(Event::Eof) => break,
-            Err(_) => break,
             _ => {}
         }
     }

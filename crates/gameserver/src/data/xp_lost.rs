@@ -1,7 +1,7 @@
 //! Port of `data/xml/PlayerXpPercentLostData` — per-level XP percentage lost
 //! on death, from `data/stats/chars/playerXpPercentLost.xml`.
 
-use quick_xml::Reader;
+use crate::data::xml;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -24,8 +24,7 @@ impl PlayerXpPercentLostData {
     pub fn load_from(file_path: &str) -> Self {
         let mut entries: Vec<(usize, f64)> = Vec::new();
         if let Ok(content) = std::fs::read_to_string(format!("{file_path}{XP_LOST_FILE}")) {
-            let mut reader = Reader::from_str(&content);
-            while let Ok(event) = reader.read_event() {
+            for event in xml::events(&content) {
                 match event {
                     Event::Empty(e) | Event::Start(e) if e.name().as_ref() == b"xpLost" => {
                         let mut level = 0usize;
@@ -42,7 +41,6 @@ impl PlayerXpPercentLostData {
                             entries.push((level, val));
                         }
                     }
-                    Event::Eof => break,
                     _ => {}
                 }
             }

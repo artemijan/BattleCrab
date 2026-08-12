@@ -3,7 +3,7 @@
 //! `rain` terms are parsed but never applied: there is no game-time clock or
 //! weather yet (Java's rain check is dead code upstream too).
 
-use quick_xml::Reader;
+use crate::data::xml;
 use quick_xml::events::Event;
 
 pub const HIT_CONDITION_BONUS_FILE: &str = "data/stats/hitConditionBonus.xml";
@@ -42,11 +42,9 @@ impl HitConditionBonusData {
         if let Ok(content) =
             std::fs::read_to_string(format!("{file_path}{HIT_CONDITION_BONUS_FILE}"))
         {
-            let mut reader = Reader::from_str(&content);
-            while let Ok(event) = reader.read_event() {
+            for event in xml::events(&content) {
                 let e = match event {
                     Event::Empty(e) | Event::Start(e) => e,
-                    Event::Eof => break,
                     _ => continue,
                 };
                 let val = e

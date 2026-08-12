@@ -125,6 +125,19 @@ fn cursed_weapon_blocks_attack(world: &World, attacker: i32, target: i32) -> boo
         || (a.cursed_weapon_equipped_id != 0 && t.level < CURSED_WEAPON_VICTIM_MIN_LEVEL)
 }
 
+/// Java's `player.getTarget() == this` — the test that turns the *second*
+/// click on an already-selected object into the interaction (open the store,
+/// talk to the NPC, engage the door) rather than another select.
+fn is_targeting(world: &World, object_id: i32, other_object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<TargetRef>(&object_id)
+        .copied()
+        .unwrap_or_default()
+        .0
+        == Some(other_object_id)
+}
+
 pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::Action::read(body) else {
         return;
@@ -238,13 +251,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     {
         // A player running a private store, clicked while already targeted, opens
         // their store window for the customer (Java `Player.onAction`).
-        let already_targeted = world
-            .objects
-            .get_component::<TargetRef>(&object_id)
-            .copied()
-            .unwrap_or_default()
-            .0
-            == Some(pkt.object_id);
+        let already_targeted = is_targeting(world, object_id, pkt.object_id);
         // Java `Player.onActionRequest` tests the sell-buff shop *before* the
         // ordinary store, because a buff seller wears the `PACKAGE_SELL` type
         // and would otherwise open an empty package-sale window.
@@ -301,13 +308,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
                 set_target(world, client_id, object_id, Some(pkt.object_id));
                 view::send_npc_view(world, client_id, pkt.object_id);
             } else {
-                let already_targeted = world
-                    .objects
-                    .get_component::<TargetRef>(&object_id)
-                    .copied()
-                    .unwrap_or_default()
-                    .0
-                    == Some(pkt.object_id);
+                let already_targeted = is_targeting(world, object_id, pkt.object_id);
                 // `NpcAction.action(player, target, interact)`: an unselected
                 // NPC is selected, and only an **interact** click goes on to
                 // attack or talk (`else if (interact)`). A shift-click that
@@ -330,13 +331,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         // (already targeted, non-shift `interact`) engages it when it's auto-
         // attackable — a castle gate during a siege — gated on the 400-unit
         // z-difference Java checks before `AI_INTENTION_ATTACK`.
-        let already_targeted = world
-            .objects
-            .get_component::<TargetRef>(&object_id)
-            .copied()
-            .unwrap_or_default()
-            .0
-            == Some(pkt.object_id);
+        let already_targeted = is_targeting(world, object_id, pkt.object_id);
         let z_ok = matches!(
             (
                 world.objects.get_component::<Position>(&object_id),

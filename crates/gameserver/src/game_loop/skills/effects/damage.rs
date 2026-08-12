@@ -563,8 +563,7 @@ pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
     let t = world
         .data
         .player_templates
-        .get(class_id)
-        .or_else(|| world.data.player_templates.get(base_class_id))
+        .get_or_base(class_id, base_class_id)
         .cloned()
         .unwrap_or_default();
     let (max_hp, max_mp, max_cp) = {

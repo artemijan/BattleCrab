@@ -379,8 +379,7 @@ pub fn calc_atk_spd_multiplier(
 ) -> f64 {
     let t = data
         .player_templates
-        .get(p.class_id)
-        .or_else(|| data.player_templates.get(p.base_class_id))
+        .get_or_base(p.class_id, p.base_class_id)
         .cloned()
         .unwrap_or_default();
     let dex_bonus = data.stat_bonus.bonus(BaseStat::Dex, base.dex);
