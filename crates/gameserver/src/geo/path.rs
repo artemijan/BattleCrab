@@ -367,24 +367,21 @@ impl<'a> CellNodeBuffer<'a> {
         let mut temp = target;
         while self.nodes[temp].parent != -1 {
             let parent = self.nodes[temp].parent as usize;
-            let direction;
+            // The step away from the parent — and, under the plain strategy,
+            // the step away from the *grandparent* instead when those two hops
+            // form one clean diagonal, which is how Java collapses a staircase
+            // into a single route point.
+            let mut direction = (
+                self.nodes[temp].loc.geo_x - self.nodes[parent].loc.geo_x,
+                self.nodes[temp].loc.geo_y - self.nodes[parent].loc.geo_y,
+            );
             if !self.cfg.advanced_diagonal_strategy && self.nodes[parent].parent != -1 {
                 let grandparent = self.nodes[parent].parent as usize;
                 let tmp_x = self.nodes[temp].loc.geo_x - self.nodes[grandparent].loc.geo_x;
                 let tmp_y = self.nodes[temp].loc.geo_y - self.nodes[grandparent].loc.geo_y;
                 if tmp_x.abs() == tmp_y.abs() {
                     direction = (tmp_x, tmp_y);
-                } else {
-                    direction = (
-                        self.nodes[temp].loc.geo_x - self.nodes[parent].loc.geo_x,
-                        self.nodes[temp].loc.geo_y - self.nodes[parent].loc.geo_y,
-                    );
                 }
-            } else {
-                direction = (
-                    self.nodes[temp].loc.geo_x - self.nodes[parent].loc.geo_x,
-                    self.nodes[temp].loc.geo_y - self.nodes[parent].loc.geo_y,
-                );
             }
 
             // Only add a new route point if the moving direction changes.
