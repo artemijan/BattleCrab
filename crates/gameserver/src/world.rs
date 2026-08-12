@@ -736,8 +736,20 @@ impl World {
     /// **unspecified** — sort at the call site when order is observable (as
     /// the admin character list does).
     pub fn in_game_player_oids(&self) -> impl Iterator<Item = i32> + '_ {
-        self.clients.values().filter_map(|cs| match cs {
-            ClientSession::InGame(s) => Some(s.player_object_id()),
+        self.in_game_clients().map(|(_, object_id)| object_id)
+    }
+
+    /// `(client id, player object id)` for every in-game player — the pair form
+    /// of [`in_game_player_oids`], for the sweeps that send each player a packet
+    /// on its own connection and so need the client id too.
+    ///
+    /// Same laziness and same unspecified iteration order as
+    /// [`in_game_player_oids`].
+    ///
+    /// [`in_game_player_oids`]: Self::in_game_player_oids
+    pub fn in_game_clients(&self) -> impl Iterator<Item = (u32, i32)> + '_ {
+        self.clients.iter().filter_map(|(&client_id, cs)| match cs {
+            ClientSession::InGame(s) => Some((client_id, s.player_object_id())),
             _ => None,
         })
     }

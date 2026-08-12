@@ -9,7 +9,6 @@ use crate::model::Player;
 use crate::model::components::{BaseStats, PlayerVitals, StatModifiers, Vitals};
 use crate::model::stats::{BaseStat, MoveType, Stat};
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 
 /// `Formulas.getRegeneratePeriod`: 3000 ms for player characters (30 × the
@@ -20,14 +19,7 @@ pub(crate) const REGEN_TICK_PERIOD: u64 = 30;
 /// every in-game player. Iterates connected clients (not `world.objects`
 /// directly) so each player's `StatusUpdate` reaches its own connection.
 pub(crate) fn run_regen_tick(world: &mut World) {
-    let targets: Vec<(u32, i32)> = world
-        .clients
-        .iter()
-        .filter_map(|(&client_id, cs)| match cs {
-            ClientSession::InGame(s) => Some((client_id, s.player_object_id())),
-            _ => None,
-        })
-        .collect();
+    let targets: Vec<(u32, i32)> = world.in_game_clients().collect();
     // Latched once per tick: the three `Character.ini` regen multipliers Java
     // applies to every creature (`RegenHPFinalizer` line 61 and its siblings).
     let cfg_mult = (

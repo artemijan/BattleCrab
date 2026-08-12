@@ -7,7 +7,6 @@ use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::{Inventory, ItemChange};
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::send_message;
@@ -128,14 +127,7 @@ pub(super) fn admin_give_item_to_all(world: &mut World, client_id: u32, args: &[
         );
         return;
     }
-    let recipients: Vec<(u32, i32)> = world
-        .clients
-        .iter()
-        .filter_map(|(&cid, cs)| match cs {
-            ClientSession::InGame(s) => Some((cid, s.player_object_id())),
-            _ => None,
-        })
-        .collect();
+    let recipients: Vec<(u32, i32)> = world.in_game_clients().collect();
     let count_given = recipients.len();
     for (cid, oid) in recipients {
         super::quests::give_item_with_earned_message(world, cid, oid, item_id, count);
