@@ -13,7 +13,7 @@
 //! | 4215 `RAID_CURSE`  | `Mute` + `PhysicalMute` | 3600 s | casting a **good** skill nearby |
 //! | 4515 `RAID_CURSE2` | `BlockActions`          | 120 s  | attacking it, or casting a **bad** skill nearby |
 
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{lvl_of_npc, skill_by_id};
 use crate::model::Player;
 use crate::world::World;
 
@@ -67,12 +67,7 @@ fn should_curse(world: &World, npc_oid: i32, player_oid: i32) -> bool {
     let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
         return false;
     };
-    let boss_level = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .and_then(|n| world.data.npc_data.get(n.npc_id))
-        .map(|t| t.level)
-        .unwrap_or(0);
+    let boss_level = lvl_of_npc(world, npc_oid).unwrap_or(0);
     p.level > boss_level + LEVEL_GAP
 }
 

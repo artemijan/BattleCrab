@@ -31,6 +31,7 @@
 use crate::config::flood_protector::{
     FloodAction, FloodProtectorConfig, FloodProtectorsConfig, FloodPunishment,
 };
+use crate::game_loop::helpers::disconnect_player;
 use crate::model::Player;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
 use crate::network::client_packets::{ex_opcodes as exop, opcodes as cop};
@@ -364,7 +365,7 @@ fn apply_punishment(
 /// session dropped, which closes the socket when the outbound sender goes.
 fn kick(world: &mut World, client_id: u32) {
     match world.player_oid(client_id) {
-        Some(oid) => super::admin::moderation::disconnect_player(world, oid),
+        Some(oid) => disconnect_player(world, oid),
         None => {
             if let Some(session) = world.clients.remove(&client_id) {
                 session.send(crate::network::server_packets::leave_world());

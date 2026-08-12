@@ -8,6 +8,7 @@ use crate::model::inventory::Inventory;
 use crate::model::npc::Npc;
 use crate::model::stats::Stat;
 use crate::network::server_packets;
+use crate::session::ClientSession;
 use crate::world::World;
 
 /// The client id of the in-game session linked to a `Player`, or `None` if
@@ -862,16 +863,22 @@ fn broadcast_to_others_shared(world: &World, from_object_id: i32, shared: bytes:
         if instance_of(world, other_id) != from_instance {
             continue;
         }
-        if let Some(cs) = world
-            .clients
-            .client_of_player(other_id)
-            .and_then(|cid| world.clients.get(&cid))
-        {
+        if let Some(cs) = world.clients.session_of_player(other_id) {
             cs.send(shared.clone());
         }
     }
 }
-
+/// The clean logout teardown for a player (Java `Disconnection.of`): persist,
+/// despawn, drop the session.
+pub(crate) fn disconnect_player(world: &mut World, target: i32) {
+    let Some(tcid) = super::helpers::client_for_player(world, target) else {
+        return;
+    };
+    if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
+        super::net::store_and_remove_player(world, target);
+        session.send(server_packets::leave_world());
+    }
+}
 /// Send `packet` to every in-game player in `instance` whose region cell is
 /// adjacent to `region` — the broadcast shape for NPC-originated packets (Java
 /// `Npc.broadcastPacket`; NPCs never hold a session, so there is no self/others
@@ -889,11 +896,7 @@ pub(crate) fn broadcast_near_region_in(
         if instance_of(world, oid) != instance {
             continue;
         }
-        if let Some(cs) = world
-            .clients
-            .client_of_player(oid)
-            .and_then(|cid| world.clients.get(&cid))
-        {
+        if let Some(cs) = world.clients.session_of_player(oid) {
             cs.send(shared.clone());
         }
     }

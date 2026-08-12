@@ -312,8 +312,7 @@ fn at_war_with(world: &World, a_oid: i32, b_oid: i32) -> bool {
 fn player_ip(world: &World, object_id: i32) -> String {
     world
         .clients
-        .client_of_player(object_id)
-        .and_then(|cid| world.clients.get(&cid))
+        .session_of_player(object_id)
         .map(|s| s.addr().ip().to_string())
         .unwrap_or_default()
 }

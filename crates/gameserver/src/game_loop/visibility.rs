@@ -55,11 +55,7 @@ pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
         if other_id == player_id {
             continue;
         }
-        let Some(cs) = world
-            .clients
-            .client_of_player(other_id)
-            .and_then(|cid| world.clients.get(&cid))
-        else {
+        let Some(cs) = world.clients.session_of_player(other_id) else {
             continue;
         };
         send_char_info_with(world, cs, player_id, &packet);

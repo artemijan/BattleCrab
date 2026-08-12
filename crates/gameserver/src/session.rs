@@ -420,6 +420,16 @@ impl ClientTable {
         self.by_player.get(&player_object_id).copied()
     }
 
+    /// The session driving `player_object_id` — [`client_of_player`] followed
+    /// by [`get`], which is what every "send to this player" site wants.
+    ///
+    /// [`client_of_player`]: Self::client_of_player
+    /// [`get`]: Self::get
+    pub fn session_of_player(&self, player_object_id: i32) -> Option<&ClientSession> {
+        self.client_of_player(player_object_id)
+            .and_then(|cid| self.get(&cid))
+    }
+
     pub fn insert(&mut self, client_id: u32, session: ClientSession) -> Option<ClientSession> {
         let new_player = Self::player_of(&session);
         let previous = self.by_client.insert(client_id, session);

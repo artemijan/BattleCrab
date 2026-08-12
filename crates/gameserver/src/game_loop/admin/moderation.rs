@@ -4,8 +4,8 @@
 //! `//serverinfo`.
 
 use crate::game_loop::guard;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::{disconnect_player, nth_arg};
 use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
@@ -35,18 +35,6 @@ pub(super) fn admin_character_disconnect(world: &mut World, client_id: u32, obje
         return;
     };
     disconnect_player(world, target);
-}
-
-/// The clean logout teardown for a player (Java `Disconnection.of`): persist,
-/// despawn, and drop the session.
-pub(crate) fn disconnect_player(world: &mut World, target: i32) {
-    let Some(tcid) = super::helpers::client_for_player(world, target) else {
-        return;
-    };
-    if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
-        super::net::store_and_remove_player(world, target);
-        session.send(server_packets::leave_world());
-    }
 }
 
 /// `AdminAnnouncements`'s `//announce <message>` — broadcast to every online

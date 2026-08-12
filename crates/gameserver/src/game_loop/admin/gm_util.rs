@@ -11,8 +11,8 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::{disconnect_player, nth_arg};
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;
@@ -456,18 +456,6 @@ fn broadcast_text(world: &World, text: &str) {
 /// `Broadcast.toAllOnlinePlayers`).
 fn broadcast_packet(world: &World, packet: Vec<u8>) {
     world.broadcast_to_all_online(&packet);
-}
-
-/// The clean logout teardown for a player (Java `Disconnection.of`): persist,
-/// despawn, drop the session.
-fn disconnect_player(world: &mut World, target: i32) {
-    let Some(tcid) = super::helpers::client_for_player(world, target) else {
-        return;
-    };
-    if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
-        super::net::store_and_remove_player(world, target);
-        session.send(server_packets::leave_world());
-    }
 }
 
 // ---------------------------------------------------------------------------

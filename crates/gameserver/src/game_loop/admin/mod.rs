@@ -97,7 +97,7 @@ use world_cmds::*;
 // resolving (a child's `super` now points at this module).
 use crate::game_loop::helpers::region_cell_of;
 pub(super) use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
-use crate::game_loop::{death, helpers, net, party, quests, target, visibility};
+use crate::game_loop::{death, helpers, party, quests, target, visibility};
 
 /// Java `AdminCommandHandler.useAdminCommand`. `full` is the whole command
 /// string *including* the `admin_` prefix, e.g. `"admin_heal 100"`.
