@@ -772,11 +772,25 @@ fn patched_values(
         return values.clone();
     }
     let mut out = values.clone();
+    apply_ranged_rows(&mut out, field_rows, level, sub);
+    out
+}
+
+/// The two passes shared by every ranged-row table (skill values, effect
+/// params, condition params): level rows form the base, then — only for
+/// `sub > 0` — the matching enchant-route rows patch on top, each resolved
+/// against the values written by the passes before it.
+fn apply_ranged_rows(
+    out: &mut LeveledValues,
+    rows_by_field: &HashMap<String, Vec<RangedRow>>,
+    level: i32,
+    sub: i32,
+) {
     for pass_sub in [false, true] {
         if pass_sub && sub == 0 {
             break;
         }
-        for (field, rows) in field_rows {
+        for (field, rows) in rows_by_field {
             for r in rows {
                 let is_sub_row = r.from_sub > 0;
                 if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level) {
@@ -785,7 +799,7 @@ fn patched_values(
                 if is_sub_row && !(r.from_sub <= sub && sub <= r.to_sub) {
                     continue;
                 }
-                if let Some(resolved) = resolve_row(&out, field, r, level, sub) {
+                if let Some(resolved) = resolve_row(out, field, r, level, sub) {
                     out.entry(field.clone())
                         .or_default()
                         .insert(level, resolved);
@@ -793,7 +807,6 @@ fn patched_values(
             }
         }
     }
-    out
 }
 
 /// Resolve one ranged row's text: `{…}` through the expression evaluator
@@ -840,29 +853,7 @@ fn patched_effects(effects: &[ParsedEffect], level: i32, sub: i32) -> Vec<Parsed
                 return e.clone();
             }
             let mut out = e.clone();
-            for pass_sub in [false, true] {
-                if pass_sub && sub == 0 {
-                    break;
-                }
-                for (field, rows) in &e.sub_params {
-                    for r in rows {
-                        let is_sub_row = r.from_sub > 0;
-                        if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level)
-                        {
-                            continue;
-                        }
-                        if is_sub_row && !(r.from_sub <= sub && sub <= r.to_sub) {
-                            continue;
-                        }
-                        if let Some(resolved) = resolve_row(&out.params, field, r, level, sub) {
-                            out.params
-                                .entry(field.clone())
-                                .or_default()
-                                .insert(level, resolved);
-                        }
-                    }
-                }
-            }
+            apply_ranged_rows(&mut out.params, &e.sub_params, level, sub);
             out
         })
         .collect()
@@ -1101,27 +1092,7 @@ fn patched_condition_params(c: &ParsedCondition, level: i32, sub: i32) -> Levele
         return c.params.clone();
     }
     let mut out = c.params.clone();
-    for pass_sub in [false, true] {
-        if pass_sub && sub == 0 {
-            break;
-        }
-        for (field, rows) in &c.sub_params {
-            for r in rows {
-                let is_sub_row = r.from_sub > 0;
-                if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level) {
-                    continue;
-                }
-                if is_sub_row && !(r.from_sub <= sub && sub <= r.to_sub) {
-                    continue;
-                }
-                if let Some(resolved) = resolve_row(&out, field, r, level, sub) {
-                    out.entry(field.clone())
-                        .or_default()
-                        .insert(level, resolved);
-                }
-            }
-        }
-    }
+    apply_ranged_rows(&mut out, &c.sub_params, level, sub);
     out
 }
 
