@@ -135,10 +135,7 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
     };
     // Depositable = not equipped (Java `getAvailableItems`).
     let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = inv
-        .items()
-        .iter()
-        .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
-        .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
+        .unequipped_with_templates(&world.data.item_data)
         .collect();
     let packet =
         sp::warehouse_deposit_list(wh_type(tgt), adena(world, player_oid), wh_size, &items);
@@ -547,13 +544,8 @@ pub(crate) fn handle_package_sendable_list(world: &mut World, client_id: u32, bo
         return;
     };
     let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = inv
-        .items()
-        .iter()
-        .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
-        .filter_map(|it| {
-            let t = world.data.item_data.get(it.item_id)?;
-            t.is_freightable.then_some((it, t))
-        })
+        .unequipped_with_templates(&world.data.item_data)
+        .filter(|(_, t)| t.is_freightable)
         .collect();
     let packet = sp::package_sendable_list(recipient, inv.adena(), &items);
     send_to_client(world, client_id, packet);

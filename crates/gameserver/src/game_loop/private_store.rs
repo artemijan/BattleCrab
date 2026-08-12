@@ -73,18 +73,14 @@ fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
         return;
     };
     let sellable: Vec<StoreLine> = inv
-        .items()
-        .iter()
-        .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
-        .filter_map(|it| {
-            let t = world.data.item_data.get(it.item_id)?;
-            // Java `TradeList.addItem` (behind `PrivateStoreManageListSell`)
-            // refuses untradable items — bound items never reach the window.
-            (!t.is_quest_item && t.is_tradable() && t.price > 0).then_some(StoreLine {
-                item: *it,
-                template: t,
-                price: 0,
-            })
+        .unequipped_with_templates(&world.data.item_data)
+        // Java `TradeList.addItem` (behind `PrivateStoreManageListSell`)
+        // refuses untradable items — bound items never reach the window.
+        .filter(|(_, t)| !t.is_quest_item && t.is_tradable() && t.price > 0)
+        .map(|(it, t)| StoreLine {
+            item: *it,
+            template: t,
+            price: 0,
         })
         .collect();
     let in_store = store_lines(world, owner);

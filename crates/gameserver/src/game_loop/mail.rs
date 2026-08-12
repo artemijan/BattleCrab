@@ -311,10 +311,7 @@ pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
         .objects
         .get_component::<Inventory>(&player)
         .map(|inv| {
-            inv.items()
-                .iter()
-                .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
-                .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
+            inv.unequipped_with_templates(&world.data.item_data)
                 .filter(|(_, t)| !t.is_quest_item && t.is_tradable())
                 .collect()
         })

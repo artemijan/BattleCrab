@@ -232,6 +232,26 @@ impl Inventory {
         &self.items
     }
 
+    /// Java `PlayerInventory.getAvailableItems` — every **unequipped** instance
+    /// paired with its template, the shape each "pick items out of your bag"
+    /// window starts from (warehouse deposit, freight, mail attachments, trade,
+    /// private store).
+    ///
+    /// Equipped gear is excluded because Java's own accessor is
+    /// `!item.isEquipped()`; an instance whose `item_id` has no template is
+    /// dropped rather than shown untyped. Callers layer their own predicate on
+    /// top (tradable, freightable, priced, …) — that part genuinely differs per
+    /// window, the two filters here did not.
+    pub fn unequipped_with_templates<'a>(
+        &'a self,
+        data: &'a ItemData,
+    ) -> impl Iterator<Item = (&'a ItemInstance, &'a item_data::ItemTemplate)> {
+        self.items
+            .iter()
+            .filter(|it| self.paperdoll_slot_of(it.object_id).is_none())
+            .filter_map(|it| data.get(it.item_id).map(|t| (it, t)))
+    }
+
     /// Java `Inventory.getItemByItemId` — the first instance of `item_id`, or
     /// `None` when the bag holds none.
     ///

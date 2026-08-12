@@ -145,15 +145,11 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
         .objects
         .get_component::<Inventory>(&viewer)
         .map(|inv| {
-            inv.items()
-                .iter()
-                .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
-                .filter_map(|it| {
-                    let t = world.data.item_data.get(it.item_id)?;
-                    // Java `TradeList.addItem` refuses untradable items, so the
-                    // window never lists them either.
-                    (!t.is_quest_item && t.is_tradable()).then_some((*it, t))
-                })
+            inv.unequipped_with_templates(&world.data.item_data)
+                // Java `TradeList.addItem` refuses untradable items, so the
+                // window never lists them either.
+                .filter(|(_, t)| !t.is_quest_item && t.is_tradable())
+                .map(|(it, t)| (*it, t))
                 .collect()
         })
         .unwrap_or_default();
