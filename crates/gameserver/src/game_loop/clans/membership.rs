@@ -279,11 +279,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     let pledge_class = clan.pledge_class_of(player_oid);
     // Java `player.setClanPrivileges(clan.getRankPrivs(player.getPowerGrade()))`.
     let privs = clan.rank_privs_of(grade);
-    let (ally_id, ally_crest_id, clan_crest_id, clan_crest_large_id) = world
-        .clans
-        .get(&clan_id)
-        .map(|c| (c.ally_id, c.ally_crest_id, c.crest_id, c.crest_large_id))
-        .unwrap_or((0, 0, 0, 0));
+    sync_clan_insignia(world, clan_id, player_oid);
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.clan_id = clan_id;
         p.clan_privs = privs;
@@ -291,10 +287,6 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
         p.power_grade = grade;
         p.pledge_type = pledge_type;
         p.pledge_class = pledge_class;
-        p.ally_id = ally_id;
-        p.ally_crest_id = ally_crest_id;
-        p.clan_crest_id = clan_crest_id;
-        p.clan_crest_large_id = clan_crest_large_id;
         p.clan_join_expiry_time = 0; // Java `setClanJoinExpiryTime(0)`
     }
     let _ = world.db.send(DbCommand::UpdateCharClan {

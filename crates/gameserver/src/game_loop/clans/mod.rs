@@ -506,18 +506,10 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
             (grade, c.rank_privs_of(grade))
         })
     };
-    let (ally_id, ally_crest_id, clan_crest_id, clan_crest_large_id) = world
-        .clans
-        .get(&clan_id)
-        .map(|c| (c.ally_id, c.ally_crest_id, c.crest_id, c.crest_large_id))
-        .unwrap_or((0, 0, 0, 0));
+    sync_clan_insignia(world, clan_id, object_id);
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.clan_leader = is_leader;
         p.pledge_class = pledge_class;
-        p.ally_id = ally_id;
-        p.ally_crest_id = ally_crest_id;
-        p.clan_crest_id = clan_crest_id;
-        p.clan_crest_large_id = clan_crest_large_id;
         if is_leader {
             p.clan_privs = ALL_CLAN_PRIVILEGES;
             p.power_grade = 1;
@@ -633,6 +625,24 @@ pub(crate) fn clan_membership(world: &World, player_oid: i32) -> Option<(i32, i3
 pub(crate) fn clan_leader_of(world: &World, player_oid: i32) -> Option<i32> {
     clan_membership(world, player_oid)
         .and_then(|(clan_id, _, is_leader)| is_leader.then_some(clan_id))
+}
+
+/// Copy the clan's alliance id and the three crest ids onto one member — the
+/// denormalized half of Java `Player.setClan`, since `UserInfo`/`CharInfo`
+/// read the insignia off the player and never off the clan. Zeros when the
+/// clan is gone, which is what a clanless player carries anyway.
+pub(crate) fn sync_clan_insignia(world: &mut World, clan_id: i32, player_oid: i32) {
+    let (ally_id, ally_crest_id, clan_crest_id, clan_crest_large_id) = world
+        .clans
+        .get(&clan_id)
+        .map(|c| (c.ally_id, c.ally_crest_id, c.crest_id, c.crest_large_id))
+        .unwrap_or((0, 0, 0, 0));
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
+        p.ally_id = ally_id;
+        p.ally_crest_id = ally_crest_id;
+        p.clan_crest_id = clan_crest_id;
+        p.clan_crest_large_id = clan_crest_large_id;
+    }
 }
 
 /// Whether `oid` holds `privilege` in their clan (leader always does — the
