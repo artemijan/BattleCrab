@@ -155,36 +155,27 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                     }
                     b"amount" => text_target = Some("amount"),
                     b"mode" => text_target = Some("mode"),
-                    b"passive_skill" | b"active_skill" => {
+                    tag @ (b"passive_skill" | b"active_skill" | b"attack_skill"
+                    | b"magic_skill" | b"critical_skill") => {
                         if let (Some(o), Some(id), Some(level)) = (
                             current.as_mut(),
                             num("id").map(|v| v as i32),
                             num("level").map(|v| v as i32),
                         ) {
-                            if e.name().as_ref() == b"passive_skill" {
-                                o.passive_skills.push((id, level));
-                            } else {
-                                o.active_skills.push((id, level));
+                            match tag {
+                                b"passive_skill" => o.passive_skills.push((id, level)),
+                                b"active_skill" => o.active_skills.push((id, level)),
+                                _ => o.triggers.push(OptionTrigger {
+                                    skill_id: id,
+                                    skill_level: level,
+                                    chance: num("chance").unwrap_or(0.0),
+                                    kind: match tag {
+                                        b"attack_skill" => OptionSkillType::Attack,
+                                        b"magic_skill" => OptionSkillType::Magic,
+                                        _ => OptionSkillType::Critical,
+                                    },
+                                }),
                             }
-                        }
-                    }
-                    b"attack_skill" | b"magic_skill" | b"critical_skill" => {
-                        let kind = match e.name().as_ref() {
-                            b"attack_skill" => OptionSkillType::Attack,
-                            b"magic_skill" => OptionSkillType::Magic,
-                            _ => OptionSkillType::Critical,
-                        };
-                        if let (Some(o), Some(id), Some(level)) = (
-                            current.as_mut(),
-                            num("id").map(|v| v as i32),
-                            num("level").map(|v| v as i32),
-                        ) {
-                            o.triggers.push(OptionTrigger {
-                                skill_id: id,
-                                skill_level: level,
-                                chance: num("chance").unwrap_or(0.0),
-                                kind,
-                            });
                         }
                     }
                     _ => {}
