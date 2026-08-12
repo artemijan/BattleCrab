@@ -584,11 +584,7 @@ pub fn pet_item_list(
     inventory: &crate::model::inventory::Inventory,
     data: &crate::data::GameData,
 ) -> Vec<u8> {
-    let entries: Vec<_> = inventory
-        .items()
-        .iter()
-        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
-        .collect();
+    let entries: Vec<_> = crate::network::enter_world::templated_items(inventory, data).collect();
 
     let mut w = PacketWriter::new();
     w.write_u8(0xB3);

@@ -51,6 +51,20 @@ pub(crate) fn write_item_entry(
     w.write_u8(1); // available
 }
 
+/// Every inventory item paired with its template, dropping ids with no
+/// template row. The four item-list packets (`ItemList`, `GMViewItemList`,
+/// `ExQuestItemList`, `PetItemList`) all start here and differ only in the
+/// quest-item filter they layer on top.
+pub(crate) fn templated_items<'a>(
+    inventory: &'a crate::model::inventory::Inventory,
+    data: &'a GameData,
+) -> impl Iterator<Item = (&'a ItemInstance, &'a ItemTemplate)> {
+    inventory
+        .items()
+        .iter()
+        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+}
+
 // ---- plain packets ----
 
 /// `ItemList` (0x11). Quest items are filtered out (none exist yet). `open`
@@ -62,10 +76,7 @@ pub fn item_list(
     data: &GameData,
     open: bool,
 ) -> Vec<u8> {
-    let entries: Vec<_> = inventory
-        .items()
-        .iter()
-        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+    let entries: Vec<_> = templated_items(inventory, data)
         .filter(|(_, t)| !t.is_quest_item)
         .collect();
 
@@ -89,11 +100,7 @@ pub fn gm_view_item_list(
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
 ) -> Vec<u8> {
-    let entries: Vec<_> = inventory
-        .items()
-        .iter()
-        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
-        .collect();
+    let entries: Vec<_> = templated_items(inventory, data).collect();
     let mut w = PacketWriter::new();
     w.write_u8(0x9A);
     w.write_string(name);
@@ -536,10 +543,7 @@ pub fn ex_quest_item_list(
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
 ) -> Vec<u8> {
-    let entries: Vec<_> = inventory
-        .items()
-        .iter()
-        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+    let entries: Vec<_> = templated_items(inventory, data)
         .filter(|(_, t)| t.is_quest_item)
         .collect();
     let mut w = ex(0xC7);

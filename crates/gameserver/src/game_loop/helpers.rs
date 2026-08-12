@@ -20,6 +20,24 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
     world.clients.client_of_player(player_object_id)
 }
 
+pub(crate) fn maybe_object_name(world: &World, oid: i32) -> Option<String> {
+    if let Some(p) = world.objects.get_component::<Player>(&oid) {
+        return Some(p.name.clone());
+    }
+    if let Some(npc) = world.objects.get_component::<Npc>(&oid)
+        && let Some(t) = world.data.npc_data.get(npc.npc_id)
+    {
+        return Some(t.name.clone());
+    }
+    None
+}
+
+/// Java `WorldObject.getName()` for GM feedback — player name, else the NPC
+/// template name, else the object id.
+pub(crate) fn object_name(world: &World, oid: i32) -> String {
+    maybe_object_name(world, oid).unwrap_or(oid.to_string())
+}
+
 /// Java `SkillData.getSkill(id, level)` — a datapack skill, **cloned**.
 ///
 /// The clone is not incidental. Every `apply_*` in the skill pipeline wants

@@ -10,7 +10,7 @@
 //! they are still gated correctly by the access table and reach the "not
 //! implemented" path rather than crashing.
 
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{maybe_object_name, send_to_client};
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -987,17 +987,7 @@ fn target_display_name(world: &World, gm_object_id: i32) -> String {
     let Some(target_id) = guard::target(world, gm_object_id) else {
         return "no-target".to_string();
     };
-    if let Some(p) = world.objects.get_component::<Player>(&target_id) {
-        return p.name.clone();
-    }
-    if let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&target_id)
-        && let Some(template) = world.data.npc_data.get(npc.npc_id)
-    {
-        return template.name.clone();
-    }
-    format!("object:{target_id}")
+    maybe_object_name(world, target_id).unwrap_or(format!("object:{target_id}"))
 }
 
 /// `World.getPlayer(name)` — case-insensitive scan over in-game players.

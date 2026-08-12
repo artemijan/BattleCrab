@@ -119,7 +119,7 @@ pub(crate) fn spawn_plain_summon(
     // name as its title (the name itself already defaults to the template's).
     let template_name = world.data.npc_data.get(npc_id).map(|t| t.name.clone());
     if let Some(name) = template_name {
-        set_npc_title(world, npc_id, name);
+        set_npc_title(world, npc_oid, name);
     }
     if despawn_ms > 0 {
         world.scheduler.schedule(

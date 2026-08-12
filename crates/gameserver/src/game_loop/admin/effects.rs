@@ -10,8 +10,8 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{nth_arg, object_name};
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::Position;
@@ -26,20 +26,6 @@ use super::{find_online_player, send_message, send_sm};
 fn is_creature(world: &World, oid: i32) -> bool {
     world.objects.has_component::<Player>(&oid)
         || world.objects.has_component::<crate::model::npc::Npc>(&oid)
-}
-
-/// Java `WorldObject.getName()` for GM feedback — player name, else the NPC
-/// template name, else the object id.
-fn object_name(world: &World, oid: i32) -> String {
-    if let Some(p) = world.objects.get_component::<Player>(&oid) {
-        return p.name.clone();
-    }
-    if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&oid)
-        && let Some(t) = world.data.npc_data.get(npc.npc_id)
-    {
-        return t.name.clone();
-    }
-    oid.to_string()
 }
 
 /// Port of `AdminEffects.performSocial` — broadcast a `SocialAction` on
