@@ -51,20 +51,19 @@ impl XmlFile {
 
 /// Every NPC XML the server itself loads, in a stable order.
 ///
-/// Flat, not recursive, because [`gameserver::data::npc_data::NpcData`] is: it
-/// reads this directory's own `.xml` files and stops. (Java also reads
+/// Enumerated by the server's own [`gameserver::data::xml::xml_files_in`], so
+/// "the files this tool may edit" and "the files the server loads" cannot drift
+/// apart. Flat, not recursive, because [`gameserver::data::npc_data::NpcData`]
+/// is: it reads this directory's own `.xml` files and stops. (Java also reads
 /// `npcs/custom/` when `CUSTOM_NPC_DATA` is set, which this port does not
 /// carry — so nothing here would match those ids anyway, and editing files the
 /// server never reads would be worse than skipping them.)
+///
+/// An unreadable directory is therefore reported as an empty one: for a tool
+/// that is about to rewrite the datapack, "nothing to edit here" and "could not
+/// look" both mean stop, and the path is in the message either way.
 pub fn load(dir: &Path) -> Result<Vec<XmlFile>, String> {
-    let entries =
-        std::fs::read_dir(dir).map_err(|e| format!("cannot read {}: {e}", dir.display()))?;
-    let mut paths: Vec<PathBuf> = entries
-        .flatten()
-        .map(|e| e.path())
-        .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("xml"))
-        .collect();
-    paths.sort();
+    let paths = gameserver::data::xml::xml_files_in(dir);
     if paths.is_empty() {
         return Err(format!("no NPC XML under {}", dir.display()));
     }

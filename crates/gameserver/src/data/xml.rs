@@ -68,7 +68,11 @@ fn events_with(content: &str, trim_text: bool) -> impl Iterator<Item = Event<'_>
 /// A missing or unreadable directory yields an empty list — the datapack ships
 /// some of these directories only on certain dists, and a loader with nothing
 /// to read is not an error.
-pub(crate) fn xml_files_in(dir: impl AsRef<Path>) -> Vec<PathBuf> {
+///
+/// `pub` rather than crate-private because the offline tools read the same
+/// directories the loaders do, and reading them the *same* way is the point:
+/// `tools::npc_xml` edits exactly the files `npc_data` would load.
+pub fn xml_files_in(dir: impl AsRef<Path>) -> Vec<PathBuf> {
     let Ok(entries) = std::fs::read_dir(dir) else {
         return Vec::new();
     };
