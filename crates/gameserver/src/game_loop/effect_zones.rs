@@ -55,17 +55,8 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
             continue;
         }
 
-        // Per-zone cadence. First sight schedules `initialDelay` out (Java's
-        // `scheduleAtFixedRate(task, initialDelay, reuse)`) rather than firing
-        // immediately.
-        match world.effect_zone_next_tick.entry(idx) {
-            std::collections::hash_map::Entry::Occupied(mut e) => {
-                e.insert(now + ms_to_ticks(params.reuse));
-            }
-            std::collections::hash_map::Entry::Vacant(e) => {
-                e.insert(now + ms_to_ticks(params.initial_delay.max(params.reuse)));
-                continue;
-            }
+        if !arm_timer(world, idx, now, params.initial_delay, params.reuse) {
+            continue;
         }
 
         for oid in players {
@@ -139,6 +130,24 @@ fn ms_to_ticks(ms: i32) -> u64 {
     (ms.max(0) as u64 / 100).max(1)
 }
 
+/// Per-zone cadence, shared by the effect and damage sweeps. Schedules the
+/// zone's next fire and reports whether it may fire *now*: first sight schedules
+/// `initialDelay` out (Java's `scheduleAtFixedRate(task, initialDelay, reuse)`)
+/// and returns `false` rather than firing immediately.
+fn arm_timer(world: &mut World, idx: usize, now: u64, initial_delay: i32, reuse: i32) -> bool {
+    use std::collections::hash_map::Entry;
+    match world.effect_zone_next_tick.entry(idx) {
+        Entry::Occupied(mut e) => {
+            e.insert(now + ms_to_ticks(reuse));
+            true
+        }
+        Entry::Vacant(e) => {
+            e.insert(now + ms_to_ticks(initial_delay.max(reuse)));
+            false
+        }
+    }
+}
+
 /// `DamageZone.ApplyDamage` — flat HP/MP loss for players standing in lava,
 /// acid or a castle trap. Same sweep shape as the effect tick above (one pass,
 /// grouped by zone, each zone on its own `reuse`).
@@ -170,14 +179,8 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
             continue;
         }
 
-        match world.effect_zone_next_tick.entry(idx) {
-            std::collections::hash_map::Entry::Occupied(mut e) => {
-                e.insert(now + ms_to_ticks(params.reuse));
-            }
-            std::collections::hash_map::Entry::Vacant(e) => {
-                e.insert(now + ms_to_ticks(params.initial_delay.max(params.reuse)));
-                continue;
-            }
+        if !arm_timer(world, idx, now, params.initial_delay, params.reuse) {
+            continue;
         }
 
         for oid in players {
