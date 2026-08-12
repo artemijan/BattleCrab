@@ -427,6 +427,13 @@ fn find_upgradable_door(world: &World, door_id: i32) -> Option<i32> {
 /// `setCurrentHp(getMaxHp())` does on upgrade).
 pub(crate) fn set_door_upgrade(world: &mut World, door_id: i32, ratio: i32) {
     super::global_vars::set(world, &door_upgrade_key(door_id), ratio);
+    apply_door_upgrade(world, door_id, ratio);
+}
+
+/// Stamp an upgrade ratio onto the live door: HP becomes `base × ratio`, full.
+/// A ratio below 1 would *shrink* the door, so it clamps — Java's upgrade path
+/// can only ever raise it.
+fn apply_door_upgrade(world: &mut World, door_id: i32, ratio: i32) {
     let base = world
         .data
         .door_data
@@ -457,20 +464,7 @@ pub(crate) fn apply_door_upgrades_at_boot(world: &mut World) {
         })
         .collect();
     for (door_id, ratio) in upgraded {
-        let base = world
-            .data
-            .door_data
-            .get(door_id)
-            .map(|t| t.hp_max)
-            .unwrap_or(0);
-        let oid = find_upgradable_door(world, door_id);
-        if let Some(oid) = oid
-            && let Some(d) = world
-                .objects
-                .get_component_mut::<crate::model::door::Door>(&oid)
-        {
-            d.current_hp = base * ratio;
-        }
+        apply_door_upgrade(world, door_id, ratio);
     }
 }
 

@@ -188,12 +188,7 @@ pub(crate) fn add_premium_time(world: &mut World, account: &str, duration_millis
 /// `SimpleDateFormat` in the server's local zone; UTC here, as no time-zone crate
 /// is pulled in — a documented cosmetic deviation).
 pub(crate) fn format_datetime(millis: i64) -> String {
-    let secs = millis.div_euclid(1000);
-    let days = secs.div_euclid(86_400);
-    let tod = secs.rem_euclid(86_400);
-    let (hour, minute) = (tod / 3600, (tod % 3600) / 60);
-
-    let (year, month, day) = commons::util::civil_from_days(days);
+    let (year, month, day, hour, minute, _) = commons::util::civil_from_millis(millis);
     format!("{day:02}.{month:02}.{year:04} {hour:02}:{minute:02}")
 }
 

@@ -333,18 +333,12 @@ pub(super) fn admin_stats(world: &mut World, client_id: u32) {
 /// `AdminKick`'s `//kick_non_gm` — disconnect every online non-GM player.
 pub(super) fn admin_kick_non_gm(world: &mut World, client_id: u32) {
     let targets: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => {
-                let oid = s.player_object_id();
-                let is_gm = world
-                    .objects
-                    .get_component::<Player>(&oid)
-                    .is_some_and(|p| p.is_gm(&world.data));
-                (!is_gm).then_some(oid)
-            }
-            _ => None,
+        .in_game_player_oids()
+        .filter(|oid| {
+            !world
+                .objects
+                .get_component::<Player>(oid)
+                .is_some_and(|p| p.is_gm(&world.data))
         })
         .collect();
     let n = targets.len();
@@ -408,19 +402,13 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
         return;
     };
     let members: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => {
-                let oid = s.player_object_id();
-                (world
-                    .objects
-                    .get_component::<Player>(&oid)
-                    .map(|p| p.clan_id)
-                    == Some(clan_id))
-                .then_some(oid)
-            }
-            _ => None,
+        .in_game_player_oids()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Player>(oid)
+                .map(|p| p.clan_id)
+                == Some(clan_id)
         })
         .collect();
     recall_all(world, object_id, &members);

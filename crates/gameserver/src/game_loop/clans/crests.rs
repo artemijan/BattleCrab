@@ -67,6 +67,35 @@ fn read_crest_data(r: &mut PacketReader, length: i32) -> Option<Vec<u8>> {
     }
 }
 
+/// The gate `RequestSetPledgeCrest` and `RequestExSetPledgeCrestLarge` open
+/// with, in Java's order: a clan scheduled for dissolution may not touch its
+/// crest at all, and the actor needs `CL_REGISTER_CREST`. `false` means the
+/// request is refused and its system message has already gone out.
+fn may_edit_crest(world: &mut World, player: i32, clan_id: i32, privs: i32) -> bool {
+    let Some(clan) = world.clans.get(&clan_id) else {
+        return false;
+    };
+    if clan.dissolving_expiry_time > now_millis() {
+        send_sm_with(
+            world,
+            player,
+            sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST,
+            &[],
+        );
+        return false;
+    }
+    if !clan.has_privilege(player, privs, CL_REGISTER_CREST) {
+        send_sm_with(
+            world,
+            player,
+            sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT,
+            &[],
+        );
+        return false;
+    }
+    true
+}
+
 /// `RequestSetPledgeCrest` (0x09): the small (≤256-byte) clan crest.
 pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player) = world.player_oid(client_id) else {
@@ -84,27 +113,12 @@ pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32,
     let Some((clan_id, privs, _)) = clan_membership(world, player) else {
         return;
     };
+    if !may_edit_crest(world, player, clan_id, privs) {
+        return;
+    }
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    if clan.dissolving_expiry_time > now_millis() {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST,
-            &[],
-        );
-        return;
-    }
-    if !clan.has_privilege(player, privs, CL_REGISTER_CREST) {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT,
-            &[],
-        );
-        return;
-    }
     if data.is_empty() {
         if clan.crest_id != 0 {
             let old = clan.crest_id;
@@ -189,27 +203,12 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
         );
         return;
     }
+    if !may_edit_crest(world, player, clan_id, privs) {
+        return;
+    }
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    if clan.dissolving_expiry_time > now_millis() {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST,
-            &[],
-        );
-        return;
-    }
-    if !clan.has_privilege(player, privs, CL_REGISTER_CREST) {
-        send_sm_with(
-            world,
-            player,
-            sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT,
-            &[],
-        );
-        return;
-    }
     if data.is_empty() {
         if clan.crest_large_id != 0 {
             let old = clan.crest_large_id;

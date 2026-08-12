@@ -435,6 +435,18 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     if changes.is_empty() {
         return;
     }
+    send_sell_list_refresh(world, client_id, player, changes);
+}
+
+/// The tail every sell-tab mutation ends on: push the inventory delta, then
+/// redraw the sell window (`ExBuySellList` in sell mode) so the refund tab and
+/// the pet-collar exclusion match the bag the client now holds.
+fn send_sell_list_refresh(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    changes: Vec<crate::model::inventory::ItemChange>,
+) {
     let refund_items = refund_items_of(world, player);
     let collar = crate::game_loop::servitor::active_pet_collar(world, player);
     helpers::send_inventory_update(world, player, changes);
@@ -536,20 +548,5 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         .into_iter()
         .map(crate::model::inventory::ItemChange::Modified)
         .collect();
-    let refund_items = refund_items_of(world, player);
-    let collar = crate::game_loop::servitor::active_pet_collar(world, player);
-    helpers::send_inventory_update(world, player, changes);
-    if let Some((cs, inv)) = world
-        .clients
-        .get(&client_id)
-        .zip(world.objects.get_component::<Inventory>(&player))
-    {
-        cs.send(trade::ex_buy_sell_list_sell(
-            inv,
-            &refund_items,
-            &world.data,
-            true,
-            collar,
-        ));
-    }
+    send_sell_list_refresh(world, client_id, player, changes);
 }

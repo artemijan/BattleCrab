@@ -85,6 +85,13 @@ pub(crate) fn request_book_open(world: &mut World, client_id: u32, is_dwarven: b
     let Some(oid) = player_of(world, client_id) else {
         return;
     };
+    send_recipe_book(world, client_id, oid, is_dwarven);
+}
+
+/// `RecipeBookItemList` for one craft type. The max-MP field is the *current*
+/// max, not the value the window was opened with, so a resend after a stat
+/// change shows the right craft budget.
+fn send_recipe_book(world: &mut World, client_id: u32, oid: i32, is_dwarven: bool) {
     let max_mp = world
         .objects
         .get_component::<Vitals>(&oid)
@@ -113,17 +120,7 @@ pub(crate) fn handle_book_destroy(world: &mut World, client_id: u32, recipe_id: 
         book.dwarven.retain(|&id| id != recipe_id);
         book.common.retain(|&id| id != recipe_id);
     }
-    let max_mp = world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| v.max_mp)
-        .unwrap_or(0);
-    let recipes = book_ids(world, oid, is_dwarven);
-    send_to_client(
-        world,
-        client_id,
-        sp::recipe_book_item_list(is_dwarven, max_mp, &recipes),
-    );
+    send_recipe_book(world, client_id, oid, is_dwarven);
 }
 
 fn book_ids(world: &World, oid: i32, is_dwarven: bool) -> Vec<i32> {

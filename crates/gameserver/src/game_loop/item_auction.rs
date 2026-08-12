@@ -792,19 +792,7 @@ fn write_auction_item(world: &World, w: &mut commons::network::PacketWriter, auc
     let (item_id, count, enchant) = catalogue_item(world, a.instance_id, a.auction_item_id)
         .map(|it| (it.item_id, it.item_count, it.enchant_level))
         .unwrap_or((0, 1, 0));
-    let inst = crate::model::inventory::ItemInstance {
-        object_id: 0,
-        item_id,
-        count,
-        enchant_level: enchant,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
+    let inst = crate::model::inventory::ItemInstance::detached(0, item_id, count, enchant);
     if let Some(t) = world.data.item_data.get(item_id) {
         crate::network::enter_world::write_item_entry(w, &inst, t, false);
     }

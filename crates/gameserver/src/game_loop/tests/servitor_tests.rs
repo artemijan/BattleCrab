@@ -2747,6 +2747,103 @@ fn a_partial_stack_buys_nothing() {
     assert_eq!(owner_shot_count(&world), 1, "the odd shot is not consumed");
 }
 
+/// Whether `item_id` is still armed for auto-use on the owner.
+fn toggle_is_on(world: &World, item_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&OWNER)
+        .is_some_and(|p| p.auto_shots.contains(&item_id))
+}
+
+/// The `(item_id, enable, shot_type)` of every `ExAutoSoulShot` in `packets`.
+fn auto_shot_echoes(packets: &[Vec<u8>]) -> Vec<(i32, i32, i32)> {
+    packets
+        .iter()
+        .filter(|p| {
+            p.len() >= 15
+                && p[0] == server_packets::opcodes::EX
+                && i16::from_le_bytes(p[1..3].try_into().unwrap())
+                    == server_packets::opcodes::EX_AUTO_SOUL_SHOT
+        })
+        .map(|p| {
+            (
+                i32::from_le_bytes(p[3..7].try_into().unwrap()),
+                i32::from_le_bytes(p[7..11].try_into().unwrap()),
+                i32::from_le_bytes(p[11..15].try_into().unwrap()),
+            )
+        })
+        .collect()
+}
+
+/// **A stack too thin for one swing retires the toggle.** Java's Beast handler
+/// fails `destroyItemWithoutTrace` and falls into `disableAutoShot`; without it
+/// the shot bar stays lit over a pet that silently stopped using shots, and
+/// every swing re-walks a list it can never satisfy.
+#[test]
+fn a_partial_soulshot_stack_retires_the_toggle() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    give_owner_shots(&mut world, 1); // level 1 costs 2
+    drain(&mut rx);
+
+    assert!(!crate::game_loop::servitor::recharge_shots(
+        &mut world, pet_oid, true
+    ));
+    assert_eq!(owner_shot_count(&world), 1, "the odd shot is not consumed");
+    assert!(
+        !toggle_is_on(&world, BEAST_SOULSHOT),
+        "auto-use is switched off"
+    );
+
+    let packets = drain(&mut rx);
+    assert_eq!(
+        auto_shot_echoes(&packets),
+        vec![(BEAST_SOULSHOT, 0, crate::model::ShotType::Soulshots as i32)],
+        "the client is told the toggle went dark"
+    );
+    assert!(
+        has_sm(
+            &packets,
+            server_packets::sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED
+        ),
+        "and why"
+    );
+}
+
+/// The stack running out entirely is the same retirement, and it happens once:
+/// a second swing over an already-cleared list says nothing.
+#[test]
+fn an_exhausted_soulshot_stack_retires_the_toggle_once() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    // Toggled on, bag empty — the state a player lands in after the last swing.
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&OWNER)
+        .unwrap()
+        .auto_shots
+        .push(BEAST_SOULSHOT);
+    drain(&mut rx);
+
+    assert!(!crate::game_loop::servitor::recharge_shots(
+        &mut world, pet_oid, true
+    ));
+    assert!(!toggle_is_on(&world, BEAST_SOULSHOT));
+    assert_eq!(auto_shot_echoes(&drain(&mut rx)).len(), 1, "told once");
+
+    assert!(!crate::game_loop::servitor::recharge_shots(
+        &mut world, pet_oid, true
+    ));
+    assert!(
+        auto_shot_echoes(&drain(&mut rx)).is_empty(),
+        "and not again on the next swing"
+    );
+}
+
 /// Spending the charge is a one-shot: the second swing is unshotted.
 #[test]
 fn the_charge_is_spent_once() {
@@ -4264,6 +4361,107 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
             .unwrap()
             .spiritshot,
         "the magic shot is still charged"
+    );
+}
+
+/// **The spiritshot path retires the toggle exactly like the soulshot one.**
+/// It used to do neither prune, so a summoner who ran dry kept a lit Beast
+/// Spiritshot toggle over a servitor that had quietly stopped using shots —
+/// forever, since nothing else on the summon path ever cleared it.
+#[test]
+fn a_partial_spiritshot_stack_retires_the_toggle() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    register_beast_spiritshot(&mut world); // arms the toggle and gives 10
+    // Down to one, and a level-1 cast costs two.
+    world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .remove_item(BEAST_SPIRITSHOT, 9);
+    drain(&mut rx);
+
+    assert!(!crate::game_loop::servitor::recharge_spiritshots(
+        &mut world, pet_oid
+    ));
+    assert_eq!(owner_spiritshots(&world), 1, "the odd shot is not consumed");
+    assert!(
+        !toggle_is_on(&world, BEAST_SPIRITSHOT),
+        "auto-use is switched off"
+    );
+
+    let packets = drain(&mut rx);
+    assert_eq!(
+        auto_shot_echoes(&packets),
+        vec![(
+            BEAST_SPIRITSHOT,
+            0,
+            crate::model::ShotType::Spiritshots as i32
+        )],
+        "echoed as a spiritshot toggle, not a soulshot one"
+    );
+    assert!(has_sm(
+        &packets,
+        server_packets::sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED
+    ));
+}
+
+/// An empty bag retires the spiritshot toggle too — Java's
+/// `Summon.rechargeShots` prunes any auto-shot entry whose item is gone.
+#[test]
+fn an_exhausted_spiritshot_stack_retires_the_toggle() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    register_beast_spiritshot(&mut world);
+    world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .remove_item(BEAST_SPIRITSHOT, 10);
+    drain(&mut rx);
+
+    assert!(!crate::game_loop::servitor::recharge_spiritshots(
+        &mut world, pet_oid
+    ));
+    assert!(!toggle_is_on(&world, BEAST_SPIRITSHOT));
+    assert_eq!(auto_shot_echoes(&drain(&mut rx)).len(), 1);
+}
+
+/// Charging one kind leaves the other kind's toggle alone: a swing that finds
+/// no soulshots must not switch off a perfectly stocked spiritshot entry.
+#[test]
+fn retiring_one_shot_kind_leaves_the_other_armed() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_beast_soulshot(&mut world);
+    let pet_oid = summoned_pet(&mut world);
+    register_beast_spiritshot(&mut world); // 10 spiritshots, armed
+    // Soulshots armed but the bag is empty.
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&OWNER)
+        .unwrap()
+        .auto_shots
+        .push(BEAST_SOULSHOT);
+    drain(&mut rx);
+
+    assert!(!crate::game_loop::servitor::recharge_shots(
+        &mut world, pet_oid, true
+    ));
+    assert!(
+        !toggle_is_on(&world, BEAST_SOULSHOT),
+        "the dry kind retires"
+    );
+    assert!(
+        toggle_is_on(&world, BEAST_SPIRITSHOT),
+        "the stocked kind stays armed"
+    );
+    assert_eq!(
+        auto_shot_echoes(&drain(&mut rx)),
+        vec![(BEAST_SOULSHOT, 0, crate::model::ShotType::Soulshots as i32)],
+        "only the dry kind is echoed off"
     );
 }
 

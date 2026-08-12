@@ -155,14 +155,25 @@ pub fn date_parts(millis: i64) -> (i64, i64, i64) {
     (d, m, y)
 }
 
+/// The whole UTC calendar split of an epoch-millis stamp:
+/// `(year, month, day, hour, minute, second)`.
+///
+/// [`civil_from_days`] only reaches the date, so every formatter that also
+/// wanted a clock used to re-derive the time-of-day — and, in several cases,
+/// the calendar math with it. This is that split, said once; the layout is all
+/// a caller has left to choose.
+pub fn civil_from_millis(millis: i64) -> (i64, i64, i64, i64, i64, i64) {
+    let secs = millis.div_euclid(1000);
+    let (year, month, day) = civil_from_days(secs.div_euclid(86_400));
+    let tod = secs.rem_euclid(86_400);
+    (year, month, day, tod / 3600, (tod % 3600) / 60, tod % 60)
+}
+
 /// Format epoch milliseconds as `dd/MM HH:mm:ss` — Java
 /// `CastleManorManager.getNextModeChange`'s `SimpleDateFormat("dd/MM HH:mm:ss")`.
 /// No year, by Java's choice: the manor's next mode change is always within a
 /// day. UTC here, like the port's other formatters.
 pub fn format_day_month_time(millis: i64) -> String {
-    let secs = millis.div_euclid(1000);
-    let (_, month, day) = civil_from_days(secs.div_euclid(86_400));
-    let tod = secs.rem_euclid(86_400);
-    let (h, mi, s) = (tod / 3600, (tod % 3600) / 60, tod % 60);
+    let (_, month, day, h, mi, s) = civil_from_millis(millis);
     format!("{day:02}/{month:02} {h:02}:{mi:02}:{s:02}")
 }

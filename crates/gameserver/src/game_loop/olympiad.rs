@@ -1125,13 +1125,13 @@ fn is_eligible(world: &World, info: &NobleInfo) -> bool {
     class_ok && info.level >= 55
 }
 
-/// `OlympiadManager.registerNoble` — join a match waiting list. Returns whether
-/// the character is now registered, sending the appropriate system message
-/// either way (Java's behaviour).
-pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType) -> bool {
-    let Some(info) = noble_info(world, object_id) else {
-        return false;
-    };
+/// The checks `registerNoble` and `unRegisterNoble` open with, in Java's order:
+/// the character must be a noble, the competition period must be running, and
+/// they must still meet the class/level conditions. `None` means one failed and
+/// its system message has already gone out; `Some` carries the noble row both
+/// callers go on to use.
+fn waiting_list_gate(world: &mut World, object_id: i32) -> Option<NobleInfo> {
+    let info = noble_info(world, object_id)?;
 
     // Only during the competition period.
     if !world.olympiad.in_comp_period {
@@ -1140,7 +1140,7 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
             object_id,
             sm_ids::THE_OLYMPIAD_GAMES_ARE_NOT_CURRENTLY_IN_PROGRESS,
         );
-        return false;
+        return None;
     }
 
     // Eligibility (3rd/4th class + level 55).
@@ -1151,8 +1151,18 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
             sm_ids::CHARACTER_C1_DOES_NOT_MEET_THE_OLYMPIAD_CONDITIONS,
             &info.name,
         );
-        return false;
+        return None;
     }
+    Some(info)
+}
+
+/// `OlympiadManager.registerNoble` — join a match waiting list. Returns whether
+/// the character is now registered, sending the appropriate system message
+/// either way (Java's behaviour).
+pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType) -> bool {
+    let Some(info) = waiting_list_gate(world, object_id) else {
+        return false;
+    };
 
     // Java `AbstractOlympiadGame.checkPlayer`: the owner of a cursed weapon is
     // refused — "$c1 does not meet the participation requirements. The owner of
@@ -1244,26 +1254,7 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
 
 /// `OlympiadManager.unRegisterNoble` — leave the waiting list.
 pub(crate) fn unregister(world: &mut World, object_id: i32) -> bool {
-    let Some(info) = noble_info(world, object_id) else {
-        return false;
-    };
-
-    if !world.olympiad.in_comp_period {
-        send_sm(
-            world,
-            object_id,
-            sm_ids::THE_OLYMPIAD_GAMES_ARE_NOT_CURRENTLY_IN_PROGRESS,
-        );
-        return false;
-    }
-
-    if !is_eligible(world, &info) {
-        send_sm_c1(
-            world,
-            object_id,
-            sm_ids::CHARACTER_C1_DOES_NOT_MEET_THE_OLYMPIAD_CONDITIONS,
-            &info.name,
-        );
+    if waiting_list_gate(world, object_id).is_none() {
         return false;
     }
 
@@ -1538,20 +1529,7 @@ fn query_param(args: &str, key: &str) -> Option<i32> {
 /// Java `SimpleDateFormat("yyyy-MM-dd HH")` on the diary timestamp (UTC, like the
 /// rest of the port). Hinnant's civil-from-days.
 fn diary_date(millis: i64) -> String {
-    let secs = millis.div_euclid(1000);
-    let days = secs.div_euclid(86_400);
-    let hour = secs.rem_euclid(86_400) / 3600;
-    // days since 1970-01-01 → civil date (Howard Hinnant's algorithm).
-    let z = days + 719_468;
-    let era = z.div_euclid(146_097);
-    let doe = z - era * 146_097;
-    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146_096) / 365;
-    let y = yoe + era * 400;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let d = doy - (153 * mp + 2) / 5 + 1;
-    let m = if mp < 10 { mp + 3 } else { mp - 9 };
-    let y = if m <= 2 { y + 1 } else { y };
+    let (y, m, d, hour, _, _) = commons::util::civil_from_millis(millis);
     format!("{y:04}-{m:02}-{d:02} {hour:02}")
 }
 

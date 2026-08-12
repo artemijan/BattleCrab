@@ -41,6 +41,32 @@ fn online_players(world: &World) -> Vec<i32> {
     ids
 }
 
+/// HP/MP and CP for an admin read-out, zeroed when the object carries neither
+/// component. A panel renders what it can rather than bailing, so both
+/// fallbacks are display defaults — never write them back onto a character.
+fn panel_vitals(world: &World, target: i32) -> (Vitals, PlayerVitals) {
+    let vit = world
+        .objects
+        .get_component::<Vitals>(&target)
+        .copied()
+        .unwrap_or(Vitals {
+            max_hp: 0,
+            cur_hp: 0.0,
+            max_mp: 0,
+            cur_mp: 0.0,
+            dead: false,
+        });
+    let cp = world
+        .objects
+        .get_component::<PlayerVitals>(&target)
+        .copied()
+        .unwrap_or(PlayerVitals {
+            max_cp: 0,
+            cur_cp: 0.0,
+        });
+    (vit, cp)
+}
+
 /// `//current_player` / `//character_info [name]` — dump a player's key fields.
 /// `AdminEditChar`'s `//fullfood` — fill the targeted **pet**'s food bar.
 ///
@@ -133,25 +159,7 @@ pub(super) fn admin_character_info(
         z: 0,
         heading: 0,
     });
-    let vit = world
-        .objects
-        .get_component::<Vitals>(&target)
-        .copied()
-        .unwrap_or(Vitals {
-            max_hp: 0,
-            cur_hp: 0.0,
-            max_mp: 0,
-            cur_mp: 0.0,
-            dead: false,
-        });
-    let cp = world
-        .objects
-        .get_component::<PlayerVitals>(&target)
-        .copied()
-        .unwrap_or(PlayerVitals {
-            max_cp: 0,
-            cur_cp: 0.0,
-        });
+    let (vit, cp) = panel_vitals(world, target);
     let cs = world
         .objects
         .get_component::<CombatStats>(&target)
@@ -393,25 +401,7 @@ pub(super) fn admin_edit_character(world: &mut World, client_id: u32, object_id:
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
         return;
     };
-    let vit = world
-        .objects
-        .get_component::<Vitals>(&target)
-        .copied()
-        .unwrap_or(Vitals {
-            max_hp: 0,
-            cur_hp: 0.0,
-            max_mp: 0,
-            cur_mp: 0.0,
-            dead: false,
-        });
-    let cp = world
-        .objects
-        .get_component::<PlayerVitals>(&target)
-        .copied()
-        .unwrap_or(PlayerVitals {
-            max_cp: 0,
-            cur_cp: 0.0,
-        });
+    let (vit, cp) = panel_vitals(world, target);
     let percent = if vit.max_hp > 0 {
         (vit.cur_hp / vit.max_hp as f64 * 100.0) as i64
     } else {

@@ -993,19 +993,7 @@ mod tests {
             let mut t = earring(9000);
             t.body_part = body_part;
             t.type2 = exp_type2;
-            let item = ItemInstance {
-                object_id: 5000,
-                item_id: 9000,
-                count: 1,
-                enchant_level: 0,
-                custom_type1: 0,
-                custom_type2: 0,
-                mana_left: -1,
-                time: 0,
-                augment_mineral: 0,
-                augment_option1: 0,
-                augment_option2: 0,
-            };
+            let item = ItemInstance::detached(5000, 9000, 1, 0);
             let mut w = PacketWriter::new();
             write_item_entry(&mut w, &item, &t, true);
             let bytes = w.into_bytes();

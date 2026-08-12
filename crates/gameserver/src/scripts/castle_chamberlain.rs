@@ -334,15 +334,7 @@ fn receive_report(ctx: &mut QuestCtx) -> Option<String> {
         .world
         .clans
         .get(&clan_id)
-        .map(|c| {
-            let leader = c
-                .members
-                .iter()
-                .find(|m| m.char_id == c.leader_id)
-                .map(|m| m.name.clone())
-                .unwrap_or_default();
-            (c.name.clone(), leader)
-        })
+        .map(|c| (c.name.clone(), c.leader_name().to_string()))
         .unwrap_or_default();
     Some(
         ctx.get_htm("chamberlain-02.html")

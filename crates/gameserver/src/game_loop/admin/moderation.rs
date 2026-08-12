@@ -528,18 +528,12 @@ pub(super) fn admin_login_ban(world: &mut World, client_id: u32, args: &[&str]) 
     // Kick any online characters on that account (Java sets the LS level; we
     // also drop live sessions so the ban bites immediately, not just next login).
     let online: Vec<i32> = world
-        .clients
-        .values()
-        .filter_map(|cs| match cs {
-            ClientSession::InGame(s) => {
-                let oid = s.player_object_id();
-                world
-                    .objects
-                    .get_component::<Player>(&oid)
-                    .filter(|p| p.account == *account)
-                    .map(|_| oid)
-            }
-            _ => None,
+        .in_game_player_oids()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Player>(oid)
+                .is_some_and(|p| p.account == *account)
         })
         .collect();
     for oid in online {

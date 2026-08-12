@@ -390,18 +390,15 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         }
         ChatType::Whisper => {
             let target_name = pkt.target.as_deref().unwrap_or_default();
-            // World.getPlayer(name) — case-insensitive scan over in-game players.
-            let receiver = world.clients.iter().find_map(|(&cid, cs)| match cs {
-                ClientSession::InGame(s) => {
-                    let oid = s.player_object_id();
+            // World.getPlayer(name) — case-insensitive, so the reply must echo
+            // the name as stored, not as the sender typed it.
+            let receiver =
+                super::party::find_player_by_name(world, target_name).and_then(|(cid, oid)| {
                     world
                         .objects
                         .get_component::<Player>(&oid)
-                        .filter(|p| p.name.eq_ignore_ascii_case(target_name))
                         .map(|p| (cid, oid, p.name.clone()))
-                }
-                _ => None,
-            });
+                });
             let Some((receiver_cid, receiver_oid, receiver_name)) = receiver else {
                 send_sm(world, client_id, sm_ids::THAT_PLAYER_IS_NOT_ONLINE);
                 return;

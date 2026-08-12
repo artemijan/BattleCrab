@@ -2069,16 +2069,10 @@ pub(crate) fn handle_request_siege_defender_list(world: &mut World, client_id: u
 /// and the ally-leader name is always written empty).
 fn attacker_entry(world: &World, clan_id: i32) -> Option<server_packets::AttackerEntry> {
     let clan = world.clans.get(&clan_id)?;
-    let leader_name = clan
-        .members
-        .iter()
-        .find(|m| m.char_id == clan.leader_id)
-        .map(|m| m.name.clone())
-        .unwrap_or_default();
     Some(server_packets::AttackerEntry {
         clan_id,
         name: clan.name.clone(),
-        leader_name,
+        leader_name: clan.leader_name().to_string(),
         crest_id: clan.crest_id,
         ally_id: clan.ally_id,
         ally_name: clan.ally_name.clone(),
@@ -2093,19 +2087,12 @@ fn defender_entry(
     type_value: i32,
 ) -> Option<server_packets::DefenderEntry> {
     let clan = world.clans.get(&clan_id)?;
-    let leader_name = clan
-        .members
-        .iter()
-        .find(|m| m.char_id == clan.leader_id)
-        .map(|m| m.name.clone())
-        .unwrap_or_default();
     // The ally leader clan shares the ally id (Java: the leader clan's own id).
     let ally_leader_name = if clan.ally_id != 0 {
         world
             .clans
             .get(&clan.ally_id)
-            .and_then(|a| a.members.iter().find(|m| m.char_id == a.leader_id))
-            .map(|m| m.name.clone())
+            .map(|a| a.leader_name().to_string())
             .unwrap_or_default()
     } else {
         String::new()
@@ -2113,7 +2100,7 @@ fn defender_entry(
     Some(server_packets::DefenderEntry {
         clan_id,
         name: clan.name.clone(),
-        leader_name,
+        leader_name: clan.leader_name().to_string(),
         crest_id: clan.crest_id,
         type_value,
         ally_id: clan.ally_id,

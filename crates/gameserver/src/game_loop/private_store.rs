@@ -32,19 +32,7 @@ fn is_sell_store(store_type: u8) -> bool {
 }
 
 fn instance(object_id: i32, item_id: i32, count: i64, enchant: i32) -> ItemInstance {
-    ItemInstance {
-        object_id,
-        item_id,
-        count,
-        enchant_level: enchant,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    }
+    ItemInstance::detached(object_id, item_id, count, enchant)
 }
 
 /// `RequestPrivateStoreManageSell` (0x30) / the `PrivateStore` player action:

@@ -89,6 +89,18 @@ impl ItemInstance {
         }
     }
 
+    /// A standalone instance with an enchant level, defaulted exactly like
+    /// [`Self::new`]. For the transient items that are serialized into a
+    /// packet without ever entering a container — a store row, a trade offer,
+    /// an auction's advertised reward — where the alternative is spelling the
+    /// eight zeroed fields out at the call site.
+    pub(crate) fn detached(object_id: i32, item_id: i32, count: i64, enchant: i32) -> Self {
+        Self {
+            enchant_level: enchant,
+            ..Self::new(object_id, item_id, count)
+        }
+    }
+
     /// Java `Item.isAugmented` — has a variation attached.
     pub fn is_augmented(&self) -> bool {
         self.augment_option1 != 0 || self.augment_option2 != 0

@@ -286,24 +286,9 @@ fn auction_remaining(world: &World) -> (u64, u64) {
     (ms / 3_600_000, (ms % 3_600_000) / 60_000)
 }
 
-/// `dd/MM/yyyy HH:mm` from epoch-millis (Howard Hinnant's civil-from-days, the
-/// same algorithm the community board's `format_fav_date` uses).
+/// `dd/MM/yyyy HH:mm` from epoch-millis.
 fn fmt_date(millis: i64) -> String {
-    let secs = millis.div_euclid(1000);
-    let days = secs.div_euclid(86_400);
-    let tod = secs.rem_euclid(86_400);
-    let (hour, minute) = (tod / 3600, (tod % 3600) / 60);
-
-    let z = days + 719_468;
-    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
-    let doe = z - era * 146_097;
-    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let day = doy - (153 * mp + 2) / 5 + 1;
-    let month = if mp < 10 { mp + 3 } else { mp - 9 };
-    let year = yoe + era * 400 + i64::from(month <= 2);
-
+    let (year, month, day, hour, minute, _) = commons::util::civil_from_millis(millis);
     format!("{day:02}/{month:02}/{year:04} {hour:02}:{minute:02}")
 }
 

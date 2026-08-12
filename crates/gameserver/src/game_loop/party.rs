@@ -17,7 +17,6 @@ use crate::model::party::{LootChangeRequest, LootRule, Party};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, PartyMemberView, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::{broadcast_to_others, send_sm_to_player};
@@ -39,16 +38,11 @@ const LOOT_CHANGE_TIMEOUT_TICKS: u64 = 15 * 10;
 
 /// `World.getPlayer(name)` — case-insensitive scan over in-game players.
 pub(crate) fn find_player_by_name(world: &World, name: &str) -> Option<(u32, i32)> {
-    world.clients.iter().find_map(|(&cid, cs)| match cs {
-        ClientSession::InGame(s) => {
-            let oid = s.player_object_id();
-            world
-                .objects
-                .get_component::<Player>(&oid)
-                .filter(|p| p.name.eq_ignore_ascii_case(name))
-                .map(|_| (cid, oid))
-        }
-        _ => None,
+    world.in_game_clients().find(|&(_, oid)| {
+        world
+            .objects
+            .get_component::<Player>(&oid)
+            .is_some_and(|p| p.name.eq_ignore_ascii_case(name))
     })
 }
 

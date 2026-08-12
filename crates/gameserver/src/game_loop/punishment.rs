@@ -213,18 +213,12 @@ fn players_matching(world: &World, task: &Punishment) -> Vec<i32> {
             .into_iter()
             .collect(),
         PunishmentAffect::Account => world
-            .clients
-            .values()
-            .filter_map(|cs| match cs {
-                ClientSession::InGame(s) => {
-                    let oid = s.player_object_id();
-                    world
-                        .objects
-                        .get_component::<Player>(&oid)
-                        .filter(|p| p.account == task.key)
-                        .map(|_| oid)
-                }
-                _ => None,
+            .in_game_player_oids()
+            .filter(|oid| {
+                world
+                    .objects
+                    .get_component::<Player>(oid)
+                    .is_some_and(|p| p.account == task.key)
             })
             .collect(),
         PunishmentAffect::Ip => world
@@ -680,18 +674,12 @@ pub(crate) fn on_illegal_action_punish(
             // Java `AdminData.broadcastMessageToGMs` — a plain text line to
             // every online GM.
             let gms: Vec<i32> = world
-                .clients
-                .values()
-                .filter_map(|cs| match cs {
-                    ClientSession::InGame(s) => {
-                        let oid = s.player_object_id();
-                        world
-                            .objects
-                            .get_component::<Player>(&oid)
-                            .filter(|p| p.is_gm(&world.data))
-                            .map(|_| oid)
-                    }
-                    _ => None,
+                .in_game_player_oids()
+                .filter(|oid| {
+                    world
+                        .objects
+                        .get_component::<Player>(oid)
+                        .is_some_and(|p| p.is_gm(&world.data))
                 })
                 .collect();
             for gm in gms {

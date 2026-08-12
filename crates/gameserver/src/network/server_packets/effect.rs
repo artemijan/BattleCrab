@@ -49,6 +49,15 @@ pub fn ex_red_sky(duration: i32) -> Vec<u8> {
 /// defaults (all 0/false). For a client-side string see
 /// [`ex_show_screen_message_npc_string`].
 pub fn ex_show_screen_message(text: &str, position: i32, time: i32) -> Vec<u8> {
+    let mut w = screen_message_header(position, time, -1);
+    w.write_string(text);
+    w.into_bytes()
+}
+
+/// Everything up to and including the `npcString` field — the whole packet but
+/// its tail, which is the only part the two `ExShowScreenMessage` constructors
+/// disagree on. `npc_string_id` of `-1` selects the free-text form.
+fn screen_message_header(position: i32, time: i32, npc_string_id: i32) -> PacketWriter {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_SHOW_SCREEN_MESSAGE);
@@ -62,9 +71,8 @@ pub fn ex_show_screen_message(text: &str, position: i32, time: i32) -> Vec<u8> {
     w.write_i32(0); // effect (false)
     w.write_i32(time);
     w.write_i32(0); // fade (false)
-    w.write_i32(-1); // npcString
-    w.write_string(text);
-    w.into_bytes()
+    w.write_i32(npc_string_id);
+    w
 }
 
 /// `ExShowScreenMessage(NpcStringId npcString, int position, int time,
@@ -82,20 +90,7 @@ pub fn ex_show_screen_message_npc_string(
     time: i32,
     params: &[&str],
 ) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_u8(opcodes::EX);
-    w.write_i16(opcodes::EX_SHOW_SCREEN_MESSAGE);
-    w.write_i32(2); // type
-    w.write_i32(-1); // sysMessageId
-    w.write_i32(position);
-    w.write_i32(0); // unk1
-    w.write_i32(0); // size
-    w.write_i32(0); // unk2
-    w.write_i32(0); // unk3
-    w.write_i32(0); // effect (false)
-    w.write_i32(time);
-    w.write_i32(0); // fade (false)
-    w.write_i32(npc_string_id);
+    let mut w = screen_message_header(position, time, npc_string_id);
     for p in params {
         w.write_string(p);
     }

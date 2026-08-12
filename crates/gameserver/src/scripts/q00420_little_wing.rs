@@ -80,6 +80,32 @@ fn has(ctx: &QuestCtx, item: i32) -> bool {
     count(ctx, item) > 0
 }
 
+/// Maria can forge the plain Fairy Stone: the player took Cronos' plain stone
+/// list (`fairy_stone` 1) and gathered every material on it. Asked twice — once
+/// to pick her greeting html, once to actually consume the materials — so the
+/// two can never drift apart.
+fn can_forge_fairy(ctx: &QuestCtx) -> bool {
+    ctx.get_int("fairy_stone") == 1
+        && count(ctx, COAL) >= 10
+        && count(ctx, CHARCOAL) >= 10
+        && count(ctx, GEMSTONE_D) >= 1
+        && count(ctx, SILVER_NUGGET) >= 3
+        && count(ctx, TOAD_SKIN) >= 10
+}
+
+/// The Deluxe counterpart of [`can_forge_fairy`]: bigger amounts, a grade-C
+/// gemstone instead of grade-D, and a Stone of Purity the plain path never
+/// wants.
+fn can_forge_deluxe(ctx: &QuestCtx) -> bool {
+    ctx.get_int("fairy_stone") == 2
+        && count(ctx, COAL) >= 10
+        && count(ctx, CHARCOAL) >= 10
+        && count(ctx, GEMSTONE_C) >= 1
+        && count(ctx, STONE_OF_PURITY) >= 1
+        && count(ctx, SILVER_NUGGET) >= 5
+        && count(ctx, TOAD_SKIN) >= 20
+}
+
 pub struct Q00420LittleWing;
 
 impl Q00420LittleWing {
@@ -206,13 +232,7 @@ impl QuestScript for Q00420LittleWing {
             // Maria: forge the (deluxe) fairy stone.
             "30608-03.html" => {
                 if ctx.is_cond(2) {
-                    if ctx.get_int("fairy_stone") == 1
-                        && count(ctx, COAL) >= 10
-                        && count(ctx, CHARCOAL) >= 10
-                        && count(ctx, GEMSTONE_D) >= 1
-                        && count(ctx, SILVER_NUGGET) >= 3
-                        && count(ctx, TOAD_SKIN) >= 10
-                    {
+                    if can_forge_fairy(ctx) {
                         ctx.take_items(FAIRY_STONE_LIST, -1);
                         ctx.take_items(COAL, 10);
                         ctx.take_items(CHARCOAL, 10);
@@ -228,14 +248,7 @@ impl QuestScript for Q00420LittleWing {
             }
             "30608-05.html" => {
                 if ctx.is_cond(2) {
-                    if ctx.get_int("fairy_stone") == 2
-                        && count(ctx, COAL) >= 10
-                        && count(ctx, CHARCOAL) >= 10
-                        && count(ctx, GEMSTONE_C) >= 1
-                        && count(ctx, STONE_OF_PURITY) >= 1
-                        && count(ctx, SILVER_NUGGET) >= 5
-                        && count(ctx, TOAD_SKIN) >= 20
-                    {
+                    if can_forge_deluxe(ctx) {
                         ctx.take_items(DELUXE_STONE_LIST, -1);
                         ctx.take_items(COAL, 10);
                         ctx.take_items(CHARCOAL, 10);
@@ -480,22 +493,9 @@ fn cronos_talk(ctx: &QuestCtx, cond: i32) -> String {
 fn maria_talk(ctx: &QuestCtx, cond: i32) -> String {
     match cond {
         2 => {
-            if ctx.get_int("fairy_stone") == 1
-                && count(ctx, COAL) >= 10
-                && count(ctx, CHARCOAL) >= 10
-                && count(ctx, GEMSTONE_D) >= 1
-                && count(ctx, SILVER_NUGGET) >= 3
-                && count(ctx, TOAD_SKIN) >= 10
-            {
+            if can_forge_fairy(ctx) {
                 "30608-02.html"
-            } else if ctx.get_int("fairy_stone") == 2
-                && count(ctx, COAL) >= 10
-                && count(ctx, CHARCOAL) >= 10
-                && count(ctx, GEMSTONE_C) >= 1
-                && count(ctx, STONE_OF_PURITY) >= 1
-                && count(ctx, SILVER_NUGGET) >= 5
-                && count(ctx, TOAD_SKIN) >= 20
-            {
+            } else if can_forge_deluxe(ctx) {
                 "30608-04.html"
             } else {
                 "30608-01.html"
