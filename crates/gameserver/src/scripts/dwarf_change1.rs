@@ -17,7 +17,7 @@
 //! through `Quest <name> <event>` bypasses in the dist htmls — the same shape
 //! as [`super::orc_change1`].
 
-use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::quests::{QuestCtx, QuestScript, echoed_page};
 
 const SHADOW_ITEM_EXCHANGE_COUPON_D_GRADE: i32 = 8869;
 
@@ -153,15 +153,7 @@ impl QuestScript for DwarfChange1 {
             return self.class_change(ctx, self.target_class());
         }
         // The dialog pages echo back.
-        if event.ends_with(".htm")
-            && self
-                .npcs()
-                .iter()
-                .any(|id| event.starts_with(&id.to_string()))
-        {
-            return Some(event.to_string());
-        }
-        None
+        echoed_page(event, self.npcs())
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

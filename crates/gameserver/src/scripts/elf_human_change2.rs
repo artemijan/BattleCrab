@@ -28,7 +28,7 @@
 //! match, so a third-class player asking for anything gets the refusal page
 //! rather than silence.
 
-use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::quests::{QuestCtx, QuestScript, echoed_page};
 
 const SHADOW_ITEM_EXCHANGE_COUPON_C_GRADE: i32 = 8870;
 
@@ -293,10 +293,7 @@ impl QuestScript for ElfHumanChange2 {
             return None;
         }
         // The dialog pages echo straight back.
-        if event.ends_with(".htm") && event.starts_with(&self.spec().page_npc.to_string()) {
-            return Some(event.to_string());
-        }
-        None
+        echoed_page(event, &[self.spec().page_npc])
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

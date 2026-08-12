@@ -23,7 +23,7 @@
 //! matrix is a table rather than a wall of branches. Same 20+ level gate,
 //! proof-consumed and 15 D-grade shadow coupons as the other Change1 scripts.
 
-use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::quests::{QuestCtx, QuestScript, echoed_page};
 
 const SHADOW_ITEM_EXCHANGE_COUPON_D_GRADE: i32 = 8869;
 
@@ -188,15 +188,7 @@ impl QuestScript for ElfHumanChange1 {
             return self.class_change(ctx, class_id);
         }
         // The dialog pages echo back.
-        if event.ends_with(".htm")
-            && self
-                .npcs()
-                .iter()
-                .any(|id| event.starts_with(&id.to_string()))
-        {
-            return Some(event.to_string());
-        }
-        None
+        echoed_page(event, self.npcs())
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

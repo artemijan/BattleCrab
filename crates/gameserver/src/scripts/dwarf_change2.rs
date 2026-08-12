@@ -20,7 +20,7 @@
 //! dist ships exactly one 12-page set per script, not eight. The `*Change1`
 //! scripts only did this for the fourth-class refusal.
 
-use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::quests::{QuestCtx, QuestScript, echoed_page};
 
 const SHADOW_ITEM_EXCHANGE_COUPON_C_GRADE: i32 = 8870;
 
@@ -142,10 +142,7 @@ impl QuestScript for DwarfChange2 {
         if event.parse::<i32>() == Ok(to) {
             return self.class_change(ctx, to);
         }
-        if event.ends_with(".htm") && event.starts_with(&self.page_npc().to_string()) {
-            return Some(event.to_string());
-        }
-        None
+        echoed_page(event, &[self.page_npc()])
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

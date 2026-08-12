@@ -6,7 +6,7 @@
 //! utility script (id ≤ 0), driven through `Quest OrcChange1 <event>`
 //! bypasses in the dist htmls.
 
-use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::quests::{QuestCtx, QuestScript, echoed_page};
 
 const NPCS: [i32; 4] = [30500, 30505, 30508, 32097]; // Osborn, Drikus, Castor, Finker
 
@@ -81,12 +81,7 @@ impl QuestScript for OrcChange1 {
         // The dialog pages echo back; the numeric events are transfers.
         match event {
             "45" | "47" | "50" => Self::class_change(ctx, event.parse().unwrap()),
-            _ if event.ends_with(".htm")
-                && NPCS.iter().any(|id| event.starts_with(&id.to_string())) =>
-            {
-                Some(event.to_string())
-            }
-            _ => None,
+            _ => echoed_page(event, &NPCS),
         }
     }
 

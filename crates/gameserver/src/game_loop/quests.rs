@@ -194,6 +194,16 @@ pub trait QuestScript: Send + Sync {
     }
 }
 
+/// The village-master `onEvent` tail: a dialog page of one of `npcs`
+/// (`<npcId>-xx.htm`) coming back through a `Quest <name> <page>` bypass,
+/// which the script simply echoes for [`show_result`] to render. `None` for
+/// anything else, so the caller can fall through to its own handling.
+pub fn echoed_page(event: &str, npcs: &[i32]) -> Option<String> {
+    let own_page =
+        event.ends_with(".htm") && npcs.iter().any(|id| event.starts_with(&id.to_string()));
+    own_page.then(|| event.to_string())
+}
+
 /// Java `QuestManager` + the per-`NpcTemplate` listener containers, built
 /// once at boot: name lookup plus npc-id → script indexes for the
 /// start/talk/kill event routes.
