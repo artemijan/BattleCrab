@@ -72,7 +72,7 @@ pub(crate) fn handle_item_list(world: &mut World, client_id: u32) {
     send(
         world,
         client_id,
-        sp::henna_equip_list(adena(world, oid), &equip_lines(world, oid)),
+        sp::henna_equip_list(adena(world, oid), &equip_henna_lines(world, oid)),
     );
 }
 
@@ -242,7 +242,7 @@ pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
     send(
         world,
         client_id,
-        sp::henna_equip_list(adena(world, oid), &equip_lines(world, oid)),
+        sp::henna_equip_list(adena(world, oid), &equip_henna_lines(world, oid)),
     );
     send(
         world,
@@ -425,7 +425,7 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
     send_henna_info(world, client_id, oid);
 }
 
-fn equip_lines(world: &World, oid: i32) -> Vec<sp::HennaLine> {
+fn equip_henna_lines(world: &World, oid: i32) -> Vec<sp::HennaLine> {
     let class_id = class_id_of(world, oid);
     world
         .data
