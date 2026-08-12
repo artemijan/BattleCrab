@@ -25,6 +25,7 @@ use crate::enums::ChatType;
 use crate::game_loop::death::{despawn_npc, introduce_npc, teleport_player};
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::instances;
+use crate::game_loop::user_commands::in_combat;
 use crate::model::Player;
 use crate::model::components::FishingSession;
 use crate::model::event::TvtPhase;
@@ -864,14 +865,6 @@ fn arena_manager_near(world: &World, player: i32) -> Option<i32> {
         .objects
         .get_component::<crate::model::components::LastFolkNpc>(&player)
         .map(|&crate::model::components::LastFolkNpc(npc)| npc)
-}
-
-/// `Creature.isInCombat()` — an attack stance is up.
-fn in_combat(world: &World, player: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::AttackState>(&player)
-        .is_some_and(|a| a.stance_until_tick > world.tick)
 }
 
 /// Java's `FIGHTER_BUFFS` / `MAGE_BUFFS` (the event manager's service set).

@@ -809,7 +809,7 @@ fn mount_type_of(world: &World, npc_id: i32) -> Option<u8> {
 }
 
 /// `Creature.isInCombat()` — the attack stance is still up.
-fn in_combat(world: &World, object_id: i32) -> bool {
+pub(crate) fn in_combat(world: &World, object_id: i32) -> bool {
     world
         .objects
         .get_component::<crate::model::components::AttackState>(&object_id)
