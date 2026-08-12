@@ -213,14 +213,7 @@ fn reduce_exp_lost_mul(world: &World, player_oid: i32, killer_oid: Option<i32>) 
         Stat::ReduceExpLostByRaid
     } else if template.is_some_and(|t| t.is_monster()) {
         Stat::ReduceExpLostByMob
-    } else if world.objects.has_component::<crate::model::Player>(&killer)
-        || world
-            .objects
-            .has_component::<crate::model::components::PetOf>(&killer)
-        || world
-            .objects
-            .has_component::<crate::model::components::ServitorOf>(&killer)
-    {
+    } else if crate::game_loop::helpers::is_playable(world, killer) {
         Stat::ReduceExpLostByPvp
     } else {
         return 1.0;

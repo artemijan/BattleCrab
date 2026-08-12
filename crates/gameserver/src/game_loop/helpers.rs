@@ -358,6 +358,25 @@ pub(crate) fn is_raid_npc(world: &World, object_id: i32) -> bool {
     npc_template(world, object_id).is_some_and(|t| t.is_raid())
 }
 
+/// Java `Creature.isPlayable()` — the `Playable` subtree: a player, their pet,
+/// or a summoned servitor. A monster, a guard, or a door is false.
+///
+/// Note the summons are NPC objects on this side, so an `isPlayable` question
+/// can never be answered by "is it an NPC" alone; that is exactly why the three
+/// component probes belong in one place rather than being re-spelled per call
+/// site.
+pub(crate) fn is_playable(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .has_component::<crate::model::Player>(&object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::PetOf>(&object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::ServitorOf>(&object_id)
+}
+
 /// An NPC's template name, empty when the object is gone or has no template.
 ///
 /// The NPC counterpart of [`player_name_or_empty`] — the pet/servitor persist

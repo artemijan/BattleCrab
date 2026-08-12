@@ -217,15 +217,7 @@ pub(crate) fn pvp_pve_bonus(
     };
 
     // `isPlayable()` — a player or their summon (Java's `Playable` subtree).
-    let is_playable = |oid: i32| {
-        world.objects.has_component::<crate::model::Player>(&oid)
-            || world
-                .objects
-                .has_component::<crate::model::components::PetOf>(&oid)
-            || world
-                .objects
-                .has_component::<crate::model::components::ServitorOf>(&oid)
-    };
+    let is_playable = |oid: i32| crate::game_loop::helpers::is_playable(world, oid);
     let template = |oid: i32| {
         world
             .objects

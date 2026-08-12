@@ -38,15 +38,7 @@ pub(crate) fn fire_damage_received_triggers(
         .map(|a| (a.skill_id, a.skill_level))
         .collect();
 
-    let attacker_is_playable = world
-        .objects
-        .has_component::<crate::model::Player>(&attacker_oid)
-        || world
-            .objects
-            .has_component::<crate::model::components::PetOf>(&attacker_oid)
-        || world
-            .objects
-            .has_component::<crate::model::components::ServitorOf>(&attacker_oid);
+    let attacker_is_playable = crate::game_loop::helpers::is_playable(world, attacker_oid);
 
     let mut fired: Vec<(i32, i32, bool)> = Vec::new();
     for (skill_id, skill_level) in known {
