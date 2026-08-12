@@ -49,7 +49,15 @@ pub fn henna_info(sums: HennaStatWire, worn_slots: i32, dyes: &[(i32, bool)]) ->
     w.write_i32(0); // Premium Slot Dye isValid
     w.into_bytes()
 }
-
+fn loop_henna_equip_list(w: &mut PacketWriter, lines: &[HennaLine]) {
+    for &(dye_id, item_id, count, fee, allowed) in lines {
+        w.write_i32(dye_id);
+        w.write_i32(item_id);
+        w.write_i64(count);
+        w.write_i64(fee);
+        w.write_i32(allowed as i32);
+    }
+}
 /// Port of `serverpackets/HennaEquipList` — the draw window: dyes the player's
 /// class may wear and currently holds the item for.
 pub fn henna_equip_list(adena: i64, lines: &[HennaLine]) -> Vec<u8> {
@@ -58,13 +66,7 @@ pub fn henna_equip_list(adena: i64, lines: &[HennaLine]) -> Vec<u8> {
     w.write_i64(adena);
     w.write_i32(3); // available equip slots
     w.write_i32(lines.len() as i32);
-    for &(dye_id, item_id, count, fee, allowed) in lines {
-        w.write_i32(dye_id);
-        w.write_i32(item_id);
-        w.write_i64(count);
-        w.write_i64(fee);
-        w.write_i32(allowed as i32);
-    }
+    loop_henna_equip_list(&mut w, lines);
     w.into_bytes()
 }
 
@@ -75,13 +77,7 @@ pub fn henna_remove_list(adena: i64, worn_slots: i32, lines: &[HennaLine]) -> Ve
     w.write_i64(adena);
     w.write_i32(3); // max size
     w.write_i32(worn_slots);
-    for &(dye_id, item_id, count, fee, allowed) in lines {
-        w.write_i32(dye_id);
-        w.write_i32(item_id);
-        w.write_i64(count);
-        w.write_i64(fee);
-        w.write_i32(allowed as i32);
-    }
+    loop_henna_equip_list(&mut w, lines);
     w.into_bytes()
 }
 
