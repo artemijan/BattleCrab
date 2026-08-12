@@ -275,6 +275,18 @@ current directory, a PID-named temp DB). The `.config/nextest.toml` `default`
 profile also **terminates any test that runs past ~2 minutes**, so a single
 deadlocked test is reported as a `TIMEOUT` failure instead of wedging the run.
 
+Per-test processes have one cost: nothing is shared, so every test that wants
+the real datapack parses it again — 627 ms for `SkillData`, 1.15 s for a whole
+`GameData`, on ~170 tests. The unit-test fixtures therefore go through
+[`data::snapshot`](crates/gameserver/src/data/snapshot.rs), which parses once,
+writes the parsed catalogue to `target/dist-snapshots/` as bincode, and lets
+every later process decode it (627 ms → 85 ms). The snapshot's file name hashes
+the datapack *and* the sources that decide its encoding, so editing either
+misses rather than decoding stale bytes, and every failure path falls back to
+parsing — it can cost time, never correctness. The cache is `#[cfg(test)]`: the
+server always parses the datapack it was pointed at. Delete `target/` if you
+ever want to prove a run from cold.
+
 Two integration tests copy the real `interlude_classic.db` (an untracked
 working-tree file); they run on a full checkout / CI and self-skip on a fresh
 checkout or `git worktree` that lacks it. Plain `cargo test` still works for a

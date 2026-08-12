@@ -13,7 +13,7 @@ use tracing::info;
 const INSTANCE_DIR: &str = "data/instances";
 
 /// One NPC placement in a spawn group (`<npc id x y z heading/>`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TemplateSpawn {
     pub npc_id: i32,
     pub x: i32,
@@ -24,7 +24,7 @@ pub struct TemplateSpawn {
 
 /// A named spawn group (`<group>`); `spawn_by_default` groups populate on
 /// creation, others are triggered by the instance's script.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SpawnGroup {
     pub name: String,
     pub spawn_by_default: bool,
@@ -32,7 +32,7 @@ pub struct SpawnGroup {
 }
 
 /// Where a party is sent on leaving (`<exit>`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ExitType {
     /// Back to where each member entered from (`type="ORIGIN"`).
     Origin,
@@ -41,7 +41,7 @@ pub enum ExitType {
 }
 
 /// A parsed instance template (Java `InstanceTemplate`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct InstanceTemplate {
     pub id: i32,
     /// The `name` attribute, or `None` when absent (Java's field defaults to
@@ -62,7 +62,7 @@ pub struct InstanceTemplate {
 }
 
 /// Every instance template, by id (Java `InstanceManager._instanceTemplates`).
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct InstanceData {
     by_id: HashMap<i32, InstanceTemplate>,
 }

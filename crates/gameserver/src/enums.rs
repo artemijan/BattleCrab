@@ -10,7 +10,7 @@ use crate::model::inventory::PaperdollSlot;
 /// (`Npc.getRace()`/`TraitType`'s `*_WEAKNESS` family checks `target.
 /// getRace() == Race.X`) — so the monster-flavor variants join here rather
 /// than in a separate type, matching Java's actual design.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 #[repr(i32)]
 pub enum Race {
     Human = 0,

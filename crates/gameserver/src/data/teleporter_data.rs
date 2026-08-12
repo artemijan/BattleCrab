@@ -16,7 +16,7 @@ use crate::data::xml::attr_str;
 pub const TELEPORTERS_DIR: &str = "data/teleporters";
 
 /// Java `enums/TeleportType`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum TeleportType {
     Normal,
     Hunting,
@@ -52,7 +52,7 @@ impl TeleportType {
 /// Java `TeleportLocation` — one destination line. `id` is the position in
 /// the holder's list (Java `registerLocation`'s running index), which is what
 /// the html buttons send back.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TeleportLocation {
     pub x: i32,
     pub y: i32,
@@ -70,7 +70,7 @@ pub struct TeleportLocation {
 }
 
 /// Java `TeleportHolder` minus the html/teleport behavior (game-loop side).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TeleportHolder {
     pub name: String,
     pub teleport_type: TeleportType,
@@ -97,7 +97,7 @@ impl TeleportHolder {
 }
 
 /// npc template id → list name → holder.
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct TeleporterData {
     teleporters: HashMap<i32, HashMap<String, TeleportHolder>>,
 }

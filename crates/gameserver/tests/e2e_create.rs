@@ -282,6 +282,13 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
                 // test walks packet-by-packet only matches with it on.
                 let mut cfg = gameserver::config::CombatConfig::default();
                 cfg.character.enable_vitality = true;
+                // The one protector this scripted client cannot satisfy: it
+                // re-selects its character milliseconds after the first
+                // select, and the 3-second `CharacterSelect` window silently
+                // swallows that (see the re-select below). Only this slot is
+                // turned off; the other fourteen still gate the flow.
+                cfg.flood_protector
+                    .disable(gameserver::config::flood_protector::FloodAction::CharacterSelect);
                 cfg
             },
         },
@@ -442,8 +449,10 @@ fn u16str(s: &str) -> Vec<u8> {
 // `CharacterSelect.runImpl` returns without any reply inside the window, and
 // the port mirrors it). The scripted client re-selected within ~2 s of its
 // first select and then blocked forever on a CharSelected that was never
-// coming. Server behavior was retail-faithful all along; the fix is the
-// wait-out-the-window sleep at the re-select below.
+// coming. Server behavior was retail-faithful all along; the fix was to stop
+// re-selecting inside the window — first by sleeping it out, now by turning
+// that one protector slot off in `start_game` (the sleep was 3.2 s on the
+// suite's longest test).
 //
 // Note the test self-skips unless the untracked `interlude_classic.db` is
 // present, so a fresh checkout / CI runs it as a no-op.
@@ -787,10 +796,13 @@ async fn full_login_to_character_create() {
     // `FloodProtector.ini` interval 30 ticks = 3 s): a re-select inside the
     // window of the previous one is *silently* swallowed — Java's `runImpl`
     // returns before building a reply, and the port mirrors it. A real client
-    // spends longer than that on the character screen; this scripted one must
-    // wait the window out or block forever on the CharSelected that never
-    // comes (which is exactly what this test did for months).
-    tokio::time::sleep(Duration::from_millis(3200)).await;
+    // spends longer than that on the character screen; this scripted one
+    // re-selects in milliseconds, so it would block forever on a CharSelected
+    // that never comes (which is exactly what this test did for months).
+    // `start_game` turns *this one slot* off rather than sleeping the window
+    // out, which used to cost the suite 3.2 s of wall clock on its longest
+    // test; the protector's own behaviour is covered by
+    // `game_loop::tests::flood_tests`.
     let mut w = PacketWriter::new();
     w.write_u8(0x12); // CharacterSelect
     w.write_i32(0); // slot

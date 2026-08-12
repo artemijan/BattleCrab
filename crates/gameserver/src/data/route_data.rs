@@ -14,7 +14,7 @@ use std::collections::HashMap;
 use tracing::info;
 
 /// Java `WalkingManager.REPEAT_*`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum RepeatStyle {
     /// `back` — walk to the last node, then retrace to the first.
     GoBack,
@@ -28,7 +28,7 @@ pub enum RepeatStyle {
     None,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct WalkNode {
     pub x: i32,
     pub y: i32,
@@ -41,7 +41,7 @@ pub struct WalkNode {
     pub chat: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct WalkRoute {
     pub name: String,
     pub repeat: bool,
@@ -49,7 +49,7 @@ pub struct WalkRoute {
     pub nodes: Vec<WalkNode>,
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RouteData {
     pub routes: Vec<WalkRoute>,
     /// npc id → index into [`Self::routes`]. No npc id carries two routes on

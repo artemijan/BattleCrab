@@ -239,7 +239,7 @@ pub type GapMap = BTreeMap<String, BTreeSet<i32>>;
 /// appear is only "recognised", which is not the same as "correctly ported" —
 /// an effect can resolve to a `SkillEffect` variant that nothing downstream
 /// consumes ([[l2r-skill-rate-stats]]). Absence from this list is not evidence.
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SkillGaps {
     /// `<effect name>`s that matched neither a handler arm nor
     /// [`EFFECT_REGISTRY`], in a scope this port builds. Includes names that
@@ -293,7 +293,7 @@ impl SkillGaps {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct SkillData {
     skills: HashMap<(i32, i32), Skill>,
     /// The enchanted variants, keyed `(id, level, subLevel)` — Java pre-builds

@@ -6,7 +6,7 @@
 use crate::data::xml;
 
 /// One `<spawn>` row.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct FsSpawn {
     pub sepulcher: i32,
     pub wave: i32,
@@ -17,7 +17,7 @@ pub struct FsSpawn {
     pub heading: i32,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct FourSepulchersData {
     pub spawns: Vec<FsSpawn>,
 }

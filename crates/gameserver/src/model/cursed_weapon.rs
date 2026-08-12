@@ -12,7 +12,7 @@
 
 /// One cursed weapon: its `CursedWeapons.xml` config plus the runtime state Java
 /// keeps on the `CursedWeapon` object (persisted in the `cursed_weapons` table).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CursedWeapon {
     // --- config (CursedWeapons.xml) ---
     pub item_id: i32,

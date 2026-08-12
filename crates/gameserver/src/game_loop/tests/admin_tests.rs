@@ -2603,10 +2603,7 @@ fn admin_stopallbuffs_clears_after_confirm() {
 #[test]
 fn admin_setclass_changes_class() {
     let (mut world, ..) = admin_world();
-    world.data.player_templates = crate::data::PlayerTemplateData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.player_templates = dist::player_templates_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8701, 100);
     drain(&mut gm_rx);
     assert_eq!(
@@ -2630,10 +2627,9 @@ fn admin_setclass_changes_class() {
 /// class tree — not just the base-class ones.
 #[test]
 fn admin_setclass_grants_advanced_class_skills() {
-    const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
-    world.data.player_templates = crate::data::PlayerTemplateData::load_from(ROOT);
-    world.data.skill_trees = crate::data::SkillTreeData::load_from(ROOT);
+    world.data.player_templates = dist::player_templates_owned();
+    world.data.skill_trees = dist::skill_trees_owned();
     world.cfg.character.auto_learn_skills = true;
     let mut gm_rx = ingame_player_access(&mut world, 1, 8703, 100);
     drain(&mut gm_rx);
@@ -2660,10 +2656,7 @@ fn admin_setclass_grants_advanced_class_skills() {
 #[test]
 fn admin_setclass_rejects_unknown() {
     let (mut world, ..) = admin_world();
-    world.data.player_templates = crate::data::PlayerTemplateData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.player_templates = dist::player_templates_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8702, 100);
     drain(&mut gm_rx);
 
@@ -3642,7 +3635,7 @@ fn admin_sethero_toggles_status_skills_and_aura() {
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
-    world.data.skill_trees = crate::data::SkillTreeData::load_from(ROOT);
+    world.data.skill_trees = dist::skill_trees_owned();
     let mut rx = ingame_player_access(&mut world, 1, 7301, 100);
     drain(&mut rx);
     // Target self (a player) so sethero applies to the GM.
@@ -5886,7 +5879,7 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
-    world.data.skill_data = crate::data::skill_data::SkillData::load_from(ROOT);
+    world.data.skill_data = dist::skills_owned();
     world.data.transforms = crate::data::TransformData::load_from(ROOT);
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
     world.cursed_weapons = world
@@ -6675,10 +6668,7 @@ fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
     // player's class, so `recalculate_stats` would fall back to
     // `PlayerTemplate::default()` — every class base 0, which makes a ratio
     // assertion meaningless. Load the real templates.
-    world.data.player_templates = crate::data::PlayerTemplateData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.player_templates = dist::player_templates_owned();
 
     let non_combat = world.data.transforms.get(105).expect("105 loaded");
     assert!(
@@ -6905,10 +6895,7 @@ fn setclass_drops_a_dye_the_new_class_cannot_wear() {
     use crate::model::components::HennaSlots;
     let (mut world, ..) = admin_world();
     world.data.hennas = crate::data::HennaData::load_from(crate::data::DIST_GAME);
-    world.data.player_templates = crate::data::PlayerTemplateData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.player_templates = dist::player_templates_owned();
     let _rx = ingame_player_access(&mut world, 1, 7140, 100);
 
     // Find a dye this dist restricts, and a class that may not wear it. Driven

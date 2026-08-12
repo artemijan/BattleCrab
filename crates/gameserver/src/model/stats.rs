@@ -55,7 +55,7 @@ impl BaseStat {
 /// A modifiable creature stat (Java `Stat`). Each variant that has a Java
 /// "finalizer" gets a `Player::recalculate_stats` case; the rest are only
 /// targets of buff effects (`StatModifierEffect`) for now.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum Stat {
     PhysicalAttack,
     PhysicalDefence,
@@ -378,7 +378,7 @@ pub enum Stat {
 
 /// Java `AttributeType` minus `NONE` (represented as `Option<Element>`): the
 /// six combat elements. Order matches the client ids (`findByClientId`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum Element {
     Fire,
     Water,
@@ -472,7 +472,7 @@ impl Stat {
 /// Derived, not stored: Java computes it fresh in `Creature.getMoveType`
 /// (`isMoving() && isRunning()` → `Running`, `isMoving()` → `Walking`, else
 /// `Standing`), with `Player` overriding it to return `Sitting` while seated.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum MoveType {
     Walking,
     Running,
@@ -509,7 +509,7 @@ impl MoveType {
 /// Both are read at finalize time against the creature's *live* state, so the
 /// value swings as they move or as the attacker circles the target, with no
 /// stat recompute anywhere.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum StatQualifier {
     /// `StatByMoveType` — counts only in this locomotion state.
     MoveType(MoveType),
@@ -520,7 +520,7 @@ pub enum StatQualifier {
 
 /// Java `StatModifierType` (`AbstractStatAddEffect`/`AbstractStatPercentEffect`):
 /// a buff either adds a flat amount or multiplies by `1 + amount/100`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum StatModifierType {
     Diff,
     Per,

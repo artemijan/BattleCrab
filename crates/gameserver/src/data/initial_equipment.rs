@@ -10,14 +10,14 @@ use tracing::info;
 
 pub const INITIAL_EQUIPMENT_FILE: &str = "data/stats/initialEquipment.xml";
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct InitialEquipmentItem {
     pub item_id: i32,
     pub count: i64,
     pub equipped: bool,
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct InitialEquipmentData {
     by_class: HashMap<i32, Vec<InitialEquipmentItem>>,
 }

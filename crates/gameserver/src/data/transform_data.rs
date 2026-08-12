@@ -49,7 +49,7 @@ pub const TRANSFORM_DIR: &str = "data/stats/transformations";
 /// transform's (Java `IStatFunction.calcWeaponBaseValue`, the `else if` at
 /// line 76 — note the branch reads as "weapon wins", so the forms that keep
 /// their own base are the ones the condition *excludes*).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum TransformKind {
     Combat,
     ModeChange,
@@ -98,7 +98,7 @@ impl TransformKind {
 /// an absent attribute reads as 0 — but a 0 here means "no override" for the
 /// fields that stand in for a weapon, which is why each is an `Option`: Java
 /// only ever `addStats`-es the key when the attribute is present.
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct TransformBase {
     /// `range` → `Stat.PHYSICAL_ATTACK_RANGE`.
     pub attack_range: Option<f64>,
@@ -119,7 +119,7 @@ pub struct TransformBase {
 
 /// Per-gender transform template (Java `TransformTemplate`), narrowed to the
 /// consumed fields.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct TransformTemplate {
     pub collision_radius: f64,
     pub collision_height: f64,
@@ -141,7 +141,7 @@ pub struct TransformTemplate {
 
 /// A transform (`Transform`): id, display id, flying flag, and the two gender
 /// templates.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Transform {
     pub id: i32,
     /// Java `_displayId = getInt("displayId", _id)`; no template on this dist
@@ -178,7 +178,7 @@ impl Transform {
     }
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TransformData {
     by_id: HashMap<i32, Transform>,
     /// Every skill id any transform template grants (either gender). Transform

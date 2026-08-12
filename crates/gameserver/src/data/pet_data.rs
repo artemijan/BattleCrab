@@ -21,7 +21,7 @@ const PETS_DIR: &str = "data/stats/pets";
 
 /// One pet level's row (Java `PetData.PetLevelData`), narrowed to the fields
 /// the port reads today.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct PetLevel {
     /// `max_meal` — the pet's food bar capacity at this level.
     pub max_meal: i32,
@@ -67,7 +67,7 @@ pub struct PetLevel {
 }
 
 /// Port of `model/actor/templates/PetData` — one pet species.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct PetTemplate {
     pub npc_id: i32,
     /// The collar item that summons this pet. The pet's saved row is keyed by
@@ -133,7 +133,7 @@ impl PetTemplate {
     }
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PetData {
     by_npc: HashMap<i32, PetTemplate>,
     /// `getPetDataByItemId` — the lookup `SummonPet` uses.
@@ -328,14 +328,13 @@ fn parse_str(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    const DIST: &str = crate::data::DIST_GAME;
+    use crate::data::dist;
 
     /// The whole dist loads, and the Wolf (the starter pet) reads back the
     /// values its XML declares.
     #[test]
     fn real_dist_pets_load() {
-        let d = PetData::load_from(DIST);
+        let d = dist::pets();
         assert!(
             d.len() >= 50,
             "56 pet files ship on this dist, got {}",
@@ -420,7 +419,7 @@ mod tests {
     /// separated only by being inside `<stats>` — the parser must not mix them.
     #[test]
     fn species_and_level_sets_do_not_bleed_into_each_other() {
-        let d = PetData::load_from(DIST);
+        let d = dist::pets();
         let wolf = d.get(12077).unwrap();
         assert!(wolf.levels.len() > 1, "several levels parsed");
         // `food` is species-wide and must not have landed in a level row.
@@ -435,7 +434,7 @@ mod tests {
     /// level lookup must clamp past the table's top (Java `getPetLevelData`).
     #[test]
     fn wyvern_ride_speeds_parse() {
-        let d = PetData::load_from(DIST);
+        let d = dist::pets();
         let wyvern = d.get(12621).expect("wyvern 12621 loads");
         let row = wyvern.level_row(1).expect("level 1 row");
         assert_eq!(row.ride_run_spd, 250.0);
@@ -457,7 +456,7 @@ mod tests {
     /// for, so an out-of-table level still answers.
     #[test]
     fn max_meal_clamps_to_the_table() {
-        let d = PetData::load_from(DIST);
+        let d = dist::pets();
         let wolf = d.get(12077).unwrap();
         let top = wolf.levels.keys().copied().max().unwrap();
         assert_eq!(

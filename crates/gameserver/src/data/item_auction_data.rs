@@ -13,7 +13,7 @@ use tracing::info;
 pub const ITEM_AUCTIONS_FILE: &str = "data/ItemAuctions.xml";
 
 /// One item an auctioneer can put up (Java `AuctionItem`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AuctionItem {
     /// `auctionItemId` — the auctioneer-local id of this catalogue entry.
     pub auction_item_id: i32,
@@ -30,7 +30,7 @@ pub struct AuctionItem {
 
 /// The schedule of an auctioneer instance (Java `AuctionDateGenerator` config):
 /// either a fixed weekday or a recurring day interval, plus the time of day.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct AuctionSchedule {
     /// `interval` in days (recurring), or `None` when a fixed weekday is used.
     pub interval_days: Option<i32>,
@@ -42,7 +42,7 @@ pub struct AuctionSchedule {
 }
 
 /// One auctioneer NPC's config (Java `ItemAuctionInstance`, the data half).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AuctionInstanceCfg {
     /// `id` — the auctioneer NPC id.
     pub instance_id: i32,
@@ -51,7 +51,7 @@ pub struct AuctionInstanceCfg {
 }
 
 /// Every auctioneer instance, by NPC id (Java `ItemAuctionManager._managerInstances`).
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ItemAuctionData {
     by_id: std::collections::HashMap<i32, AuctionInstanceCfg>,
 }

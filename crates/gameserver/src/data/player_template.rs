@@ -37,7 +37,7 @@ pub fn creatable_race(class_id: i32) -> Option<Race> {
         .map(|(_, r, _)| *r)
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct PlayerTemplate {
     pub class_id: i32,
     pub base_str: i32,
@@ -178,7 +178,7 @@ fn table_get(table: &[f64], level: i32) -> f64 {
     table[idx]
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct PlayerTemplateData {
     templates: HashMap<i32, PlayerTemplate>,
 }
@@ -405,8 +405,7 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    const DIST: &str = crate::data::DIST_GAME;
+    use crate::data::dist;
 
     /// Every class ships **both** collision boxes and they differ, so reading
     /// the male one for a female character is a visible error — collision feeds
@@ -417,7 +416,7 @@ mod tests {
     /// which one hand-picked class could miss.
     #[test]
     fn every_class_has_a_distinct_female_collision_box() {
-        let data = PlayerTemplateData::load_from(DIST);
+        let data = dist::player_templates();
         let ids = data.class_ids();
         assert!(ids.len() > 30, "sanity: templates loaded ({})", ids.len());
         let all: Vec<&PlayerTemplate> = ids.iter().filter_map(|id| data.get(*id)).collect();

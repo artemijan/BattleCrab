@@ -20,7 +20,7 @@ pub const MAX_SHORTCUTS_PER_BAR: i32 = 12;
 pub const FIRST_MACRO_ID: i32 = 1000;
 
 /// `enums/ShortcutType` — wire value / DB `type` column = Java ordinal.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ShortcutType {
     None,
     Item,
@@ -61,7 +61,7 @@ impl ShortcutType {
 }
 
 /// `enums/MacroType` — wire value / `commands` encoding = Java ordinal.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum MacroType {
     None,
     Skill,
@@ -128,7 +128,7 @@ impl Shortcut {
 }
 
 /// `model/MacroCmd` — one command of a macro.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct MacroCmd {
     /// Position within the macro (Java `_entry`; only the DB round-trip and
     /// re-numbering use it — the packet writes its own running index).
@@ -143,7 +143,7 @@ pub struct MacroCmd {
 }
 
 /// `model/Macro` — one macro.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Macro {
     pub id: i32,
     pub icon: i32,

@@ -1,4 +1,5 @@
 use super::*;
+use crate::data::dist;
 
 /// `Skill.getName()` — `<skill name="…">` is parsed and kept per id, for
 /// the messages that quote a skill back to the player. The name lives on
@@ -6,7 +7,7 @@ use super::*;
 /// not just level 1.
 #[test]
 fn skill_names_load_from_the_dist() {
-    let sd = SkillData::load_from(crate::data::DIST_GAME);
+    let sd = dist::skills();
     assert_eq!(sd.name(1177), Some("Wind Strike"));
     assert_eq!(sd.name(1), Some("Triple Slash"));
     // A level above 1 resolves through the same per-id entry (Wind Strike
@@ -44,7 +45,7 @@ fn skill_names_load_from_the_dist() {
 /// (`{0.99 − 0.006·(subIndex−1)}`).
 #[test]
 fn skill_enchant_sublevels_resolve() {
-    let sd = SkillData::load_from(crate::data::DIST_GAME);
+    let sd = dist::skills();
 
     assert_eq!(
         sd.enchant_routes(7, 40),
@@ -187,7 +188,7 @@ fn skill_enchant_sublevels_resolve() {
 /// loaded 0 skills). Wind Strike 1177 is the canonical probe.
 #[test]
 fn loads_real_dist_files() {
-    let sd = SkillData::load_from(crate::data::DIST_GAME);
+    let sd = dist::skills();
     assert!(
         sd.skills.len() > 10_000,
         "expected thousands of skill levels, got {}",

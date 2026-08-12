@@ -14,6 +14,9 @@ bevy_ecs.workspace = true
 tracing.workspace = true
 # Audit records are NDJSON, built at the call site with `json!`.
 serde_json.workspace = true
+# The datapack snapshot cache (`data::snapshot`) and the derives it needs.
+serde.workspace = true
+bincode.workspace = true
 thiserror.workspace = true
 quick-xml.workspace = true
 regex.workspace = true

@@ -21,7 +21,7 @@ const CASTLE_HALL_FILE: &str = "data/zones/castle_hall.xml";
 /// to send a defender to the *enemy* town: `other`/`chaotic` outnumber the real
 /// owner points roughly 30:4 in this file, so a random pick almost never landed
 /// inside the castle.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct CastleRespawnPoints {
     /// `owner_restart_point_list` — `getSpawnLoc()`, where defenders respawn.
     pub spawn: Vec<(i32, i32, i32)>,

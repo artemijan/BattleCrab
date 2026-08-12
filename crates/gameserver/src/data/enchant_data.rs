@@ -41,7 +41,7 @@ pub const GROUPS_FILE: &str = "data/EnchantItemGroups.xml";
 pub const ITEMS_FILE: &str = "data/EnchantItemData.xml";
 
 /// One `<current enchant="min-max" chance=…>` row (Java `RangeChanceHolder`).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 struct RangeChance {
     min: i32,
     max: i32,
@@ -50,7 +50,7 @@ struct RangeChance {
 
 /// An `<enchantRateGroup>` — a named ladder of per-enchant-level chances
 /// (Java `EnchantItemGroup`).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 struct EnchantItemGroup {
     chances: Vec<RangeChance>,
 }
@@ -74,7 +74,7 @@ impl EnchantItemGroup {
 /// One `<enchantRate group=…>` binding inside a scroll group (Java
 /// `EnchantRateItem`): matches items by slot mask, magic-weapon flag, and/or an
 /// explicit item-id whitelist, and points at a named rate group.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 struct EnchantRateItem {
     group_name: String,
     /// OR of every `<item slot=…>` mask; `0` means "no slot restriction".
@@ -100,14 +100,14 @@ impl EnchantRateItem {
 
 /// An `<enchantScrollGroup id=…>` — an ordered list of rate-item bindings
 /// (Java `EnchantScrollGroup`).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 struct EnchantScrollGroup {
     rate_groups: Vec<EnchantRateItem>,
 }
 
 /// A branded scroll from `EnchantItemData.xml` (Java `EnchantScroll`), narrowed
 /// to the chance-relevant fields.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EnchantScroll {
     pub id: i32,
     /// `targetGrade` (Java `getGrade()`), matched against the item's
@@ -137,7 +137,7 @@ pub struct EnchantScroll {
 /// `EnchantSupportItem`): raises the success chance and can widen the success
 /// step. Weapon/blessed/giant classification comes from the item's
 /// `EtcItemType` at use time (like scrolls).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct EnchantSupport {
     pub id: i32,
     pub target_grade: CrystalType,
@@ -151,7 +151,7 @@ pub struct EnchantSupport {
     pub random_max: i32,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EnchantData {
     item_groups: HashMap<String, EnchantItemGroup>,
     scroll_groups: HashMap<i32, EnchantScrollGroup>,

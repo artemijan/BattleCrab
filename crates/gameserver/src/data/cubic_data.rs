@@ -19,7 +19,7 @@ const CUBICS_DIR: &str = "data/stats/cubics";
 
 /// Java `CubicTargetType`. `MASTER` exists in the enum but no template on this
 /// dist uses it at the template level (only nested skills do).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum CubicTargetType {
     /// Whatever the owner currently has targeted — the attack cubics.
     #[default]
@@ -44,7 +44,7 @@ impl CubicTargetType {
 }
 
 /// One `<skill>` a cubic can cast.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct CubicSkill {
     pub skill_id: i32,
     pub skill_level: i32,
@@ -63,7 +63,7 @@ pub struct CubicSkill {
 
 /// `<hp type="GREATER" percent="33"/>` — the owner must be above (or below)
 /// this share of max HP for the cubic to act.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct HpCondition {
     pub percent: i32,
     /// `type="GREATER"` (the only value on this dist) vs `LESS`.
@@ -71,7 +71,7 @@ pub struct HpCondition {
 }
 
 /// One cubic template — `(id, level)` keyed, exactly as Java stores them.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct CubicTemplate {
     pub id: i32,
     pub level: i32,
@@ -95,7 +95,7 @@ pub struct CubicTemplate {
     pub health_percent: Option<(i32, i32)>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CubicData {
     by_key: HashMap<(i32, i32), CubicTemplate>,
 }

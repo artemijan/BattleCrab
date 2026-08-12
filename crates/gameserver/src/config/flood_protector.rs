@@ -268,6 +268,20 @@ impl FloodProtectorsConfig {
             by_action: [FloodProtectorConfig::default(); FloodAction::COUNT],
         }
     }
+
+    /// Turn **one** slot off (interval 0), leaving the other fourteen as they
+    /// are — the middle ground between the shipped config and [`disabled`].
+    ///
+    /// For a test that exercises a real flow through a protector whose only
+    /// effect on it is a wait: the e2e client re-selects a character within
+    /// milliseconds, which no human does and the 3-second `CharacterSelect`
+    /// window would swallow. Reach for this rather than [`disabled`] so the
+    /// remaining protectors still gate the flow being tested.
+    ///
+    /// [`disabled`]: Self::disabled
+    pub fn disable(&mut self, action: FloodAction) {
+        self.by_action[action.index()].interval = 0;
+    }
 }
 
 #[cfg(test)]

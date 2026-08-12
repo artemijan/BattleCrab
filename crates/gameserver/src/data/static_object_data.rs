@@ -12,7 +12,7 @@ use tracing::info;
 
 pub const STATIC_OBJECT_FILE: &str = "data/StaticObjects.xml";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct StaticObjectTemplate {
     pub id: i32,
     pub name: String,
@@ -25,7 +25,7 @@ pub struct StaticObjectTemplate {
     pub z: i32,
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct StaticObjectData {
     pub objects: Vec<StaticObjectTemplate>,
 }

@@ -13,7 +13,7 @@ use quick_xml::events::Event;
 const CASTLES_DIR: &str = "data/residences/castles";
 
 /// Mercenary ticket item id → the castle it posts a guard for.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CastleSiegeGuards {
     tickets: HashMap<i32, i32>,
 }

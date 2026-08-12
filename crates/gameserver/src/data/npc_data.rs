@@ -15,7 +15,7 @@ pub const NPCS_DIR: &str = "data/stats/npcs";
 
 /// One `<item id min max chance>` drop line (Java `DropHolder`), shared by the
 /// death (`<drop>`) and spoil (`<spoil>`) lists.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct DropHolder {
     pub item_id: i32,
     pub min: i64,
@@ -25,7 +25,7 @@ pub struct DropHolder {
 }
 
 /// `<group chance>` around drop lines (Java `DropGroupHolder`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DropGroup {
     pub chance: f64,
     pub items: Vec<DropHolder>,
@@ -36,7 +36,7 @@ pub struct DropGroup {
 /// port keeps the type name and derives the two subtree memberships the G8
 /// slice actually branches on.
 /// Java `model/holders/MinionHolder` — one `<npc>` row of a `<minions>` block.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MinionHolder {
     pub npc_id: i32,
     /// How many of this minion the leader keeps alive at once.
@@ -52,7 +52,7 @@ pub struct MinionHolder {
 /// `BALANCED` (3163), `MAGE` (402), `ARCHER` (220), `CORPSE` (43) and
 /// `HEALER` (23); everything else omits the attribute and defaults to
 /// `FIGHTER`. `AttackableAI` only branches on `MAGE` and `ARCHER`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum AiType {
     #[default]
     Fighter,
@@ -76,7 +76,7 @@ impl AiType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NpcTemplate {
     pub id: i32,
     /// `displayId` attribute, defaults to `id`; `NpcInfo` sends `+1000000`.
@@ -346,11 +346,17 @@ pub struct CbDrop {
     pub is_raid: bool,
 }
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct NpcData {
     by_id: HashMap<i32, NpcTemplate>,
     /// Lazily-built inverted index `item_id → [CbDrop]` for the community-board
     /// drop search (Java builds it eagerly in `DropSearchBoard`'s constructor;
     /// this port defers the ~35k-template scan until the first search click).
+    ///
+    /// Skipped by the snapshot cache for the reason [`Clone`] starts it cold:
+    /// it is derived from `by_id`, so a decoded copy must rebuild it rather
+    /// than trust bytes that were written before an `insert_for_test`.
+    #[serde(skip)]
     drop_index: OnceLock<HashMap<i32, Vec<CbDrop>>>,
 }
 
@@ -1017,6 +1023,7 @@ fn set_f64(e: &quick_xml::events::BytesStart, key: &[u8], dst: &mut f64) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::dist;
 
     /// The bug this guards: `quick-xml` hands back the attribute's raw bytes,
     /// so an entity survives into the string a player reads.
@@ -1028,7 +1035,7 @@ mod tests {
 
     #[test]
     fn loads_real_dist_files() {
-        let data = NpcData::load_from(crate::data::DIST_GAME);
+        let data = dist::npcs();
         // Java startup: "NpcData: Loaded ~13k NPCs" — pin a floor, not the
         // exact count, so datapack tweaks don't churn the test.
         assert!(
@@ -1153,7 +1160,7 @@ mod tests {
     /// The one dist file with `<group chance>` drops (Primeval Isle mobs).
     #[test]
     fn grouped_drops_parse() {
-        let data = NpcData::load_from(crate::data::DIST_GAME);
+        let data = dist::npcs();
         let t = data
             .get(22119)
             .or_else(|| data.get(22100))
@@ -1171,7 +1178,7 @@ mod tests {
 
     #[test]
     fn drop_index_inverts_drops_and_excludes_adena() {
-        let data = NpcData::load_from(crate::data::DIST_GAME);
+        let data = dist::npcs();
         let index = data.drop_index();
         // Adena (57) is on the block list — never indexed.
         assert!(
@@ -1199,7 +1206,7 @@ mod tests {
 
     #[test]
     fn status_flags_parse() {
-        let data = NpcData::load_from(crate::data::DIST_GAME);
+        let data = dist::npcs();
         // Npc 101: <status attackable="false" canMove="false"/>.
         let t = data.get(101).expect("npc 101");
         assert!(!t.attackable);
@@ -1214,7 +1221,7 @@ mod tests {
     /// a 15-line drop list.
     #[test]
     fn npc_with_nested_minions_keeps_its_body_and_drops() {
-        let data = NpcData::load_from(crate::data::DIST_GAME);
+        let data = dist::npcs();
 
         let boss = data
             .get(3404)
@@ -1237,14 +1244,12 @@ mod tests {
 
 #[cfg(test)]
 mod clan_tests {
-    use super::*;
-
-    const DIST: &str = crate::data::DIST_GAME;
+    use crate::data::dist;
 
     /// The `<minions>` parse, against the real datapack.
     #[test]
     fn parses_minions_from_dist() {
-        let data = NpcData::load_from(DIST);
+        let data = dist::npcs();
         let leaders = data.all().filter(|t| !t.minions.is_empty()).count();
         let entries: usize = data.all().map(|t| t.minions.len()).sum();
         println!("MINION LEADERS={leaders} ENTRIES={entries}");
@@ -1264,7 +1269,7 @@ mod clan_tests {
     /// agree with whatever the parser does.
     #[test]
     fn parses_clans_and_guards_from_dist() {
-        let data = NpcData::load_from(DIST);
+        let data = dist::npcs();
         let with_clans = data.all().filter(|t| !t.clans.is_empty()).count();
         let guards = data.all().filter(|t| t.is_guard()).count();
         let ignores = data
@@ -1291,9 +1296,7 @@ mod clan_tests {
 
 #[cfg(test)]
 mod race_tests {
-    use super::*;
-
-    const DIST: &str = crate::data::DIST_GAME;
+    use crate::data::dist;
 
     /// `<race>` parses to the `Race` ordinal for both the five playable races
     /// (the Newbie Guides' own-race gate reads this field) and the
@@ -1302,7 +1305,7 @@ mod race_tests {
     /// equals a player's.
     #[test]
     fn parses_playable_races_from_dist() {
-        let data = NpcData::load_from(DIST);
+        let data = dist::npcs();
         // One Newbie Guide per starter village. Id order is *not* race
         // order: 30601 is the Dwarven village (DWARF=4), 30602 the Orc one
         // (ORC=3).

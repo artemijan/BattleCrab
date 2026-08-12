@@ -17,7 +17,7 @@ const CRYSTAL_FILE: &str = "data/LevelUpCrystalData.xml";
 
 /// How a monster distributes a crystal level-up across a party (Java
 /// `AbsorbCrystalType`). Solo play collapses every variant to "the killer".
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum AbsorbType {
     /// Only whoever struck the killing blow.
     #[default]
@@ -42,7 +42,7 @@ impl AbsorbType {
 }
 
 /// One monster's leveling rule for a given crystal level.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct LevelingInfo {
     pub absorb_type: AbsorbType,
     /// Whether the Soul Crystal skill (2096) must have been cast on the mob
@@ -53,13 +53,13 @@ pub struct LevelingInfo {
 }
 
 /// A Soul Crystal item: its stage and the item it becomes when it levels.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct SoulCrystal {
     pub level: i32,
     pub leveled_item_id: i32,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SoulCrystalData {
     /// item id → the crystal's stage + next-stage item id.
     crystals: HashMap<i32, SoulCrystal>,

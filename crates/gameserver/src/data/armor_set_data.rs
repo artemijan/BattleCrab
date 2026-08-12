@@ -48,7 +48,7 @@ use tracing::info;
 pub const ARMOR_SET_DIR: &str = "data/stats/armorsets";
 
 /// One `<skill>` row of a set (Java `ArmorsetSkillHolder`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct ArmorSetSkill {
     pub skill_id: i32,
     pub level: i32,
@@ -64,7 +64,7 @@ pub struct ArmorSetSkill {
 }
 
 /// A `<set>` (Java `ArmorSet`).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct ArmorSet {
     pub id: i32,
     pub minimum_pieces: i32,
@@ -87,7 +87,7 @@ pub struct ArmorSet {
 /// The six flat base-stat bonuses a set can carry, in the order the rest of
 /// the port names them. Kept as a struct rather than a map so the summing at
 /// the call site is total.
-#[derive(Debug, Clone, Copy, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ArmorSetStats {
     pub str_: f64,
     pub dex: f64,
@@ -126,7 +126,7 @@ impl std::ops::AddAssign for ArmorSetStats {
     }
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ArmorSetData {
     by_id: HashMap<i32, ArmorSet>,
     /// item id → the sets that item belongs to, required **or** optional

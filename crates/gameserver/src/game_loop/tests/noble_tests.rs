@@ -119,10 +119,7 @@ fn nobless_is_written_to_the_save() {
 /// The real datapack's noble tree.
 #[test]
 fn real_dist_noble_tree_has_the_expected_skills() {
-    let trees = crate::data::SkillTreeData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let trees = dist::skill_trees();
     let noble = trees.noble_skills();
     assert_eq!(noble.len(), 8, "nobleSkillTree.xml ships 8 skills");
     // Noblesse Blessing (1323) and Build Advanced Headquarters (326) are the

@@ -11,7 +11,7 @@ use crate::data::xml::{attr_i32, attr_i64};
 use quick_xml::events::Event;
 
 /// One purchasable level of a function.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct FunctionLevel {
     pub cost_id: i32,
     pub cost_count: i64,
@@ -22,7 +22,7 @@ pub struct FunctionLevel {
 }
 
 /// One function id and its level ladder.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ResidenceFunctionDef {
     pub func_id: i32,
     /// Java `ResidenceFunctionType` name (HP_REGEN, TELEPORT, …).
@@ -30,7 +30,7 @@ pub struct ResidenceFunctionDef {
     pub levels: HashMap<i32, FunctionLevel>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct ResidenceFunctionData {
     by_id: HashMap<i32, ResidenceFunctionDef>,
 }

@@ -3293,10 +3293,7 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
 fn a3_and_ca5_skills_parse_as_castable_operate_types() {
     use crate::model::skill::OperateType;
 
-    let skills = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let skills = dist::skills();
     for (id, name, expected) in [
         (321, "Blinding Blow", OperateType::Active),
         (409, "Critical Blow", OperateType::Active),
@@ -3365,10 +3362,7 @@ fn an_undead_aura_spares_the_living_and_the_caster() {
 /// refuses with its own message rather than the generic invalid-target one.
 #[test]
 fn the_others_target_type_refuses_the_caster_with_its_own_message() {
-    let skills = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let skills = dist::skills();
     assert_eq!(
         skills.get(426, 1).unwrap().target_type,
         crate::model::skill::TargetType::Others,
@@ -3385,10 +3379,7 @@ fn the_others_target_type_refuses_the_caster_with_its_own_message() {
 fn every_destination_escape_scroll_now_carries_a_teleport() {
     use crate::model::skill::SkillEffect as E;
 
-    let skills = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let skills = dist::skills();
     // Two levels of the same scroll must give two *different* destinations.
     let lv1 = skills.get(2213, 1).expect("SoE lv1");
     let lv2 = skills.get(2213, 2).expect("SoE lv2");
@@ -3537,10 +3528,7 @@ fn an_elixir_honours_the_recoverable_ceiling() {
 /// un-attackable.
 #[test]
 fn a_next_action_attack_skill_leaves_the_caster_swinging() {
-    let skills = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let skills = dist::skills();
     use crate::model::skill::NextAction;
     // Power Strike (3) is the archetype; Wind Strike (1177-style nukes) too.
     let ps = skills.get(3, 1).expect("Power Strike");
@@ -3663,10 +3651,7 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
 /// than counted.
 #[test]
 fn anchors_second_stage_fires_when_the_first_expires() {
-    let skills = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let skills = dist::skills();
     let anchor = skills.get(1170, 1).expect("Anchor");
     assert_eq!(
         anchor.end_effects.len(),
@@ -3730,10 +3715,7 @@ fn an_end_effect_call_skill_lands_on_expiry() {
 /// zero case is most of the assertion's value here.
 #[test]
 fn a_self_continuous_skills_debuff_shows_no_icon_to_its_victim() {
-    let skills = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let skills = dist::skills();
 
     let blinding_blow = skills.get(321, 1).expect("Blinding Blow loads");
     assert!(

@@ -31,7 +31,7 @@ pub const MULTISELL_DIR: &str = "data/multisell";
 pub const PAGE_SIZE: usize = 40;
 
 /// One `<ingredient>` of a `<item>` entry.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Ingredient {
     pub id: i32,
     pub count: i64,
@@ -42,7 +42,7 @@ pub struct Ingredient {
 }
 
 /// One `<production>` of a `<item>` entry.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Product {
     pub id: i32,
     pub count: i64,
@@ -54,7 +54,7 @@ pub struct Product {
 
 /// A `<item>` entry: what you give (`ingredients`) for what you get
 /// (`products`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MultisellEntry {
     pub ingredients: Vec<Ingredient>,
     pub products: Vec<Product>,
@@ -64,7 +64,7 @@ pub struct MultisellEntry {
 }
 
 /// A static multisell list (`MultisellListHolder`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MultisellList {
     pub list_id: i32,
     pub is_chance_multisell: bool,
@@ -117,7 +117,7 @@ impl MultisellList {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MultisellData {
     by_id: HashMap<i32, MultisellList>,
 }
@@ -335,6 +335,7 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::dist;
 
     fn dist() -> String {
         crate::data::DIST_GAME.to_string()
@@ -343,8 +344,8 @@ mod tests {
     #[test]
     fn loads_real_dist_lists() {
         let root = dist();
-        let items = ItemData::load_from(&root);
-        let data = MultisellData::load_from(&root, &items);
+        let items = dist::items();
+        let data = MultisellData::load_from(&root, items);
         assert!(data.len() > 100, "loaded {} lists", data.len());
 
         // 600026.xml (custom CB belt shop): 4 adena→belt entries, npc -1.
@@ -365,8 +366,8 @@ mod tests {
     #[test]
     fn multipliers_default_to_one() {
         let root = dist();
-        let items = ItemData::load_from(&root);
-        let data = MultisellData::load_from(&root, &items);
+        let items = dist::items();
+        let data = MultisellData::load_from(&root, items);
         let list = data.get(600026).expect("list");
         assert_eq!(list.ingredient_multiplier, 1.0);
         assert_eq!(list.product_multiplier, 1.0);

@@ -12,6 +12,10 @@ pub mod category_data;
 pub mod clan_hall_data;
 pub mod cubic_data;
 pub mod cursed_weapon_data;
+/// The real datapack, loaded once per test process — the fixture every test
+/// that wants dist content should go through.
+#[cfg(test)]
+pub(crate) mod dist;
 pub mod door_data;
 pub mod enchant_data;
 pub mod enchant_skill_groups;
@@ -44,6 +48,10 @@ pub mod siege_data;
 pub mod skill_data;
 pub mod skill_expr;
 pub mod skill_tree;
+/// The test fixtures' binary cache of the parsed catalogues. Test-only: the
+/// server parses the datapack it was pointed at, every boot.
+#[cfg(test)]
+pub(crate) mod snapshot;
 pub mod soul_crystal_data;
 pub mod spawn_data;
 pub mod stat_bonus;
@@ -116,7 +124,7 @@ pub(crate) const DIST_GAME: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../d
 /// this dist's Character.ini values (which the finalizers used to hardcode);
 /// production overwrites them from the parsed config at boot (`main.rs`), tests
 /// keep the defaults.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct CombatCaps {
     pub run_spd_boost: f64,
     pub max_p_atk: f64,
@@ -158,7 +166,7 @@ impl Default for CombatCaps {
 /// pipeline. Defaults are the Java `Config` fallbacks (all `false`);
 /// production overwrites them from the parsed config at boot (`main.rs`),
 /// tests keep the defaults.
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, serde::Serialize, serde::Deserialize)]
 pub struct GmSettings {
     pub hero_aura: bool,
     pub startup_builder_hide: bool,
@@ -174,7 +182,7 @@ pub struct GmSettings {
     pub give_special_aura_skills: bool,
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,

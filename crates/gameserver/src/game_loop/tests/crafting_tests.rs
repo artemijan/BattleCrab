@@ -408,10 +408,7 @@ fn manufacture_store_craft_for_customer() {
 fn enlarge_slot_expand_dwarven_craft_raises_recipe_limit() {
     let (mut world, ..) = cast_test_world();
     install_fixtures(&mut world);
-    world.data.skill_data = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.skill_data = dist::skills_owned();
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     learn_skill(&mut world, 3001, 172); // Create Dwarven
     give_item(&mut world, 3001, 9001, RECIPE_ITEM, 1);

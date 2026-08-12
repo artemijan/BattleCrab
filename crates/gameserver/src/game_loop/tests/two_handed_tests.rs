@@ -140,8 +140,7 @@ fn the_weapon_and_slot_conditions_are_separate_axes() {
 /// one-hander.
 #[test]
 fn the_slot_condition_reads_the_weapon_bodypart() {
-    const ITEM_DIST: &str = crate::data::DIST_GAME;
-    let items = crate::data::item_data::ItemData::load_from(ITEM_DIST);
+    let items = super::dist::items();
 
     // A two-handed weapon really is marked `lrhand` in the datapack, and a
     // one-handed one is not — the premise the condition rests on.

@@ -18,7 +18,7 @@ pub const INITIAL_SHORTCUTS_FILE: &str = "data/stats/initialShortcuts.xml";
 /// One `<slot>` line — like Java's reuse of the `Shortcut` DTO but keeping
 /// the item *id* semantics explicit (ITEM entries hold an item id until
 /// creation resolves the created item's object id).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct InitialShortcut {
     pub slot: i32,
     pub page: i32,
@@ -28,7 +28,7 @@ pub struct InitialShortcut {
     pub character_type: i32,
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct InitialShortcutData {
     global: Vec<InitialShortcut>,
     by_class: HashMap<i32, Vec<InitialShortcut>>,

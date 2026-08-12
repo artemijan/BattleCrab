@@ -16,7 +16,7 @@ use tracing::info;
 
 const SCHEME_BUFFER_SKILLS_XML: &str = "data/SchemeBufferSkills.xml";
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SchemeBufferData {
     /// `_availableBuffs`: skill id → the level to cast at.
     levels: HashMap<i32, i32>,

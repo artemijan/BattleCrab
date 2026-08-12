@@ -25,7 +25,7 @@ use crate::model::stats::StatModifierType;
 pub const OPTIONS_DIR: &str = "data/stats/augmentation/options";
 
 /// Java `OptionSkillType` — when an activation skill fires.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum OptionSkillType {
     Attack,
     Magic,
@@ -34,7 +34,7 @@ pub enum OptionSkillType {
 
 /// Java `OptionSkillHolder` — a skill that fires on a chance when the wearer
 /// attacks / casts / crits.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct OptionTrigger {
     pub skill_id: i32,
     pub skill_level: i32,
@@ -43,7 +43,7 @@ pub struct OptionTrigger {
 }
 
 /// One `<option>` (Java `Options`).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct OptionEntry {
     pub id: i32,
     /// Stat contributions, already mapped to the port's stat vocabulary.
@@ -62,7 +62,7 @@ impl OptionEntry {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct OptionData {
     by_id: HashMap<i32, OptionEntry>,
 }

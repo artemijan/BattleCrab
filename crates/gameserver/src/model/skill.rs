@@ -7,7 +7,7 @@ use crate::model::stats::{Stat, StatModifierType};
 
 /// Java `SkillOperateType`, scoped to what the cast pipeline dispatches on.
 /// Everything else (`A3`, `DA*`, …) reads as `Other` and isn't castable yet.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum OperateType {
     /// `A1`/`A2`: an active, targeted or self-cast skill with a cast bar.
     Active,
@@ -28,7 +28,7 @@ pub enum OperateType {
 /// Java `TargetType`, scoped to the single-target types the cast pipeline
 /// resolves (see `resolve_cast_target`) plus a catch-all so unhandled skills
 /// still load instead of failing to parse.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum TargetType {
     /// `SELF`: always the caster.
     Self_,
@@ -117,7 +117,7 @@ pub enum TargetType {
 /// `SUMMON_EXCEPT_MASTER` (22, off-chronicle), `BALAKAS_SCOPE`/`WYVERN_SCOPE`
 /// (boss/wyvern scripting), `RANGE_SORT_BY_HP` (4), `PARTY_PLEDGE` (5) and
 /// `STATIC_OBJECT_SCOPE` (2).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AffectScope {
     /// `SINGLE` (and the `NONE`/absent default): only the primary target.
     Single,
@@ -170,7 +170,9 @@ pub enum AffectScope {
 ///   `AttackTrait` as well, which is why "Detect Beast Weakness" is inert on
 ///   this dist (nothing gives a monster the paired `DefenceTrait`).
 /// - **1** (weapon types) and **0** (`NONE`) — never resisted this way.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, Default, serde::Serialize, serde::Deserialize,
+)]
 pub enum TraitType {
     #[default]
     None,
@@ -217,7 +219,7 @@ pub enum TraitType {
 
 /// The `*_WEAKNESS` members of `TraitType`, kept as one variant so the enum
 /// stays small; they all share group 2 and the same attacker-gated rule.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum WeaknessTrait {
     Bug,
     Animal,
@@ -241,7 +243,7 @@ pub enum WeaknessTrait {
 
 /// Java's group-1 `TraitType` members: the weapon types a `DefenceTrait` can
 /// name, plus `ETC` (which 61 skills declare as their `<trait>`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum WeaponTrait {
     Sword,
     Blunt,
@@ -403,7 +405,7 @@ impl TraitType {
 
 /// Java `AffectObject` (`handlers/targethandlers/affectobject/*`) — the
 /// friend/foe filter applied to each candidate an [`AffectScope`] sweeps up.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AffectObject {
     /// `ALL`: no filtering.
     All,
@@ -433,7 +435,7 @@ pub enum AffectObject {
 /// The Rust counterpart of Java's `AbstractStatAddEffect`/
 /// `AbstractStatPercentEffect` — one generic type instead of the 63 one-line
 /// subclasses Java has (each just names a `Stat` and a fixed mode).
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct StatModifierEffect {
     pub stat: Stat,
     pub mode: StatModifierType,
@@ -499,7 +501,7 @@ impl Default for StatModifierEffect {
 /// `RestorationItemHolder`). `min_enchant`/`max_enchant` drive the grant-time
 /// enchant roll (`game_loop::skills::effects::give_item_random`: when
 /// `max_enchant > 0`, the created item gets `Rnd.get(min_enchant, max_enchant)`).
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct RestorationItem {
     pub item_id: i32,
     pub count: i64,
@@ -519,7 +521,7 @@ pub struct RestorationItem {
 /// `FORTRESS` is deliberately absent: the two scrolls carrying it are fortress
 /// content, which this chronicle has none of, so the effect drops as an
 /// unhandled name rather than pretending to a destination that cannot exist.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum EscapeDest {
     /// `TOWN` — the enclosing map region's respawn point. 38 skills.
     Town,
@@ -534,7 +536,7 @@ pub enum EscapeDest {
     Castle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RestorationGroup {
     pub chance: f64,
     pub items: Vec<RestorationItem>,
@@ -545,7 +547,7 @@ pub struct RestorationGroup {
 /// `StatModifier` covers the whole `AbstractStatAddEffect`/
 /// `AbstractStatPercentEffect` family, the instant kinds get one variant per
 /// ported handler. Unregistered effect names are still dropped at load.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum SkillEffect {
     /// Continuous stat pump (goes into an `ActiveBuff` for `abnormal_time`).
     StatModifier(StatModifierEffect),
@@ -1826,7 +1828,7 @@ pub mod effect_flag {
 }
 
 /// Java `NextActionType` — what `SkillCaster.finishSkill` queues after a cast.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum NextAction {
     #[default]
     None,
@@ -1835,7 +1837,7 @@ pub enum NextAction {
 }
 
 /// `ReduceDropType` — which of `ReduceDropPenalty`'s three stat pairs to grant.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum ReduceDropKind {
     #[default]
     Mob,
@@ -2080,7 +2082,7 @@ pub fn abnormal_visual_client_id(name: &str) -> Option<i16> {
 pub const STEALTH_CLIENT_ID: i16 = 21;
 
 /// `dist/game/data/stats/skills/*.xml` → `Skill.java`, scoped to G6.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Skill {
     pub id: i32,
     pub level: i32,
@@ -2336,7 +2338,7 @@ pub struct Skill {
 ///    (`ABNORMAL_RESIST_PHYSICAL` / `_MAGICAL`), subtracted inside `baseMod`.
 /// 2. `Formulas.getBasicPropertyResistBonus` — the **accrual chain**, a
 ///    multiplier applied *after* the min/max clamp.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum BasicProperty {
     #[default]
     None,
@@ -2357,7 +2359,7 @@ impl BasicProperty {
 /// Java `SkillConditionPercentType` — the comparison a `Remain*Per` condition
 /// makes. `MORE` is `current >= amount`, `LESS` is `current <= amount`; both
 /// are inclusive, which matters for the skills that gate on exactly 100 %.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum PercentType {
     More,
     Less,
@@ -2384,7 +2386,7 @@ impl PercentType {
 /// condition handlers covers `CASTER` and `TARGET` and falls through to
 /// `return false` otherwise, so a `BOTH` condition refuses the cast outright.
 /// Ported as written.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum AffectType {
     Both,
     #[default]
@@ -2403,7 +2405,7 @@ impl AffectType {
 }
 
 /// Which vital a `Remain*Per` condition reads.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum Vital {
     Hp,
     Mp,
@@ -2411,7 +2413,7 @@ pub enum Vital {
 }
 
 /// Java `MountType`, as far as the mount conditions need it.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum MountKind {
     Strider,
     Wyvern,
@@ -2424,7 +2426,7 @@ pub enum MountKind {
 /// Only the conditions with a source on this dist are here. The evaluator lives
 /// in `game_loop::skills::conditions`; a variant added here without a match arm
 /// there will not compile, which is the point.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum SkillCondition {
     /// `EquipWeapon` — the *equipped* weapon's type must be in the mask.
     /// Java tests `weapon.getItemMask() & mask`, so a skill listing several
@@ -2549,7 +2551,7 @@ pub enum SkillCondition {
 /// `enums/ResidenceType` — [`SkillCondition::Home`]'s parameter. `FORTRESS` is
 /// listed because the dist declares it (one skill); this chronicle has no
 /// fortresses, so it can never pass.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ResidenceType {
     Castle,
     ClanHall,
@@ -2557,7 +2559,7 @@ pub enum ResidenceType {
 }
 
 /// `enums/SkillConditionCompanionType` — [`SkillCondition::Companion`]'s kind.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum CompanionKind {
     /// `PET` — `target.isPet()`: a collar pet, not a summoner's servitor.
     Pet,
@@ -2570,7 +2572,7 @@ pub enum CompanionKind {
 /// `npc_ids` within `range` of the **caster** exist (`is_around`) / don't
 /// exist (`!is_around`); the symbol skills use it to stop a re-cast next to a
 /// live seal.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OpExistNpcCondition {
     pub npc_ids: Vec<i32>,
     pub range: i32,
@@ -2673,7 +2675,7 @@ pub enum BuffSlot {
 
 /// Java `DispelSlotType` (`<effect name="DispelByCategory"><slot>…`) — which
 /// pool [`SkillEffect::DispelByCategory`] steals from.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum DispelSlot {
     Buff,
     Debuff,

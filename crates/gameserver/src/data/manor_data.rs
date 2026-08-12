@@ -15,7 +15,7 @@ const SEEDS_XML: &str = "data/Seeds.xml";
 /// One farmable crop line (Java `model/Seed`). The seed/crop **reference
 /// prices** Java resolves from item data are not stored here — the sow/harvest
 /// slices resolve them from `ItemData` at use time.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Seed {
     /// The castle whose manor offers this seed (from the parent `<castle id>`).
     pub castle_id: i32,
@@ -46,7 +46,7 @@ impl Seed {
 }
 
 /// The seed catalogue keyed by castle id (Java `CastleManorManager._seeds`).
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ManorData {
     by_castle: HashMap<i32, Vec<Seed>>,
 }

@@ -40,9 +40,9 @@ fn armor_set_world() -> (
 ) {
     let (mut world, db, l) = combat_test_world();
     let root = crate::data::DIST_GAME;
-    world.data.item_data = crate::data::ItemData::load_from(root);
+    world.data.item_data = dist::items_owned();
     world.data.armor_sets = crate::data::armor_set_data::ArmorSetData::load_from(root);
-    world.data.skill_data = crate::data::SkillData::load_from(root);
+    world.data.skill_data = dist::skills_owned();
     assert!(
         !world.data.armor_sets.is_empty(),
         "the dist armor sets loaded"

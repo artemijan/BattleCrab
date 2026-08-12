@@ -15,7 +15,7 @@ use tracing::{info, warn};
 const FISHING_FILE: &str = "data/Fishing.xml";
 
 /// One entry in a bait's catch table (`<catch>`).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct FishingCatch {
     pub item_id: i32,
     /// Weight within the bait's table (the `<catch chance>` values sum to 100).
@@ -26,7 +26,7 @@ pub struct FishingCatch {
 
 /// A bait/lure (`<bait>`): what it can catch, how long a cast takes, and the
 /// per-cast win chance.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FishingBait {
     pub min_player_level: i32,
     pub max_player_level: i32,
@@ -59,14 +59,14 @@ impl FishingBait {
 }
 
 /// A fishing rod (`<rod>`): shaves the reel time and can boost XP/SP.
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, serde::Serialize, serde::Deserialize)]
 pub struct FishingRod {
     pub reduce_fishing_time: i32,
     pub xp_multiplier: f64,
     pub sp_multiplier: f64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FishingData {
     baits: HashMap<i32, FishingBait>,
     rods: HashMap<i32, FishingRod>,

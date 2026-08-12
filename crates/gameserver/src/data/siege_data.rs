@@ -90,7 +90,7 @@ const SIEGE_SCHEDULE_FILE: &str = "config/SiegeSchedule.xml";
 
 /// One castle's siege slot: the weekday (`Mon=0..Sun=6`), the hour of day, and
 /// whether sieges are enabled for it.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct SiegeScheduleEntry {
     pub weekday: u32,
     pub hour: u32,

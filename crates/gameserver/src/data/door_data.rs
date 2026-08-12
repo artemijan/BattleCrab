@@ -20,7 +20,7 @@ pub const DOOR_FILE: &str = "data/DoorData.xml";
 
 /// `enums/DoorOpenType` narrowed to the methods this dist declares
 /// (`BY_CYCLE` exists in the enum but appears in no door).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum DoorOpenMethod {
     /// No `openMethod` attribute — the door only moves when a script/system
     /// calls open/close (most of the 1180).
@@ -33,7 +33,7 @@ pub enum DoorOpenMethod {
 }
 
 /// Java `DoorTemplate` narrowed to the fields with data behind them.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DoorTemplate {
     pub id: i32,
     pub name: String,
@@ -72,7 +72,7 @@ impl DoorTemplate {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DoorData {
     pub doors: Vec<DoorTemplate>,
     by_id: HashMap<i32, u32>,

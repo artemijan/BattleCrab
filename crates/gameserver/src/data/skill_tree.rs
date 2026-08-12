@@ -56,7 +56,7 @@ pub type Skill = (i32, i32);
 
 /// One `<skill>` entry from a class tree (Java `SkillLearn`, trimmed to the
 /// fields the `CLASS` learn path needs).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SkillLearn {
     pub skill_id: i32,
     pub skill_level: i32,
@@ -82,7 +82,7 @@ impl SkillLearn {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct SkillTreeData {
     /// Every `<skill>` entry per class id, in document order (Java
     /// `_classSkillTrees`). Holds only the class's *own* tier entries — the
@@ -590,6 +590,7 @@ fn parse_hero_tree(path: &str) -> Vec<Skill> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::dist;
 
     fn learn(skill_id: i32, skill_level: i32, get_level: i32, level_up_sp: i64) -> SkillLearn {
         SkillLearn {
@@ -620,9 +621,8 @@ mod tests {
     /// which skill or why.
     #[test]
     fn only_the_two_recorded_gaps_are_reachable_from_a_skill_tree() {
-        const DIST: &str = crate::data::DIST_GAME;
-        let trees = SkillTreeData::load_from(DIST);
-        let skills = crate::data::SkillData::load_from(DIST);
+        let trees = dist::skill_trees();
+        let skills = dist::skills();
         let learnable = trees.all_learnable_skill_ids();
         assert!(
             learnable.len() > 500,
@@ -916,8 +916,7 @@ mod tests {
     /// its own Whirlwind (36), an ancestor skill, and the common Expertise (239).
     #[test]
     fn dist_warlord_inherits_ancestor_and_common_skills() {
-        const DIST: &str = crate::data::DIST_GAME;
-        let data = SkillTreeData::load_from(DIST);
+        let data = dist::skill_trees();
         let warlord: HashMap<i32, i32> = data
             .all_available_skills(3, 80, &HashMap::new(), true, true)
             .into_iter()
@@ -951,12 +950,11 @@ mod tests {
     /// in a class tree costs an item.
     #[test]
     fn dist_divine_inspiration_carries_its_ancient_books() {
-        const DIST: &str = crate::data::DIST_GAME;
         // The books, in skill-level order (8618/8619 in 2ndClass, 8620/8621 in
         // 3rdClass — the same skill re-declared per class tree).
         const BOOKS: [i32; 4] = [8618, 8619, 8620, 8621];
 
-        let data = SkillTreeData::load_from(DIST);
+        let data = dist::skill_trees();
         // Warlord (3) reaches Divine Inspiration through the 2nd-class tree.
         let di: Vec<&SkillLearn> = data
             .complete_entries(3)

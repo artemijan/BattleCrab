@@ -38,7 +38,7 @@ enum WeaponKind {
 
 /// One `<optionCategory>` — a weighted set of option ids (Java
 /// `OptionDataCategory`).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 struct OptionCategory {
     chance: f64,
     /// `(option_id, chance)` in document order.
@@ -67,7 +67,7 @@ impl OptionCategory {
 }
 
 /// One `<optionGroup>` — a weighted list of categories (Java `OptionDataGroup`).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 struct OptionGroup {
     categories: Vec<OptionCategory>,
 }
@@ -97,7 +97,7 @@ impl OptionGroup {
 
 /// A life stone's variation (Java `Variation`): the two ordered option groups
 /// for each weapon type.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 struct Variation {
     warrior: [Option<OptionGroup>; 2],
     mage: [Option<OptionGroup>; 2],
@@ -114,7 +114,7 @@ impl Variation {
 
 /// The gemstone/adena cost of augmenting (and cancelling) with a given mineral
 /// on a given weapon (Java `VariationFee`).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct VariationFee {
     /// The gemstone item id spent on the augment.
     pub item_id: i32,
@@ -123,7 +123,7 @@ pub struct VariationFee {
     pub cancel_fee: i64,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct VariationData {
     variations: HashMap<i32, Variation>,
     /// weapon item id → (mineral id → fee).

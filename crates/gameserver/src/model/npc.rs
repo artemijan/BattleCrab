@@ -1073,7 +1073,7 @@ fn announce_boss_spawn(world: &World, object_id: i32) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::GameData;
+    use crate::data::dist;
 
     /// Boot-shaped smoke test over the real datapack: every spawnable line
     /// places an NPC, fixed spawns land at retail coordinates, and the
@@ -1082,7 +1082,7 @@ mod tests {
     fn spawns_real_dist_content() {
         let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
         let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
-        let data = GameData::load_from(crate::data::DIST_GAME);
+        let data = dist::game_data_owned();
         let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
         let placed = spawn_all(&mut world);
@@ -1148,10 +1148,7 @@ mod tests {
     /// tests.
     #[test]
     fn stakato_22109_finalized_stats_match_java() {
-        let data = crate::data::GameData::load_from(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../dist/game/"
-        ));
+        let data = dist::game_data_owned();
         let t = data
             .npc_data
             .get(22109)

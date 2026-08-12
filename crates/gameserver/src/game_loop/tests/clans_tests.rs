@@ -1114,13 +1114,10 @@ fn superhaste_maxmp_doubles_mp() {
 
     let (mut world, _db_rx, _link_rx) = quest_test_world();
     // The real Super Haste 7029 L4 from the datapack (+100% MaxMp, PER).
-    let sh = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ))
-    .get(7029, 4)
-    .expect("Super Haste 7029 L4")
-    .clone();
+    let sh = dist::skills()
+        .get(7029, 4)
+        .expect("Super Haste 7029 L4")
+        .clone();
     world.data.skill_data.insert_for_test(sh.clone());
 
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);

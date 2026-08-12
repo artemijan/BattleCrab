@@ -8,7 +8,7 @@
 //! dialog are later slices.
 
 /// Java `ClanHallGrade` (the `_gradeValue` is the client sort weight).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ClanHallGrade {
     None,
     D,
@@ -32,7 +32,7 @@ impl ClanHallGrade {
 }
 
 /// Java `ClanHallType` (the `_clientVal` wire value).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ClanHallType {
     Auctionable,
     Siegeable,
@@ -66,7 +66,7 @@ pub struct ActiveFunction {
 }
 
 /// A clan hall — its static definition plus the runtime owner (0 = unowned).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ClanHall {
     pub id: i32,
     pub name: String,

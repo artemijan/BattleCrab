@@ -517,10 +517,7 @@ fn relax_switches_off_at_full_hp_with_its_own_message() {
 /// Fighter learns did nothing at all.
 #[test]
 fn the_real_relax_skill_parses_its_effect() {
-    let skills = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let skills = dist::skills();
     let relax = skills.get(226, 1).expect("skill 226 Relax");
     assert!(
         relax

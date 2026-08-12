@@ -20,7 +20,7 @@ use crate::model::stats::BaseStat;
 const HENNA_FILE: &str = "data/stats/hennaList.xml";
 
 /// Port of `model/item/Henna` — one dye symbol.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Henna {
     pub dye_id: i32,
     pub dye_item_id: i32,
@@ -71,7 +71,7 @@ pub struct HennaStatSums {
     pub wit: i32,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct HennaData {
     hennas: HashMap<i32, Henna>,
 }

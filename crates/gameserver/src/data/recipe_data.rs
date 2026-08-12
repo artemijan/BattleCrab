@@ -17,7 +17,7 @@ use tracing::{info, warn};
 const RECIPES_FILE: &str = "data/Recipes.xml";
 
 /// The rare ("masterwork") production of a recipe (`productionRare`).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct RareProduction {
     pub item_id: i32,
     pub count: i32,
@@ -28,7 +28,7 @@ pub struct RareProduction {
 /// Port of `model/RecipeList` — one crafting recipe. `id` is the recipe *list*
 /// id used in the book/packets; `recipe_item_id` (Java `recipeId`) is the id of
 /// the etc-item that teaches it.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RecipeList {
     pub id: i32,
     /// `craftLevel` — the create-item skill level needed to use it.
@@ -54,7 +54,7 @@ pub struct RecipeList {
     pub alt_gim: i32,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct RecipeData {
     /// Keyed by recipe-list id (`_id`).
     recipes: HashMap<i32, RecipeList>,

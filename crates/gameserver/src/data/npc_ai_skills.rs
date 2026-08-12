@@ -23,7 +23,7 @@ use super::skill_data::SkillData;
 /// Java `enums/AISkillScope`. `RES`, `NEGATIVE` and `SUICIDE` are populated
 /// but not yet consumed by the ported think ladder — see the module docs on
 /// [`crate::game_loop::npc::cast`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum AiSkillScope {
     Buff,
     Debuff,
@@ -45,7 +45,7 @@ pub enum AiSkillScope {
 /// The skills of one NPC template, bucketed by scope. Values are `(id, level)`
 /// pairs resolved against [`SkillData`] at cast time, matching how the rest of
 /// the port carries NPC skills.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct NpcAiSkills {
     buckets: HashMap<AiSkillScope, Vec<(i32, i32)>>,
 }
@@ -66,7 +66,7 @@ impl NpcAiSkills {
 
 /// npc id → [`NpcAiSkills`]. Templates whose skills are all passive (the
 /// overwhelming majority — the 4408/4410/4412 stat holders) get no entry.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct NpcAiSkillIndex {
     by_npc: HashMap<i32, NpcAiSkills>,
 }

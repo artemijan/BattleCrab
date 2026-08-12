@@ -65,6 +65,12 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 # instead of stealing tick budget.
 tracing-appender = "0.2"
 serde_json = "1"
+# `derive` for the datapack snapshot cache: the test fixtures re-parse the real
+# dist XML in every nextest process, so the parsed catalogues are cached to a
+# binary blob under `target/` (`data::snapshot`). Nothing in the running server
+# serializes these types — the derives exist for that cache.
+serde = { version = "1", features = ["derive"] }
+bincode = { version = "2", features = ["serde"] }
 # Only for the RFC3339 stamp on audit records. Already in the tree via the
 # sqlx/sea-orm side, so this is a direct dependency on something that was
 # being compiled anyway.

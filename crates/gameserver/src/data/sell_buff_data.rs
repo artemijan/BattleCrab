@@ -13,7 +13,7 @@ use tracing::info;
 
 pub const SELL_BUFF_DATA_FILE: &str = "data/SellBuffData.xml";
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct SellBuffData {
     allowed: HashSet<i32>,
 }

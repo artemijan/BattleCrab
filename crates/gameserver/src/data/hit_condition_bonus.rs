@@ -8,7 +8,7 @@ use quick_xml::events::Event;
 
 pub const HIT_CONDITION_BONUS_FILE: &str = "data/stats/hitConditionBonus.xml";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct HitConditionBonusData {
     pub front_bonus: f64,
     pub side_bonus: f64,

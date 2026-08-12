@@ -48,7 +48,7 @@ pub struct SiegeClan {
 
 /// A battlefield NPC spawn point — a siege guard (`castle_siege_guards`) or a
 /// control/flame tower (`SiegeManager` config).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct SiegeSpawn {
     pub npc_id: i32,
     pub x: i32,

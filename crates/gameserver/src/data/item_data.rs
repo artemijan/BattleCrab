@@ -114,7 +114,7 @@ fn body_part(name: &str) -> i32 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum ItemKind {
     Weapon,
     Armor,
@@ -129,7 +129,7 @@ pub enum ItemKind {
 /// `<set name="armor_type" val="..."/>`; absent → `None`. `mask_bit` gives each
 /// type its own bit so a `ConditionUsingItemType` mask (the OR of an effect's
 /// `<armorType>` list) can be intersected against the worn chest/legs.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum ArmorType {
     #[default]
     None,
@@ -173,7 +173,7 @@ impl ArmorType {
 /// `<weaponType>` list (an OR of these bits) can be intersected against the
 /// currently equipped weapon — the weapon-gated counterpart of [`ArmorType`],
 /// e.g. Weapon Mastery 249's `-30% MagicalAttackSpeed` for BOW/POLE only.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum WeaponType {
     /// No weapon / not a real combat type (fists count as unarmed, `Etc`, …) —
     /// never matches a `<weaponType>` condition (bit 0).
@@ -249,7 +249,7 @@ impl WeaponType {
 /// the expertise/grade-penalty check compares against `Player.getExpertiseLevel`
 /// (`Inventory`/`Player.refreshExpertisePenalty`). Parsed from
 /// `<set name="crystal_type" val="D"/>`; absent → `None` (level 0, no penalty).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum CrystalType {
     #[default]
     None,
@@ -344,7 +344,7 @@ impl CrystalType {
 /// more handlers get ported; unrecognized/absent names fall back to `None`
 /// and the item is consumed as a no-op, same as Java's "Unmanaged Item
 /// handler" branch.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum ItemHandler {
     #[default]
     None,
@@ -418,7 +418,7 @@ impl ItemHandler {
 /// `EQUIP`, `PEEL`, `RECIPE`, … — collapses to [`ActionType::Other`], which
 /// takes `checkConsume`'s fallthrough (`return hasConsumeSkill`) exactly like
 /// Java's unlisted cases.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum ActionType {
     #[default]
     Other,
@@ -448,7 +448,7 @@ impl ActionType {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum EtcItemType {
     #[default]
     Other,
@@ -618,7 +618,7 @@ impl EtcItemType {
 /// parsed — none of the currently-loaded extractable items set them, and
 /// applying an enchant level to a freshly granted item needs an `Inventory`
 /// setter that doesn't exist yet.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct CapsuledItem {
     pub item_id: i32,
     pub min: i64,
@@ -637,7 +637,7 @@ pub struct CapsuledItem {
 ///   * **sum-add** (`calcWeaponPlusBaseValue` / paperdoll loop): `pDef`/`mDef`/
 ///     `accCombat`/`accMagic`/`rEvas`/`mEvas`/`maxHp`/`maxMp` are summed across
 ///     every equipped piece and added on top of the computed base.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct ItemStats {
     /// `<stat type="..">` entries mapped to an engine [`Stat`], in document
     /// order. Types the engine doesn't compute yet (elemental power/res,
@@ -667,7 +667,7 @@ pub struct ItemStats {
 /// Time-limited reward boxes such as *Mage Class Equipment Set (10-day)*
 /// (15195) declare all three of `is_tradable`/`is_dropable`/`is_sellable` as
 /// `false`: they may only be used, warehoused or destroyed.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct TradeFlags {
     /// `<set name="is_dropable">` — may be dropped on the ground
     /// (`RequestDropItem`) and scattered by `Player.onDieDropItem`.
@@ -697,7 +697,7 @@ impl Default for TradeFlags {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct ItemTemplate {
     pub item_id: i32,
     pub name: String,
@@ -893,7 +893,7 @@ impl ItemTemplate {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct ItemData {
     by_id: HashMap<i32, ItemTemplate>,
     /// Parsed `<stats>` blocks, keyed by item id. Sparse: only equipable
@@ -1469,10 +1469,11 @@ fn stat_from_xml(name: &str) -> Option<Stat> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::dist;
 
     #[test]
     fn loads_short_sword_and_adena() {
-        let data = ItemData::load_from(crate::data::DIST_GAME);
+        let data = dist::items();
         let sword = data.get(1).expect("item 1 (Short Sword)");
         assert_eq!(sword.name, "Short Sword");
         assert_eq!(sword.kind, ItemKind::Weapon);
@@ -1552,7 +1553,7 @@ mod tests {
 
     #[test]
     fn parses_extractable_pack_handler_and_capsules() {
-        let data = ItemData::load_from(crate::data::DIST_GAME);
+        let data = dist::items();
         let pack = data
             .get(15195)
             .expect("item 15195 (Mage Class Equipment Set, 10-day)");
@@ -1582,7 +1583,7 @@ mod tests {
     /// inherits Java's permissive defaults.
     #[test]
     fn parses_bound_item_trade_flags() {
-        let data = ItemData::load_from(crate::data::DIST_GAME);
+        let data = dist::items();
         let bound = data
             .get(15195)
             .expect("item 15195 (Mage Class Equipment Set, 10-day)");
@@ -1617,7 +1618,7 @@ mod tests {
 
     #[test]
     fn parses_item_icons_with_fallback() {
-        let data = ItemData::load_from(crate::data::DIST_GAME);
+        let data = dist::items();
         // Adena carries an explicit `<set name="icon">`.
         assert_eq!(data.icon(57), "icon.etc_adena_i00");
         // An unknown item falls back to the client question-mark (Java default).
@@ -1631,7 +1632,7 @@ mod tests {
 
     #[test]
     fn parses_weapon_and_armor_stats() {
-        let data = ItemData::load_from(crate::data::DIST_GAME);
+        let data = dist::items();
 
         // Short Sword (item 1): pAtk/mAtk/rCrit/pAtkSpd + range/random-damage.
         let sword = data.item_stats(1).expect("item 1 <stats>");

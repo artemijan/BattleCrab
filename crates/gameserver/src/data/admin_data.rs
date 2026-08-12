@@ -25,7 +25,7 @@ pub const ADMIN_COMMANDS_FILE: &str = "config/AdminCommands.xml";
 const DEFAULT_COLOR: i32 = 0xFF_FFFF;
 
 /// Port of `model/AccessLevel`. One GM (or user/banned) tier.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AccessLevel {
     pub level: i32,
     pub name: String,
@@ -74,7 +74,7 @@ impl AccessLevel {
 }
 
 /// Port of `model/AdminCommandAccessRight`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AdminCommandAccessRight {
     pub command: String,
     /// Required access level (Java default 7 when the attribute is absent).
@@ -82,7 +82,7 @@ pub struct AdminCommandAccessRight {
     pub require_confirm: bool,
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AdminData {
     access_levels: HashMap<i32, AccessLevel>,
     command_rights: HashMap<String, AdminCommandAccessRight>,

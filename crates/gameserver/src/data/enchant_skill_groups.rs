@@ -15,7 +15,7 @@ const FILE: &str = "data/EnchantSkillGroups.xml";
 
 /// One `<enchant level=…>` row: everything keyed by the enchant **type**
 /// (`NORMAL` / `BLESSED` / `CHANGE` / `IMMORTAL` — the book families).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct EnchantSkillCost {
     pub level: i32,
     /// `enchantFailLevel` — the sub-level step a failed NORMAL enchant drops
@@ -31,7 +31,7 @@ pub struct EnchantSkillCost {
     pub items: HashMap<String, Vec<(i32, i64)>>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct EnchantSkillGroups {
     /// Keyed by enchant level (1-based).
     levels: HashMap<i32, EnchantSkillCost>,

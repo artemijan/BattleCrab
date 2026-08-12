@@ -23,7 +23,7 @@ use crate::data::xml::attr_str;
 
 pub const BUYLISTS_DIR: &str = "data/buylists";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Product {
     pub item_id: i32,
     /// Adena price per unit; -1 = undeclared (a buy attempt is rejected).
@@ -32,7 +32,7 @@ pub struct Product {
     pub base_tax: i32,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct BuyList {
     pub list_id: i32,
     /// NPC ids allowed to serve this list (empty = nobody, like Java's
@@ -50,7 +50,7 @@ impl BuyList {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct BuyListData {
     by_id: HashMap<i32, BuyList>,
 }
@@ -188,12 +188,13 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::dist;
 
     #[test]
     fn loads_real_dist_files() {
         let root = crate::data::DIST_GAME;
-        let items = ItemData::load_from(root);
-        let data = BuyListData::load_from(root, &items);
+        let items = dist::items();
+        let data = BuyListData::load_from(root, items);
         // 338 regular merchant lists + 143 custom (GM shop) lists.
         assert_eq!(data.len(), 481);
 

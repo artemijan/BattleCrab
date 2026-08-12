@@ -12,7 +12,7 @@ use crate::model::stats::BaseStat;
 
 pub const STAT_BONUS_FILE: &str = "data/stats/statBonus.xml";
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct StatBonus {
     /// stat name → (value → bonus multiplier).
     bonus: HashMap<String, Vec<f64>>,

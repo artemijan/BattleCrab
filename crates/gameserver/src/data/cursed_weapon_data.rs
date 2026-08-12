@@ -11,7 +11,7 @@ use crate::model::cursed_weapon::CursedWeapon;
 
 const CURSED_WEAPONS_XML: &str = "data/CursedWeapons.xml";
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CursedWeaponData {
     /// The configured weapons, with default (inactive) runtime state.
     pub weapons: Vec<CursedWeapon>,

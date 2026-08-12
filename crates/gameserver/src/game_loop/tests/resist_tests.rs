@@ -452,10 +452,7 @@ fn only_the_resistable_trait_group_is_scaled() {
 #[test]
 fn stun_resistance_parses_its_per_level_percentages() {
     use crate::model::skill::{SkillEffect, TraitType};
-    let sd = crate::data::skill_data::SkillData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let sd = dist::skills();
     for (level, pct) in [(1, 0.15), (2, 0.20), (3, 0.30), (4, 0.40)] {
         let s = sd.get(1259, level).expect("Stun Resistance");
         let traits = s

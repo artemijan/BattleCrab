@@ -29,7 +29,7 @@ use crate::data::xml::{attr_i32, attr_str};
 const ZONE_SHIFT: i32 = 15;
 
 /// The zone families this slice loads (3 of Java's 35 `ZoneType` classes).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ZoneKind {
     Peace,
     Water,
@@ -152,7 +152,7 @@ impl ZoneKind {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Zone {
     /// `<zone id="…">`. Scripts address zones by this (`getZoneById(12012)` is
     /// Queen Ant's lair), so it is kept even though the spatial lookups don't
@@ -178,7 +178,7 @@ pub struct Zone {
 /// Java `ConditionZone`'s two `<stat>`s. Both default to **false** (the Java
 /// field initialisers), so a `ConditionZone` that declares neither latches
 /// nothing — the file decides which flag the zone carries.
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, serde::Serialize, serde::Deserialize)]
 pub struct ConditionZoneParams {
     /// `NoItemDrop` → `ZoneId.NO_ITEM_DROP`: `RequestDropItem` refuses the
     /// drop with `THAT_ITEM_CANNOT_BE_DISCARDED` while standing here.
@@ -191,7 +191,7 @@ pub struct ConditionZoneParams {
 /// Java `DamageZone`'s `<stat>` block. Defaults are the Java field
 /// initialisers — note **`damageHPPerSec` defaults to 200 and no zone in this
 /// dist overrides it**, so every damage zone here hits for 200.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DamageZoneParams {
     pub hp_per_tick: i32,
     pub mp_per_tick: i32,
@@ -206,7 +206,7 @@ pub struct DamageZoneParams {
 }
 
 /// Java `SwampZone`. `move_bonus` defaults to 0.5; this dist uses 0.2.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SwampZoneParams {
     pub move_bonus: f64,
     pub enabled: bool,
@@ -215,7 +215,7 @@ pub struct SwampZoneParams {
 
 /// Java `EffectZone`'s `<stat>` block. Defaults are the Java field
 /// initialisers (`_chance = 100`, `_initialDelay = 0`, `_reuse = 30000`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EffectZoneParams {
     /// `skillIdLvl` — `id-lvl;id-lvl;` pairs, all cast together.
     pub skills: Vec<(i32, i32)>,
@@ -240,7 +240,7 @@ pub struct EffectZoneParams {
     pub remove_effects_on_exit: bool,
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ZoneData {
     pub zones: Vec<Zone>,
     /// Zone-grid cell → indexes into `zones` whose bounds overlap the cell.

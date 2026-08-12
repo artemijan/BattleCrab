@@ -17,7 +17,7 @@ pub const SUB_PLEDGE_SKILL_TREE_FILE: &str = "data/skillTrees/subPledgeSkillTree
 
 /// One `<skill>` entry in a pledge/sub-pledge tree (Java `SkillLearn`, narrowed
 /// to the clan-skill fields).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PledgeSkillLearn {
     pub skill_id: i32,
     pub skill_level: i32,
@@ -38,7 +38,7 @@ pub struct PledgeSkillLearn {
     pub level_up_sp: i64,
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct PledgeSkillTreeData {
     /// Java `_pledgeSkillTree`.
     pledge: Vec<PledgeSkillLearn>,
