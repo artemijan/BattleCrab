@@ -69,24 +69,10 @@ pub(crate) fn handle_item_list(world: &mut World, client_id: u32) {
     let Some(oid) = player_of(world, client_id) else {
         return;
     };
-    let class_id = class_id_of(world, oid);
-    let lines: Vec<sp::HennaLine> = world
-        .data
-        .hennas
-        .list_for_class(class_id)
-        .iter()
-        .filter(|h| {
-            world
-                .objects
-                .get_component::<Inventory>(&oid)
-                .is_some_and(|inv| inv.count_of(h.dye_item_id) > 0)
-        })
-        .map(|h| (h.dye_id, h.dye_item_id, h.wear_count, h.wear_fee, true))
-        .collect();
     send(
         world,
         client_id,
-        sp::henna_equip_list(adena(world, oid), &lines),
+        sp::henna_equip_list(adena(world, oid), &equip_lines(world, oid)),
     );
 }
 
