@@ -131,17 +131,7 @@ fn set_hidden(world: &mut World, client_id: u32, object_id: i32, hidden: bool) {
     world.objects.add_components(&object_id, flags);
     if hidden {
         // Everyone with the GM selected loses the selection first.
-        let mut watchers: Vec<i32> = Vec::new();
-        world
-            .objects
-            .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
-                if t.0 == Some(object_id) && p.object_id != object_id {
-                    watchers.push(p.object_id);
-                }
-            });
-        for watcher in watchers {
-            crate::game_loop::target::drop_target_notify(world, watcher);
-        }
+        crate::game_loop::target::release_target_holders(world, object_id);
         super::helpers::broadcast_to_others(
             world,
             object_id,

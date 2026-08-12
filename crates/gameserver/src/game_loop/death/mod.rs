@@ -37,7 +37,6 @@ use crate::world::{World, regions_adjacent};
 
 use super::helpers::{
     broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
-    send_to_client,
 };
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
@@ -324,39 +323,13 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     if let Some(ids) = world.npc_regions.get_mut(&region) {
         ids.retain(|&id| id != npc_oid);
     }
+    super::target::release_target_holders(world, npc_oid);
     broadcast_near_region_in(
         world,
         region,
         instance,
         &server_packets::delete_object(npc_oid),
     );
-
-    let mut watchers: Vec<i32> = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
-            if t.0 == Some(npc_oid) {
-                watchers.push(p.object_id);
-            }
-        });
-    for watcher_oid in watchers {
-        if let Some(t) = world
-            .objects
-            .get_component_mut::<crate::model::components::TargetRef>(&watcher_oid)
-        {
-            t.0 = None;
-        }
-        if let (Some(client_id), Some(pos)) = (
-            client_for_player(world, watcher_oid),
-            maybe_position(world, watcher_oid),
-        ) {
-            send_to_client(
-                world,
-                client_id,
-                server_packets::target_unselected(watcher_oid, pos.x, pos.y, pos.z),
-            );
-        }
-    }
 }
 
 /// `RespawnTaskManager` firing → `Spawn.respawnNpc`: re-run the spawn line
@@ -407,17 +380,7 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
     // `decayMe()`: release every holder's selection, then un-spawn the NPC for
     // the players around its old position. NPCs hold no `TargetRef` here (an
     // NPC's "target" is its aggro list), so only players need the packet.
-    let mut holders: Vec<i32> = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
-            if t.0 == Some(npc_oid) {
-                holders.push(p.object_id);
-            }
-        });
-    for holder_oid in holders {
-        super::target::drop_target_notify(world, holder_oid);
-    }
+    super::target::release_target_holders(world, npc_oid);
     broadcast_near_region_in(
         world,
         old_region,

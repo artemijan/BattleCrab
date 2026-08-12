@@ -610,6 +610,30 @@ pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
     broadcast_to_others(world, holder_object_id, &pkt);
 }
 
+/// Java `World.removeVisibleObject`'s selection sweep: release every player
+/// holding `object_id` as their target, each through [`drop_target_notify`] so
+/// the holder and its neighbours both see the `TargetUnselected`. The object
+/// itself is skipped — Java walks the *other* visible objects, which matters
+/// for a self-targeted GM going invisible (`WorldObject.setInvisible`).
+///
+/// Call this *before* broadcasting the object's `DeleteObject`, per
+/// [`drop_target_notify`]'s contract. Shared by corpse decay / `//delete`
+/// ([`super::death::despawn_npc`]), NPC teleports ([`super::death::relocate_npc`])
+/// and `//invis`.
+pub(crate) fn release_target_holders(world: &mut World, object_id: i32) {
+    let mut holders: Vec<i32> = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &TargetRef)>(|(p, t)| {
+            if t.0 == Some(object_id) && p.object_id != object_id {
+                holders.push(p.object_id);
+            }
+        });
+    for holder_oid in holders {
+        drop_target_notify(world, holder_oid);
+    }
+}
+
 /// The `NpcAction` interact branch (second click on the current NPC target):
 /// monsters start the auto-attack loop (G9); everything else in interaction
 /// range opens its chat window (`Npc.showChatWindow`). Out of range, the
