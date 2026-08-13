@@ -107,7 +107,6 @@ pub(crate) mod shop;
 mod shortcuts;
 pub(crate) mod siege;
 mod sit_stand;
-mod skill_enchant;
 pub(crate) mod skills;
 pub(crate) mod spawn_scripts;
 pub(crate) mod stat_ctx;

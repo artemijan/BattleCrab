@@ -127,7 +127,7 @@ fn count_of(world: &World, oid: i32, item: i32) -> i64 {
 fn enchant(world: &mut World, ty: i32, sub: i16, roll: i32) {
     world.forced_rolls.clear();
     world.forced_rolls.push_back(roll);
-    crate::game_loop::skill_enchant::handle_request_enchant_skill(
+    crate::game_loop::skills::enchant::handle_request_enchant_skill(
         world,
         CID,
         &enchant_body(ty, SKILL, 40, sub),

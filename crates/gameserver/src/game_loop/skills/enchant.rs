@@ -31,7 +31,7 @@ use crate::network::server_packets;
 use crate::world::World;
 use commons::network::PacketReader;
 
-use super::helpers::send_sm_and_action_failed;
+use crate::game_loop::helpers::send_sm_and_action_failed;
 
 /// `SkillEnchantType` ordinals (Java enum order).
 const NORMAL: i32 = 0;
@@ -88,8 +88,8 @@ fn busy_for_enchant(world: &World, object_id: i32) -> bool {
         || world
             .objects
             .has_component::<crate::model::components::PrivateBuyStore>(&object_id)
-        || super::combat::has_attack_stance(world, object_id)
-        || super::olympiad::in_match(world, object_id)
+        || crate::game_loop::combat::has_attack_stance(world, object_id)
+        || crate::game_loop::olympiad::in_match(world, object_id)
 }
 
 /// `RequestExEnchantSkillInfo` (ex 0x0E: `d skillId, h level, h sub`) — the
@@ -274,7 +274,7 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
     // holder's count instead of the holder's own item — ported as written.
     for &(item_id, count) in &required {
         let charged = if cur_sub + 1 >= 1002 { 57 } else { item_id };
-        if !super::quests::take_items(world, client_id, object_id, charged, count) {
+        if !crate::game_loop::quests::take_items(world, client_id, object_id, charged, count) {
             return;
         }
     }
@@ -387,8 +387,8 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
     );
 
     // `broadcastUserInfo()` + `sendSkillList()`.
-    super::party::broadcast_user_info(world, object_id);
-    if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
+    crate::game_loop::party::broadcast_user_info(world, object_id);
+    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, object_id) {
         send_to_client(world, client_id, pkt);
     }
 }

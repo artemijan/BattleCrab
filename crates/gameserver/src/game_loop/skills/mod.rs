@@ -5,6 +5,7 @@ pub(crate) mod affect;
 pub(crate) mod cast;
 pub(crate) mod conditions;
 pub(crate) mod effects;
+pub(crate) mod enchant;
 pub(crate) mod instant;
 
 use crate::game_loop::helpers::send_sm_to_client;
