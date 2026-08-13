@@ -43,6 +43,17 @@ const ABYSS_SPIRIT_ORE2: i32 = 2669;
 const ABYSS_SPIRIT_ORE3: i32 = 2670;
 const ABYSS_SPIRIT_ORE4: i32 = 2671;
 const TERRYS_REPORT: i32 = 2672;
+/// Every quest item above, Dufner's Letter (2647) … Terry's Report (2672),
+/// which the client assigns as one contiguous block.
+const QUEST_ITEMS: [i32; (TERRYS_REPORT - DUFNERS_LETTER + 1) as usize] = {
+    let mut ids = [0; (TERRYS_REPORT - DUFNERS_LETTER + 1) as usize];
+    let mut i = 0;
+    while i < ids.len() {
+        ids[i] = DUFNERS_LETTER + i as i32;
+        i += 1;
+    }
+    ids
+};
 // Reward
 const MARK_OF_SEEKER: i32 = 2673;
 // Monsters
@@ -114,34 +125,7 @@ impl QuestScript for Q00213TrialOfTheSeeker {
         ]
     }
     fn quest_items(&self) -> &[i32] {
-        &[
-            DUFNERS_LETTER,
-            TERRYS_1ST_ORDER,
-            TERRYS_2ND_ORDER,
-            TERRYS_LETTER,
-            VIKTORS_LETTER,
-            HAWKEYES_LETTER,
-            MYSTERIOUS_SPIRIT_ORE,
-            OL_MAHUM_SPIRIT_ORE,
-            TUREK_SPIRIT_ORE,
-            ANT_SPIRIT_ORE,
-            TURAK_BUGBEAR_SPIRIT_ORE,
-            TERRY_BOX,
-            VIKTORS_REQUEST,
-            MEDUSA_SCALES,
-            SHILENS_SPIRIT_ORE,
-            ANALYSIS_REQUEST,
-            MARINAS_LETTER,
-            EXPERIMENT_TOOLS,
-            ANALYSIS_RESULT,
-            TERRYS_3RD_ORDER,
-            LIST_OF_HOST,
-            ABYSS_SPIRIT_ORE1,
-            ABYSS_SPIRIT_ORE2,
-            ABYSS_SPIRIT_ORE3,
-            ABYSS_SPIRIT_ORE4,
-            TERRYS_REPORT,
-        ]
+        &QUEST_ITEMS
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
