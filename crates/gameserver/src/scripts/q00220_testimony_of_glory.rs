@@ -275,15 +275,9 @@ impl QuestScript for Q00220TestimonyOfGlory {
                     Some("30515-07.html".to_string())
                 }
             }
-            "30571-03.html" => {
-                if has(ctx, SCEPTER_BOX) {
-                    ctx.take_items(SCEPTER_BOX, 1);
-                    ctx.give_items(TANAPIS_ORDER, 1);
-                    ctx.set_cond(9, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30571-03.html" => ctx
+                .swap_quest_item(SCEPTER_BOX, TANAPIS_ORDER, 9)
+                .then(|| event.to_string()),
             "30615-04.html" => {
                 if has(ctx, MANAKIA_1ST_LETTER) {
                     ctx.give_items(GLOVE_OF_VOLTAR, 1);
@@ -338,15 +332,9 @@ impl QuestScript for Q00220TestimonyOfGlory {
                 }
                 None
             }
-            "30642-03.html" => {
-                if has(ctx, VOKIANS_ORDER2) {
-                    ctx.take_items(VOKIANS_ORDER2, 1);
-                    ctx.give_items(CHIANTA_1ST_ORDER, 1);
-                    ctx.set_cond(4, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30642-03.html" => ctx
+                .swap_quest_item(VOKIANS_ORDER2, CHIANTA_1ST_ORDER, 4)
+                .then(|| event.to_string()),
             "30642-07.html" => {
                 if has(ctx, CHIANTA_1ST_ORDER) && all_five_scepters(ctx) {
                     ctx.take_items(CHIANTA_1ST_ORDER, 1);

@@ -216,13 +216,7 @@ impl QuestScript for Q00221TestimonyOfProsperity {
         }
         match event {
             "ACCEPT" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    if !has(ctx, RING_OF_TESTIMONY_1ST) {
-                        ctx.give_items(RING_OF_TESTIMONY_1ST, 1);
-                    }
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                }
+                ctx.accept_with_item(RING_OF_TESTIMONY_1ST);
                 None
             }
             "30104-04a.html" | "30104-04b.html" | "30104-04c.html" | "30104-04d.html"
@@ -303,15 +297,9 @@ impl QuestScript for Q00221TestimonyOfProsperity {
                 ctx.set_cond(5, true);
                 Some(event.to_string())
             }
-            "30622-02.html" => {
-                if has(ctx, CLAY_DOUGH) {
-                    ctx.take_items(CLAY_DOUGH, 1);
-                    ctx.give_items(PATTERN_OF_KEYHOLE, 1);
-                    ctx.set_cond(6, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30622-02.html" => ctx
+                .swap_quest_item(CLAY_DOUGH, PATTERN_OF_KEYHOLE, 6)
+                .then(|| event.to_string()),
             "30622-04.html" => {
                 if has(ctx, KEY_OF_TITAN) {
                     ctx.take_items(KEY_OF_TITAN, 1);

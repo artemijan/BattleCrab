@@ -155,28 +155,16 @@ impl QuestScript for Q00213TrialOfTheSeeker {
         }
         match event {
             "ACCEPT" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    if !has(ctx, DUFNERS_LETTER) {
-                        ctx.give_items(DUFNERS_LETTER, 1);
-                    }
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                }
+                ctx.accept_with_item(DUFNERS_LETTER);
                 None
             }
             "30106-04.htm" | "30064-02.html" | "30064-07.html" | "30064-16.html"
             | "30064-17.html" | "30064-19.html" | "30684-02.html" | "30684-03.html"
             | "30684-04.html" | "30684-06.html" | "30684-07.html" | "30684-08.html"
             | "30684-09.html" | "30684-10.html" => Some(event.to_string()),
-            "30064-03.html" => {
-                if has(ctx, DUFNERS_LETTER) {
-                    ctx.take_items(DUFNERS_LETTER, 1);
-                    ctx.give_items(TERRYS_1ST_ORDER, 1);
-                    ctx.set_cond(2, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30064-03.html" => ctx
+                .swap_quest_item(DUFNERS_LETTER, TERRYS_1ST_ORDER, 2)
+                .then(|| event.to_string()),
             "30064-06.html" => {
                 if has(ctx, TERRYS_1ST_ORDER) {
                     ctx.take_items(TERRYS_1ST_ORDER, 1);
@@ -198,24 +186,12 @@ impl QuestScript for Q00213TrialOfTheSeeker {
                 ctx.set_cond(6, true);
                 Some(event.to_string())
             }
-            "30064-18.html" => {
-                if has(ctx, ANALYSIS_RESULT) {
-                    ctx.take_items(ANALYSIS_RESULT, 1);
-                    ctx.give_items(LIST_OF_HOST, 1);
-                    ctx.set_cond(15, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30684-05.html" => {
-                if has(ctx, TERRYS_LETTER) {
-                    ctx.take_items(TERRYS_LETTER, 1);
-                    ctx.give_items(VIKTORS_LETTER, 1);
-                    ctx.set_cond(7, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30064-18.html" => ctx
+                .swap_quest_item(ANALYSIS_RESULT, LIST_OF_HOST, 15)
+                .then(|| event.to_string()),
+            "30684-05.html" => ctx
+                .swap_quest_item(TERRYS_LETTER, VIKTORS_LETTER, 7)
+                .then(|| event.to_string()),
             "30684-11.html" => {
                 ctx.take_items(TERRYS_LETTER, 1);
                 ctx.take_items(TERRY_BOX, 1);

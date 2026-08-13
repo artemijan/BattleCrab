@@ -1005,6 +1005,44 @@ impl<'w> QuestCtx<'w> {
         }
     }
 
+    /// The stock hand-in: give up one quest item for the next one and advance
+    /// the condition, but only if the player is actually holding it.
+    ///
+    /// Returns whether the swap happened — the page named by the bypass is the
+    /// answer only then, which is Java's "fall through to `null`" for a player
+    /// who clicked a link for an item they no longer have.
+    pub fn swap_quest_item(&mut self, take: i32, give: i32, next_cond: i32) -> bool {
+        if self.quest_items_count(take) == 0 {
+            return false;
+        }
+        self.take_items(take, 1);
+        self.give_items(give, 1);
+        self.set_cond(next_cond, true);
+        true
+    }
+
+    /// The trial/testimony `"ACCEPT"` body: start the quest and hand over its
+    /// starting letter/sigil, with `MIDDLE` on top of the `ACCEPT` sound
+    /// [`start_quest`](Self::start_quest) already played — both sounds, in that
+    /// order, as Java's accept blocks do.
+    ///
+    /// The "only if they don't already hold it" guard is Java's own: an item
+    /// left over from an earlier run of the quest is not doubled.
+    ///
+    /// Returns whether the quest was CREATED, i.e. whether anything happened —
+    /// the accept page is only the answer when it was.
+    pub fn accept_with_item(&mut self, item_id: i32) -> bool {
+        if !self.is_created() {
+            return false;
+        }
+        self.start_quest();
+        if self.quest_items_count(item_id) == 0 {
+            self.give_items(item_id, 1);
+        }
+        self.play_sound(quest_sounds::MIDDLE);
+        true
+    }
+
     /// Give one of whatever a `(npc_id, item_id)` table yields for the NPC that
     /// just died, then play the pickup sound.
     ///

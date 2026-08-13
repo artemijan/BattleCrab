@@ -228,13 +228,7 @@ impl QuestScript for Q00214TrialOfTheScholar {
         }
         match event {
             "ACCEPT" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    if !has(ctx, MIRIENS_1ST_SIGIL) {
-                        ctx.give_items(MIRIENS_1ST_SIGIL, 1);
-                    }
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                }
+                ctx.accept_with_item(MIRIENS_1ST_SIGIL);
                 None
             }
             "30103-02.html" | "30103-03.html" | "30111-02.html" | "30111-03.html"

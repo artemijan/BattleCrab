@@ -205,33 +205,15 @@ impl QuestScript for Q00219TestimonyOfFate {
             }
             "30476-04.htm" | "30476-13.html" | "30476-14.html" | "30114-02.html"
             | "30114-03.html" | "30463-02a.html" => Some(event.to_string()),
-            "30476-12.html" => {
-                if has(ctx, REVELATIONS_MANUSCRIPT) {
-                    ctx.take_items(REVELATIONS_MANUSCRIPT, 1);
-                    ctx.give_items(KAIRAS_RECOMMENDATION, 1);
-                    ctx.set_cond(15, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30114-04.html" => {
-                if has(ctx, ALDERS_SKULL2) {
-                    ctx.take_items(ALDERS_SKULL2, 1);
-                    ctx.give_items(ALDERS_RECEIPT, 1);
-                    ctx.set_cond(12, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30419-02.html" => {
-                if has(ctx, THIFIELLS_LETTER) {
-                    ctx.take_items(THIFIELLS_LETTER, 1);
-                    ctx.give_items(ARKENIAS_NOTE, 1);
-                    ctx.set_cond(17, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30476-12.html" => ctx
+                .swap_quest_item(REVELATIONS_MANUSCRIPT, KAIRAS_RECOMMENDATION, 15)
+                .then(|| event.to_string()),
+            "30114-04.html" => ctx
+                .swap_quest_item(ALDERS_SKULL2, ALDERS_RECEIPT, 12)
+                .then(|| event.to_string()),
+            "30419-02.html" => ctx
+                .swap_quest_item(THIFIELLS_LETTER, ARKENIAS_NOTE, 17)
+                .then(|| event.to_string()),
             "30419-05.html" => {
                 if has(ctx, ARKENIAS_NOTE)
                     && has(ctx, RED_FAIRY_DUST)

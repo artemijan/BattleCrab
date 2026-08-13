@@ -255,15 +255,9 @@ impl QuestScript for Q00229TestOfWitchcraft {
                 ctx.give_items(LARAS_MEMO, 1);
                 Some(event.to_string())
             }
-            "30098-03.htm" => {
-                if has(ctx, ORIMS_DIAGRAM) {
-                    ctx.take_items(ORIMS_DIAGRAM, 1);
-                    ctx.give_items(ALEXANDRIAS_BOOK, 1);
-                    ctx.set_cond(2, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30098-03.htm" => ctx
+                .swap_quest_item(ORIMS_DIAGRAM, ALEXANDRIAS_BOOK, 2)
+                .then(|| event.to_string()),
             "30110-03.htm" => {
                 ctx.give_items(IKERS_LIST, 1);
                 Some(event.to_string())

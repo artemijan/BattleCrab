@@ -186,17 +186,9 @@ impl QuestScript for Q00218TestimonyOfLife {
             return None;
         }
         match event {
-            "ACCEPT" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    if !has(ctx, CARDIENS_LETTER) {
-                        ctx.give_items(CARDIENS_LETTER, 1);
-                    }
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                    return Some("30460-04.htm".to_string());
-                }
-                None
-            }
+            "ACCEPT" => ctx
+                .accept_with_item(CARDIENS_LETTER)
+                .then(|| "30460-04.htm".to_string()),
             "30154-02.html" | "30154-03.html" | "30154-04.html" | "30154-05.html"
             | "30154-06.html" | "30300-02.html" | "30300-03.html" | "30300-04.html"
             | "30300-05.html" | "30300-09.html" | "30300-07a.html" | "30371-02.html"
@@ -211,15 +203,9 @@ impl QuestScript for Q00218TestimonyOfLife {
                 }
                 None
             }
-            "30300-06.html" => {
-                if has(ctx, GRAIL_DIAGRAM) {
-                    ctx.take_items(GRAIL_DIAGRAM, 1);
-                    ctx.give_items(PUSHKINS_LIST, 1);
-                    ctx.set_cond(4, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30300-06.html" => ctx
+                .swap_quest_item(GRAIL_DIAGRAM, PUSHKINS_LIST, 4)
+                .then(|| event.to_string()),
             "30300-10.html" => {
                 if has(ctx, PUSHKINS_LIST) {
                     ctx.take_items(PUSHKINS_LIST, 1);
@@ -232,15 +218,9 @@ impl QuestScript for Q00218TestimonyOfLife {
                 }
                 None
             }
-            "30371-03.html" => {
-                if has(ctx, HIERARCHS_LETTER) {
-                    ctx.take_items(HIERARCHS_LETTER, 1);
-                    ctx.give_items(GRAIL_DIAGRAM, 1);
-                    ctx.set_cond(3, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30371-03.html" => ctx
+                .swap_quest_item(HIERARCHS_LETTER, GRAIL_DIAGRAM, 3)
+                .then(|| event.to_string()),
             "30371-11.html" => {
                 if has(ctx, STARDUST) {
                     ctx.give_items(THALIAS_2ND_LETTER, 1);
@@ -260,24 +240,12 @@ impl QuestScript for Q00218TestimonyOfLife {
                 }
                 None
             }
-            "30375-02.html" => {
-                if has(ctx, ARKENIAS_INSTRUCTIONS) {
-                    ctx.take_items(ARKENIAS_INSTRUCTIONS, 1);
-                    ctx.give_items(ADONIUS_LIST, 1);
-                    ctx.set_cond(9, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30655-02.html" => {
-                if has(ctx, THALIAS_2ND_LETTER) {
-                    ctx.take_items(THALIAS_2ND_LETTER, 1);
-                    ctx.give_items(ISAELS_INSTRUCTIONS, 1);
-                    ctx.set_cond(15, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30375-02.html" => ctx
+                .swap_quest_item(ARKENIAS_INSTRUCTIONS, ADONIUS_LIST, 9)
+                .then(|| event.to_string()),
+            "30655-02.html" => ctx
+                .swap_quest_item(THALIAS_2ND_LETTER, ISAELS_INSTRUCTIONS, 15)
+                .then(|| event.to_string()),
             _ => None,
         }
     }

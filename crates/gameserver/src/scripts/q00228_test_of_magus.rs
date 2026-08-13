@@ -200,15 +200,9 @@ impl QuestScript for Q00228TestOfMagus {
                 }
                 None
             }
-            "30391-02.html" => {
-                if has(ctx, RUKALS_LETTER) {
-                    ctx.take_items(RUKALS_LETTER, 1);
-                    ctx.give_items(PARINAS_LETTER, 1);
-                    ctx.set_cond(2, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30391-02.html" => ctx
+                .swap_quest_item(RUKALS_LETTER, PARINAS_LETTER, 2)
+                .then(|| event.to_string()),
             "30409-03.html" => {
                 ctx.give_items(SERPENT_CHARM, 1);
                 Some(event.to_string())

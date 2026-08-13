@@ -241,15 +241,9 @@ impl QuestScript for Q00232TestOfTheLord {
                 ctx.give_items(CHIANTA_CHARM, 1);
                 Some(event.to_string())
             }
-            "30649-04.html" => {
-                if has(ctx, BEAR_FANG_NECKLACE) {
-                    ctx.take_items(BEAR_FANG_NECKLACE, 1);
-                    ctx.give_items(MARTANKUS_CHARM, 1);
-                    ctx.set_cond(4, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30649-04.html" => ctx
+                .swap_quest_item(BEAR_FANG_NECKLACE, MARTANKUS_CHARM, 4)
+                .then(|| event.to_string()),
             "30649-07.html" => {
                 // `if (npc.getSummonedNpcCount() < 1)`.
                 if ctx.summoned_npc_count() < 1 {
