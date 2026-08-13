@@ -8,6 +8,7 @@
 //! What stays per-boss is the interesting part — Queen Ant's nurses, Antharas's
 //! phases, Baium's sleep — not the bookkeeping.
 
+use crate::game_loop::time::{MILLIS_PER_HOUR, TICKS_PER_SECOND};
 use commons::util::now_millis;
 
 use crate::db::DbCommand;
@@ -68,9 +69,6 @@ pub(crate) fn dead_status(boss_id: i32) -> i32 {
         DEAD
     }
 }
-
-const TICKS_PER_SECOND: u64 = 10;
-const MILLIS_PER_HOUR: i64 = 3_600_000;
 
 /// `GrandBossManager.getStatus`.
 pub(crate) fn status(world: &World, boss_id: i32) -> Option<i32> {

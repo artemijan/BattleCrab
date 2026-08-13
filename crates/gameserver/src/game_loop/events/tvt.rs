@@ -19,6 +19,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_message;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;
 use tracing::warn;
 
@@ -96,9 +97,6 @@ const FIREWORK_SKILL: i32 = 5965;
 /// Social actions: the winners cheer (3), everyone shrugs on a tie (13).
 const SOCIAL_WIN: i32 = 3;
 const SOCIAL_TIE: i32 = 13;
-
-/// Game-loop ticks per second (matches the rest of `game_loop`).
-const TICKS_PER_SECOND: u64 = 10;
 
 // ---------------------------------------------------------------------------
 // Lifecycle (Java `eventStart` / `eventStop`)

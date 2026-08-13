@@ -13,12 +13,10 @@ use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::geo::distance::within_3d;
 use crate::model::components::{Position, Vitals};
 use crate::world::World;
-
-/// Game ticks in one second.
-const TICKS_PER_SECOND: u64 = 10;
 
 /// Java `Stat.MAX_CUBIC`'s default. **Nothing in this datapack sets
 /// `cubicCount`** — Cubic Mastery does not exist on Interlude Classic — so the

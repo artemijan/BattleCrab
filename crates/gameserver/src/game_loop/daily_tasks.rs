@@ -7,10 +7,10 @@
 //! so "Wednesday" here is UTC-Wednesday — consistent with the reco reset this
 //! generalises.
 
+use crate::game_loop::time::MILLIS_PER_DAY;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-const MILLIS_PER_DAY: i64 = 86_400_000;
 /// 24 h between resets, in 100 ms ticks.
 const DAILY_RESET_PERIOD: u64 = 864_000;
 /// 06:30, as milliseconds past midnight.

@@ -29,7 +29,7 @@ pub(super) fn mode_times(world: &World) -> ModeTimes {
 
 fn daily_millis(now_millis: i64, hour: i32, minute: i32) -> i64 {
     let day = now_millis.div_euclid(MILLIS_PER_DAY);
-    day * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR + minute as i64 * MILLIS_PER_MIN
+    day * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR + minute as i64 * MILLIS_PER_MINUTE
 }
 
 /// Port of `CastleManorManager` init's wall-clock mode guess. The `refresh`
@@ -38,7 +38,7 @@ fn daily_millis(now_millis: i64, hour: i32, minute: i32) -> i64 {
 /// any wrong guess within a tick or two).
 pub(super) fn boot_mode(now_millis: i64, t: ModeTimes) -> ManorMode {
     let day = now_millis.div_euclid(MILLIS_PER_DAY);
-    let mins_into_day = (now_millis - day * MILLIS_PER_DAY) / MILLIS_PER_MIN;
+    let mins_into_day = (now_millis - day * MILLIS_PER_DAY) / MILLIS_PER_MINUTE;
     let hour = (mins_into_day / 60) as i32;
     let min = (mins_into_day % 60) as i32;
     let maintenance_min = t.refresh_m + t.maintenance_m;

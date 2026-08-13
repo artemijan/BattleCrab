@@ -4,6 +4,7 @@
 //! `//unjail`/expiry), and the login re-apply + JailZone keep-in. Ban /
 //! chat-ban / party-ban reuse the same model in later slices.
 
+use crate::game_loop::time::TICKS_PER_SECOND;
 use tracing::info;
 
 use crate::db::DbCommand;
@@ -17,8 +18,6 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::{client_for_player, send_sm_to_player};
-
-const TICKS_PER_SECOND: u64 = 10;
 
 /// Java `JailZone.JAIL_IN_LOC` — where a jailed player is teleported.
 const JAIL_IN_LOC: (i32, i32, i32) = (-114356, -249645, -2984);

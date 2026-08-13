@@ -6,6 +6,7 @@
 
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use std::collections::HashMap;
 
 use commons::util::rnd;
@@ -22,7 +23,6 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
-const TICKS_PER_SECOND: u64 = 10;
 /// The Monster Race ticket item (Java 4443) + the eight bet-price tiers.
 const RACE_TICKET_ITEM: i32 = 4443;
 const ADENA_ID: i32 = 57;

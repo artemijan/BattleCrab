@@ -5,6 +5,7 @@
 
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
 use commons::util::rnd;
 use tracing::info;
 
@@ -19,8 +20,6 @@ use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-const MINUTE_MILLIS: i64 = 60_000;
-const TICKS_PER_SECOND: u64 = 10;
 /// Sunday, in the `Mon=0..Sun=6` weekday space `siege::next_siege_millis` uses.
 const DRAW_WEEKDAY: u32 = 6;
 /// The draw fires at 19:00 (Java `Calendar.HOUR_OF_DAY = 19`).
@@ -55,17 +54,17 @@ pub(crate) fn on_loaded(
             // A round was live at shutdown: resume it.
             world.lottery.prize = row.prize;
             world.lottery.enddate = row.enddate;
-            if row.enddate <= now + 2 * MINUTE_MILLIS {
+            if row.enddate <= now + 2 * MILLIS_PER_MINUTE {
                 finish_begin(world);
                 return;
             }
             world.lottery.started = true;
             schedule_at(world, row.enddate, ScheduledTask::LotteryFinish);
-            if row.enddate > now + 12 * MINUTE_MILLIS {
+            if row.enddate > now + 12 * MILLIS_PER_MINUTE {
                 world.lottery.selling = true;
                 schedule_at(
                     world,
-                    row.enddate - 10 * MINUTE_MILLIS,
+                    row.enddate - 10 * MILLIS_PER_MINUTE,
                     ScheduledTask::LotteryStopSelling,
                 );
             }
@@ -100,7 +99,7 @@ pub(crate) fn open_round(world: &mut World) {
     world.lottery.enddate = enddate;
     schedule_at(
         world,
-        enddate - 10 * MINUTE_MILLIS,
+        enddate - 10 * MILLIS_PER_MINUTE,
         ScheduledTask::LotteryStopSelling,
     );
     schedule_at(world, enddate, ScheduledTask::LotteryFinish);
@@ -271,7 +270,7 @@ pub(crate) fn finish_complete(world: &mut World, round: i32, db_rows: Vec<(i32, 
     world.lottery.number = round + 1;
     world.lottery.prize = newprize;
     // Java schedules a fresh `startLottery` one minute after the draw.
-    schedule_in(world, MINUTE_MILLIS, ScheduledTask::LotteryStart);
+    schedule_in(world, MILLIS_PER_MINUTE, ScheduledTask::LotteryStart);
 }
 
 /// Java `Lottery.checkTicket(id, enchant, type2)`: the `(tier, prize)` a ticket

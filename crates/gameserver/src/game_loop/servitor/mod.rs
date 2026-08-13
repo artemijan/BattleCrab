@@ -34,6 +34,7 @@ use crate::game_loop::helpers::{item_id_of, send_inventory_update};
 use crate::game_loop::helpers::{send_action_failed, send_sm_and_action_failed};
 use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_player};
 use crate::game_loop::items::item_skills;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
 use crate::world::World;
@@ -47,10 +48,6 @@ pub(crate) use pet::*;
 pub(crate) use restore::*;
 pub(crate) use shots::*;
 pub(crate) use stats::*;
-
-/// Game ticks in one second (the loop runs at [`crate::game_loop::TICK`],
-/// 100 ms).
-const TICKS_PER_SECOND: u64 = 10;
 
 /// Java's `Servitor.run()` period — a fixed `usedtime = 5000` ms.
 const LIFE_TICK_SECS: u64 = 5;

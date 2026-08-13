@@ -25,6 +25,7 @@ use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::time::MILLIS_PER_DAY;
 use crate::model::Player;
 use crate::model::components::OlympiadObserver;
 use crate::model::olympiad::{
@@ -36,7 +37,6 @@ use crate::world::World;
 
 // --- the competition-period state machine (dist `config/Olympiad.ini`) ---
 
-const MS_PER_DAY: i64 = 86_400_000;
 /// `AltOlyStartTime = 18` (18:00), as milliseconds past midnight.
 const COMP_START_MS_OF_DAY: i64 = 18 * 3600 * 1000;
 /// `AltOlyCPeriod` — the competition window length (6 h).
@@ -82,7 +82,7 @@ const NOON_MS_OF_DAY: i64 = 12 * 3600 * 1000;
 /// `(multiplier - 1)` days (the final day is reserved for validation).
 pub(crate) fn next_olympiad_end(now_ms: i64) -> i64 {
     let noon_today = now_ms - ms_of_day(now_ms) + NOON_MS_OF_DAY;
-    noon_today + (OLYMPIAD_PERIOD_DAYS - 1) * MS_PER_DAY
+    noon_today + (OLYMPIAD_PERIOD_DAYS - 1) * MILLIS_PER_DAY
 }
 
 /// The per-character variable holding points earned this round but not yet
@@ -100,11 +100,11 @@ const RANK_TRADE_POINTS: [i32; 5] = [200, 80, 50, 30, 15];
 /// Day of week for an epoch-millis instant, 0 = Sunday … 6 = Saturday (epoch
 /// day 0, 1970-01-01, was a Thursday → offset 4).
 fn day_of_week(now_ms: i64) -> i64 {
-    (now_ms.div_euclid(MS_PER_DAY) + 4).rem_euclid(7)
+    (now_ms.div_euclid(MILLIS_PER_DAY) + 4).rem_euclid(7)
 }
 
 fn ms_of_day(now_ms: i64) -> i64 {
-    now_ms.rem_euclid(MS_PER_DAY)
+    now_ms.rem_euclid(MILLIS_PER_DAY)
 }
 
 /// Whether `now_ms` falls inside a competition window (a competition day,
@@ -125,12 +125,12 @@ fn window_end(now_ms: i64) -> i64 {
 pub(crate) fn next_comp_start_delay_ms(now_ms: i64) -> i64 {
     let today_start = now_ms - ms_of_day(now_ms) + COMP_START_MS_OF_DAY;
     for d in 0..8 {
-        let candidate = today_start + d * MS_PER_DAY;
+        let candidate = today_start + d * MILLIS_PER_DAY;
         if candidate > now_ms && COMP_DAYS.contains(&day_of_week(candidate)) {
             return candidate - now_ms;
         }
     }
-    MS_PER_DAY // unreachable (a competition day always falls within a week)
+    MILLIS_PER_DAY // unreachable (a competition day always falls within a week)
 }
 
 /// Convert a wall-clock delay to a scheduler fire tick (>= next tick).

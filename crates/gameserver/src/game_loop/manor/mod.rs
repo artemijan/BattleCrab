@@ -32,6 +32,9 @@ use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::time::{
+    MILLIS_PER_DAY, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, TICKS_PER_SECOND,
+};
 use commons::network::PacketReader;
 use tracing::warn;
 
@@ -48,11 +51,6 @@ use crate::world::World;
 
 use super::death::ADENA_ID;
 use crate::game_loop::helpers::npc_id_of;
-
-const MILLIS_PER_DAY: i64 = 86_400_000;
-const MILLIS_PER_HOUR: i64 = 3_600_000;
-const MILLIS_PER_MIN: i64 = 60_000;
-const TICKS_PER_SECOND: u64 = 10;
 
 /// The clan that owns `castle_id`, if any (Java `Castle.getOwnerId()`), re-
 /// exported so scripts outside `game_loop` can gate on castle ownership without
@@ -258,7 +256,7 @@ mod tests {
     };
 
     fn at(day: i64, hour: i32, min: i32) -> i64 {
-        day * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR + min as i64 * MILLIS_PER_MIN
+        day * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR + min as i64 * MILLIS_PER_MINUTE
     }
 
     #[test]

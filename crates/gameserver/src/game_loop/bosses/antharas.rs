@@ -15,6 +15,7 @@ use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::set_position;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -65,7 +66,6 @@ const FIGHT_POINT: (i32, i32, i32, i32) = (181323, 114850, -7623, 32542);
 /// `teleportOut`: `(79800+rnd(600), 151200+rnd(1100), -3534)` — Giran side.
 const EXIT_POINT: (i32, i32, i32) = (79800, 151200, -3534);
 
-const TICKS_PER_SECOND: u64 = 10;
 /// `startQuestTimer("SPAWN_MINION", 300000, …)` — a wave every five minutes.
 const WAVE_INTERVAL_SECS: u64 = 300;
 /// The multiplier grows to at most 4, so waves top out at 8 adds.

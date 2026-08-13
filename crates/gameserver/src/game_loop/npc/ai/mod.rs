@@ -33,6 +33,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use std::collections::HashSet;
 
 use commons::util::rnd;
@@ -64,10 +65,6 @@ const NPC_BOW_RANGE: i32 = 850;
 /// `AttackableAI.RANDOM_WALK_RATE`: an idle mob rolls a 1-in-30 chance each
 /// think (≈ once every 30 s) to wander to a new spot near its spawn.
 const RANDOM_WALK_RATE: i32 = 30;
-
-/// 100 ms game ticks per second — animation intervals are configured in
-/// seconds (`Min/MaxNpcAnimation`).
-const TICKS_PER_SECOND: u64 = 10;
 
 /// `Npc.MINIMUM_SOCIAL_INTERVAL` (6000 ms): floor between social broadcasts.
 const SOCIAL_THROTTLE_TICKS: u64 = 60;

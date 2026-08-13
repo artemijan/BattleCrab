@@ -19,6 +19,7 @@
 //! Ported as it behaves, pinned by a test.
 
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -46,7 +47,6 @@ const SYSTEM_IS_BEING_SHUT_DOWN: i32 = 1_000_005;
 /// `getRandom(100) == 0`.
 const TAUNT_CHANCE: i32 = 100;
 
-const TICKS_PER_SECOND: u64 = 10;
 /// `startQuestTimer("spawn_minion", 60000, npc, null)`.
 const MINION_RESPAWN_SECS: u64 = 60;
 /// `startQuestTimer("despawn_minions", 20000, …)`.

@@ -22,6 +22,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{hp_pair, restore_hp_mp};
+use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::Position;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -404,8 +405,6 @@ fn in_lair_zone(world: &World, oid: i32) -> bool {
 /// `VALAKAS_LAIR` — where Valakas is teleported before the cinematic runs.
 const VALAKAS_LAIR: (i32, i32, i32) = (212_852, -114_842, -1_632);
 
-const TICKS_PER_SECOND: u64 = 10;
-
 /// The ten cinematic beats: `(delay_ms_from_start, camera args)`.
 ///
 /// Transcribed literally from Java's `startQuestTimer("spawn_N", …)` chain and
@@ -711,8 +710,6 @@ const LAIR_ENTRY: (i32, i32, i32) = (204_328, -111_874, 70);
 /// `TELEPORT_OUT_OF_VALAKAS_LAIR` — the base, offset by `rnd(500)` in x/y.
 const LAIR_EXIT: (i32, i32, i32) = (150_037, -57_720, -2_976);
 
-const TICKS_PER_SECOND_ENTRY: u64 = 10;
-
 /// The live Valakas NPC, if one stands in the world.
 pub(crate) fn find_valakas(world: &World) -> Option<i32> {
     crate::game_loop::grand_boss::find_spawned(world, VALAKAS)
@@ -770,7 +767,7 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
         crate::game_loop::grand_boss::set_status(world, VALAKAS, WAITING);
         let wait_secs = world.cfg.grand_boss.valakas_wait_minutes.max(1) as u64 * 60;
         world.scheduler.schedule(
-            world.tick + wait_secs * TICKS_PER_SECOND_ENTRY,
+            world.tick + wait_secs * TICKS_PER_SECOND,
             crate::scheduler::ScheduledTask::ValakasBeginning,
         );
     }

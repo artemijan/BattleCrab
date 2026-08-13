@@ -23,6 +23,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::{Immobilized, Position, Vitals};
 use crate::model::grand_boss::GrandBoss;
 use crate::scheduler::ScheduledTask;
@@ -262,7 +263,6 @@ struct CinematicBeat {
 }
 
 const WAKEUP_DELAY_MS: u64 = 50;
-const TICKS_PER_SECOND: u64 = 10;
 
 /// The six beats, in Java's order and timing (relative delays).
 const BEATS: [CinematicBeat; 6] = [

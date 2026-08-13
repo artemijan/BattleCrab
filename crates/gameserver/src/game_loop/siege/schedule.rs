@@ -2,10 +2,7 @@
 //! `Siege.startAutoTask` countdown chain, and the owner hour-picking window.
 
 use super::*;
-
-const MILLIS_PER_DAY: i64 = 86_400_000;
-const MILLIS_PER_HOUR: i64 = 3_600_000;
-const TICKS_PER_SECOND: u64 = 10;
+use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR, TICKS_PER_SECOND};
 
 /// The next `weekday`@`hour`:00 **UTC** strictly after `now_millis` (Java
 /// `SiegeScheduleDate` + `Calendar` next-occurrence, computed in UTC — Rust std

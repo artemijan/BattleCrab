@@ -5,6 +5,7 @@
 //! dialog + the client packets (slice 3). Winner→warehouse delivery is slice 4.
 
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
 use commons::util::rnd;
 use tracing::info;
 
@@ -16,18 +17,16 @@ use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-const TICKS_PER_SECOND: u64 = 10;
-const MINUTE_MILLIS: i64 = 60_000;
 /// Java `START_TIME_SPACE` (1 min) / `FINISH_TIME_SPACE` (10 min).
-const START_TIME_SPACE: i64 = MINUTE_MILLIS;
-const FINISH_TIME_SPACE: i64 = 10 * MINUTE_MILLIS;
+const START_TIME_SPACE: i64 = MILLIS_PER_MINUTE;
+const FINISH_TIME_SPACE: i64 = 10 * MILLIS_PER_MINUTE;
 const ADENA_ID: i32 = 57;
 /// Java's hard cap on a bid (999.9 bn).
 const MAX_BID: i64 = 100_000_000_000;
 /// The last-10-minutes window in which a bid extends the auction.
-const EXTEND_WINDOW_MILLIS: i64 = 10 * MINUTE_MILLIS;
-const EXTEND_5_MILLIS: i64 = 5 * MINUTE_MILLIS;
-const EXTEND_3_MILLIS: i64 = 3 * MINUTE_MILLIS;
+const EXTEND_WINDOW_MILLIS: i64 = 10 * MILLIS_PER_MINUTE;
+const EXTEND_5_MILLIS: i64 = 5 * MILLIS_PER_MINUTE;
+const EXTEND_3_MILLIS: i64 = 3 * MILLIS_PER_MINUTE;
 
 /// Boot restore (Java `ItemAuctionManager` constructor), driven by
 /// `DbEvent::ItemAuctionsLoaded`: gate on `AltItemAuctionEnabled`, seed the
@@ -323,7 +322,7 @@ fn create_auction(world: &mut World, instance_id: i32, after: i64) -> i32 {
         sched.hour,
         sched.minute,
     );
-    let ending_time = starting_time + length_min as i64 * MINUTE_MILLIS;
+    let ending_time = starting_time + length_min as i64 * MILLIS_PER_MINUTE;
 
     let auction_id = world.item_auctions.alloc_auction_id();
     let auction = ItemAuction::new(

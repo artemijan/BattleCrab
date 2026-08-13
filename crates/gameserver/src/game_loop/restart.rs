@@ -32,15 +32,11 @@
 //! under its own config key, as its own feature, argued on its own merits — not
 //! as a stand-in for a detector whose condition cannot arise here.
 
+use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR, MILLIS_PER_MINUTE};
 use tracing::info;
 
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
-
-/// Milliseconds in a day / an hour — the scheduler works in 100 ms ticks.
-const MILLIS_PER_DAY: i64 = 86_400_000;
-const MILLIS_PER_HOUR: i64 = 3_600_000;
-const MILLIS_PER_MINUTE: i64 = 60_000;
 
 /// `ServerRestartManager`'s constructor: of every `HH:MM` in
 /// `ServerRestartSchedule`, pick the **soonest** future occurrence — skipping

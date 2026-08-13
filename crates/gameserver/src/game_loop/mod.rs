@@ -125,6 +125,7 @@ pub(crate) use tasks::apply_due_tasks;
 pub(crate) mod teleporter;
 #[cfg(test)]
 mod tests;
+pub(crate) mod time;
 mod trade;
 mod user_commands;
 mod visibility;

@@ -15,6 +15,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::Player;
 use crate::model::components::Collision;
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -362,8 +363,6 @@ pub(crate) fn in_active_siege(world: &World, object_id: i32) -> bool {
 
 /// Java `ThreadPool.scheduleAtFixedRate(new PetFeedTask(this), 10000, 10000)`.
 const FEED_TICK_SECS: u64 = 10;
-/// Game-loop ticks per second.
-const TICKS_PER_SECOND: u64 = 10;
 /// `SetupGauge`'s green bar — the colour the feed gauge uses.
 const GAUGE_GREEN: i32 = 3;
 

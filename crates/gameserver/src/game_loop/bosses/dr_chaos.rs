@@ -14,6 +14,7 @@
 
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::time::{MILLIS_PER_HOUR, TICKS_PER_SECOND};
 use crate::geo::distance::within_2d_xy;
 use crate::model::components::{DrChaosGolem, DrChaosState, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -34,8 +35,6 @@ const GOLEM_SPAWN: (i32, i32, i32) = (96_080, -110_822, -3_343);
 /// Dr. Chaos's cosmetic walk-to-grotto target before the golem appears.
 const GROTTO: (i32, i32, i32) = (95_928, -110_671, -3_340);
 
-const TICKS_PER_SECOND: u64 = 10;
-const MILLIS_PER_HOUR: i64 = 3_600_000;
 /// `_lastAttackVsGolem + 1800000` — 30 idle minutes despawns the golem.
 const GOLEM_IDLE_TICKS: u64 = 30 * 60 * TICKS_PER_SECOND;
 /// `paranoia_activity` / `golem_despawn` cadence.

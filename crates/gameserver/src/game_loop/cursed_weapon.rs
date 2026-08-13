@@ -17,6 +17,7 @@
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{npc_template, send_inventory_item_list};
+use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
@@ -28,8 +29,6 @@ use super::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_milli
 use super::ground_items::{DropSource, despawn_ground_item, spawn_ground_item};
 use crate::game_loop::helpers::region_cell_of;
 
-const TICKS_PER_SECOND: u64 = 10;
-const MILLIS_PER_MINUTE: i64 = 60_000;
 /// Java `CursedWeapon.dropRate` is out of 100000 (config comment "100000 for
 /// 100%"), so a value of 50 is 0.05%.
 const DROP_RATE_SCALE: i32 = 100_000;
