@@ -137,6 +137,24 @@ pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u3
     send_to_client(world, client_id, pkt);
 }
 
+/// The `d type, d skillId, h level, h sub` body both enchant requests carry,
+/// with the two shorts widened to `i32` and the request sanity-checked: an
+/// unknown enchant type, a non-positive skill or level, or a negative sub is a
+/// malformed packet and yields `None`.
+fn read_enchant_request(ex_body: &[u8]) -> Option<(i32, i32, i32, i32)> {
+    let mut r = PacketReader::new(ex_body);
+    let (Some(ty), Some(skill_id), Some(level), Some(sub)) =
+        (r.read_i32(), r.read_i32(), r.read_i16(), r.read_i16())
+    else {
+        return None;
+    };
+    let (level, sub) = (level as i32, sub as i32);
+    if skill_id <= 0 || level <= 0 || sub < 0 || type_name(ty).is_none() {
+        return None;
+    }
+    Some((ty, skill_id, level, sub))
+}
+
 /// `RequestExEnchantSkillInfoDetail` (ex 0x43: `d type, d skillId, h level,
 /// h sub`) — the cost preview for one step → `ExEnchantSkillInfoDetail`.
 pub(crate) fn handle_request_enchant_skill_info_detail(
@@ -144,16 +162,9 @@ pub(crate) fn handle_request_enchant_skill_info_detail(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let mut r = PacketReader::new(ex_body);
-    let (Some(ty), Some(skill_id), Some(level), Some(sub)) =
-        (r.read_i32(), r.read_i32(), r.read_i16(), r.read_i16())
-    else {
+    let Some((ty, skill_id, level, sub)) = read_enchant_request(ex_body) else {
         return;
     };
-    let (level, sub) = (level as i32, sub as i32);
-    if skill_id <= 0 || level <= 0 || sub < 0 || type_name(ty).is_none() {
-        return;
-    }
     let Some(name) = type_name(ty) else { return };
     let Some(cost) = world.data.enchant_skill_groups.cost_for(sub % 1000) else {
         return;
@@ -188,19 +199,12 @@ fn known_skill(world: &World, object_id: i32, skill_id: i32) -> Option<(i32, i32
 pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex_body: &[u8]) {
     use server_packets::{SmParam, sm_ids};
 
-    let mut r = PacketReader::new(ex_body);
-    let (Some(ty), Some(skill_id), Some(level), Some(target_sub)) =
-        (r.read_i32(), r.read_i32(), r.read_i16(), r.read_i16())
-    else {
+    let Some((ty, skill_id, level, target_sub)) = read_enchant_request(ex_body) else {
         return;
     };
-    let (level, target_sub) = (level as i32, target_sub as i32);
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    if skill_id <= 0 || level <= 0 || target_sub < 0 || type_name(ty).is_none() {
-        return;
-    }
     if !may_enchant(world, object_id) || busy_for_enchant(world, object_id) {
         return;
     }
