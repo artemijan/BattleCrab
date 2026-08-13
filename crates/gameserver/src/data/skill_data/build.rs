@@ -365,16 +365,7 @@ pub(crate) fn build_skill(
                                 .unwrap_or("FIRE")
                                 .split(',')
                                 .filter_map(|n| crate::model::stats::Element::from_xml(n.trim()))
-                                .map(|el| {
-                                    stat_mod(
-                                        if defence {
-                                            el.res_stat()
-                                        } else {
-                                            el.power_stat()
-                                        },
-                                        amount,
-                                    )
-                                })
+                                .map(|el| stat_mod(el.attribute_stat(defence), amount))
                                 .collect()
                         }
                         // Polearm Mastery 216: `HitNumber` is a plain

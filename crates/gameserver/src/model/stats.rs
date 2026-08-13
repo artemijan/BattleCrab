@@ -422,27 +422,30 @@ impl Element {
         }
     }
 
-    /// `Stat.valueOf(attribute + "_POWER")`.
-    pub fn power_stat(self) -> Stat {
-        match self {
-            Element::Fire => Stat::FirePower,
-            Element::Water => Stat::WaterPower,
-            Element::Wind => Stat::WindPower,
-            Element::Earth => Stat::EarthPower,
-            Element::Holy => Stat::HolyPower,
-            Element::Dark => Stat::DarkPower,
-        }
-    }
-
-    /// `Stat.valueOf(attribute + "_RES")`.
-    pub fn res_stat(self) -> Stat {
-        match self {
-            Element::Fire => Stat::FireRes,
-            Element::Water => Stat::WaterRes,
-            Element::Wind => Stat::WindRes,
-            Element::Earth => Stat::EarthRes,
-            Element::Holy => Stat::HolyRes,
-            Element::Dark => Stat::DarkRes,
+    /// `Stat.valueOf(attribute + (defence ? "_RES" : "_POWER"))` — every caller
+    /// picks between the two sides off the same `defence` flag, so the pair is
+    /// one lookup in client-id order rather than two parallel matches.
+    pub fn attribute_stat(self, defence: bool) -> Stat {
+        const POWER: [Stat; 6] = [
+            Stat::FirePower,
+            Stat::WaterPower,
+            Stat::WindPower,
+            Stat::EarthPower,
+            Stat::HolyPower,
+            Stat::DarkPower,
+        ];
+        const RES: [Stat; 6] = [
+            Stat::FireRes,
+            Stat::WaterRes,
+            Stat::WindRes,
+            Stat::EarthRes,
+            Stat::HolyRes,
+            Stat::DarkRes,
+        ];
+        if defence {
+            RES[self.index()]
+        } else {
+            POWER[self.index()]
         }
     }
 }

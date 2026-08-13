@@ -128,11 +128,7 @@ fn element_stat(
     element: crate::model::stats::Element,
     defence: bool,
 ) -> f64 {
-    let stat = if defence {
-        element.res_stat()
-    } else {
-        element.power_stat()
-    };
+    let stat = element.attribute_stat(defence);
     let base = npc_template(world, oid)
         .map(|t| {
             if defence {
