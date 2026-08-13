@@ -296,10 +296,13 @@ export function Header({ account }: { account?: Account | null }) {
         <>
           {/* Click-away layer. Sits under the dropdown inside the header's
               stacking context, dimming the page it covers. */}
+          {/* `touch-manipulation`: the base-layer instant-tap rule only reaches
+              form controls, and this div closes on tap too — without it iOS
+              Safari holds the tap ~350ms for double-tap-to-zoom. */}
           <div
             aria-hidden
             onClick={() => setMenuOpen(false)}
-            className="fixed inset-0 bg-black/25 sm:hidden"
+            className="fixed inset-0 touch-manipulation bg-black/25 sm:hidden"
           />
           {/* Absolutely positioned so opening the menu overlays the content
               instead of shifting it — a sticky header that grows would push

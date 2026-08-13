@@ -99,9 +99,12 @@ export function CharacterItemsDialog({ name, onClose }: { name: string; onClose:
       // inside @layer utilities.
       // Width leaves a 1rem gutter each side on phones — `w-full` would pin
       // the rounded corners to the screen edges.
+      // `touch-manipulation` covers the click-away tap on the backdrop area:
+      // the base-layer rule only reaches form controls, and without it iOS
+      // Safari delays the tap ~350ms for double-tap-to-zoom disambiguation.
       className="glass-strong glass-sheen animate-rise inset-0 m-auto h-[min(37.5rem,85vh)]
-                 w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-2xl bg-transparent p-0
-                 text-(--text) backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+                 w-[calc(100%-2rem)] max-w-lg touch-manipulation overflow-hidden rounded-2xl
+                 bg-transparent p-0 text-(--text) backdrop:bg-black/60 backdrop:backdrop-blur-sm"
     >
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between gap-3 border-b border-(--surface-border) px-5 py-3.5">

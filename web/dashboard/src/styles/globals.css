@@ -106,6 +106,23 @@
       border-color 0.35s var(--ease-out-soft),
       color 0.25s var(--ease-out-soft);
   }
+
+  /* Taps on controls must fire immediately. Pinch-zoom stays enabled site-wide
+     (the viewport meta deliberately has no maximum-scale — see the
+     mobile-input-zoom test), which leaves double-tap-to-zoom active too, and
+     iOS Safari holds every tap ~350ms to rule the double-tap out. That read as
+     "closing takes a while" on the dialog and menu close buttons.
+     `manipulation` disables only double-tap-to-zoom on the controls
+     themselves, so the click fires on touchend and pinch-zoom is untouched. */
+  a,
+  button,
+  input,
+  label,
+  select,
+  summary,
+  textarea {
+    touch-action: manipulation;
+  }
 }
 
 html,
