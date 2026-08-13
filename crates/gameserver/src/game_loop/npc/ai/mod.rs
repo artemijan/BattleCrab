@@ -251,6 +251,7 @@ fn region_active(world: &World, npc_oid: i32) -> bool {
 
 mod faction;
 mod hate;
+mod intentions;
 mod movement;
 mod perception;
 mod tactics;
@@ -258,6 +259,7 @@ mod think;
 
 pub(crate) use faction::*;
 pub(crate) use hate::*;
+pub(crate) use intentions::*;
 pub(crate) use movement::*;
 pub(crate) use perception::*;
 use tactics::*;

@@ -325,3 +325,18 @@ pub(crate) fn take_items(
     crate::game_loop::helpers::send_inventory_update(world, player, changes);
     true
 }
+
+// Moved from helpers.
+/// Java `Player.setInventoryBlockingStatus(true)` — suppress inventory
+/// refreshes for this player, and schedule the 1500 ms `InventoryEnableTask`
+/// that lifts it.
+///
+/// Called wherever Java calls it: opening a merchant buy list, a private or
+/// clan warehouse, and the "wear" (try-on) shop.
+pub(crate) fn block_inventory(world: &mut World, object_id: i32) {
+    world.inventory_blocked.insert(object_id);
+    world.scheduler.schedule(
+        world.tick + crate::game_loop::helpers::ms_to_ticks(1500),
+        crate::scheduler::ScheduledTask::InventoryEnable { object_id },
+    );
+}

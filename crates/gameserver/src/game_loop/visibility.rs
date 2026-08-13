@@ -810,3 +810,43 @@ fn drop_target_if_pointing_at(world: &mut World, viewer: i32, object_id: i32) {
         super::target::drop_target_notify(world, viewer);
     }
 }
+
+// Moved from helpers.
+/// Java `World.forEachVisibleObject(origin, Creature.class, …)` — every living
+/// creature (player **or** NPC) in `origin`'s own region cell or an adjacent
+/// one, excluding `origin` itself.
+///
+/// Java's "visible" is exactly this region-neighbourhood test; there is no
+/// line-of-sight or radius term in `forEachVisibleObject`, so none is applied
+/// here either. Callers that need a distance or LOS filter add it themselves.
+///
+/// This is the general neighbour query the `RandomizeHate` deferral in the
+/// hate-effects slice was waiting on: `faction_call`'s scan only ever walked
+/// NPCs, so a mob could never be pointed at a *player* it wasn't already
+/// fighting.
+pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec<i32> {
+    use crate::model::components::Vitals;
+    let Some(origin) = region_cell_of(world, origin_object_id) else {
+        return Vec::new();
+    };
+    // Both halves come from the region indexes. This used to sweep every
+    // entity in the store — all ~34.9k NPCs — and discard the 99.9% that were
+    // nowhere near the origin.
+    let mut out: Vec<i32> = world
+        .players_visible_from(origin)
+        .chain(world.npcs_visible_from(origin))
+        .filter(|&oid| {
+            oid != origin_object_id
+                && world
+                    .objects
+                    .get_component::<Vitals>(&oid)
+                    .is_some_and(|v| !v.dead)
+        })
+        .collect();
+    // Sorted so the caller's `Rnd.get(size)` index maps to a stable candidate.
+    // Java's iteration order is arbitrary too, and a uniform index over a
+    // sorted list is still uniform — but this makes a forced roll in tests
+    // pick a *known* creature instead of whatever the ECS happened to yield.
+    out.sort_unstable();
+    out
+}
