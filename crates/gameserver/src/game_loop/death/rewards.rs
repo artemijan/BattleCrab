@@ -554,12 +554,7 @@ fn roll_drops(
                 rate_amount *=
                     premium_drop_mult(world, drop.item_id, is_raid, PremiumDropRate::Amount);
             }
-            let base = if drop.max > drop.min {
-                drop.min + world.roll((drop.max - drop.min + 1) as i32) as i64
-            } else {
-                drop.min
-            };
-            let count = ((base as f64) * rate_amount).round().max(1.0) as i64;
+            let count = rolled_count(world, drop, rate_amount);
             if drop.chance < 100.0 {
                 occurrences -= 1;
             }
@@ -589,6 +584,19 @@ fn roll_drops(
         }
     }
     out
+}
+
+/// The amount half of `calculateGroupDrop`/`calculateUngroupedDrop`: a uniform
+/// pick across the line's `[min, max]` (a one-sided line skips the roll), scaled
+/// by whichever amount rate the caller assembled. Rounded, then floored at 1, so
+/// a rate small enough to round the count away still drops a single item.
+fn rolled_count(world: &mut World, drop: &DropHolder, rate_amount: f64) -> i64 {
+    let base = if drop.max > drop.min {
+        drop.min + world.roll((drop.max - drop.min + 1) as i32) as i64
+    } else {
+        drop.min
+    };
+    ((base as f64) * rate_amount).round().max(1.0) as i64
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -690,12 +698,7 @@ fn roll_spoil_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<
             continue;
         }
         // Amount.
-        let base = if drop.max > drop.min {
-            drop.min + world.roll((drop.max - drop.min + 1) as i32) as i64
-        } else {
-            drop.min
-        };
-        let count = ((base as f64) * amount_mult).round().max(1.0) as i64;
+        let count = rolled_count(world, drop, amount_mult);
         if drop.chance < 100.0 {
             occurrences -= 1;
         }
