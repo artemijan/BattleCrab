@@ -1827,3 +1827,125 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         super::helpers::send_inventory_update(world, object_id, changes);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Quest-style item give/take with the "You have earned" message — shared by
+// many non-quest modules (moved out of quests.rs).
+// ---------------------------------------------------------------------------
+
+/// `Player.addItem("Quest", …)` + `sendItemGetMessage`: SM 52/53/54 ("You
+/// have earned …") + `InventoryUpdate`.
+///
+/// Deliberately **no** `ExQuestItemList` here, matching Java: that packet is
+/// only ever sent by `EnterWorld` and by `Player.sendItemList`, which always
+/// puts a full `ItemList` in front of it. The client treats it as a list to
+/// append to the inventory it was just handed, not as a standalone refresh, so
+/// firing it bare on every quest item gain appends the whole quest tab again —
+/// one visible duplicate row per gain, surviving until the next relog rebuilds
+/// the inventory from `ItemList`. The `InventoryUpdate` below is the entire
+/// client-side refresh Java performs (`PlayerInventory.addItem`).
+pub(crate) fn give_item_with_earned_message(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    item_id: i32,
+    count: i64,
+) {
+    give_item_with_earned_message_enchanted(world, client_id, player, item_id, count, 0);
+}
+
+/// As [`give_item_with_earned_message`], but stamping `enchant` on what it
+/// creates.
+///
+/// **Java never needs this.** An enchanted item keeps its `+N` across a drop
+/// and pickup there because both move the *same* `Item` instance between
+/// containers; this port mints a fresh instance on the give path, so the level
+/// has to be carried across explicitly. It must be stamped *before* the
+/// `InventoryUpdate` below is built, or the client is told about a `+0` item
+/// the server considers enchanted.
+pub(crate) fn give_item_with_earned_message_enchanted(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    item_id: i32,
+    count: i64,
+    enchant: i32,
+) {
+    let Some(added) = super::items::add_inventory_item_tracked(world, player, item_id, count)
+    else {
+        warn!("quest give_items: object-id pool exhausted, dropping {item_id}×{count}");
+        return;
+    };
+    if enchant != 0
+        && let Some(inv) = world.objects.get_component_mut::<Inventory>(&player)
+    {
+        // Enchantable items are never stackable, so this is exactly one
+        // freshly-created instance.
+        for &(oid, _) in &added {
+            inv.set_enchant_level(oid, enchant);
+        }
+    }
+    // Snapshot after the enchant stamp, so the packet carries the `+N`.
+    let changes = super::helpers::added_changes(world, player, &added);
+    let sm = if item_id == super::death::ADENA_ID {
+        server_packets::system_message_with(
+            sm_ids::YOU_HAVE_EARNED_S1_ADENA,
+            &[SmParam::Long(count)],
+        )
+    } else if count > 1 {
+        server_packets::system_message_with(
+            sm_ids::YOU_HAVE_EARNED_S2_S1_S,
+            &[SmParam::ItemName(item_id), SmParam::Long(count)],
+        )
+    } else {
+        server_packets::system_message_with(
+            sm_ids::YOU_HAVE_EARNED_S1,
+            &[SmParam::ItemName(item_id)],
+        )
+    };
+    send_to_client(world, client_id, sm);
+    // `InventoryUpdate` + adena counter + weight bar (Java `sendInventoryUpdate`),
+    // so the status-bar adena count refreshes on adena gains (`//create_coin`).
+    super::helpers::send_inventory_update(world, player, changes);
+}
+
+/// The game-loop half of `takeItems`: `Inventory::remove_item` + DB deletes/
+/// count updates + `InventoryUpdate` (with removed entries) + quest-tab
+/// refresh.
+pub(crate) fn take_items(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    item_id: i32,
+    count: i64,
+) -> bool {
+    let (changes, unequipped) = {
+        let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) else {
+            return false;
+        };
+        // Java's `Inventory.removeItem` unequips whatever it takes out of the
+        // bag; here the paperdoll clearing is silent, so note which worn
+        // instances the removal took. A quest item can be equipment — Q229
+        // `Test of Witchcraft` registers the Sword of Seal (a weapon), and its
+        // `exitQuest` sweep destroys it while it is still in the player's hand.
+        let equipped_before = inv.equipped_object_ids();
+        let changes = inv.remove_item(item_id, count);
+        let unequipped = super::items::unequipped_by_removal(&equipped_before, &changes);
+        (changes, unequipped)
+    };
+    if changes.is_empty() {
+        return false;
+    }
+    // Memory-first: the count decrements / removals already applied to the
+    // `Inventory` component; they persist on the next flush.
+    //
+    // Java unequips *before* the destroy's `InventoryUpdate` goes out (the
+    // `ExUserInfoEquipSlot` comes from inside `setPaperdollItem`), so this
+    // runs first — without it the client keeps rendering a destroyed weapon.
+    super::items::finish_equipped_item_destroyed(world, client_id, player, &unequipped);
+    // As in `give_item_with_earned_message`, no bare `ExQuestItemList` — Java's
+    // `takeItems` → `destroyItemByItemId` sends only the `InventoryUpdate`, and
+    // the change-type-3 entries below are what retire the client's rows.
+    super::helpers::send_inventory_update(world, player, changes);
+    true
+}
