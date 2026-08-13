@@ -97,25 +97,22 @@ impl PledgeSkillTreeData {
         include_squad: bool,
     ) -> Vec<(i32, i32)> {
         let mut result: HashMap<i32, i32> = HashMap::new();
-        for learn in &self.pledge {
-            if learn.residencial || clan_level < learn.get_level {
+        let squad: &[PledgeSkillLearn] = if include_squad { &self.sub_pledge } else { &[] };
+        for learn in self
+            .pledge
+            .iter()
+            .filter(|l| !l.residencial)
+            .chain(squad.iter())
+        {
+            if clan_level < learn.get_level
+                || current.get(&learn.skill_id).copied().unwrap_or(0) >= learn.skill_level
+            {
                 continue;
             }
-            if current.get(&learn.skill_id).copied().unwrap_or(0) < learn.skill_level {
-                let slot = result.entry(learn.skill_id).or_insert(0);
-                *slot = (*slot).max(learn.skill_level);
-            }
-        }
-        if include_squad {
-            for learn in &self.sub_pledge {
-                if clan_level < learn.get_level {
-                    continue;
-                }
-                if current.get(&learn.skill_id).copied().unwrap_or(0) < learn.skill_level {
-                    let slot = result.entry(learn.skill_id).or_insert(0);
-                    *slot = (*slot).max(learn.skill_level);
-                }
-            }
+            result
+                .entry(learn.skill_id)
+                .and_modify(|lvl| *lvl = (*lvl).max(learn.skill_level))
+                .or_insert(learn.skill_level);
         }
         result.into_iter().collect()
     }
