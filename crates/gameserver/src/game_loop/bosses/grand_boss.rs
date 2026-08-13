@@ -13,7 +13,6 @@ use commons::util::now_millis;
 
 use crate::db::DbCommand;
 use crate::game_loop::area_npcs::find_by_npc_id;
-use crate::game_loop::helpers::region_cell_of;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -48,9 +47,7 @@ fn roar(world: &World, boss_oid: i32, sound: &str) {
         return;
     };
     let pkt = crate::network::server_packets::play_sound_at(sound, boss_oid, pos.x, pos.y, pos.z);
-    if let Some(region) = region_cell_of(world, boss_oid) {
-        crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
-    }
+    crate::game_loop::helpers::broadcast_from(world, boss_oid, &pkt);
 }
 
 /// The stored "dead" status differs by boss family: the simple bosses use the

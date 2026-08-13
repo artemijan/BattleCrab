@@ -189,17 +189,29 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
     use crate::network::server_packets::{social_action, special_camera};
     match step {
         1 => {
-            broadcast_near(world, dr_chaos_oid, &social_action(dr_chaos_oid, 2));
-            broadcast_near(
+            crate::game_loop::helpers::broadcast_from(
+                world,
+                dr_chaos_oid,
+                &social_action(dr_chaos_oid, 2),
+            );
+            crate::game_loop::helpers::broadcast_from(
                 world,
                 dr_chaos_oid,
                 &special_camera(dr_chaos_oid, 1, -200, 15, 5500, 1000, 13500, 0, 0, 0, 0, 0),
             );
         }
-        2 => broadcast_near(world, dr_chaos_oid, &social_action(dr_chaos_oid, 3)),
-        3 => broadcast_near(world, dr_chaos_oid, &social_action(dr_chaos_oid, 1)),
+        2 => crate::game_loop::helpers::broadcast_from(
+            world,
+            dr_chaos_oid,
+            &social_action(dr_chaos_oid, 3),
+        ),
+        3 => crate::game_loop::helpers::broadcast_from(
+            world,
+            dr_chaos_oid,
+            &social_action(dr_chaos_oid, 1),
+        ),
         4 => {
-            broadcast_near(
+            crate::game_loop::helpers::broadcast_from(
                 world,
                 dr_chaos_oid,
                 &special_camera(dr_chaos_oid, 1, -150, 10, 3500, 1000, 5000, 0, 0, 0, 0, 0),
@@ -238,13 +250,13 @@ fn spawn_golem(world: &mut World, x: i32, y: i32, z: i32, restore: bool) -> Opti
         },
     );
     if !restore {
-        broadcast_near(
+        crate::game_loop::helpers::broadcast_from(
             world,
             oid,
             &special_camera(oid, 30, 200, 20, 6000, 700, 8000, 0, 0, 0, 0, 0),
         );
-        broadcast_near(world, oid, &social_action(oid, 1));
-        broadcast_near(world, oid, &play_sound("Rm03_A"));
+        crate::game_loop::helpers::broadcast_from(world, oid, &social_action(oid, 1));
+        crate::game_loop::helpers::broadcast_from(world, oid, &play_sound("Rm03_A"));
     }
     world.scheduler.schedule(
         world.tick + DESPAWN_CHECK_TICKS,
@@ -391,10 +403,4 @@ fn living_players_near(world: &World, oid: i32, range: f64) -> usize {
             alive && within_2d_xy(world, *p, origin.x, origin.y, range)
         })
         .count()
-}
-
-fn broadcast_near(world: &World, oid: i32, pkt: &[u8]) {
-    if let Some(region) = region_cell_of(world, oid) {
-        crate::game_loop::helpers::broadcast_near_region(world, region, pkt);
-    }
 }

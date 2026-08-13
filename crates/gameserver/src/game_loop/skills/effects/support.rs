@@ -1,6 +1,5 @@
 use super::*;
 use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_mul;
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_player as send_sm, send_sm_to_player as send_sm_with,
@@ -125,11 +124,8 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
 /// range *including* itself (`broadcastPacket`), unlike the quest engine's
 /// self-only `sendPacket` variant.
 pub(crate) fn broadcast_social_action(world: &mut World, oid: i32, action_id: i32) {
-    let Some(region) = region_cell_of(world, oid) else {
-        return;
-    };
     let pkt = server_packets::social_action(oid, action_id);
-    crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+    crate::game_loop::helpers::broadcast_from(world, oid, &pkt);
 }
 
 /// Resolve `Formulas.calcMagicSuccess`' inputs for a cast. `penalty` is the

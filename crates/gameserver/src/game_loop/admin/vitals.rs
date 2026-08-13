@@ -67,8 +67,8 @@ pub(crate) fn heal_creature(world: &mut World, target: i32) {
     if is_player {
         super::helpers::send_to_player(world, target, packet);
         super::party::notify_party_vitals(world, target);
-    } else if let Some(region) = region_cell_of(world, target) {
-        super::helpers::broadcast_near_region(world, region, &packet);
+    } else {
+        super::helpers::broadcast_from(world, target, &packet);
     }
 }
 

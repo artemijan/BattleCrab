@@ -14,6 +14,7 @@ use crate::data::item_data::WeaponType;
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::guard::{in_zone, maybe_position};
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
 use crate::model::components::FishingSession;
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -23,7 +24,6 @@ use crate::world::World;
 
 use super::helpers::send_to_player as send;
 use super::helpers::{broadcast_near_region, client_for_player};
-use crate::game_loop::helpers::region_cell_of;
 
 // FishingEndReason (Java enum ordinals).
 const REASON_WIN: u8 = 0;
@@ -333,9 +333,7 @@ pub(crate) fn stop_fishing(world: &mut World, player: i32, reason: u8) {
 
 fn broadcast_end(world: &World, player: i32, reason: u8) {
     let pkt = sp::ex_fishing_end(player, reason);
-    if let Some(region) = region_cell_of(world, player) {
-        broadcast_near_region(world, region, &pkt);
-    }
+    crate::game_loop::helpers::broadcast_from(world, player, &pkt);
 }
 
 /// Java `Fishing.calculateBaitLocation`: the bob lands `baitDistance` ahead of

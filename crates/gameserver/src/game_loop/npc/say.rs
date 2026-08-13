@@ -1,6 +1,6 @@
 //! NPC chat-say broadcasts (moved from helpers).
 
-use crate::game_loop::helpers::{broadcast_near_region, region_cell_of};
+use crate::game_loop::helpers::broadcast_from;
 use crate::model::npc::Npc;
 use crate::world::World;
 
@@ -24,16 +24,13 @@ pub(crate) fn npc_say_param(world: &World, npc_oid: i32, npc_string_id: i32, par
     let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
         return;
     };
-    let Some(region) = region_cell_of(world, npc_oid) else {
-        return;
-    };
     let pkt = match param {
         Some(p) => {
             crate::network::server_packets::npc_say_param(npc_oid, npc.npc_id, npc_string_id, p)
         }
         None => crate::network::server_packets::npc_say(npc_oid, npc.npc_id, npc_string_id),
     };
-    broadcast_near_region(world, region, &pkt);
+    broadcast_from(world, npc_oid, &pkt);
 }
 
 /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble.
@@ -41,9 +38,6 @@ pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
     let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
         return;
     };
-    let Some(region) = region_cell_of(world, npc_oid) else {
-        return;
-    };
     let pkt = crate::network::server_packets::npc_say_text(npc_oid, npc.npc_id, text);
-    broadcast_near_region(world, region, &pkt);
+    broadcast_from(world, npc_oid, &pkt);
 }

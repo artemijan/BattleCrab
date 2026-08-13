@@ -80,3 +80,13 @@ pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[
     }
     broadcast_to_others_shared(world, object_id, shared);
 }
+
+/// Broadcast to every player in the 3×3 region block around `object_id` —
+/// the `region_cell_of` + [`broadcast_near_region`] pair that a couple dozen
+/// call sites spelled out by hand. A no-op for an object with no region (left
+/// the world mid-task).
+pub(crate) fn broadcast_from(world: &World, object_id: i32, packet: &[u8]) {
+    if let Some(region) = region_cell_of(world, object_id) {
+        broadcast_near_region(world, region, packet);
+    }
+}
