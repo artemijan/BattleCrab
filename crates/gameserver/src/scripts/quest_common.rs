@@ -57,6 +57,21 @@ pub fn is_tag_qualified(ctx: &QuestCtx) -> bool {
     ctx.npc_script_value() == TAG_QUALIFIED
 }
 
+/// The per-mob drop table shape Q00264 and Q00329 share: **one** `getRandom(100)`
+/// walked against `(payload, threshold)` pairs, the first entry the roll falls
+/// under winning. Rolling past every threshold drops nothing, so a table whose
+/// last threshold is 100 always pays and one that stops short does not.
+///
+/// The payload is whatever the table varies — the amount in Q00264 (one item,
+/// variable count), the item in Q00329 (two items, always one).
+pub fn roll_drop_table<T: Copy>(ctx: &mut QuestCtx, table: &[(T, i32)]) -> Option<T> {
+    let roll = ctx.roll(100);
+    table
+        .iter()
+        .find(|&&(_, threshold)| roll < threshold)
+        .map(|&(payload, _)| payload)
+}
+
 /// The Olympiad participation gate the Grand Olympiad Manager and the Monument
 /// of Heroes both apply: 3rd/4th class group and level ≥ 55.
 pub fn olympiad_eligible(ctx: &QuestCtx) -> bool {

@@ -63,12 +63,9 @@ impl QuestScript for Q00329CuriosityOfADwarf {
         if !ctx.has_qs() {
             return;
         }
-        let roll = ctx.roll(100);
-        for &(item, threshold) in drops(ctx.npc_id) {
-            if roll < threshold {
-                ctx.give_item_randomly(item, 1, 0, 1.0, true);
-                break;
-            }
+        let table = drops(ctx.npc_id);
+        if let Some(item) = super::quest_common::roll_drop_table(ctx, table) {
+            ctx.give_item_randomly(item, 1, 0, 1.0, true);
         }
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
