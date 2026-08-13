@@ -14,7 +14,6 @@ use crate::model::npc::Npc;
 use crate::world::World;
 
 use super::send_message;
-use crate::game_loop::helpers::region_cell_of;
 
 /// `//mobmenu` — the mob-group admin HTML page.
 pub(super) fn admin_mobmenu(world: &mut World, client_id: u32) {
@@ -363,10 +362,8 @@ fn alive(world: &World, group: &MobGroup) -> usize {
 /// Despawn every live member and clear the roster.
 fn despawn_members(world: &mut World, group_id: i32) {
     for oid in members(world, group_id) {
-        if world.objects.has_component::<Npc>(&oid)
-            && let Some(region) = region_cell_of(world, oid)
-        {
-            super::death::despawn_npc(world, oid, region);
+        if world.objects.has_component::<Npc>(&oid) {
+            super::death::despawn_npc_by_oid(world, oid);
         }
     }
     if let Some(g) = world.mob_groups.get_mut(&group_id) {

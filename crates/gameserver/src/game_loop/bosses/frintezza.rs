@@ -842,12 +842,9 @@ fn delete_dummy(world: &mut World, instance_id: i32, key: &str) {
         return;
     }
     world.instances.set_var(instance_id, key, 0);
-    let region = world
-        .objects
-        .get_component::<crate::model::components::RegionCell>(&oid)
-        .map(|r| r.0)
-        .unwrap_or((0, 0));
-    crate::game_loop::death::despawn_npc(world, oid, region);
+    // Through the oid-deriving despawn — the old raw read fell back to region
+    // (0, 0), silently corrupting that bucket of the npc-region index.
+    crate::game_loop::death::despawn_npc_by_oid(world, oid);
 }
 
 /// `SocialAction` to the instance.
@@ -1068,8 +1065,7 @@ pub(crate) fn handle_finish_step(world: &mut World, instance_id: i32, step: u8) 
                     0,
                     0,
                 );
-                let region = region_cell_of(world, frintezza).unwrap_or((0, 0));
-                crate::game_loop::death::despawn_npc(world, frintezza, region);
+                crate::game_loop::death::despawn_npc_by_oid(world, frintezza);
             }
             schedule_finish(world, instance_id, 2, 16_000);
         }

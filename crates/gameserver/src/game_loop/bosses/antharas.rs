@@ -13,7 +13,6 @@ use crate::game_loop::common::{near_leader, players_in_lair_oids};
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::scheduler::ScheduledTask;
@@ -814,9 +813,7 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
         crate::game_loop::ai::clear_aggro(world, antharas_oid);
         // Delete the adds, oust the players.
         for oid in lair_minions(world) {
-            if let Some(region) = region_cell_of(world, oid) {
-                crate::game_loop::death::despawn_npc(world, oid, region);
-            }
+            crate::game_loop::death::despawn_npc_by_oid(world, oid);
         }
         for player_oid in players_in_lair_oids(world, LAIR_ZONE_ID) {
             teleport_out(world, player_oid);
@@ -934,9 +931,7 @@ const CLEAR_ZONE_SECS: u64 = 900;
 pub(crate) fn on_antharas_killed(world: &mut World) {
     // `DESPAWN_MINIONS`: delete every Behemoth/Terasque left in the lair.
     for oid in lair_minions(world) {
-        if let Some(region) = region_cell_of(world, oid) {
-            crate::game_loop::death::despawn_npc(world, oid, region);
-        }
+        crate::game_loop::death::despawn_npc_by_oid(world, oid);
     }
 
     // Death cinematic + sound, to the lair.
@@ -962,9 +957,7 @@ pub(crate) fn handle_clear_zone(world: &mut World) {
         teleport_out(world, player_oid);
     }
     for oid in npcs_in_lair(world) {
-        if let Some(region) = region_cell_of(world, oid) {
-            crate::game_loop::death::despawn_npc(world, oid, region);
-        }
+        crate::game_loop::death::despawn_npc_by_oid(world, oid);
     }
 }
 

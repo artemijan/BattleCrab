@@ -150,7 +150,6 @@ use crate::loginlink::CommandTx;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use crate::game_loop::helpers::region_cell_of;
 use net::handle_game_event;
 use npc::ai;
 use regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};

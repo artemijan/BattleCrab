@@ -23,8 +23,7 @@ use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;
 use tracing::warn;
 
-use crate::game_loop::death::{despawn_npc, introduce_npc, teleport_player};
-use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::death::{despawn_npc_by_oid, introduce_npc, teleport_player};
 use crate::game_loop::instances;
 use crate::game_loop::user_commands::in_combat;
 use crate::model::Player;
@@ -1219,10 +1218,7 @@ fn despawn_manager(world: &mut World) {
     let Some(oid) = world.events.tvt.manager_oid.take() else {
         return;
     };
-    let Some(region) = region_cell_of(world, oid) else {
-        return;
-    };
-    despawn_npc(world, oid, region);
+    despawn_npc_by_oid(world, oid);
 }
 
 /// Load a manager page and substitute `%player_numbers%` (Java builds these two

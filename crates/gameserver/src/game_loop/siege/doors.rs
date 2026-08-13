@@ -11,9 +11,7 @@ pub(super) fn despawn_siege_npcs(world: &mut World, castle_id: i32) {
         .map(|s| std::mem::take(&mut s.spawned_npcs))
         .unwrap_or_default();
     for oid in oids {
-        if let Some(region) = region_cell_of(world, oid) {
-            crate::game_loop::death::despawn_npc(world, oid, region);
-        }
+        crate::game_loop::death::despawn_npc_by_oid(world, oid);
     }
 }
 

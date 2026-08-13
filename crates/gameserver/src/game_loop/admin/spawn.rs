@@ -731,10 +731,7 @@ pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
         send_message(world, client_id, "Target is not an NPC.");
         return;
     }
-    let Some(region) = region_cell_of(world, target) else {
-        return;
-    };
-    super::death::despawn_npc(world, target, region);
+    super::death::despawn_npc_by_oid(world, target);
 }
 
 // ---------------------------------------------------------------------------

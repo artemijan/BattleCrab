@@ -12,7 +12,6 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::helpers::ms_to_ticks;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::npc::cast;
 
 /// The `SummonNpc` effect's `EffectPoint` branch: spawn the totem at the
@@ -164,8 +163,5 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
 /// `Npc.scheduleDespawn` firing: remove the totem from the world. The cast
 /// task dies with it (its next fire finds no living NPC).
 pub(crate) fn handle_effect_point_despawn(world: &mut World, npc_oid: i32) {
-    let Some(region) = region_cell_of(world, npc_oid) else {
-        return;
-    };
-    super::death::despawn_npc(world, npc_oid, region);
+    super::death::despawn_npc_by_oid(world, npc_oid);
 }

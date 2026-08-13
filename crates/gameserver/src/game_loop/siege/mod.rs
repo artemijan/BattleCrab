@@ -43,7 +43,6 @@ pub(crate) use schedule::*;
 
 use super::helpers::send_sm_bare_to_client as send_sm_to;
 use super::helpers::{ms_to_ticks, send_sm_bare_to_player, send_sm_to_client};
-use crate::game_loop::helpers::region_cell_of;
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
 const SIEGE_LENGTH_MIN: i32 = 120;

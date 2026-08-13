@@ -22,7 +22,6 @@
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::{Immobilized, Position, Vitals};
 use crate::model::grand_boss::GrandBoss;
@@ -465,8 +464,7 @@ fn archangels(world: &mut World) -> Vec<i32> {
 }
 
 fn despawn(world: &mut World, oid: i32) {
-    let region = region_cell_of(world, oid).unwrap_or((0, 0));
-    crate::game_loop::death::despawn_npc(world, oid, region);
+    crate::game_loop::death::despawn_npc_by_oid(world, oid);
 }
 
 /// Does this archangel already hate a living player?

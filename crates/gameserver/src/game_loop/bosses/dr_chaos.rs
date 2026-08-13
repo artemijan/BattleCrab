@@ -13,7 +13,6 @@
 //! own three-state ladder, distinct from the two-/four-state ones elsewhere.
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::time::{MILLIS_PER_HOUR, TICKS_PER_SECOND};
 use crate::geo::distance::within_2d_xy;
 use crate::model::components::{DrChaosGolem, DrChaosState, Vitals};
@@ -227,9 +226,7 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
         }
         5 => {
             // Delete Dr. Chaos, spawn the golem with its intro.
-            if let Some(region) = region_cell_of(world, dr_chaos_oid) {
-                crate::game_loop::death::despawn_npc(world, dr_chaos_oid, region);
-            }
+            crate::game_loop::death::despawn_npc_by_oid(world, dr_chaos_oid);
             spawn_golem(world, GOLEM_SPAWN.0, GOLEM_SPAWN.1, GOLEM_SPAWN.2, false);
         }
         _ => {}
@@ -289,9 +286,7 @@ pub(crate) fn handle_golem_despawn(world: &mut World, golem_oid: i32) {
         return;
     };
     if world.tick.saturating_sub(g.last_attack_tick) >= GOLEM_IDLE_TICKS {
-        if let Some(region) = region_cell_of(world, golem_oid) {
-            crate::game_loop::death::despawn_npc(world, golem_oid, region);
-        }
+        crate::game_loop::death::despawn_npc_by_oid(world, golem_oid);
         crate::game_loop::grand_boss::set_status(world, CHAOS_GOLEM, NORMAL);
         spawn_dr_chaos(world);
     } else {

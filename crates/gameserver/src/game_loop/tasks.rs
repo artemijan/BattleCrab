@@ -245,9 +245,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 core_boss::handle_despawn_minions(world);
             }
             ScheduledTask::DespawnNpc { npc_oid } => {
-                if let Some(region) = region_cell_of(world, npc_oid) {
-                    death::despawn_npc(world, npc_oid, region);
-                }
+                death::despawn_npc_by_oid(world, npc_oid);
             }
             ScheduledTask::BoatArrive { boat_object_id } => {
                 boats::handle_arrive(world, boat_object_id);
