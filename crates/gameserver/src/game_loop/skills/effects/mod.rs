@@ -1583,28 +1583,17 @@ fn escape_to(world: &mut World, player_oid: i32, dest: crate::model::skill::Esca
 
     // `TeleportWhereType.TOWN`: the enclosing map region's respawn, a random
     // point when `RandomRespawnInTownEnabled`.
-    let Some(race) = world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)
-        .map(|p| crate::enums::Race::from_ordinal(p.race).unwrap_or(crate::enums::Race::Human))
-    else {
+    // The position check is `teleport_to_town`'s too, but bailing here keeps a
+    // positionless caster from consuming a roll off the world RNG.
+    if maybe_position(world, player_oid).is_none() {
         return;
-    };
-    let Some(pos) = maybe_position(world, player_oid) else {
-        return;
-    };
+    }
     let pick = if world.cfg.character.random_respawn_in_town {
         world.roll(64) as usize
     } else {
         0
     };
-    if let Some((x, y, z)) = world
-        .data
-        .map_region
-        .town_respawn(pos.x, pos.y, pos.z, race, pick)
-    {
-        crate::game_loop::death::teleport_player(world, player_oid, x, y, z);
-    }
+    crate::game_loop::death::teleport_to_town(world, player_oid, pick);
 }
 
 /// `ClanHallData.getClanHallByClan(clan).getOwnerLocation()` — the hall's

@@ -426,27 +426,15 @@ impl Element {
     /// picks between the two sides off the same `defence` flag, so the pair is
     /// one lookup in client-id order rather than two parallel matches.
     pub fn attribute_stat(self, defence: bool) -> Stat {
-        const POWER: [Stat; 6] = [
-            Stat::FirePower,
-            Stat::WaterPower,
-            Stat::WindPower,
-            Stat::EarthPower,
-            Stat::HolyPower,
-            Stat::DarkPower,
-        ];
-        const RES: [Stat; 6] = [
-            Stat::FireRes,
-            Stat::WaterRes,
-            Stat::WindRes,
-            Stat::EarthRes,
-            Stat::HolyRes,
-            Stat::DarkRes,
-        ];
-        if defence {
-            RES[self.index()]
-        } else {
-            POWER[self.index()]
-        }
+        let (power, res) = match self {
+            Element::Fire => (Stat::FirePower, Stat::FireRes),
+            Element::Water => (Stat::WaterPower, Stat::WaterRes),
+            Element::Wind => (Stat::WindPower, Stat::WindRes),
+            Element::Earth => (Stat::EarthPower, Stat::EarthRes),
+            Element::Holy => (Stat::HolyPower, Stat::HolyRes),
+            Element::Dark => (Stat::DarkPower, Stat::DarkRes),
+        };
+        if defence { res } else { power }
     }
 }
 

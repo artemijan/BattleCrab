@@ -647,6 +647,20 @@ pub fn player(world: &World, object_id: i32) -> Option<&Player> {
     world.objects.get_component::<Player>(&object_id)
 }
 
+/// `Player.getRace()` — the race decoded from the ordinal the component stores.
+/// `None` for a non-player object; also for an ordinal outside the enum, which
+/// no character-create or load path can produce.
+pub(crate) fn player_race(world: &World, object_id: i32) -> Option<crate::enums::Race> {
+    player(world, object_id).and_then(|p| crate::enums::Race::from_ordinal(p.race))
+}
+
+/// [`player_race`] with the port's established Human fallback, for the callers
+/// that need a race to index a table (`MapRegion::town_respawn`) and have no
+/// meaningful branch for "no race" — Java's `getRace()` cannot fail there.
+pub(crate) fn player_race_or_human(world: &World, object_id: i32) -> crate::enums::Race {
+    player_race(world, object_id).unwrap_or(crate::enums::Race::Human)
+}
+
 pub(crate) fn level_of(world: &World, object_id: i32) -> Option<i32> {
     if let Some(p) = player(world, object_id) {
         return Some(p.level);

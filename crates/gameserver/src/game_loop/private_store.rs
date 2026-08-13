@@ -883,10 +883,7 @@ fn wanted_lines(world: &World, owner: i32) -> Vec<StoreLine<'_>> {
 /// `Player.getPrivateBuyStoreLimit()` — 5 lines for a Dwarf, 4 for everyone
 /// else on this dist.
 fn private_store_limit(world: &World, owner: i32) -> i32 {
-    let dwarf = world
-        .objects
-        .get_component::<crate::model::Player>(&owner)
-        .and_then(|p| crate::enums::Race::from_ordinal(p.race))
+    let dwarf = crate::game_loop::helpers::player_race(world, owner)
         .is_some_and(|r| r == crate::enums::Race::Dwarf);
     if dwarf {
         world.cfg.character.max_pvtstore_buy_slots_dwarf

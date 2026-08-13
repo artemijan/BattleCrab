@@ -550,7 +550,7 @@ fn race_of(world: &World, object_id: i32) -> Option<crate::enums::Race> {
             .and_then(|t| t.race)
             .and_then(crate::enums::Race::from_ordinal);
     }
-    player(world, object_id).and_then(|p| crate::enums::Race::from_ordinal(p.race))
+    crate::game_loop::helpers::player_race(world, object_id)
 }
 
 fn target_in_my_party(world: &World, caster: i32, target: i32, include_me: bool) -> bool {

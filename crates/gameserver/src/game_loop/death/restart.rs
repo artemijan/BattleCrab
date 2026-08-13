@@ -27,11 +27,7 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
     if !dead {
         return;
     }
-    let race = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .and_then(|p| crate::enums::Race::from_ordinal(p.race))
-        .unwrap_or(crate::enums::Race::Human);
+    let race = crate::game_loop::helpers::player_race_or_human(world, object_id);
     let pick = if world.cfg.character.random_respawn_in_town {
         world.roll(64) as usize
     } else {
@@ -320,6 +316,30 @@ pub(crate) fn teleport_to_object(world: &mut World, subject: i32, anchor: i32) -
     };
     teleport_player(world, subject, pos.x, pos.y, pos.z);
     true
+}
+
+/// `MapRegionManager.getTeleToLocation(player, TeleportWhereType.TOWN)` plus the
+/// teleport — the whole "send them back to town" step: the respawn of the region
+/// they stand in, for their own race, `pick` choosing among that region's points
+/// (the caller rolls it; see [`MapRegion::town_respawn`]).
+///
+/// A no-op when the player has no position or the region has no respawn entry,
+/// which is the same "leave them put" the open-coded sites all spelled out.
+///
+/// [`MapRegion::town_respawn`]: crate::data::map_region::MapRegion::town_respawn
+pub(crate) fn teleport_to_town(world: &mut World, player_oid: i32, pick: usize) {
+    let Some(pos) = crate::game_loop::guard::maybe_position(world, player_oid) else {
+        return;
+    };
+    let race = crate::game_loop::helpers::player_race_or_human(world, player_oid);
+    let Some((x, y, z)) = world
+        .data
+        .map_region
+        .town_respawn(pos.x, pos.y, pos.z, race, pick)
+    else {
+        return;
+    };
+    teleport_player(world, player_oid, x, y, z);
 }
 
 /// `Creature.teleToLocation`: stop moving, vanish from the old neighborhood

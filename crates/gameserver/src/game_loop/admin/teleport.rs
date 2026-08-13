@@ -362,19 +362,7 @@ fn sendhome(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
         Some(name) => find_online_player(world, name).or_sm(sm_ids::THAT_PLAYER_IS_NOT_ONLINE)?,
         None => guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?,
     };
-    let pos = guard::maybe_position(world, target).or_silent()?;
-    let race = world
-        .objects
-        .get_component::<Player>(&target)
-        .and_then(|p| crate::enums::Race::from_ordinal(p.race))
-        .unwrap_or(crate::enums::Race::Human);
-    if let Some((x, y, z)) = world
-        .data
-        .map_region
-        .town_respawn(pos.x, pos.y, pos.z, race, 0)
-    {
-        super::death::teleport_player(world, target, x, y, z);
-    }
+    super::death::teleport_to_town(world, target, 0);
     Ok(())
 }
 
