@@ -365,17 +365,10 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     // `ExtractableItems.useItem` checks before touching the item: refuse
     // (leaving the box and inventory untouched) if the bag is already too
     // full for the reward roll to have anywhere to go.
-    let race = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.race)
-        .unwrap_or(0);
-    let normal_limit = world.cfg.character.inventory_limit(race);
-    let under_80 = world
-        .objects
-        .get_component::<Inventory>(&object_id)
-        .is_some_and(|inv| inv.is_under_80_percent(&world.data.item_data, normal_limit));
-    if !under_80 {
+    // The canonical `Player.isInventoryUnder80` — the hand-rolled copy this
+    // replaces read the plain race cap, dropping the GM cap and the
+    // `EnlargeSlot` passive bonus `weight::inventory_limit` folds in.
+    if !crate::game_loop::weight::is_inventory_under_80(world, object_id) {
         send_to_client(
             world,
             client_id,

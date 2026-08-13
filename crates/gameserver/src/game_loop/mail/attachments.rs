@@ -34,43 +34,26 @@ fn attachment_guards(
     true
 }
 
-/// Total slots the attachments will take in an inventory (Java counts a
-/// non-stackable per unit, a stackable as one slot unless already held).
+/// Total slots the attachments will take in an inventory — per item, the same
+/// count `weight::slots_needed` uses for bulk-purchase validation.
 fn attachment_slots(world: &World, player: i32, message_id: i32) -> usize {
     let Some(container) = world.mail.attachments.get(&message_id) else {
         return 0;
     };
-    let inv = world.objects.get_component::<Inventory>(&player);
     container
         .items()
         .iter()
         .map(|it| {
-            let stackable = world
-                .data
-                .item_data
-                .get(it.item_id)
-                .is_some_and(|t| t.is_stackable);
-            if !stackable {
-                it.count.max(1) as usize
-            } else if inv.is_some_and(|i| i.count_of(it.item_id) > 0) {
-                0
-            } else {
-                1
-            }
+            crate::game_loop::weight::slots_needed(world, player, it.item_id, it.count) as usize
         })
         .sum()
 }
 
+/// `PlayerInventory.validateCapacity` — the hand-rolled copy this replaces
+/// read the plain race cap, dropping the GM cap and the `EnlargeSlot` passive
+/// bonus `weight::inventory_limit` folds in.
 fn inventory_has_room(world: &World, player: i32, slots: usize) -> bool {
-    let Some(inv) = world.objects.get_component::<Inventory>(&player) else {
-        return false;
-    };
-    let race = world
-        .objects
-        .get_component::<Player>(&player)
-        .map_or(0, |p| p.race);
-    let limit = world.cfg.character.inventory_limit(race) as usize;
-    inv.non_quest_size(&world.data.item_data) + slots <= limit
+    crate::game_loop::weight::validate_capacity(world, player, slots as i64)
 }
 
 /// Hand every attachment of `message_id` to `player`, announcing each.
