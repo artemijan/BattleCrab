@@ -24,6 +24,7 @@ if-addrs.workspace = true
 memmap2.workspace = true
 mimalloc.workspace = true
 rustc-hash.workspace = true
+enum-ordinalize.workspace = true
 
 [dev-dependencies]
 # Tests still assert with SQL and build fixtures; the crate itself no longer

@@ -481,16 +481,8 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
         .objects
         .get_component::<crate::model::components::PartyRef>(&earner_oid)
         .map(|r| r.0);
-    let group: Option<Vec<i32>> = earner_party.map(|pid| {
-        match crate::game_loop::command_channel::cc_id_of_party(world, pid) {
-            Some(cc_id) => crate::game_loop::command_channel::cc_members(world, cc_id),
-            None => world
-                .parties
-                .get(&pid)
-                .map(|p| p.members.clone())
-                .unwrap_or_default(),
-        }
-    });
+    let group: Option<Vec<i32>> =
+        earner_party.map(|pid| crate::game_loop::command_channel::cc_or_party_members(world, pid));
     let members: Vec<i32> = match group {
         Some(g) => g
             .into_iter()

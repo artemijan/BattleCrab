@@ -75,6 +75,21 @@ pub(crate) fn cc_members(world: &World, cc_id: u32) -> Vec<i32> {
         .collect()
 }
 
+/// The group a party shares a kill with — Java's
+/// `isInCommandChannel() ? cc.getMembers() : party.getMembers()`, which both the
+/// exp/sp split and the raid-point split key their reward off. Empty for a party
+/// id that no longer exists.
+pub(crate) fn cc_or_party_members(world: &World, party_id: u32) -> Vec<i32> {
+    match cc_id_of_party(world, party_id) {
+        Some(cc_id) => cc_members(world, cc_id),
+        None => world
+            .parties
+            .get(&party_id)
+            .map(|p| p.members.clone())
+            .unwrap_or_default(),
+    }
+}
+
 /// `AbstractPlayerGroup.broadcastPacket` on the channel.
 pub(crate) fn broadcast_to_cc(world: &World, cc_id: u32, packet: &[u8]) {
     for m in cc_members(world, cc_id) {

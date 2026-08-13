@@ -188,57 +188,58 @@ impl Region {
     /// Java `getNextLowerZ` — highest layer at or below `world_z` (or
     /// `world_z` itself if none).
     pub fn next_lower_z(&self, geo_x: i32, geo_y: i32, world_z: i32) -> i32 {
-        let pos = self.block_offset(geo_x, geo_y);
-        match self.bytes.as_slice()[pos] {
-            TYPE_FLAT => {
-                let height = self.i16_at(pos + 1) as i32;
-                if height <= world_z { height } else { world_z }
-            }
-            TYPE_COMPLEX => {
-                cell_height(self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2)).min(world_z)
-            }
-            _ => {
-                let cell = self.multilayer_cell_offset(pos + 1, geo_x, geo_y);
-                let mut lower = i32::MIN;
-                for layer in self.layers(cell) {
-                    let layer_z = cell_height(layer);
-                    if layer_z == world_z {
-                        return layer_z;
-                    }
-                    if layer_z < world_z && layer_z > lower {
-                        lower = layer_z;
-                    }
-                }
-                if lower == i32::MIN { world_z } else { lower }
-            }
-        }
+        self.next_z(geo_x, geo_y, world_z, true)
     }
 
     /// Java `getNextHigherZ` — lowest layer at or above `world_z` (or
     /// `world_z` itself if none).
     pub fn next_higher_z(&self, geo_x: i32, geo_y: i32, world_z: i32) -> i32 {
+        self.next_z(geo_x, geo_y, world_z, false)
+    }
+
+    /// The one body behind [`next_lower_z`](Self::next_lower_z) and
+    /// [`next_higher_z`](Self::next_higher_z) — Java's two methods are mirror
+    /// images, so only the direction differs: `lower` keeps the highest layer
+    /// *below* `world_z`, otherwise the lowest *above* it.
+    ///
+    /// Both of Java's single-height blocks answer with the height clamped to
+    /// `world_z` on the wanted side, which is what the min/max is. Only the
+    /// multilayer block searches, and there an exact hit short-circuits — Java's
+    /// `== worldZ` return — while a block with nothing on that side answers
+    /// `world_z` itself rather than a sentinel.
+    fn next_z(&self, geo_x: i32, geo_y: i32, world_z: i32, lower: bool) -> i32 {
+        let clamped = |height: i32| {
+            if lower {
+                height.min(world_z)
+            } else {
+                height.max(world_z)
+            }
+        };
         let pos = self.block_offset(geo_x, geo_y);
         match self.bytes.as_slice()[pos] {
-            TYPE_FLAT => {
-                let height = self.i16_at(pos + 1) as i32;
-                if height >= world_z { height } else { world_z }
-            }
-            TYPE_COMPLEX => {
-                cell_height(self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2)).max(world_z)
-            }
+            TYPE_FLAT => clamped(self.i16_at(pos + 1) as i32),
+            TYPE_COMPLEX => clamped(cell_height(
+                self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2),
+            )),
             _ => {
                 let cell = self.multilayer_cell_offset(pos + 1, geo_x, geo_y);
-                let mut higher = i32::MAX;
+                let mut best: Option<i32> = None;
                 for layer in self.layers(cell) {
                     let layer_z = cell_height(layer);
                     if layer_z == world_z {
                         return layer_z;
                     }
-                    if layer_z > world_z && layer_z < higher {
-                        higher = layer_z;
+                    let on_wanted_side = if lower {
+                        layer_z < world_z
+                    } else {
+                        layer_z > world_z
+                    };
+                    let closer = best.is_none_or(|b| if lower { layer_z > b } else { layer_z < b });
+                    if on_wanted_side && closer {
+                        best = Some(layer_z);
                     }
                 }
-                if higher == i32::MAX { world_z } else { higher }
+                best.unwrap_or(world_z)
             }
         }
     }

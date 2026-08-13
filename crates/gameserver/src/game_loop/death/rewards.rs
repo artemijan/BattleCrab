@@ -298,14 +298,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         // channel the *whole channel* shares (Java `Attackable` line 621:
         // `isInCommandChannel() ? cc.getMembers() : party.getMembers()`).
         let cc_id = crate::game_loop::command_channel::cc_id_of_party(world, party_id);
-        let members = match cc_id {
-            Some(id) => crate::game_loop::command_channel::cc_members(world, id),
-            None => world
-                .parties
-                .get(&party_id)
-                .map(|p| p.members.clone())
-                .unwrap_or_default(),
-        };
+        let members = crate::game_loop::command_channel::cc_or_party_members(world, party_id);
         let share_of: std::collections::HashMap<i32, f64> = shares.iter().copied().collect();
         let mut party_dmg = 0.0;
         let mut rewarded: Vec<(i32, i32)> = Vec::new();

@@ -1,6 +1,7 @@
 //! Small ports of `gameserver/enums` needed so far.
 
 use crate::model::inventory::PaperdollSlot;
+use enum_ordinalize::Ordinalize;
 
 /// Port of `enums/Race` (ordinals matter — sent on the wire). The six
 /// playable races (plus Ertheia, unused by this dist's char-creation but
@@ -10,8 +11,16 @@ use crate::model::inventory::PaperdollSlot;
 /// (`Npc.getRace()`/`TraitType`'s `*_WEAKNESS` family checks `target.
 /// getRace() == Race.X`) — so the monster-flavor variants join here rather
 /// than in a separate type, matching Java's actual design.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+///
+/// `#[repr(i32)]` fixes the ordinal type the wire and the stored `Player.race`
+/// byte use; `Ordinalize` derives both directions from the declaration, so a
+/// variant's number lives in exactly one place.
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Ordinalize,
+)]
 #[repr(i32)]
+#[ordinalize(ordinal(pub const fn ordinal, doc = "Java `ordinal()` — the wire value and the stored `Player.race` byte."))]
+#[ordinalize(from_ordinal(pub const fn from_ordinal, doc = "Inverse of [`Race::ordinal`] — the stored `Player.race` byte back to the enum (`None` on an out-of-range value)."))]
 pub enum Race {
     Human = 0,
     Elf = 1,
@@ -42,44 +51,6 @@ pub enum Race {
 }
 
 impl Race {
-    pub fn ordinal(self) -> i32 {
-        self as i32
-    }
-
-    /// Inverse of [`Race::ordinal`] — the stored `Player.race` byte back to the
-    /// enum (`None` on an out-of-range value).
-    pub fn from_ordinal(o: i32) -> Option<Race> {
-        Some(match o {
-            0 => Race::Human,
-            1 => Race::Elf,
-            2 => Race::DarkElf,
-            3 => Race::Orc,
-            4 => Race::Dwarf,
-            5 => Race::Kamael,
-            6 => Race::Ertheia,
-            7 => Race::Animal,
-            8 => Race::Beast,
-            9 => Race::Bug,
-            10 => Race::CastleGuard,
-            11 => Race::Construct,
-            12 => Race::Demonic,
-            13 => Race::Divine,
-            14 => Race::Dragon,
-            15 => Race::Elemental,
-            16 => Race::Etc,
-            17 => Race::Fairy,
-            18 => Race::Giant,
-            19 => Race::Humanoid,
-            20 => Race::Mercenary,
-            21 => Race::None_,
-            22 => Race::Plant,
-            23 => Race::SiegeWeapon,
-            24 => Race::Undead,
-            25 => Race::Friend,
-            _ => return None,
-        })
-    }
-
     /// The XML/`Race.valueOf` name (`"DARK_ELF"`, …) → enum, as used by the
     /// `<race name=…>` attributes in `respawn.xml` and every NPC template's
     /// `<race>` (`data/npc_data.rs`'s `parse_race`).

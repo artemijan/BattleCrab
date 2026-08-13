@@ -10,6 +10,8 @@
 
 use std::collections::BTreeMap;
 
+use enum_ordinalize::Ordinalize;
+
 use super::components::{Macros, Shortcuts};
 
 /// `ShortCuts.MAX_SHORTCUTS_PER_BAR` — the slot/page → storage-key factor and
@@ -20,83 +22,54 @@ pub const MAX_SHORTCUTS_PER_BAR: i32 = 12;
 pub const FIRST_MACRO_ID: i32 = 1000;
 
 /// `enums/ShortcutType` — wire value / DB `type` column = Java ordinal.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+///
+/// `#[repr(i32)]` fixes the ordinal type the client reads; `Ordinalize` derives
+/// both directions from the declaration, so a variant's number lives in exactly
+/// one place.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(ordinal(pub const fn ordinal, doc = "Java `ordinal()` — the client wire value and the stored `type` column."))]
+#[ordinalize(from_ordinal(const fn checked_from_ordinal, doc = "`values()[ordinal]`, `None` for an ordinal no variant has."))]
 pub enum ShortcutType {
-    None,
-    Item,
-    Skill,
-    Action,
-    Macro,
-    Recipe,
-    Bookmark,
+    None = 0,
+    Item = 1,
+    Skill = 2,
+    Action = 3,
+    Macro = 4,
+    Recipe = 5,
+    Bookmark = 6,
 }
 
 impl ShortcutType {
-    pub const fn ordinal(self) -> i32 {
-        match self {
-            Self::None => 0,
-            Self::Item => 1,
-            Self::Skill => 2,
-            Self::Action => 3,
-            Self::Macro => 4,
-            Self::Recipe => 5,
-            Self::Bookmark => 6,
-        }
-    }
-
     /// `values()[ordinal]`, out-of-range → `None` (both `RequestShortCutReg`'s
     /// `(typeId < 1) || (typeId > 6) ? 0 : typeId` clamp and a lenient DB
     /// restore land here).
     pub fn from_ordinal(v: i32) -> Self {
-        match v {
-            1 => Self::Item,
-            2 => Self::Skill,
-            3 => Self::Action,
-            4 => Self::Macro,
-            5 => Self::Recipe,
-            6 => Self::Bookmark,
-            _ => Self::None,
-        }
+        Self::checked_from_ordinal(v).unwrap_or(Self::None)
     }
 }
 
-/// `enums/MacroType` — wire value / `commands` encoding = Java ordinal.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+/// `enums/MacroType` — wire value / `commands` encoding = Java ordinal (see
+/// [`ShortcutType`] for the derive).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(ordinal(pub const fn ordinal, doc = "Java `ordinal()` — the wire value and the `commands` encoding."))]
+#[ordinalize(from_ordinal(const fn checked_from_ordinal, doc = "`values()[ordinal]`, `None` for an ordinal no variant has."))]
 pub enum MacroType {
-    None,
-    Skill,
-    Action,
-    Text,
-    Shortcut,
-    Item,
-    Delay,
+    None = 0,
+    Skill = 1,
+    Action = 2,
+    Text = 3,
+    Shortcut = 4,
+    Item = 5,
+    Delay = 6,
 }
 
 impl MacroType {
-    pub const fn ordinal(self) -> i32 {
-        match self {
-            Self::None => 0,
-            Self::Skill => 1,
-            Self::Action => 2,
-            Self::Text => 3,
-            Self::Shortcut => 4,
-            Self::Item => 5,
-            Self::Delay => 6,
-        }
-    }
-
     /// `values()[ordinal]`, out-of-range → `None` (`RequestMakeMacro`'s
     /// `(type < 1) || (type > 6) ? 0 : type` clamp).
     pub fn from_ordinal(v: i32) -> Self {
-        match v {
-            1 => Self::Skill,
-            2 => Self::Action,
-            3 => Self::Text,
-            4 => Self::Shortcut,
-            5 => Self::Item,
-            6 => Self::Delay,
-            _ => Self::None,
-        }
+        Self::checked_from_ordinal(v).unwrap_or(Self::None)
     }
 }
 
@@ -326,6 +299,45 @@ mod tests {
             d1,
             d2,
             cmd: cmd.to_string(),
+        }
+    }
+
+    /// The ordinals are the client wire values and the stored `type` column, so
+    /// they are pinned here against Java's two enums rather than left to the
+    /// declaration order: renumbering a variant silently re-labels every saved
+    /// shortcut and macro command.
+    #[test]
+    fn ordinals_match_java_and_round_trip() {
+        let shortcuts = [
+            (ShortcutType::None, 0),
+            (ShortcutType::Item, 1),
+            (ShortcutType::Skill, 2),
+            (ShortcutType::Action, 3),
+            (ShortcutType::Macro, 4),
+            (ShortcutType::Recipe, 5),
+            (ShortcutType::Bookmark, 6),
+        ];
+        for (kind, ordinal) in shortcuts {
+            assert_eq!(kind.ordinal(), ordinal, "{kind:?}");
+            assert_eq!(ShortcutType::from_ordinal(ordinal), kind);
+        }
+        let macros = [
+            (MacroType::None, 0),
+            (MacroType::Skill, 1),
+            (MacroType::Action, 2),
+            (MacroType::Text, 3),
+            (MacroType::Shortcut, 4),
+            (MacroType::Item, 5),
+            (MacroType::Delay, 6),
+        ];
+        for (kind, ordinal) in macros {
+            assert_eq!(kind.ordinal(), ordinal, "{kind:?}");
+            assert_eq!(MacroType::from_ordinal(ordinal), kind);
+        }
+        // Java's `(v < 1) || (v > 6) ? 0 : v` clamp: out of range reads as None.
+        for v in [i32::MIN, -1, 7, 100, i32::MAX] {
+            assert_eq!(ShortcutType::from_ordinal(v), ShortcutType::None, "{v}");
+            assert_eq!(MacroType::from_ordinal(v), MacroType::None, "{v}");
         }
     }
 

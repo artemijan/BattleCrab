@@ -79,6 +79,13 @@ thiserror = "2"
 quick-xml = "0.37"
 if-addrs = "0.13"
 memmap2 = "0.9"
+# Java enums that travel on the wire are used by *ordinal*, so the port needs
+# both directions of `ordinal()`/`values()[i]` for every one of them. The derive
+# generates the pair from the declaration, which is what keeps a variant's
+# number from drifting away from the client's. `derive` only: the `Ordinalize`
+# trait would push a `use` onto every call site for no gain — the generated
+# methods are inherent.
+enum-ordinalize = { version = "4.4.2", default-features = false, features = ["derive"] }
 # Replaces the system allocator in the game server. The game thread is
 # allocation-heavy and single-threaded, which is exactly mimalloc's shape.
 mimalloc = "0.1"
