@@ -382,7 +382,9 @@ pub(crate) fn send_buff_menu(
     seller_oid: i32,
     index: usize,
 ) {
-    if !is_selling(world, seller_oid) || !in_range(world, buyer_oid, seller_oid) {
+    if !is_selling(world, seller_oid)
+        || !crate::geo::distance::within_3d(world, buyer_oid, seller_oid, INTERACTION_DISTANCE)
+    {
         return;
     }
     let list = sell_list(world, seller_oid);
@@ -418,7 +420,9 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
     let Some(level) = known_level(world, seller_oid, skill_id) else {
         return;
     };
-    if !is_selling(world, seller_oid) || !in_range(world, buyer_oid, seller_oid) {
+    if !is_selling(world, seller_oid)
+        || !crate::geo::distance::within_3d(world, buyer_oid, seller_oid, INTERACTION_DISTANCE)
+    {
         return;
     }
     let Some(price) = sell_list(world, seller_oid)
@@ -535,10 +539,6 @@ fn skill_name(world: &World, skill_id: i32, level: i32) -> String {
 }
 
 /// `Util.checkIfInRange(Npc.INTERACTION_DISTANCE, …, true)` — 3D.
-fn in_range(world: &World, a: i32, b: i32) -> bool {
-    crate::geo::distance::within_3d(world, a, b, INTERACTION_DISTANCE)
-}
-
 /// The previous/next links Java appends under each page.
 fn pager(bypass: &str, index: usize, total: usize) -> String {
     let mut out = String::new();

@@ -314,7 +314,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
         .unwrap_or(0)
         .max(MIN_CAST_RANGE);
 
-    if within(world, valakas_oid, victim, cast_range as f64) {
+    if crate::geo::distance::within_2d(world, valakas_oid, victim, cast_range as f64) {
         super::boss_threat::cast_boss_skill(world, valakas_oid, victim, skill_id, false);
     } else {
         // FOLLOW — close the distance before the next beat.
@@ -377,16 +377,6 @@ fn players_within(world: &World, valakas_oid: i32, range: f64) -> usize {
 }
 
 /// Is `oid` within `range` (2D) of Valakas?
-fn within(world: &World, valakas_oid: i32, oid: i32, range: f64) -> bool {
-    let (Some(a), Some(b)) = (
-        maybe_position(world, valakas_oid),
-        maybe_position(world, oid),
-    ) else {
-        return false;
-    };
-    a.distance_2d(&b) <= range
-}
-
 fn in_lair_zone(world: &World, oid: i32) -> bool {
     let Some(pos) = world.objects.get_component::<Position>(&oid) else {
         return false;

@@ -32,7 +32,7 @@ pub(crate) fn split_exp_with_pet(
     if is_dead(world, pet_oid) {
         return (1.0, 0.0, 0.0);
     }
-    if !within(world, owner_oid, pet_oid, PET_EXP_RANGE) {
+    if !crate::geo::distance::within_3d(world, owner_oid, pet_oid, PET_EXP_RANGE) {
         return (1.0, 0.0, 0.0);
     }
     let level = world
@@ -49,10 +49,6 @@ pub(crate) fn split_exp_with_pet(
     // than 100% of the owner's exp/sp" — but never a negative owner award.
     let ratio = (owner_taken as f64 / 100.0).min(1.0);
     (ratio, exp * (1.0 - ratio), sp * (1.0 - ratio))
-}
-
-fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
-    crate::geo::distance::within_3d(world, a, b, range)
 }
 
 /// Java `PetStat.addExpAndSp` — award the pet its cut and level it up.

@@ -69,3 +69,21 @@ pub fn dist3d_xyz(x1: i32, y1: i32, z1: i32, x2: i32, y2: i32, z2: i32) -> f64 {
 pub fn distance_2d_xy(tx: i32, ty: i32, cx: i32, cy: i32) -> f64 {
     (((tx - cx) as f64).powi(2) + ((ty - cy) as f64).powi(2)).sqrt()
 }
+
+/// [`within_3d`] widened by both objects' collision radii before comparing —
+/// Java's `Creature.isInsideRadius3D` as the interaction gates use it
+/// (`MathUtil.calculateDistance` against `range + this.collisionRadius +
+/// target.collisionRadius`). A plain [`within_3d`] under-reaches for fat
+/// NPCs.
+pub fn within_3d_collision(world: &World, a: i32, b: i32, range: f64) -> bool {
+    use crate::model::components::Collision;
+    let radius = |oid: &i32| {
+        world
+            .objects
+            .get_component::<Collision>(oid)
+            .map(|c| c.radius)
+            .unwrap_or(0.0)
+    };
+    let reach = range + radius(&a) + radius(&b);
+    distance_3d(world, a, b).is_some_and(|d| d <= reach)
+}

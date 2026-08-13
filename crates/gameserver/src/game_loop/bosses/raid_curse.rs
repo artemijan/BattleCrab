@@ -102,7 +102,7 @@ pub(crate) fn on_skill_cast_near_raid(world: &mut World, caster_oid: i32, skill_
     // region-based), so the range is applied here.
     let nearby = crate::game_loop::helpers::visible_creatures(world, caster_oid);
     for npc_oid in nearby {
-        if !within(world, caster_oid, npc_oid, PARTY_RANGE) {
+        if !crate::geo::distance::within_2d(world, caster_oid, npc_oid, PARTY_RANGE) {
             continue;
         }
         if !in_combat(world, npc_oid) || !should_curse(world, npc_oid, caster_oid) {
@@ -120,10 +120,6 @@ pub(crate) fn on_skill_cast_near_raid(world: &mut World, caster_oid: i32, skill_
 
 /// `Config.ALT_PARTY_RANGE`, the radius Java's visible-object scan uses.
 const PARTY_RANGE: f64 = 1500.0;
-
-fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
-    crate::geo::distance::within_2d(world, a, b, range)
-}
 
 /// A boss only curses while it is actually fighting (`isInCombat`).
 fn in_combat(world: &World, npc_oid: i32) -> bool {

@@ -478,7 +478,7 @@ pub(crate) fn handle_shop_make_item(
         return;
     }
     // `Util.checkIfInRange(150, player, manufacturer, true)`.
-    if !in_range(world, buyer, manufacturer, 150) {
+    if !crate::geo::distance::within_3d_collision(world, buyer, manufacturer, 150.0) {
         return;
     }
     // The recipe must still be in the manufacturer's live store; the price is
@@ -1184,24 +1184,4 @@ fn current_store_items(world: &World, oid: i32) -> Vec<(i32, i64)> {
 /// Whether the object is running a manufacture store (for `Action` routing).
 pub(crate) fn is_manufacture_owner(world: &World, oid: i32) -> bool {
     store_type(world, oid) == STORE_TYPE_MANUFACTURE
-}
-
-/// `Util.checkIfInRange(range, a, b, includeZBAxis=true)`: 3D distance vs
-/// `range + a.collisionRadius + b.collisionRadius`.
-fn in_range(world: &World, a: i32, b: i32, range: i32) -> bool {
-    use crate::model::components::Collision;
-    let ra = world
-        .objects
-        .get_component::<Collision>(&a)
-        .map(|c| c.radius)
-        .unwrap_or(0.0);
-    let rb = world
-        .objects
-        .get_component::<Collision>(&b)
-        .map(|c| c.radius)
-        .unwrap_or(0.0);
-    // Java widens the gate by both collision radii before comparing, so this
-    // cannot be a plain `within_3d`.
-    let reach = range as f64 + ra + rb;
-    crate::geo::distance::distance_3d(world, a, b).is_some_and(|d| d <= reach)
 }
