@@ -41,18 +41,6 @@ fn land(world: &mut World, skill: &Skill, caster: i32, target: i32) {
 // Escape — the residence destinations
 // ---------------------------------------------------------------------------
 
-/// One map region so the TOWN fallback has somewhere to land.
-fn with_town(world: &mut World) {
-    world.data.map_region =
-        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
-            name: "test_town".into(),
-            loc_id: 924,
-            bbs: 0,
-            respawn_points: vec![(5000, 6000, -30)],
-            tiles: vec![(20, 18)], // the tile containing (0,0)
-        }]);
-}
-
 /// A hall owned by `owner_id`, restarting at `owner_restart`.
 fn hall(
     id: i32,

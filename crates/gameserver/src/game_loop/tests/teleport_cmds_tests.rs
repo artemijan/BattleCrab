@@ -206,14 +206,7 @@ fn teleporter_rejects_malformed_and_wrong_npc() {
 fn unstuck_casts_escape_and_teleports_to_town() {
     let (mut world, ..) = test_world();
     world.cfg.character.unstuck_interval = 30;
-    world.data.map_region =
-        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
-            name: "test_town".into(),
-            loc_id: 924,
-            bbs: 0,
-            respawn_points: vec![(5000, 6000, -30)],
-            tiles: vec![(20, 18)], // the tile containing (0,0)
-        }]);
+    with_town(&mut world);
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
@@ -390,14 +383,7 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
 #[test]
 fn loc_user_command_reports_region() {
     let (mut world, ..) = test_world();
-    world.data.map_region =
-        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
-            name: "test_town".into(),
-            loc_id: 924,
-            bbs: 0,
-            respawn_points: vec![(5000, 6000, -30)],
-            tiles: vec![(20, 18)],
-        }]);
+    with_town(&mut world);
     let mut rx = ingame_player(&mut world, 1, 3001, 123, 456, -78);
     drain(&mut rx);
     user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(0));

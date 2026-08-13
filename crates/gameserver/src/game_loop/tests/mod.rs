@@ -1584,7 +1584,17 @@ fn sysmsg_int(p: &[u8]) -> Option<i32> {
     }
     None
 }
-
+/// One map region so the TOWN fallback has somewhere to land.
+fn with_town(world: &mut World) {
+    world.data.map_region =
+        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
+            name: "test_town".into(),
+            loc_id: 924,
+            bbs: 0,
+            respawn_points: vec![(5000, 6000, -30)],
+            tiles: vec![(20, 18)], // the tile containing (0,0)
+        }]);
+}
 /// Directly install a formed party (the invite flow has its own tests).
 fn make_party(world: &mut World, members: &[i32], rule: LootRule) -> u32 {
     let id = world.next_party_id;

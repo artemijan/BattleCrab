@@ -54,11 +54,14 @@ fn parse_point(s: &str) -> Result<(i32, i32, i32), String> {
     Ok((v[0], v[1], v[2]))
 }
 
-fn parse_ints(s: &str, want: usize) -> Result<Vec<i32>, String> {
-    let v: Vec<i32> = s
-        .split(',')
+fn split_ints(s: &str) -> Result<Vec<i32>, String> {
+    s.split(',')
         .map(|p| p.trim().parse::<i32>().map_err(|e| e.to_string()))
-        .collect::<Result<_, _>>()?;
+        .collect()
+}
+
+fn parse_ints(s: &str, want: usize) -> Result<Vec<i32>, String> {
+    let v = split_ints(s)?;
     if v.len() != want {
         return Err(format!(
             "expected {want} comma-separated integers, got {}",
@@ -69,10 +72,7 @@ fn parse_ints(s: &str, want: usize) -> Result<Vec<i32>, String> {
 }
 
 fn parse_near(s: &str) -> Result<(i32, i32, i64), String> {
-    let v: Vec<i32> = s
-        .split(',')
-        .map(|p| p.trim().parse::<i32>().map_err(|e| e.to_string()))
-        .collect::<Result<_, _>>()?;
+    let v = split_ints(s)?;
     match v.len() {
         2 => Ok((v[0], v[1], 400)),
         3 => Ok((v[0], v[1], v[2] as i64)),
