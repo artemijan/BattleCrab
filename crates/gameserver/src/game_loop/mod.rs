@@ -90,6 +90,7 @@ mod passive_skills;
 pub(crate) mod pc_cafe;
 pub(crate) mod pet_evolve;
 pub(crate) mod petition;
+pub(crate) mod player_info;
 pub(crate) mod position;
 mod private_store;
 pub(crate) mod punishment;
