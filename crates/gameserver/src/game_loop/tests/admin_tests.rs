@@ -4744,7 +4744,7 @@ fn admin_invis_menu_hides_and_reserves_panel() {
     );
 
     // While hidden, a UserInfo broadcast must not leak CharInfo to others.
-    crate::game_loop::party::broadcast_user_info(&mut world, 7101);
+    crate::game_loop::player_info::broadcast_user_info(&mut world, 7101);
     assert!(
         !drain(&mut obs_rx)
             .iter()

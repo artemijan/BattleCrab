@@ -182,7 +182,7 @@ pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
             crate::network::server_packets::sm_ids::YOU_HAVE_ACQUIRED_S1_FAME,
             &[crate::network::server_packets::SmParam::Int(amount)],
         );
-        crate::game_loop::party::broadcast_user_info(world, player_oid);
+        crate::game_loop::player_info::broadcast_user_info(world, player_oid);
     }
     // Still in the zone, so it keeps ticking either way.
     let delay = world.cfg.character.castle_zone_fame_task_frequency as u64 * 10;
@@ -218,7 +218,7 @@ pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32,
     // `broadcast_user_info` carries both (UserInfo to self, CharInfo to the
     // neighbours), and the relation refresh rides the same path.
     for member in touched {
-        super::party::broadcast_user_info(world, member);
+        super::player_info::broadcast_user_info(world, member);
         super::pvp::broadcast_siege_relation(world, member);
     }
 }

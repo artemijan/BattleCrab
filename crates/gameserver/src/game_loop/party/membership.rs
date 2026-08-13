@@ -2,6 +2,7 @@
 //! and the leave-world hook.
 
 use super::*;
+use crate::game_loop::player_info::broadcast_user_info;
 /// `Party.addPartyMember` (pets/CC/duel/tactical-sign hooks dropped).
 pub(crate) fn add_party_member(world: &mut World, party_id: u32, new_member: i32) {
     let Some(party) = world.parties.get(&party_id) else {

@@ -292,7 +292,7 @@ pub(super) fn admin_setteam(
         if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
             p.team = team;
             set += 1;
-            crate::game_loop::party::broadcast_user_info(world, target);
+            crate::game_loop::player_info::broadcast_user_info(world, target);
         } else if let Some(n) = world
             .objects
             .get_component_mut::<crate::model::npc::Npc>(&target)
@@ -319,7 +319,7 @@ pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32
             && p.team != 0
         {
             p.team = 0;
-            crate::game_loop::party::broadcast_user_info(world, target);
+            crate::game_loop::player_info::broadcast_user_info(world, target);
         }
     }
     send_message(world, client_id, "Teams cleared.");
@@ -388,7 +388,7 @@ pub(super) fn admin_para(
         flags.paralyzed = on;
         world.objects.add_components(target, flags);
         set_admin_visual(world, *target, ave, on);
-        crate::game_loop::party::broadcast_user_info(world, *target);
+        crate::game_loop::player_info::broadcast_user_info(world, *target);
     }
     send_message(
         world,
@@ -406,7 +406,7 @@ pub(super) fn admin_bighead(world: &mut World, client_id: u32, object_id: i32, o
     let ave = crate::model::skill::abnormal_visual_client_id("BIG_HEAD").expect("known AVE");
     let target = guard::target(world, object_id).unwrap_or(object_id);
     set_admin_visual(world, target, ave, on);
-    crate::game_loop::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(
         world,
         client_id,

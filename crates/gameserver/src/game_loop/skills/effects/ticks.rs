@@ -606,7 +606,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     let now = world.tick;
     // Removing the buff reverted its stat contribution — rebroadcast so the
     // client (and nearby players, for speed) see the stats return to normal.
-    crate::game_loop::party::broadcast_user_info(world, player_object_id);
+    crate::game_loop::player_info::broadcast_user_info(world, player_object_id);
     if is_transform {
         crate::game_loop::admin::transforms::refresh_transform_visuals(world, player_object_id);
     }

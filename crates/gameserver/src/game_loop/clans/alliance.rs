@@ -41,7 +41,7 @@ fn refresh_ally_on_members(world: &mut World, clan_id: i32) {
             p.ally_id = ally_id;
             p.ally_crest_id = ally_crest_id;
         }
-        crate::game_loop::party::broadcast_user_info(world, oid);
+        crate::game_loop::player_info::broadcast_user_info(world, oid);
     }
 }
 

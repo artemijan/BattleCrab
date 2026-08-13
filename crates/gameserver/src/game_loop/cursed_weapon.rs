@@ -231,7 +231,7 @@ pub(crate) fn increase_kills(world: &mut World, idx: usize) {
         if nb_kills % stage_kills == 0 && nb_kills <= stage_kills * (skill_max_level - 1) {
             give_skill(world, idx, player_id);
         }
-        super::party::broadcast_user_info(world, player_id);
+        super::player_info::broadcast_user_info(world, player_id);
     }
 
     world.cursed_weapons[idx].end_time -= (duration_lost as i64) * MILLIS_PER_MINUTE;
@@ -329,7 +329,7 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
         // unequip chain. See `items::refresh_equip_state`.
         super::items::refresh_equip_state(world, cid, victim_oid);
     }
-    super::party::broadcast_user_info(world, victim_oid);
+    super::player_info::broadcast_user_info(world, victim_oid);
 
     // On the ground it goes, at the corpse, exempt from auto-destroy.
     let oid = spawn_ground_item(
@@ -511,7 +511,7 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
             super::skills::remove_player_skill(world, object_id, skill_id);
         }
         super::admin::refresh_skill_list(world, object_id);
-        super::party::broadcast_user_info(world, object_id);
+        super::player_info::broadcast_user_info(world, object_id);
     }
 
     let item_ids: Vec<i32> = world.cursed_weapons.iter().map(|cw| cw.item_id).collect();
@@ -550,7 +550,7 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
     // `ExUserInfoEquipSlot` before this sweep runs, so the client would render
     // the sword the sweep just deleted until the next equip change.
     super::items::refresh_equip_state(world, client_id, object_id);
-    super::party::broadcast_user_info(world, object_id);
+    super::player_info::broadcast_user_info(world, object_id);
 }
 
 /// Java `isCursedWeaponEquipped()` — the curse bars trading, augmenting and

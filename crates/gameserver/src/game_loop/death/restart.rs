@@ -203,7 +203,7 @@ fn restore_lost_exp(world: &mut World, player_oid: i32, percent: f64) {
     };
     if restored > 0 {
         // Java's `addExp` pushes the new exp to the client immediately.
-        crate::game_loop::party::broadcast_user_info(world, player_oid);
+        crate::game_loop::player_info::broadcast_user_info(world, player_oid);
     }
 }
 

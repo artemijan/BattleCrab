@@ -230,7 +230,7 @@ pub(crate) fn remove_circlet(world: &mut World, member_oid: i32, castle_id: i32)
     crate::game_loop::helpers::send_inventory_update(world, member_oid, changes);
     // Java's `broadcastUserInfo()` after removal — the circlet is a
     // head-slot item, so onlookers must stop drawing it.
-    crate::game_loop::party::broadcast_user_info(world, member_oid);
+    crate::game_loop::player_info::broadcast_user_info(world, member_oid);
 }
 
 /// Java `CastleManager.removeCirclet(Clan, castleId)` — every member of the

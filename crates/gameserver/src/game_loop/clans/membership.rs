@@ -357,7 +357,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     ) {
         send_to_member(world, player_oid, pkt);
     }
-    crate::game_loop::party::broadcast_user_info(world, player_oid);
+    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
 }
 
 /// Java `Clan.removeClanMember(objectId, clanJoinExpiryTime)`, narrowed to the
@@ -475,7 +475,7 @@ pub(crate) fn remove_clan_member(
             member_oid,
             server_packets::pledge_show_member_list_delete_all(),
         );
-        crate::game_loop::party::broadcast_user_info(world, member_oid);
+        crate::game_loop::player_info::broadcast_user_info(world, member_oid);
     }
     let _ = world.db.send(DbCommand::RemoveClanMember {
         char_id: member_oid,

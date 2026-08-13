@@ -216,7 +216,7 @@ pub(super) fn admin_destroy_items(
     if include_equipped {
         crate::game_loop::items::refresh_equip_state(world, client_id, object_id);
     }
-    super::party::broadcast_user_info(world, object_id);
+    crate::game_loop::player_info::broadcast_user_info(world, object_id);
     send_message(
         world,
         client_id,
@@ -276,7 +276,7 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
         send_to_client(world, client_id, pkt);
     }
-    super::party::broadcast_user_info(world, owner);
+    crate::game_loop::player_info::broadcast_user_info(world, owner);
     send_message(world, client_id, "Item deleted.");
 }
 
@@ -361,7 +361,7 @@ pub(super) fn admin_delete_quest_item(
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
         send_to_client(world, client_id, pkt);
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(
         world,
         client_id,

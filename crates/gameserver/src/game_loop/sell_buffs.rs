@@ -126,7 +126,7 @@ fn start(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) {
         p.selling_buffs = true;
         p.store_type = STORE_TYPE_PACKAGE_SELL;
     }
-    super::party::broadcast_user_info(world, player_oid);
+    super::player_info::broadcast_user_info(world, player_oid);
     let packet = sp::ex_private_store_whole_msg(player_oid, &title);
     super::helpers::broadcast_including_self(world, player_oid, &packet);
     send_sell_menu(world, client_id, player_oid);
@@ -143,7 +143,7 @@ fn stop(world: &mut World, client_id: u32, player_oid: i32) {
         p.store_type = 0;
     }
     super::sit_stand::stand_up(world, player_oid);
-    super::party::broadcast_user_info(world, player_oid);
+    super::player_info::broadcast_user_info(world, player_oid);
     send_sell_menu(world, client_id, player_oid);
 }
 

@@ -314,7 +314,7 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         p.exp = new_exp;
         p.sp = new_sp;
     }
-    super::party::broadcast_user_info(world, player_oid);
+    super::player_info::broadcast_user_info(world, player_oid);
     true
 }
 
@@ -870,7 +870,7 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
     // cannot learn. (An admin marker used to claim Java removed those — it
     // does not; `rewardSkills` only ever adds.)
     super::death::set_level(world, player_oid, level);
-    super::party::broadcast_user_info(world, player_oid);
+    super::player_info::broadcast_user_info(world, player_oid);
 
     // `ClanMaster`'s `ON_PLAYER_PROFESSION_CHANGE` listener, the last of that
     // script's four. **Redundant on this port today, and ported anyway**: the

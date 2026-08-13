@@ -142,7 +142,7 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
     start_feed(world, target, inherited);
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     broadcast_ride(world, target, true);
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     // The visual list has to follow *after* the client has rebuilt the actor
     // around the mount model, or it is dropped with the old one — Java's
     // `updateAbnormalVisualEffects` schedules it 50 ms out for the same reason.
@@ -317,7 +317,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     super::transforms::restore_class_collision(world, target);
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     broadcast_ride(world, target, false);
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     // Same on the way down, and this leg is a *fix*, not a port: Java's
     // `dismount()` sends `Ride` + `broadcastUserInfo()` and never refreshes the
     // visuals, so a GM who dismounts stays invisible with no STEALTH glow and

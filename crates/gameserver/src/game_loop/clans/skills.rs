@@ -158,7 +158,7 @@ fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
     // Clan skills like Clan Health / Clan Mind carry MaxHp/MaxMp modifiers that
     // `recalculate_stats` doesn't consume — fold them into the vitals too.
     crate::game_loop::skills::effects::recompute_max_vitals(world, oid);
-    crate::game_loop::party::broadcast_user_info(world, oid);
+    crate::game_loop::player_info::broadcast_user_info(world, oid);
 }
 
 /// Resend a member's merged `SkillList` (own skills + clan skills).
@@ -385,7 +385,7 @@ pub(crate) fn force_new_leader(world: &mut World, clan_id: i32, new_leader: i32)
             p.clan_privs = if is_leader { i32::MAX } else { 0 };
         }
         if world.objects.has_component::<Player>(&oid) {
-            crate::game_loop::party::broadcast_user_info(world, oid);
+            crate::game_loop::player_info::broadcast_user_info(world, oid);
         }
     }
     let name = player_name_or_empty(world, new_leader);

@@ -462,7 +462,7 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
             // rendering the weapon that was just taken away.
             crate::game_loop::items::refresh_equip_state(world, tc, player_id);
         }
-        crate::game_loop::party::broadcast_user_info(world, player_id);
+        crate::game_loop::player_info::broadcast_user_info(world, player_id);
     } else if is_activated {
         // Java's offline branch of `endOfLife`: the wielder isn't logged in, so
         // the restore happens straight in the database — otherwise they come

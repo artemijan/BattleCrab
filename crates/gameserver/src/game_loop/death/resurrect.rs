@@ -342,7 +342,7 @@ pub(crate) fn do_revive_with(
         p.exp += restored;
         p.lost_exp_on_death = 0;
     }
-    crate::game_loop::party::broadcast_user_info(world, player_oid);
+    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
 }
 
 /// `Player.doRevive`: restore the configured percentages (`RespawnRestoreHP`

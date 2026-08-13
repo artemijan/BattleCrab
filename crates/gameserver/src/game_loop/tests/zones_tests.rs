@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::{doors, party, pvp};
+use crate::game_loop::{doors, player_info, pvp};
 
 /// Melee-attacking a player inside a peace zone is refused with the peaceful-
 /// zone message (`Creature.onForcedAttack`), and no attack intent is set.
@@ -458,7 +458,7 @@ fn user_info_relation_sets_in_siege_crown_bit_for_participant() {
 
     let rel = |world: &World, oid: i32| {
         let p = world.objects.get_component::<Player>(&oid).unwrap().clone();
-        party::calculate_relation(world, &p)
+        player_info::calculate_relation(world, &p)
     };
     assert!(
         rel(&world, 3001) & 0x80 != 0,

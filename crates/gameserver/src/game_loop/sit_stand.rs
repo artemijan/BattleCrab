@@ -238,7 +238,7 @@ pub(crate) fn handle_stand_up_finish(world: &mut World, object_id: i32) {
     }
     // Standing changes the regen move-type, so the client's status needs a
     // refresh (Java's AI intention change broadcasts one).
-    super::party::broadcast_user_info(world, object_id);
+    super::player_info::broadcast_user_info(world, object_id);
 }
 
 /// Java `Player.setBlockActions` — the port keeps the seated block as its own

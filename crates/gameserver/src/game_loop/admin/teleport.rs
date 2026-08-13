@@ -57,7 +57,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
             .unwrap_or_default()
     };
     if world.objects.has_component::<Player>(&target) {
-        super::party::broadcast_user_info(world, target);
+        crate::game_loop::player_info::broadcast_user_info(world, target);
     } else if let Some(pkt) = crate::game_loop::visibility::npc_info_bytes(world, target) {
         // Java `broadcastInfo()` for a non-player creature.
         crate::game_loop::helpers::broadcast_including_self(world, target, &pkt);

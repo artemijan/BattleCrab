@@ -52,7 +52,7 @@ pub(super) fn admin_settruehero(world: &mut World, client_id: u32, gm_object_id:
     };
     p.true_hero = !p.true_hero;
     let now = p.true_hero;
-    crate::game_loop::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(
         world,
         client_id,
@@ -127,7 +127,7 @@ pub(crate) fn set_hero(world: &mut World, target: i32, hero: bool) {
         p.hero_aura = hero || (is_gm && gm_aura);
     }
     super::skills::refresh_skill_list(world, target);
-    crate::game_loop::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
 }
 
 /// `//setnoble` — toggle the target's nobless (Java `AdminEditChar`'s
@@ -176,5 +176,5 @@ pub(crate) fn set_noble(world: &mut World, target: i32, noble: bool) {
         p.is_noble = noble;
     }
     super::skills::refresh_skill_list(world, target);
-    crate::game_loop::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
 }

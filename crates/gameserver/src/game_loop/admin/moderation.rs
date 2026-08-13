@@ -166,7 +166,7 @@ fn set_access(world: &mut World, target: i32, level: i32, persist: bool) {
             level,
         });
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
 }
 
 /// `AdminTarget`'s `//target <name>` — select a player by name (reuses the

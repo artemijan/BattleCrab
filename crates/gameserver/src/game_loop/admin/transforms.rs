@@ -310,7 +310,7 @@ pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
 /// Broadcast the transform change: UserInfo to self + CharInfo to nearby (via
 /// `broadcast_user_info`), then [`refresh_transform_visuals`].
 fn broadcast_transform(world: &mut World, target: i32) {
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     refresh_transform_visuals(world, target);
 }
 

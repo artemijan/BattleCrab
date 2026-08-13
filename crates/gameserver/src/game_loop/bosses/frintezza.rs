@@ -914,7 +914,7 @@ fn set_paralyzed(world: &mut World, player_oid: i32, on: bool) {
     let mut flags = admin_flags(world, player_oid);
     flags.paralyzed = on;
     world.objects.add_components(&player_oid, flags);
-    crate::game_loop::party::broadcast_user_info(world, player_oid);
+    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
 }
 
 fn admin_flags(world: &World, oid: i32) -> AdminFlags {

@@ -153,7 +153,7 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
     );
 
     update_user_info(world, player);
-    super::party::broadcast_user_info(world, target);
+    super::player_info::broadcast_user_info(world, target);
     send_ex_vote(world, player);
     send_ex_vote(world, target);
 }
@@ -281,6 +281,6 @@ pub(crate) fn reset_recommends(world: &mut World) {
             p.rec_have = clamp_reco(p.rec_have - 20);
         }
         send_ex_vote(world, oid);
-        super::party::broadcast_user_info(world, oid);
+        super::player_info::broadcast_user_info(world, oid);
     }
 }

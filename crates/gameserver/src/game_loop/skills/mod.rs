@@ -297,7 +297,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             &v,
             &world.data,
             &world.cfg.character,
-            crate::game_loop::party::calculate_relation(world, v.p),
+            crate::game_loop::player_info::calculate_relation(world, v.p),
         ));
         // Java `RequestAcquireSkill`: "If skill is expand type then sends
         // packet" — 1368-1372 are the `EnlargeSlot` passives (Expand Dwarven

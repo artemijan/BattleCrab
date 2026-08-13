@@ -736,7 +736,7 @@ pub(crate) fn create_cc_room(world: &mut World, leader: i32, party_id: u32) {
     );
     world.matching_rooms.remove_from_waiting_list(leader);
     super::party_room::set_in_room_flag(world, leader, true);
-    super::party::broadcast_user_info(world, leader);
+    super::player_info::broadcast_user_info(world, leader);
     // `onRoomCreation` (SM 3000) + `notifyNewMember`'s new-player half.
     send_sm(
         world,
@@ -782,7 +782,7 @@ pub(crate) fn cc_room_add_member(world: &mut World, room_id: i32, player: i32) -
     room.members.push(player);
     world.matching_rooms.remove_from_waiting_list(player);
     super::party_room::set_in_room_flag(world, player, true);
-    super::party::broadcast_user_info(world, player);
+    super::player_info::broadcast_user_info(world, player);
 
     let name = player_name_or_empty(world, player);
     let (class_id, level) = world
@@ -833,7 +833,7 @@ pub(crate) fn cc_room_remove_member(world: &mut World, room_id: i32, player: i32
         return;
     };
     super::party_room::set_in_room_flag(world, player, false);
-    super::party::broadcast_user_info(world, player);
+    super::player_info::broadcast_user_info(world, player);
     world.matching_rooms.add_to_waiting_list(player);
 
     if !room_deleted {
@@ -887,7 +887,7 @@ fn cc_room_disband(world: &mut World, room_id: i32) {
         );
         send_to_player(world, oid, server_packets::ex_dissmiss_mpcc_room());
         super::party_room::set_in_room_flag(world, oid, false);
-        super::party::broadcast_user_info(world, oid);
+        super::player_info::broadcast_user_info(world, oid);
         world.matching_rooms.add_to_waiting_list(oid);
     }
 }

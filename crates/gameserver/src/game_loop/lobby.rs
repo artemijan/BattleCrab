@@ -543,7 +543,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         &view,
         data,
         &world.cfg.character,
-        super::party::calculate_relation(world, view.p),
+        super::player_info::calculate_relation(world, view.p),
     ));
     // `EnterWorld`: the vitality block only goes out when the system is on.
     // The player isn't in the world store yet (the bundle still owns them), so
@@ -646,7 +646,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         &view,
         data,
         &world.cfg.character,
-        super::party::calculate_relation(world, view.p),
+        super::player_info::calculate_relation(world, view.p),
     ));
     // No ExSetCompassZoneCode here: Java's EnterWorld never sends one — the
     // first revalidateZone below pushes the real code (0x08–0x0F). Sending an

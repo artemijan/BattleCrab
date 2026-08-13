@@ -140,7 +140,7 @@ pub(crate) fn set_vitality_points(
     );
     // Java `broadcastUserInfo(UserInfoType.VITA_FAME)`: UserInfo to self *and*
     // CharInfo to everyone who can see them.
-    super::party::broadcast_user_info(world, object_id);
+    super::player_info::broadcast_user_info(world, object_id);
     notify_party_vitality(world, object_id);
     true
 }

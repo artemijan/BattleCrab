@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::party;
+use crate::game_loop::{party, player_info};
 
 /// General chat reaches the speaker and players within 1250 units, but not a
 /// region-adjacent player standing further away.
@@ -141,7 +141,7 @@ fn shout_reaches_region_bucket_and_groupless_chats_reject() {
     );
 }
 
-/// `UserInfo.calculateRelation` (via `party::calculate_relation`): the party
+/// `UserInfo.calculateRelation` (via `player_info::calculate_relation`): the party
 /// and clan bits, driven off the `PartyRef` component and the `Player`'s clan
 /// fields. The siege bit (0x80) is unported, so it never sets.
 #[test]
@@ -153,7 +153,7 @@ fn relation_reflects_party_and_clan() {
 
     // Solo, clanless → 0.
     assert_eq!(
-        party::calculate_relation(&world, &snapshot(&world, 3001)),
+        player_info::calculate_relation(&world, &snapshot(&world, 3001)),
         0
     );
 
@@ -164,7 +164,7 @@ fn relation_reflects_party_and_clan() {
         p.clan_leader = true;
     }
     assert_eq!(
-        party::calculate_relation(&world, &snapshot(&world, 3001)),
+        player_info::calculate_relation(&world, &snapshot(&world, 3001)),
         0x20 | 0x40
     );
 
@@ -175,7 +175,7 @@ fn relation_reflects_party_and_clan() {
         .unwrap()
         .clan_leader = false;
     assert_eq!(
-        party::calculate_relation(&world, &snapshot(&world, 3001)),
+        player_info::calculate_relation(&world, &snapshot(&world, 3001)),
         0x20
     );
 
@@ -183,11 +183,11 @@ fn relation_reflects_party_and_clan() {
     // (3002, clanless) gets 0x08 only.
     make_party(&mut world, &[3001, 3002], LootRule::FindersKeepers);
     assert_eq!(
-        party::calculate_relation(&world, &snapshot(&world, 3001)),
+        player_info::calculate_relation(&world, &snapshot(&world, 3001)),
         0x20 | 0x08 | 0x10
     );
     assert_eq!(
-        party::calculate_relation(&world, &snapshot(&world, 3002)),
+        player_info::calculate_relation(&world, &snapshot(&world, 3002)),
         0x08
     );
 }

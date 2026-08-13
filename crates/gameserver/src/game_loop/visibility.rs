@@ -91,7 +91,7 @@ fn char_info_bytes(world: &World, player_id: i32) -> Option<bytes::Bytes> {
         &v,
         &super::abnormal::visual_effects(world, player_id),
         &cubics,
-        &super::party::char_info_state(world, player_id),
+        &super::player_info::char_info_state(world, player_id),
     )))
 }
 

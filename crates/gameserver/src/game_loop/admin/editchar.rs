@@ -452,7 +452,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.name = new_name.clone();
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     // CharInfo to nearby so the new name shows on other clients too.
     super::visibility::update_region(world, target);
     send_message(world, client_id, &format!("Changed name to {new_name}"));
@@ -584,7 +584,7 @@ pub(super) fn admin_setparam(
         );
     }
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
 }
 
 /// Map a `//setparam` stat token (the XML `getValue()` name) to the engine
@@ -668,7 +668,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
             p.name.clone()
         })
         .unwrap_or_default();
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     if let Some(cid) = super::helpers::client_for_player(world, target) {
         send_message(
             world,

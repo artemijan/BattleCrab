@@ -117,7 +117,7 @@ pub(super) fn admin_setinvis(world: &mut World, client_id: u32, object_id: i32) 
 /// before the `DeleteObject` lands; on unhide the visibility exchange
 /// re-describes the GM to everyone (`broadcastInfo`). Either way the owner's
 /// client gets the STEALTH abnormal-visual update. While hidden,
-/// `visibility::send_char_info` and `party::broadcast_user_info` suppress
+/// `visibility::send_char_info` and `player_info::broadcast_user_info` suppress
 /// the CharInfo, and NPC aggro skips the GM (`notices_target`). Java also
 /// aborts observers' in-flight attacks/casts and idles NPC AI on hide; the
 /// port's mobs re-validate through `notices_target` instead.
@@ -466,7 +466,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         toggled_on += i32::from(now_on);
         // Re-broadcast so the change is visible immediately, to the owner and
         // to everyone who can see them.
-        crate::game_loop::party::broadcast_user_info(world, *target);
+        crate::game_loop::player_info::broadcast_user_info(world, *target);
         if let Some(cid) = crate::game_loop::helpers::client_for_player(world, *target) {
             let visuals = crate::game_loop::abnormal::visual_effects(world, *target);
             let transform = world

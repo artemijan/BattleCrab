@@ -106,7 +106,7 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
             if cant_swim {
                 super::admin::transforms::remove_transform(world, object_id);
             } else {
-                super::party::broadcast_user_info(world, object_id);
+                super::player_info::broadcast_user_info(world, object_id);
             }
         } else {
             // `onExit`: Java skips the broadcast mid-teleport (the arrival
@@ -116,7 +116,7 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
                 .get_component::<crate::model::Player>(&object_id)
                 .is_some_and(|p| p.teleporting)
             {
-                super::party::broadcast_user_info(world, object_id);
+                super::player_info::broadcast_user_info(world, object_id);
             }
         }
     }
@@ -150,7 +150,7 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         // Speeds only — the swamp multiplier is applied inside
         // `recalculate_stats`, so a plain recompute picks it up.
         super::helpers::recalculate_player_stats(world, object_id);
-        super::party::broadcast_user_info(world, object_id);
+        super::player_info::broadcast_user_info(world, object_id);
     }
 
     // The TvT event's `onEnterZone`/`onExitZone` for the two colosseum
@@ -219,7 +219,7 @@ pub(crate) fn refresh_siege_zone_flag(world: &mut World, object_id: i32) {
         dismount_for_siege(world, object_id);
     }
     // UserInfo — the in-siege crown bit (0x80) toggles with zone presence.
-    super::party::broadcast_user_info(world, object_id);
+    super::player_info::broadcast_user_info(world, object_id);
     // RelationChanged — the attackable siege icon vs everyone nearby.
     super::pvp::broadcast_siege_relation(world, object_id);
     if !now_active_siege {

@@ -129,9 +129,6 @@ pub(crate) use invite::*;
 pub(crate) use loot::*;
 pub(crate) use membership::*;
 pub(crate) use rewards::*;
-// The player-info views moved to `player_info`; re-exported so the many
-// existing `party::broadcast_user_info`-style call sites are unchanged.
-pub(crate) use super::player_info::*;
 // ---------------------------------------------------------------------------
 // Position broadcast + vitals piggyback
 // ---------------------------------------------------------------------------

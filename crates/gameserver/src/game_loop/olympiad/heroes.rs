@@ -93,7 +93,7 @@ pub(crate) fn claim_hero(world: &mut World, object_id: i32) {
         object_id,
         &sp::social_action(object_id, HERO_SOCIAL_ACTION),
     );
-    crate::game_loop::party::broadcast_user_info(world, object_id);
+    crate::game_loop::player_info::broadcast_user_info(world, object_id);
     // `setHeroGained` — the diary's "gained hero" entry.
     let _ = world.db.send(DbCommand::SaveHeroDiary {
         char_id: object_id,

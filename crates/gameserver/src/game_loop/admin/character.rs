@@ -216,7 +216,7 @@ pub(super) fn set_field_value(
             IntField::Pvp => p.pvp_kills = value,
         }
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(
         world,
         client_id,
@@ -274,7 +274,7 @@ pub(super) fn admin_vitality(
         }
         _ => {}
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
 }
 
 /// `AdminEditChar`'s `//setclass <id>` — change the target player's (or self's)
@@ -324,7 +324,7 @@ pub(super) fn admin_set_title(world: &mut World, client_id: u32, object_id: i32,
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.title = title;
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(world, client_id, "Title changed.");
 }
 
@@ -351,7 +351,7 @@ pub(super) fn admin_set_color(
             p.name_color = color;
         }
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(world, client_id, "Color changed.");
 }
 
@@ -361,7 +361,7 @@ pub(super) fn admin_set_sex(world: &mut World, client_id: u32, object_id: i32) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.is_female = !p.is_female;
     }
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(world, client_id, "Gender flipped.");
 }
 
@@ -391,7 +391,7 @@ pub(super) fn admin_set_enchant(
     };
     let changes = helpers::modified_changes(world, target, &[item_oid]);
     helpers::send_inventory_update(world, target, changes);
-    super::party::broadcast_user_info(world, target);
+    crate::game_loop::player_info::broadcast_user_info(world, target);
     send_message(world, client_id, &format!("Enchant set to +{value}."));
 }
 

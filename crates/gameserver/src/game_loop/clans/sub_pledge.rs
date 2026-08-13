@@ -207,7 +207,7 @@ fn create_sub_pledge(
         if let Some(lp) = world.objects.get_component_mut::<Player>(&leader_id) {
             lp.pledge_class = pledge_class;
         }
-        crate::game_loop::party::broadcast_user_info(world, leader_id);
+        crate::game_loop::player_info::broadcast_user_info(world, leader_id);
     }
 }
 
@@ -378,7 +378,7 @@ pub(crate) fn handle_assign_subpledge_leader(
     if let Some(lp) = world.objects.get_component_mut::<Player>(&member.char_id) {
         lp.pledge_class = pledge_class;
     }
-    crate::game_loop::party::broadcast_user_info(world, member.char_id);
+    crate::game_loop::player_info::broadcast_user_info(world, member.char_id);
     broadcast_clan_status(world, clan_id);
     let sm = server_packets::system_message_with(
         sm_ids::C1_HAS_BEEN_SELECTED_AS_THE_CAPTAIN_OF_S2,

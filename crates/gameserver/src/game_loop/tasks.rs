@@ -89,7 +89,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 // Java's predicate here, so a rider who landed on the bank
                 // (or `AllowWater = False`) gets nothing, as in Java.
                 if water::is_drowning_task_active(world, object_id) {
-                    party::broadcast_user_info(world, object_id);
+                    player_info::broadcast_user_info(world, object_id);
                 }
             }
             ScheduledTask::GrandBossRespawn { boss_id } => {
@@ -125,7 +125,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 tamed_beast::handle_follow(world, beast_oid);
             }
             ScheduledTask::BroadcastCharInfo { object_id } => {
-                party::broadcast_char_info_now(world, object_id);
+                player_info::broadcast_char_info_now(world, object_id);
             }
             ScheduledTask::SkillsReenable { object_id } => {
                 world

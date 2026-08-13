@@ -756,7 +756,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
                 .objects
                 .remove_component::<crate::model::components::InstanceId>(&oid);
             crate::game_loop::death::teleport_player(world, oid, x, y, z);
-            super::party::broadcast_user_info(world, oid);
+            super::player_info::broadcast_user_info(world, oid);
         }
         if duel.instance_id != 0 {
             super::instances::destroy(world, duel.instance_id);
@@ -766,7 +766,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
     for (i, oid) in [a, b].into_iter().enumerate() {
         let (hp, mp, cp) = snapshot[i];
         restore_condition(world, oid, (hp, mp, cp));
-        super::party::broadcast_user_info(world, oid);
+        super::player_info::broadcast_user_info(world, oid);
     }
 }
 

@@ -366,7 +366,7 @@ pub(crate) fn sendinfo_relation_changed(
     subject_oid: i32,
     viewer_oid: i32,
 ) -> Vec<u8> {
-    let base = super::party::relation_to(world, subject_oid, viewer_oid);
+    let base = super::player_info::relation_to(world, subject_oid, viewer_oid);
     let siege = siege_relation_bits(world, subject_oid, viewer_oid);
     let war = super::clans::war_relation_bits(world, subject_oid, viewer_oid);
     let reputation = world
@@ -384,7 +384,7 @@ pub(crate) fn sendinfo_relation_changed(
 
 /// The two viewer-**independent** halves of a `RelationChanged` — reputation
 /// and pvp flag. The relation bitmask itself is not here: it depends on who is
-/// looking (`party::relation_to`), so hoisting it out of a per-viewer loop is
+/// looking (`player_info::relation_to`), so hoisting it out of a per-viewer loop is
 /// what made every onlooker see a player's party membership.
 fn relation_parts(world: &World, oid: i32) -> (i32, u8) {
     let Some(p) = world.objects.get_component::<Player>(&oid) else {
@@ -421,7 +421,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         // How `object_id` relates to (and is attackable by) this viewer.
         cs.send(server_packets::relation_changed(
             object_id,
-            super::party::relation_to(world, object_id, viewer)
+            super::player_info::relation_to(world, object_id, viewer)
                 | siege_relation_bits(world, object_id, viewer)
                 | super::clans::war_relation_bits(world, object_id, viewer),
             is_player_auto_attackable(world, viewer, object_id),
@@ -436,7 +436,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
                 mc,
                 server_packets::relation_changed(
                     viewer,
-                    super::party::relation_to(world, viewer, object_id)
+                    super::player_info::relation_to(world, viewer, object_id)
                         | siege_relation_bits(world, viewer, object_id)
                         | super::clans::war_relation_bits(world, viewer, object_id),
                     is_player_auto_attackable(world, object_id, viewer),
@@ -524,7 +524,7 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
             client_id,
             server_packets::relation_changed(
                 object_id,
-                super::party::relation_to(world, object_id, viewer),
+                super::player_info::relation_to(world, object_id, viewer),
                 auto_attackable,
                 reputation,
                 value,
@@ -673,7 +673,7 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
 
     // `broadcastUserInfo(UserInfoType.SOCIAL)` — the name/title colour and the
     // karma flag other clients draw come from here.
-    super::party::broadcast_user_info(world, killer_oid);
+    super::player_info::broadcast_user_info(world, killer_oid);
 }
 
 /// Java `Player.updatePvpTitleAndColor` — the five-rung ladder from
@@ -701,7 +701,7 @@ pub(crate) fn update_pvp_title_and_color(world: &mut World, player_oid: i32, bro
         p.title_color = color;
     }
     if broadcast {
-        super::party::broadcast_user_info(world, player_oid);
+        super::player_info::broadcast_user_info(world, player_oid);
     }
 }
 

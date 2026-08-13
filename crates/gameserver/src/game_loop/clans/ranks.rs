@@ -106,7 +106,7 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
 
     // Java refreshes the leader's SP (UserInfo CURRENT_HPMPCP_EXP_SP) + item
     // list; the full re-send stands in (the port's usual substitution).
-    crate::game_loop::party::broadcast_user_info(world, player_oid);
+    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
 
     set_clan_level(world, clan_id, level + 1);
 
@@ -366,7 +366,7 @@ fn set_rank_privs(world: &mut World, clan_id: i32, rank: i32, privs: i32) {
             if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
                 p.clan_privs = privs;
             }
-            crate::game_loop::party::broadcast_user_info(world, oid);
+            crate::game_loop::player_info::broadcast_user_info(world, oid);
         }
     }
     broadcast_clan_status(world, clan_id);
@@ -632,7 +632,7 @@ pub(crate) fn handle_request_pledge_reorganize_member(
             mp.pledge_type = pledge_type;
             mp.pledge_class = pledge_class;
         }
-        crate::game_loop::party::broadcast_user_info(world, oid);
+        crate::game_loop::player_info::broadcast_user_info(world, oid);
     }
     broadcast_clan_status(world, clan_id);
 }

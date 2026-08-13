@@ -301,7 +301,7 @@ pub(crate) fn open_manage(world: &mut World, client_id: u32) {
     // Leaving a different store type when opening the manage window.
     if store_type(world, oid) != 0 {
         set_store_type(world, oid, 0);
-        super::party::broadcast_user_info(world, oid);
+        super::player_info::broadcast_user_info(world, oid);
     }
     // `_isDwarven && hasDwarvenCraft()` selects the book.
     let is_dwarven = craft_skill_level(world, oid, true) >= 1;
@@ -376,7 +376,7 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
     if items.is_empty() {
         // Java `_items == null` path: close the store.
         set_store_type(world, oid, 0);
-        super::party::broadcast_user_info(world, oid);
+        super::player_info::broadcast_user_info(world, oid);
         return;
     }
 
@@ -401,7 +401,7 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
     // until they close it.
     super::sit_stand::sit_down(world, oid);
     super::helpers::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, &title));
-    super::party::broadcast_user_info(world, oid);
+    super::player_info::broadcast_user_info(world, oid);
 }
 
 /// `RequestRecipeShopManageQuit` — close the manufacture store.
@@ -411,7 +411,7 @@ pub(crate) fn handle_manage_quit(world: &mut World, client_id: u32) {
     };
     set_store_type(world, oid, 0);
     super::helpers::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, ""));
-    super::party::broadcast_user_info(world, oid);
+    super::player_info::broadcast_user_info(world, oid);
     super::offline_trade::on_store_type_cleared(world, oid);
 }
 

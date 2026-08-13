@@ -135,7 +135,7 @@ fn crossing_a_region_boundary_moves_who_hears_a_broadcast() {
 /// like a bug until you read the switch.
 #[test]
 fn party_slot_bits_match_javas_switch_table() {
-    use crate::game_loop::party::party_slot_bits;
+    use crate::game_loop::player_info::party_slot_bits;
     // (index, value) straight off `Player.getRelation`'s cases.
     let java = [
         (0, 0x10), // RELATION_PARTYLEADER
@@ -165,7 +165,7 @@ fn party_slot_bits_match_javas_switch_table() {
 /// party member's slot number never arrived at all.
 #[test]
 fn party_bits_reach_only_the_players_own_party() {
-    use crate::game_loop::party::relation_to;
+    use crate::game_loop::player_info::relation_to;
     use crate::model::components::PartyRef;
     use crate::model::party::{LootRule, Party};
 
@@ -223,7 +223,7 @@ fn party_bits_reach_only_the_players_own_party() {
 /// neighbours it is identical for every viewer.
 #[test]
 fn clan_mate_is_viewer_relative_but_ally_member_is_not() {
-    use crate::game_loop::party::relation_to;
+    use crate::game_loop::player_info::relation_to;
     use crate::model::Player;
 
     const CLAN_MEMBER: i32 = 0x40;

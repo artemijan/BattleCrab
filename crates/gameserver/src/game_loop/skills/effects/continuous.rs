@@ -404,7 +404,7 @@ pub(crate) fn apply_continuous_effects(
         // follows with `broadcastUserInfo()`. Without this the client shows the
         // buff icon but never the changed stats or movement speed (and other
         // players never see the speed change).
-        crate::game_loop::party::broadcast_user_info(world, target_oid);
+        crate::game_loop::player_info::broadcast_user_info(world, target_oid);
         // Java pushes the visual set only from `startAbnormalVisualEffect` /
         // `stopAbnormalVisualEffect`, i.e. only when the set actually changed —
         // not on every buff. A skill with no `<abnormalVisualEffect>` can't have

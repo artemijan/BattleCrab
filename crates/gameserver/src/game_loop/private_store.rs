@@ -393,7 +393,7 @@ fn broadcast_store(world: &mut World, owner: i32, title: &str, packaged: bool) {
         sp::msg_sell(owner, title)
     };
     super::helpers::broadcast_including_self(world, owner, &packet);
-    super::party::broadcast_user_info(world, owner);
+    super::player_info::broadcast_user_info(world, owner);
 }
 
 /// Clear the store, drop the store byte, and re-broadcast.
@@ -422,7 +422,7 @@ fn close_store(world: &mut World, owner: i32) {
         p.store_type = 0;
     }
     super::helpers::broadcast_including_self(world, owner, &sp::msg_sell(owner, ""));
-    super::party::broadcast_user_info(world, owner);
+    super::player_info::broadcast_user_info(world, owner);
     // Java `Player.setPrivateStoreType(NONE)` → `OFFLINE_DISCONNECT_FINISHED`:
     // an unattended shop that sold out leaves the world.
     super::offline_trade::on_store_type_cleared(world, owner);
@@ -617,7 +617,7 @@ pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]
     }
     // Java `sitDown()` then broadcasts the type + the title.
     super::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, &title));
-    super::party::broadcast_user_info(world, owner);
+    super::player_info::broadcast_user_info(world, owner);
 }
 
 /// `RequestPrivateStoreQuitBuy` (0x9C).
@@ -901,7 +901,7 @@ fn close_buy_store(world: &mut World, owner: i32) {
         p.store_type = 0;
     }
     super::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, ""));
-    super::party::broadcast_user_info(world, owner);
+    super::player_info::broadcast_user_info(world, owner);
     super::offline_trade::on_store_type_cleared(world, owner);
 }
 
