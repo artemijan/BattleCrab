@@ -1457,15 +1457,7 @@ fn request_sell_item_pays_adena() {
             is_magic_weapon: false,
         });
     super::items::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
-    let oid = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&3001)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 5000)
-        .unwrap()
-        .object_id;
+    let oid = item_oid(&world, 3001, 5000);
     drain(&mut rx);
 
     let mut w = PacketWriter::new();

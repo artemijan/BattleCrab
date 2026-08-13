@@ -4,7 +4,6 @@
 use super::*;
 
 use crate::model::Player;
-use crate::model::components::SkillBook;
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
@@ -15,13 +14,6 @@ fn is_noble(world: &World) -> bool {
         .get_component::<Player>(&PLAYER)
         .unwrap()
         .is_noble
-}
-
-fn knows(world: &World, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<SkillBook>(&PLAYER)
-        .is_some_and(|b| b.0.contains_key(&skill_id))
 }
 
 /// Register a two-skill noble tree so the grant/remove is observable without
@@ -60,8 +52,11 @@ fn setnoble_grants_the_noble_skill_tree() {
     crate::game_loop::admin::hero::set_noble(&mut world, PLAYER, true);
 
     assert!(is_noble(&world));
-    assert!(knows(&world, 1323), "Noblesse Blessing granted");
-    assert!(knows(&world, 326), "Build Advanced Headquarters granted");
+    assert!(knows(&world, 1323, PLAYER), "Noblesse Blessing granted");
+    assert!(
+        knows(&world, 326, PLAYER),
+        "Build Advanced Headquarters granted"
+    );
 }
 
 #[test]
@@ -73,8 +68,11 @@ fn removing_nobless_takes_the_skills_back() {
     crate::game_loop::admin::hero::set_noble(&mut world, PLAYER, false);
 
     assert!(!is_noble(&world));
-    assert!(!knows(&world, 1323), "the noble tree is removed again");
-    assert!(!knows(&world, 326));
+    assert!(
+        !knows(&world, 1323, PLAYER),
+        "the noble tree is removed again"
+    );
+    assert!(!knows(&world, 326, PLAYER));
 }
 
 #[test]
@@ -92,7 +90,7 @@ fn nobless_survives_a_class_that_is_not_the_base_class() {
 
     assert!(is_noble(&world));
     assert!(
-        knows(&world, 1323),
+        knows(&world, 1323, PLAYER),
         "granted regardless of the active class"
     );
 }

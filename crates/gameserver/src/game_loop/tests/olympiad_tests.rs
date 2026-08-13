@@ -908,23 +908,14 @@ fn point_mark_exchange_gives_marks_of_battle() {
 #[test]
 fn match_start_strips_active_buffs() {
     use crate::model::components::Buffs;
-    use crate::model::skill::{ActiveBuff, BuffSlot};
+    use crate::model::skill::ActiveBuff;
     let (mut world, _tx, _db, _l) = test_world();
     let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
     let buff = ActiveBuff {
-        displayed: true,
         skill_id: 1204, // Wind Walk
-        skill_level: 1,
-        abnormal_type_client_id: 0,
         abnormal_type: "SPEED_UP_SHORT".into(),
         abnormal_level: 1,
-        slot: BuffSlot::Buff,
-        expires_at_tick: u64::MAX,
-        passive: false,
-        effect_flags: 0,
-        abnormal_visuals: Vec::new(),
-        blocked_abnormals: Vec::new(),
-        effects: Vec::new(),
+        ..test_buff()
     };
     world.objects.add_components(&100, Buffs(vec![buff]));
 

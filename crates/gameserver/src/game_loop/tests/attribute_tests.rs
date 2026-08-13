@@ -173,18 +173,10 @@ fn fire_resistance_reduces_and_surrender_restores() {
     world.objects.add_components(
         &resistant,
         Buffs(vec![ActiveBuff {
-            displayed: true,
             skill_id: 9401,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
             abnormal_type: "SURRENDER".into(),
             abnormal_level: 1,
             slot: BuffSlot::Uncapped,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            effect_flags: 0,
-            abnormal_visuals: Vec::new(),
-            blocked_abnormals: Vec::new(),
             effects: vec![StatModifierEffect {
                 stat: Stat::FireRes,
                 mode: StatModifierType::Diff,
@@ -194,6 +186,7 @@ fn fire_resistance_reduces_and_surrender_restores() {
                 qualifier: None,
                 two_handed: false,
             }],
+            ..test_buff()
         }]),
     );
     let vs_surrendered = cast_damage(&mut world, CASTER, resistant, &nuke);

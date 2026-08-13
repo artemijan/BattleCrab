@@ -19,7 +19,7 @@ fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -66,13 +66,7 @@ fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
 /// MAGE is used for the behaviour tests because it casts on every think
 /// without the `hasSkillChance()` roll — otherwise the assertions would be
 /// probabilistic.
-fn mob_world(
-    skills: &[Skill],
-) -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn mob_world(skills: &[Skill]) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(MAGE_NPC);
     t.type_name = "Monster".into();
@@ -104,11 +98,8 @@ fn rebuild_ai_index(world: &mut World) {
 fn engage(world: &mut World) -> i32 {
     add_test_npc(world, NPC_OID, MAGE_NPC, "Monster", 5, 100, 0, 0);
     add_hate(world, NPC_OID, PLAYER, 100.0, 0.0);
-    if let Some(ai) = world
-        .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&NPC_OID)
-    {
-        ai.intention = crate::model::npc::NpcIntention::Attack;
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&NPC_OID) {
+        ai.intention = NpcIntention::Attack;
         ai.global_aggro = 0;
         ai.attack_timeout_tick = u64::MAX;
     }
@@ -257,11 +248,42 @@ fn mage_mob_casts_at_its_target_and_deals_damage() {
     assert!(
         packets
             .iter()
-            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_USE)),
+            .any(|p| p.first() == Some(&server_packets::opcodes::MAGIC_SKILL_USE)),
         "the client must see MagicSkillUse so the mob plays its cast animation"
     );
 }
-
+fn npc_movement(world: &mut World) {
+    world.objects.add_components(
+        &NPC_OID,
+        Movement(model::movement::MoveData {
+            start_x: 100,
+            start_y: 0,
+            start_z: 0,
+            dest_x: 900,
+            dest_y: 0,
+            dest_z: 0,
+            start_tick: world.tick,
+            total_ticks: 100,
+            geo_path: None,
+        }),
+    );
+}
+fn npc_cast(world: &mut World) {
+    world.objects.add_components(
+        &NPC_OID,
+        Casting(model::CastState {
+            skill_id: NUKE,
+            skill_level: 1,
+            skill_sub_level: 0,
+            target_object_id: PLAYER,
+            seq: 1,
+            launched: false,
+            cancel_ms: 0,
+            cool_ms: 0,
+            trigger_item_object_id: 0,
+        }),
+    );
+}
 #[test]
 fn fighter_mob_without_the_roll_does_not_cast_while_moving() {
     // A non-MAGE only casts when standing still. Give it a nuke and set it
@@ -278,20 +300,7 @@ fn fighter_mob_without_the_roll_does_not_cast_while_moving() {
     }
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
-    world.objects.add_components(
-        &NPC_OID,
-        crate::model::components::Movement(crate::model::movement::MoveData {
-            start_x: 100,
-            start_y: 0,
-            start_z: 0,
-            dest_x: 900,
-            dest_y: 0,
-            dest_z: 0,
-            start_tick: world.tick,
-            total_ticks: 100,
-            geo_path: None,
-        }),
-    );
+    npc_movement(&mut world);
 
     let cast_started = crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
@@ -314,20 +323,7 @@ fn mage_mob_does_not_cast_while_running() {
     )]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
-    world.objects.add_components(
-        &NPC_OID,
-        crate::model::components::Movement(crate::model::movement::MoveData {
-            start_x: 100,
-            start_y: 0,
-            start_z: 0,
-            dest_x: 900,
-            dest_y: 0,
-            dest_z: 0,
-            start_tick: world.tick,
-            total_ticks: 100,
-            geo_path: None,
-        }),
-    );
+    npc_movement(&mut world);
 
     crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
@@ -336,18 +332,14 @@ fn mage_mob_does_not_cast_while_running() {
         "a mage with move data in flight must not have started a cast"
     );
     assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::Movement>(&NPC_OID),
+        world.objects.has_component::<Movement>(&NPC_OID),
         "and the refusal must leave the chase alone — Java's doCast just returns"
     );
 
     // The zero case, so the assertion above is not passing for some unrelated
     // reason (no MP, target out of range, bucket empty): the same mob standing
     // still casts on the very next call.
-    world
-        .objects
-        .remove_component::<crate::model::components::Movement>(&NPC_OID);
+    world.objects.remove_component::<Movement>(&NPC_OID);
 
     crate::game_loop::npc::cast::try_cast(&mut world, NPC_OID, PLAYER);
 
@@ -373,35 +365,17 @@ fn a_mob_with_a_cast_in_flight_does_not_chase() {
     engage(&mut world);
     // Well outside the 40-unit attack range, so the range tail would order a
     // chase — but still inside the leash from its (100, 0) spawn.
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&NPC_OID)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&NPC_OID) {
         p.x = 1000;
     }
 
     // A cast in flight, exactly as `start_cast` leaves it.
-    world.objects.add_components(
-        &NPC_OID,
-        Casting(crate::model::CastState {
-            skill_id: NUKE,
-            skill_level: 1,
-            skill_sub_level: 0,
-            target_object_id: PLAYER,
-            seq: 1,
-            launched: false,
-            cancel_ms: 0,
-            cool_ms: 0,
-            trigger_item_object_id: 0,
-        }),
-    );
+    npc_cast(&mut world);
 
-    crate::game_loop::ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::Movement>(&NPC_OID),
+        !world.objects.has_component::<Movement>(&NPC_OID),
         "a mob mid-cast must not have been given a chase to run"
     );
 
@@ -410,12 +384,10 @@ fn a_mob_with_a_cast_in_flight_does_not_chase() {
     // was never going to move.
     world.objects.remove_component::<Casting>(&NPC_OID);
 
-    crate::game_loop::ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
 
     assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::Movement>(&NPC_OID),
+        world.objects.has_component::<Movement>(&NPC_OID),
         "with no cast in flight the same setup chases"
     );
 }
@@ -436,20 +408,11 @@ fn mob_does_not_recast_a_buff_it_already_has() {
     // Pre-load the abnormal at the same level.
     world.objects.add_components(
         &NPC_OID,
-        Buffs(vec![crate::model::skill::ActiveBuff {
-            displayed: true,
+        Buffs(vec![model::skill::ActiveBuff {
             skill_id: SELF_BUFF,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
             abnormal_type: "MIGHT".into(),
             abnormal_level: 1,
-            slot: crate::model::skill::BuffSlot::Buff,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            effect_flags: 0,
-            abnormal_visuals: Vec::new(),
-            blocked_abnormals: Vec::new(),
-            effects: Vec::new(),
+            ..test_buff()
         }]),
     );
 
@@ -654,10 +617,7 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
 
     advance_world(&mut world, 30);
 
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&PLAYER)
-        .unwrap();
+    let pos = world.objects.get_component::<Position>(&PLAYER).unwrap();
     assert_eq!(
         (pos.x, pos.y),
         (100, 0),
@@ -667,7 +627,7 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
     assert!(
         packets
             .iter()
-            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::FLY_TO_LOCATION)),
+            .any(|p| p.first() == Some(&server_packets::opcodes::FLY_TO_LOCATION)),
         "FlyToLocation is what animates the drag; without it the client keeps \
          drawing the player where they were"
     );
@@ -676,7 +636,7 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
     assert!(
         packets
             .iter()
-            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STOP_MOVE)),
+            .any(|p| p.first() == Some(&server_packets::opcodes::STOP_MOVE)),
         "the drag must broadcast StopMove for the victim"
     );
     // Java sends no `MagicSkillCanceled` for the caster: its cast completes
@@ -686,9 +646,7 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
     // deviation is not reintroduced without a decision.
     let cancels: Vec<i32> = packets
         .iter()
-        .filter(|p| {
-            p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_CANCELED)
-        })
+        .filter(|p| p.first() == Some(&server_packets::opcodes::MAGIC_SKILL_CANCELED))
         .map(|p| i32::from_le_bytes([p[1], p[2], p[3], p[4]]))
         .collect();
     assert!(
@@ -773,7 +731,7 @@ fn a_mob_mid_swing_still_casts() {
     // Swing in flight, ending well past the next think.
     world.objects.add_components(
         &NPC_OID,
-        crate::model::components::AttackState {
+        model::components::AttackState {
             attack_end_tick: world.tick + 100,
             stance_until_tick: world.tick + 200,
             swing_seq: 0,
@@ -785,7 +743,7 @@ fn a_mob_mid_swing_still_casts() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Reuses>(&NPC_OID)
+            .get_component::<Reuses>(&NPC_OID)
             .is_some_and(|r| !r.0.is_empty()),
         "the cast ladder must run while the swing winds down — Java's only \
          mid-swing refusal is `doAutoAttack`'s"
@@ -802,7 +760,7 @@ fn a_mob_mid_swing_does_not_start_a_second_swing() {
     let end = world.tick + 100;
     world.objects.add_components(
         &NPC_OID,
-        crate::model::components::AttackState {
+        model::components::AttackState {
             attack_end_tick: end,
             stance_until_tick: world.tick + 200,
             swing_seq: 0,
@@ -814,7 +772,7 @@ fn a_mob_mid_swing_does_not_start_a_second_swing() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::AttackState>(&NPC_OID)
+            .get_component::<model::components::AttackState>(&NPC_OID)
             .map(|st| st.attack_end_tick),
         Some(end),
         "`doAutoAttack` refuses while `isAttackingNow()`, so the in-flight \
@@ -830,27 +788,14 @@ fn a_casting_mob_does_not_swing() {
     let (mut world, _db, _l) = mob_world(&[]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
-    world.objects.add_components(
-        &NPC_OID,
-        Casting(crate::model::CastState {
-            skill_id: NUKE,
-            skill_level: 1,
-            skill_sub_level: 0,
-            target_object_id: PLAYER,
-            seq: 1,
-            launched: false,
-            cancel_ms: 0,
-            cool_ms: 0,
-            trigger_item_object_id: 0,
-        }),
-    );
+    npc_cast(&mut world);
 
     advance_world(&mut world, 30);
 
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::AttackState>(&NPC_OID)
+            .get_component::<model::components::AttackState>(&NPC_OID)
             .map(|st| st.attack_end_tick),
         Some(0),
         "a mob mid-cast neither swings nor moves until the cast resolves"
@@ -878,10 +823,7 @@ fn a_mob_measures_its_cast_range_in_3d() {
         );
         let (mut world, _db, _l) = mob_world(&[nuke]);
         let _out = ingame_caster(&mut world, CID, PLAYER, 500, 0);
-        if let Some(pos) = world
-            .objects
-            .get_component_mut::<crate::model::components::Position>(&PLAYER)
-        {
+        if let Some(pos) = world.objects.get_component_mut::<Position>(&PLAYER) {
             pos.z = target_z;
         }
         engage(&mut world);

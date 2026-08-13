@@ -57,14 +57,7 @@ fn talk_shadow_desk(world: &mut World) {
 }
 
 fn mana_of(world: &World, player: i32, item_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<Inventory>(&player)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == item_id)
-        .map(|it| it.mana_left)
+    inv_item(world, player, item_id).map(|it| it.mana_left)
 }
 
 // ---------------------------------------------------------------------------

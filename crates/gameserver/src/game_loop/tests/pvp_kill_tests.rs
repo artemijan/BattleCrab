@@ -254,18 +254,10 @@ fn blessing_of_protection_blocks_the_pk_both_ways() {
         &VICTIM,
         crate::model::components::Buffs(vec![ActiveBuff {
             skill_id: 5182,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
             abnormal_type: "PK_PROTECT".to_string(),
             abnormal_level: 1,
             slot: BuffSlot::Uncapped,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            displayed: true,
-            effect_flags: 0,
-            blocked_abnormals: Vec::new(),
-            abnormal_visuals: Vec::new(),
-            effects: Vec::new(),
+            ..test_buff()
         }]),
     );
 

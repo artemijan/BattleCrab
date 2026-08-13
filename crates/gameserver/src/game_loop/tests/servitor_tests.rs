@@ -5444,19 +5444,10 @@ fn a_dead_servitor_can_be_resurrected_but_a_live_one_cannot() {
     // Resurrection-blocked (Java `isResurrectionBlocked`): refused again.
     let mut buffs = crate::model::components::Buffs::default();
     buffs.0.push(crate::model::skill::ActiveBuff {
-        displayed: true,
         skill_id: 1,
-        skill_level: 1,
-        abnormal_type_client_id: 0,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
         slot: crate::model::skill::BuffSlot::Uncapped,
-        expires_at_tick: u64::MAX,
-        passive: false,
         effect_flags: crate::model::skill::effect_flag::BLOCK_RESURRECTION,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects: Vec::new(),
+        ..test_buff()
     });
     world.objects.add_components(&pet, buffs);
     assert!(

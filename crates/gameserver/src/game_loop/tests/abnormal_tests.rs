@@ -3757,18 +3757,12 @@ fn a_hidden_buff_is_absent_from_the_icon_row_and_the_visuals() {
 
     let buff = |displayed: bool| ActiveBuff {
         skill_id: 321,
-        skill_level: 1,
         abnormal_type_client_id: 7,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
         slot: BuffSlot::Uncapped,
         expires_at_tick: 1000,
-        passive: false,
         displayed,
-        effect_flags: 0,
-        blocked_abnormals: Vec::new(),
         abnormal_visuals: vec![13],
-        effects: Vec::new(),
+        ..test_buff()
     };
 
     // The icon row: the count field is the first thing after the opcode, so a

@@ -266,19 +266,10 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     fn flag(world: &mut World, flags: u32) {
         let mut buffs = crate::model::components::Buffs::default();
         buffs.0.push(ActiveBuff {
-            displayed: true,
             skill_id: 1,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
-            abnormal_type: "NONE".to_string(),
-            abnormal_level: 0,
             slot: BuffSlot::Uncapped,
-            expires_at_tick: u64::MAX,
-            passive: false,
             effect_flags: flags,
-            blocked_abnormals: Vec::new(),
-            abnormal_visuals: Vec::new(),
-            effects: Vec::new(),
+            ..test_buff()
         });
         world.objects.add_components(&MEMBER, buffs);
     }
@@ -312,18 +303,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     // branch sits above the olympiad one.
     let mut world = world_with_member();
     flag(&mut world, effect_flag::ROOTED);
-    world
-        .olympiad
-        .matches
-        .push(crate::model::olympiad::OlympiadMatch {
-            player_a: MEMBER,
-            player_b: 999,
-            arena: 0,
-            instance_id: 0,
-            deadline_tick: u64::MAX,
-            return_a: (0, 0, 0),
-            return_b: (0, 0, 0),
-        });
+    start_olympiad_match(&mut world, MEMBER, 999);
     assert_eq!(
         check_summon_target_status(&world, MEMBER).map(|(id, _)| id),
         Some(sm_ids::C1_IS_ENGAGED_IN_COMBAT_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED),
@@ -332,18 +312,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
 
     // In a match, unrooted: now the olympiad line, and with no parameters.
     let mut world = world_with_member();
-    world
-        .olympiad
-        .matches
-        .push(crate::model::olympiad::OlympiadMatch {
-            player_a: MEMBER,
-            player_b: 999,
-            arena: 0,
-            instance_id: 0,
-            deadline_tick: u64::MAX,
-            return_a: (0, 0, 0),
-            return_b: (0, 0, 0),
-        });
+    start_olympiad_match(&mut world, MEMBER, 999);
     let (id, params) = check_summon_target_status(&world, MEMBER).expect("refused");
     assert_eq!(
         id,

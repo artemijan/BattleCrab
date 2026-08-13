@@ -47,6 +47,18 @@ fn rate_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
     }
 }
 
+/// The cooldown actually armed for `skill` on `oid`, in ms. `None` when the
+/// reuse map holds no entry — which is itself an outcome here, since Java's
+/// `> 10` gate drops a short enough cooldown rather than registering it.
+fn armed_reuse_ms(world: &World, oid: i32, skill: &Skill) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Reuses>(&oid)?
+        .0
+        .get(&skill.reuse_key())
+        .map(|x| x.total_ms)
+}
+
 // ---------------------------------------------------------------------------
 // The rate tables
 // ---------------------------------------------------------------------------
@@ -202,8 +214,6 @@ fn a_reuse_buff_shortens_cooldowns_except_the_static_ones() {
 /// reuse map altogether rather than parking it there for 9 ms.
 #[test]
 fn the_armed_cooldown_is_the_scaled_one() {
-    use crate::model::components::Reuses;
-
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let skill = cost_skill(9505, 0, 0, 4_000);
@@ -216,12 +226,8 @@ fn the_armed_cooldown_is_the_scaled_one() {
         }],
     );
     merge_skill_rates(&mut world, CASTER, &buff);
-    crate::game_loop::skills::cast::set_skill_reuse(&mut world, CASTER, &skill);
-    let armed = world
-        .objects
-        .get_component::<Reuses>(&CASTER)
-        .and_then(|r| r.0.get(&skill.reuse_key()).map(|x| x.total_ms))
-        .expect("a cooldown was armed");
+    set_skill_reuse(&mut world, CASTER, &skill);
+    let armed = armed_reuse_ms(&world, CASTER, &skill).expect("a cooldown was armed");
     assert_eq!(armed, 1_000, "4 s x 0.25");
 
     // Super Haste's -99 on a 1 s skill lands under the 10 ms floor.
@@ -235,12 +241,9 @@ fn the_armed_cooldown_is_the_scaled_one() {
     remove_skill_rates(&mut world, CASTER, &buff);
     merge_skill_rates(&mut world, CASTER, &super_haste);
     let short = cost_skill(9506, 0, 0, 1_000);
-    crate::game_loop::skills::cast::set_skill_reuse(&mut world, CASTER, &short);
+    set_skill_reuse(&mut world, CASTER, &short);
     assert!(
-        world
-            .objects
-            .get_component::<Reuses>(&CASTER)
-            .is_some_and(|r| !r.0.contains_key(&short.reuse_key())),
+        armed_reuse_ms(&world, CASTER, &short).is_none(),
         "10 ms is below Java's threshold, so nothing is registered at all"
     );
 }
@@ -274,7 +277,7 @@ fn the_rates_arrive_and_leave_with_the_buff() {
     song.name = "Test Song".into();
     world.data.skill_data.insert_for_test(song.clone());
 
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &song);
+    effects::apply_skill_effects(&mut world, CASTER, CASTER, &song);
     assert!(
         has_buff(&world, CASTER, 9517),
         "an effect-less rate buff still lands as a timed buff"
@@ -282,7 +285,7 @@ fn the_rates_arrive_and_leave_with_the_buff() {
     assert_eq!(mp_consume_for(&world, CASTER, &victim), 100);
     assert_eq!(reuse_time_for(&world, CASTER, &victim), 3_000);
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9517);
+    effects::handle_buff_expire(&mut world, CASTER, 9517);
     assert_eq!(mp_consume_for(&world, CASTER, &victim), 200);
     assert_eq!(reuse_time_for(&world, CASTER, &victim), 6_000);
 }
@@ -391,7 +394,7 @@ fn static_reuse_is_read_from_the_dist() {
 /// `handle_skill_finish`'s consume, and `set_skill_reuse`.
 #[test]
 fn a_cast_spends_the_discounted_mp_and_arms_the_shortened_cooldown() {
-    use crate::model::components::{Reuses, SkillBook, Vitals};
+    use crate::model::components::{SkillBook, Vitals};
 
     let (mut world, _db, _l) = cast_test_world();
     let mut nuke = cost_skill(9520, 1, 40, 20_000);
@@ -430,7 +433,7 @@ fn a_cast_spends_the_discounted_mp_and_arms_the_shortened_cooldown() {
     merge_skill_rates(&mut world, CASTER, &song);
     drain(&mut out);
 
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9520, true, false);
+    use_magic(&mut world, CID, CASTER, 9520, true, false);
     advance_ticks(&mut world, 60);
 
     let spent = mp_before
@@ -443,11 +446,7 @@ fn a_cast_spends_the_discounted_mp_and_arms_the_shortened_cooldown() {
         (spent - 28.0).abs() < 1e-6,
         "the 40 MP nuke cost 28, spent {spent}"
     );
-    let armed = world
-        .objects
-        .get_component::<Reuses>(&CASTER)
-        .and_then(|r| r.0.get(&nuke.reuse_key()).map(|x| x.total_ms))
-        .expect("a cooldown was armed");
+    let armed = armed_reuse_ms(&world, CASTER, &nuke).expect("a cooldown was armed");
     assert_eq!(armed, 10_000, "20 s halved");
 }
 
@@ -483,7 +482,7 @@ fn the_discount_makes_an_unaffordable_skill_castable() {
     );
     drain(&mut out);
 
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9522, true, false);
+    use_magic(&mut world, CID, CASTER, 9522, true, false);
     assert!(
         world.objects.get_component::<Casting>(&CASTER).is_none(),
         "refused: 60 MP is more than the caster has"
@@ -497,7 +496,7 @@ fn the_discount_makes_an_unaffordable_skill_castable() {
         }],
     );
     merge_skill_rates(&mut world, CASTER, &song);
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9522, true, false);
+    use_magic(&mut world, CID, CASTER, 9522, true, false);
     assert!(
         world.objects.get_component::<Casting>(&CASTER).is_some(),
         "at 30 MP it goes through"

@@ -425,19 +425,10 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
         .remove_component::<crate::model::components::Casting>(&NPC_OID);
     let mut buffs = crate::model::components::Buffs::default();
     buffs.0.push(crate::model::skill::ActiveBuff {
-        displayed: true,
         skill_id: MALARIA,
         skill_level: 3,
-        abnormal_type_client_id: 0,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
         slot: crate::model::skill::BuffSlot::Uncapped,
-        expires_at_tick: u64::MAX,
-        passive: false,
-        effect_flags: 0,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects: Vec::new(),
+        ..test_buff()
     });
     world.objects.add_components(&5001, buffs);
     world.forced_rolls.push_back(5);
@@ -1474,17 +1465,8 @@ fn tamed_beast_buffs_its_underbuffed_owner() {
         Buffs(vec![ActiveBuff {
             skill_id: HASTE,
             skill_level: 2,
-            abnormal_type_client_id: 0,
-            abnormal_type: "NONE".to_string(),
-            abnormal_level: 0,
             slot: BuffSlot::Uncapped,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            displayed: true,
-            effect_flags: 0,
-            blocked_abnormals: Vec::new(),
-            abnormal_visuals: Vec::new(),
-            effects: Vec::new(),
+            ..test_buff()
         }]),
     );
     world.forced_rolls.push_back(0);

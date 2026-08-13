@@ -464,18 +464,10 @@ fn a_resurrection_outside_a_running_siege_is_untouched() {
 // G34 S4 sub-slice 16 — ResurrectionSpecial (the auto-resurrect)
 // ---------------------------------------------------------------------------
 
-/// **`ResurrectionSpecial`** (Salvation 1410, Soul of the Phoenix 438) is an
-/// auto-resurrect, and the whole mechanic is in the *wrong* lifecycle hook for
-/// anyone porting it by eye: the buff does nothing at all while it is up, and
-/// fires its revive proposal from **`onExit`** — which is what death does to
-/// it. A port that wired it to `onStart` would propose a revive to a living
-/// player and then do nothing when they actually died.
-#[test]
-fn salvation_proposes_its_revive_when_death_strips_the_buff() {
-    let (mut world, _db, _l) = cast_test_world();
-    let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
-
-    let salvation = crate::model::skill::Skill {
+/// Salvation (1410) — the `ResurrectionSpecial` carrier all three tests below
+/// hold, at the dist's 20-minute duration.
+fn salvation_skill() -> crate::model::skill::Skill {
+    crate::model::skill::Skill {
         self_continuous: false,
         id: 1410,
         level: 1,
@@ -489,19 +481,31 @@ fn salvation_proposes_its_revive_when_death_strips_the_buff() {
             cp_percent: 0,
         }],
         ..Default::default()
-    };
-    world.data.skill_data.insert_for_test(salvation.clone());
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CORPSE, CORPSE, &salvation);
+    }
+}
 
-    let pending = |world: &World| {
-        world
-            .objects
-            .get_component::<crate::model::Player>(&CORPSE)
-            .unwrap()
-            .revive_request
-    };
+/// Register `skill` and land it on [`CORPSE`], who is the caster and the target
+/// both — these are all self-buffs.
+fn self_buff_the_corpse(world: &mut World, skill: &crate::model::skill::Skill) {
+    world.data.skill_data.insert_for_test(skill.clone());
+    crate::game_loop::skills::effects::apply_skill_effects(world, CORPSE, CORPSE, skill);
+}
+
+/// **`ResurrectionSpecial`** (Salvation 1410, Soul of the Phoenix 438) is an
+/// auto-resurrect, and the whole mechanic is in the *wrong* lifecycle hook for
+/// anyone porting it by eye: the buff does nothing at all while it is up, and
+/// fires its revive proposal from **`onExit`** — which is what death does to
+/// it. A port that wired it to `onStart` would propose a revive to a living
+/// player and then do nothing when they actually died.
+#[test]
+fn salvation_proposes_its_revive_when_death_strips_the_buff() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
+
+    self_buff_the_corpse(&mut world, &salvation_skill());
+
     assert!(
-        pending(&world).is_none(),
+        !proposed(&world),
         "while the buff is up it does nothing at all"
     );
 
@@ -510,7 +514,7 @@ fn salvation_proposes_its_revive_when_death_strips_the_buff() {
     crate::game_loop::skills::effects::handle_buff_expire(&mut world, CORPSE, 1410);
 
     assert!(
-        pending(&world).is_some(),
+        proposed(&world),
         "losing the buff is what proposes the revive"
     );
 }
@@ -523,48 +527,16 @@ fn salvation_does_not_fire_inside_an_olympiad_match() {
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
 
-    let salvation = crate::model::skill::Skill {
-        self_continuous: false,
-        id: 1410,
-        level: 1,
-        target_type: TargetType::Self_,
-        abnormal_time: 1200,
-        abnormal_type: "SALVATION".into(),
-        effects: vec![SkillEffect::ResurrectionSpecial {
-            power: 100,
-            hp_percent: 0,
-            mp_percent: 0,
-            cp_percent: 0,
-        }],
-        ..Default::default()
-    };
-    world.data.skill_data.insert_for_test(salvation.clone());
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CORPSE, CORPSE, &salvation);
+    self_buff_the_corpse(&mut world, &salvation_skill());
 
     // Put the holder in a running match.
-    world
-        .olympiad
-        .matches
-        .push(crate::model::olympiad::OlympiadMatch {
-            arena: 0,
-            player_a: CORPSE,
-            player_b: CORPSE + 1,
-            instance_id: 0,
-            deadline_tick: u64::MAX,
-            return_a: (0, 0, 0),
-            return_b: (0, 0, 0),
-        });
+    start_olympiad_match(&mut world, CORPSE, CORPSE + 1);
 
     kill(&mut world, CORPSE, 10_000);
     crate::game_loop::skills::effects::handle_buff_expire(&mut world, CORPSE, 1410);
 
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&CORPSE)
-            .unwrap()
-            .revive_request
-            .is_none(),
+        !proposed(&world),
         "no auto-resurrect inside an olympiad match"
     );
 }
@@ -578,21 +550,6 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
 
-    let salvation = crate::model::skill::Skill {
-        self_continuous: false,
-        id: 1410,
-        level: 1,
-        target_type: TargetType::Self_,
-        abnormal_time: 1200,
-        abnormal_type: "SALVATION".into(),
-        effects: vec![SkillEffect::ResurrectionSpecial {
-            power: 100,
-            hp_percent: 0,
-            mp_percent: 0,
-            cp_percent: 0,
-        }],
-        ..Default::default()
-    };
     // An ordinary buff that does *not* survive death on its own.
     let haste = crate::model::skill::Skill {
         self_continuous: false,
@@ -611,9 +568,8 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
         )],
         ..Default::default()
     };
-    for s in [&salvation, &haste] {
-        world.data.skill_data.insert_for_test((*s).clone());
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, CORPSE, CORPSE, s);
+    for s in [salvation_skill(), haste] {
+        self_buff_the_corpse(&mut world, &s);
     }
 
     let has = |world: &World, id: i32| has_buff(world, CORPSE, id);

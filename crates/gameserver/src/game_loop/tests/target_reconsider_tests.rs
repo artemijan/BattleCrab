@@ -322,19 +322,10 @@ fn a_buff_goes_to_a_faction_mate_that_lacks_it() {
     world.objects.add_components(
         &HEALER,
         Buffs(vec![model::skill::ActiveBuff {
-            displayed: true,
             skill_id: BUFF_SKILL,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
             abnormal_type: "MIGHT".into(),
             abnormal_level: 1,
-            slot: model::skill::BuffSlot::Buff,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            effect_flags: 0,
-            abnormal_visuals: Vec::new(),
-            blocked_abnormals: Vec::new(),
-            effects: Vec::new(),
+            ..test_buff()
         }]),
     );
 

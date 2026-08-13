@@ -460,15 +460,7 @@ fn each_attachment_slot_adds_a_thousand_adena_to_the_fee() {
     let (mut world, mut a_rx, _b, _db) = mail_world();
     give_adena(&mut world, 3001, 10_000);
     crate::game_loop::items::add_inventory_item(&mut world, 3001, 1060, 3); // healing potions
-    let potion_oid = world
-        .objects
-        .get_component::<Inventory>(&3001)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 1060)
-        .unwrap()
-        .object_id;
+    let potion_oid = item_oid(&world, 3001, 1060);
     drain(&mut a_rx);
 
     on_packet(
@@ -526,15 +518,7 @@ fn attached_adena_cannot_also_pay_the_fee() {
     // 1000 adena on hand, all of it attached: the 1100 fee is unpayable.
     let (mut world, mut a_rx, _b, _db) = mail_world();
     give_adena(&mut world, 3001, 1000);
-    let adena_oid = world
-        .objects
-        .get_component::<Inventory>(&3001)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id;
+    let adena_oid = item_oid(&world, 3001, 57);
     drain(&mut a_rx);
 
     on_packet(
@@ -650,15 +634,7 @@ fn attachments_off_still_delivers_the_message_without_them() {
     let (mut world, mut a_rx, _b, _db) = mail_world();
     world.cfg.general.allow_attachments = false;
     give_adena(&mut world, 3001, 10_000);
-    let adena_oid = world
-        .objects
-        .get_component::<Inventory>(&3001)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id;
+    let adena_oid = item_oid(&world, 3001, 57);
     drain(&mut a_rx);
 
     on_packet(

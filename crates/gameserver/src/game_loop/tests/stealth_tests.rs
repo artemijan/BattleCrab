@@ -10,7 +10,6 @@
 
 use super::*;
 
-use crate::model::components::Buffs;
 use crate::model::skill::{SkillEffect, effect_flag};
 
 const PLAYER: i32 = 5001;
@@ -55,31 +54,6 @@ fn stealth_world() -> (
 /// existence before it notices anybody. (Guards are exempt: their PK scan isn't
 /// gated on it, which is why the guard tests elsewhere get away with 20.)
 const AGGRO_WARMUP: u64 = 120;
-
-/// Stamp a buff carrying `flags` straight onto the player — the state the
-/// aggro gate reads, without needing a real cast.
-fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
-    world
-        .objects
-        .get_component_mut::<Buffs>(&oid)
-        .unwrap()
-        .0
-        .push(crate::model::skill::ActiveBuff {
-            displayed: true,
-            skill_id,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
-            abnormal_type: "NONE".to_string(),
-            abnormal_level: 0,
-            slot: crate::model::skill::BuffSlot::Buff,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            effect_flags: flags,
-            blocked_abnormals: Vec::new(),
-            abnormal_visuals: Vec::new(),
-            effects: Vec::new(),
-        });
-}
 
 // ---------------------------------------------------------------------------
 // The aggro gate

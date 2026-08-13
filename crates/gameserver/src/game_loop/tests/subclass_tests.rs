@@ -199,13 +199,6 @@ fn adding_a_subclass_is_persisted() {
 
 use crate::model::components::SkillBook;
 
-fn knows(world: &World, skill_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<SkillBook>(&PLAYER)
-        .is_some_and(|b| b.0.contains_key(&skill_id))
-}
-
 /// Put a skill in the book that the class tree would never grant, standing in
 /// for one learned by hand from a trainer.
 fn learn_by_hand(world: &mut World, skill_id: i32) {
@@ -227,11 +220,14 @@ fn a_hand_learned_skill_survives_a_switch_away_and_back() {
     learn_by_hand(&mut world, 7777);
 
     set_active_class(&mut world, PLAYER, 1);
-    assert!(!knows(&world, 7777), "the subclass has its own, empty book");
+    assert!(
+        !knows(&world, 7777, PLAYER),
+        "the subclass has its own, empty book"
+    );
     set_active_class(&mut world, PLAYER, 0);
 
     assert!(
-        knows(&world, 7777),
+        knows(&world, 7777, PLAYER),
         "the base class got its hand-learned skill back"
     );
 }
@@ -248,12 +244,12 @@ fn each_slot_keeps_its_own_skills() {
     set_active_class(&mut world, PLAYER, 2);
     learn_by_hand(&mut world, 8002);
 
-    assert!(knows(&world, 8002), "slot 2's own skill");
-    assert!(!knows(&world, 8001), "and not slot 1's");
+    assert!(knows(&world, 8002, PLAYER), "slot 2's own skill");
+    assert!(!knows(&world, 8001, PLAYER), "and not slot 1's");
 
     set_active_class(&mut world, PLAYER, 1);
-    assert!(knows(&world, 8001));
-    assert!(!knows(&world, 8002));
+    assert!(knows(&world, 8001, PLAYER));
+    assert!(!knows(&world, 8002, PLAYER));
 }
 
 #[test]

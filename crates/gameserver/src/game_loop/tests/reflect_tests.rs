@@ -6,7 +6,7 @@
 
 use super::*;
 
-use crate::model::components::{Buffs, StatModifiers};
+use crate::model::components::StatModifiers;
 use crate::model::skill::{SkillEffect, effect_flag};
 use crate::model::stats::Stat;
 
@@ -15,30 +15,6 @@ const CID: u32 = 1;
 
 fn dist_skills() -> crate::data::skill_data::SkillData {
     dist::skills_owned()
-}
-
-/// Stamp a buff carrying `flags` onto the player.
-fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
-    world
-        .objects
-        .get_component_mut::<Buffs>(&oid)
-        .unwrap()
-        .0
-        .push(crate::model::skill::ActiveBuff {
-            displayed: true,
-            skill_id,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
-            abnormal_type: "NONE".to_string(),
-            abnormal_level: 0,
-            slot: crate::model::skill::BuffSlot::Buff,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            effect_flags: flags,
-            blocked_abnormals: Vec::new(),
-            abnormal_visuals: Vec::new(),
-            effects: Vec::new(),
-        });
 }
 
 // ---------------------------------------------------------------------------

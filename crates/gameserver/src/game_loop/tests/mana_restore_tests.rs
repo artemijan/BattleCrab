@@ -11,7 +11,7 @@
 
 use super::*;
 
-use crate::model::components::{Buffs, StatModifiers};
+use crate::model::components::StatModifiers;
 use crate::model::skill::{SkillEffect, effect_flag};
 use crate::model::stats::Stat;
 
@@ -238,26 +238,7 @@ fn mp_block_refuses_a_restore() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     empty_mp(&mut world, CASTER);
 
-    world
-        .objects
-        .get_component_mut::<Buffs>(&CASTER)
-        .unwrap()
-        .0
-        .push(crate::model::skill::ActiveBuff {
-            displayed: true,
-            skill_id: 1418,
-            skill_level: 1,
-            abnormal_type_client_id: 0,
-            abnormal_type: "NONE".to_string(),
-            abnormal_level: 0,
-            slot: crate::model::skill::BuffSlot::Buff,
-            expires_at_tick: u64::MAX,
-            passive: false,
-            effect_flags: effect_flag::MP_BLOCK,
-            blocked_abnormals: Vec::new(),
-            abnormal_visuals: Vec::new(),
-            effects: Vec::new(),
-        });
+    give_flag_buff(&mut world, CASTER, 1418, effect_flag::MP_BLOCK);
 
     cast(
         &mut world,

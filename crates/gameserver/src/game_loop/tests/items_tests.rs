@@ -2359,15 +2359,7 @@ fn destroy_item_removes_from_inventory() {
             .unwrap()
             .count_of(57)
     };
-    let adena_oid = world
-        .objects
-        .get_component::<Inventory>(&9100)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id;
+    let adena_oid = item_oid(&world, 9100, 57);
 
     let destroy = |oid: i32, count: i64| -> Vec<u8> {
         let mut w = PacketWriter::new();
@@ -2444,15 +2436,7 @@ fn drop_and_pickup_ground_item() {
             .unwrap()
             .count_of(57)
     };
-    let adena_oid = world
-        .objects
-        .get_component::<Inventory>(&9200)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id;
+    let adena_oid = item_oid(&world, 9200, 57);
 
     // Drop 400 adena.
     let item_oid = world.next_npc_object_id;
@@ -2530,15 +2514,7 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
     // of it is correctly refused and would make this test vacuous.
     const SWORD: i32 = 1;
     items::add_inventory_item(&mut world, 9200, SWORD, 1).expect("sword");
-    let sword_oid = world
-        .objects
-        .get_component::<Inventory>(&9200)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == SWORD)
-        .unwrap()
-        .object_id;
+    let sword_oid = item_oid(&world, 9200, SWORD);
     world
         .objects
         .get_component_mut::<Inventory>(&9200)
@@ -2575,13 +2551,7 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
     on_packet(&mut world, 1, a.into_bytes());
     advance_world(&mut world, 300);
 
-    let picked_enchant = world
-        .objects
-        .get_component::<Inventory>(&9200)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == SWORD)
+    let picked_enchant = inv_item(&world, 9200, SWORD)
         .expect("sword back in the bag")
         .enchant_level;
     assert_eq!(
@@ -2598,15 +2568,7 @@ const DROP_AT: (i32, i32, i32) = (61, 72, 13);
 /// fixed spot; returns the resulting ground-item object id.
 fn drop_adena(world: &mut World, client_id: u32, player_oid: i32, count: i64) -> i32 {
     items::add_inventory_item(world, player_oid, 57, count).expect("adena");
-    let adena_oid = world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id;
+    let adena_oid = item_oid(world, player_oid, 57);
     let item_oid = world.next_npc_object_id;
     let mut w = PacketWriter::new();
     w.write_u8(cop::REQUEST_DROP_ITEM);
@@ -2634,15 +2596,7 @@ fn drop_item_packet(item_oid: i32, count: i64, x: i32, y: i32, z: i32) -> Vec<u8
 /// Give the player adena and return its inventory object id.
 fn give_adena(world: &mut World, player_oid: i32, count: i64) -> i32 {
     items::add_inventory_item(world, player_oid, 57, count).expect("adena");
-    world
-        .objects
-        .get_component::<Inventory>(&player_oid)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id
+    item_oid(world, player_oid, 57)
 }
 
 /// The dropped stack lands **where the client asked**, not at the player's
@@ -2934,15 +2888,7 @@ fn bound_item_cannot_be_discarded() {
     drain(&mut rx);
 
     items::add_inventory_item(&mut world, 9300, BOUND_BOX, 1).expect("bound box");
-    let box_oid = world
-        .objects
-        .get_component::<Inventory>(&9300)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == BOUND_BOX)
-        .unwrap()
-        .object_id;
+    let box_oid = item_oid(&world, 9300, BOUND_BOX);
     let would_be_ground_oid = world.next_npc_object_id;
 
     let mut w = PacketWriter::new();
@@ -3226,15 +3172,7 @@ fn warehouse_deposit_withdraw_and_persist() {
             .0
             .count_of(57)
     };
-    let adena_oid = world
-        .objects
-        .get_component::<Inventory>(&9400)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id;
+    let adena_oid = item_oid(&world, 9400, 57);
 
     // Deposit 400.
     let mut w = PacketWriter::new();
@@ -3296,15 +3234,7 @@ fn crystallize_item_yields_crystals_when_skilled() {
     let mut rx = ingame_player_access(&mut world, 1, 9500, 0);
     drain(&mut rx);
     items::add_inventory_item(&mut world, 9500, 40, 1).expect("boots");
-    let boots_oid = world
-        .objects
-        .get_component::<Inventory>(&9500)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 40)
-        .unwrap()
-        .object_id;
+    let boots_oid = item_oid(&world, 9500, 40);
     let crystallize = |oid: i32| -> Vec<u8> {
         let mut w = PacketWriter::new();
         w.write_u8(cop::REQUEST_CRYSTALLIZE_ITEM);
@@ -3357,15 +3287,7 @@ fn private_store_sell_and_buy() {
     // Seller has 10 Crystal (D); buyer has 1000 adena.
     items::add_inventory_item(&mut world, 9600, 1458, 10).unwrap();
     items::add_inventory_item(&mut world, 9601, 57, 1000).unwrap();
-    let crystal_oid = world
-        .objects
-        .get_component::<Inventory>(&9600)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 1458)
-        .unwrap()
-        .object_id;
+    let crystal_oid = item_oid(&world, 9600, 1458);
 
     // Seller sets the store: sell 4 crystals at 100 adena each.
     let mut w = PacketWriter::new();
@@ -3467,24 +3389,8 @@ fn player_trade_swaps_items() {
     drain(&mut b_rx);
     items::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // A: Crystal D
     items::add_inventory_item(&mut world, 9701, 1459, 10).unwrap(); // B: Crystal C
-    let a_oid = world
-        .objects
-        .get_component::<Inventory>(&9700)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 1458)
-        .unwrap()
-        .object_id;
-    let b_oid = world
-        .objects
-        .get_component::<Inventory>(&9701)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 1459)
-        .unwrap()
-        .object_id;
+    let a_oid = item_oid(&world, 9700, 1458);
+    let b_oid = item_oid(&world, 9701, 1459);
     let one_int = |op: u8, v: i32| {
         let mut w = PacketWriter::new();
         w.write_u8(op);
@@ -3600,17 +3506,8 @@ fn enchant_scroll_success_and_failure() {
     drain(&mut rx);
     items::add_inventory_item(&mut world, 9800, 955, 5).unwrap();
     items::add_inventory_item(&mut world, 9800, 69, 1).unwrap();
-    let find = |w: &World, item: i32| {
-        w.objects
-            .get_component::<Inventory>(&9800)
-            .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.item_id == item)
-            .map(|it| it.object_id)
-    };
-    let scroll_oid = find(&world, 955).unwrap();
-    let sword_oid = find(&world, 69).unwrap();
+    let scroll_oid = item_oid(&world, 9800, 955);
+    let sword_oid = item_oid(&world, 9800, 69);
 
     // Use the scroll → opens the enchant request.
     let use_item = {
@@ -3742,19 +3639,10 @@ fn enchant_support_item_bonus_and_consume() {
     items::add_inventory_item(&mut world, 9850, 955, 1).unwrap();
     items::add_inventory_item(&mut world, 9850, 69, 1).unwrap();
     items::add_inventory_item(&mut world, 9850, 12362, 1).unwrap();
-    let find = |w: &World, item: i32| {
-        w.objects
-            .get_component::<Inventory>(&9850)
-            .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.item_id == item)
-            .map(|it| it.object_id)
-    };
     let (scroll, sword, support) = (
-        find(&world, 955).unwrap(),
-        find(&world, 69).unwrap(),
-        find(&world, 12362).unwrap(),
+        item_oid(&world, 9850, 955),
+        item_oid(&world, 9850, 69),
+        item_oid(&world, 9850, 12362),
     );
     // The support requires the target already at +3.
     world
@@ -3935,17 +3823,11 @@ fn augment_make_and_cancel() {
     items::add_inventory_item(&mut world, 9900, 8723, 1).unwrap();
     items::add_inventory_item(&mut world, 9900, 2130, 20).unwrap();
     items::add_inventory_item(&mut world, 9900, 57, 200_000).unwrap();
-    let oid = |w: &World, item: i32| {
-        w.objects
-            .get_component::<Inventory>(&9900)
-            .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.item_id == item)
-            .unwrap()
-            .object_id
-    };
-    let (weapon, lifestone, gem) = (oid(&world, 2551), oid(&world, 8723), oid(&world, 2130));
+    let (weapon, lifestone, gem) = (
+        item_oid(&world, 9900, 2551),
+        item_oid(&world, 9900, 8723),
+        item_oid(&world, 9900, 2130),
+    );
 
     // Confirm the refiner → the make window echoes the gemstone fee.
     let mut confirm = PacketWriter::new();
@@ -4090,15 +3972,7 @@ fn private_buy_store_takes_items_and_pays_out() {
     // The buyer has 1000 adena to spend; the seller has 10 D-grade crystals.
     items::add_inventory_item(&mut world, 9610, 57, 1000).unwrap();
     items::add_inventory_item(&mut world, 9611, 1458, 10).unwrap();
-    let crystal_oid = world
-        .objects
-        .get_component::<Inventory>(&9611)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 1458)
-        .unwrap()
-        .object_id;
+    let crystal_oid = item_oid(&world, 9611, 1458);
 
     // Wanted: 4 crystals at 100 adena each (400 total, affordable).
     on_packet(&mut world, 1, set_buy_list(&[(1458, 4, 100)]));
@@ -4396,17 +4270,7 @@ fn package_store_is_all_or_nothing() {
     items::add_inventory_item(&mut world, 9700, 1458, 5).unwrap(); // Crystal (D)
     items::add_inventory_item(&mut world, 9700, 1459, 5).unwrap(); // Crystal (C)
     items::add_inventory_item(&mut world, 9701, 57, 10_000).unwrap();
-    let oid = |w: &World, item: i32| {
-        w.objects
-            .get_component::<Inventory>(&9700)
-            .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.item_id == item)
-            .unwrap()
-            .object_id
-    };
-    let (a, b) = (oid(&world, 1458), oid(&world, 1459));
+    let (a, b) = (item_oid(&world, 9700, 1458), item_oid(&world, 9700, 1459));
     drain(&mut seller_rx);
     drain(&mut buyer_rx);
 
@@ -4599,15 +4463,7 @@ fn freight_send_delivers_to_an_offline_character() {
     );
     items::add_inventory_item(&mut world, 9901, FREIGHTABLE, 10).unwrap();
     items::add_inventory_item(&mut world, 9901, 57, 5_000).unwrap();
-    let crystal = world
-        .objects
-        .get_component::<Inventory>(&9901)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == FREIGHTABLE)
-        .unwrap()
-        .object_id;
+    let crystal = item_oid(&world, 9901, FREIGHTABLE);
     drain(&mut rx);
 
     // `package_deposit` → the account's other characters.
@@ -4695,21 +4551,7 @@ fn freight_send_refuses_bad_items_and_strangers() {
         !world.data.item_data.get(1458).unwrap().is_freightable,
         "Crystal (D) — an Interlude item — may not be freighted"
     );
-    let (adena_oid, crystal) = {
-        let inv = world.objects.get_component::<Inventory>(&9903).unwrap();
-        (
-            inv.items()
-                .iter()
-                .find(|it| it.item_id == 57)
-                .unwrap()
-                .object_id,
-            inv.items()
-                .iter()
-                .find(|it| it.item_id == 10649)
-                .unwrap()
-                .object_id,
-        )
-    };
+    let (adena_oid, crystal) = (item_oid(&world, 9903, 57), item_oid(&world, 9903, 10649));
     drain(&mut rx);
 
     // A non-freightable line aborts the whole send.
@@ -4908,21 +4750,11 @@ fn the_augment_window_confirms_each_slot() {
     items::add_inventory_item(&mut world, 9910, 8723, 1).unwrap(); // Life Stone 46
     items::add_inventory_item(&mut world, 9910, 2130, 20).unwrap(); // Gemstone D
     items::add_inventory_item(&mut world, 9910, 1458, 1).unwrap(); // Crystal (D)
-    let oid = |w: &World, item: i32| {
-        w.objects
-            .get_component::<Inventory>(&9910)
-            .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.item_id == item)
-            .unwrap()
-            .object_id
-    };
     let (weapon, lifestone, gem, crystal) = (
-        oid(&world, 2551),
-        oid(&world, 8723),
-        oid(&world, 2130),
-        oid(&world, 1458),
+        item_oid(&world, 9910, 2551),
+        item_oid(&world, 9910, 8723),
+        item_oid(&world, 9910, 2130),
+        item_oid(&world, 9910, 1458),
     );
     let is_ex = |p: &[u8], sub: i16| {
         p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == sub
@@ -5295,18 +5127,8 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
     drain(&mut rx);
     items::add_inventory_item(&mut world, PLAYER, SCROLL, 5).unwrap();
     items::add_inventory_item(&mut world, PLAYER, SWORD, 1).unwrap();
-    let find = |w: &World, item: i32| {
-        w.objects
-            .get_component::<Inventory>(&PLAYER)
-            .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.item_id == item)
-            .map(|it| it.object_id)
-            .unwrap()
-    };
-    let scroll_oid = find(&world, SCROLL);
-    let sword_oid = find(&world, SWORD);
+    let scroll_oid = item_oid(&world, PLAYER, SCROLL);
+    let sword_oid = item_oid(&world, PLAYER, SWORD);
     let level = |w: &World| {
         w.objects
             .get_component::<Inventory>(&PLAYER)
@@ -5409,18 +5231,8 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
     drain(&mut rx);
     items::add_inventory_item(&mut world, PLAYER, 955, 3).unwrap();
     items::add_inventory_item(&mut world, PLAYER, 69, 1).unwrap();
-    let find = |w: &World, item: i32| {
-        w.objects
-            .get_component::<Inventory>(&PLAYER)
-            .unwrap()
-            .items()
-            .iter()
-            .find(|it| it.item_id == item)
-            .map(|it| it.object_id)
-            .unwrap()
-    };
-    let scroll_oid = find(&world, 955);
-    let sword_oid = find(&world, 69);
+    let scroll_oid = item_oid(&world, PLAYER, 955);
+    let sword_oid = item_oid(&world, PLAYER, 69);
     let level = |w: &World| {
         w.objects
             .get_component::<Inventory>(&PLAYER)

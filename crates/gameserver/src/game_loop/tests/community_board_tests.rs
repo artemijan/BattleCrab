@@ -6,8 +6,7 @@ use super::*;
 
 use crate::config::community_board::{CommunityBoardConfig, scan_available_teleports};
 use crate::game_loop::community_board::handle_parse_command;
-use crate::model::components::{Buffs, Position, Vitals};
-use crate::model::skill::ActiveBuff;
+use crate::model::components::{Position, Vitals};
 
 const DIST: &str = crate::data::DIST_GAME;
 
@@ -263,30 +262,6 @@ fn teleport_to_unlisted_destination_is_refused() {
     );
 }
 
-/// Give the player an active buff so the scheme-create snapshot has something
-/// to capture.
-fn push_buff(world: &mut World, oid: i32, skill_id: i32) {
-    let buffs = world
-        .objects
-        .get_component_mut::<Buffs>(&oid)
-        .expect("player has a Buffs component");
-    buffs.0.push(ActiveBuff {
-        displayed: true,
-        skill_id,
-        skill_level: 1,
-        abnormal_type_client_id: 0,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
-        slot: crate::model::skill::BuffSlot::Buff,
-        expires_at_tick: u64::MAX,
-        passive: false,
-        effect_flags: 0,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects: Vec::new(),
-    });
-}
-
 #[test]
 fn premium_buy_grants_status_and_serves_thankyou() {
     let (mut world, _tx, _rx, _l) = test_world();
@@ -352,7 +327,7 @@ fn scheme_create_from_active_buffs_persists() {
     let (mut world, _tx, mut db_rx, _l) = test_world();
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7110, 0, 0, 0);
-    push_buff(&mut world, 7110, 1204); // Wind Walk — on the dist whitelist
+    give_flag_buff(&mut world, 7110, 1204, 0); // Wind Walk — on the dist whitelist
     drain(&mut rx);
     let _ = drain_db(&mut db_rx);
 
@@ -414,7 +389,7 @@ fn scheme_delete_removes_it() {
     let (mut world, _tx, mut db_rx, _l) = test_world();
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7112, 0, 0, 0);
-    push_buff(&mut world, 7112, 1204);
+    give_flag_buff(&mut world, 7112, 1204, 0);
     handle_parse_command(
         &mut world,
         1,
@@ -448,7 +423,7 @@ fn scheme_execute_pet_without_pet_errors() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7113, 0, 0, 0);
-    push_buff(&mut world, 7113, 1204);
+    give_flag_buff(&mut world, 7113, 1204, 0);
     handle_parse_command(
         &mut world,
         1,
@@ -478,7 +453,7 @@ fn scheme_create_enforces_max_schemes() {
     let (mut world, ..) = test_world();
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7114, 0, 0, 0);
-    push_buff(&mut world, 7114, 1204);
+    give_flag_buff(&mut world, 7114, 1204, 0);
     for i in 0..5 {
         handle_parse_command(
             &mut world,

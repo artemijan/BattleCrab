@@ -1468,12 +1468,7 @@ fn admin_delete_item_trims_a_stack_by_object_id() {
             .get_component::<crate::model::inventory::Inventory>(&7211)
             .unwrap()
     }
-    let adena_oid = inv(&world)
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .expect("adena stack")
-        .object_id;
+    let adena_oid = item_oid(&world, 7211, 57);
 
     // Partial: 400 off the 1000.
     on_packet(
@@ -5277,19 +5272,11 @@ fn getbuffs_follows_an_npc_target_and_a_name_argument() {
     world.objects.add_components(
         &NPC_OID,
         crate::model::components::Buffs(vec![crate::model::skill::ActiveBuff {
-            displayed: true,
             skill_id: 1204, // Wind Walk
-            skill_level: 1,
-            abnormal_type_client_id: 0,
             abnormal_type: "WIND_WALK".into(),
             abnormal_level: 1,
-            slot: crate::model::skill::BuffSlot::Buff,
             expires_at_tick: world.tick + 1000,
-            passive: false,
-            effect_flags: 0,
-            abnormal_visuals: Vec::new(),
-            blocked_abnormals: Vec::new(),
-            effects: Vec::new(),
+            ..test_buff()
         }]),
     );
     handle_action(&mut world, 1, &action_body(NPC_OID, 0)); // target the mob
@@ -6465,17 +6452,11 @@ fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
     let entry = |skill_id: i32, passive: bool| crate::model::skill::ActiveBuff {
         displayed: !passive,
         skill_id,
-        skill_level: 1,
-        abnormal_type_client_id: 0,
         abnormal_type: format!("T{skill_id}"),
         abnormal_level: 1,
-        slot: crate::model::skill::BuffSlot::Buff,
         expires_at_tick: world.tick + 1000,
         passive,
-        effect_flags: 0,
-        abnormal_visuals: Vec::new(),
-        blocked_abnormals: Vec::new(),
-        effects: Vec::new(),
+        ..test_buff()
     };
     world.objects.add_components(
         &7831,

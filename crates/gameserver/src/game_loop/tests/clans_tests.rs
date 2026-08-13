@@ -389,15 +389,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
 
     // Leader deposits 500 adena into the shared clan warehouse.
     super::items::add_inventory_item(&mut world, 3001, 57, 500).unwrap();
-    let adena_oid = world
-        .objects
-        .get_component::<Inventory>(&3001)
-        .unwrap()
-        .items()
-        .iter()
-        .find(|it| it.item_id == 57)
-        .unwrap()
-        .object_id;
+    let adena_oid = item_oid(&world, 3001, 57);
     warehouse::open_clan(&mut world, 1, 3001, false); // keeper bypass → active = clan
     let deposit = {
         let mut w = PacketWriter::new();

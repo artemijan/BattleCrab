@@ -556,7 +556,12 @@ fn character_create_body(name: &str, class_id: i32) -> Vec<u8> {
     w.write_i32(0); // face
     w.into_bytes()
 }
-
+fn knows(world: &World, skill_id: i32, who: i32) -> bool {
+    world
+        .objects
+        .get_component::<SkillBook>(&who)
+        .is_some_and(|b| b.0.contains_key(&skill_id))
+}
 /// Reproduction: character creation must actually insert against the real
 /// characters schema and report success (the "can't create" report).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -1083,6 +1088,50 @@ fn requests(rx: &std::sync::mpsc::Receiver<PathRequest>) -> Vec<PathRequest> {
         out.push(r);
     }
     out
+}
+
+/// The base every test buff starts from: landed, displayed, non-passive, never
+/// expiring, with no abnormal state, visuals or blocks. Tests name only what
+/// they care about and inherit the rest —
+/// `ActiveBuff { skill_id: FOO, ..test_buff() }`.
+///
+/// [`model::skill::ActiveBuff::passive_pump`] is the production sibling for the
+/// synthetic stat pumps; this one is the *timed buff* shape that tests hand-roll.
+fn test_buff() -> model::skill::ActiveBuff {
+    model::skill::ActiveBuff {
+        displayed: true,
+        skill_id: 0,
+        skill_level: 1,
+        abnormal_type_client_id: 0,
+        abnormal_type: "NONE".to_string(),
+        abnormal_level: 0,
+        slot: model::skill::BuffSlot::Buff,
+        expires_at_tick: u64::MAX,
+        passive: false,
+        effect_flags: 0,
+        abnormal_visuals: Vec::new(),
+        blocked_abnormals: Vec::new(),
+        effects: Vec::new(),
+    }
+}
+
+/// Stamp a [`test_buff`] carrying `flags` straight onto an existing `Buffs`
+/// component — the state a flag gate reads, without going through a real cast.
+/// Pass `0` for a buff that is only there to be counted or snapshotted.
+///
+/// The creature must already carry `Buffs`; a target that does not (a pet, a
+/// freshly spawned mob) needs `add_components` with a built list instead.
+fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
+    world
+        .objects
+        .get_component_mut::<Buffs>(&oid)
+        .expect("target has a Buffs component")
+        .0
+        .push(model::skill::ActiveBuff {
+            skill_id,
+            effect_flags: flags,
+            ..test_buff()
+        });
 }
 
 fn test_stat_modifier_effect() -> model::skill::StatModifierEffect {
@@ -1621,6 +1670,25 @@ fn make_party(world: &mut World, members: &[i32], rule: LootRule) -> u32 {
     id
 }
 
+/// Put `oid` into a running olympiad match against `opponent` — the fixture the
+/// `isInOlympiadMode` gates are tested against. Nothing but the two
+/// participants matters to those gates, so the arena, instance and return
+/// points are left at zero and the match never times out.
+fn start_olympiad_match(world: &mut World, oid: i32, opponent: i32) {
+    world
+        .olympiad
+        .matches
+        .push(crate::model::olympiad::OlympiadMatch {
+            arena: 0,
+            player_a: oid,
+            player_b: opponent,
+            instance_id: 0,
+            deadline_tick: u64::MAX,
+            return_a: (0, 0, 0),
+            return_b: (0, 0, 0),
+        });
+}
+
 fn acquire_skill_body(skill_id: i32, skill_level: i32, acquire_type: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_i32(skill_id);
@@ -2126,6 +2194,30 @@ fn adena_of(world: &World, oid: i32) -> i64 {
         .get_component::<Inventory>(&oid)
         .unwrap()
         .adena()
+}
+
+/// `oid`'s first inventory row holding `item_id`, for the tests that want a
+/// field other than the object id — or that assert the row is gone.
+fn inv_item(
+    world: &World,
+    oid: i32,
+    item_id: i32,
+) -> Option<&crate::model::inventory::ItemInstance> {
+    world
+        .objects
+        .get_component::<Inventory>(&oid)?
+        .items()
+        .iter()
+        .find(|it| it.item_id == item_id)
+}
+
+/// The object id of `oid`'s first `item_id` — the handle item packets are
+/// addressed by. Panics when it is absent: a test reaching for the id has
+/// already put the item there.
+fn item_oid(world: &World, oid: i32, item_id: i32) -> i32 {
+    inv_item(world, oid, item_id)
+        .unwrap_or_else(|| panic!("{oid} has no item {item_id} to take an object id from"))
+        .object_id
 }
 
 fn count_of_item(world: &World, oid: i32, item_id: i32) -> i64 {

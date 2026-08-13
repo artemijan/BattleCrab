@@ -143,11 +143,10 @@ pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u3
 /// malformed packet and yields `None`.
 fn read_enchant_request(ex_body: &[u8]) -> Option<(i32, i32, i32, i32)> {
     let mut r = PacketReader::new(ex_body);
-    let (Some(ty), Some(skill_id), Some(level), Some(sub)) =
-        (r.read_i32(), r.read_i32(), r.read_i16(), r.read_i16())
-    else {
-        return None;
-    };
+    let ty = r.read_i32()?;
+    let skill_id = r.read_i32()?;
+    let level = r.read_i16()?;
+    let sub = r.read_i16()?;
     let (level, sub) = (level as i32, sub as i32);
     if skill_id <= 0 || level <= 0 || sub < 0 || type_name(ty).is_none() {
         return None;
