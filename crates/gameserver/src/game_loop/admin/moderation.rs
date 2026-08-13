@@ -265,6 +265,17 @@ fn resolve_char(world: &World, arg: &str) -> Option<i32> {
     find_online_player(world, arg).or_else(|| arg.parse::<i32>().ok())
 }
 
+/// The stored key of a punishment: CHARACTER keys go by char id (Java
+/// `findCharId` swap), every other affect keys on the raw string. `None` means
+/// the character name/id did not resolve.
+fn punishment_key(world: &World, key: &str, affect: PunishmentAffect) -> Option<String> {
+    if affect == PunishmentAffect::Character {
+        resolve_char(world, key).map(|id| id.to_string())
+    } else {
+        Some(key.to_string())
+    }
+}
+
 /// Shared body for `//ban` / `//chatban` / `//partyban` on an online character.
 fn char_punish(
     world: &mut World,
@@ -785,17 +796,9 @@ pub(super) fn admin_punishment(world: &mut World, client_id: u32, object_id: i32
                 );
                 return;
             };
-            // CHARACTER keys are stored by char id (Java findCharId swap).
-            let key = if affect == PunishmentAffect::Character {
-                match resolve_char(world, key) {
-                    Some(id) => id.to_string(),
-                    None => {
-                        send_message(world, client_id, &format!("Player '{key}' not found."));
-                        return;
-                    }
-                }
-            } else {
-                key.to_string()
+            let Some(key) = punishment_key(world, key, affect) else {
+                send_message(world, client_id, &format!("Player '{key}' not found."));
+                return;
             };
             let mut rows = String::new();
             for ptype in [
@@ -908,16 +911,9 @@ pub(super) fn admin_punishment_add(
         send_message(world, client_id, "Please fill all the fields!");
         return;
     }
-    let key = if affect == PunishmentAffect::Character {
-        match resolve_char(world, key) {
-            Some(id) => id.to_string(),
-            None => {
-                send_message(world, client_id, &format!("Player '{key}' not found."));
-                return;
-            }
-        }
-    } else {
-        key.to_string()
+    let Some(key) = punishment_key(world, key, affect) else {
+        send_message(world, client_id, &format!("Player '{key}' not found."));
+        return;
     };
     let expiration = super::super::punishment::expiration_from_minutes(minutes.max(0));
     let by = gm_name(world, object_id);
@@ -957,13 +953,8 @@ pub(super) fn admin_punishment_remove(world: &mut World, client_id: u32, args: &
         );
         return;
     };
-    let key = if affect == PunishmentAffect::Character {
-        resolve_char(world, key)
-            .map(|id| id.to_string())
-            .unwrap_or_else(|| key.to_string())
-    } else {
-        key.to_string()
-    };
+    // Removal is lenient: an unresolvable name falls back to the raw key.
+    let key = punishment_key(world, key, affect).unwrap_or_else(|| key.to_string());
     if super::super::punishment::stop_punishment(world, &key, affect, ptype) {
         send_message(world, client_id, &format!("Punishment {ty} removed."));
     } else {
