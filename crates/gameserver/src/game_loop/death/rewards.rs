@@ -732,19 +732,11 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
             sm_ids::YOU_HAVE_OBTAINED_S1_ADENA,
             &[SmParam::Long(count)],
         );
-    } else if count > 1 {
-        send_sm_to_client(
-            world,
-            client_id,
-            sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-            &[SmParam::ItemName(item_id), SmParam::Long(count)],
-        );
     } else {
-        send_sm_to_client(
+        crate::game_loop::helpers::send_to_client(
             world,
             client_id,
-            sm_ids::YOU_HAVE_OBTAINED_S1,
-            &[SmParam::ItemName(item_id)],
+            crate::network::server_packets::obtained_item_sm(item_id, count),
         );
     }
     // Java `Player.addItem` funnels through `PlayerInventory.addItem` →

@@ -107,21 +107,13 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
         if let Some(client_id) = client_for_player(world, target_oid) {
             // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
             // single enchanted → "obtained a +S1 S2"; else "obtained S1".
-            let sm = if amount > 1 {
-                server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-                    &[SmParam::ItemName(item_id), SmParam::Long(amount)],
-                )
-            } else if enchant > 0 {
+            let sm = if amount <= 1 && enchant > 0 {
                 server_packets::system_message_with(
                     sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
                     &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
                 )
             } else {
-                server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_OBTAINED_S1,
-                    &[SmParam::ItemName(item_id)],
-                )
+                server_packets::obtained_item_sm(item_id, amount)
             };
             crate::game_loop::helpers::send_to_client(world, client_id, sm);
             crate::game_loop::helpers::send_inventory_update(world, target_oid, changes);

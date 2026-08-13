@@ -955,6 +955,21 @@ pub fn system_message(sm: &commons::system_messages::SystemMessage) -> Vec<u8> {
     system_message_with(sm.id as i16, &sm.params)
 }
 
+/// The "You have obtained …" pair every plain item grant sends, keyed on the
+/// count: `YOU_HAVE_OBTAINED_S2_S1` for a stack, `YOU_HAVE_OBTAINED_S1` for a
+/// single item. (Adena and single enchanted items have their own messages —
+/// callers with those cases branch before falling back to this.)
+pub fn obtained_item_sm(item_id: i32, count: i64) -> Vec<u8> {
+    if count > 1 {
+        system_message_with(
+            sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+            &[SmParam::ItemName(item_id), SmParam::Long(count)],
+        )
+    } else {
+        system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
+    }
+}
+
 /// Port of `serverpackets/SystemMessage.writeImpl` (localisation branch
 /// skipped — `MULTILANG_ENABLE` is off by default): message id, parameter
 /// count, then each parameter as a type byte + payload.

@@ -426,18 +426,11 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
             warn!("ExtractableItems: object-id pool exhausted, dropping {item_id}x{amount}");
             continue;
         };
-        let sm = if amount > 1 {
-            server_packets::system_message_with(
-                sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-                &[SmParam::ItemName(item_id), SmParam::Long(amount)],
-            )
-        } else {
-            server_packets::system_message_with(
-                sm_ids::YOU_HAVE_OBTAINED_S1,
-                &[SmParam::ItemName(item_id)],
-            )
-        };
-        send_to_client(world, client_id, sm);
+        send_to_client(
+            world,
+            client_id,
+            server_packets::obtained_item_sm(item_id, amount),
+        );
         crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
     }
 }
