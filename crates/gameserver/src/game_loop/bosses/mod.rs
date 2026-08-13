@@ -11,6 +11,7 @@ pub(crate) mod antharas;
 pub(crate) mod baium;
 pub(crate) mod boss_respawn;
 pub(crate) mod boss_threat;
+pub(crate) mod combat;
 pub(crate) mod common;
 pub(crate) mod core_boss;
 pub(crate) mod dr_chaos;

@@ -19,7 +19,6 @@
 //! His threat table is the shared `boss_threat` one — Antharas keeps an
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
-use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::time::TICKS_PER_SECOND;
@@ -89,24 +88,12 @@ pub struct BaiumWaker {
     pub player_oid: i32,
 }
 
-/// Java's static `_lastAttack` — the last tick Baium was struck, kept on the
-/// live boss so the CHECK_ATTACK beat can measure inactivity.
-#[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
-pub struct BaiumCombat {
-    pub last_attack_tick: u64,
-}
-
 /// The `SELECT_TARGET` beat — the archangels re-pick every 5 s.
 const SELECT_TARGET_TICKS: u64 = 50;
 /// `getVisibleObjectsInRange(mob, Playable, 1000)` — the archangel's reach.
 const ARCHANGEL_REACH: f64 = 1000.0;
 /// `addDamageHate(target, 0, 999)` — the engage weight.
 const ENGAGE_HATE: f64 = 999.0;
-
-/// `ANTI_STRIDER` (4258, "Hinder Strider").
-const ANTI_STRIDER: i32 = 4258;
-/// Java `MountType.STRIDER`.
-const MOUNT_STRIDER: u8 = 1;
 
 /// `ARCHANGEL_LOC` — five fixed points, with headings.
 const ARCHANGEL_LOC: [(i32, i32, i32, i32); 5] = [
@@ -231,8 +218,9 @@ fn arm_combat_watch(world: &mut World, baium_oid: i32) {
     let now = world.tick;
     world.objects.add_components(
         &baium_oid,
-        BaiumCombat {
+        super::combat::BossCombat {
             last_attack_tick: now,
+            ..Default::default()
         },
     );
     world.scheduler.schedule(
@@ -562,27 +550,13 @@ pub(crate) fn on_baium_damage(
 ) {
     // `_lastAttack = System.currentTimeMillis()` — a hit resets the inactivity
     // clock the CHECK_ATTACK beat watches for the reset and the self-heal.
-    let now = world.tick;
-    if let Some(c) = world.objects.get_component_mut::<BaiumCombat>(&baium_oid) {
-        c.last_attack_tick = now;
-    }
+    super::combat::touch(world, baium_oid);
     super::boss_threat::on_boss_damage(world, baium_oid, attacker_oid, damage, is_melee);
     manage_and_cast(world, baium_oid);
 }
 
 pub(crate) fn on_baium_attacked(world: &mut World, baium_oid: i32, attacker_oid: i32) {
-    let on_strider = world
-        .objects
-        .get_component::<crate::model::Player>(&attacker_oid)
-        .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
-    if !on_strider {
-        return;
-    }
-    let already = has_buff(world, attacker_oid, ANTI_STRIDER);
-    if already {
-        return;
-    }
-    crate::game_loop::npc::cast::cast_skill(world, baium_oid, attacker_oid, ANTI_STRIDER, 1);
+    super::combat::anti_strider(world, baium_oid, attacker_oid);
 }
 
 // ---------------------------------------------------------------------------
@@ -747,11 +721,7 @@ pub(crate) fn handle_check_attack(world: &mut World) {
     let Some(baium) = crate::game_loop::grand_boss::find_alive(world, BAIUM) else {
         return; // Baium gone — nothing to watch
     };
-    let idle = world
-        .objects
-        .get_component::<BaiumCombat>(&baium)
-        .map(|c| world.tick.saturating_sub(c.last_attack_tick))
-        .unwrap_or(0);
+    let idle = super::combat::idle_ticks(world, baium);
 
     if idle >= RESET_IDLE_TICKS {
         clear_zone(world);

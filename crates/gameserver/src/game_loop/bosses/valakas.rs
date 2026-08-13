@@ -14,7 +14,6 @@
 //! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) and the
 //! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
-use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::common::players_in_lair_oids;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
@@ -43,15 +42,6 @@ const REGEN_TICK_TICKS: u64 = 600;
 /// Java's inactivity window: 15 min with nobody landing a hit resets the fight.
 const INACTIVITY_TICKS: u64 = 9_000;
 
-/// Java's static `_timeTracker`/`_actualVictim` — the last tick a lair attacker
-/// struck Valakas (so the regen task can measure inactivity) and the player the
-/// skill AI is currently working over (`0` = none).
-#[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
-pub struct ValakasCombat {
-    pub last_attack_tick: u64,
-    pub actual_victim: i32,
-}
-
 // The skill AI's skill pools (`getRandomSkill`).
 /// `VALAKAS_LAVA_SKIN` (4680) — a reflect buff he priority-casts when hurt.
 const LAVA_SKIN: i32 = 4680;
@@ -79,11 +69,6 @@ pub const FIGHTING: i32 = 2;
 // can't drift when the remaining states land.
 #[allow(dead_code)]
 pub const DEAD: i32 = 3;
-
-/// Strider riders are debuffed on sight (skill 4258), once.
-const STRIDER_DEBUFF: i32 = 4258;
-/// Java `MountType.STRIDER`.
-const MOUNT_STRIDER: u8 = 1;
 
 /// What `Valakas.onAttack` decided to do about an attacker.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -129,25 +114,15 @@ pub(crate) fn on_valakas_attacked(
         return AttackVerdict::RemovedNotFighting;
     }
 
-    // A strider-mounted attacker is debuffed, once — Java checks
-    // `!isAffectedBySkill(4258)` so it isn't recast every swing.
-    let on_strider = world
-        .objects
-        .get_component::<crate::model::Player>(&attacker_oid)
-        .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
-    if on_strider && !already_debuffed(world, attacker_oid) {
+    // A strider-mounted attacker is debuffed, once — Valakas applies the
+    // effect directly rather than casting (his own Java variant).
+    if super::combat::strider_needs_debuff(world, attacker_oid) {
         cast_debuff(world, valakas_oid, attacker_oid);
     }
 
     // `_timeTracker = System.currentTimeMillis()` — a valid hit resets the
     // inactivity clock the regen task watches.
-    let now = world.tick;
-    if let Some(c) = world
-        .objects
-        .get_component_mut::<ValakasCombat>(&valakas_oid)
-    {
-        c.last_attack_tick = now;
-    }
+    super::combat::touch(world, valakas_oid);
 
     AttackVerdict::Allowed
 }
@@ -161,11 +136,7 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
     }
 
     // Inactivity: nobody has landed a hit in 15 minutes → reset the encounter.
-    let idle = world
-        .objects
-        .get_component::<ValakasCombat>(&valakas_oid)
-        .is_some_and(|c| world.tick.saturating_sub(c.last_attack_tick) >= INACTIVITY_TICKS);
-    if idle {
+    if super::combat::idle_ticks(world, valakas_oid) >= INACTIVITY_TICKS {
         set_position(
             world,
             valakas_oid,
@@ -201,15 +172,7 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
 
 /// The recovery level scales with missing health (Java's HP-band ladder).
 fn regen_level(cur: f64, max: f64) -> i32 {
-    if cur < max * 0.25 {
-        4
-    } else if cur < max * 0.5 {
-        3
-    } else if cur < max * 0.75 {
-        2
-    } else {
-        1
-    }
+    super::combat::hp_quarter(cur, max) as i32 + 1
 }
 
 fn attacker_in_lair(world: &World, attacker_oid: i32) -> bool {
@@ -223,12 +186,8 @@ fn attacker_in_lair(world: &World, attacker_oid: i32) -> bool {
         .is_some_and(|z| z.contains(pos.x, pos.y, pos.z))
 }
 
-fn already_debuffed(world: &World, oid: i32) -> bool {
-    has_buff(world, oid, STRIDER_DEBUFF)
-}
-
 fn cast_debuff(world: &mut World, caster_oid: i32, target_oid: i32) {
-    let Some(skill) = skill_by_id(world, STRIDER_DEBUFF, 1) else {
+    let Some(skill) = skill_by_id(world, super::combat::ANTI_STRIDER, 1) else {
         return;
     };
     crate::game_loop::skills::effects::apply_continuous_effects(
@@ -268,7 +227,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
     // 10% whim (`getRandom(10) == 0`).
     let current = world
         .objects
-        .get_component::<ValakasCombat>(&valakas_oid)
+        .get_component::<super::combat::BossCombat>(&valakas_oid)
         .map(|c| c.actual_victim)
         .unwrap_or(0);
     let keep = current != 0
@@ -282,7 +241,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
     };
     if let Some(c) = world
         .objects
-        .get_component_mut::<ValakasCombat>(&valakas_oid)
+        .get_component_mut::<super::combat::BossCombat>(&valakas_oid)
     {
         c.actual_victim = victim;
     }
@@ -510,7 +469,7 @@ pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u
             crate::game_loop::grand_boss::set_status(world, VALAKAS, FIGHTING);
             world.objects.add_components(
                 &valakas_oid,
-                ValakasCombat {
+                super::combat::BossCombat {
                     last_attack_tick: world.tick,
                     actual_victim: 0,
                 },

@@ -829,7 +829,7 @@ fn the_exit_scatters_to_a_surface_point() {
 // CHECK_ATTACK — the idle reset and the self-heal
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::baium::BaiumCombat;
+use crate::game_loop::bosses::combat::BossCombat;
 
 /// **Thirty minutes with nobody landing a hit resets the fight:** the zone is
 /// emptied, the sleeping stone goes back and Baium reverts to ALIVE (Java's
@@ -850,8 +850,9 @@ fn a_thirty_minute_idle_reverts_baium_to_stone() {
     );
     world.objects.add_components(
         &BAIUM_OID,
-        BaiumCombat {
+        BossCombat {
             last_attack_tick: 0,
+            ..Default::default()
         },
     );
     world.tick = 18_001; // > 30 min since last_attack 0
@@ -885,8 +886,9 @@ fn a_recently_hit_baium_keeps_fighting() {
     world.tick = 10_000;
     world.objects.add_components(
         &BAIUM_OID,
-        BaiumCombat {
+        BossCombat {
             last_attack_tick: world.tick,
+            ..Default::default()
         },
     );
     let before = world.scheduler.len();
@@ -937,8 +939,9 @@ fn a_wounded_idle_baium_heals_itself() {
     world.tick = 5_000;
     world.objects.add_components(
         &BAIUM_OID,
-        BaiumCombat {
+        BossCombat {
             last_attack_tick: 2_000, // 3_000 ticks (5 min) idle — heal, not reset
+            ..Default::default()
         },
     );
 

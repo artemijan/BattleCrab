@@ -22,11 +22,6 @@ pub const ANTHARAS: i32 = 29068;
 const BEHEMOTH: i32 = 29069;
 const TERASQUE: i32 = 29190;
 
-/// `ANTH_ANTI_STRIDER` (4258) — a strider rider is hindered, once.
-const ANTI_STRIDER: i32 = 4258;
-/// Java `MountType.STRIDER`.
-const MOUNT_STRIDER: u8 = 1;
-
 /// The four `SET_REGEN` skills, weakest first — Antharas casts the one for his
 /// current HP band (`≥75%` → 4125, then 4239 / 4240 / 4241 as he weakens).
 const REGEN_SKILLS: [i32; 4] = [4125, 4239, 4240, 4241];
@@ -39,13 +34,6 @@ const RESET_IDLE_TICKS: u64 = 9_000;
 const ANTHARAS_HOME: (i32, i32, i32) = (185_708, 114_298, -8_221);
 /// Where `onAttack` dumps someone striking Antharas in invalid conditions.
 const INVALID_ATTACK_EXIT: (i32, i32, i32) = (80_464, 152_294, -3_534);
-
-/// Java's static `_lastAttack` — the last tick Antharas was struck, kept on the
-/// boss so `CHECK_ATTACK` can measure inactivity.
-#[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
-pub struct AntharasCombat {
-    pub last_attack_tick: u64,
-}
 
 /// The four-state ladder (Java `GrandBossManager` statuses for Antharas).
 /// `DORMANT` and `DEAD` have no reader yet, but the ladder is kept whole —
@@ -301,8 +289,9 @@ fn start_move(world: &mut World, antharas_oid: i32) {
     // and gated on it here).
     world.objects.add_components(
         &antharas_oid,
-        AntharasCombat {
+        super::combat::BossCombat {
             last_attack_tick: world.tick,
+            ..Default::default()
         },
     );
     world.scheduler.schedule(
@@ -694,13 +683,7 @@ pub(crate) fn on_antharas_damage(
     is_melee: bool,
 ) {
     // `_lastAttack = now` — a hit resets the inactivity clock CHECK_ATTACK reads.
-    let now = world.tick;
-    if let Some(c) = world
-        .objects
-        .get_component_mut::<AntharasCombat>(&antharas_oid)
-    {
-        c.last_attack_tick = now;
-    }
+    super::combat::touch(world, antharas_oid);
 
     // Struck from outside the lair, or before the fight is live: dump the
     // attacker at the Giran gate (Java teleports and logs, then carries on).
@@ -715,14 +698,8 @@ pub(crate) fn on_antharas_damage(
         );
     }
 
-    // A strider-mounted attacker is hindered, once (`!isAffectedBySkill(4258)`).
-    let on_strider = world
-        .objects
-        .get_component::<crate::model::Player>(&attacker_oid)
-        .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
-    if on_strider && !crate::game_loop::abnormal::has_buff(world, attacker_oid, ANTI_STRIDER) {
-        crate::game_loop::npc::cast::cast_skill(world, antharas_oid, attacker_oid, ANTI_STRIDER, 1);
-    }
+    // A strider-mounted attacker is hindered, once.
+    super::combat::anti_strider(world, antharas_oid, attacker_oid);
 
     super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);
     manage_and_cast(world, antharas_oid);
@@ -774,15 +751,7 @@ pub(crate) fn handle_set_regen(world: &mut World, antharas_oid: i32) {
 /// The `REGEN_SKILLS` index for the current health: 3 below 25%, 2 below 50%,
 /// 1 below 75%, else 0.
 fn regen_band(cur: f64, max: f64) -> usize {
-    if cur < max * 0.25 {
-        3
-    } else if cur < max * 0.5 {
-        2
-    } else if cur < max * 0.75 {
-        1
-    } else {
-        0
-    }
+    super::combat::hp_quarter(cur, max)
 }
 
 // ---------------------------------------------------------------------------
@@ -797,11 +766,7 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
     if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(IN_FIGHT) {
         return;
     }
-    let idle = world
-        .objects
-        .get_component::<AntharasCombat>(&antharas_oid)
-        .map(|c| world.tick.saturating_sub(c.last_attack_tick))
-        .unwrap_or(0);
+    let idle = super::combat::idle_ticks(world, antharas_oid);
 
     if idle >= RESET_IDLE_TICKS {
         // Park Antharas at his resting spot and forget everyone.

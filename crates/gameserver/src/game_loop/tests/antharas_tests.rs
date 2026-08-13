@@ -1175,7 +1175,7 @@ fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
 // SET_REGEN + CHECK_ATTACK + the strider leg (the lifecycle/onAttack gaps)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::antharas::AntharasCombat;
+use crate::game_loop::bosses::combat::BossCombat;
 use crate::scheduler::ScheduledTask;
 
 const AP_PLAYER: i32 = 9700;
@@ -1224,8 +1224,9 @@ fn antharas_heals_for_his_current_hp_band() {
     wound_to(&mut world, 0.4); // < 50%, ≥ 25% -> band 2 -> 4240
     world.objects.add_components(
         &ANTHARAS_OID,
-        AntharasCombat {
+        BossCombat {
             last_attack_tick: world.tick,
+            ..Default::default()
         },
     );
     world
@@ -1282,8 +1283,9 @@ fn a_fifteen_minute_idle_resets_antharas() {
     );
     world.objects.add_components(
         &ANTHARAS_OID,
-        AntharasCombat {
+        BossCombat {
             last_attack_tick: 0,
+            ..Default::default()
         },
     );
     world.tick = 9_001; // > 15 min since last_attack 0
@@ -1315,8 +1317,9 @@ fn a_recently_hit_antharas_keeps_fighting() {
     world.tick = 10_000;
     world.objects.add_components(
         &ANTHARAS_OID,
-        AntharasCombat {
+        BossCombat {
             last_attack_tick: world.tick,
+            ..Default::default()
         },
     );
     let before = world.scheduler.len();
@@ -1341,8 +1344,9 @@ fn a_strider_rider_is_hindered_by_antharas() {
     give_mp(&mut world, ANTHARAS_OID);
     world.objects.add_components(
         &ANTHARAS_OID,
-        AntharasCombat {
+        BossCombat {
             last_attack_tick: 0,
+            ..Default::default()
         },
     );
     let _rx = ingame_player(&mut world, 3, AP_PLAYER, 20, 0, 0);

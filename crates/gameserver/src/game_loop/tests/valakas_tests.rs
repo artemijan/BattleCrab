@@ -2,7 +2,8 @@
 
 use super::*;
 
-use crate::game_loop::valakas::{AttackVerdict, DEAD, FIGHTING, VALAKAS, ValakasCombat, WAITING};
+use crate::game_loop::bosses::combat::BossCombat;
+use crate::game_loop::valakas::{AttackVerdict, DEAD, FIGHTING, VALAKAS, WAITING};
 
 const VALAKAS_OID: i32 = NPC_OID + 100;
 const PLAYER: i32 = 9990;
@@ -674,7 +675,7 @@ fn a_fifteen_minute_idle_resets_valakas() {
     );
     world.objects.add_components(
         &VALAKAS_OID,
-        ValakasCombat {
+        BossCombat {
             last_attack_tick: 0,
             actual_victim: 0,
         },
@@ -719,7 +720,7 @@ fn a_recently_hit_valakas_keeps_fighting() {
     world.tick = 10_000;
     world.objects.add_components(
         &VALAKAS_OID,
-        ValakasCombat {
+        BossCombat {
             last_attack_tick: world.tick,
             actual_victim: 0,
         },
@@ -779,7 +780,7 @@ fn valakas_casts_a_skill_at_a_lair_target() {
     full_hp(&mut world, VALAKAS_OID);
     world.objects.add_components(
         &VALAKAS_OID,
-        ValakasCombat {
+        BossCombat {
             last_attack_tick: 0,
             actual_victim: 0,
         },
@@ -800,7 +801,7 @@ fn valakas_casts_a_skill_at_a_lair_target() {
     assert_eq!(
         world
             .objects
-            .get_component::<ValakasCombat>(&VALAKAS_OID)
+            .get_component::<BossCombat>(&VALAKAS_OID)
             .unwrap()
             .actual_victim,
         PLAYER,
@@ -863,7 +864,7 @@ fn valakas_re_picks_a_dead_victim() {
         .dead = true;
     world.objects.add_components(
         &VALAKAS_OID,
-        ValakasCombat {
+        BossCombat {
             last_attack_tick: 0,
             actual_victim: dead_player, // stale, now dead
         },
@@ -877,7 +878,7 @@ fn valakas_re_picks_a_dead_victim() {
     assert_eq!(
         world
             .objects
-            .get_component::<ValakasCombat>(&VALAKAS_OID)
+            .get_component::<BossCombat>(&VALAKAS_OID)
             .unwrap()
             .actual_victim,
         live_player,
