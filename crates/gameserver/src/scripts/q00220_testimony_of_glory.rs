@@ -279,59 +279,28 @@ impl QuestScript for Q00220TestimonyOfGlory {
                 .swap_quest_item(SCEPTER_BOX, TANAPIS_ORDER, 9)
                 .then(|| event.to_string()),
             "30615-04.html" => {
-                if has(ctx, MANAKIA_1ST_LETTER) {
-                    ctx.give_items(GLOVE_OF_VOLTAR, 1);
-                    ctx.take_items(MANAKIA_1ST_LETTER, 1);
+                chief_trade(ctx, MANAKIA_1ST_LETTER, GLOVE_OF_VOLTAR, event, |ctx| {
                     ctx.spawn_attacker(PASHIKA_SON_OF_VOLTAR, true);
                     ctx.spawn_attacker(VULTUS_SON_OF_VOLTAR, true);
-                    return Some(event.to_string());
-                }
-                None
+                })
             }
-            "30616-04.html" => {
-                if has(ctx, MANAKIA_2ND_LETTER) {
-                    ctx.give_items(GLOVE_OF_KEPRA, 1);
-                    ctx.take_items(MANAKIA_2ND_LETTER, 1);
-                    for _ in 0..4 {
-                        ctx.spawn_attacker(ENKU_ORC_OVERLORD, true);
-                    }
-                    return Some(event.to_string());
+            "30616-04.html" => chief_trade(ctx, MANAKIA_2ND_LETTER, GLOVE_OF_KEPRA, event, |ctx| {
+                for _ in 0..4 {
+                    ctx.spawn_attacker(ENKU_ORC_OVERLORD, true);
                 }
-                None
-            }
-            "30617-03.html" => {
-                if has(ctx, KASMANS_2ND_LETTER) {
-                    ctx.give_items(GLOVE_OF_BURAI, 1);
-                    ctx.take_items(KASMANS_2ND_LETTER, 1);
-                    ctx.spawn_attacker(MAKUM_BUGBEAR_THUG, true);
-                    ctx.spawn_attacker(MAKUM_BUGBEAR_THUG, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30618-03.html" => {
-                if has(ctx, KASMANS_3RD_LETTER) {
-                    ctx.give_items(SCEPTER_OF_TUNATH, 1);
-                    ctx.take_items(KASMANS_3RD_LETTER, 1);
-                    if has(ctx, SCEPTER_OF_TUREK)
-                        && has(ctx, SCEPTER_OF_ENKU)
-                        && has(ctx, SCEPTER_OF_BREKA)
-                        && has(ctx, SCEPTER_OF_VUKU)
-                    {
-                        ctx.set_cond(5, true);
-                    }
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30619-03.html" => {
-                if has(ctx, KASMANS_1ST_LETTER) {
-                    ctx.give_items(DRIKOS_CONTRACT, 1);
-                    ctx.take_items(KASMANS_1ST_LETTER, 1);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            }),
+            "30617-03.html" => chief_trade(ctx, KASMANS_2ND_LETTER, GLOVE_OF_BURAI, event, |ctx| {
+                ctx.spawn_attacker(MAKUM_BUGBEAR_THUG, true);
+                ctx.spawn_attacker(MAKUM_BUGBEAR_THUG, true);
+            }),
+            "30618-03.html" => chief_trade(
+                ctx,
+                KASMANS_3RD_LETTER,
+                SCEPTER_OF_TUNATH,
+                event,
+                scepter_claimed,
+            ),
+            "30619-03.html" => chief_trade(ctx, KASMANS_1ST_LETTER, DRIKOS_CONTRACT, event, |_| {}),
             "30642-03.html" => ctx
                 .swap_quest_item(VOKIANS_ORDER2, CHIANTA_1ST_ORDER, 4)
                 .then(|| event.to_string()),
@@ -545,6 +514,33 @@ fn kasman_letter(
     }
 }
 
+/// A clan chief's trade: the letter (or Kasman's contract) buys the promised
+/// glove or scepter, then `after` runs the branch's own follow-up — the
+/// champions the glove summons, or the cond the last scepter completes.
+fn chief_trade(
+    ctx: &mut QuestCtx,
+    letter: i32,
+    reward: i32,
+    event: &str,
+    after: impl FnOnce(&mut QuestCtx),
+) -> Option<String> {
+    if !has(ctx, letter) {
+        return None;
+    }
+    ctx.give_items(reward, 1);
+    ctx.take_items(letter, 1);
+    after(ctx);
+    Some(event.to_string())
+}
+
+/// Called once a scepter has just been handed over: the five legs complete in
+/// any order, so each one re-checks the whole set for cond 5.
+fn scepter_claimed(ctx: &mut QuestCtx) {
+    if all_five_scepters(ctx) {
+        ctx.set_cond(5, true);
+    }
+}
+
 /// Pashika/Vultus (Breka champions): each drops its head; when both are held,
 /// the second consumes Voltar's Glove.
 fn champion_head(ctx: &mut QuestCtx, own: i32, other: i32, glove: i32) {
@@ -649,13 +645,7 @@ fn voltar_talk(ctx: &mut QuestCtx) -> String {
             ctx.give_items(SCEPTER_OF_BREKA, 1);
             ctx.take_items(PASHIKAS_HEAD, 1);
             ctx.take_items(VULTUS_HEAD, 1);
-            if has(ctx, SCEPTER_OF_ENKU)
-                && has(ctx, SCEPTER_OF_VUKU)
-                && has(ctx, SCEPTER_OF_TUREK)
-                && has(ctx, SCEPTER_OF_TUNATH)
-            {
-                ctx.set_cond(5, true);
-            }
+            scepter_claimed(ctx);
             "30615-06.html".to_string()
         } else if has(ctx, SCEPTER_OF_BREKA) {
             "30615-07.html".to_string()
@@ -683,13 +673,7 @@ fn kepra_talk(ctx: &mut QuestCtx) -> String {
         } else if ctx.quest_items_count(ENKU_OVERLORD_HEAD) >= 4 {
             ctx.give_items(SCEPTER_OF_ENKU, 1);
             ctx.take_items(ENKU_OVERLORD_HEAD, -1);
-            if has(ctx, SCEPTER_OF_BREKA)
-                && has(ctx, SCEPTER_OF_VUKU)
-                && has(ctx, SCEPTER_OF_TUREK)
-                && has(ctx, SCEPTER_OF_TUNATH)
-            {
-                ctx.set_cond(5, true);
-            }
+            scepter_claimed(ctx);
             "30616-06.html".to_string()
         } else if has(ctx, SCEPTER_OF_ENKU) {
             "30616-07.html".to_string()
@@ -718,13 +702,7 @@ fn burai_talk(ctx: &mut QuestCtx) -> String {
         } else if ctx.quest_items_count(MAKUM_BUGBEAR_HEAD) >= 2 {
             ctx.give_items(SCEPTER_OF_TUREK, 1);
             ctx.take_items(MAKUM_BUGBEAR_HEAD, -1);
-            if has(ctx, SCEPTER_OF_ENKU)
-                && has(ctx, SCEPTER_OF_BREKA)
-                && has(ctx, SCEPTER_OF_VUKU)
-                && has(ctx, SCEPTER_OF_TUNATH)
-            {
-                ctx.set_cond(5, true);
-            }
+            scepter_claimed(ctx);
             "30617-05.html".to_string()
         } else if has(ctx, SCEPTER_OF_TUREK) {
             "30617-06.html".to_string()
@@ -766,13 +744,7 @@ fn driko_talk(ctx: &mut QuestCtx) -> String {
                 ctx.give_items(SCEPTER_OF_VUKU, 1);
                 ctx.take_items(DRIKOS_CONTRACT, 1);
                 ctx.take_items(STAKATO_DRONE_HUSK, -1);
-                if has(ctx, SCEPTER_OF_TUREK)
-                    && has(ctx, SCEPTER_OF_ENKU)
-                    && has(ctx, SCEPTER_OF_BREKA)
-                    && has(ctx, SCEPTER_OF_TUNATH)
-                {
-                    ctx.set_cond(5, true);
-                }
+                scepter_claimed(ctx);
                 "30619-05.html".to_string()
             }
         } else if has(ctx, SCEPTER_OF_VUKU) {

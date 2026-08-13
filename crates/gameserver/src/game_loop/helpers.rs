@@ -299,6 +299,21 @@ pub(crate) fn is_friend(world: &World, owner_oid: i32, target_oid: i32) -> bool 
         .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == target_oid))
 }
 
+/// Charge a creature's MP, floored at zero — the write half of every "does it
+/// have the MP for this?" check (skill and shot costs, NPC buff casts, zone and
+/// toggle upkeep).
+///
+/// No-op for an object that has left the world, and deliberately **not** a
+/// check: Java's callers compare against the cost themselves, each with its own
+/// refusal (a system message, a toggle that switches off, a different HTML
+/// page), so the affordability test stays with the caller and only the clamped
+/// subtraction lives here.
+pub(crate) fn spend_mp(world: &mut World, object_id: i32, amount: f64) {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&object_id) {
+        v.cur_mp = (v.cur_mp - amount).max(0.0);
+    }
+}
+
 pub(crate) fn restore_hp_mp(world: &mut World, object_id: i32) {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&object_id) {
         v.cur_hp = v.max_hp as f64;

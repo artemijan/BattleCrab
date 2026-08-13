@@ -20,6 +20,7 @@ use crate::game_loop::helpers::skill_by_id;
 use commons::util::rnd;
 
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::helpers::spend_mp;
 use crate::game_loop::helpers::stat_add;
 use crate::model::components::{Position, Vitals, ZoneFlags};
 use crate::world::World;
@@ -212,9 +213,7 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
                 // Java applies the same multiplier to the MP tick.
                 let vuln =
                     1.0 + stat_add(world, oid, crate::model::stats::Stat::DamageZoneVuln) / 100.0;
-                if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
-                    v.cur_mp = (v.cur_mp - params.mp_per_tick as f64 * vuln).max(0.0);
-                }
+                spend_mp(world, oid, params.mp_per_tick as f64 * vuln);
             }
         }
     }

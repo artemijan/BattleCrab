@@ -1493,6 +1493,45 @@ async fn load_macros(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::model
         .collect()
 }
 
+/// One `character_shortcuts` row upsert. A slot is keyed by (char, page, slot,
+/// class index), so re-saving the same slot overwrites what it holds rather
+/// than colliding. Left un-`exec`ed so callers can run it on the pool or
+/// inside a save transaction.
+fn shortcut_upsert(
+    char_id: i32,
+    class_index: i32,
+    slot: i32,
+    page: i32,
+    kind: i32,
+    shortcut_id: i32,
+    level: i32,
+) -> models::sea_orm::Insert<character_shortcuts::ActiveModel> {
+    character_shortcuts::Entity::insert(character_shortcuts::ActiveModel {
+        char_id: Set(char_id),
+        slot: Set(slot),
+        page: Set(page),
+        r#type: Set(Some(kind)),
+        shortcut_id: Set(Some(shortcut_id.into())),
+        level: Set(Some(level)),
+        sub_level: Set(0),
+        class_index: Set(class_index),
+    })
+    .on_conflict(
+        OnConflict::columns([
+            character_shortcuts::Column::CharId,
+            character_shortcuts::Column::Slot,
+            character_shortcuts::Column::Page,
+            character_shortcuts::Column::ClassIndex,
+        ])
+        .update_columns([
+            character_shortcuts::Column::Type,
+            character_shortcuts::Column::ShortcutId,
+            character_shortcuts::Column::Level,
+        ])
+        .to_owned(),
+    )
+}
+
 async fn upsert_shortcut(
     db: &DatabaseConnection,
     char_id: i32,
@@ -1502,31 +1541,7 @@ async fn upsert_shortcut(
     shortcut_id: i32,
     level: i32,
 ) {
-    let row = character_shortcuts::ActiveModel {
-        char_id: Set(char_id),
-        slot: Set(slot),
-        page: Set(page),
-        r#type: Set(Some(kind)),
-        shortcut_id: Set(Some(shortcut_id.into())),
-        level: Set(Some(level)),
-        sub_level: Set(0),
-        class_index: Set(0),
-    };
-    let res = character_shortcuts::Entity::insert(row)
-        .on_conflict(
-            OnConflict::columns([
-                character_shortcuts::Column::CharId,
-                character_shortcuts::Column::Slot,
-                character_shortcuts::Column::Page,
-                character_shortcuts::Column::ClassIndex,
-            ])
-            .update_columns([
-                character_shortcuts::Column::Type,
-                character_shortcuts::Column::ShortcutId,
-                character_shortcuts::Column::Level,
-            ])
-            .to_owned(),
-        )
+    let res = shortcut_upsert(char_id, 0, slot, page, kind, shortcut_id, level)
         .exec(db)
         .await;
     if let Err(e) = res {
@@ -2138,29 +2153,14 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     sc_idx.push((s.class_index, &s.shortcuts));
     for (class_index, shortcuts) in sc_idx {
         for sc in shortcuts {
-            character_shortcuts::Entity::insert(character_shortcuts::ActiveModel {
-                char_id: Set(char_id),
-                slot: Set(sc.slot),
-                page: Set(sc.page),
-                r#type: Set(Some(sc.kind.ordinal())),
-                shortcut_id: Set(Some(sc.id.into())),
-                level: Set(Some(sc.level)),
-                sub_level: Set(0),
-                class_index: Set(class_index),
-            })
-            .on_conflict(
-                OnConflict::columns([
-                    character_shortcuts::Column::CharId,
-                    character_shortcuts::Column::Slot,
-                    character_shortcuts::Column::Page,
-                    character_shortcuts::Column::ClassIndex,
-                ])
-                .update_columns([
-                    character_shortcuts::Column::Type,
-                    character_shortcuts::Column::ShortcutId,
-                    character_shortcuts::Column::Level,
-                ])
-                .to_owned(),
+            shortcut_upsert(
+                char_id,
+                class_index,
+                sc.slot,
+                sc.page,
+                sc.kind.ordinal(),
+                sc.id,
+                sc.level,
             )
             .exec(&tx)
             .await?;

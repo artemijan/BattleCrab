@@ -81,9 +81,7 @@ pub(crate) fn cast_hall_buff(
     // Trigger-cast (animation + effects), then charge the NPC's MP and arm its
     // reuse — Java `npc.doCast` does both as part of the cast.
     super::support_magic::cast_from_npc(world, npc_oid, player_oid, (skill_id, skill_lvl));
-    if let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid) {
-        v.cur_mp = (v.cur_mp - cost).max(0.0);
-    }
+    super::helpers::spend_mp(world, npc_oid, cost);
     super::skills::cast::set_skill_reuse(world, npc_oid, &skill);
     BuffCastOutcome::Cast
 }

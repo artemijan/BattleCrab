@@ -20,7 +20,7 @@
 //! item-stat path has applied to `CombatStats.atk_range` since G14.
 
 use crate::data::item_data::{EtcItemType, WeaponType};
-use crate::game_loop::helpers::{send_action_failed, send_inventory_update};
+use crate::game_loop::helpers::{send_action_failed, send_inventory_update, spend_mp};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -107,12 +107,7 @@ pub(crate) fn prepare_ranged_shot(
         if cur_mp < mp_cost {
             return Err(RangedRefusal::NotEnoughMp);
         }
-        if let Some(v) = world
-            .objects
-            .get_component_mut::<crate::model::components::Vitals>(&attacker_oid)
-        {
-            v.cur_mp = (v.cur_mp - mp_cost).max(0.0);
-        }
+        spend_mp(world, attacker_oid, mp_cost);
     }
 
     // 4. Fire: spend the arrow, arm the reload, show the gauge.

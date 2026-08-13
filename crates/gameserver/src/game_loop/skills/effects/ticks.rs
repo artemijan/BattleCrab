@@ -5,6 +5,7 @@ use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::spend_mp;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
 /// `power * getTicksMultiplier()` from `caster` to `target` for each of the
@@ -115,9 +116,7 @@ pub(crate) fn handle_dam_over_time_tick(
                     deactivate_toggle = true;
                     continue;
                 }
-                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                    vit.cur_mp = (vit.cur_mp - drain).max(0.0);
-                }
+                spend_mp(world, target_oid, drain);
                 broadcast_vitals(world, target_oid);
             }
             // `ManaHealOverTime.onActionTime` — the mirror of the drain arm
@@ -184,9 +183,7 @@ pub(crate) fn handle_dam_over_time_tick(
                     deactivate_toggle = true;
                     continue;
                 }
-                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                    vit.cur_mp = (vit.cur_mp - drain).max(0.0);
-                }
+                spend_mp(world, target_oid, drain);
                 broadcast_vitals(world, target_oid);
             }
             SkillEffect::ManaDamOverTime { power, ticks }
@@ -205,9 +202,7 @@ pub(crate) fn handle_dam_over_time_tick(
                     deactivate_toggle = true;
                     continue;
                 }
-                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
-                    vit.cur_mp = (vit.cur_mp - drain).max(0.0);
-                }
+                spend_mp(world, target_oid, drain);
                 broadcast_vitals(world, target_oid);
             }
             _ => {}

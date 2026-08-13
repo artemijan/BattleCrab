@@ -860,13 +860,7 @@ fn cast_buff<'a>(ctx: &mut QuestCtx, tokens: &mut impl Iterator<Item = &'a str>)
             player,
             (skill_id, skill_lvl),
         );
-        if let Some(v) = ctx
-            .world
-            .objects
-            .get_component_mut::<crate::model::components::Vitals>(&npc)
-        {
-            v.cur_mp = (v.cur_mp - cost).max(0.0);
-        }
+        crate::game_loop::helpers::spend_mp(ctx.world, npc, cost);
         "castleafterbuff.html"
     } else {
         "castlenotenoughmp.html"

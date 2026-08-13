@@ -647,10 +647,8 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     // `handle_skill_launch` -> `handle_skill_finish` path, which charges
     // `mp_consume` at landing exactly as it does for a player — charging it
     // here too would bill the NPC twice for one spell.
-    if skill.mp_initial_consume > 0
-        && let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid)
-    {
-        v.cur_mp = (v.cur_mp - skill.mp_initial_consume as f64).max(0.0);
+    if skill.mp_initial_consume > 0 {
+        crate::game_loop::helpers::spend_mp(world, npc_oid, skill.mp_initial_consume as f64);
     }
 
     set_skill_reuse(world, npc_oid, skill);

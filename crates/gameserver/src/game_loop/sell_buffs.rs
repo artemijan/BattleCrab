@@ -471,12 +471,7 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
     }
     super::quests::take_items(world, client_id, buyer_oid, payment_id, price);
     super::items::add_inventory_item(world, seller_oid, payment_id, price);
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&seller_oid)
-    {
-        v.cur_mp = (v.cur_mp - mp_cost).max(0.0);
-    }
+    super::helpers::spend_mp(world, seller_oid, mp_cost);
     // `skill.activateSkill(seller, player)` — the *seller* casts it on the
     // buyer, so the buff is attributed to the seller like any other cast.
     super::skills::effects::apply_skill_effects(world, seller_oid, buyer_oid, &skill);
