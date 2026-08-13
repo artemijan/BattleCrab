@@ -9,6 +9,7 @@
 //! has no entry in. The `respawn`/`permanent` argument is therefore accepted
 //! and ignored (documented deviation).
 
+use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_template_name;
@@ -147,6 +148,39 @@ pub(super) fn admin_spawn_menu(world: &mut World, client_id: u32, command: &str)
 /// `j < 50` loop bound in `showMonsters`/`showNpcs`).
 const LISTING_PAGE_SIZE: usize = 50;
 
+/// Shared page body of the two NPC listings (Java `AdminSpawn.showMonsters` /
+/// `showNpcs`): the `header` intro line, then one `admin_spawn_monster` link per
+/// template starting at `from` and capped at [`LISTING_PAGE_SIZE`], closed by a
+/// `Next` button carrying the running offset (`bypass -h <next_command> <i>`,
+/// omitted on the last page) and a `Back` to `back_command`.
+fn render_npc_listing(
+    header: &str,
+    mobs: &[&NpcTemplate],
+    from: usize,
+    next_command: &str,
+    back_command: &str,
+) -> String {
+    let mut html = format!("<html><title>Spawn Monster:</title><body><p> {header}<br>");
+    let mut i = from;
+    for t in mobs.iter().skip(from).take(LISTING_PAGE_SIZE) {
+        html.push_str(&format!(
+            "<a action=\"bypass -h admin_spawn_monster {}\">{}</a><br1>",
+            t.id, t.name
+        ));
+        i += 1;
+    }
+    html.push_str("<br><center>");
+    if i < mobs.len() {
+        html.push_str(&format!(
+            "<button value=\"Next\" action=\"bypass -h {next_command} {i}\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\">"
+        ));
+    }
+    html.push_str(&format!(
+        "<button value=\"Back\" action=\"bypass -h {back_command}\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>"
+    ));
+    html
+}
+
 /// `AdminSpawn.showMonsters` — the spawn menu's "Spawn by Level" **List** buttons
 /// (`admin_spawn_index <level> [from]`). Lists every `Monster`-type NPC of that
 /// exact level as `admin_spawn_monster <id>` links, 50 per page, with a `Next`
@@ -159,28 +193,13 @@ pub(super) fn admin_spawn_index(world: &mut World, client_id: u32, args: &[&str]
     };
     let from = nth_arg::<usize>(args, 1).unwrap_or(0);
     let mobs = world.data.npc_data.monsters_of_level(level);
-    let total = mobs.len();
-
-    let mut html = format!(
-        "<html><title>Spawn Monster:</title><body><p> Level : {level}<br>Total NPCs : {total}<br>"
+    let html = render_npc_listing(
+        &format!("Level : {level}<br>Total NPCs : {}", mobs.len()),
+        &mobs,
+        from,
+        &format!("admin_spawn_index {level}"),
+        "admin_show_spawns",
     );
-    let mut i = from;
-    for t in mobs.iter().skip(from).take(LISTING_PAGE_SIZE) {
-        html.push_str(&format!(
-            "<a action=\"bypass -h admin_spawn_monster {}\">{}</a><br1>",
-            t.id, t.name
-        ));
-        i += 1;
-    }
-    if i >= total {
-        html.push_str(
-            "<br><center><button value=\"Back\" action=\"bypass -h admin_show_spawns\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>",
-        );
-    } else {
-        html.push_str(&format!(
-            "<br><center><button value=\"Next\" action=\"bypass -h admin_spawn_index {level} {i}\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"><button value=\"Back\" action=\"bypass -h admin_show_spawns\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>"
-        ));
-    }
     super::menu::send_admin_html_content(world, client_id, &html);
 }
 
@@ -196,28 +215,16 @@ pub(super) fn admin_npc_index(world: &mut World, client_id: u32, args: &[&str]) 
     };
     let from = nth_arg::<usize>(args, 1).unwrap_or(0);
     let mobs = world.data.npc_data.folk_starting_with(starting);
-    let total = mobs.len();
-
-    let mut html = format!(
-        "<html><title>Spawn Monster:</title><body><p> There are {total} Npcs whose name starts with {starting}:<br>"
+    let html = render_npc_listing(
+        &format!(
+            "There are {} Npcs whose name starts with {starting}:",
+            mobs.len()
+        ),
+        &mobs,
+        from,
+        &format!("admin_npc_index {starting}"),
+        "admin_show_npcs",
     );
-    let mut i = from;
-    for t in mobs.iter().skip(from).take(LISTING_PAGE_SIZE) {
-        html.push_str(&format!(
-            "<a action=\"bypass -h admin_spawn_monster {}\">{}</a><br1>",
-            t.id, t.name
-        ));
-        i += 1;
-    }
-    if i >= total {
-        html.push_str(
-            "<br><center><button value=\"Back\" action=\"bypass -h admin_show_npcs\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>",
-        );
-    } else {
-        html.push_str(&format!(
-            "<br><center><button value=\"Next\" action=\"bypass -h admin_npc_index {starting} {i}\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"><button value=\"Back\" action=\"bypass -h admin_show_npcs\" width=40 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></center></body></html>"
-        ));
-    }
     super::menu::send_admin_html_content(world, client_id, &html);
 }
 
