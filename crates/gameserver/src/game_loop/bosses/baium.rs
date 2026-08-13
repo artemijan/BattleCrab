@@ -451,16 +451,18 @@ pub(crate) fn handle_select_target(world: &mut World) {
 }
 
 /// Every living Archangel.
-fn archangels(world: &mut World) -> Vec<i32> {
-    let mut out = Vec::new();
+fn archangels(world: &World) -> Vec<i32> {
     world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-            if n.npc_id == ARCHANGEL && !v.dead {
-                out.push(n.object_id);
-            }
-        });
-    out
+        .npcs_with_id(ARCHANGEL)
+        .iter()
+        .copied()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Vitals>(oid)
+                .is_some_and(|v| !v.dead)
+        })
+        .collect()
 }
 
 fn despawn(world: &mut World, oid: i32) {

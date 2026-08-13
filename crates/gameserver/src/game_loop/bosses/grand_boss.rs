@@ -86,36 +86,24 @@ pub(crate) fn set_status(world: &mut World, boss_id: i32, status: i32) {
 /// The object id of a **living** NPC with this template id, if one stands in
 /// the world.
 ///
-/// Walks every object rather than the region index, so it needs `&mut World`
-/// but sees NPCs the caller has no position for. The boss scripts use it to
-/// find their own minions and ladder mobs.
+/// Backed by [`World::npcs_with_id`] — a map hit, not the whole-entity-store
+/// sweep this used to be.
 ///
 /// Use [`find_spawned`] when a dead-but-not-yet-despawned corpse should still
-/// count, or when only `&World` is available.
-pub(crate) fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
-    let mut found = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &crate::model::components::Vitals)>(|(n, v)| {
-            if n.npc_id == npc_id && !v.dead {
-                found = Some(n.object_id);
-            }
-        });
-    found
-}
-
-/// The object id of an NPC with this template id, **alive or dead**, via the
-/// region index.
-///
-/// The `&World` counterpart of [`find_alive`]: cheaper, but it only sees NPCs
-/// that are registered in a region, and it does not filter corpses.
-pub(crate) fn find_spawned(world: &World, npc_id: i32) -> Option<i32> {
-    world.npc_regions.values().flatten().copied().find(|oid| {
+/// count.
+pub(crate) fn find_alive(world: &World, npc_id: i32) -> Option<i32> {
+    world.npcs_with_id(npc_id).iter().copied().find(|oid| {
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(oid)
-            .is_some_and(|n| n.npc_id == npc_id)
+            .get_component::<crate::model::components::Vitals>(oid)
+            .is_some_and(|v| !v.dead)
     })
+}
+
+/// The object id of an NPC with this template id, **alive or dead** — the
+/// corpse-inclusive counterpart of [`find_alive`].
+pub(crate) fn find_spawned(world: &World, npc_id: i32) -> Option<i32> {
+    world.npcs_with_id(npc_id).first().copied()
 }
 
 /// The body of Java's `DISTANCE_CHECK` timer, shared by the scripts that arm

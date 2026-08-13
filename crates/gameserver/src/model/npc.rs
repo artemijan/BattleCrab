@@ -893,6 +893,7 @@ fn spawn_npc_entity(
     // `onSpawn` hook (Java `Quest.notifySpawn` via `addSpawnId`) — fires for
     // the boot pass and every respawn alike.
     crate::game_loop::quests::notify_spawn(world, object_id, npc_id);
+    world.npcs_by_id.entry(npc_id).or_default().push(object_id);
     Some(object_id)
 }
 

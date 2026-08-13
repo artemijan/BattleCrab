@@ -319,7 +319,13 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     // DeleteObject would fall back to the overworld and never reach the
     // instanced players who can see the NPC (G27).
     let instance = instance_of(world, npc_oid);
+    let npc_id = super::helpers::npc_id_of(world, npc_oid);
     world.objects.despawn(&npc_oid);
+    if let Some(npc_id) = npc_id
+        && let Some(ids) = world.npcs_by_id.get_mut(&npc_id)
+    {
+        ids.retain(|&id| id != npc_oid);
+    }
     if let Some(ids) = world.npc_regions.get_mut(&region) {
         ids.retain(|&id| id != npc_oid);
     }

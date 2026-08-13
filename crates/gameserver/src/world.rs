@@ -138,6 +138,10 @@ pub struct World {
     /// per-region object lists, built at spawn and kept current by
     /// `visibility::update_npc_region`.
     pub npc_regions: rustc_hash::FxHashMap<(i32, i32), Vec<i32>>,
+    /// Live NPC object ids grouped by template id — maintained by
+    /// `spawn_npc_entity` and `death::despawn_npc`, so "find NPCs of template
+    /// X" is a map hit instead of a sweep of the whole entity store.
+    pub npcs_by_id: rustc_hash::FxHashMap<i32, Vec<i32>>,
     /// Region cell → **player** object ids in it — the player half of the same
     /// index, and the reason a broadcast no longer costs one adjacency compare
     /// per connected client.
@@ -575,6 +579,7 @@ impl World {
             offline_traders: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: rustc_hash::FxHashMap::default(),
+            npcs_by_id: rustc_hash::FxHashMap::default(),
             player_regions: rustc_hash::FxHashMap::default(),
             effect_zone_next_tick: HashMap::new(),
             item_mana_consuming: std::collections::HashMap::new(),
@@ -1018,6 +1023,12 @@ impl World {
     /// which fifteen call sites re-derived with a linear find.
     pub fn castle(&self, castle_id: i32) -> Option<&crate::model::castle::Castle> {
         self.castles.iter().find(|c| c.id == castle_id)
+    }
+
+    /// The live NPCs carrying template id `npc_id` — spawned, possibly dead
+    /// but not yet decayed. Backed by the spawn/despawn-maintained index.
+    pub fn npcs_with_id(&self, npc_id: i32) -> &[i32] {
+        self.npcs_by_id.get(&npc_id).map_or(&[], |v| v.as_slice())
     }
 
     /// Mutable [`Self::castle`].

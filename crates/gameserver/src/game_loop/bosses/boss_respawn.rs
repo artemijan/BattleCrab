@@ -151,18 +151,17 @@ pub(crate) fn handle_boss_respawn(world: &mut World, spawn_ref: (usize, usize, u
 /// Shutdown flush (`DBSpawnManager.updateDb`): write every living boss's
 /// current HP/MP so the restart picks up where the fight left off.
 pub(crate) fn save_all_bosses(world: &mut World) {
-    // Collect first: the store can't be queried while a write borrow is out,
-    // and `persist_alive` reads it again per boss.
-    let mut live: Vec<(i32, i32)> = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-            if !v.dead {
-                live.push((n.npc_id, n.object_id));
-            }
+    // Iterate the registered bosses and ask the id index, instead of sweeping
+    // every NPC in the world for the handful that persist.
+    let boss_ids: Vec<i32> = world.boss_spawn_refs.keys().copied().collect();
+    for npc_id in boss_ids {
+        let alive = world.npcs_with_id(npc_id).iter().copied().find(|oid| {
+            world
+                .objects
+                .get_component::<Vitals>(oid)
+                .is_some_and(|v| !v.dead)
         });
-    for (npc_id, oid) in live {
-        if world.boss_spawn_refs.contains_key(&npc_id) {
+        if let Some(oid) = alive {
             persist_alive(world, npc_id, oid);
         }
     }

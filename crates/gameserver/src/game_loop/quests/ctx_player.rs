@@ -142,15 +142,11 @@ impl<'w> QuestCtx<'w> {
     /// always-spawned town NPCs this serves; a despawned NPC yields `None`
     /// where Java would still answer.
     pub fn any_spawn_location(&mut self, npc_id: i32) -> Option<(i32, i32, i32)> {
-        let mut loc = None;
+        let oid = *self.world.npcs_with_id(npc_id).first()?;
         self.world
             .objects
-            .for_each_mut::<&crate::model::npc::Npc>(|npc| {
-                if loc.is_none() && npc.npc_id == npc_id {
-                    loc = Some(npc.spawn_loc);
-                }
-            });
-        loc
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .map(|npc| npc.spawn_loc)
     }
 
     /// `Player.getClan() != null` (AllianceMaster's clan gate). Clan id 0 is

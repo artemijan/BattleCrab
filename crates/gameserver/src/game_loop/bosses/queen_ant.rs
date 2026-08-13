@@ -141,18 +141,22 @@ fn wounded(world: &World, oid: i32) -> bool {
 }
 
 /// Living nurse minions of this Queen.
-fn nurses_of(world: &mut World, queen_oid: i32) -> Vec<i32> {
-    let mut out = Vec::new();
-    world.objects.for_each_mut::<(
-        &crate::model::npc::Npc,
-        &Vitals,
-        &crate::game_loop::minions::MinionOf,
-    )>(|(n, v, m)| {
-        if n.npc_id == NURSE && !v.dead && m.0 == queen_oid {
-            out.push(n.object_id);
-        }
-    });
-    out
+fn nurses_of(world: &World, queen_oid: i32) -> Vec<i32> {
+    world
+        .npcs_with_id(NURSE)
+        .iter()
+        .copied()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Vitals>(oid)
+                .is_some_and(|v| !v.dead)
+                && world
+                    .objects
+                    .get_component::<crate::game_loop::minions::MinionOf>(oid)
+                    .is_some_and(|m| m.0 == queen_oid)
+        })
+        .collect()
 }
 
 /// `nurse.setTarget(x); nurse.useMagic(heal)` — routed through the ordinary NPC

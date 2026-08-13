@@ -150,14 +150,7 @@ pub(crate) fn handle_minion_respawn(world: &mut World, npc_id: i32) {
 pub(crate) fn on_core_killed(world: &mut World) {
     // `_firstAttacked = false` — the intro plays again next life.
     crate::game_loop::global_vars::set(world, CORE_ATTACKED_VAR, false);
-    let mut cores = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &CoreState)>(|(n, _)| {
-            if n.npc_id == CORE {
-                cores.push(n.object_id);
-            }
-        });
+    let cores: Vec<i32> = world.npcs_with_id(CORE).to_vec();
     for oid in cores {
         if let Some(s) = world.objects.get_component_mut::<CoreState>(&oid) {
             s.first_attacked = false;
@@ -171,12 +164,10 @@ pub(crate) fn on_core_killed(world: &mut World) {
 
 /// The despawn timer firing — remove every living Core minion.
 pub(crate) fn handle_despawn_minions(world: &mut World) {
-    let mut doomed = Vec::new();
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
-        if is_core_minion(n.npc_id) {
-            doomed.push(n.object_id);
-        }
-    });
+    let doomed: Vec<i32> = MINION_SPAWNS
+        .iter()
+        .flat_map(|(id, ..)| world.npcs_with_id(*id).iter().copied())
+        .collect();
     for oid in doomed {
         crate::game_loop::death::despawn_npc_by_oid(world, oid);
     }

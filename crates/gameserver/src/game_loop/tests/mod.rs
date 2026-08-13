@@ -1282,6 +1282,7 @@ fn add_test_npc(
         .or_default()
         .push(object_id);
     world.objects.spawn(object_id, (npc, extra));
+    world.npcs_by_id.entry(npc_id).or_default().push(object_id);
     // Memoized combat stats, from the template registered above (the
     // test-side mirror of `spawn_one`'s `npc_combat_stats` bundle entry).
     let cs = model::npc::npc_combat_stats(
