@@ -1262,12 +1262,7 @@ pub(crate) fn delete_hate(world: &mut World, target_oid: i32, chance: i32) {
     if world.roll(100) >= chance {
         return;
     }
-    if let Some(aggro) = world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&target_oid)
-    {
-        aggro.0.clear();
-    }
+    crate::game_loop::ai::clear_aggro(world, target_oid);
     crate::game_loop::ai::set_active(world, target_oid);
 }
 

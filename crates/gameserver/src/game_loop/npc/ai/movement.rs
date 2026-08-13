@@ -79,9 +79,7 @@ fn leash_send_home(world: &mut World, npc_oid: i32, spawn: (i32, i32, i32)) {
         v.cur_hp = v.max_hp as f64;
         v.cur_mp = v.max_mp as f64;
     }
-    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-        aggro.0.clear();
-    }
+    clear_aggro(world, npc_oid);
     set_active(world, npc_oid);
     // Drop the in-flight chase before relocating, or the movement sweep keeps
     // interpolating from the old position and drags the mob straight back out.

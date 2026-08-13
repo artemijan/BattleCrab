@@ -811,12 +811,7 @@ pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
             antharas_oid,
             (ANTHARAS_HOME.0, ANTHARAS_HOME.1, ANTHARAS_HOME.2),
         );
-        if let Some(a) = world
-            .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&antharas_oid)
-        {
-            a.0.clear();
-        }
+        crate::game_loop::ai::clear_aggro(world, antharas_oid);
         // Delete the adds, oust the players.
         for oid in lair_minions(world) {
             if let Some(region) = region_cell_of(world, oid) {

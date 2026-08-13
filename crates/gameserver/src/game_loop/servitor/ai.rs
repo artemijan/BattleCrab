@@ -86,12 +86,7 @@ pub(crate) fn servitor_stop(world: &mut World, owner_oid: i32) -> bool {
     let Some(servitor_oid) = servitor_of(world, owner_oid) else {
         return false;
     };
-    if let Some(aggro) = world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&servitor_oid)
-    {
-        aggro.0.clear();
-    }
+    crate::game_loop::ai::clear_aggro(world, servitor_oid);
     world
         .objects
         .remove_component::<crate::model::components::Movement>(&servitor_oid);

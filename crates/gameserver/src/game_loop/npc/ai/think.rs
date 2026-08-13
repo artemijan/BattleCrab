@@ -89,9 +89,7 @@ pub(super) fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32)
     match state {
         MobGroupState::Idle | MobGroupState::NoMove => {
             stop_npc(world, npc_oid);
-            if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-                aggro.0.clear();
-            }
+            clear_aggro(world, npc_oid);
         }
         MobGroupState::Random => {
             // The wild aggressive AI: same dispatch the non-controllable path runs.

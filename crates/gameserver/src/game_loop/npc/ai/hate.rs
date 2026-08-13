@@ -44,9 +44,7 @@ pub(crate) fn go_calm(world: &mut World, npc_oid: i32) {
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
         ai.global_aggro = CALM_GLOBAL_AGGRO;
     }
-    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-        aggro.0.clear();
-    }
+    clear_aggro(world, npc_oid);
     // `setWalking()` + `setIntention(AI_INTENTION_ACTIVE)`.
     set_active(world, npc_oid);
 }
@@ -129,5 +127,13 @@ pub(crate) fn on_forget_object(world: &mut World, npc_oid: i32, object_id: i32) 
     // left behind for some other attacker keeps the mob out of the calm window.
     if aggro.0.is_empty() {
         go_calm(world, npc_oid);
+    }
+}
+
+/// `Attackable.clearAggroList()` — forget everyone. A no-op for an NPC with
+/// no aggro table.
+pub(crate) fn clear_aggro(world: &mut World, npc_oid: i32) {
+    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+        aggro.0.clear();
     }
 }

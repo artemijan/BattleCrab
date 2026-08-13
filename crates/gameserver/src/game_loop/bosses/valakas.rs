@@ -171,12 +171,7 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
             valakas_oid,
             (VALAKAS_HOME.0, VALAKAS_HOME.1, VALAKAS_HOME.2),
         );
-        if let Some(a) = world
-            .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&valakas_oid)
-        {
-            a.0.clear();
-        }
+        crate::game_loop::ai::clear_aggro(world, valakas_oid);
         // Through set_status so the revert is persisted — a raw field write
         // here used to resurrect the old status after a restart.
         crate::game_loop::grand_boss::set_status(world, VALAKAS, DORMANT);

@@ -130,12 +130,7 @@ fn try_half_hp_relocation(world: &mut World, orfen_oid: i32) -> bool {
         s.teleported = true;
     }
     // `clearAggroList()` + `setIntention(IDLE)` — it disengages, then moves.
-    if let Some(a) = world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&orfen_oid)
-    {
-        a.0.clear();
-    }
+    crate::game_loop::ai::clear_aggro(world, orfen_oid);
     set_position(world, orfen_oid, (HOME.0, HOME.1, HOME.2));
     true
 }

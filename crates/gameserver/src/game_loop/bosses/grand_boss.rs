@@ -147,12 +147,7 @@ pub(crate) fn leash_to_home(
         .get_component::<Position>(&boss_oid)
         .is_some_and(|p| crate::geo::distance::distance_2d_xy(p.x, p.y, home.0, home.1) > leash);
     if far {
-        if let Some(aggro) = world
-            .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&boss_oid)
-        {
-            aggro.0.clear();
-        }
+        crate::game_loop::ai::clear_aggro(world, boss_oid);
         crate::game_loop::ai::move_npc_to(world, boss_oid, home.0, home.1, home.2);
     }
     true
