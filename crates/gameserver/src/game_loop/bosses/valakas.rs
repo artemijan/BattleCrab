@@ -17,7 +17,6 @@
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::common::players_in_lair_oids;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::in_zone;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::skill_by_id;
@@ -667,18 +666,7 @@ pub(crate) fn handle_remove_players(world: &mut World) {
 /// lair**, not everyone nearby: a player outside the zone sees nothing, which
 /// is the point of running it on the zone rather than the boss's region.
 fn broadcast_to_lair(world: &World, pkt: &[u8]) {
-    let Some(zone) = world.data.zone_data.by_id(BOSS_ZONE_ID) else {
-        return;
-    };
-    for cs in world.clients.values() {
-        if let crate::session::ClientSession::InGame(s) = cs {
-            let oid = s.player_object_id();
-            let inside = in_zone(world, oid, zone);
-            if inside {
-                cs.send(pkt.to_vec());
-            }
-        }
-    }
+    crate::game_loop::zones::broadcast_to_zone(world, BOSS_ZONE_ID, pkt);
 }
 
 // ---------------------------------------------------------------------------

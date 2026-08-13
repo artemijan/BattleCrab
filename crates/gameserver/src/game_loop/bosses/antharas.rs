@@ -317,14 +317,10 @@ fn start_move(world: &mut World, antharas_oid: i32) {
 }
 
 /// The cinematic is shown to the lair, not the surrounding region — the same
-/// rule as Valakas's.
+/// rule as Valakas's. (This used to broadcast to every player on the server:
+/// the zone filter was never written.)
 fn broadcast_to_lair(world: &World, pkt: &[u8]) {
-    for cs in world.clients.values() {
-        if let crate::session::ClientSession::InGame(s) = cs {
-            let _ = s;
-            cs.send(pkt.to_vec());
-        }
-    }
+    crate::game_loop::zones::broadcast_to_zone(world, LAIR_ZONE_ID, pkt);
 }
 
 // ---------------------------------------------------------------------------

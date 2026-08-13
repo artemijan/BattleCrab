@@ -290,3 +290,32 @@ pub(crate) fn is_inside_peace_zone(world: &World, attacker_oid: i32, target_oid:
     };
     in_peace(attacker_oid) || in_peace(target_oid)
 }
+
+/// Object ids of the in-game players standing inside zone `zone_id`. Empty
+/// when the zone isn't in the table (minimal test worlds fall open).
+pub(crate) fn players_in_zone(world: &World, zone_id: i32) -> Vec<i32> {
+    let Some(zone) = world.data.zone_data.by_id(zone_id) else {
+        return Vec::new();
+    };
+    world
+        .in_game_player_oids()
+        .filter(|oid| crate::game_loop::helpers::in_zone(world, *oid, zone))
+        .collect()
+}
+
+/// Java `ZoneType.broadcastPacket` — send `pkt` to every in-game player
+/// standing inside zone `zone_id`. A player outside the zone sees nothing,
+/// which is the point of running it on the zone rather than a region.
+///
+/// Falls open to everyone online when the zone isn't in the table, matching
+/// the boss-zone gates' convention: the dist always carries the zones this is
+/// asked about, so only minimal test worlds reach that branch.
+pub(crate) fn broadcast_to_zone(world: &World, zone_id: i32, pkt: &[u8]) {
+    if world.data.zone_data.by_id(zone_id).is_none() {
+        world.broadcast_to_all_online(pkt);
+        return;
+    }
+    for oid in players_in_zone(world, zone_id) {
+        send_to_player(world, oid, pkt.to_vec());
+    }
+}
