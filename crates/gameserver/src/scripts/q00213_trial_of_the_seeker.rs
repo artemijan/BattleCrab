@@ -9,7 +9,6 @@
 //! Abyss spirit ores (all held → cond 16), mirroring quest 224's bow materials.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 // NPCs
 const MASTER_TERRY: i32 = 30064;
@@ -71,12 +70,8 @@ fn has(ctx: &QuestCtx, item: i32) -> bool {
 /// A set-collection kill: drop `own` once (gated on `gate`), advancing to
 /// `cond` when the other three set members are already held.
 fn ore_kill(ctx: &mut QuestCtx, gate: i32, own: i32, a: i32, b: i32, c: i32, cond: i32) {
-    if has(ctx, gate) && !has(ctx, own) {
-        ctx.give_items(own, 1);
-        ctx.play_sound(quest_sounds::MIDDLE);
-        if has(ctx, a) && has(ctx, b) && has(ctx, c) {
-            ctx.set_cond(cond, false);
-        }
+    if has(ctx, gate) && ctx.award_once(own) && has(ctx, a) && has(ctx, b) && has(ctx, c) {
+        ctx.set_cond(cond, false);
     }
 }
 

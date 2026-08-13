@@ -9,7 +9,6 @@
 //! cond 2 fires when the fourth `*_REMAINS1` is forged.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 // NPCs
 const PRIESTESS_VIVYAN: i32 = 30030;
@@ -85,9 +84,7 @@ fn next_bone(ctx: &mut QuestCtx, gate: i32, bones: &[i32]) {
         return;
     }
     for &b in bones {
-        if !has(ctx, b) {
-            ctx.give_items(b, 1);
-            ctx.play_sound(quest_sounds::MIDDLE);
+        if ctx.award_once(b) {
             return;
         }
     }
@@ -244,9 +241,8 @@ impl QuestScript for Q00233TestOfTheWarSpirit {
                         next_bone(ctx, RACOYS_TOTEM, &[KIRUNAS_THIGH_BONE, KIRUNAS_ARM_BONE]);
                     } else if i0 > 30 {
                         next_bone(ctx, RACOYS_TOTEM, &[KIRUNAS_SPINE, KIRUNAS_RIB_BONE]);
-                    } else if !has(ctx, KIRUNAS_SKULL) {
-                        ctx.give_items(KIRUNAS_SKULL, 1);
-                        ctx.play_sound(quest_sounds::MIDDLE);
+                    } else {
+                        ctx.award_once(KIRUNAS_SKULL);
                     }
                 }
             }
@@ -261,9 +257,8 @@ impl QuestScript for Q00233TestOfTheWarSpirit {
                 ],
             ),
             STENOA_GORGON_QUEEN => {
-                if has(ctx, MANAKIAS_TOTEM) && !has(ctx, HERMODTS_SKULL) {
-                    ctx.give_items(HERMODTS_SKULL, 1);
-                    ctx.play_sound(quest_sounds::MIDDLE);
+                if has(ctx, MANAKIAS_TOTEM) {
+                    ctx.award_once(HERMODTS_SKULL);
                 }
             }
             PORTA => {

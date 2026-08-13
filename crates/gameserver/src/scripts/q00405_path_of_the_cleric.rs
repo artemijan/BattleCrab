@@ -36,7 +36,6 @@
 //! taking the necklace pays.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::network::server_packets::quest_sounds;
 
 const GALLINT: i32 = 30017;
 const ZIGAUNT: i32 = 30022;
@@ -142,13 +141,8 @@ impl QuestScript for Q00405PathOfTheCleric {
     /// Ruin Zombies drop the pendant with **no roll** — but only while the
     /// necklace is out on loan and the pendant is not already held.
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs()
-            && ctx.is_started()
-            && ctx.quest_items_count(NECKLACE_OF_MOTHER) > 0
-            && ctx.quest_items_count(PENDANT_OF_MOTHER) == 0
-        {
-            ctx.give_items(PENDANT_OF_MOTHER, 1);
-            ctx.play_sound(quest_sounds::MIDDLE);
+        if ctx.has_qs() && ctx.is_started() && ctx.quest_items_count(NECKLACE_OF_MOTHER) > 0 {
+            ctx.award_once(PENDANT_OF_MOTHER);
         }
     }
 

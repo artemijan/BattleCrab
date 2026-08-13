@@ -310,9 +310,7 @@ impl QuestScript for Q00218TestimonyOfLife {
                         TALINS_AMETHYST,
                         TALINS_PERIDOT,
                     ] {
-                        if !has(ctx, part) {
-                            ctx.give_items(part, 1);
-                            ctx.play_sound(quest_sounds::MIDDLE);
+                        if ctx.award_once(part) {
                             break;
                         }
                     }

@@ -85,12 +85,8 @@ fn gather(ctx: &mut QuestCtx, item: i32, cap: i64) {
 /// A Golden Seed drop off a Singing Flower; advances to cond 4 once all three
 /// seeds are held.
 fn seed(ctx: &mut QuestCtx, own: i32, a: i32, b: i32) {
-    if has(ctx, LILAC_CHARM) && !has(ctx, own) {
-        ctx.give_items(own, 1);
-        ctx.play_sound(quest_sounds::MIDDLE);
-        if has(ctx, a) && has(ctx, b) {
-            ctx.set_cond(4, false);
-        }
+    if has(ctx, LILAC_CHARM) && ctx.award_once(own) && has(ctx, a) && has(ctx, b) {
+        ctx.set_cond(4, false);
     }
 }
 

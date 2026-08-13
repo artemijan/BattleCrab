@@ -207,12 +207,8 @@ impl QuestScript for Q00231TestOfTheMaestro {
                 }
             }
             EVIL_EYE_LORD => {
-                if memo == 2
-                    && ctx.quest_items_count(PAINT_KAMURU) > 0
-                    && ctx.quest_items_count(NECKLACE_KAMUTU) == 0
-                {
-                    ctx.give_items(NECKLACE_KAMUTU, 1);
-                    ctx.play_sound(quest_sounds::MIDDLE);
+                if memo == 2 && ctx.quest_items_count(PAINT_KAMURU) > 0 {
+                    ctx.award_once(NECKLACE_KAMUTU);
                 }
             }
             _ => {}

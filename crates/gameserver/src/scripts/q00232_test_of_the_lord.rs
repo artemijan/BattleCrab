@@ -307,14 +307,13 @@ impl QuestScript for Q00232TestOfTheLord {
                 }
             }
             RAGNA_ORC_OVERLORD | RAGNA_ORC_SEER => {
-                if has(ctx, MARTANKUS_CHARM) {
-                    if !has(ctx, RAGNA_CHIEF_NOTICE) {
-                        ctx.give_items(RAGNA_CHIEF_NOTICE, 1);
-                        ctx.play_sound(quest_sounds::MIDDLE);
-                    } else if !has(ctx, RAGNA_ORC_HEAD) {
-                        ctx.give_items(RAGNA_ORC_HEAD, 1);
-                        ctx.set_cond(5, true);
-                    }
+                // The notice first; the head only once the notice is in hand.
+                if has(ctx, MARTANKUS_CHARM)
+                    && !ctx.award_once(RAGNA_CHIEF_NOTICE)
+                    && !has(ctx, RAGNA_ORC_HEAD)
+                {
+                    ctx.give_items(RAGNA_ORC_HEAD, 1);
+                    ctx.set_cond(5, true);
                 }
             }
             _ => {}

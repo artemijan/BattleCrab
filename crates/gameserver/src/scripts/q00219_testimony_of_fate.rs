@@ -100,10 +100,8 @@ fn herb_kill(ctx: &mut QuestCtx, own: i32, others: [i32; 4]) {
 
 /// An overlord-skull leg for the Bloody Pixy's Red Fairy Dust.
 fn skull_kill(ctx: &mut QuestCtx, skull: i32) {
-    if has(ctx, PALUS_CHARM) && has(ctx, ARKENIAS_NOTE) && has(ctx, PIXY_GARNET) && !has(ctx, skull)
-    {
-        ctx.give_items(skull, 1);
-        ctx.play_sound(quest_sounds::MIDDLE);
+    if has(ctx, PALUS_CHARM) && has(ctx, ARKENIAS_NOTE) && has(ctx, PIXY_GARNET) {
+        ctx.award_once(skull);
     }
 }
 
@@ -313,10 +311,8 @@ impl QuestScript for Q00219TestimonyOfFate {
                     && has(ctx, ARKENIAS_NOTE)
                     && has(ctx, TIMIRIRAN_SEED)
                     && !has(ctx, BLIGHT_TREANT_SAP)
-                    && !has(ctx, BLACK_WILLOW_LEAF)
                 {
-                    ctx.give_items(BLACK_WILLOW_LEAF, 1);
-                    ctx.play_sound(quest_sounds::MIDDLE);
+                    ctx.award_once(BLACK_WILLOW_LEAF);
                 }
             }
             _ => {}

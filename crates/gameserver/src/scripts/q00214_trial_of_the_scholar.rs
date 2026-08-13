@@ -394,13 +394,8 @@ impl QuestScript for Q00214TrialOfTheScholar {
             BREKA_ORC_SHAMAN => jurek_kill(ctx, SHAMANS_NECKLACE, 5),
             SHACKLE1 | SHACKLE2 => jurek_kill(ctx, SHACKLES_SCALP, 2),
             GRANDIS => {
-                if has(ctx, MIRIENS_3RD_SIGIL)
-                    && has(ctx, CRONOS_SIGIL)
-                    && has(ctx, TRIFFS_RING)
-                    && !has(ctx, SCRIPTURE_CHAPTER_3)
-                {
-                    ctx.give_items(SCRIPTURE_CHAPTER_3, 1);
-                    ctx.play_sound(quest_sounds::MIDDLE);
+                if has(ctx, MIRIENS_3RD_SIGIL) && has(ctx, CRONOS_SIGIL) && has(ctx, TRIFFS_RING) {
+                    ctx.award_once(SCRIPTURE_CHAPTER_3);
                 }
             }
             MEDUSA => casian_kill(ctx, MEDUSAS_BLOOD, 12),

@@ -96,10 +96,7 @@ impl QuestScript for Q00044HelpTheSon {
     }
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_cond(2) {
-            return;
-        }
-        ctx.collect_toward(GEMSTONE_FRAGMENT, 30, 3);
+        ctx.collect_toward_on_cond(2, GEMSTONE_FRAGMENT, 30, 3);
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

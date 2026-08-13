@@ -984,6 +984,17 @@ impl<'w> QuestCtx<'w> {
         }
     }
 
+    /// [`collect_toward`](Self::collect_toward) behind the guard every farming
+    /// `onKill` opens with: a live state sitting on exactly `cond`. The whole
+    /// body of the Pet Ticket trio's (42/43/44) `onKill`, where the item id is
+    /// the only thing that differs between them.
+    pub fn collect_toward_on_cond(&mut self, cond: i32, item_id: i32, target: i64, next_cond: i32) {
+        if !self.has_qs() || !self.is_cond(cond) {
+            return;
+        }
+        self.collect_toward(item_id, target, next_cond);
+    }
+
     /// [`collect_toward`](Self::collect_toward) with a cap: nothing is handed
     /// over once the player already holds `target`, and the condition advances
     /// on `>=` rather than `==`.
@@ -1003,6 +1014,25 @@ impl<'w> QuestCtx<'w> {
         } else {
             self.play_sound(quest_sounds::ITEMGET);
         }
+    }
+
+    /// The one-shot drop the trial/testimony chains hang their set-collection
+    /// legs off: `if (!hasQuestItems(player, item)) { giveItems(item, 1);
+    /// playSound(MIDDLE); }`. A single copy is ever owed, so a second kill of
+    /// the same named monster hands out nothing and stays silent.
+    ///
+    /// The sound is `MIDDLE`, not `ITEMGET`, precisely because there is no
+    /// count to tick towards — every drop of a one-shot item *is* the
+    /// milestone. Returns whether the item was newly awarded, which is what the
+    /// set legs test before advancing their condition: a re-kill must not
+    /// re-fire `setCond`.
+    pub fn award_once(&mut self, item_id: i32) -> bool {
+        if self.quest_items_count(item_id) > 0 {
+            return false;
+        }
+        self.give_items(item_id, 1);
+        self.play_sound(quest_sounds::MIDDLE);
+        true
     }
 
     /// The stock hand-in: give up one quest item for the next one and advance
