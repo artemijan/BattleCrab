@@ -3,7 +3,7 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::set_position;
-use crate::game_loop::{baium, boss_threat};
+use crate::game_loop::{baium, bosses::boss_threat};
 
 use crate::game_loop::baium::{ARCHANGEL, BAIUM};
 
@@ -149,7 +149,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
 // The threat table (slice 12)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::boss_threat::BossThreat;
+use crate::game_loop::bosses::boss_threat::BossThreat;
 
 fn threat(world: &World, oid: i32) -> [(i32, i32); 3] {
     world

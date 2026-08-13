@@ -294,7 +294,7 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
                 {
                     c.height = 600.0;
                 }
-                if let Some(pkt) = super::visibility::npc_info_bytes(world, overhead) {
+                if let Some(pkt) = crate::game_loop::visibility::npc_info_bytes(world, overhead) {
                     instances::broadcast_to_instance(world, instance_id, &pkt);
                 }
             }
@@ -819,14 +819,14 @@ fn camera_packet(
 /// standing on.
 fn send_packet_x(world: &World, instance_id: i32, left: &[u8], right: &[u8], x: i32) {
     for member in instance_members(world, instance_id) {
-        let Some(client_id) = super::helpers::client_for_player(world, member) else {
+        let Some(client_id) = crate::game_loop::helpers::client_for_player(world, member) else {
             continue;
         };
         let west = world
             .objects
             .get_component::<Position>(&member)
             .is_some_and(|p| p.x < x);
-        super::helpers::send_to_client(
+        crate::game_loop::helpers::send_to_client(
             world,
             client_id,
             if west { left.to_vec() } else { right.to_vec() },

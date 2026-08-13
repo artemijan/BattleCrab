@@ -61,7 +61,7 @@ pub(crate) fn on_core_spawned(world: &mut World, core_oid: i32) {
         .add_components(&core_oid, crate::model::components::Immobilized);
     // Java's spawn path restores `_firstAttacked` from `Core_Attacked`, so a
     // restart between the intro and the kill does not replay the intro lines.
-    let first_attacked = super::global_vars::get_bool(world, CORE_ATTACKED_VAR, false);
+    let first_attacked = crate::game_loop::global_vars::get_bool(world, CORE_ATTACKED_VAR, false);
     world
         .objects
         .add_components(&core_oid, CoreState { first_attacked });
@@ -108,7 +108,7 @@ pub(crate) fn on_core_attacked(world: &mut World, core_oid: i32) {
     // Java `onSave()` persists `_firstAttacked` as `Core_Attacked`, so a
     // restart mid-fight does not replay the intro. Written on the transition
     // rather than on a save timer — same value, no lost-window.
-    super::global_vars::set(world, CORE_ATTACKED_VAR, true);
+    crate::game_loop::global_vars::set(world, CORE_ATTACKED_VAR, true);
     // Both intro lines, in order.
     crate::game_loop::helpers::npc_say(world, core_oid, A_NON_PERMITTED_TARGET_HAS_BEEN_DISCOVERED);
     crate::game_loop::helpers::npc_say(world, core_oid, INTRUDER_REMOVAL_SYSTEM_INITIATED);
@@ -150,7 +150,7 @@ pub(crate) fn handle_minion_respawn(world: &mut World, npc_id: i32) {
 /// Core died: clear its minions after 20 s (Java's `despawn_minions` timer).
 pub(crate) fn on_core_killed(world: &mut World) {
     // `_firstAttacked = false` — the intro plays again next life.
-    super::global_vars::set(world, CORE_ATTACKED_VAR, false);
+    crate::game_loop::global_vars::set(world, CORE_ATTACKED_VAR, false);
     let mut cores = Vec::new();
     world
         .objects
