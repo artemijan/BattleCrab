@@ -708,17 +708,7 @@ pub(crate) fn on_antharas_damage(
 /// Is `oid` inside Antharas's lair zone? Falls open when the zone table isn't
 /// loaded (minimal test worlds), so the anti-exploit teleport never misfires.
 fn in_lair_zone(world: &World, oid: i32) -> bool {
-    let Some(pos) = world
-        .objects
-        .get_component::<crate::model::components::Position>(&oid)
-    else {
-        return false;
-    };
-    world
-        .data
-        .zone_data
-        .by_id(LAIR_ZONE_ID)
-        .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
+    super::common::in_boss_zone(world, LAIR_ZONE_ID, oid)
 }
 
 // ---------------------------------------------------------------------------

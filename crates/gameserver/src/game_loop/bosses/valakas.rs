@@ -176,14 +176,9 @@ fn regen_level(cur: f64, max: f64) -> i32 {
 }
 
 fn attacker_in_lair(world: &World, attacker_oid: i32) -> bool {
-    let Some(pos) = world.objects.get_component::<Position>(&attacker_oid) else {
-        return false;
-    };
-    world
-        .data
-        .zone_data
-        .by_id(BOSS_ZONE_ID)
-        .is_some_and(|z| z.contains(pos.x, pos.y, pos.z))
+    // Strict on purpose: the kill-from-outside anti-exploit must not fall
+    // open on a missing zone row.
+    super::common::in_boss_zone_strict(world, BOSS_ZONE_ID, attacker_oid)
 }
 
 fn cast_debuff(world: &mut World, caster_oid: i32, target_oid: i32) {
@@ -331,14 +326,7 @@ fn players_within(world: &World, valakas_oid: i32, range: f64) -> usize {
 
 /// Is `oid` within `range` (2D) of Valakas?
 fn in_lair_zone(world: &World, oid: i32) -> bool {
-    let Some(pos) = world.objects.get_component::<Position>(&oid) else {
-        return false;
-    };
-    world
-        .data
-        .zone_data
-        .by_id(BOSS_ZONE_ID)
-        .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
+    super::common::in_boss_zone(world, BOSS_ZONE_ID, oid)
 }
 
 // ---------------------------------------------------------------------------

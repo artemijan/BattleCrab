@@ -22,3 +22,38 @@ pub fn near_leader(world: &World, leader: i32, member: i32) -> bool {
 pub fn players_in_lair_oids(world: &World, zone: i32) -> Vec<i32> {
     crate::game_loop::zones::players_in_zone(world, zone)
 }
+
+/// Is the object inside a boss zone? Falls **open** when the zone table isn't
+/// loaded (minimal test worlds) — the dist always carries these zones, so the
+/// gates keyed on this never misfire in production.
+pub(crate) fn in_boss_zone(world: &World, zone_id: i32, oid: i32) -> bool {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&oid)
+    else {
+        return false;
+    };
+    world
+        .data
+        .zone_data
+        .by_id(zone_id)
+        .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
+}
+
+/// The strict variant of [`in_boss_zone`]: a missing zone row counts as
+/// **outside** — for the anti-exploit gates (Valakas' kill-from-outside rule)
+/// where falling open would punish nobody but falling closed must not punish
+/// everybody in a world that genuinely has the zone.
+pub(crate) fn in_boss_zone_strict(world: &World, zone_id: i32, oid: i32) -> bool {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&oid)
+    else {
+        return false;
+    };
+    world
+        .data
+        .zone_data
+        .by_id(zone_id)
+        .is_some_and(|z| z.contains(pos.x, pos.y, pos.z))
+}

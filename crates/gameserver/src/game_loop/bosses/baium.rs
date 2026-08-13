@@ -386,14 +386,7 @@ const BAIUM_ZONE_ID: i32 = 70051;
 /// Is this object inside Baium's boss zone? Falls open when the zone table
 /// isn't loaded (minimal test worlds) — the dist always carries 70051.
 fn inside_baium_zone(world: &World, oid: i32) -> bool {
-    let Some(pos) = world.objects.get_component::<Position>(&oid) else {
-        return false;
-    };
-    world
-        .data
-        .zone_data
-        .by_id(BAIUM_ZONE_ID)
-        .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
+    super::common::in_boss_zone(world, BAIUM_ZONE_ID, oid)
 }
 
 /// Java `SELECT_TARGET`, per archangel every 5 s. The Archangels are passive
