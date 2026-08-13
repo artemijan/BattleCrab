@@ -68,9 +68,7 @@ fn parse_item_link_answer(pkt: &[u8]) -> (i32, i32, i64, i64) {
 }
 
 fn item_link_answers(pkts: &[Vec<u8>]) -> Vec<&Vec<u8>> {
-    pkts.iter()
-        .filter(|p| p[0] == server_packets::opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == 0x6D)
-        .collect()
+    pkts.iter().filter(|p| is_ex(p, 0x6D)).collect()
 }
 
 /// The whole round trip: A shift-clicks an item into general chat, B hears the

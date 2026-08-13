@@ -102,9 +102,8 @@ fn monster_kill_drops_cursed_weapon() {
         "drop announced"
     );
     assert!(
-        pkts.iter().any(|p| p[0] == 0xFE
-            && p.len() >= 3
-            && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_RED_SKY),
+        pkts.iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_RED_SKY)),
         "red sky"
     );
     assert!(
@@ -429,10 +428,9 @@ fn the_cursed_weapon_window_lists_and_locates() {
     // Nothing is live yet → Java sends no location packet at all.
     handle_request_location(&world, 1);
     assert!(
-        !drain(&mut rx).iter().any(|p| p.len() >= 3
-            && p[0] == 0xFE
-            && i16::from_le_bytes([p[1], p[2]])
-                == server_packets::opcodes::EX_CURSED_WEAPON_LOCATION),
+        !drain(&mut rx)
+            .iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_CURSED_WEAPON_LOCATION)),
         "no location packet while none are active"
     );
 

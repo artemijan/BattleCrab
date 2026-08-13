@@ -388,8 +388,7 @@ fn the_last_arrow_unequips_the_empty_quiver() {
     // archer keeps rendering a quiver they no longer own.
     let pkts = drain(&mut out);
     assert!(
-        pkts.iter()
-            .any(|p| p[0] == 0xFE && p.len() >= 3 && i16::from_le_bytes([p[1], p[2]]) == 0x156),
+        pkts.iter().any(|p| is_ex(p, 0x156)),
         "the emptied left hand is pushed to the client"
     );
 }

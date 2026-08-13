@@ -74,9 +74,7 @@ fn parse_outbox(p: &[u8]) -> Vec<(i32, String, String)> {
 }
 
 fn ex_body_of(pkts: &[Vec<u8>], sub: i16) -> Option<Vec<u8>> {
-    pkts.iter()
-        .find(|p| p[0] == opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == sub)
-        .cloned()
+    pkts.iter().find(|p| is_ex(p, sub)).cloned()
 }
 
 #[test]

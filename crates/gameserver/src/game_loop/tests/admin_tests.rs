@@ -6262,10 +6262,9 @@ fn admin_instancedestroy_warns_the_players_inside() {
     );
 
     let pkts = drain(&mut inhabitant);
-    let warned = pkts.iter().any(|p| {
-        p[0] == server_packets::opcodes::EX
-            && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE
-    });
+    let warned = pkts
+        .iter()
+        .any(|p| is_ex(p, server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE));
     assert!(warned, "the inhabitant saw the Game Master banner");
     assert!(world.instances.get(iid).is_none(), "the instance is gone");
 }

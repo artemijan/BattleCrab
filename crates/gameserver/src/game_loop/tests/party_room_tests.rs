@@ -256,9 +256,7 @@ fn creating_a_room_leaves_the_waiting_list_and_sends_the_room_windows() {
     // The creator is the room's PARTY_LEADER in its own member list.
     let members = pkts
         .iter()
-        .find(|p| {
-            p[0] == opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == opcodes::EX_PARTY_ROOM_MEMBER
-        })
+        .find(|p| is_ex(p, opcodes::EX_PARTY_ROOM_MEMBER))
         .map(|p| parse_room_members(p))
         .unwrap();
     assert_eq!(members.0, MatchingMemberType::PartyLeader.id());
@@ -534,9 +532,7 @@ fn joining_a_room_notifies_both_sides() {
     assert!(has_opcode(&b_pkts, opcodes::PARTY_ROOM_INFO));
     let (recipient_type, members) = b_pkts
         .iter()
-        .find(|p| {
-            p[0] == opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == opcodes::EX_PARTY_ROOM_MEMBER
-        })
+        .find(|p| is_ex(p, opcodes::EX_PARTY_ROOM_MEMBER))
         .map(|p| parse_room_members(p))
         .unwrap();
     assert_eq!(recipient_type, MatchingMemberType::WaitingPlayer.id());
@@ -876,10 +872,7 @@ fn inviting_a_player_and_accepting_puts_them_in_the_room() {
     let b_pkts = drain(&mut b_rx);
     let ask = b_pkts
         .iter()
-        .find(|p| {
-            p[0] == opcodes::EX
-                && i16::from_le_bytes([p[1], p[2]]) == opcodes::EX_ASK_JOIN_PARTY_ROOM
-        })
+        .find(|p| is_ex(p, opcodes::EX_ASK_JOIN_PARTY_ROOM))
         .expect("the invitation dialog");
     let mut r = commons::network::PacketReader::new(&ask[3..]);
     assert_eq!(r.read_string().unwrap(), "P3001");

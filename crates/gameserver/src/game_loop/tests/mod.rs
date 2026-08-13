@@ -2013,9 +2013,11 @@ fn sound_names(pkts: &[Vec<u8>]) -> Vec<String> {
     pkts.iter().filter_map(|p| play_sound_name(p)).collect()
 }
 
+/// True if `pkt` is the `EX` packet carrying sub-opcode `sub`. A packet too
+/// short to carry one is not a match, rather than a panic.
 fn is_ex(pkt: &[u8], sub: i16) -> bool {
-    pkt[0] == server_packets::opcodes::EX
-        && pkt.len() >= 3
+    pkt.len() >= 3
+        && pkt[0] == server_packets::opcodes::EX
         && i16::from_le_bytes([pkt[1], pkt[2]]) == sub
 }
 

@@ -73,8 +73,8 @@ fn challenge_asks_the_target() {
     );
     let pkts = drain(&mut ob);
     assert!(
-        pkts.iter().any(|p| p[0] == 0xFE
-            && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_DUEL_ASK_START),
+        pkts.iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_DUEL_ASK_START)),
         "the target is asked"
     );
 }
@@ -198,8 +198,8 @@ fn countdown_runs_down_and_starts() {
         "the duel began"
     );
     assert!(
-        pkts.iter().any(|p| p[0] == 0xFE
-            && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_DUEL_START),
+        pkts.iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_DUEL_START)),
         "ExDuelStart went out"
     );
     let d = world.duels.values().next().expect("still running");

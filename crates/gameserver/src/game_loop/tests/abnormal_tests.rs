@@ -833,10 +833,10 @@ fn buffs_without_a_visual_send_no_visual_packet() {
     let ave_pkts = pkts
         .iter()
         .filter(|p| {
-            p[0] == 0xFE
-                && p.len() >= 3
-                && i16::from_le_bytes([p[1], p[2]])
-                    == server_packets::opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT
+            is_ex(
+                p,
+                server_packets::opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT,
+            )
         })
         .count();
     assert_eq!(

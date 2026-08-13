@@ -2338,7 +2338,7 @@ fn pledge_skill_learning_spends_reputation() {
     let pkts = drain(&mut a_rx);
     let list = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && p.len() > 3 && i16::from_le_bytes([p[1], p[2]]) == 0xFA)
+        .find(|p| is_ex(p, 0xFA))
         .expect("ExAcquirableSkillListByClass sent");
     assert_eq!(i16::from_le_bytes([list[3], list[4]]), 2, "PLEDGE type");
 
@@ -2482,7 +2482,7 @@ fn rank_privs_edit_and_refresh() {
     clans::handle_request_pledge_power_grade_list(&world, 1);
     let list = drain(&mut a_rx)
         .into_iter()
-        .find(|p| p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == 0x3D)
+        .find(|p| is_ex(p, 0x3D))
         .expect("PledgePowerGradeList");
     assert_eq!(i32::from_le_bytes([list[3], list[4], list[5], list[6]]), 9);
 }
@@ -2574,7 +2574,7 @@ fn member_power_grade_and_info_panes() {
     let pkts = drain(&mut a_rx);
     let power = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == 0x3E)
+        .find(|p| is_ex(p, 0x3E))
         .expect("PledgeReceivePowerInfo");
     assert_eq!(
         i32::from_le_bytes([power[3], power[4], power[5], power[6]]),
@@ -2582,11 +2582,7 @@ fn member_power_grade_and_info_panes() {
         "grade in the pane"
     );
     clans::handle_request_pledge_member_info(&world, 1, &member_query_body("P3002"));
-    assert!(
-        drain(&mut a_rx)
-            .iter()
-            .any(|p| p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == 0x3F)
-    );
+    assert!(drain(&mut a_rx).iter().any(|p| is_ex(p, 0x3F)));
 }
 
 /// Enter-world derives privileges from the rank table: the leader gets the
@@ -2779,12 +2775,7 @@ fn clan_war_declare_and_mutual() {
         ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::YOU_HAVE_DECLARED_A_CLAN_WAR_WITH_S1)
     );
-    assert!(
-        a_pkts
-            .iter()
-            .any(|p| p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == 0x40),
-        "war list sent"
-    );
+    assert!(a_pkts.iter().any(|p| is_ex(p, 0x40)), "war list sent");
     assert!(
         ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::S1_HAS_DECLARED_A_CLAN_WAR_KILL_5_TO_START)
@@ -3778,7 +3769,7 @@ fn large_pledge_crest_set_and_chunked_query() {
     let pkts = drain(&mut a_rx);
     let emblem = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == 0x1B)
+        .find(|p| is_ex(p, 0x1B))
         .expect("ExPledgeEmblem");
     // header: opcode(1) + ex-id(2) + serverId(4) + clanId(4) + crestId(4) + chunkId(4) + totalSize(4) + chunkLen(4) = 27
     assert_eq!(

@@ -3704,10 +3704,10 @@ fn enchant_support_item_bonus_and_consume() {
     );
     let put_out = drain(&mut rx);
     assert!(
-        put_out.iter().any(|p| p.len() >= 3
-            && p[0] == 0xFE
-            && i16::from_le_bytes([p[1], p[2]])
-                == server_packets::opcodes::EX_PUT_ENCHANT_SUPPORT_ITEM_RESULT),
+        put_out.iter().any(|p| is_ex(
+            p,
+            server_packets::opcodes::EX_PUT_ENCHANT_SUPPORT_ITEM_RESULT
+        )),
         "support accepted"
     );
 
@@ -3844,10 +3844,10 @@ fn augment_make_and_cancel() {
     );
     let confirm_out = drain(&mut rx);
     assert!(
-        confirm_out.iter().any(|p| p.len() >= 3
-            && p[0] == 0xFE
-            && i16::from_le_bytes([p[1], p[2]])
-                == server_packets::opcodes::EX_PUT_INTENSIVE_RESULT_FOR_VARIATION_MAKE),
+        confirm_out.iter().any(|p| is_ex(
+            p,
+            server_packets::opcodes::EX_PUT_INTENSIVE_RESULT_FOR_VARIATION_MAKE
+        )),
         "confirm echoes fee"
     );
 
@@ -4410,10 +4410,9 @@ fn package_store_title_round_trips() {
         Some("Whole lot!".to_string())
     );
     assert!(
-        drain(&mut rx).iter().any(|p| p.len() >= 3
-            && p[0] == 0xFE
-            && i16::from_le_bytes([p[1], p[2]])
-                == server_packets::opcodes::EX_PRIVATE_STORE_WHOLE_MSG),
+        drain(&mut rx)
+            .iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_PRIVATE_STORE_WHOLE_MSG)),
         "the title is echoed back"
     );
 }
@@ -4756,9 +4755,6 @@ fn the_augment_window_confirms_each_slot() {
         item_oid(&world, 9910, 2130),
         item_oid(&world, 9910, 1458),
     );
-    let is_ex = |p: &[u8], sub: i16| {
-        p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == sub
-    };
     drain(&mut rx);
 
     // (1) target item: an augmentable weapon echoes back.
@@ -4874,11 +4870,7 @@ fn the_saved_key_mapping_round_trips() {
     );
     let empty = drain(&mut rx)
         .into_iter()
-        .find(|p| {
-            p.len() >= 3
-                && p[0] == 0xFE
-                && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_UI_SETTING
-        })
+        .find(|p| is_ex(p, server_packets::opcodes::EX_UI_SETTING))
         .expect("the UI setting packet");
     assert_eq!(
         i32::from_le_bytes([empty[3], empty[4], empty[5], empty[6]]),
@@ -4905,11 +4897,7 @@ fn the_saved_key_mapping_round_trips() {
     );
     let stored = drain(&mut rx)
         .into_iter()
-        .find(|p| {
-            p.len() >= 3
-                && p[0] == 0xFE
-                && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_UI_SETTING
-        })
+        .find(|p| is_ex(p, server_packets::opcodes::EX_UI_SETTING))
         .expect("the UI setting packet");
     assert_eq!(
         i32::from_le_bytes([stored[3], stored[4], stored[5], stored[6]]),

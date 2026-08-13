@@ -7200,10 +7200,10 @@ fn quest_q00261_collectors_dream_loop() {
     let banner = |pkts: &[Vec<u8>]| -> Vec<i32> {
         pkts.iter()
             .filter(|p| {
-                p.len() > 3
-                    && p[0] == crate::network::server_packets::opcodes::EX
-                    && i16::from_le_bytes([p[1], p[2]])
-                        == crate::network::server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE
+                is_ex(
+                    p,
+                    crate::network::server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE,
+                )
             })
             .map(|p| {
                 let mut r = commons::network::PacketReader::new(&p[3..]);
@@ -7716,14 +7716,11 @@ fn quest_q00293_race_gate() {
         drain(rx)
             .iter()
             .find_map(|p| {
-                (p[0] == server_packets::opcodes::EX
-                    && i16::from_le_bytes([p[1], p[2]])
-                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
-                    .then(|| {
-                        let mut r = commons::network::PacketReader::new(&p[3..]);
-                        r.read_i32();
-                        r.read_string().unwrap_or_default()
-                    })
+                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
+                    let mut r = commons::network::PacketReader::new(&p[3..]);
+                    r.read_i32();
+                    r.read_string().unwrap_or_default()
+                })
             })
             .unwrap_or_default()
     }
@@ -8265,14 +8262,11 @@ fn quest_q00266_race_and_level_gates() {
         drain(rx)
             .iter()
             .find_map(|p| {
-                (p[0] == server_packets::opcodes::EX
-                    && i16::from_le_bytes([p[1], p[2]])
-                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
-                    .then(|| {
-                        let mut r = commons::network::PacketReader::new(&p[3..]);
-                        r.read_i32();
-                        r.read_string().unwrap_or_default()
-                    })
+                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
+                    let mut r = commons::network::PacketReader::new(&p[3..]);
+                    r.read_i32();
+                    r.read_string().unwrap_or_default()
+                })
             })
             .unwrap_or_default()
     };
@@ -8437,14 +8431,11 @@ fn quest_q00271_gates_and_necklace_page() {
         drain(rx)
             .iter()
             .find_map(|p| {
-                (p[0] == server_packets::opcodes::EX
-                    && i16::from_le_bytes([p[1], p[2]])
-                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
-                    .then(|| {
-                        let mut r = commons::network::PacketReader::new(&p[3..]);
-                        r.read_i32();
-                        r.read_string().unwrap_or_default()
-                    })
+                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
+                    let mut r = commons::network::PacketReader::new(&p[3..]);
+                    r.read_i32();
+                    r.read_string().unwrap_or_default()
+                })
             })
             .unwrap_or_default()
     };
@@ -8957,14 +8948,11 @@ fn quest_q00267_race_and_level_gates() {
         drain(rx)
             .iter()
             .find_map(|p| {
-                (p[0] == server_packets::opcodes::EX
-                    && i16::from_le_bytes([p[1], p[2]])
-                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
-                    .then(|| {
-                        let mut r = commons::network::PacketReader::new(&p[3..]);
-                        r.read_i32();
-                        r.read_string().unwrap_or_default()
-                    })
+                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
+                    let mut r = commons::network::PacketReader::new(&p[3..]);
+                    r.read_i32();
+                    r.read_string().unwrap_or_default()
+                })
             })
             .unwrap_or_default()
     };
