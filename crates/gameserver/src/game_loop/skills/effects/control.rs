@@ -1026,3 +1026,388 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
     // for the skill's own (skillgrp) duration, past the 2 s cast; Java has that
     // leftover too, so the port keeps it rather than inventing a packet.
 }
+
+// --- arms extracted from the `apply_skill_effects` match -------------------
+
+/// `RandomizeHate.instant` — move the *caster's* accumulated hate onto a
+/// random bystander, so the mob rounds on someone else instead of simply
+/// forgetting (Confusion 2, Switch 12).
+pub(crate) fn randomize_hate(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: i32,
+) {
+    // Java: `if ((effected == effector) || !effected.isAttackable()) return;`
+    if target_oid == caster_oid || !crate::game_loop::combat::is_npc_oid(target_oid) {
+        return;
+    }
+    if !confuse_chance_passes(world, caster_oid, target_oid, skill, chance) {
+        return;
+    }
+    // The exclusions are wider here than for `Confuse`: never the caster, and
+    // never a same-faction attackable ("aggro cannot be transfered to a mob of
+    // the same faction").
+    let Some(victim) = random_bystander(world, target_oid, caster_oid, true) else {
+        return;
+    };
+    if let Some(aggro) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&target_oid)
+    {
+        // `getHating` → `stopHating` → `addDamageHate(target, 0, hate)`: the
+        // hate is *moved*, not duplicated.
+        let hate = aggro.0.get(&caster_oid).map(|i| i.hate).unwrap_or(0.0);
+        aggro.0.remove(&caster_oid);
+        aggro.0.entry(victim).or_default().hate += hate;
+    }
+}
+
+/// `Bluff.instant` — spin the target to face the caster's heading. Raid
+/// bosses and their minions are immune (Java also names NPC 35062, a siege
+/// headquarters, explicitly); the pair of rotation packets is what the client
+/// animates, and the server-side heading change is what makes a subsequent
+/// Backstab land.
+pub(crate) fn bluff(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: i32,
+) {
+    let is_raid = crate::game_loop::helpers::is_raid_npc(world, target_oid)
+        // Java's `isRaidMinion()` is `Monster.onSpawn`'s
+        // `setIsRaidMinion(_master.isRaid())` — a minion inherits its master's
+        // raid immunity. The port tracks the link as `MinionOf`, so ask the
+        // master's template.
+        || crate::game_loop::minions::is_raid_minion(world, target_oid);
+    if is_raid || !confuse_chance_passes(world, caster_oid, target_oid, skill, chance) {
+        return;
+    }
+    let Some(caster_heading) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&caster_oid)
+        .map(|p| p.heading)
+    else {
+        return;
+    };
+    let target_heading = world
+        .objects
+        .get_component::<crate::model::components::Position>(&target_oid)
+        .map(|p| p.heading)
+        .unwrap_or(0);
+    if let Some(region) = crate::game_loop::helpers::region_cell_of(world, target_oid) {
+        for pkt in [
+            server_packets::start_rotation(target_oid, target_heading, 1, 65535),
+            server_packets::stop_rotation(target_oid, caster_heading, 65535),
+        ] {
+            crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+        }
+    }
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&target_oid)
+    {
+        p.heading = caster_heading;
+    }
+}
+
+/// `FakeDeath.onStart` → `Creature.startFakeDeath()`: drop whatever you were
+/// doing and hit the deck. `isAlikeDead()` then covers the rest (no aggro, no
+/// being targeted), and the client is told with
+/// `ChangeWaitType(WT_START_FAKEDEATH)`.
+///
+/// Java's `FAKE_DEATH_UNTARGET` block (clearing the fake-dead player off
+/// everyone else's target) is **False** on this dist's `Character.ini`, so it
+/// is deliberately not ported.
+pub(crate) fn fake_death(world: &mut World, target_oid: i32) {
+    // Players only — Java's `startFakeDeath` returns immediately for anything
+    // else.
+    if client_for_player(world, target_oid).is_none() {
+        return;
+    }
+    world
+        .objects
+        .remove_component::<crate::model::components::Intent>(&target_oid);
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&target_oid)
+    {
+        crate::game_loop::skills::cast::stop_casting(world, target_oid);
+    }
+    // `startFakeDeath` calls `abortAttack()` too: you cannot play dead and
+    // still land the swing you were mid-way through.
+    crate::game_loop::combat::abort_attack(world, target_oid);
+    world
+        .objects
+        .remove_component::<crate::model::components::Movement>(&target_oid);
+    broadcast_change_wait_type(
+        world,
+        target_oid,
+        server_packets::wait_type::START_FAKEDEATH,
+    );
+}
+
+/// `SkillTurning.instant` — Spell Turning (1412). Offensive despite the name:
+/// it breaks the *target's* cast. Java bails on a self-cast and on raid
+/// bosses, and rolls `Rnd.get(100) < chance` unless `staticChance`, which
+/// routes through `calcProbability` (level-aware) instead. No dist skill sets
+/// `staticChance`.
+pub(crate) fn skill_turning(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: i32,
+    static_chance: bool,
+) {
+    let is_raid = crate::game_loop::helpers::is_raid_npc(world, target_oid);
+    if caster_oid == target_oid || is_raid {
+        return;
+    }
+    let passes = if static_chance {
+        confuse_chance_passes(world, caster_oid, target_oid, skill, chance)
+    } else {
+        world.roll(100) < chance
+    };
+    if passes {
+        crate::game_loop::skills::cast::break_cast(world, target_oid);
+    }
+}
+
+/// `TargetMe` / `TargetMeProbability` — the *playable*-side taunt. Java wraps
+/// both in `if (effected.isPlayable())`, so taunting a **monster** through
+/// these does nothing at all; a mob's aggro comes from the `AddHate`/`GetAgro`
+/// effects the same skills carry. `chance` is `None` for `TargetMe` — the
+/// continuous variant that also **locks** the target (cleared on expiry) —
+/// and `Some` for the instant, chance-rolled, lock-free probability variant.
+pub(crate) fn target_me(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: Option<i32>,
+) {
+    if !world
+        .objects
+        .has_component::<crate::model::Player>(&target_oid)
+    {
+        return;
+    }
+    if let Some(chance) = chance
+        && !confuse_chance_passes(world, caster_oid, target_oid, skill, chance)
+    {
+        return;
+    }
+    // `if (effected.getTarget() != effector) effected.setTarget(effector)` —
+    // through the client-notifying setter so the selection ring actually
+    // moves.
+    let already = world
+        .objects
+        .get_component::<crate::model::components::TargetRef>(&target_oid)
+        .and_then(|t| t.0);
+    if already != Some(caster_oid)
+        && let Some(client_id) = client_for_player(world, target_oid)
+    {
+        crate::game_loop::target::set_target(world, client_id, target_oid, Some(caster_oid));
+    }
+    if chance.is_none() {
+        world.objects.add_components(
+            &target_oid,
+            crate::model::components::LockedTarget(caster_oid),
+        );
+    }
+}
+
+/// `AddHate.instant` — a flat hate change with no damage (positive:
+/// Charm/Lure; negative: unused on this dist but supported). Mirrors the
+/// add/reduce shape already used by `minions.rs`/`faction_call`.
+///
+/// No `Attackable.reduceHate` tail here (the −25 calm window +
+/// `clearAggroList`), deliberately: Java can't reach it through this handler.
+/// `AddHate.instant` passes `(int) -val` for a negative `val`, so a
+/// `power=-1240` skill calls `reduceHate(effector, +1240)` →
+/// `ai.addHate(+1240)` — the double negation makes Java's "negative AddHate"
+/// *raise* hate, which never leaves `getMostHated() == null` and so never
+/// arms the calm window. The only genuine `reduceHate` caller is
+/// `TransferHate` (skill 489 Shift Target, off-chronicle here). Porting the
+/// tail onto this branch's reduce semantics would invent a 25 s stand-down
+/// Java never produces.
+pub(crate) fn add_hate(world: &mut World, caster_oid: i32, target_oid: i32, power: f64) {
+    let Some(aggro) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&target_oid)
+    else {
+        return;
+    };
+    if power >= 0.0 {
+        aggro.0.entry(caster_oid).or_default().hate += power;
+    } else if let Some(entry) = aggro.0.get_mut(&caster_oid) {
+        entry.hate = (entry.hate + power).max(0.0);
+    }
+    if power > 0.0
+        && world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(&target_oid)
+            .is_some_and(|ai| ai.intention != crate::model::npc::NpcIntention::Attack)
+    {
+        crate::game_loop::ai::set_attack_intention(world, target_oid);
+    }
+}
+
+/// `DeleteHate.instant` — chance-rolled: wipe the *whole* aggro list and
+/// disengage (Java `setWalking()` + `setIntention(ACTIVE)`).
+pub(crate) fn delete_hate(world: &mut World, target_oid: i32, chance: i32) {
+    if world.roll(100) >= chance {
+        return;
+    }
+    if let Some(aggro) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&target_oid)
+    {
+        aggro.0.clear();
+    }
+    crate::game_loop::ai::set_active(world, target_oid);
+}
+
+/// `DeleteHateOfMe.instant` — chance-rolled: `stopHating` just the caster's
+/// own entry, but Java disengages the AI wholesale regardless of whatever
+/// other hate remains — the next think tick re-picks the next-most-hated
+/// target on its own if any is left.
+pub(crate) fn delete_hate_of_me(world: &mut World, caster_oid: i32, target_oid: i32, chance: i32) {
+    if world.roll(100) >= chance {
+        return;
+    }
+    if let Some(aggro) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&target_oid)
+        && let Some(entry) = aggro.0.get_mut(&caster_oid)
+    {
+        entry.hate = 0.0;
+    }
+    crate::game_loop::ai::set_active(world, target_oid);
+}
+
+/// Which of the MP-restore family computed the amount — four Java handlers,
+/// four amount formulas, one shared apply path (`restore_mp`).
+pub(crate) enum ManaHealKind {
+    Flat,
+    ByLevel,
+    Percent,
+}
+
+/// The `ManaHeal`/`ManaHealByLevel`/`ManaHealPercent` amount formulas.
+pub(crate) fn mana_heal(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    power: f64,
+    kind: ManaHealKind,
+) {
+    let max_mp = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.max_mp as f64)
+        .unwrap_or(0.0);
+    let amount = match kind {
+        // `ManaHealPercent`: a straight share of the pool. Java special-cases
+        // `power == 100` to the full pool, which is the same number the
+        // multiply gives — kept as one branch.
+        ManaHealKind::Percent => (max_mp * power) / 100.0,
+        // `ManaHeal`: flat power, then the recipient's `MANA_CHARGE`. Java
+        // skips that for a *static* skill; no skill in this family is static,
+        // so it always applies.
+        ManaHealKind::Flat => mana_charge_of(world, target_oid, power),
+        // `ManaHealByLevel`: `MANA_CHARGE` first, *then* the level-gap
+        // penalty.
+        ManaHealKind::ByLevel => {
+            let charged = mana_charge_of(world, target_oid, power);
+            charged
+                * recharge_level_penalty(player_or_npc_level(world, target_oid), skill.magic_level)
+        }
+    };
+    restore_mp(world, caster_oid, target_oid, amount);
+}
+
+/// Java's `Mp` handler: `amount`, flat or as a share of max MP.
+pub(crate) fn mp_restore(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    amount: f64,
+    percent: bool,
+) {
+    let max_mp = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.max_mp as f64)
+        .unwrap_or(0.0);
+    let amount = if percent {
+        (max_mp * amount) / 100.0
+    } else {
+        amount
+    };
+    restore_mp(world, caster_oid, target_oid, amount);
+}
+
+/// `HpByLevel.instant` — heals the **effector**. Life Scavenge (46) and
+/// Corpse Life Drain (1151) drain a corpse to top the *caster* up, so the
+/// target is only the corpse being consumed.
+pub(crate) fn hp_by_level(world: &mut World, caster_oid: i32, power: f64) {
+    use server_packets::{SmParam, sm_ids};
+    let Some(v) = world.objects.get_component::<Vitals>(&caster_oid).copied() else {
+        return;
+    };
+    // Java clamps to `getMaxHp()` here, **not** to `getMaxRecoverableHp()` —
+    // the one heal in this family that ignores the recoverable cap. Ported as
+    // written.
+    let restored = ((v.cur_hp + power).min(v.max_hp as f64) - v.cur_hp).trunc();
+    if restored <= 0.0 {
+        return;
+    }
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
+        v.cur_hp += restored;
+    }
+    crate::game_loop::helpers::send_sm_to_player(
+        world,
+        caster_oid,
+        sm_ids::S1_HP_HAS_BEEN_RESTORED,
+        &[SmParam::Int(restored as i32)],
+    );
+    broadcast_vitals(world, caster_oid);
+}
+
+/// `Cp.instant` — an immediate CP change, clamped so it never takes the
+/// target past full CP (Java caps the *gain* at the recoverable headroom; a
+/// negative amount is applied as-is and floored at 0).
+pub(crate) fn cp(world: &mut World, target_oid: i32, amount: f64, percent: bool) {
+    let Some(pv) = world
+        .objects
+        .get_component::<crate::model::components::PlayerVitals>(&target_oid)
+        .copied()
+    else {
+        return; // NPCs have no CP pool
+    };
+    let basic = if percent {
+        pv.max_cp as f64 * amount / 100.0
+    } else {
+        amount
+    };
+    let headroom = (pv.max_cp as f64 - pv.cur_cp).max(0.0);
+    let delta = if basic >= 0.0 {
+        basic.min(headroom)
+    } else {
+        basic
+    };
+    if delta != 0.0 {
+        if let Some(v) = world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVitals>(&target_oid)
+        {
+            v.cur_cp = (v.cur_cp + delta).clamp(0.0, v.max_cp as f64);
+        }
+        broadcast_vitals(world, target_oid);
+    }
+}

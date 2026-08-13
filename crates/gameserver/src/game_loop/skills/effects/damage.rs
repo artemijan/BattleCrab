@@ -681,3 +681,98 @@ pub(crate) fn broadcast_vitals(world: &World, target_oid: i32) {
     }
     crate::game_loop::party::notify_party_vitals(world, target_oid);
 }
+
+/// `PhysicalAttack.instant()` — crit is rolled here (per-effect in Java), not
+/// the once-per-cast magic roll. `hp_link` is `PhysicalAttackHpLink`'s tail:
+/// the same formula with one extra multiplier at the end, keyed on the
+/// **caster's** missing HP — at full health the multiplier is 0, so Fatal
+/// Counter fired by a healthy archer does nothing at all.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn physical_attack(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    ss: bool,
+    power: f64,
+    p_atk_mod: f64,
+    p_def_mod: f64,
+    critical_chance: f64,
+    ignore_shield_defence: bool,
+    hp_link: bool,
+) {
+    let (p_atk, level, str_bonus, random_dmg, caster_name) = {
+        let cs = world.objects.get_component::<CombatStats>(&caster_oid);
+        let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
+        let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
+        let str_bonus = caster_str_bonus(world, caster_oid);
+        (
+            p_atk,
+            player_or_npc_level(world, caster_oid),
+            str_bonus,
+            random_dmg,
+            caster_display_name(world, caster_oid),
+        )
+    };
+    // Java folds `pDefMod` in *before* the shield add, so the shield's own
+    // sDef is never scaled by it.
+    let base_defence = target_p_def(world, target_oid) * p_def_mod;
+    let defence = defence_after_shield(world, target_oid, base_defence, ignore_shield_defence);
+    let crit = formulas::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
+    let rand_roll = if random_dmg > 0 {
+        world.roll(2 * random_dmg + 1) - random_dmg
+    } else {
+        0
+    };
+    // A perfect block is a flat 1, whatever the rest would say.
+    let damage = match defence {
+        None => 1.0,
+        Some(defence) => {
+            // `weaponMod` is **70 with a `+pAtk+power` bonus term** for a
+            // ranged weapon, 77 for melee — the difference between an
+            // archer's skill and a swordsman's.
+            let ranged = crate::game_loop::ranged::is_ranged(
+                crate::game_loop::ranged::equipped_weapon_type(world, caster_oid)
+                    .unwrap_or_default(),
+            );
+            formulas::calc_physical_skill_damage(
+                p_atk,
+                p_atk_mod,
+                defence,
+                1.0, // already folded into `defence` above
+                power,
+                formulas::level_mod(level),
+                formulas::random_damage_multiplier(rand_roll),
+                crit,
+                crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
+                ss,
+                ranged,
+            ) * attribute_mod(world, caster_oid, target_oid, skill)
+                * skill_trait_mod(world, caster_oid, target_oid, skill, true)
+                * skill_power_mul(world, caster_oid, false)
+                * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
+        }
+    };
+    let damage = if hp_link {
+        let v = world.objects.get_component::<Vitals>(&caster_oid).copied();
+        match v {
+            Some(v) if v.max_hp > 0 => damage * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0),
+            _ => damage,
+        }
+    } else {
+        damage
+    };
+    apply_skill_damage(
+        world,
+        caster_oid,
+        target_oid,
+        SkillHit {
+            damage,
+            crit,
+            caster_name: &caster_name,
+            over_hit: skill.over_hit,
+            skill_id: skill.id,
+            ..Default::default()
+        },
+    );
+}

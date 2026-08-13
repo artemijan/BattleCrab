@@ -313,3 +313,102 @@ pub(crate) fn roll_magic_failure(
 
     outcome
 }
+
+// --- arms extracted from the `apply_skill_effects` match -------------------
+
+/// `GiveSp.instant` — SP Scrolls and the Primeval Isle crystals.
+///
+/// Java credits the **effector**, guards on both ends being players and on
+/// the effected not being alike-dead, and calls the plain two-arg
+/// `addExpAndSp` — which is `useBonuses = false`, so no vitality or rate
+/// multiplier applies to a scroll.
+pub(crate) fn give_sp(world: &mut World, caster_oid: i32, target_oid: i32, sp: i64) {
+    let both_players = world
+        .objects
+        .has_component::<crate::model::Player>(&caster_oid)
+        && world
+            .objects
+            .has_component::<crate::model::Player>(&target_oid);
+    let dead = crate::game_loop::helpers::is_dead(world, target_oid);
+    if both_players && !dead {
+        crate::game_loop::death::add_exp_and_sp(world, caster_oid, 0.0, sp as f64, false);
+    }
+}
+
+/// `OpenCommonRecipeBook`/`OpenDwarfRecipeBook.instant`: players only,
+/// refused while a private store (incl. manufacture) is up, then
+/// `RecipeManager.requestBookOpen`.
+pub(crate) fn open_recipe_book(world: &mut World, caster_oid: i32, dwarven: bool) {
+    use server_packets::sm_ids;
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&caster_oid)
+        .is_some()
+    {
+        let store_type = world
+            .objects
+            .get_component::<crate::model::Player>(&caster_oid)
+            .map(|p| p.store_type)
+            .unwrap_or(0);
+        if store_type != 0 {
+            send_sm(
+                world,
+                caster_oid,
+                sm_ids::ITEM_CREATION_IS_NOT_POSSIBLE_WHILE_ENGAGED_IN_A_TRADE,
+            );
+        } else if let Some(cid) = client_for_player(world, caster_oid) {
+            crate::game_loop::crafting::request_book_open(world, cid, dwarven);
+        }
+    }
+}
+
+/// `FocusMomentum.instant` — the "Force" charge gain (Force Meditation and
+/// friends), capped at Java's hardcoded fallback for the never-set
+/// `MAX_MOMENTUM` stat.
+pub(crate) fn focus_momentum(world: &mut World, target_oid: i32, amount: i32, max_charges: i32) {
+    use server_packets::{SmParam, sm_ids};
+    let max = max_charges.min(8);
+    let current = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+        .map(|p| p.charges)
+        .unwrap_or(0);
+    let Some(client_id) = client_for_player(world, target_oid) else {
+        return;
+    };
+    if current >= max {
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
+                sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY,
+                &[],
+            ),
+        );
+        return;
+    }
+    let new_charge = (current + amount).min(max);
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&target_oid)
+    {
+        p.charges = new_charge;
+    }
+    // `setCharges` restarts the decay clock.
+    arm_charge_decay(world, target_oid);
+    if new_charge == max {
+        send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY,
+        );
+    } else {
+        send_sm_to_client(
+            world,
+            client_id,
+            sm_ids::YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1,
+            &[SmParam::Int(new_charge)],
+        );
+    }
+    crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
+}
