@@ -397,15 +397,6 @@ fn player_do_die_drives_tvt_scoring() {
 // Slice 4 — EndFight rewards, teardown, forfeit, logout
 // ---------------------------------------------------------------------------
 
-/// Register a stackable Adena template so the winner reward lands.
-fn register_adena(world: &mut World) {
-    let mut t = crate::data::item_data::ItemTemplate::default();
-    t.item_id = 57;
-    t.name = "Adena".into();
-    t.is_stackable = true;
-    world.data.item_data.insert_for_test(t);
-}
-
 fn adena_count(world: &World, oid: i32) -> i64 {
     world
         .objects
@@ -416,7 +407,7 @@ fn adena_count(world: &World, oid: i32) -> i64 {
 #[test]
 fn end_fight_rewards_the_winning_team_and_freezes_everyone() {
     let (mut world, _oids) = fighting_arena(4);
-    register_adena(&mut world);
+    insert_adena_template(&mut world);
     // Blue takes the lead.
     world.events.tvt.blue_score = 3;
     world.events.tvt.red_score = 1;
@@ -452,7 +443,7 @@ fn end_fight_rewards_the_winning_team_and_freezes_everyone() {
 #[test]
 fn a_tie_rewards_no_one() {
     let (mut world, _oids) = fighting_arena(4);
-    register_adena(&mut world);
+    insert_adena_template(&mut world);
     // Scores level (both 0).
     let everyone: Vec<i32> = world
         .events
@@ -522,7 +513,7 @@ fn a_full_event_with_a_winner_end_to_end() {
     // The G28 gate in full: open → register → arena → a scored kill → EndFight
     // (winner rewarded) → teleport-out, clean.
     let (mut world, _oids) = fighting_arena(4);
-    register_adena(&mut world);
+    insert_adena_template(&mut world);
     let killer = world.events.tvt.blue_team[0];
     let victim = world.events.tvt.red_team[0];
 

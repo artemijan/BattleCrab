@@ -177,11 +177,7 @@ use crate::model::inventory::Inventory;
 fn bidding_world(player: i32, adena: i64) -> World {
     let mut world = world_with_instance(31113);
     world.id_pool = 0x9000_0000..0x9000_0100;
-    let mut t = crate::data::item_data::ItemTemplate::default();
-    t.item_id = 57;
-    t.name = "Adena".into();
-    t.is_stackable = true;
-    world.data.item_data.insert_for_test(t);
+    insert_adena_template(&mut world);
     // A live auction of catalogue item 1 (init bid 100000), far from ending.
     let now = commons::util::now_millis();
     let a = ItemAuction::new(

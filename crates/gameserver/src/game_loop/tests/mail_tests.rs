@@ -1178,11 +1178,7 @@ fn a_custom_mail_row_is_delivered_and_deleted() {
     let (mut world, _tx, mut db_rx, _l) = test_world();
     world.id_pool = 0x4C00_0000..0x4C00_0100;
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    let mut t = crate::data::item_data::ItemTemplate::default();
-    t.item_id = 57;
-    t.name = "Adena".into();
-    t.is_stackable = true;
-    world.data.item_data.insert_for_test(t);
+    insert_adena_template(&mut world);
     drain(&mut rx);
     drain_db(&mut db_rx);
 

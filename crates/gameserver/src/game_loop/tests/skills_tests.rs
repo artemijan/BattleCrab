@@ -1556,19 +1556,17 @@ fn skill_cool_time_lists_remaining_reuse() {
     );
 
     // A reuse with 6 s left is reported with its total and remainder.
-    world
-        .objects
-        .get_component_mut::<Reuses>(&3001)
-        .unwrap()
-        .0
-        .insert(
-            1177,
-            model::SkillReuse {
-                skill_level: 1,
-                until_tick: world.tick + 60,
-                total_ms: 10_000,
-            },
-        );
+    let until_tick = world.tick + 60;
+    arm_reuse(
+        &mut world,
+        3001,
+        1177,
+        model::SkillReuse {
+            skill_level: 1,
+            until_tick,
+            total_ms: 10_000,
+        },
+    );
     on_packet(&mut world, 1, vec![cop::REQUEST_SKILL_COOL_TIME]);
     let pkt = a_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::SKILL_COOL_TIME);
@@ -3879,24 +3877,21 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
 #[test]
 fn skill_reuse_cooldown_survives_relog() {
     use crate::model::SkillReuse;
-    use crate::model::components::Reuses;
 
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     // A cooldown on reuse-key 1177, ending 500 ticks (50 s) out.
-    world
-        .objects
-        .get_component_mut::<Reuses>(&3001)
-        .unwrap()
-        .0
-        .insert(
-            1177,
-            SkillReuse {
-                skill_level: 3,
-                until_tick: world.tick + 500,
-                total_ms: 300_000,
-            },
-        );
+    let until_tick = world.tick + 500;
+    arm_reuse(
+        &mut world,
+        3001,
+        1177,
+        SkillReuse {
+            skill_level: 3,
+            until_tick,
+            total_ms: 300_000,
+        },
+    );
 
     // The save captures it (config default = on) as an absolute systime.
     let save = build_save_data(&world, 3001).expect("save data");

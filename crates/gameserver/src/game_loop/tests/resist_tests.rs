@@ -451,18 +451,11 @@ fn only_the_resistable_trait_group_is_scaled() {
 /// whose value is the percentage over 100, per level.
 #[test]
 fn stun_resistance_parses_its_per_level_percentages() {
-    use crate::model::skill::{SkillEffect, TraitType};
+    use crate::model::skill::TraitType;
     let sd = dist::skills();
     for (level, pct) in [(1, 0.15), (2, 0.20), (3, 0.30), (4, 0.40)] {
         let s = sd.get(1259, level).expect("Stun Resistance");
-        let traits = s
-            .effects
-            .iter()
-            .find_map(|e| match e {
-                SkillEffect::DefenceTrait { traits } => Some(traits.clone()),
-                _ => None,
-            })
-            .expect("a DefenceTrait effect");
+        let traits = defence_traits(s).expect("a DefenceTrait effect");
         assert_eq!(traits.len(), 1);
         assert_eq!(traits[0].0, TraitType::Shock);
         assert!(

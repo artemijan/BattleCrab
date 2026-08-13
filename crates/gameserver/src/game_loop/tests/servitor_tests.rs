@@ -1576,10 +1576,7 @@ fn a_pet_refuses_food_it_does_not_eat() {
         .fed = 50;
 
     // A different item entirely, sitting in the pet's bag.
-    let mut other = crate::data::item_data::ItemTemplate::default();
-    other.item_id = 57;
-    other.is_stackable = true;
-    world.data.item_data.insert_for_test(other);
+    insert_adena_template(&mut world);
     let oid = {
         let World { data, objects, .. } = &mut world;
         objects

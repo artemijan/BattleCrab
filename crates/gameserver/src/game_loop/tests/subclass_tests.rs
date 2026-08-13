@@ -567,19 +567,17 @@ fn a_class_switch_clears_skill_cooldowns() {
     let (mut world, _db, _l) = sub_world();
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_subclass(&mut world, PLAYER, 3).unwrap();
-    world
-        .objects
-        .get_component_mut::<crate::model::components::Reuses>(&PLAYER)
-        .unwrap()
-        .0
-        .insert(
-            1234,
-            crate::model::SkillReuse {
-                skill_level: 1,
-                until_tick: world.tick + 100_000,
-                total_ms: 600_000,
-            },
-        );
+    let until_tick = world.tick + 100_000;
+    arm_reuse(
+        &mut world,
+        PLAYER,
+        1234,
+        crate::model::SkillReuse {
+            skill_level: 1,
+            until_tick,
+            total_ms: 600_000,
+        },
+    );
 
     set_active_class(&mut world, PLAYER, 1);
 
@@ -600,19 +598,17 @@ fn cooldowns_are_saved_under_the_active_class_index() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_subclass(&mut world, PLAYER, 3).unwrap();
     set_active_class(&mut world, PLAYER, 1);
-    world
-        .objects
-        .get_component_mut::<crate::model::components::Reuses>(&PLAYER)
-        .unwrap()
-        .0
-        .insert(
-            1234,
-            crate::model::SkillReuse {
-                skill_level: 1,
-                until_tick: world.tick + 100_000,
-                total_ms: 600_000,
-            },
-        );
+    let until_tick = world.tick + 100_000;
+    arm_reuse(
+        &mut world,
+        PLAYER,
+        1234,
+        crate::model::SkillReuse {
+            skill_level: 1,
+            until_tick,
+            total_ms: 600_000,
+        },
+    );
     let _ = drain_db(&mut db);
 
     crate::game_loop::net::save_all_players(&mut world);

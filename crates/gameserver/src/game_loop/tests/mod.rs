@@ -1134,6 +1134,38 @@ fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
         });
 }
 
+/// The `(trait, value)` pairs a skill's `DefenceTrait` effect carries — the
+/// per-trait resistances — or `None` when the skill has no such effect.
+fn defence_traits(skill: &model::skill::Skill) -> Option<&[(model::skill::TraitType, f64)]> {
+    skill.effects.iter().find_map(|e| match e {
+        model::skill::SkillEffect::DefenceTrait { traits } => Some(traits.as_slice()),
+        _ => None,
+    })
+}
+
+/// The attacker-side twin of [`defence_traits`]: what an `AttackTrait` effect
+/// declares the wielder is strong against.
+fn attack_traits(skill: &model::skill::Skill) -> Option<&[(model::skill::TraitType, f64)]> {
+    skill.effects.iter().find_map(|e| match e {
+        model::skill::SkillEffect::AttackTrait { traits } => Some(traits.as_slice()),
+        _ => None,
+    })
+}
+
+/// Arm `reuse` on an existing `Reuses` component under `key` — Java's reuse
+/// hash, which spans skill *and* sub-level, so it is not always the skill id.
+///
+/// The creature must already carry `Reuses`; build the map and `add_components`
+/// it for one that does not.
+fn arm_reuse(world: &mut World, oid: i32, key: i32, reuse: model::SkillReuse) {
+    world
+        .objects
+        .get_component_mut::<model::components::Reuses>(&oid)
+        .expect("target has a Reuses component")
+        .0
+        .insert(key, reuse);
+}
+
 fn test_stat_modifier_effect() -> model::skill::StatModifierEffect {
     model::skill::StatModifierEffect {
         stat: Stat::PhysicalAttack,

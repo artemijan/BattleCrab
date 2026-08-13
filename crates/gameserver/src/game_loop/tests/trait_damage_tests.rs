@@ -92,14 +92,7 @@ fn the_detect_weakness_skills_parse_their_traits() {
     );
     // Eye of Slayer carries four at once.
     let slayer = sd.get(360, 1).expect("Eye of Slayer");
-    let count = slayer
-        .effects
-        .iter()
-        .find_map(|e| match e {
-            SkillEffect::AttackTrait { traits } => Some(traits.len()),
-            _ => None,
-        })
-        .expect("an AttackTrait effect");
+    let count = attack_traits(slayer).expect("an AttackTrait effect").len();
     assert_eq!(count, 4, "BEAST/GIANT/CONSTRUCT/DRAGON");
 }
 
@@ -341,14 +334,7 @@ fn an_auto_attack_is_softened_by_the_targets_weapon_defence() {
 fn the_race_skills_carry_the_weakness_defence_traits() {
     let sd = dist::skills();
     let undead = sd.get(4416, 2).expect("Undead lvl 2");
-    let traits = undead
-        .effects
-        .iter()
-        .find_map(|e| match e {
-            SkillEffect::DefenceTrait { traits } => Some(traits.clone()),
-            _ => None,
-        })
-        .expect("a DefenceTrait effect");
+    let traits = defence_traits(undead).expect("a DefenceTrait effect");
     assert!(
         traits
             .iter()

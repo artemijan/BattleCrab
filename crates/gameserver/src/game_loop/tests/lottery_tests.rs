@@ -25,15 +25,6 @@ fn enabled_world() -> (World, db::CmdRx) {
     (world, db_rx)
 }
 
-/// Register a stackable Adena template so purchases/payouts move a single stack.
-fn register_adena(world: &mut World) {
-    let mut t = crate::data::item_data::ItemTemplate::default();
-    t.item_id = 57;
-    t.name = "Adena".into();
-    t.is_stackable = true;
-    world.data.item_data.insert_for_test(t);
-}
-
 #[test]
 fn fresh_boot_opens_round_one() {
     let (mut world, mut db_rx) = enabled_world();
@@ -192,7 +183,7 @@ fn the_draw_splits_the_pot_by_tier() {
 fn buying_a_ticket_charges_adena_grows_the_pot_and_mints_the_ticket() {
     let (mut world, mut db_rx) = enabled_world();
     world.id_pool = 0x6000_0000..0x6000_0100;
-    register_adena(&mut world);
+    insert_adena_template(&mut world);
     lottery::on_loaded(&mut world, None, vec![]); // round 1, selling open
     drain_db(&mut db_rx);
 
@@ -222,7 +213,7 @@ fn buying_a_ticket_charges_adena_grows_the_pot_and_mints_the_ticket() {
 fn selling_closed_refuses_the_purchase() {
     let (mut world, mut db_rx) = enabled_world();
     world.id_pool = 0x6000_0000..0x6000_0100;
-    register_adena(&mut world);
+    insert_adena_template(&mut world);
     lottery::on_loaded(&mut world, None, vec![]);
     world.lottery.selling = false; // sales suspended
     drain_db(&mut db_rx);
@@ -252,7 +243,7 @@ fn selling_closed_refuses_the_purchase() {
 fn claiming_a_winning_ticket_pays_out_and_consumes_it() {
     let (mut world, mut db_rx) = enabled_world();
     world.id_pool = 0x6000_0000..0x6000_0100;
-    register_adena(&mut world);
+    insert_adena_template(&mut world);
     // Round 1 drew numbers enchant=31 with a 30000 first prize; round 2 is live.
     lottery::on_loaded(
         &mut world,

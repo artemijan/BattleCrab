@@ -228,11 +228,7 @@ fn loot_in_reach_is_picked_up() {
     use crate::model::inventory::Inventory;
 
     let (mut world, _rx) = play_world();
-    let mut t = crate::data::item_data::ItemTemplate::default();
-    t.item_id = 57;
-    t.name = "Adena".into();
-    t.is_stackable = true;
-    world.data.item_data.insert_for_test(t);
+    insert_adena_template(&mut world);
     // Unowned loot 30 units away — inside the 70-unit reach.
     crate::game_loop::ground_items::spawn_ground_item(
         &mut world,

@@ -149,11 +149,7 @@ fn race_world_db() -> (World, db::CmdRx) {
     world.cfg.general.allow_race = true;
     world.monster_race.race_number = 1;
     world.id_pool = 0x8000_0000..0x8000_0100;
-    let mut t = crate::data::item_data::ItemTemplate::default();
-    t.item_id = 57;
-    t.name = "Adena".into();
-    t.is_stackable = true;
-    world.data.item_data.insert_for_test(t);
+    insert_adena_template(&mut world);
     (world, db_rx)
 }
 
