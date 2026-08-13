@@ -148,7 +148,7 @@ pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32)
 /// here — the same one-seed cost.
 pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
     use crate::model::Player;
-    use crate::model::npc::{Npc, NpcAi, NpcIntention};
+    use crate::model::npc::Npc;
     use server_packets::sm_ids;
 
     let Some(player_level) = world
@@ -256,9 +256,7 @@ pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
     }
 
     // Java sets the mob's AI to IDLE after a sow attempt.
-    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&target_oid) {
-        ai.intention = NpcIntention::Active;
-    }
+    crate::game_loop::helpers::set_active_intention(world, target_oid);
 }
 
 /// `Sow.calcSuccess`: a level-scaled chance (base 90 %, or 20 % for the

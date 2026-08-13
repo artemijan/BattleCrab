@@ -642,6 +642,23 @@ pub(crate) fn set_attack_intention(world: &mut World, npc_oid: i32) {
     }
 }
 
+/// The bare half of `setIntention(AI_INTENTION_ACTIVE)` — drop the AI back to
+/// the scan loop and nothing else.
+///
+/// [`crate::game_loop::npc::ai::set_active`] is the fuller version, which also
+/// reverts the move type to walking and broadcasts the `ChangeMoveType` that
+/// goes with it. Callers here want only the intention: a servitor recalled to
+/// its owner keeps whatever move type it was on, and a sown mob is left where
+/// Java's `setIntention(AI_INTENTION_IDLE)` leaves it.
+pub(crate) fn set_active_intention(world: &mut World, npc_oid: i32) {
+    if let Some(ai) = world
+        .objects
+        .get_component_mut::<model::npc::NpcAi>(&npc_oid)
+    {
+        ai.intention = model::npc::NpcIntention::Active;
+    }
+}
+
 /// The NPC half of `setIntention(AI_INTENTION_MOVE_TO, destination)`: park the
 /// AI on `MoveTo` and walk. The intention is what keeps `think` from re-issuing
 /// a chase for the length of the walk (fear, flee-on-attack), so it is set

@@ -393,12 +393,7 @@ pub(crate) fn servitor_stop(world: &mut World, owner_oid: i32) -> bool {
     world
         .objects
         .remove_component::<crate::model::components::Movement>(&servitor_oid);
-    if let Some(ai) = world
-        .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
-    {
-        ai.intention = crate::model::npc::NpcIntention::Active;
-    }
+    crate::game_loop::helpers::set_active_intention(world, servitor_oid);
     if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
         l.following = true;
     }
@@ -750,12 +745,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
         if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
             l.following = true;
         }
-        if let Some(ai) = world
-            .objects
-            .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
-        {
-            ai.intention = crate::model::npc::NpcIntention::Active;
-        }
+        crate::game_loop::helpers::set_active_intention(world, servitor_oid);
     }
 
     world.scheduler.schedule(
