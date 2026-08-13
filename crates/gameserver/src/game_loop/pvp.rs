@@ -76,12 +76,7 @@ pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
     let pos = world
         .objects
         .get_component::<crate::model::components::Position>(&oid)?;
-    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
-    world
-        .sieges
-        .get(&castle_id)
-        .filter(|s| s.in_progress)
-        .map(|_| castle_id)
+    super::siege::active_siege_castle_at(world, pos.x, pos.y, pos.z)
 }
 
 /// Java `Player.isInSiege()` as the UserInfo relation reads it: the player is a

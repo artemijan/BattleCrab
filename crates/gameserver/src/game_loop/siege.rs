@@ -655,21 +655,24 @@ fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[SiegeSpawn]) {
     }
 }
 
+/// The castle whose siege is **currently running** over `(x, y, z)` — the siege
+/// zone lookup plus the `in_progress` test every "is this spot a live
+/// battlefield" check needs.
+pub(crate) fn active_siege_castle_at(world: &World, x: i32, y: i32, z: i32) -> Option<i32> {
+    let castle_id = world.data.zone_data.siege_castle_at(x, y, z)?;
+    world
+        .sieges
+        .get(&castle_id)
+        .filter(|s| s.in_progress)
+        .map(|_| castle_id)
+}
+
 /// Whether an NPC is a siege tower (control / flame) standing in an active
 /// siege zone — attackable so attackers can tear it down.
 pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
-    let is_tower = npc_template(world, npc_oid)
-        .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"));
-    if !is_tower {
-        return false;
-    }
-    let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else {
-        return false;
-    };
-    match world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) {
-        Some(castle_id) => world.sieges.get(&castle_id).is_some_and(|s| s.in_progress),
-        None => false,
-    }
+    npc_template(world, npc_oid)
+        .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"))
+        && super::pvp::active_siege_castle(world, npc_oid).is_some()
 }
 
 /// Java `Siege.killedCT` — a control tower fell; decrement its castle's live
@@ -833,12 +836,7 @@ pub(crate) fn active_siege_guard_castle(world: &World, guard_oid: i32) -> Option
         return None;
     }
     let pos = world.objects.get_component::<Position>(&guard_oid)?;
-    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
-    world
-        .sieges
-        .get(&castle_id)
-        .filter(|s| s.in_progress)
-        .map(|_| castle_id)
+    active_siege_castle_at(world, pos.x, pos.y, pos.z)
 }
 
 /// Whether a stationed siege guard (`Defender`) is attackable by `attacker_oid`:
@@ -917,16 +915,8 @@ fn spawn_castle_doors(world: &mut World, castle_id: i32, weak: bool) {
 /// in progress — i.e. currently attackable/breachable (Java `Door.isAttackable`
 /// during a siege).
 pub(crate) fn attackable_door(world: &World, door_oid: i32) -> bool {
-    if !world.objects.has_component::<Door>(&door_oid) {
-        return false;
-    }
-    let Some(pos) = world.objects.get_component::<Position>(&door_oid) else {
-        return false;
-    };
-    match world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) {
-        Some(castle_id) => world.sieges.get(&castle_id).is_some_and(|s| s.in_progress),
-        None => false,
-    }
+    world.objects.has_component::<Door>(&door_oid)
+        && super::pvp::active_siege_castle(world, door_oid).is_some()
 }
 
 /// Apply siege damage to a castle door; at 0 HP it's breached (opens). Returns
