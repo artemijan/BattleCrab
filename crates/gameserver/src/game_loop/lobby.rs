@@ -750,7 +750,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     super::clans::on_enter_world(world, client_id, object_id);
     // `EnterWorld.notifySponsorOrApprentice` — tell the other half of an
     // academy mentorship that their partner is on.
-    super::academy::notify_partner_on_login(world, object_id);
+    super::clans::academy::notify_partner_on_login(world, object_id);
     // Re-apply Olympiad hero status to a crowned character.
     super::olympiad::on_enter_world(world, object_id);
     // `EnterWorld`: `player.updatePvpTitleAndColor(false)` — a returning player

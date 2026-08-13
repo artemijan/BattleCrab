@@ -828,7 +828,7 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
         .categories
         .contains("THIRD_CLASS_GROUP", class_id)
     {
-        super::academy::graduate(world, player_oid);
+        super::clans::academy::graduate(world, player_oid);
     }
 
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {

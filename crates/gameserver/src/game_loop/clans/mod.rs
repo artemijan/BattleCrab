@@ -40,6 +40,7 @@ use crate::world::World;
 
 use super::helpers::client_for_player;
 
+pub(crate) mod academy;
 mod alliance;
 mod crests;
 pub(crate) mod hall_auction;

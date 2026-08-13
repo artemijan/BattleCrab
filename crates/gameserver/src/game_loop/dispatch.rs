@@ -773,7 +773,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::clans::handle_request_pledge_member_power_info(world, client_id, ex_body)
         }
         exop::REQUEST_PLEDGE_SET_ACADEMY_MASTER => {
-            super::academy::handle_set_academy_master(world, client_id, ex_body)
+            super::clans::academy::handle_set_academy_master(world, client_id, ex_body)
         }
         exop::REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE => {
             super::clans::handle_request_pledge_set_member_power_grade(world, client_id, ex_body)

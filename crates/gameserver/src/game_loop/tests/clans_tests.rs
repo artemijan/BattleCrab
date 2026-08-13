@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::{academy, chat, clans, helpers, pvp, subclass, warehouse};
+use crate::game_loop::clans::academy;
+use crate::game_loop::{chat, clans, helpers, pvp, subclass, warehouse};
 
 /// The `create_clan` bypass: Java's guard matrix (SM ids in `ClanTable.
 /// createClan` order), then the success path — clan registered + persisted,

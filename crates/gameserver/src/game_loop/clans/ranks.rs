@@ -466,7 +466,8 @@ pub(crate) fn handle_request_pledge_member_info(world: &World, client_id: u32, e
             }
         })
         .unwrap_or_default();
-    let partner_name = crate::game_loop::academy::partner_name(world, clan_id, member.char_id);
+    let partner_name =
+        crate::game_loop::clans::academy::partner_name(world, clan_id, member.char_id);
     send_to_client(
         world,
         client_id,
@@ -509,7 +510,7 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
         return;
     }
     // Java: an academy member cannot be re-ranked out of rank 9.
-    if crate::game_loop::academy::member_is_academy(world, clan_id, member.char_id) {
+    if crate::game_loop::clans::academy::member_is_academy(world, clan_id, member.char_id) {
         send_sm_with(
             world,
             player,
@@ -681,7 +682,7 @@ pub(crate) fn handle_change_clan_leader(
         return;
     }
     // Java: an academy member cannot be nominated clan leader.
-    if crate::game_loop::academy::member_is_academy(world, clan_id, member.char_id) {
+    if crate::game_loop::clans::academy::member_is_academy(world, clan_id, member.char_id) {
         send_sm_with(
             world,
             player_oid,

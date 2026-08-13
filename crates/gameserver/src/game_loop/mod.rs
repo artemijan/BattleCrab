@@ -10,7 +10,6 @@
 
 // Lives under skills/ but keeps its historical game_loop::abnormal path.
 pub(crate) use skills::abnormal;
-pub(crate) mod academy;
 pub(crate) mod admin;
 pub(crate) mod area_npcs;
 pub(crate) mod armor_sets;

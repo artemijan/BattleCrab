@@ -612,8 +612,8 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
         return;
     }
     // Java `Player.doDie`: `!isAcademyMember() && !pk.isAcademyMember()`.
-    if crate::game_loop::academy::is_academy_member(world, killer_oid)
-        || crate::game_loop::academy::is_academy_member(world, victim_oid)
+    if crate::game_loop::clans::academy::is_academy_member(world, killer_oid)
+        || crate::game_loop::clans::academy::is_academy_member(world, victim_oid)
     {
         return;
     }

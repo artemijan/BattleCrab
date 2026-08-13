@@ -308,7 +308,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     });
     // Java `RequestAnswerJoinPledge`: an academy invite also stamps the level
     // the recruit joined at — the graduation reward scales off it.
-    crate::game_loop::academy::on_join(world, player_oid, pledge_type);
+    crate::game_loop::clans::academy::on_join(world, player_oid, pledge_type);
 
     send_sm_with(world, player_oid, sm_ids::ENTERED_THE_CLAN, &[]);
     let joined = server_packets::system_message_with(
@@ -384,7 +384,7 @@ pub(crate) fn remove_clan_member(
     // Java `Player.setClan(null)` clears `lvlJoinedAcademy` + the mentorship
     // pair; run it first, while the member is still on the roster (the
     // mentorship lookup reads it).
-    crate::game_loop::academy::on_leave_clan(world, member_oid);
+    crate::game_loop::clans::academy::on_leave_clan(world, member_oid);
     // `CastleManager.removeCirclet(exMember, getCastleId())` — before the
     // roster edit below, while the clan still reports its castle. A clan with
     // no castle has id 0, which `circlet_of` maps to "no circlet".

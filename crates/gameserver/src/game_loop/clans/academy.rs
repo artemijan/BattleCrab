@@ -135,7 +135,7 @@ pub(crate) fn graduate(world: &mut World, player_oid: i32) -> bool {
     } else {
         cfg.complete_academy_max_points - (joined_at - 16) * 20
     };
-    super::clans::add_clan_reputation(world, clan_id, points);
+    crate::game_loop::clans::add_clan_reputation(world, clan_id, points);
 
     set_academy_level(world, player_oid, 0);
 
@@ -144,8 +144,8 @@ pub(crate) fn graduate(world: &mut World, player_oid: i32) -> bool {
         sm_ids::CLAN_MEMBER_S1_HAS_BEEN_EXPELLED,
         &[SmParam::Text(name.clone())],
     );
-    super::clans::broadcast_to_clan(world, clan_id, &expelled);
-    super::clans::broadcast_to_clan(
+    crate::game_loop::clans::broadcast_to_clan(world, clan_id, &expelled);
+    crate::game_loop::clans::broadcast_to_clan(
         world,
         clan_id,
         &server_packets::pledge_show_member_list_delete(&name),
@@ -153,16 +153,16 @@ pub(crate) fn graduate(world: &mut World, player_oid: i32) -> bool {
 
     // `removeClanMember(objectId, 0)` — **expiry 0**: a graduate may join a new
     // clan immediately, which is the reward's other half.
-    super::clans::remove_clan_member_for_academy(world, clan_id, player_oid);
+    crate::game_loop::clans::remove_clan_member_for_academy(world, clan_id, player_oid);
 
-    super::clans::send_sm_with(
+    crate::game_loop::clans::send_sm_with(
         world,
         player_oid,
         sm_ids::CONGRATULATIONS_YOU_WILL_NOW_GRADUATE_FROM_THE_CLAN_ACADEMY,
         &[],
     );
     // The graduation gift.
-    let _ = super::items::add_inventory_item(world, player_oid, ACADEMY_CIRCLET, 1);
+    let _ = crate::game_loop::items::add_inventory_item(world, player_oid, ACADEMY_CIRCLET, 1);
 
     info!("GameLoop: '{name}' graduated from clan {clan_id}'s academy (+{points} rep).");
     true
@@ -226,8 +226,12 @@ pub(crate) fn handle_set_academy_master(world: &mut World, client_id: u32, body:
         return;
     };
     // `ClanPrivilege.CL_APPRENTICE`.
-    if !super::clans::has_clan_privilege(world, player_oid, crate::model::clan::CL_APPRENTICE) {
-        super::clans::send_sm_with(
+    if !crate::game_loop::clans::has_clan_privilege(
+        world,
+        player_oid,
+        crate::model::clan::CL_APPRENTICE,
+    ) {
+        crate::game_loop::clans::send_sm_with(
             world,
             player_oid,
             sm_ids::YOU_DO_NOT_HAVE_THE_RIGHT_TO_DISMISS_AN_APPRENTICE,
@@ -285,7 +289,7 @@ pub(crate) fn handle_set_academy_master(world: &mut World, client_id: u32, body:
         let (s_app, s_spon) = links_of(world, sponsor);
         if a_spon != 0 || s_app != 0 || a_app != 0 || s_spon != 0 {
             // Java has no retail message here and sends plain text.
-            super::clans::send_to_member(
+            crate::game_loop::clans::send_to_member(
                 world,
                 player_oid,
                 server_packets::system_message_with(
@@ -308,10 +312,10 @@ pub(crate) fn handle_set_academy_master(world: &mut World, client_id: u32, body:
 
     // Java tells the actor only when they are neither party.
     if player_oid != sponsor && player_oid != apprentice {
-        super::clans::send_to_member(world, player_oid, message.clone());
+        crate::game_loop::clans::send_to_member(world, player_oid, message.clone());
     }
-    super::clans::send_to_member(world, sponsor, message.clone());
-    super::clans::send_to_member(world, apprentice, message);
+    crate::game_loop::clans::send_to_member(world, sponsor, message.clone());
+    crate::game_loop::clans::send_to_member(world, apprentice, message);
 }
 
 /// Java `EnterWorld.notifySponsorOrApprentice`: tell the partner you're on.
@@ -327,13 +331,13 @@ pub(crate) fn notify_partner_on_login(world: &mut World, player_oid: i32) {
             sm_ids::YOUR_APPRENTICE_S1_HAS_LOGGED_IN,
             &[SmParam::Text(name)],
         );
-        super::clans::send_to_member(world, sponsor, msg);
+        crate::game_loop::clans::send_to_member(world, sponsor, msg);
     } else if apprentice != 0 {
         let msg = server_packets::system_message_with(
             sm_ids::YOUR_SPONSOR_C1_HAS_LOGGED_IN,
             &[SmParam::Text(name)],
         );
-        super::clans::send_to_member(world, apprentice, msg);
+        crate::game_loop::clans::send_to_member(world, apprentice, msg);
     }
 }
 
