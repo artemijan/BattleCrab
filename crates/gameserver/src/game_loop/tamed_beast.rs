@@ -9,11 +9,11 @@
 //! minutes. A 5 s `CheckOwnerBuffs` beat keeps the tamer buffed from the
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
+use crate::game_loop::death::despawn_npc_by_oid;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -57,7 +57,7 @@ pub(crate) fn spawn_tamed_beast(
     z: i32,
 ) -> Option<i32> {
     for old in beasts_of(world, owner) {
-        despawn_beast(world, old);
+        despawn_npc_by_oid(world, old);
     }
     let oid = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0)?;
     world.objects.add_components(
@@ -96,13 +96,6 @@ pub(crate) fn beasts_of(world: &mut World, owner: i32) -> Vec<i32> {
     out
 }
 
-fn despawn_beast(world: &mut World, oid: i32) {
-    let region = region_cell_of(world, oid);
-    if let Some(region) = region {
-        crate::game_loop::death::despawn_npc(world, oid, region);
-    }
-}
-
 /// `onReceiveFood`: +20 s, capped at 20 minutes.
 pub(crate) fn on_receive_food(world: &mut World, beast_oid: i32) {
     if let Some(t) = world.objects.get_component_mut::<TamedBeastOf>(&beast_oid) {
@@ -137,7 +130,7 @@ pub(crate) fn handle_duration(world: &mut World, beast_oid: i32) {
         on_receive_food(world, beast_oid);
     } else if remaining < MAX_DURATION_TICKS - NO_FOOD_GRACE_TICKS {
         // Out of spice past the newcomer grace: leaves at once.
-        despawn_beast(world, beast_oid);
+        despawn_npc_by_oid(world, beast_oid);
         return;
     }
     if world
@@ -145,7 +138,7 @@ pub(crate) fn handle_duration(world: &mut World, beast_oid: i32) {
         .get_component::<TamedBeastOf>(&beast_oid)
         .is_some_and(|t| t.remaining_ticks <= 0)
     {
-        despawn_beast(world, beast_oid);
+        despawn_npc_by_oid(world, beast_oid);
         return;
     }
     world.scheduler.schedule(
@@ -170,7 +163,7 @@ pub(crate) fn handle_follow(world: &mut World, beast_oid: i32) {
         .and_then(|_| maybe_position(world, owner));
     let Some(owner_pos) = owner_pos else {
         // Owner no longer in the world.
-        despawn_beast(world, beast_oid);
+        despawn_npc_by_oid(world, beast_oid);
         return;
     };
     let near = world
@@ -210,7 +203,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
         .get_component::<crate::model::Player>(&owner)
         .is_none()
     {
-        despawn_beast(world, beast_oid);
+        despawn_npc_by_oid(world, beast_oid);
         return;
     }
     world.scheduler.schedule(
@@ -285,7 +278,7 @@ pub(crate) fn handle_mad_cow_polymorph(world: &mut World, cow_oid: i32, feeder_o
     let Some(pos) = maybe_position(world, cow_oid) else {
         return;
     };
-    despawn_beast(world, cow_oid);
+    despawn_npc_by_oid(world, cow_oid);
     if let Some(next) = crate::model::npc::spawn_npc_at(world, next_id, pos.x, pos.y, pos.z, 0) {
         crate::game_loop::death::introduce_npc(world, next);
         if let Some(n) = world

@@ -11,6 +11,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::npc_template_name;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::{format_amount, nth_arg};
 use crate::model::components::Position;
@@ -58,12 +59,7 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
         send_message(world, client_id, &format!("NPC {token} doesnt exist"));
         return;
     };
-    let template_name = world
-        .data
-        .npc_data
-        .get(npc_id)
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let template_name = npc_template_name(world, npc_id);
     let count = nth_arg::<i32>(args, 1).unwrap_or(1);
     // Anchor object = current target (any object) or the GM (Java
     // `target == null ? activeChar : target`); the message reports its id.
@@ -317,12 +313,7 @@ pub(super) fn admin_list_spawns(
         send_message(world, client_id, "AdminSpawn: No current spawns found.");
         return;
     }
-    let name = world
-        .data
-        .npc_data
-        .get(npc_id)
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let name = npc_template_name(world, npc_id);
     for (i, &entry) in entries.iter().enumerate() {
         let (x, y, z) = resolve(entry);
         // Java line: `index + " - " + name + " (" + spawn + "): " + x + " " + y + " " + z`.
@@ -350,12 +341,7 @@ pub(super) fn admin_top_spawn_count(world: &mut World, client_id: u32, args: &[&
     sorted.sort_by(|a, b| b.1.cmp(&a.1));
     send_message(world, client_id, &format!("=== Top {top} spawns ==="));
     for (npc_id, count) in sorted.into_iter().take(top) {
-        let name = world
-            .data
-            .npc_data
-            .get(npc_id)
-            .map(|t| t.name.clone())
-            .unwrap_or_default();
+        let name = npc_template_name(world, npc_id);
         send_message(world, client_id, &format!("  {count} x {name} ({npc_id})"));
     }
 }
@@ -377,12 +363,7 @@ pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_
         .objects
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
-    let name = world
-        .data
-        .npc_data
-        .get(npc_id)
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let name = npc_template_name(world, npc_id);
     let pos = maybe_position(world, target).unwrap_or(Position {
         x: 0,
         y: 0,
@@ -469,12 +450,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         {
             continue;
         }
-        let tname = world
-            .data
-            .npc_data
-            .get(npc_id)
-            .map(|t| t.name.clone())
-            .unwrap_or_default();
+        let tname = npc_template_name(world, npc_id);
         // `processBypass`'s condition: id beats name beats everything.
         if id > 0 {
             if npc_id != id {
@@ -696,12 +672,7 @@ pub(super) fn admin_delete_npc_by_object_id(
         .objects
         .get_component::<Npc>(&target_oid)
         .map_or(0, |n| n.npc_id);
-    let name = world
-        .data
-        .npc_data
-        .get(npc_id)
-        .map(|t| t.name.clone())
-        .unwrap_or_default();
+    let name = npc_template_name(world, npc_id);
     super::death::despawn_npc(world, target_oid, region);
     send_message(world, client_id, &format!("{name} have been deleted."));
     // Java `processBypass` re-renders the scan list with the same parser —

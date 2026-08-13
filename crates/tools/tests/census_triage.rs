@@ -5,47 +5,8 @@
 use gameserver::data::skill_data::{GapMap, SkillData};
 use std::collections::{BTreeMap, BTreeSet};
 
-const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
-
-fn ids_in(text: &str, needle: &str, out: &mut BTreeSet<i32>) {
-    let mut rest = text;
-    while let Some(at) = rest.find(needle) {
-        rest = &rest[at + needle.len()..];
-        let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
-        if let Ok(id) = digits.parse() {
-            out.insert(id);
-        }
-    }
-}
-
-fn scan(dir: &str, recursive: bool, needles: &[&str], out: &mut BTreeSet<i32>) {
-    let Ok(entries) = std::fs::read_dir(format!("{DIST}{dir}")) else {
-        panic!("missing datapack dir {dir}");
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            if recursive {
-                let sub = path.strip_prefix(DIST).unwrap().to_string_lossy();
-                scan(&sub, true, needles, out);
-            }
-            continue;
-        }
-        if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-            continue;
-        }
-        let text = std::fs::read_to_string(&path).unwrap_or_default();
-        for needle in needles {
-            ids_in(&text, needle, out);
-        }
-    }
-}
-
-fn learnable() -> BTreeSet<i32> {
-    let mut out = BTreeSet::new();
-    scan("data/skillTrees", true, &[r#"skillId=""#], &mut out);
-    out
-}
+mod common;
+use common::{DIST, ids_in, learnable, scan};
 
 fn npc_ids() -> BTreeSet<i32> {
     let mut out = BTreeSet::new();

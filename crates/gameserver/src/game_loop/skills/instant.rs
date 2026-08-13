@@ -20,10 +20,10 @@ use crate::world::World;
 
 use super::effects::{
     SkillHit, apply_skill_damage, attribute_mod, broadcast_social_action, broadcast_vitals,
-    calc_general_trait_bonus, caster_display_name, caster_level, caster_m_atk, caster_str_bonus,
+    calc_general_trait_bonus, caster_display_name, caster_m_atk, caster_str_bonus,
     confuse_chance_passes, creature_level, defence_after_shield, handle_buff_expire,
-    max_recoverable, pvp_pve_bonus, roll_magic_failure, send_sm, servitor_owner_of,
-    skill_power_mul, skill_trait_mod, target_m_def, target_p_def,
+    max_recoverable, player_or_npc_level, pvp_pve_bonus, roll_magic_failure, send_sm,
+    servitor_owner_of, skill_power_mul, skill_trait_mod, target_m_def, target_p_def,
 };
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::stat_mul;
@@ -1096,7 +1096,7 @@ pub(super) fn energy_attack(
         let str_bonus = caster_str_bonus(world, caster_oid);
         (
             p_atk,
-            caster_level(world, caster_oid),
+            player_or_npc_level(world, caster_oid),
             str_bonus,
             caster_display_name(world, caster_oid),
         )

@@ -14,9 +14,13 @@ pub(crate) fn caster_display_name(world: &World, oid: i32) -> String {
     npc_name_or_empty(world, oid)
 }
 
-/// The caster's level for `levelMod` in the physical-skill damage formula
-/// (Java reads `Creature.getLevel()`, which both players and NPCs implement).
-pub(crate) fn caster_level(world: &World, oid: i32) -> i32 {
+/// A creature's level (Java `Creature.getLevel()`, which both players and NPCs
+/// implement) — the caster's `levelMod` in the physical-skill damage formula
+/// and the target's level in the recharge penalty.
+///
+/// Distinct from [`creature_level`], which additionally resolves a cubic to its
+/// owner; the two agree on every non-cubic object.
+pub(crate) fn player_or_npc_level(world: &World, oid: i32) -> i32 {
     if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
         return p.level;
     }

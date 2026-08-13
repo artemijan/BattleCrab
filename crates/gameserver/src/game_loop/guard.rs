@@ -155,6 +155,18 @@ pub(crate) fn clan_of(world: &World, player_object_id: i32) -> Option<i32> {
         .filter(|&clan_id| clan_id != 0)
 }
 
+/// A player's `(clan_id, clan_privs)` pair — the opening of every clan packet
+/// handler that gates on a privilege, since the privilege mask is only
+/// meaningful alongside the clan it belongs to. `None` once the player has left
+/// the world; `clan_id == 0` still means clanless, which each handler refuses
+/// with its own system message.
+pub(crate) fn clan_and_privs(world: &World, player_object_id: i32) -> Option<(i32, i32)> {
+    world
+        .objects
+        .get_component::<Player>(&player_object_id)
+        .map(|p| (p.clan_id, p.clan_privs))
+}
+
 /// The player's clan id with Java's `0` sentinel for clanless, for the call
 /// sites that compare against clan ids read straight off the wire or out of a
 /// row and so need the sentinel anyway.

@@ -577,11 +577,9 @@ pub(crate) fn handle_request_pledge_reorganize_member(
     if is_selected == 0 {
         return;
     }
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs)) = crate::game_loop::guard::clan_and_privs(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
     if clan_id == 0 {
         return;
     }

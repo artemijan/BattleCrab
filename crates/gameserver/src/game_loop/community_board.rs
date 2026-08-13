@@ -40,6 +40,7 @@
 //! links here — ported per the config-disabled rule.
 
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_message;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::user_commands::in_combat;
@@ -1573,14 +1574,6 @@ fn charge_item(
 
 fn read_html(root: &str, rel: &str) -> Option<String> {
     crate::data::htm_cache::read_htm(format!("{root}{rel}"))
-}
-
-fn send_message(world: &World, client_id: u32, text: &str) {
-    send_to_client(
-        world,
-        client_id,
-        sp::system_message_with(sp::sm_ids::S1_TEXT, &[sp::SmParam::Text(text.to_string())]),
-    );
 }
 
 /// Port of `Util.sendCBHtml`: split the html into ≤3 chunks tagged 101/102/103

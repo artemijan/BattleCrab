@@ -20,7 +20,7 @@ pub(crate) fn confuse_chance_passes(
     skill: &Skill,
     chance: i32,
 ) -> bool {
-    let level = target_level(world, target_oid);
+    let level = player_or_npc_level(world, target_oid);
     let attribute = attribute_mod(world, caster_oid, target_oid, skill);
     let trait_mod =
         calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false);
@@ -106,13 +106,6 @@ pub(crate) fn recharge_level_penalty(target_level: i32, skill_magic_level: i32) 
         return 0.0;
     }
     1.0 - ((diff - 5) as f64 / 10.0)
-}
-
-pub(crate) fn target_level(world: &World, oid: i32) -> i32 {
-    if let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) {
-        return p.level;
-    }
-    npc_template(world, oid).map(|t| t.level).unwrap_or(1)
 }
 
 /// The tail every MP-restore handler shares: the dead / `isMpBlocked` gate, the

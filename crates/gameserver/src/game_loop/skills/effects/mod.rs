@@ -491,7 +491,7 @@ pub(crate) fn apply_skill_effects(
                     // level-gap penalty.
                     _ => {
                         let charged = mana_charge_of(world, target_oid, *power);
-                        charged * recharge_level_penalty(target_level(world, target_oid), skill.magic_level)
+                        charged * recharge_level_penalty(player_or_npc_level(world, target_oid), skill.magic_level)
                     }
                 };
                 restore_mp(world, caster_oid, target_oid, amount);
@@ -595,7 +595,7 @@ pub(crate) fn apply_skill_effects(
                     let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
                     let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
                     let str_bonus = caster_str_bonus(world, caster_oid);
-                    (p_atk, caster_level(world, caster_oid), str_bonus, random_dmg, caster_display_name(world, caster_oid))
+                    (p_atk, player_or_npc_level(world, caster_oid), str_bonus, random_dmg, caster_display_name(world, caster_oid))
                 };
                 // Java folds `pDefMod` in *before* the shield add, so the
                 // shield's own sDef is never scaled by it.

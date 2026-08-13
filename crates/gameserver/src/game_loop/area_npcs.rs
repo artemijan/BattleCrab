@@ -8,10 +8,10 @@
 //! (`RESPAWN_TOMA`); his chat window is `scripts::toma`. The three **Mammon**
 //! merchants (`ai/others/Mammons/*`) are the same shape and live here too.
 
-use crate::enums::ChatType;
+use crate::game_loop::death::despawn_npc_by_oid;
+use crate::game_loop::helpers::announce_to_all_online;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::region_cell_of;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
@@ -67,12 +67,8 @@ pub(crate) fn handle_fog_refresh(world: &mut World) {
 /// The `RESPAWN_TOMA` beat: despawn the old Toma, spawn him at a random
 /// haunt, re-arm.
 pub(crate) fn relocate_toma(world: &mut World) {
-    let old = find_toma(world);
-    if let Some(oid) = old {
-        let region = region_cell_of(world, oid);
-        if let Some(region) = region {
-            crate::game_loop::death::despawn_npc(world, oid, region);
-        }
+    if let Some(oid) = find_toma(world) {
+        despawn_npc_by_oid(world, oid);
     }
     let (x, y, z, heading) = TOMA_LOCS[world.roll(3) as usize];
     crate::model::npc::spawn_npc_at(world, TOMA, x, y, z, heading);
@@ -173,14 +169,14 @@ pub(crate) fn relocate_mammon(world: &mut World, npc_id: i32) {
         return;
     };
     if let Some(oid) = world.mammon_spawns.remove(&npc_id) {
-        despawn_by_oid(world, oid);
+        despawn_npc_by_oid(world, oid);
     }
     let (x, y, z, heading) = mammon.locations[world.roll(mammon.locations.len() as i32) as usize];
     if let Some(oid) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
         world.mammon_spawns.insert(npc_id, oid);
         if world.cfg.npc.announce_mammon_spawn {
             let castle = nearest_castle_name(world, x, y, z);
-            announce_to_all(world, &mammon.announce.replace("{}", &castle));
+            announce_to_all_online(world, &mammon.announce.replace("{}", &castle));
         }
     }
     world.scheduler.schedule(
@@ -201,12 +197,6 @@ fn nearest_castle_name(world: &World, x: i32, y: i32, z: i32) -> String {
         .and_then(|id| world.castles.iter().find(|c| c.id == id))
         .map(|c| c.name.clone())
         .unwrap_or_default()
-}
-
-/// Java `Broadcast.toAllOnlinePlayers(text, false)`.
-fn announce_to_all(world: &World, text: &str) {
-    let pkt = server_packets::creature_say(0, ChatType::Announcement, "", text, None);
-    world.broadcast_to_all_online(&pkt);
 }
 
 // ---------------------------------------------------------------------------
@@ -329,13 +319,6 @@ fn npc_in_combat(world: &World, oid: i32) -> bool {
         .is_some_and(|a| !a.0.is_empty())
 }
 
-fn despawn_by_oid(world: &mut World, oid: i32) {
-    let region = region_cell_of(world, oid);
-    if let Some(region) = region {
-        crate::game_loop::death::despawn_npc(world, oid, region);
-    }
-}
-
 /// Java `onDayNightChange`: day + alive → despawn (30 s retry while he is
 /// fighting); otherwise if he is absent or dead, spawn him.
 pub(crate) fn eilhalder_on_day_night_change(world: &mut World, night: bool) {
@@ -353,7 +336,7 @@ pub(crate) fn eilhalder_on_day_night_change(world: &mut World, night: bool) {
                     ScheduledTask::EilhalderDespawnRetry,
                 );
             } else {
-                despawn_by_oid(world, oid);
+                despawn_npc_by_oid(world, oid);
             }
         }
         Some((_, true)) => {}
@@ -381,7 +364,7 @@ pub(crate) fn handle_eilhalder_despawn_retry(world: &mut World) {
             ScheduledTask::EilhalderDespawnRetry,
         );
     } else {
-        despawn_by_oid(world, oid);
+        despawn_npc_by_oid(world, oid);
     }
 }
 

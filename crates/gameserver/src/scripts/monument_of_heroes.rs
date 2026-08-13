@@ -11,6 +11,7 @@ use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::sm_ids;
+use crate::scripts::quest_common::olympiad_eligible;
 
 pub struct MonumentOfHeroes;
 
@@ -88,17 +89,11 @@ impl QuestScript for MonumentOfHeroes {
 }
 
 fn first_talk_page(ctx: &QuestCtx) -> &'static str {
-    if eligible(ctx) {
+    if olympiad_eligible(ctx) {
         "MonumentOfHeroes-noblesse.html"
     } else {
         "MonumentOfHeroes-noNoblesse.html"
     }
-}
-
-/// Java's `onFirstTalk` gate: 3rd/4th class group and level ≥ 55.
-fn eligible(ctx: &QuestCtx) -> bool {
-    (ctx.is_in_category("THIRD_CLASS_GROUP") || ctx.is_in_category("FOURTH_CLASS_GROUP"))
-        && ctx.player_level() >= 55
 }
 
 fn is_hero(ctx: &QuestCtx) -> bool {

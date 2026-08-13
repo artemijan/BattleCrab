@@ -96,6 +96,7 @@ use world_cmds::*;
 // here keeps every `super::helpers::…` / `super::death::…` call in the bodies
 // resolving (a child's `super` now points at this module).
 use crate::game_loop::helpers::region_cell_of;
+pub(crate) use crate::game_loop::helpers::send_message;
 pub(super) use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::{death, helpers, party, quests, target, visibility};
 
@@ -1052,16 +1053,4 @@ pub(super) fn creatures_in_range(
         }
     }
     out
-}
-
-/// Java `Player.sendMessage(String)` — a bare `$s1` system message.
-pub(crate) fn send_message(world: &World, client_id: u32, text: &str) {
-    send_to_client(
-        world,
-        client_id,
-        server_packets::system_message_with(
-            sm_ids::S1_TEXT,
-            &[server_packets::SmParam::Text(text.to_string())],
-        ),
-    );
 }

@@ -19,6 +19,12 @@ const ORC: i32 = 3;
 /// Newbie Helpers per starter village (the supervisors are the other half of
 /// `talk_npcs`; `on_first_talk` branches on membership here).
 const NEWBIE_HELPERS: &[i32] = &[30009, 30019, 30400, 30131, 30575, 30530];
+
+/// Helpers + supervisors — Java's `addTalkId`/`addFirstTalkId` on both groups.
+const HELPERS_AND_SUPERVISORS: [i32; 12] = [
+    30009, 30019, 30400, 30131, 30575, 30530, //
+    30008, 30017, 30370, 30129, 30573, 30528,
+];
 const GREMLINS: &[i32] = &[18342, 20001];
 
 const BLUE_GEM: i32 = 6353;
@@ -118,18 +124,11 @@ impl QuestScript for Tutorial {
         &[]
     }
     fn talk_npcs(&self) -> &[i32] {
-        // Helpers + supervisors (Java `addTalkId` on both groups).
-        &[
-            30009, 30019, 30400, 30131, 30575, 30530, //
-            30008, 30017, 30370, 30129, 30573, 30528,
-        ]
+        &HELPERS_AND_SUPERVISORS
     }
     fn first_talk_npcs(&self) -> &[i32] {
-        // Same set: the script owns both groups' chat windows.
-        &[
-            30009, 30019, 30400, 30131, 30575, 30530, //
-            30008, 30017, 30370, 30129, 30573, 30528,
-        ]
+        // The same set: the script owns both groups' chat windows.
+        &HELPERS_AND_SUPERVISORS
     }
     fn kill_npcs(&self) -> &[i32] {
         GREMLINS

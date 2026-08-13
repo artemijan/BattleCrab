@@ -12,6 +12,7 @@
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::olympiad::{CompetitionType, OLYMPIAD_MANAGER_NPC};
+use crate::scripts::quest_common::olympiad_eligible;
 
 pub struct OlyManager;
 
@@ -145,7 +146,7 @@ fn first_talk_page(ctx: &QuestCtx) -> &'static str {
         .is_some_and(|p| p.cursed_weapon_equipped_id != 0);
     if cursed {
         "OlyManager-noCursed.html"
-    } else if eligible(ctx) {
+    } else if olympiad_eligible(ctx) {
         "OlyManager-noble.html"
     } else {
         "OlyManager-noNoble.html"
@@ -173,7 +174,7 @@ fn register_1v1(ctx: &mut QuestCtx) -> Option<String> {
     if ctx.is_subclass_active() {
         return Some("OlyManager-subclass.html".to_string());
     }
-    if !eligible(ctx) {
+    if !olympiad_eligible(ctx) {
         return Some("OlyManager-noNoble.html".to_string());
     }
     let (base_class, name) = base_class_and_name(ctx);
@@ -194,13 +195,6 @@ fn register_1v1(ctx: &mut QuestCtx) -> Option<String> {
     }
     crate::game_loop::olympiad::register(ctx.world, ctx.player, CompetitionType::NonClassed);
     None
-}
-
-/// The Classic eligibility gate the NPC applies (mirrors the manager's own):
-/// 3rd/4th class group and level ≥ 55.
-fn eligible(ctx: &QuestCtx) -> bool {
-    (ctx.is_in_category("THIRD_CLASS_GROUP") || ctx.is_in_category("FOURTH_CLASS_GROUP"))
-        && ctx.player_level() >= 55
 }
 
 fn base_class_and_name(ctx: &QuestCtx) -> (i32, String) {

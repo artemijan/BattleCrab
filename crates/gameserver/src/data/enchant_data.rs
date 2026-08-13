@@ -285,33 +285,14 @@ impl EnchantData {
             return false;
         }
 
-        if !target.is_enchantable() {
-            return false;
-        }
-        if target.enchant_limit != 0 && target_enchant == target.enchant_limit {
-            return false;
-        }
-
-        // isValidItemType(type2): weapon scroll ↔ weapon; armor scroll ↔
-        // armor/accessory.
-        let type_ok = match target.type2 {
-            super::item_data::TYPE2_WEAPON => scroll_is_weapon,
-            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => {
-                !scroll_is_weapon
-            }
-            _ => false,
-        };
-        if !type_ok {
-            return false;
-        }
-
-        if (scroll.min_enchant != 0 && target_enchant < scroll.min_enchant)
-            || (scroll.max_enchant != 0 && target_enchant >= scroll.max_enchant)
-        {
-            return false;
-        }
-
-        scroll.target_grade == target.crystal_type.plus()
+        accepts_target(
+            target,
+            target_enchant,
+            scroll_is_weapon,
+            scroll.min_enchant,
+            scroll.max_enchant,
+            scroll.target_grade,
+        )
     }
 
     /// Whether a support item is compatible with the scroll + target (Java
@@ -342,28 +323,14 @@ impl EnchantData {
             return false;
         }
         // AbstractEnchantItem.isValid(item) for the support itself.
-        if !target.is_enchantable() {
-            return false;
-        }
-        if target.enchant_limit != 0 && target_enchant == target.enchant_limit {
-            return false;
-        }
-        let type_ok = match target.type2 {
-            super::item_data::TYPE2_WEAPON => support_weapon,
-            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => {
-                !support_weapon
-            }
-            _ => false,
-        };
-        if !type_ok {
-            return false;
-        }
-        if (support.min_enchant != 0 && target_enchant < support.min_enchant)
-            || (support.max_enchant != 0 && target_enchant >= support.max_enchant)
-        {
-            return false;
-        }
-        support.target_grade == target.crystal_type.plus()
+        accepts_target(
+            target,
+            target_enchant,
+            support_weapon,
+            support.min_enchant,
+            support.max_enchant,
+            support.target_grade,
+        )
     }
 
     // ---- parsing -------------------------------------------------------
@@ -478,6 +445,44 @@ impl EnchantData {
             }
         }
     }
+}
+
+/// `AbstractEnchantItem.isValid(item)` plus the grade/range check — the tail
+/// [`EnchantData::is_target_valid`] and [`EnchantData::is_support_valid`] run
+/// identically, differing only in which item (the scroll or the support)
+/// supplies `is_weapon` and the bounds: the target must be enchantable, below
+/// its enchant limit, of the matching weapon/armor `type2`, inside
+/// `[min_enchant, max_enchant)`, and of the enchant item's own grade.
+fn accepts_target(
+    target: &ItemTemplate,
+    target_enchant: i32,
+    is_weapon: bool,
+    min_enchant: i32,
+    max_enchant: i32,
+    target_grade: CrystalType,
+) -> bool {
+    if !target.is_enchantable() {
+        return false;
+    }
+    if target.enchant_limit != 0 && target_enchant == target.enchant_limit {
+        return false;
+    }
+    // isValidItemType(type2): a weapon item ↔ weapon; an armor item ↔
+    // armor/accessory.
+    let type_ok = match target.type2 {
+        super::item_data::TYPE2_WEAPON => is_weapon,
+        super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => !is_weapon,
+        _ => false,
+    };
+    if !type_ok {
+        return false;
+    }
+    if (min_enchant != 0 && target_enchant < min_enchant)
+        || (max_enchant != 0 && target_enchant >= max_enchant)
+    {
+        return false;
+    }
+    target_grade == target.crystal_type.plus()
 }
 
 /// Build an [`EnchantSupport`] from a `<support …>` element's attributes.

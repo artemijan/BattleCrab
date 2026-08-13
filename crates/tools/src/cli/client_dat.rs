@@ -14,6 +14,7 @@
 use std::path::PathBuf;
 use tools::{client_files, dat_roundtrip, dat_schema::SchemaSet};
 
+use super::fail;
 use super::progress::Bar;
 
 #[derive(clap::Args)]
@@ -258,9 +259,4 @@ fn verdict_word(v: &dat_roundtrip::Verdict) -> &'static str {
         dat_roundtrip::Verdict::Broken(_) => "CHANGED",
         dat_roundtrip::Verdict::Missing => "MISSING",
     }
-}
-
-fn fail(message: &str) -> ! {
-    eprintln!("{message}");
-    std::process::exit(2)
 }

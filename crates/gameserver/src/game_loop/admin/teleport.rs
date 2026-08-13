@@ -412,12 +412,7 @@ fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         crate::model::npc::spawn_npc_at(world, npc_id, gm_pos.x, gm_pos.y, gm_pos.z, gm_pos.heading)
     {
         super::death::introduce_npc(world, spawned);
-        let name = world
-            .data
-            .npc_data
-            .get(npc_id)
-            .map(|t| t.name.clone())
-            .unwrap_or_default();
+        let name = helpers::npc_template_name(world, npc_id);
         send_message(world, client_id, &format!("Recalled {name}."));
     }
     Ok(())

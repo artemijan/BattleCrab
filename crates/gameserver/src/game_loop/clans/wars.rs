@@ -404,12 +404,10 @@ pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: 
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs)) = crate::game_loop::guard::clan_and_privs(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
-    let player_name = p.name.clone();
+    let player_name = crate::game_loop::helpers::player_name_or_empty(world, player);
     if clan_id == 0 {
         return;
     }

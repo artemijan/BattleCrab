@@ -183,7 +183,7 @@ pub(crate) fn magic_success_input<'a>(
         {
             skill.magic_level
         } else {
-            caster_level(world, caster_oid)
+            player_or_npc_level(world, caster_oid)
         },
         caster_player_level,
         target_is_raid,

@@ -556,11 +556,9 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
     let Some(target_name) = PacketReader::new(body).read_string() else {
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&player) else {
+    let Some((clan_id, privs)) = crate::game_loop::guard::clan_and_privs(world, player) else {
         return;
     };
-    let clan_id = p.clan_id;
-    let privs = p.clan_privs;
     if super::refuse_if_clanless(world, player, clan_id) {
         return;
     }

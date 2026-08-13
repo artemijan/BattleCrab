@@ -332,6 +332,14 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     );
 }
 
+/// [`despawn_npc`] for callers that hold only the object id: look the region
+/// cell up first, and do nothing if the NPC is already out of the world.
+pub(crate) fn despawn_npc_by_oid(world: &mut World, npc_oid: i32) {
+    if let Some(region) = super::helpers::region_cell_of(world, npc_oid) {
+        despawn_npc(world, npc_oid, region);
+    }
+}
+
 /// `RespawnTaskManager` firing → `Spawn.respawnNpc`: re-run the spawn line
 /// and introduce the fresh NPC to nearby players.
 pub(crate) fn handle_npc_respawn(

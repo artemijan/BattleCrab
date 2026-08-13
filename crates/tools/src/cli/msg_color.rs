@@ -8,6 +8,7 @@
 //! re-encrypts the file back into `system/` so the client reads it. See
 //! [`tools::system_msg`] for the model.
 
+use super::fail;
 use ratatui::Frame;
 use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
@@ -441,11 +442,6 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect) {
             .block(Block::default().borders(Borders::ALL).title(" message ")),
         area,
     );
-}
-
-fn fail(message: &str) -> ! {
-    eprintln!("{message}");
-    std::process::exit(2)
 }
 
 #[cfg(test)]

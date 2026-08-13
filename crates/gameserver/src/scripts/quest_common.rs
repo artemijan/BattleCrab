@@ -56,3 +56,10 @@ pub fn tag_attacker_with_weapon(ctx: &mut QuestCtx, weapons: &[i32]) -> bool {
 pub fn is_tag_qualified(ctx: &QuestCtx) -> bool {
     ctx.npc_script_value() == TAG_QUALIFIED
 }
+
+/// The Olympiad participation gate the Grand Olympiad Manager and the Monument
+/// of Heroes both apply: 3rd/4th class group and level ≥ 55.
+pub fn olympiad_eligible(ctx: &QuestCtx) -> bool {
+    (ctx.is_in_category("THIRD_CLASS_GROUP") || ctx.is_in_category("FOURTH_CLASS_GROUP"))
+        && ctx.player_level() >= 55
+}

@@ -546,6 +546,41 @@ pub(crate) fn send_sm_bare_to_player(world: &World, player_object_id: i32, messa
     send_sm_to_player(world, player_object_id, message_id, &[]);
 }
 
+/// A **datapack** NPC's display name by template id — Java
+/// `NpcData.getTemplate(npcId).getName()`, empty when no such template exists.
+///
+/// Distinct from [`npc_name_or_empty`], which takes a spawned object's id; this
+/// answers for an NPC that need not be in the world at all (the admin spawn and
+/// recall commands name a template before placing it).
+pub(crate) fn npc_template_name(world: &World, npc_id: i32) -> String {
+    world
+        .data
+        .npc_data
+        .get(npc_id)
+        .map(|t| t.name.clone())
+        .unwrap_or_default()
+}
+
+/// Java `Player.sendMessage(String)` — free text delivered as the `$s1` system
+/// message, the only way the client renders an arbitrary string as a message
+/// line.
+pub(crate) fn send_message(world: &World, client_id: u32, text: &str) {
+    send_sm_to_client(
+        world,
+        client_id,
+        server_packets::sm_ids::S1_TEXT,
+        &[server_packets::SmParam::Text(text.to_string())],
+    );
+}
+
+/// Java `Broadcast.toAllOnlinePlayers(text, false)` — a yellow announcement
+/// line to every player in the world.
+pub(crate) fn announce_to_all_online(world: &World, text: &str) {
+    let packet =
+        server_packets::creature_say(0, crate::enums::ChatType::Announcement, "", text, None);
+    world.broadcast_to_all_online(&packet);
+}
+
 /// `DecimalFormat("#,###")` — thousands-grouped integer.
 pub(crate) fn format_amount(value: i64) -> String {
     let digits = value.unsigned_abs().to_string();

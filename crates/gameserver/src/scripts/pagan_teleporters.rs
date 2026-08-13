@@ -24,6 +24,17 @@ const INNER_DOORS: [i32; 2] = [19_160_010, 19_160_011];
 /// Java's `Close_Door*` timers: 10 s.
 const CLOSE_TICKS: u64 = 100;
 
+/// Every NPC this script owns — Java registers the same set through both
+/// `addStartNpc` and `addTalkId`.
+const NPCS: [i32; 6] = [
+    GATEKEEPER_OUTER_IN,
+    GATEKEEPER_OUTER_OUT,
+    GATEKEEPER_INNER_IN,
+    GATEKEEPER_INNER_OUT,
+    TRIOLS_MIRROR_1,
+    TRIOLS_MIRROR_2,
+];
+
 pub struct PaganTeleporters;
 
 impl QuestScript for PaganTeleporters {
@@ -37,24 +48,10 @@ impl QuestScript for PaganTeleporters {
         "ai/areas/PaganTemple/PaganTeleporters"
     }
     fn start_npcs(&self) -> &[i32] {
-        &[
-            GATEKEEPER_OUTER_IN,
-            GATEKEEPER_OUTER_OUT,
-            GATEKEEPER_INNER_IN,
-            GATEKEEPER_INNER_OUT,
-            TRIOLS_MIRROR_1,
-            TRIOLS_MIRROR_2,
-        ]
+        &NPCS
     }
     fn talk_npcs(&self) -> &[i32] {
-        &[
-            GATEKEEPER_OUTER_IN,
-            GATEKEEPER_OUTER_OUT,
-            GATEKEEPER_INNER_IN,
-            GATEKEEPER_INNER_OUT,
-            TRIOLS_MIRROR_1,
-            TRIOLS_MIRROR_2,
-        ]
+        &NPCS
     }
     fn first_talk_npcs(&self) -> &[i32] {
         &[TRIOLS_MIRROR_1, TRIOLS_MIRROR_2]

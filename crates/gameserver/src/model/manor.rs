@@ -31,12 +31,18 @@ impl SeedProduction {
     /// Java `decreaseAmount`: subtract `value`, refusing (returning `false`)
     /// if it would go negative.
     pub fn decrease_amount(&mut self, value: i64) -> bool {
-        if self.amount - value < 0 {
-            return false;
-        }
-        self.amount -= value;
-        true
+        decrease_amount(&mut self.amount, value)
     }
+}
+
+/// The body Java's `SeedProduction.decreaseAmount` and `CropProcure.decreaseAmount`
+/// share: subtract `value`, refusing (returning `false`) if it would go negative.
+fn decrease_amount(amount: &mut i64, value: i64) -> bool {
+    if *amount - value < 0 {
+        return false;
+    }
+    *amount -= value;
+    true
 }
 
 /// Java `model/CropProcure` (a `SeedProduction` plus a reward type) — one crop
@@ -54,11 +60,7 @@ pub struct CropProcure {
 
 impl CropProcure {
     pub fn decrease_amount(&mut self, value: i64) -> bool {
-        if self.amount - value < 0 {
-            return false;
-        }
-        self.amount -= value;
-        true
+        decrease_amount(&mut self.amount, value)
     }
 }
 

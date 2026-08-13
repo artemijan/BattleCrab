@@ -17,3 +17,10 @@ pub mod progress;
 pub mod spawn_pockets;
 pub mod sync_messages;
 pub mod sync_npc;
+
+/// Print `message` and exit with status 2 — the CLI's "bad input" bail-out,
+/// shared by the subcommands that validate their own arguments.
+pub fn fail(message: &str) -> ! {
+    eprintln!("{message}");
+    std::process::exit(2)
+}

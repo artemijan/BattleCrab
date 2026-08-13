@@ -10,7 +10,7 @@ use tracing::info;
 
 use super::helpers::send_sm_bare_to_client as send_sm;
 use crate::db::DbCommand;
-use crate::enums::ChatType;
+use crate::game_loop::helpers::announce_to_all_online;
 use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::LotoPicks;
 use crate::model::inventory::{Inventory, ItemChange};
@@ -85,7 +85,7 @@ pub(crate) fn open_round(world: &mut World) {
     let now = commons::util::now_millis();
     world.lottery.selling = true;
     world.lottery.started = true;
-    announce(
+    announce_to_all_online(
         world,
         &format!(
             "Lottery tickets are now available for Lucky Lottery #{}.",
@@ -122,7 +122,7 @@ pub(crate) fn stop_selling(world: &mut World) {
         return;
     }
     world.lottery.selling = false;
-    announce(
+    announce_to_all_online(
         world,
         "Lottery ticket sales have been temporarily suspended.",
     );
@@ -225,14 +225,14 @@ pub(crate) fn finish_complete(world: &mut World, round: i32, db_rows: Vec<(i32, 
     let newprize = prize - (prize1 + prize2 + prize3 + prize4);
 
     if count1 > 0 {
-        announce(
+        announce_to_all_online(
             world,
             &format!(
                 "The prize amount for the winner of Lottery #{round} is {prize} adena. We have {count1} first-prize winner(s)."
             ),
         );
     } else {
-        announce(
+        announce_to_all_online(
             world,
             &format!(
                 "The prize amount for Lucky Lottery #{round} is {prize} adena. There was no first-prize winner; the jackpot is added to the next drawing."
@@ -349,12 +349,6 @@ fn schedule_at(world: &mut World, at_millis: i64, task: ScheduledTask) {
 fn schedule_in(world: &mut World, delay_millis: i64, task: ScheduledTask) {
     let delay_ticks = (delay_millis.max(0) / 1000) as u64 * TICKS_PER_SECOND;
     world.scheduler.schedule(world.tick + delay_ticks, task);
-}
-
-/// Java `Broadcast.toAllOnlinePlayers` — an announcement line to every player.
-fn announce(world: &World, text: &str) {
-    let pkt = server_packets::creature_say(0, ChatType::Announcement, "", text, None);
-    world.broadcast_to_all_online(&pkt);
 }
 
 // ---------------------------------------------------------------------------
