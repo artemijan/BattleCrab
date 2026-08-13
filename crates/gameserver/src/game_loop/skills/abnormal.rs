@@ -158,14 +158,14 @@ pub(crate) fn refresh_visuals(world: &mut World, object_id: i32) {
         .objects
         .get_component::<crate::model::components::AdminFlags>(&object_id)
         .is_some_and(|f| f.hidden);
-    super::helpers::send_to_player(
+    crate::game_loop::helpers::send_to_player(
         world,
         object_id,
         crate::network::user_info::ex_user_info_abnormal_visual_effect(
             object_id, hidden, transform, &visuals,
         ),
     );
-    super::party::broadcast_user_info(world, object_id);
+    crate::game_loop::party::broadcast_user_info(world, object_id);
 }
 
 /// Arm Java's `_abnormalVisualEffectTask`: the visual list goes out **one tick

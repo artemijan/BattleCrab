@@ -8,7 +8,8 @@
 //! login handoff land here on the game thread, keeping handler code sequential
 //! and 1:1 with Java `run()`.
 
-mod abnormal;
+// Lives under skills/ but keeps its historical game_loop::abnormal path.
+pub(crate) use skills::abnormal;
 pub(crate) mod academy;
 pub(crate) mod admin;
 pub(crate) mod area_npcs;
