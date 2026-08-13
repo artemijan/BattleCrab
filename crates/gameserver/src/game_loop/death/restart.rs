@@ -474,20 +474,11 @@ fn on_teleported(world: &mut World, client_id: Option<u32>, object_id: i32) {
     // character too: the destination's zone membership is what later decides
     // whether the shop is still allowed to be there.
     crate::game_loop::zones::revalidate_zone(world, object_id, true);
-    if let (Some(v), Some(cid)) = (
-        crate::model::PlayerView::of_world(world, object_id),
+    if let (Some(pkt), Some(cid)) = (
+        crate::game_loop::player_info::user_info_packet(world, object_id),
         client_id,
     ) {
-        send_to_client(
-            world,
-            cid,
-            crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                crate::game_loop::party::calculate_relation(world, v.p),
-            ),
-        );
+        send_to_client(world, cid, pkt);
     }
 }
 

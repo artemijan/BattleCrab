@@ -31,15 +31,7 @@ fn clamp_reco(value: i32) -> i32 {
 /// Java `Player.updateUserInfo()` — a fresh `UserInfo` to the player themselves
 /// (no `CharInfo` broadcast; that's `broadcastUserInfo`).
 fn update_user_info(world: &World, object_id: i32) {
-    let Some(v) = crate::model::PlayerView::of_world(world, object_id) else {
-        return;
-    };
-    let relation = super::party::calculate_relation(world, v.p);
-    send_to_player(
-        world,
-        object_id,
-        crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation),
-    );
+    crate::game_loop::player_info::send_user_info(world, object_id);
 }
 
 fn send_ex_vote(world: &World, object_id: i32) {

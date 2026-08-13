@@ -14,7 +14,6 @@
 //! the conditions as a robe is worn or removed — mirroring [`super::expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
-use crate::game_loop::helpers::send_to_client;
 use crate::model::components::SkillBook;
 use crate::model::inventory::Inventory;
 use crate::model::skill::StatModifierEffect;
@@ -27,7 +26,7 @@ use crate::world::World;
 /// `UserInfo` only when the applied set actually changed — a no-op otherwise.
 pub(crate) fn refresh_conditioned_passives(world: &mut World, object_id: i32) {
     if recompute_conditioned_passives(world, object_id) {
-        send_user_info(world, object_id);
+        crate::game_loop::player_info::send_user_info(world, object_id);
     }
 }
 
@@ -100,22 +99,6 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     // cursed weapon's `+MaxCp` first appeared at the moment the curse *ended*.
     crate::game_loop::skills::effects::recompute_max_vitals(world, object_id);
     true
-}
-
-/// Java's stat-pump `broadcastUserInfo` (self only here): a fresh `UserInfo` for
-/// the player's own client.
-fn send_user_info(world: &World, object_id: i32) {
-    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id)
-        && let Some(view) = crate::model::PlayerView::of_world(world, object_id)
-    {
-        let user_info = crate::network::user_info::user_info(
-            &view,
-            &world.data,
-            &world.cfg.character,
-            super::party::calculate_relation(world, view.p),
-        );
-        send_to_client(world, client_id, user_info);
-    }
 }
 
 /// Order-insensitive equality of two `(skill_id, effects)` buff sets.

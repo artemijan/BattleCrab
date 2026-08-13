@@ -399,16 +399,5 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         client_id,
         crate::network::enter_world::ex_user_info_equip_slot(object_id, inventory),
     );
-    if let Some(v) = crate::model::PlayerView::of_world(world, object_id) {
-        send_to_client(
-            world,
-            client_id,
-            crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                crate::game_loop::party::calculate_relation(world, v.p),
-            ),
-        );
-    }
+    crate::game_loop::player_info::send_user_info(world, object_id);
 }

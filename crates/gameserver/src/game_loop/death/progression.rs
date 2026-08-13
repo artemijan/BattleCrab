@@ -175,21 +175,7 @@ fn apply_level_change(world: &mut World, player_oid: i32, old_level: i32, new_le
         set_level(world, player_oid, new_level);
         return;
     }
-    let Some(client_id) = client_for_player(world, player_oid) else {
-        return;
-    };
-    if let Some(v) = crate::model::PlayerView::of_world(world, player_oid) {
-        send_to_client(
-            world,
-            client_id,
-            crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                crate::game_loop::party::calculate_relation(world, v.p),
-            ),
-        );
-    }
+    crate::game_loop::player_info::send_user_info(world, player_oid);
 }
 
 /// The `PlayableStat.addExp` level scan: highest level whose threshold the
@@ -307,21 +293,12 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     // Java `PlayerStat.addLevel` → `PartySmallWindowUpdate(this, true)`.
     crate::game_loop::party::notify_party_all(world, player_oid);
     if let Some(client_id) = client_for_player(world, player_oid)
-        && let Some(v) = crate::model::PlayerView::of_world(world, player_oid)
+        && let Some(user_info) = crate::game_loop::player_info::user_info_packet(world, player_oid)
     {
         if leveled_up {
             send_sm_bare_to_client(world, client_id, sm_ids::YOUR_LEVEL_HAS_INCREASED);
         }
-        send_to_client(
-            world,
-            client_id,
-            crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                crate::game_loop::party::calculate_relation(world, v.p),
-            ),
-        );
+        send_to_client(world, client_id, user_info);
         let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid) else {
             return;
         };

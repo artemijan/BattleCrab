@@ -111,12 +111,6 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
             .objects
             .get_component::<crate::model::components::WeightPenalty>(&object_id)
             .map_or(0, |w| w.level);
-        let user_info = crate::network::user_info::user_info(
-            &view,
-            &world.data,
-            &world.cfg.character,
-            super::party::calculate_relation(world, view.p),
-        );
         let charges = view.p.charges;
         crate::game_loop::helpers::send_to_client(
             world,
@@ -129,7 +123,7 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
                 silence,
             ),
         );
-        crate::game_loop::helpers::send_to_client(world, client_id, user_info);
+        crate::game_loop::player_info::send_user_info(world, object_id);
     }
 }
 

@@ -118,6 +118,29 @@ pub(crate) fn party_slot_bits(index: usize) -> i32 {
     }
 }
 
+/// Build the player's own fresh `UserInfo` packet — the self half of
+/// [`broadcast_user_info`], for callers that send it alongside other packets.
+/// `None` when the player has no live view (mid-teleport, logging out).
+pub(crate) fn user_info_packet(world: &World, object_id: i32) -> Option<Vec<u8>> {
+    let v = crate::model::PlayerView::of_world(world, object_id)?;
+    let relation = calculate_relation(world, v.p);
+    Some(crate::network::user_info::user_info(
+        &v,
+        &world.data,
+        &world.cfg.character,
+        relation,
+    ))
+}
+
+/// Send the player their own fresh `UserInfo` — Java's plain
+/// `sendPacket(new UserInfo(player))`, without [`broadcast_user_info`]'s
+/// CharInfo half.
+pub(crate) fn send_user_info(world: &World, object_id: i32) {
+    if let Some(pkt) = user_info_packet(world, object_id) {
+        send_to_player(world, object_id, pkt);
+    }
+}
+
 /// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, and Java's
 /// **coalesced** `CharInfo` to everyone who can see them:
 /// `broadcastCharInfo` never sends inline, it schedules
@@ -126,15 +149,10 @@ pub(crate) fn party_slot_bits(index: usize) -> i32 {
 /// update in a burst and lands the packet *after* whatever actor swap (a
 /// `Ride`, a transform) preceded it.
 pub(crate) fn broadcast_user_info(world: &mut World, object_id: i32) {
-    let Some(v) = crate::model::PlayerView::of_world(world, object_id) else {
+    let Some(pkt) = user_info_packet(world, object_id) else {
         return;
     };
-    let relation = calculate_relation(world, v.p);
-    send_to_player(
-        world,
-        object_id,
-        crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation),
-    );
+    send_to_player(world, object_id, pkt);
     // `if (_broadcastCharInfoTask == null) { schedule(50ms) }`.
     let pending = world
         .objects

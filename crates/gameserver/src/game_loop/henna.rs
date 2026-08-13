@@ -409,18 +409,7 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }
 
-    if let Some(v) = crate::model::PlayerView::of_world(world, oid) {
-        send(
-            world,
-            client_id,
-            crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                super::party::calculate_relation(world, v.p),
-            ),
-        );
-    }
+    crate::game_loop::player_info::send_user_info(world, oid);
     send_henna_info(world, client_id, oid);
 }
 

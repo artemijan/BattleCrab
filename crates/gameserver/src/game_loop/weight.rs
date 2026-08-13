@@ -241,12 +241,6 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
             .get_component::<crate::model::components::ExpertisePenalty>(&object_id)
             .copied()
             .unwrap_or_default();
-        let user_info = crate::network::user_info::user_info(
-            &view,
-            &world.data,
-            &world.cfg.character,
-            super::party::calculate_relation(world, view.p),
-        );
         let charges = view.p.charges;
         send_to_client(
             world,
@@ -259,7 +253,7 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
                 flags.silence,
             ),
         );
-        send_to_client(world, client_id, user_info);
+        crate::game_loop::player_info::send_user_info(world, object_id);
     }
     // The weight bar itself rides in `ExUserInfoInvenWeight`, which the
     // inventory-update helper already sends on every item change.
