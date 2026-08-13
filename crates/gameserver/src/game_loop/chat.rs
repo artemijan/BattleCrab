@@ -1,5 +1,5 @@
 //! Port of `clientpackets/Say2` + the `handlers/chathandlers/*` scripts
-//! (General/Shout/Trade/Whisper/Party/Clan/Alliance/World), plus the
+//! (General/Shout/Trade/Whisper/Party/Clan/Alliance/World/HeroVoice), plus the
 //! shift-click item link pair `RequestExRqItemLink`/`ExRpItemLink`.
 //!
 //! The `handlers/chathandlers/*` scripts live in the **datapack**
@@ -515,14 +515,14 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         }
         ChatType::Alliance => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE),
         ChatType::World => world_chat(world, client_id, sender_oid, &sender_name, &pkt.text),
+        ChatType::HeroVoice => hero_voice(world, client_id, sender_oid, &sender_name, &pkt.text),
         // Server-sent only (ferry announcements / event announcements) or handled
         // before the match (petition consultation chat); a client never
         // legitimately originates these here, so drop them.
         ChatType::Boat
         | ChatType::Announcement
         | ChatType::PetitionPlayer
-        | ChatType::PetitionGm
-        | ChatType::HeroVoice => {}
+        | ChatType::PetitionGm => {}
     }
 }
 
@@ -681,6 +681,66 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         world
             .world_chat_reuse
             .insert(sender_oid, now + interval_secs * 1000);
+    }
+}
+
+/// Port of `handlers/chathandlers/ChatHeroVoice` — the hero channel (`%`):
+/// server-wide, heroes only, one line per ten seconds.
+///
+/// Java's chat-ban and jail branches are deliberately absent for the same
+/// reason as `world_chat`'s chat-ban branch: both are dead code upstream.
+/// `Say2` returns for a chat-banned speaker before dispatching to any handler,
+/// and its `JailDisableChat` gate already covers `HeroVoice` (see the note in
+/// `handle_say2`). The faction split is unreachable on this dist
+/// (`EnableFactionSystem = False`), so the broadcast is unconditional.
+fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &str, text: &str) {
+    // `!activeChar.isHero() && !activeChar.canOverrideCond(CHAT_CONDITIONS)`.
+    let may_speak = world
+        .objects
+        .get_component::<Player>(&sender_oid)
+        .is_some_and(|p| p.is_hero || p.can_override_cond(CHAT_CONDITIONS_ORDINAL));
+    if !may_speak {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::ONLY_HEROES_CAN_ENTER_THE_HERO_CHANNEL,
+        );
+        return;
+    }
+    // `canUseHeroVoice()` — the one chat channel this dist rate-limits
+    // (`FloodProtectorHeroVoiceInterval = 100` ticks, the ten seconds the
+    // refusal line names). Java answers with `sendMessage(String)`, a literal
+    // line, reproduced verbatim. `flood::gate`'s GM exemption stands in for
+    // Java's `FLOOD_CONDITIONS` cond-override, as at every other call site.
+    if !super::flood::gate(
+        world,
+        client_id,
+        crate::config::flood_protector::FloodAction::HeroVoice,
+    ) {
+        super::admin::send_message(
+            world,
+            client_id,
+            "Action failed. Heroes are only able to speak in the global channel once every 10 seconds.",
+        );
+        return;
+    }
+    // `!BlockList.isBlocked(player, activeChar)` — the *listener's* list, one
+    // way only, speaker included (`World.getPlayers` is everyone).
+    let say =
+        server_packets::creature_say(sender_oid, ChatType::HeroVoice, sender_name, text, None);
+    let listeners: Vec<u32> = world
+        .clients
+        .iter()
+        .filter(|(_, cs)| {
+            let ClientSession::InGame(s) = cs else {
+                return false;
+            };
+            !super::block_list::is_blocked(world, s.player_object_id(), sender_oid)
+        })
+        .map(|(&cid, _)| cid)
+        .collect();
+    for cid in listeners {
+        send_to_client(world, cid, say.clone());
     }
 }
 

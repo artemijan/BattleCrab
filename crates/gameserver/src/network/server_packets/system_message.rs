@@ -735,6 +735,8 @@ pub mod sm_ids {
     pub const YOU_HAVE_SPENT_YOUR_WORLD_CHAT_QUOTA_FOR_THE_DAY: i16 = 4239;
     pub const YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1: i16 = 4240;
     pub const YOU_HAVE_S1_SEC_UNTIL_YOU_ARE_ABLE_TO_USE_WORLD_CHAT: i16 = 4241;
+    /// `ChatHeroVoice`'s refusal to a non-hero speaker.
+    pub const ONLY_HEROES_CAN_ENTER_THE_HERO_CHANNEL: i16 = 4204;
     // Block list (`RequestBlock` / `BlockList`). The friends-list, incorrect-
     // target and message-refusal/acceptance lines this flow also sends are
     // already declared above, with the friend and GM-silence features.

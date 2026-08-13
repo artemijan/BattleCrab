@@ -6,14 +6,17 @@
 //! the request; exceeding `PunishmentLimit` *within* an interval additionally
 //! kicks / bans the account / jails the character.
 //!
-//! **Four of the fifteen have no call site in Java** — `RollDice`,
-//! `ItemPetSummon`, `HeroVoice` and `GlobalChat` are configured here and read
-//! into `Config`, but nothing ever calls `canRollDice()` / `canUseHeroVoice()` /
-//! `canUseGlobalChat()` / `canUsePetSummonItem()`. They are parsed anyway (the
-//! keys are cheap, and a silently-missing key falling back to a code default is
-//! the failure mode that has bitten this deploy before), and they stay
-//! unconsumed here too: notably **this build rate-limits no chat channel at
-//! all**, despite shipping `FloodProtectorGlobalChatInterval = 5`.
+//! **Four of the fifteen have no `java/` call site** — but they are not all
+//! dead: `RollDice`, `ItemPetSummon` and `HeroVoice` are called from the
+//! **datapack scripts** (`handlers/itemhandlers/RollingDice.java`,
+//! `SummonItems.java`, `handlers/chathandlers/ChatHeroVoice.java` — the same
+//! `java/`-only grep blind spot `game_loop::chat`'s header describes, which
+//! long mislabelled all four as dead here). `HeroVoice` is consumed by
+//! `game_loop::chat::hero_voice`; the two item-handler slots await their
+//! handlers. `GlobalChat` alone is unreachable *on this dist*:
+//! `ChatShout`/`ChatTrade` consult it only under `GlobalChatAllowed = global`,
+//! and this dist ships `on` — so shout/trade go un-rate-limited despite the
+//! shipped `FloodProtectorGlobalChatInterval = 5`, exactly as in Java.
 
 use commons::config::PropertiesParser;
 

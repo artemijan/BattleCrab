@@ -102,6 +102,7 @@ mod grand_boss_tests;
 mod ground_channeling_tests;
 mod guard_aggro_tests;
 mod henna_tests;
+mod hero_voice_tests;
 mod hwid_tests;
 mod instance_tests;
 mod item_auction_tests;

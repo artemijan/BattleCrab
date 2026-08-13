@@ -375,17 +375,22 @@ fn kick(world: &mut World, client_id: u32) {
 }
 
 /// Slots with no opcode row, and why. Asserted by a test so the list cannot
-/// quietly rot: three are dead in Java too, `Subclass` is driven from the
-/// village-master bypass rather than from an opcode.
+/// quietly rot. None are opcode-driven, but they are not all dead — Java's
+/// call sites for these live in the **datapack scripts**, not under `java/`
+/// (the same grep blind spot `game_loop::chat`'s module header describes).
 #[cfg(test)]
 const UNMAPPED_ACTIONS: [FloodAction; 5] = [
-    // Java configures these four but never calls them from anywhere.
+    // `handlers/itemhandlers/RollingDice.java` / `SummonItems.java` call these
+    // two; the port's item handlers do not consult them yet.
     FloodAction::RollDice,
     FloodAction::ItemPetSummon,
-    FloodAction::HeroVoice,
+    // `ChatShout`/`ChatTrade` call this only in their `GlobalChatAllowed =
+    // global` branch; this dist ships `on`, so the slot is unreachable here.
     FloodAction::GlobalChat,
-    // Java calls this from `VillageMaster`'s subclass bypass, not a packet.
+    // Handler-driven, not packet-driven: `VillageMaster`'s subclass bypass and
+    // `ChatHeroVoice` (`game_loop::chat::hero_voice` calls `gate` directly).
     FloodAction::Subclass,
+    FloodAction::HeroVoice,
 ];
 
 #[cfg(test)]
