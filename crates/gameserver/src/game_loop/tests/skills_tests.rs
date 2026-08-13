@@ -2938,18 +2938,7 @@ mod hate_effects {
         let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
         let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
         // A decoy already has strong hate — the NPC is mid-fight with someone else.
-        world
-            .objects
-            .get_component_mut::<AggroList>(&npc_oid)
-            .unwrap()
-            .0
-            .insert(
-                DECOY,
-                model::npc::AggroInfo {
-                    hate: 500.0,
-                    damage: 500.0,
-                },
-            );
+        add_hate(&mut world, npc_oid, DECOY, 500.0, 500.0);
 
         let skill = hate_skill(&world, 28, "Aggression", SkillEffect::GetAgro);
         effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
@@ -3092,28 +3081,13 @@ mod hate_effects {
         let (mut world, _db_rx, _link_rx) = combat_test_world();
         let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
         let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
-        {
-            let aggro = world
-                .objects
-                .get_component_mut::<AggroList>(&npc_oid)
-                .unwrap();
-            aggro.0.insert(
-                3001,
-                model::npc::AggroInfo {
-                    hate: 50.0,
-                    damage: 50.0,
-                },
-            );
-            aggro.0.insert(
-                DECOY,
-                model::npc::AggroInfo {
-                    hate: 900.0,
-                    damage: 900.0,
-                },
-            );
-            let ai = world.objects.get_component_mut::<NpcAi>(&npc_oid).unwrap();
-            ai.intention = NpcIntention::Attack;
-        }
+        add_hate(&mut world, npc_oid, 3001, 50.0, 50.0);
+        add_hate(&mut world, npc_oid, DECOY, 900.0, 900.0);
+        world
+            .objects
+            .get_component_mut::<NpcAi>(&npc_oid)
+            .unwrap()
+            .intention = NpcIntention::Attack;
         // The first roll is `apply_skill_effects`' unconditional magic-crit
         // roll (999_999 → no crit, irrelevant here); the second is the
         // effect's own chance roll (0, well under the 80/100 chance).
@@ -3156,28 +3130,13 @@ mod hate_effects {
         let (mut world, _db_rx, _link_rx) = combat_test_world();
         let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
         let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
-        {
-            let aggro = world
-                .objects
-                .get_component_mut::<AggroList>(&npc_oid)
-                .unwrap();
-            aggro.0.insert(
-                3001,
-                model::npc::AggroInfo {
-                    hate: 50.0,
-                    damage: 50.0,
-                },
-            );
-            aggro.0.insert(
-                DECOY,
-                model::npc::AggroInfo {
-                    hate: 900.0,
-                    damage: 900.0,
-                },
-            );
-            let ai = world.objects.get_component_mut::<NpcAi>(&npc_oid).unwrap();
-            ai.intention = NpcIntention::Attack;
-        }
+        add_hate(&mut world, npc_oid, 3001, 50.0, 50.0);
+        add_hate(&mut world, npc_oid, DECOY, 900.0, 900.0);
+        world
+            .objects
+            .get_component_mut::<NpcAi>(&npc_oid)
+            .unwrap()
+            .intention = NpcIntention::Attack;
         world.forced_rolls.extend([999_999, 0]);
 
         let skill = hate_skill(

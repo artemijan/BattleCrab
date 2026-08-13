@@ -375,18 +375,7 @@ fn a_real_kill_pays_pa_points_even_with_vitality_off() {
         t.sp = 100.0;
         world.data.npc_data.insert_for_test(t);
         add_test_npc(&mut world, NPC_OID, 20001, "Monster", 10, 0, 0, 0);
-        world
-            .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
-            .unwrap()
-            .0
-            .insert(
-                PLAYER,
-                crate::model::npc::AggroInfo {
-                    hate: 100.0,
-                    damage: 100.0,
-                },
-            );
+        add_hate(&mut world, NPC_OID, PLAYER, 100.0, 100.0);
         world
             .objects
             .get_component_mut::<crate::model::components::Vitals>(&NPC_OID)

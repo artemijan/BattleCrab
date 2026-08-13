@@ -5,7 +5,7 @@ use super::*;
 
 use crate::data::npc_data::{AiType, MinionHolder};
 use crate::model::components::{Casting, Vitals};
-use crate::model::npc::{AggroInfo, AggroList, NpcIntention};
+use crate::model::npc::NpcIntention;
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
 
 const PLAYER: i32 = 2001;
@@ -142,18 +142,7 @@ fn scene(world: &mut World, companion_id: Option<i32>, companion_oid: i32, compa
         v.cur_hp = 1000.0;
         v.cur_mp = 500.0;
     }
-    world
-        .objects
-        .get_component_mut::<AggroList>(&HEALER)
-        .unwrap()
-        .0
-        .insert(
-            PLAYER,
-            AggroInfo {
-                hate: 100.0,
-                damage: 50.0,
-            },
-        );
+    add_hate(world, HEALER, PLAYER, 100.0, 50.0);
     ai_intention_test(world, HEALER, NpcIntention::Attack);
 }
 

@@ -267,22 +267,8 @@ fn the_larva_is_removed_when_the_queen_dies() {
 /// her back); keep her near and it leaves her alone.
 #[test]
 fn the_leash_resets_a_dragged_queen() {
-    use crate::model::npc::{AggroInfo, AggroList};
+    use crate::model::npc::AggroList;
 
-    let add_hate = |world: &mut World, oid: i32| {
-        world
-            .objects
-            .get_component_mut::<AggroList>(&oid)
-            .unwrap()
-            .0
-            .insert(
-                500,
-                AggroInfo {
-                    hate: 100.0,
-                    damage: 0.0,
-                },
-            );
-    };
     let has_hate = |world: &World, oid: i32| {
         !world
             .objects
@@ -295,7 +281,7 @@ fn the_leash_resets_a_dragged_queen() {
     // Far from home (0,0,0 vs ~-21610,181594): the leash fires.
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
-    add_hate(&mut world, QUEEN_OID);
+    add_hate(&mut world, QUEEN_OID, 500, 100.0, 0.0);
     crate::game_loop::queen_ant::handle_distance_check(&mut world, QUEEN_OID);
     assert!(
         !has_hate(&world, QUEEN_OID),
@@ -314,7 +300,7 @@ fn the_leash_resets_a_dragged_queen() {
         181594,
         -5734,
     );
-    add_hate(&mut world, QUEEN_OID);
+    add_hate(&mut world, QUEEN_OID, 500, 100.0, 0.0);
     crate::game_loop::queen_ant::handle_distance_check(&mut world, QUEEN_OID);
     assert!(
         has_hate(&world, QUEEN_OID),

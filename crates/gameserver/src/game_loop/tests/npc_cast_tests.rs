@@ -103,18 +103,7 @@ fn rebuild_ai_index(world: &mut World) {
 /// with a live target.
 fn engage(world: &mut World) -> i32 {
     add_test_npc(world, NPC_OID, MAGE_NPC, "Monster", 5, 100, 0, 0);
-    world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
-        .unwrap()
-        .0
-        .insert(
-            PLAYER,
-            crate::model::npc::AggroInfo {
-                hate: 100.0,
-                damage: 0.0,
-            },
-        );
+    add_hate(world, NPC_OID, PLAYER, 100.0, 0.0);
     if let Some(ai) = world
         .objects
         .get_component_mut::<crate::model::npc::NpcAi>(&NPC_OID)

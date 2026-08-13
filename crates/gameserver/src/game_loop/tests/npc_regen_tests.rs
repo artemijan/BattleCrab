@@ -162,18 +162,7 @@ fn regen_continues_during_combat() {
     let (mut world, _db, _l) = regen_world();
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     let oid = place(&mut world, MOB_ID, 500.0);
-    world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&oid)
-        .unwrap()
-        .0
-        .insert(
-            PLAYER,
-            crate::model::npc::AggroInfo {
-                hate: 100.0,
-                damage: 100.0,
-            },
-        );
+    add_hate(&mut world, oid, PLAYER, 100.0, 100.0);
     if let Some(ai) = world
         .objects
         .get_component_mut::<crate::model::npc::NpcAi>(&oid)

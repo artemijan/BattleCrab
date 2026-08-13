@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::model::npc::{AggroInfo, AggroList, NpcAi, NpcIntention};
+use crate::model::npc::{NpcAi, NpcIntention};
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
@@ -178,12 +178,7 @@ fn a_plain_monster_does_not_inherit_the_pk_rule() {
 fn engaged_pair(world: &mut World, mate_npc_id: i32, mate_x: i32, damage: f64) {
     add_test_npc(world, GUARD_OID, ORC_A_ID, "Monster", 10, 100, 0, 0);
     add_test_npc(world, MATE_OID, mate_npc_id, "Monster", 10, mate_x, 0, 0);
-    world
-        .objects
-        .get_component_mut::<AggroList>(&GUARD_OID)
-        .unwrap()
-        .0
-        .insert(PLAYER, AggroInfo { hate: 50.0, damage });
+    add_hate(world, GUARD_OID, PLAYER, 50.0, damage);
     ai_intention_test(world, GUARD_OID, NpcIntention::Attack);
 }
 
@@ -352,18 +347,7 @@ fn a_clan_mate_already_fighting_is_left_alone() {
     let (mut world, _db, _l) = guard_world();
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engaged_pair(&mut world, ORC_B_ID, 200, 100.0);
-    world
-        .objects
-        .get_component_mut::<AggroList>(&MATE_OID)
-        .unwrap()
-        .0
-        .insert(
-            PLAYER,
-            AggroInfo {
-                hate: 5.0,
-                damage: 10.0,
-            },
-        );
+    add_hate(&mut world, MATE_OID, PLAYER, 5.0, 10.0);
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&MATE_OID) {
         ai.intention = NpcIntention::Attack;
         ai.attack_timeout_tick = u64::MAX;

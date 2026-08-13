@@ -267,22 +267,8 @@ fn a_healthy_riba_iren_does_not_heal_orfen() {
 /// heads back); kept close, she keeps fighting.
 #[test]
 fn the_leash_resets_a_dragged_orfen() {
-    use crate::model::npc::{AggroInfo, AggroList};
+    use crate::model::npc::AggroList;
 
-    let add_hate = |world: &mut World, oid: i32| {
-        world
-            .objects
-            .get_component_mut::<AggroList>(&oid)
-            .unwrap()
-            .0
-            .insert(
-                PLAYER,
-                AggroInfo {
-                    hate: 100.0,
-                    damage: 0.0,
-                },
-            );
-    };
     let has_hate = |world: &World, oid: i32| {
         !world
             .objects
@@ -296,7 +282,7 @@ fn the_leash_resets_a_dragged_orfen() {
     let (mut world, _db, _l) = orfen_world();
     add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
     crate::game_loop::orfen::on_orfen_spawned(&mut world, ORFEN_OID);
-    add_hate(&mut world, ORFEN_OID);
+    add_hate(&mut world, ORFEN_OID, PLAYER, 100.0, 0.0);
 
     // Still near home: the leash leaves her be.
     crate::game_loop::orfen::handle_distance_check(&mut world, ORFEN_OID);

@@ -17,7 +17,7 @@
 use super::*;
 
 use crate::model::components::Position;
-use crate::model::npc::{AggroInfo, AggroList, NpcAi, NpcIntention};
+use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 
 const PLAYER: i32 = 3001;
 const MOB: i32 = NPC_OID;
@@ -27,12 +27,7 @@ const MOB_ID: i32 = 45100;
 /// AI left in whatever calm state the caller wants to test.
 fn mob_hating_player(world: &mut World, hate: f64) {
     add_test_npc(world, MOB, MOB_ID, "Monster", 20, 100, 0, 0);
-    world
-        .objects
-        .get_component_mut::<AggroList>(&MOB)
-        .unwrap()
-        .0
-        .insert(PLAYER, AggroInfo { hate, damage: hate });
+    add_hate(world, MOB, PLAYER, hate, hate);
 }
 
 fn intention(world: &World) -> NpcIntention {
@@ -189,18 +184,7 @@ fn a_second_attacker_on_the_list_keeps_the_mob_engaged() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut rx = ingame_caster(&mut world, 1, PLAYER, 0, 0);
     mob_hating_player(&mut world, 100.0);
-    world
-        .objects
-        .get_component_mut::<AggroList>(&MOB)
-        .unwrap()
-        .0
-        .insert(
-            PLAYER + 1,
-            AggroInfo {
-                hate: 0.0,
-                damage: 5.0,
-            },
-        );
+    add_hate(&mut world, MOB, PLAYER + 1, 0.0, 5.0);
     drain(&mut rx);
 
     world

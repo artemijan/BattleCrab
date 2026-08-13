@@ -433,6 +433,16 @@ fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
         .map(|i| i.hate)
         .unwrap_or(0.0)
 }
+/// The write side of [`hate_on`]: seed one aggro row on an already-spawned NPC,
+/// standing in for the `Attackable.addDamageHate` a real hit would have done.
+fn add_hate(world: &mut World, npc: i32, attacker: i32, hate: f64, damage: f64) {
+    world
+        .objects
+        .get_component_mut::<AggroList>(&npc)
+        .unwrap()
+        .0
+        .insert(attacker, crate::model::npc::AggroInfo { hate, damage });
+}
 fn pbuffs(world: &World, oid: i32) -> usize {
     world
         .objects

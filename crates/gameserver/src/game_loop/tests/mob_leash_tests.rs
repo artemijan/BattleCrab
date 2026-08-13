@@ -9,7 +9,7 @@
 use super::*;
 
 use crate::model::components::Vitals;
-use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
+use crate::model::npc::{AggroList, Npc, NpcAi, NpcIntention};
 
 const PLAYER: i32 = 3001;
 const MOB: i32 = NPC_OID;
@@ -43,18 +43,7 @@ fn hurt(world: &mut World, oid: i32) {
 
 /// Put the mob into the attack loop with the player at the top of its hate.
 fn engage(world: &mut World, oid: i32) {
-    world
-        .objects
-        .get_component_mut::<AggroList>(&oid)
-        .unwrap()
-        .0
-        .insert(
-            PLAYER,
-            AggroInfo {
-                hate: 100.0,
-                damage: 100.0,
-            },
-        );
+    add_hate(world, oid, PLAYER, 100.0, 100.0);
     let tick = world.tick;
     let ai = world.objects.get_component_mut::<NpcAi>(&oid).unwrap();
     ai.intention = NpcIntention::Attack;

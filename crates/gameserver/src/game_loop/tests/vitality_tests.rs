@@ -340,18 +340,7 @@ fn killing_a_monster_drains_vitality() {
 
     // Rewards are shared by *damage dealt*, so the killer needs an aggro-list
     // entry — the real path fills this in from `Attackable.addDamage`.
-    world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
-        .unwrap()
-        .0
-        .insert(
-            OID,
-            crate::model::npc::AggroInfo {
-                hate: 100.0,
-                damage: 100.0,
-            },
-        );
+    add_hate(&mut world, NPC_OID, OID, 100.0, 100.0);
     world
         .objects
         .get_component_mut::<crate::model::components::Vitals>(&NPC_OID)

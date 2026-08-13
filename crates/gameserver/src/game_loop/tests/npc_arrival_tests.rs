@@ -13,7 +13,7 @@
 use super::*;
 
 use crate::model::components::{AttackState, Casting, Movement};
-use crate::model::npc::{AggroInfo, AggroList, NpcAi, NpcIntention};
+use crate::model::npc::{NpcAi, NpcIntention};
 
 const PLAYER: i32 = 3001;
 const MOB: i32 = NPC_OID;
@@ -23,18 +23,7 @@ const MOB_ID: i32 = 45000;
 /// that it has to walk in.
 fn mob_chasing_player(world: &mut World, mob_at: (i32, i32)) {
     add_test_npc(world, MOB, MOB_ID, "Monster", 20, mob_at.0, mob_at.1, 0);
-    world
-        .objects
-        .get_component_mut::<AggroList>(&MOB)
-        .unwrap()
-        .0
-        .insert(
-            PLAYER,
-            AggroInfo {
-                hate: 100.0,
-                damage: 100.0,
-            },
-        );
+    add_hate(world, MOB, PLAYER, 100.0, 100.0);
     let tick = world.tick;
     let ai = world.objects.get_component_mut::<NpcAi>(&MOB).unwrap();
     ai.intention = NpcIntention::Attack;

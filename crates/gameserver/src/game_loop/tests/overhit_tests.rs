@@ -107,18 +107,7 @@ fn wounded_mob(world: &mut World, remaining_hp: f64) -> i32 {
         v.cur_hp = remaining_hp;
     }
     // The killer needs a damage share to be rewarded at all.
-    world
-        .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
-        .unwrap()
-        .0
-        .insert(
-            CASTER,
-            crate::model::npc::AggroInfo {
-                hate: 100.0,
-                damage: 100.0,
-            },
-        );
+    add_hate(world, NPC_OID, CASTER, 100.0, 100.0);
     NPC_OID
 }
 
