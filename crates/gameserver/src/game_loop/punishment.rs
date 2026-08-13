@@ -47,9 +47,9 @@ fn arm_expiry(world: &mut World, punishment_id: i32, expiration: i64) {
         return;
     }
     let now = commons::util::now_millis();
-    let delay_ticks = ((expiration - now).max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world.scheduler.schedule(
-        world.tick + delay_ticks,
+    crate::game_loop::time::schedule_in_ms(
+        world,
+        expiration - now,
         ScheduledTask::PunishmentExpire { punishment_id },
     );
 }

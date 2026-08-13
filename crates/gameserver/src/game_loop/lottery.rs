@@ -6,7 +6,7 @@
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
+use crate::game_loop::time::MILLIS_PER_MINUTE;
 use commons::util::rnd;
 use tracing::info;
 
@@ -346,8 +346,7 @@ fn schedule_at(world: &mut World, at_millis: i64, task: ScheduledTask) {
 }
 
 fn schedule_in(world: &mut World, delay_millis: i64, task: ScheduledTask) {
-    let delay_ticks = (delay_millis.max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world.scheduler.schedule(world.tick + delay_ticks, task);
+    crate::game_loop::time::schedule_in_ms(world, delay_millis, task);
 }
 
 // ---------------------------------------------------------------------------

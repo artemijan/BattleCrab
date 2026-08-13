@@ -104,10 +104,7 @@ pub(crate) fn next_mode_change_at(world: &World, now_millis: i64) -> i64 {
 
 fn arm_next_mode_change(world: &mut World, now_millis: i64) {
     let at = next_mode_change_millis(world.manor.mode(), now_millis, mode_times(world));
-    let delay_ticks = ((at - now_millis).max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world
-        .scheduler
-        .schedule(world.tick + delay_ticks, ScheduledTask::ManorModeChange);
+    crate::game_loop::time::schedule_in_ms(world, at - now_millis, ScheduledTask::ManorModeChange);
 }
 
 /// Port of `CastleManorManager.changeMode` — advance the period, run the

@@ -6,7 +6,7 @@
 
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
+use crate::game_loop::time::MILLIS_PER_MINUTE;
 use commons::util::rnd;
 use tracing::info;
 
@@ -389,9 +389,9 @@ fn persist(world: &World, a: &ItemAuction) {
 /// .schedule(task, max(target - now, 0))`).
 fn schedule_at(world: &mut World, auction_id: i32, at_millis: i64) {
     let now = commons::util::now_millis();
-    let delay_ticks = ((at_millis - now).max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world.scheduler.schedule(
-        world.tick + delay_ticks,
+    crate::game_loop::time::schedule_in_ms(
+        world,
+        at_millis - now,
         ScheduledTask::ItemAuctionState { auction_id },
     );
 }

@@ -17,7 +17,7 @@
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{npc_template, send_inventory_item_list};
-use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
+use crate::game_loop::time::MILLIS_PER_MINUTE;
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
@@ -588,9 +588,9 @@ pub(crate) fn arm_expiry(world: &mut World, idx: usize) {
         let cw = &world.cursed_weapons[idx];
         (cw.item_id, cw.end_time)
     };
-    let delay_ticks = ((end_time - now_millis()).max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world.scheduler.schedule(
-        world.tick + delay_ticks,
+    crate::game_loop::time::schedule_in_ms(
+        world,
+        end_time - now_millis(),
         ScheduledTask::CursedWeaponExpiry { item_id },
     );
 }

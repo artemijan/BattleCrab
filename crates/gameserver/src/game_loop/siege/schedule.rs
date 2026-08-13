@@ -2,7 +2,7 @@
 //! `Siege.startAutoTask` countdown chain, and the owner hour-picking window.
 
 use super::*;
-use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR, TICKS_PER_SECOND};
+use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR};
 
 /// The next `weekday`@`hour`:00 **UTC** strictly after `now_millis` (Java
 /// `SiegeScheduleDate` + `Calendar` next-occurrence, computed in UTC — Rust std
@@ -111,9 +111,9 @@ const AUTO_TASK_10_SEC_MS: i64 = 10_000;
 
 /// Schedule the next hop of the auto-task chain, `delay_ms` from now.
 fn arm_auto_task(world: &mut World, castle_id: i32, delay_ms: i64) {
-    let delay_ticks = (delay_ms.max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world.scheduler.schedule(
-        world.tick + delay_ticks,
+    crate::game_loop::time::schedule_in_ms(
+        world,
+        delay_ms,
         ScheduledTask::SiegeStart { castle_id },
     );
 }

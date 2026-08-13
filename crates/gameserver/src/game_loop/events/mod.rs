@@ -59,14 +59,14 @@ pub(crate) fn arm_schedule(world: &mut World, index: usize, pattern: &str) {
         tracing::warn!("Events: schedule pattern [{pattern}] never fires, ignored.");
         return;
     };
-    let ticks = (delay_ms.max(0) / 1000) as u64 * 10;
     tracing::info!(
         "Events: {} scheduled in {} s (pattern [{pattern}]).",
         tvt::NAME,
         delay_ms / 1000
     );
-    world.scheduler.schedule(
-        world.tick + ticks,
+    crate::game_loop::time::schedule_in_ms(
+        world,
+        delay_ms,
         crate::scheduler::ScheduledTask::EventSchedule {
             index,
             pattern: pattern.to_string(),
