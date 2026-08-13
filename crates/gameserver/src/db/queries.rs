@@ -1549,8 +1549,14 @@ async fn upsert_shortcut(
     }
 }
 
-async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::shortcut::Macro) {
-    let row = character_macroses::ActiveModel {
+/// One `character_macroses` row upsert, keyed by (char, macro id) so re-saving
+/// a macro overwrites it. Left un-`exec`ed so callers can run it on the pool or
+/// inside a save transaction, like [`shortcut_upsert`].
+fn macro_upsert(
+    char_id: i32,
+    m: &crate::model::shortcut::Macro,
+) -> models::sea_orm::Insert<character_macroses::ActiveModel> {
+    character_macroses::Entity::insert(character_macroses::ActiveModel {
         char_id: Set(char_id),
         id: Set(m.id),
         icon: Set(Some(m.icon)),
@@ -1558,24 +1564,25 @@ async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::s
         descr: Set(Some(m.descr.clone())),
         acronym: Set(Some(m.acronym.clone())),
         commands: Set(Some(crate::model::shortcut::encode_commands(&m.commands))),
-    };
-    let res = character_macroses::Entity::insert(row)
-        .on_conflict(
-            OnConflict::columns([
-                character_macroses::Column::CharId,
-                character_macroses::Column::Id,
-            ])
-            .update_columns([
-                character_macroses::Column::Icon,
-                character_macroses::Column::Name,
-                character_macroses::Column::Descr,
-                character_macroses::Column::Acronym,
-                character_macroses::Column::Commands,
-            ])
-            .to_owned(),
-        )
-        .exec(db)
-        .await;
+    })
+    .on_conflict(
+        OnConflict::columns([
+            character_macroses::Column::CharId,
+            character_macroses::Column::Id,
+        ])
+        .update_columns([
+            character_macroses::Column::Icon,
+            character_macroses::Column::Name,
+            character_macroses::Column::Descr,
+            character_macroses::Column::Acronym,
+            character_macroses::Column::Commands,
+        ])
+        .to_owned(),
+    )
+}
+
+async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::shortcut::Macro) {
+    let res = macro_upsert(char_id, m).exec(db).await;
     if let Err(e) = res {
         warn!("DB thread: upsert_macro failed: {e}");
     }
@@ -2172,17 +2179,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         .exec(&tx)
         .await?;
     for m in &s.macros {
-        character_macroses::Entity::insert(character_macroses::ActiveModel {
-            char_id: Set(char_id),
-            id: Set(m.id),
-            icon: Set(Some(m.icon)),
-            name: Set(Some(m.name.clone())),
-            descr: Set(Some(m.descr.clone())),
-            acronym: Set(Some(m.acronym.clone())),
-            commands: Set(Some(crate::model::shortcut::encode_commands(&m.commands))),
-        })
-        .exec(&tx)
-        .await?;
+        macro_upsert(char_id, m).exec(&tx).await?;
     }
 
     character_quests::Entity::delete_many()
