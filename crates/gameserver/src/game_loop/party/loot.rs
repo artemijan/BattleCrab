@@ -184,7 +184,7 @@ pub(crate) fn distribute_item(
     count: i64,
     corpse: (i32, i32),
 ) {
-    const ADENA_ID: i32 = 57;
+    const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
     let range = world.cfg.character.alt_party_range as f64;
     let Some((members, rule, last_loot)) = world
         .parties

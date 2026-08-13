@@ -4,6 +4,7 @@
 //! `mdt_history`/`mdt_bets` persistence, and the RaceManager betting dialog
 //! (buy a lane ticket, view odds/history, cash a winning ticket out).
 
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::time::TICKS_PER_SECOND;
@@ -25,7 +26,6 @@ use crate::world::World;
 
 /// The Monster Race ticket item (Java 4443) + the eight bet-price tiers.
 const RACE_TICKET_ITEM: i32 = 4443;
-const ADENA_ID: i32 = 57;
 const TICKET_PRICES: [i64; LANES] = [100, 500, 1000, 5000, 10000, 20000, 50000, 100000];
 /// The racer NPC templates (Java `for i in 31003..31027`).
 const FIRST_RACER_TEMPLATE: i32 = 31003;

@@ -4,6 +4,7 @@
 //! ending-extend state machine, and cancel/refund — plus the auctioneer NPC
 //! dialog + the client packets (slice 3). Winner→warehouse delivery is slice 4.
 
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
 use commons::util::rnd;
@@ -20,7 +21,6 @@ use crate::world::World;
 /// Java `START_TIME_SPACE` (1 min) / `FINISH_TIME_SPACE` (10 min).
 const START_TIME_SPACE: i64 = MILLIS_PER_MINUTE;
 const FINISH_TIME_SPACE: i64 = 10 * MILLIS_PER_MINUTE;
-const ADENA_ID: i32 = 57;
 /// Java's hard cap on a bid (999.9 bn).
 const MAX_BID: i64 = 100_000_000_000;
 /// The last-10-minutes window in which a bid extends the auction.

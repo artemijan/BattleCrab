@@ -468,7 +468,7 @@ impl NpcData {
     /// excluded (Java `BLOCK_ID`); each item's list is sorted by NPC level.
     pub fn drop_index(&self) -> &HashMap<i32, Vec<CbDrop>> {
         self.drop_index.get_or_init(|| {
-            const ADENA_ID: i32 = 57;
+            const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
             let mut index: HashMap<i32, Vec<CbDrop>> = HashMap::new();
             let add = |index: &mut HashMap<i32, Vec<CbDrop>>,
                        t: &NpcTemplate,

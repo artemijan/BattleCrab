@@ -15,6 +15,7 @@
 //! Craft, G19 `EnlargeSlot`) *is* wired — see `learn_recipe`'s limit lookup.
 
 use super::helpers::{adena, player_of, send_inventory_item_list};
+use crate::data::item_data::ADENA_ID;
 use crate::data::recipe_data::RecipeList;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
@@ -26,7 +27,6 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids, status_update_type};
 use crate::world::World;
 
-const ADENA_ID: i32 = 57;
 /// `CommonSkill.CREATE_DWARVEN` (172) / `CREATE_COMMON` (1320) — the craft
 /// ability skills; the player's level in them is their `getDwarvenCraft` /
 /// `getCommonCraft`.

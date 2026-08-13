@@ -3,6 +3,7 @@
 //! dialog. The round lifecycle + `lottery`-table persistence, ticket purchase,
 //! the two-phase draw, and prize claim.
 
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::time::{MILLIS_PER_MINUTE, TICKS_PER_SECOND};
@@ -26,7 +27,6 @@ const DRAW_WEEKDAY: u32 = 6;
 const DRAW_HOUR: u32 = 19;
 /// The Lottery Ticket item (Java 4442).
 const TICKET_ITEM: i32 = 4442;
-const ADENA_ID: i32 = 57;
 
 /// Port of the `Lottery` constructor + `startLottery`'s load branch, driven by
 /// the boot `DbEvent::LotteryLoaded`. Inert unless `AllowLottery`.

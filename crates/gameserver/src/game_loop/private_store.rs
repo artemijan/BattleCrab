@@ -12,6 +12,7 @@
 use super::helpers::{
     adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
 };
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{PrivateStore, StoreItem};
@@ -20,7 +21,6 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets::{self as sp, StoreLine};
 use crate::world::World;
 
-const ADENA_ID: i32 = 57;
 const STORE_TYPE_SELL: u8 = 1;
 /// Java `PrivateStoreType.PACKAGE_SELL` — the whole list sells as one lot.
 const STORE_TYPE_PACKAGE_SELL: u8 = 8;

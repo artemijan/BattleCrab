@@ -13,6 +13,7 @@
 use super::helpers::{
     adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
 };
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
 use crate::model::components::ActiveWarehouse;
@@ -21,8 +22,6 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
 use crate::session::ClientSession;
 use crate::world::World;
-
-const ADENA_ID: i32 = 57;
 
 /// The container the player's [`ActiveWarehouse`] currently points at — the
 /// personal warehouse (a player component), the shared clan warehouse (in

@@ -33,7 +33,7 @@ use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 
 /// `Inventory.ADENA_ID`.
-const ADENA_ID: i32 = 57;
+const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
 /// The Lord's Crown and the two side cloaks.
 const CROWN: i32 = 6841;
 const LORD_CLOAK_OF_LIGHT: i32 = 34925;

@@ -16,6 +16,7 @@
 //! data set), and `item_variations` DB persistence (augments are session-only
 //! for now). The item-list mask display bit is also still 0.
 
+use crate::data::item_data::ADENA_ID;
 use commons::network::PacketReader;
 
 use super::helpers::{player_of, send_to_client as send};
@@ -25,8 +26,6 @@ use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
 use crate::world::World;
-
-const ADENA_ID: i32 = 57;
 
 /// `Augment` bypass: `1` opens the make window, `2` the cancel window.
 pub(crate) fn open_window(world: &mut World, client_id: u32, make: bool) {

@@ -54,7 +54,7 @@ pub(crate) use resurrect::*;
 pub(crate) use rewards::*;
 
 /// `Inventory.ADENA_ID`.
-pub(crate) const ADENA_ID: i32 = 57;
+pub(crate) use crate::data::item_data::ADENA_ID;
 
 // ---------------------------------------------------------------------------
 // NPC death → decay → respawn

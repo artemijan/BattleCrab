@@ -11,6 +11,7 @@
 use super::helpers::{adena, send_inventory_item_list};
 use super::helpers::{player_of, send_to_client as send};
 use crate::data::henna_data::HennaStatSums;
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::class_level;
 use crate::model::Player;
 use crate::model::components::{BaseStats, CombatStats, HennaSlots, Speeds, StatModifiers, Vitals};
@@ -18,8 +19,6 @@ use crate::model::inventory::Inventory;
 use crate::model::stats::BaseStat;
 use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPreview, sm_ids};
 use crate::world::World;
-
-const ADENA_ID: i32 = 57;
 
 /// `Player.getHennaEmptySlots`: 2 slots at class level 1, 3 at level ≥ 2, 0 at
 /// base class — minus the worn dyes.

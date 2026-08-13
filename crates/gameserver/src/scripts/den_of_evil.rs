@@ -78,7 +78,7 @@ impl QuestScript for RagnaOrcLeaders {
 // ---------------------------------------------------------------------------
 
 const FRIGHTENED_ORC: i32 = 18807;
-const ADENA_ID: i32 = 57;
+const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
 /// The small payout: 10 × 10 000 adena at 1 000-in-100 000.
 const ADENA_SMALL: i64 = 10_000;
 const CHANCE_SMALL: i32 = 1000;

@@ -315,7 +315,7 @@ impl GeneralConfig {
     /// the broad branch is off. Ported as one predicate so the four call sites
     /// cannot drift apart.
     pub fn should_log_item(&self, item_id: i32, equipable: bool) -> bool {
-        const ADENA_ID: i32 = 57;
+        const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
         (self.log_items && !self.log_items_small_log && !self.log_items_ids_only)
             || (self.log_items_small_log && (equipable || item_id == ADENA_ID))
             || (self.log_items_ids_only && self.log_items_ids_list.contains(&item_id))
