@@ -320,7 +320,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             // Java `ClanHall.setOwner` on load arms each owned hall's lease
             // check; restore those timers here.
             for hall_id in owned {
-                crate::game_loop::clan_hall_auction::arm_lease_check(world, hall_id);
+                crate::game_loop::clans::hall_auction::arm_lease_check(world, hall_id);
             }
         }
         DbEvent::ClanHallBiddersLoaded { rows } => {
@@ -336,7 +336,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             }
             tracing::info!("GameLoop: loaded {} clan-hall auction bids.", rows.len());
             // Arm the weekly auction close now that the bids exist.
-            crate::game_loop::clan_hall_auction::schedule_weekly_close(world);
+            crate::game_loop::clans::hall_auction::schedule_weekly_close(world);
         }
         DbEvent::ResidenceFunctionsLoaded { rows } => {
             use crate::model::clan_hall::ActiveFunction;
@@ -361,7 +361,9 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 .flat_map(|(&hall, fs)| fs.keys().map(move |&f| (hall, f)))
                 .collect();
             for (hall_id, func_id) in funcs {
-                crate::game_loop::clan_hall_function::arm_function_expiry(world, hall_id, func_id);
+                crate::game_loop::clans::hall_function::arm_function_expiry(
+                    world, hall_id, func_id,
+                );
             }
         }
         DbEvent::CustomMailLoaded { rows } => {

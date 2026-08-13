@@ -161,7 +161,7 @@ pub(crate) fn open_close_hall_doors(world: &mut World, hall_id: i32, open: bool)
         .map(|h| h.doors.clone())
         .unwrap_or_default();
     for door_id in doors {
-        super::doors::set_door_by_id(world, door_id, open);
+        crate::game_loop::doors::set_door_by_id(world, door_id, open);
     }
 }
 
@@ -207,7 +207,7 @@ pub(crate) fn place_bid(
     if let Some((prev_clan, prev_amount)) = highest_bidder(world, hall_id) {
         give_clan_adena(world, prev_clan, prev_amount);
         if prev_clan != clan_id {
-            super::warehouse::persist_clan_warehouse(world, prev_clan);
+            crate::game_loop::warehouse::persist_clan_warehouse(world, prev_clan);
         }
     }
     world.clan_hall_bids.entry(hall_id).or_default().insert(
@@ -218,7 +218,7 @@ pub(crate) fn place_bid(
         },
     );
     // Persist the bidder's warehouse (adena moved) and the bid row.
-    super::warehouse::persist_clan_warehouse(world, clan_id);
+    crate::game_loop::warehouse::persist_clan_warehouse(world, clan_id);
     let _ = world.db.send(DbCommand::SaveClanHallBid {
         hall_id,
         clan_id,
@@ -318,7 +318,7 @@ pub(crate) fn arm_lease_check(world: &mut World, hall_id: i32) {
     };
     let delay_ms = (paid_until - now).max(0).min(i32::MAX as i64) as i32;
     world.scheduler.schedule(
-        world.tick + super::helpers::ms_to_ticks(delay_ms),
+        world.tick + crate::game_loop::helpers::ms_to_ticks(delay_ms),
         ScheduledTask::ClanHallLeaseCheck { hall_id },
     );
 }
@@ -347,7 +347,7 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
             // A week overdue → ownership revoked, and Java tells the clan
             // before taking the hall (`broadcastToOnlineMembers` then
             // `setOwner(null)`), so the members learn why the hall vanished.
-            super::clans::broadcast_to_clan(
+            crate::game_loop::clans::broadcast_to_clan(
                 world,
                 owner_id,
                 &crate::network::server_packets::system_message_with(
@@ -359,7 +359,7 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
         } else {
             // Java's daily reminder, carrying the outstanding lease so the
             // clan knows how much to bank.
-            super::clans::broadcast_to_clan(
+            crate::game_loop::clans::broadcast_to_clan(
                 world,
                 owner_id,
                 &crate::network::server_packets::system_message_with(
@@ -368,7 +368,7 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
                 ),
             );
             world.scheduler.schedule(
-                world.tick + super::helpers::ms_to_ticks(DAY_MS as i32),
+                world.tick + crate::game_loop::helpers::ms_to_ticks(DAY_MS as i32),
                 ScheduledTask::ClanHallLeaseCheck { hall_id },
             );
         }
@@ -379,7 +379,7 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
     if let Some(clan) = world.clans.get_mut(&owner_id) {
         clan.warehouse.0.remove_item(ADENA_ID, lease);
     }
-    super::warehouse::persist_clan_warehouse(world, owner_id);
+    crate::game_loop::warehouse::persist_clan_warehouse(world, owner_id);
     let new_paid_until = if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
         hall.paid_until += LEASE_PERIOD_MS;
         hall.paid_until

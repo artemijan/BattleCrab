@@ -169,9 +169,11 @@ fn restore_clanhall_exp(world: &mut World, player_oid: i32) {
     else {
         return;
     };
-    let Some(percent) =
-        crate::game_loop::clan_hall_function::active_function_value(world, hall_id, "EXP_RESTORE")
-    else {
+    let Some(percent) = crate::game_loop::clans::hall_function::active_function_value(
+        world,
+        hall_id,
+        "EXP_RESTORE",
+    ) else {
         return;
     };
     restore_lost_exp(world, player_oid, percent);

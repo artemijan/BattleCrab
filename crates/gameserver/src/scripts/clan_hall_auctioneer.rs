@@ -1,15 +1,15 @@
 //! The Clan Hall Auctioneer (NPC 30767) — the player side of clan-hall auctions
 //! (`ai/others/ClanHallAuctioneer`). A clan leader browses the free halls, reads
 //! a hall's auction info, bids on / cancels bids for it, and lists the current
-//! bidders; the auction logic lives in [`crate::game_loop::clan_hall_auction`].
+//! bidders; the auction logic lives in [`crate::game_loop::clans::hall_auction`].
 //!
 //! The dynamic dist htmls are templated here: the hall list (`%agitList%`), the
 //! per-hall info page, the bid form (`%clanAdena%`/`%minBid%`), the bidder list
 //! (`%bidderList%`), and the cancel-confirmation. `%auctionEnd%`/`%hours%`/
 //! `%minutes%` come from `World.auction_end_tick` (the weekly-close countdown).
 
-use crate::game_loop::clan_hall_auction::{self, BidOutcome, bid_count, highest_bid};
 use crate::game_loop::clans::clan_name_or_empty;
+use crate::game_loop::clans::hall_auction::{self, BidOutcome, bid_count, highest_bid};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::clan_hall::{ClanHallGrade, ClanHallType};
@@ -90,7 +90,7 @@ impl ClanHallAuctioneer {
             return render_bid_form(ctx.world, clan_id, hall_id);
         }
         let now = commons::util::now_millis();
-        let outcome = clan_hall_auction::place_bid(ctx.world, hall_id, clan_id, bid, now);
+        let outcome = hall_auction::place_bid(ctx.world, hall_id, clan_id, bid, now);
         Some(message(bid_message(outcome)))
     }
 
@@ -100,10 +100,10 @@ impl ClanHallAuctioneer {
         let Some(clan_id) = clan_of(ctx) else {
             return Some(message("You must be in a clan."));
         };
-        let Some(hall_id) = clan_hall_auction::clan_bid_hall(ctx.world, clan_id) else {
+        let Some(hall_id) = hall_auction::clan_bid_hall(ctx.world, clan_id) else {
             return Some(message("You have no active bid to cancel."));
         };
-        let my_bid = clan_hall_auction::highest_bidder(ctx.world, hall_id)
+        let my_bid = hall_auction::highest_bidder(ctx.world, hall_id)
             .filter(|&(c, _)| c == clan_id)
             .map(|(_, a)| a)
             .unwrap_or_else(|| {
@@ -127,9 +127,9 @@ impl ClanHallAuctioneer {
         let Some(clan_id) = clan_of(ctx) else {
             return Some(message("You must be in a clan."));
         };
-        match clan_hall_auction::clan_bid_hall(ctx.world, clan_id) {
+        match hall_auction::clan_bid_hall(ctx.world, clan_id) {
             Some(hall_id) => {
-                clan_hall_auction::cancel_bid(ctx.world, hall_id, clan_id);
+                hall_auction::cancel_bid(ctx.world, hall_id, clan_id);
                 Some(message("Your bid has been canceled."))
             }
             None => Some(message("You have no active bid to cancel.")),

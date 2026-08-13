@@ -224,13 +224,13 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 antharas::handle_clear_zone(world);
             }
             ScheduledTask::ClanHallAuctionEnd => {
-                clan_hall_auction::handle_auction_end(world);
+                clans::hall_auction::handle_auction_end(world);
             }
             ScheduledTask::ClanHallLeaseCheck { hall_id } => {
-                clan_hall_auction::handle_lease_check(world, hall_id);
+                clans::hall_auction::handle_lease_check(world, hall_id);
             }
             ScheduledTask::ClanHallFunctionExpire { hall_id, func_id } => {
-                clan_hall_function::handle_function_expiry(world, hall_id, func_id);
+                clans::hall_function::handle_function_expiry(world, hall_id, func_id);
             }
             ScheduledTask::AntharasSetRegen { antharas_oid } => {
                 antharas::handle_set_regen(world, antharas_oid);

@@ -89,7 +89,7 @@ fn a_clan_can_be_found_by_the_hall_it_owns() {
 // ---------------------------------------------------------------------------
 
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::clan_hall_auction::{
+use crate::game_loop::clans::hall_auction::{
     BidOutcome, cancel_bid, finalize_auction, highest_bidder, place_bid,
 };
 use crate::model::clan::Clan;
@@ -319,7 +319,7 @@ fn the_weekly_close_finalizes_and_rearms() {
     place_bid(&mut world, ONYX, 20, 6_000_000, 1);
     let before = world.scheduler.len();
 
-    crate::game_loop::clan_hall_auction::handle_auction_end(&mut world);
+    crate::game_loop::clans::hall_auction::handle_auction_end(&mut world);
 
     assert_eq!(world.clan_halls[&ONYX].owner_id, 20, "the top bidder won");
     assert!(world.clan_hall_bids.get(&ONYX).is_none(), "bids cleared");
@@ -422,7 +422,7 @@ fn a_paying_owner_keeps_the_hall() {
     let now = commons::util::now_millis();
     own_hall(&mut world, ONYX, 10, now); // rent due now
 
-    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+    crate::game_loop::clans::hall_auction::handle_lease_check(&mut world, ONYX);
 
     assert_eq!(world.clan_halls[&ONYX].owner_id, 10, "still owned");
     assert_eq!(
@@ -446,7 +446,7 @@ fn a_delinquent_owner_gets_a_retry() {
     own_hall(&mut world, ONYX, 10, now - 2 * DAY_MS); // 2 days overdue
     let before = world.scheduler.len();
 
-    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+    crate::game_loop::clans::hall_auction::handle_lease_check(&mut world, ONYX);
 
     assert_eq!(
         world.clan_halls[&ONYX].owner_id, 10,
@@ -464,7 +464,7 @@ fn a_week_overdue_owner_is_evicted() {
     let now = commons::util::now_millis();
     own_hall(&mut world, ONYX, 10, now - 10 * DAY_MS); // 10 days overdue
 
-    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+    crate::game_loop::clans::hall_auction::handle_lease_check(&mut world, ONYX);
 
     assert_eq!(world.clan_halls[&ONYX].owner_id, 0, "the hall was revoked");
     assert_eq!(
@@ -494,7 +494,7 @@ fn the_owning_clan_hears_about_the_overdue_lease() {
     let now = commons::util::now_millis();
     own_hall(&mut world, ONYX, 10, now - 2 * DAY_MS);
     drain(&mut rx);
-    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+    crate::game_loop::clans::hall_auction::handle_lease_check(&mut world, ONYX);
     assert!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::PAYMENT_FOR_YOUR_CLAN_HALL_HAS_NOT_BEEN_MADE),
@@ -513,7 +513,7 @@ fn the_owning_clan_hears_about_the_overdue_lease() {
     world.clans.get_mut(&10).unwrap().members.push(member(3001));
     own_hall(&mut world, ONYX, 10, now - 10 * DAY_MS);
     drain(&mut rx);
-    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+    crate::game_loop::clans::hall_auction::handle_lease_check(&mut world, ONYX);
     assert!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::THE_CLAN_HALL_FEE_IS_ONE_WEEK_OVERDUE),
@@ -543,7 +543,7 @@ fn member(char_id: i32) -> crate::model::clan::ClanMember {
 // The Clan Hall Door Manager (owner opens/closes doors)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::clan_hall_auction::{hall_by_npc_id, open_close_hall_doors};
+use crate::game_loop::clans::hall_auction::{hall_by_npc_id, open_close_hall_doors};
 
 /// An agent NPC resolves to its hall (Java `Npc.getClanHall`). Onyx Hall's
 /// `<npcs>` names 35395 (its door manager).
@@ -578,7 +578,7 @@ fn opening_a_halls_doors_toggles_them() {
 // ---------------------------------------------------------------------------
 
 use crate::data::residence_function_data::ResidenceFunctionData;
-use crate::game_loop::clan_hall_function::{
+use crate::game_loop::clans::hall_function::{
     FunctionOutcome, buy_function, function_level, handle_function_expiry, remove_function,
 };
 use crate::model::inventory::Inventory;
@@ -773,7 +773,7 @@ fn banish_ejects_outsiders_but_not_members() {
         .unwrap()
         .clan_id = 100;
 
-    crate::game_loop::clan_hall_auction::banish_others(&mut world, 23);
+    crate::game_loop::clans::hall_auction::banish_others(&mut world, 23);
 
     let op = world
         .objects
@@ -791,7 +791,7 @@ fn banish_ejects_outsiders_but_not_members() {
 // HP/MP regen benefit
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::clan_hall_function::{active_function_value, set_function};
+use crate::game_loop::clans::hall_function::{active_function_value, set_function};
 use crate::game_loop::regen::clan_hall_regen_mult;
 
 fn regen_world_with_hall(owner_clan: i32) -> World {
@@ -907,7 +907,7 @@ fn a_hall_teleport_moves_the_player() {
 // Support-buff benefit (BUFF function)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::clan_hall_function::{BuffCastOutcome, cast_hall_buff};
+use crate::game_loop::clans::hall_function::{BuffCastOutcome, cast_hall_buff};
 use crate::model::components::Vitals;
 
 /// Build a world with a clan-hall manager NPC and a nearby player, plus a

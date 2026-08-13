@@ -80,9 +80,14 @@ pub(crate) fn cast_hall_buff(
     }
     // Trigger-cast (animation + effects), then charge the NPC's MP and arm its
     // reuse — Java `npc.doCast` does both as part of the cast.
-    super::support_magic::cast_from_npc(world, npc_oid, player_oid, (skill_id, skill_lvl));
-    super::helpers::spend_mp(world, npc_oid, cost);
-    super::skills::cast::set_skill_reuse(world, npc_oid, &skill);
+    crate::game_loop::support_magic::cast_from_npc(
+        world,
+        npc_oid,
+        player_oid,
+        (skill_id, skill_lvl),
+    );
+    crate::game_loop::helpers::spend_mp(world, npc_oid, cost);
+    crate::game_loop::skills::cast::set_skill_reuse(world, npc_oid, &skill);
     BuffCastOutcome::Cast
 }
 
@@ -219,7 +224,7 @@ pub(crate) fn arm_function_expiry(world: &mut World, hall_id: i32, func_id: i32)
     };
     let delay_ms = (expiration - now).max(0).min(i32::MAX as i64) as i32;
     world.scheduler.schedule(
-        world.tick + super::helpers::ms_to_ticks(delay_ms),
+        world.tick + crate::game_loop::helpers::ms_to_ticks(delay_ms),
         ScheduledTask::ClanHallFunctionExpire { hall_id, func_id },
     );
 }
@@ -266,6 +271,6 @@ pub(crate) fn handle_function_expiry(world: &mut World, hall_id: i32, func_id: i
     if let Some(clan) = world.clans.get_mut(&owner_id) {
         clan.warehouse.0.remove_item(tpl.cost_id, tpl.cost_count);
     }
-    super::warehouse::persist_clan_warehouse(world, owner_id);
+    crate::game_loop::warehouse::persist_clan_warehouse(world, owner_id);
     set_function(world, hall_id, func_id, level, now + tpl.duration_ms);
 }

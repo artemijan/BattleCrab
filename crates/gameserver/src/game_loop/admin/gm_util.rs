@@ -804,7 +804,7 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
                 send_message(world, client_id, "Target a member of the receiving clan.");
                 return;
             };
-            crate::game_loop::clan_hall_auction::set_hall_owner(world, hall_id, clan_id);
+            crate::game_loop::clans::hall_auction::set_hall_owner(world, hall_id, clan_id);
             send_message(
                 world,
                 client_id,
@@ -812,7 +812,7 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
             );
         }
         Some("take") => {
-            crate::game_loop::clan_hall_auction::revoke_hall(world, hall_id);
+            crate::game_loop::clans::hall_auction::revoke_hall(world, hall_id);
             send_message(
                 world,
                 client_id,

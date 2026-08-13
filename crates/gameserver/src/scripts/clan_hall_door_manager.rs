@@ -1,8 +1,8 @@
 //! The Clan Hall Door Manager (`ai/others/ClanHallDoorManager`) — the owning
 //! clan opens/closes its hall's doors. The auction/ownership state lives in
-//! [`crate::game_loop::clan_hall_auction`].
+//! [`crate::game_loop::clans::hall_auction`].
 
-use crate::game_loop::clan_hall_auction::{hall_ownership, open_close_hall_doors};
+use crate::game_loop::clans::hall_auction::{hall_ownership, open_close_hall_doors};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::clan::CH_OPEN_DOOR;

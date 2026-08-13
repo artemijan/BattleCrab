@@ -36,8 +36,6 @@ pub(crate) mod bot_report;
 mod bypass;
 pub(crate) mod castle;
 mod chat;
-pub(crate) mod clan_hall_auction;
-pub(crate) mod clan_hall_function;
 pub(crate) mod clans;
 mod combat;
 pub(crate) mod command_channel;

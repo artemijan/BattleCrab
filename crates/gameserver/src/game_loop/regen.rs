@@ -115,10 +115,10 @@ pub(crate) fn clan_hall_regen_mult(world: &World, object_id: i32) -> (f64, f64) 
     if world.clan_halls.get(&hall_id).map(|h| h.owner_id) != Some(clan_id) {
         return (1.0, 1.0);
     }
-    let hp =
-        super::clan_hall_function::active_function_value(world, hall_id, "HP_REGEN").unwrap_or(1.0);
-    let mp =
-        super::clan_hall_function::active_function_value(world, hall_id, "MP_REGEN").unwrap_or(1.0);
+    let hp = super::clans::hall_function::active_function_value(world, hall_id, "HP_REGEN")
+        .unwrap_or(1.0);
+    let mp = super::clans::hall_function::active_function_value(world, hall_id, "MP_REGEN")
+        .unwrap_or(1.0);
     (hp, mp)
 }
 

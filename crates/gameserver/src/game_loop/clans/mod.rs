@@ -42,6 +42,8 @@ use super::helpers::client_for_player;
 
 mod alliance;
 mod crests;
+pub(crate) mod hall_auction;
+pub(crate) mod hall_function;
 mod membership;
 mod ranks;
 mod recruit;

@@ -1,7 +1,7 @@
 //! The Clan Hall Manager (`ai/others/ClanHallManager`) — the owning clan's
 //! console: door control and function-upgrade purchase/removal. The auction /
-//! ownership / function state lives in [`crate::game_loop::clan_hall_auction`]
-//! and [`crate::game_loop::clan_hall_function`].
+//! ownership / function state lives in [`crate::game_loop::clans::hall_auction`]
+//! and [`crate::game_loop::clans::hall_function`].
 //!
 //! Wired here: `manageDoors`, `manageFunctions setFunction/removeFunction`, the
 //! static function menus, `expel` (banishOthers), and all three `useFunctions`
@@ -9,8 +9,8 @@
 //! (the BUFF-function support-magic menu), and `items` (the ITEM-function
 //! merchant buy window).
 
-use crate::game_loop::clan_hall_auction::{banish_others, hall_ownership, open_close_hall_doors};
-use crate::game_loop::clan_hall_function::{
+use crate::game_loop::clans::hall_auction::{banish_others, hall_ownership, open_close_hall_doors};
+use crate::game_loop::clans::hall_function::{
     BuffCastOutcome, FunctionOutcome, buy_function, cast_hall_buff, function_level, remove_function,
 };
 use crate::game_loop::quests::{QuestCtx, QuestScript};
