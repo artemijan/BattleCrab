@@ -6,6 +6,7 @@ use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::vitals_pair;
+use bevy_ecs::world::Mut;
 
 /// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
 /// how much of the lost XP their resurrection gives back.
@@ -283,6 +284,36 @@ pub(crate) fn handle_revive_answer(world: &mut World, player_oid: i32, accepted:
     true
 }
 
+/// The three components every player revive path writes together.
+fn revive_target(
+    world: &mut World,
+    player_oid: i32,
+) -> Option<(
+    Mut<'_, crate::model::Player>,
+    Mut<'_, Vitals>,
+    Mut<'_, PlayerVitals>,
+)> {
+    world
+        .objects
+        .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(&player_oid)
+}
+
+/// Refill each pool to `percent` of its maximum, clamped there. A percentage of
+/// zero or less leaves that pool as it is — Java's `if (reviveHp > 0)` guards,
+/// which is how a skill that names only some of the three keeps whatever the
+/// config restore already gave the others.
+fn restore_pools(vitals: &mut Vitals, pvitals: &mut PlayerVitals, hp: f64, mp: f64, cp: f64) {
+    if hp > 0.0 {
+        vitals.cur_hp = (vitals.max_hp as f64 * hp / 100.0).min(vitals.max_hp as f64);
+    }
+    if mp > 0.0 {
+        vitals.cur_mp = (vitals.max_mp as f64 * mp / 100.0).min(vitals.max_mp as f64);
+    }
+    if cp > 0.0 {
+        pvitals.cur_cp = (pvitals.max_cp as f64 * cp / 100.0).min(pvitals.max_cp as f64);
+    }
+}
+
 /// `Player.doRevive(double revivePower)` — revive with the skill's own
 /// percentages rather than the config respawn ones, and give back
 /// `revivePower`% of the XP the death cost.
@@ -295,37 +326,22 @@ pub(crate) fn do_revive_with(
     restore_percent: f64,
 ) {
     do_revive(world, player_oid);
-    let restored = {
-        let Some((mut p, mut vitals, mut pvitals)) =
-            world
-                .objects
-                .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(
-                    &player_oid,
-                )
-        else {
+    {
+        let Some((mut p, mut vitals, mut pvitals)) = revive_target(world, player_oid) else {
             return;
         };
-        // The skill's percentages override `do_revive`'s config defaults. A
-        // zero means "leave what the config gave", matching Java's
-        // `if (reviveHp > 0)` guards.
-        if hp_percent > 0 {
-            vitals.cur_hp =
-                (vitals.max_hp as f64 * hp_percent as f64 / 100.0).min(vitals.max_hp as f64);
-        }
-        if mp_percent > 0 {
-            vitals.cur_mp =
-                (vitals.max_mp as f64 * mp_percent as f64 / 100.0).min(vitals.max_mp as f64);
-        }
-        if cp_percent > 0 {
-            pvitals.cur_cp =
-                (pvitals.max_cp as f64 * cp_percent as f64 / 100.0).min(pvitals.max_cp as f64);
-        }
+        // The skill's percentages override `do_revive`'s config defaults.
+        restore_pools(
+            &mut vitals,
+            &mut pvitals,
+            hp_percent as f64,
+            mp_percent as f64,
+            cp_percent as f64,
+        );
         let restored = ((p.lost_exp_on_death as f64 * restore_percent) / 100.0).round() as i64;
         p.exp += restored;
         p.lost_exp_on_death = 0;
-        restored
-    };
-    let _ = restored;
+    }
     crate::game_loop::party::broadcast_user_info(world, player_oid);
 }
 
@@ -333,30 +349,18 @@ pub(crate) fn do_revive_with(
 /// = 65% on the stock config) and broadcast `Revive`.
 pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
     {
-        let Some((mut p, mut vitals, mut pvitals)) =
-            world
-                .objects
-                .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(
-                    &player_oid,
-                )
-        else {
+        let c = &world.cfg.character;
+        let (hp, mp, cp) = (
+            c.respawn_restore_hp,
+            c.respawn_restore_mp,
+            c.respawn_restore_cp,
+        );
+        let Some((mut p, mut vitals, mut pvitals)) = revive_target(world, player_oid) else {
             return;
         };
         vitals.dead = false;
         p.pending_revive = false;
-        let c = &world.cfg.character;
-        if c.respawn_restore_hp > 0.0 {
-            vitals.cur_hp =
-                (vitals.max_hp as f64 * c.respawn_restore_hp / 100.0).min(vitals.max_hp as f64);
-        }
-        if c.respawn_restore_mp > 0.0 {
-            vitals.cur_mp =
-                (vitals.max_mp as f64 * c.respawn_restore_mp / 100.0).min(vitals.max_mp as f64);
-        }
-        if c.respawn_restore_cp > 0.0 {
-            pvitals.cur_cp =
-                (pvitals.max_cp as f64 * c.respawn_restore_cp / 100.0).min(pvitals.max_cp as f64);
-        }
+        restore_pools(&mut vitals, &mut pvitals, hp, mp, cp);
     }
     broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
     crate::game_loop::party::notify_party_vitals(world, player_oid);
