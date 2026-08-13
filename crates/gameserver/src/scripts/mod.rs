@@ -54,6 +54,7 @@ pub mod newbie_guide;
 pub mod nobless_master;
 pub mod npc_location_info;
 pub mod oly_manager;
+pub mod orc_amulet_hunt;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
 mod pagan_keys;
@@ -314,14 +315,18 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
         Arc::new(q00258_bring_wolf_pelts::Q00258BringWolfPelts),
         Arc::new(q00259_request_from_the_farm_owner::Q00259RequestFromTheFarmOwner),
-        Arc::new(q00260_orc_hunting::Q00260OrcHunting),
+        Arc::new(orc_amulet_hunt::OrcAmuletHunt::new(
+            q00260_orc_hunting::data(),
+        )),
         Arc::new(q00261_collectors_dream::Q00261CollectorsDream),
         Arc::new(q00262_trade_with_the_ivory_tower::Q00262TradeWithTheIvoryTower),
         Arc::new(q00264_keen_claws::Q00264KeenClaws),
         Arc::new(q00319_scent_of_death::Q00319ScentOfDeath),
         Arc::new(q00329_curiosity_of_a_dwarf::Q00329CuriosityOfADwarf),
         Arc::new(q00360_plunder_their_supplies::Q00360PlunderTheirSupplies),
-        Arc::new(q00263_orc_subjugation::Q00263OrcSubjugation),
+        Arc::new(orc_amulet_hunt::OrcAmuletHunt::new(
+            q00263_orc_subjugation::data(),
+        )),
         Arc::new(q00265_bonds_of_slavery::Q00265BondsOfSlavery),
         Arc::new(q00266_pleas_of_pixies::Q00266PleasOfPixies),
         Arc::new(q00267_wrath_of_verdure::Q00267WrathOfVerdure),
