@@ -200,10 +200,7 @@ pub(crate) fn wake_up(world: &mut World, stone_oid: i32, waker_oid: i32) -> Opti
     if crate::game_loop::grand_boss::status(world, BAIUM) != Some(ALIVE) {
         return None;
     }
-    if let Some(b) = world.grand_bosses.get_mut(&BAIUM) {
-        b.status = IN_FIGHT;
-    }
-    crate::game_loop::grand_boss::persist(world, BAIUM);
+    crate::game_loop::grand_boss::set_status(world, BAIUM, IN_FIGHT);
 
     despawn(world, stone_oid);
 
@@ -766,10 +763,7 @@ pub(crate) fn handle_check_attack(world: &mut World) {
             BAIUM_LOC.2,
             BAIUM_LOC.3,
         );
-        if let Some(b) = world.grand_bosses.get_mut(&BAIUM) {
-            b.status = ALIVE;
-        }
-        crate::game_loop::grand_boss::persist(world, BAIUM);
+        crate::game_loop::grand_boss::set_status(world, BAIUM, ALIVE);
         return; // don't re-arm — the fight is over
     }
 

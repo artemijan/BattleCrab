@@ -177,9 +177,9 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
         {
             a.0.clear();
         }
-        if let Some(b) = world.grand_bosses.get_mut(&VALAKAS) {
-            b.status = DORMANT;
-        }
+        // Through set_status so the revert is persisted — a raw field write
+        // here used to resurrect the old status after a restart.
+        crate::game_loop::grand_boss::set_status(world, VALAKAS, DORMANT);
         restore_hp_mp(world, valakas_oid);
         handle_remove_players(world);
         return; // don't re-arm; the reset ends the fight
@@ -510,9 +510,9 @@ pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u
         None => {
             // The last beat: the fight is on, and entry locks behind it. Arm
             // the regen/inactivity task (Java `spawn_10` → `regen_task`).
-            if let Some(b) = world.grand_bosses.get_mut(&VALAKAS) {
-                b.status = FIGHTING;
-            }
+            // Through set_status so the lock survives a restart (raw field
+            // writes here used to skip the persist).
+            crate::game_loop::grand_boss::set_status(world, VALAKAS, FIGHTING);
             world.objects.add_components(
                 &valakas_oid,
                 ValakasCombat {
