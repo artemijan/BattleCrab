@@ -4,16 +4,27 @@
 //! grow both as later milestones need more names, exactly like the existing
 //! `UserInfoType`/`InventorySlot` enums in `enums.rs`.
 
+use enum_ordinalize::Ordinalize;
+
 /// The six primary stats used by G6 (Java's `BaseStat` also has `CHA`/`LUC`,
 /// unused by anything ported so far).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+///
+/// `SkillMastery` round-trips a stat through a stored number, so this enum
+/// needs an ordinal both ways — but **this enum's**, not Java's (see
+/// [`from_name`](Self::from_name)). `Ordinalize` derives the pair from the
+/// declaration, which is what keeps the two halves of that round trip from
+/// disagreeing if a variant is ever inserted.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(ordinal(pub const fn ordinal, doc = "This enum's discriminant — the value `SkillMastery` stores. **Not** Java's `BaseStat.ordinal()`."))]
+#[ordinalize(from_ordinal(pub const fn from_ordinal, doc = "Inverse of [`BaseStat::ordinal`] — `None` for a number no stat has."))]
 pub enum BaseStat {
-    Str,
-    Dex,
-    Con,
-    Int,
-    Wit,
-    Men,
+    Str = 0,
+    Dex = 1,
+    Con = 2,
+    Int = 3,
+    Wit = 4,
+    Men = 5,
 }
 
 impl BaseStat {
@@ -515,4 +526,26 @@ pub enum StatQualifier {
 pub enum StatModifierType {
     Diff,
     Per,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// `SkillMastery` stores a `BaseStat` as a number and `calc_skill_mastery`
+    /// reads it back, so the two halves must agree. The numbers are **this**
+    /// enum's, deliberately not Java's — see [`BaseStat::from_name`].
+    #[test]
+    fn base_stat_ordinals_round_trip() {
+        for name in ["STR", "DEX", "CON", "INT", "WIT", "MEN"] {
+            let stat = BaseStat::from_name(name).expect(name);
+            assert_eq!(BaseStat::from_ordinal(stat.ordinal()), Some(stat), "{name}");
+        }
+        // Java's order is STR, INT, DEX, WIT, CON, MEN — if it were ever copied
+        // across, INT would come out as DEX. Ordinal 1 must stay DEX.
+        assert_eq!(BaseStat::from_ordinal(1), Some(BaseStat::Dex));
+        assert_eq!(BaseStat::Men.ordinal(), 5);
+        assert_eq!(BaseStat::from_ordinal(6), None);
+        assert_eq!(BaseStat::from_ordinal(-1), None);
+    }
 }

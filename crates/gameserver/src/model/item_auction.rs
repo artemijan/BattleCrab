@@ -5,37 +5,25 @@
 
 use std::collections::HashMap;
 
+use enum_ordinalize::Ordinalize;
+
 const MILLIS_PER_MINUTE: i64 = 60_000;
 const MILLIS_PER_HOUR: i64 = 3_600_000;
 const MILLIS_PER_DAY: i64 = 86_400_000;
 const MILLIS_PER_WEEK: i64 = 7 * MILLIS_PER_DAY;
 
 /// An auction's lifecycle state (Java `ItemAuctionState`; the byte ids persist
-/// in `item_auction.auctionStateId`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// in `item_auction.auctionStateId`). The id is the Java ordinal, so
+/// `Ordinalize` derives both directions from the declaration (see
+/// `enums::Race`); `#[repr(i8)]` is the stored column's width.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(i8)]
+#[ordinalize(ordinal(pub const fn state_id, doc = "Java `ordinal()` — the persisted `item_auction.auctionStateId` byte."))]
+#[ordinalize(from_ordinal(pub const fn from_state_id, doc = "Inverse of [`AuctionState::state_id`] — `None` on an out-of-range byte."))]
 pub enum AuctionState {
-    Created,
-    Started,
-    Finished,
-}
-
-impl AuctionState {
-    pub fn state_id(self) -> i8 {
-        match self {
-            AuctionState::Created => 0,
-            AuctionState::Started => 1,
-            AuctionState::Finished => 2,
-        }
-    }
-
-    pub fn from_state_id(id: i8) -> Option<Self> {
-        match id {
-            0 => Some(AuctionState::Created),
-            1 => Some(AuctionState::Started),
-            2 => Some(AuctionState::Finished),
-            _ => None,
-        }
-    }
+    Created = 0,
+    Started = 1,
+    Finished = 2,
 }
 
 /// The ending-extend phase of a running auction (Java `ItemAuctionExtendState`).
@@ -198,4 +186,27 @@ fn calc_dest_time(time: i64, date: i64, add: i64) -> i64 {
         }
     }
     time
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The ordinal persists in `item_auction.auctionStateId`, so it is pinned
+    /// against Java's `ItemAuctionState` rather than left to declaration order.
+    #[test]
+    fn auction_state_ids_round_trip() {
+        let expected = [
+            (AuctionState::Created, 0),
+            (AuctionState::Started, 1),
+            (AuctionState::Finished, 2),
+        ];
+        for (state, id) in expected {
+            assert_eq!(state.state_id(), id, "{state:?}");
+            assert_eq!(AuctionState::from_state_id(id), Some(state));
+        }
+        for id in [i8::MIN, -1, 3, i8::MAX] {
+            assert_eq!(AuctionState::from_state_id(id), None, "{id}");
+        }
+    }
 }

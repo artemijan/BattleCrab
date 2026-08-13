@@ -8,35 +8,22 @@
 //! flame towers, siege flags, siege guards, the siege zone and its PvP,
 //! teleport-to-siege, the scheduled window, and ownership-on-victory.
 
-/// Java `Siege`'s `byte` type constants (the `siege_clans.type` column).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+use enum_ordinalize::Ordinalize;
+
+/// Java `Siege`'s `byte` type constants (the `siege_clans.type` column). These
+/// are hand-numbered constants rather than an ordinal — `OWNER` is `-1` — so
+/// the numbers live on the discriminants and `Ordinalize` derives the pair of
+/// conversions from them (see `enums::Race`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(ordinal(pub const fn as_db, doc = "The `siege_clans.type` column value."))]
+#[ordinalize(from_ordinal(pub const fn from_db, doc = "Inverse of [`SiegeClanType::as_db`] — `None` for a value no type has."))]
 pub enum SiegeClanType {
-    Owner,
-    Defender,
-    Attacker,
+    Owner = -1,
+    Defender = 0,
+    Attacker = 1,
     /// Java `DEFENDER_NOT_APPROVED` — a defender awaiting the owner's approval.
-    DefenderPending,
-}
-
-impl SiegeClanType {
-    pub fn as_db(self) -> i32 {
-        match self {
-            Self::Owner => -1,
-            Self::Defender => 0,
-            Self::Attacker => 1,
-            Self::DefenderPending => 2,
-        }
-    }
-
-    pub fn from_db(v: i32) -> Option<Self> {
-        match v {
-            -1 => Some(Self::Owner),
-            0 => Some(Self::Defender),
-            1 => Some(Self::Attacker),
-            2 => Some(Self::DefenderPending),
-            _ => None,
-        }
-    }
+    DefenderPending = 2,
 }
 
 /// One `siege_clans` row.
@@ -187,5 +174,30 @@ impl Siege {
             count(SiegeClanType::Defender),
             count(SiegeClanType::DefenderPending),
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The `siege_clans.type` column: `OWNER` is `-1`, not an ordinal, so the
+    /// numbers are pinned here — renumbering would silently re-side every
+    /// registered clan in an existing database.
+    #[test]
+    fn siege_clan_type_db_values_round_trip() {
+        let expected = [
+            (SiegeClanType::Owner, -1),
+            (SiegeClanType::Defender, 0),
+            (SiegeClanType::Attacker, 1),
+            (SiegeClanType::DefenderPending, 2),
+        ];
+        for (kind, db) in expected {
+            assert_eq!(kind.as_db(), db, "{kind:?}");
+            assert_eq!(SiegeClanType::from_db(db), Some(kind));
+        }
+        for db in [i32::MIN, -2, 3, i32::MAX] {
+            assert_eq!(SiegeClanType::from_db(db), None, "{db}");
+        }
     }
 }

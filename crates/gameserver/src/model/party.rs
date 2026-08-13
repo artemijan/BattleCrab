@@ -5,39 +5,26 @@
 
 use std::collections::HashSet;
 
+use enum_ordinalize::Ordinalize;
+
 /// Java `PartyDistributionType` (client id + the sysstring-e.dat name id the
 /// loot-change SMs display).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// The client id is the Java ordinal, so `Ordinalize` derives both directions
+/// from the declaration (see `enums::Race`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(ordinal(pub const fn id, doc = "Java `getId()` — the client id, which is the ordinal."))]
+#[ordinalize(from_ordinal(pub const fn from_id, doc = "Inverse of [`LootRule::id`] — `None` for an id no rule has."))]
 pub enum LootRule {
-    FindersKeepers,
-    Random,
-    RandomIncludingSpoil,
-    ByTurn,
-    ByTurnIncludingSpoil,
+    FindersKeepers = 0,
+    Random = 1,
+    RandomIncludingSpoil = 2,
+    ByTurn = 3,
+    ByTurnIncludingSpoil = 4,
 }
 
 impl LootRule {
-    pub fn id(self) -> i32 {
-        match self {
-            Self::FindersKeepers => 0,
-            Self::Random => 1,
-            Self::RandomIncludingSpoil => 2,
-            Self::ByTurn => 3,
-            Self::ByTurnIncludingSpoil => 4,
-        }
-    }
-
-    pub fn from_id(id: i32) -> Option<Self> {
-        match id {
-            0 => Some(Self::FindersKeepers),
-            1 => Some(Self::Random),
-            2 => Some(Self::RandomIncludingSpoil),
-            3 => Some(Self::ByTurn),
-            4 => Some(Self::ByTurnIncludingSpoil),
-            _ => None,
-        }
-    }
-
     /// `getSysStringId` — for `REQUESTING_APPROVAL…`/`PARTY_LOOT_WAS_CHANGED…`.
     pub fn sys_string_id(self) -> i32 {
         match self {
@@ -207,6 +194,27 @@ pub fn valid_members(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The id is what `RequestPartyChangeDistribution` sends and what the loot
+    /// rule is stored as, so it is pinned against Java's
+    /// `PartyDistributionType` rather than left to declaration order.
+    #[test]
+    fn loot_rule_ids_match_java_and_round_trip() {
+        let expected = [
+            (LootRule::FindersKeepers, 0),
+            (LootRule::Random, 1),
+            (LootRule::RandomIncludingSpoil, 2),
+            (LootRule::ByTurn, 3),
+            (LootRule::ByTurnIncludingSpoil, 4),
+        ];
+        for (rule, id) in expected {
+            assert_eq!(rule.id(), id, "{rule:?}");
+            assert_eq!(LootRule::from_id(id), Some(rule));
+        }
+        for id in [i32::MIN, -1, 5, i32::MAX] {
+            assert_eq!(LootRule::from_id(id), None, "{id}");
+        }
+    }
 
     #[test]
     fn bonus_ladder_matches_java() {

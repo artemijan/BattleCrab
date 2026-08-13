@@ -440,7 +440,7 @@ pub(crate) fn build_skill(
                             amount: value_at(params, "stat", level)
                                 .and_then(crate::model::stats::BaseStat::from_name)
                                 .unwrap_or(crate::model::stats::BaseStat::Str)
-                                as i32 as f64,
+                                .ordinal() as f64,
                             armor_condition: 0,
                             weapon_condition: 0,
                             qualifier: None,

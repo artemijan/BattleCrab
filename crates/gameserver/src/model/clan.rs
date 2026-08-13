@@ -4,6 +4,8 @@
 //! packets need a zero to write). Loaded once at boot (`DbEvent::
 //! ClansLoaded`), mutated only by `game_loop/clans.rs`.
 
+use enum_ordinalize::Ordinalize;
+
 /// One `clan_members`-equivalent row — Java reads members from `characters
 /// WHERE clanid=?`; this snapshot carries what the pledge packets show.
 /// Online status is always resolved live against `World.objects`.
@@ -422,8 +424,12 @@ impl Clan {
     }
 }
 
-/// Java `ClanWarState` (ordinal = the wire/DB value).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Java `ClanWarState` (ordinal = the wire/DB value), so `Ordinalize` derives
+/// both directions from the declaration (see `enums::Race`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(ordinal(pub const fn id, doc = "Java `ordinal()` — the wire value and the stored `clan_wars.state` column."))]
+#[ordinalize(from_ordinal(const fn checked_from_i32, doc = "`values()[ordinal]`, `None` for an ordinal no variant has."))]
 pub enum ClanWarState {
     Declaration = 0,
     BloodDeclaration = 1,
@@ -434,15 +440,11 @@ pub enum ClanWarState {
 }
 
 impl ClanWarState {
+    /// Inverse of [`ClanWarState::id`], falling back to `Declaration` — a
+    /// stored state this port doesn't know reads as a fresh declaration rather
+    /// than dropping the war row.
     pub fn from_i32(v: i32) -> Self {
-        match v {
-            1 => Self::BloodDeclaration,
-            2 => Self::Mutual,
-            3 => Self::Win,
-            4 => Self::Loss,
-            5 => Self::Tie,
-            _ => Self::Declaration,
-        }
+        Self::checked_from_i32(v).unwrap_or(Self::Declaration)
     }
 }
 
@@ -657,6 +659,37 @@ mod pledge_class_tests {
                 assert_eq!(c.pledge_class_of(6), km, "level {level} knight member");
                 assert_eq!(c.pledge_class_of(7), kc, "level {level} knight captain");
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod clan_war_state_tests {
+    use super::*;
+
+    /// The ordinal is both the `RelationChanged`/`PledgeReceiveWarList` wire
+    /// value and the stored `clan_wars.state`, so it is pinned against Java's
+    /// `ClanWarState` rather than left to declaration order.
+    #[test]
+    fn ids_match_java_and_round_trip() {
+        let expected = [
+            (ClanWarState::Declaration, 0),
+            (ClanWarState::BloodDeclaration, 1),
+            (ClanWarState::Mutual, 2),
+            (ClanWarState::Win, 3),
+            (ClanWarState::Loss, 4),
+            (ClanWarState::Tie, 5),
+        ];
+        for (state, id) in expected {
+            assert_eq!(state.id(), id, "{state:?}");
+            assert_eq!(ClanWarState::from_i32(id), state);
+        }
+        for id in [i32::MIN, -1, 6, i32::MAX] {
+            assert_eq!(
+                ClanWarState::from_i32(id),
+                ClanWarState::Declaration,
+                "unknown states degrade to DECLARATION ({id})"
+            );
         }
     }
 }

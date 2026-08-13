@@ -13,9 +13,15 @@
 
 use std::collections::HashMap;
 
+use enum_ordinalize::Ordinalize;
+
 /// Java `enums/MailType`. The **ordinal is the wire value**, so the
-/// out-of-scope Kamael-era variants keep their slots.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// out-of-scope Kamael-era variants keep their slots and `Ordinalize` derives
+/// both directions from the declaration (see `enums::Race`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(ordinal(pub const fn id, doc = "Java `ordinal()` — the wire value and the stored `messages.send_by_system` column."))]
+#[ordinalize(from_ordinal(const fn checked_from_id, doc = "`values()[ordinal]`, `None` for an ordinal no variant has."))]
 pub enum MailType {
     /// Player-to-player mail — the only kind a client can send.
     Regular = 0,
@@ -25,17 +31,11 @@ pub enum MailType {
 }
 
 impl MailType {
-    pub fn id(self) -> i32 {
-        self as i32
-    }
-
+    /// Inverse of [`MailType::id`], falling back to `Regular` — a stored type
+    /// this port doesn't know reads as ordinary player mail rather than
+    /// failing the whole mailbox load.
     pub fn from_id(v: i32) -> Self {
-        match v {
-            1 => Self::NewsInformer,
-            2 => Self::Npc,
-            3 => Self::Birthday,
-            _ => Self::Regular,
-        }
+        Self::checked_from_id(v).unwrap_or(Self::Regular)
     }
 
     /// Java `Message.getSenderName()` shows a literal "System" for every

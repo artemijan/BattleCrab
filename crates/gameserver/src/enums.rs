@@ -90,7 +90,14 @@ impl Race {
 /// Port of `enums/InventorySlot` — the client's 33 equip-slot components, in
 /// wire order (`LRHand` is a display slot backed by the `RHand` paperdoll
 /// entry). The declaration order **is** the mask: `getMask()` = ordinal.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// Both `values()` and `getMask()` therefore *are* the declaration, so
+/// `Ordinalize` derives them from it rather than restating the order in a
+/// parallel array a reordered variant could drift out of.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(usize)]
+#[ordinalize(variants(pub const VALUES, doc = "Java `InventorySlot.values()`."))]
+#[ordinalize(ordinal(pub const fn mask, doc = "Java `getMask()` — the component bit for `AbstractMaskPacket` masks."))]
 pub enum InventorySlot {
     Under,
     REar,
@@ -128,48 +135,6 @@ pub enum InventorySlot {
 }
 
 impl InventorySlot {
-    /// Java `InventorySlot.values()`.
-    pub const VALUES: [InventorySlot; 33] = [
-        Self::Under,
-        Self::REar,
-        Self::LEar,
-        Self::Neck,
-        Self::RFinger,
-        Self::LFinger,
-        Self::Head,
-        Self::RHand,
-        Self::LHand,
-        Self::Gloves,
-        Self::Chest,
-        Self::Legs,
-        Self::Feet,
-        Self::Cloak,
-        Self::LRHand,
-        Self::Hair,
-        Self::Hair2,
-        Self::RBracelet,
-        Self::LBracelet,
-        Self::Deco1,
-        Self::Deco2,
-        Self::Deco3,
-        Self::Deco4,
-        Self::Deco5,
-        Self::Deco6,
-        Self::Belt,
-        Self::Brooch,
-        Self::BroochJewel1,
-        Self::BroochJewel2,
-        Self::BroochJewel3,
-        Self::BroochJewel4,
-        Self::BroochJewel5,
-        Self::BroochJewel6,
-    ];
-
-    /// Java `getMask()` — the component bit for `AbstractMaskPacket` masks.
-    pub fn mask(self) -> usize {
-        self as usize
-    }
-
     /// Java `getSlot()` — the backing paperdoll slot.
     pub fn slot(self) -> PaperdollSlot {
         match self {
@@ -212,7 +177,13 @@ impl InventorySlot {
 /// Port of `enums/UserInfoType` — the 23 `UserInfo` blocks: component bit
 /// (declaration order = `getMask()`) and fixed block length. `BasicInfo` and
 /// `Clan` additionally carry `name.len()*2` / `title.len()*2` bytes.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// As with [`InventorySlot`], `values()` and `getMask()` are derived from the
+/// declaration — the block order is the mask and must not be restated.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(usize)]
+#[ordinalize(variants(pub const VALUES, doc = "Java `UserInfoType.values()`."))]
+#[ordinalize(ordinal(pub const fn mask, doc = "Java `getMask()` — the component bit for `AbstractMaskPacket` masks."))]
 pub enum UserInfoType {
     Relation,
     BasicInfo,
@@ -240,38 +211,6 @@ pub enum UserInfoType {
 }
 
 impl UserInfoType {
-    /// Java `UserInfoType.values()`.
-    pub const VALUES: [UserInfoType; 23] = [
-        Self::Relation,
-        Self::BasicInfo,
-        Self::BaseStats,
-        Self::MaxHpCpMp,
-        Self::CurrentHpMpCpExpSp,
-        Self::EnchantLevel,
-        Self::Appearance,
-        Self::Status,
-        Self::Stats,
-        Self::Elementals,
-        Self::Position,
-        Self::Speed,
-        Self::Multiplier,
-        Self::ColRadiusHeight,
-        Self::AtkElemental,
-        Self::Clan,
-        Self::Social,
-        Self::VitaFame,
-        Self::Slots,
-        Self::Movements,
-        Self::Color,
-        Self::InventoryLimit,
-        Self::TrueHero,
-    ];
-
-    /// Java `getMask()` — the component bit for `AbstractMaskPacket` masks.
-    pub fn mask(self) -> usize {
-        self as usize
-    }
-
     /// Java `getBlockLength()` — the fixed byte size of this block (including
     /// its own 2-byte length prefix where the packet writes one).
     pub fn block_length(self) -> i32 {
@@ -397,8 +336,15 @@ impl NpcInfoType {
 /// `CreatureSay` echoes back. Only the channels the chat slice handles are
 /// listed; unknown ids are dropped by the handler (Java disconnects — see the
 /// G10 plan's deviations).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+///
+/// The variants are declared out of numeric order (they are grouped by the
+/// slice that introduced them), so the discriminants carry the ids and
+/// `Ordinalize` derives the lookup from them — a hand-written inverse would
+/// have to be re-sorted by hand every time a channel joins the list.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Ordinalize)]
 #[repr(i32)]
+#[ordinalize(ordinal(pub const fn client_id, doc = "The `Say2`/`CreatureSay` channel id (Java `ChatType.getClientId()`, which on this chronicle is the ordinal)."))]
+#[ordinalize(from_ordinal(pub const fn from_client_id, doc = "Inverse of [`ChatType::client_id`] — `None` for a channel this port doesn't handle."))]
 pub enum ChatType {
     General = 0,
     Shout = 1,
@@ -441,34 +387,6 @@ pub enum ChatType {
     World = 25,
 }
 
-impl ChatType {
-    pub fn client_id(self) -> i32 {
-        self as i32
-    }
-
-    pub fn from_client_id(id: i32) -> Option<Self> {
-        match id {
-            0 => Some(Self::General),
-            1 => Some(Self::Shout),
-            2 => Some(Self::Whisper),
-            3 => Some(Self::Party),
-            4 => Some(Self::Clan),
-            6 => Some(Self::PetitionPlayer),
-            7 => Some(Self::PetitionGm),
-            8 => Some(Self::Trade),
-            9 => Some(Self::Alliance),
-            10 => Some(Self::Announcement),
-            11 => Some(Self::Boat),
-            14 => Some(Self::PartyMatchRoom),
-            15 => Some(Self::PartyroomCommander),
-            16 => Some(Self::PartyroomAll),
-            17 => Some(Self::HeroVoice),
-            25 => Some(Self::World),
-            _ => None,
-        }
-    }
-}
-
 /// Port of `enums/AdminTeleportType` — the GM "Additional Movement Options"
 /// click-to-move modes (`html/admin/move.htm`). The mode is a *latch* on the
 /// GM: once armed, the next `MoveBackwardToLocation` click is consumed by the
@@ -489,4 +407,86 @@ pub enum AdminTeleportType {
     /// the charge animation. **Sticky**: Java never resets this one, so every
     /// subsequent click charges until `//teleto end`.
     Charge,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// `ChatType`'s discriminants are the `Say2`/`CreatureSay` channel ids and
+    /// the variants are *not* declared in numeric order, so the ids are pinned
+    /// against Java here rather than left to be read off the declaration.
+    #[test]
+    fn chat_type_ids_match_java_and_round_trip() {
+        let expected = [
+            (ChatType::General, 0),
+            (ChatType::Shout, 1),
+            (ChatType::Whisper, 2),
+            (ChatType::Party, 3),
+            (ChatType::Clan, 4),
+            (ChatType::PetitionPlayer, 6),
+            (ChatType::PetitionGm, 7),
+            (ChatType::Trade, 8),
+            (ChatType::Alliance, 9),
+            (ChatType::Announcement, 10),
+            (ChatType::Boat, 11),
+            (ChatType::PartyMatchRoom, 14),
+            (ChatType::PartyroomCommander, 15),
+            (ChatType::PartyroomAll, 16),
+            (ChatType::HeroVoice, 17),
+            (ChatType::World, 25),
+        ];
+        for (channel, id) in expected {
+            assert_eq!(channel.client_id(), id, "{channel:?}");
+            assert_eq!(ChatType::from_client_id(id), Some(channel));
+        }
+        // The gaps Java fills with channels this port drops, plus either end.
+        for id in [i32::MIN, -1, 5, 12, 13, 18, 24, 26, i32::MAX] {
+            assert_eq!(ChatType::from_client_id(id), None, "{id}");
+        }
+    }
+
+    /// For both mask enums the declaration order *is* the component bit, so
+    /// `VALUES` must stay index-aligned with `mask()` and keep Java's length —
+    /// a reordered or inserted variant shifts every later block's bit.
+    #[test]
+    fn mask_enums_are_index_aligned() {
+        assert_eq!(InventorySlot::VALUES.len(), 33);
+        for (i, slot) in InventorySlot::VALUES.iter().enumerate() {
+            assert_eq!(slot.mask(), i, "{slot:?}");
+        }
+        assert_eq!(InventorySlot::Under.mask(), 0);
+        assert_eq!(InventorySlot::LRHand.mask(), 14);
+        assert_eq!(InventorySlot::BroochJewel6.mask(), 32);
+
+        assert_eq!(UserInfoType::VALUES.len(), 23);
+        for (i, block) in UserInfoType::VALUES.iter().enumerate() {
+            assert_eq!(block.mask(), i, "{block:?}");
+        }
+        assert_eq!(UserInfoType::Relation.mask(), 0);
+        assert_eq!(UserInfoType::TrueHero.mask(), 22);
+    }
+
+    /// `Race`'s ordinal is the wire value and the stored `Player.race` byte;
+    /// the monster-flavor variants share the enum, so the playable six must
+    /// keep the low slots (see the type's doc comment).
+    #[test]
+    fn race_ordinals_match_java() {
+        let playable = [
+            (Race::Human, 0),
+            (Race::Elf, 1),
+            (Race::DarkElf, 2),
+            (Race::Orc, 3),
+            (Race::Dwarf, 4),
+            (Race::Kamael, 5),
+            (Race::Ertheia, 6),
+        ];
+        for (race, ordinal) in playable {
+            assert_eq!(race.ordinal(), ordinal, "{race:?}");
+            assert_eq!(Race::from_ordinal(ordinal), Some(race));
+        }
+        assert_eq!(Race::Friend.ordinal(), 25);
+        assert_eq!(Race::from_ordinal(26), None);
+        assert_eq!(Race::from_ordinal(-1), None);
+    }
 }

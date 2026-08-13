@@ -163,14 +163,8 @@ pub(crate) fn calc_skill_mastery(world: &mut World, caster_oid: i32) -> bool {
         .unwrap_or(1.0);
     // The stored value is *this* enum's discriminant (see `BaseStat::from_name`
     // — Java's ordinal ordering differs and must not be copied across).
-    let base_stat = match ordinal as i32 {
-        0 => BaseStat::Str,
-        1 => BaseStat::Dex,
-        2 => BaseStat::Con,
-        3 => BaseStat::Int,
-        4 => BaseStat::Wit,
-        5 => BaseStat::Men,
-        _ => return false,
+    let Some(base_stat) = BaseStat::from_ordinal(ordinal as i32) else {
+        return false;
     };
     let Some(base) =
         world

@@ -49,7 +49,7 @@ fn store_war(world: &World, war: &ClanWar) {
         winner: war.winner_id,
         start_time: war.start_time,
         end_time: war.end_time,
-        state: war.state as i32,
+        state: war.state.id(),
     });
 }
 

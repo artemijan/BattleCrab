@@ -11,36 +11,34 @@
 
 use std::collections::HashMap;
 
+use enum_ordinalize::Ordinalize;
+
 /// The petition category the client picks (Java `PetitionType`, 1-indexed on the
 /// wire). Kept for the GM list display; behaviour doesn't branch on it.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// `Ordinalize` derives the lookup from the declaration (see `enums::Race`);
+/// the `- 1` that turns the wire value into the ordinal stays in
+/// [`from_wire`](Self::from_wire), which is the only place the off-by-one
+/// belongs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ordinalize)]
+#[repr(i32)]
+#[ordinalize(from_ordinal(const fn from_ordinal, doc = "`values()[ordinal]` — note the wire value is this **plus one**."))]
 pub enum PetitionType {
-    Immobility,
-    RecoveryRelated,
-    BugReport,
-    QuestRelated,
-    BadUser,
-    Suggestions,
-    GameTip,
-    OperationRelated,
-    Other,
+    Immobility = 0,
+    RecoveryRelated = 1,
+    BugReport = 2,
+    QuestRelated = 3,
+    BadUser = 4,
+    Suggestions = 5,
+    GameTip = 6,
+    OperationRelated = 7,
+    Other = 8,
 }
 
 impl PetitionType {
     /// Java `PetitionType.values()[type - 1]` — the wire value is 1-indexed.
     pub fn from_wire(type_id: i32) -> Option<Self> {
-        Some(match type_id {
-            1 => PetitionType::Immobility,
-            2 => PetitionType::RecoveryRelated,
-            3 => PetitionType::BugReport,
-            4 => PetitionType::QuestRelated,
-            5 => PetitionType::BadUser,
-            6 => PetitionType::Suggestions,
-            7 => PetitionType::GameTip,
-            8 => PetitionType::OperationRelated,
-            9 => PetitionType::Other,
-            _ => return None,
-        })
+        Self::from_ordinal(type_id.checked_sub(1)?)
     }
 
     /// Java `Petition.getTypeAsString` (enum name with `_`→space).
@@ -211,5 +209,36 @@ impl PetitionManager {
     /// caller records it as completed.
     pub fn take_pending(&mut self, id: i32) -> Option<Petition> {
         self.pending.remove(&id)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Java reads the category with `values()[type - 1]`, so the wire value is
+    /// the ordinal *plus one*. Pinned here because getting the off-by-one wrong
+    /// mislabels every petition in the GM list by exactly one category.
+    #[test]
+    fn petition_type_wire_values_are_one_indexed() {
+        let expected = [
+            (PetitionType::Immobility, 1),
+            (PetitionType::RecoveryRelated, 2),
+            (PetitionType::BugReport, 3),
+            (PetitionType::QuestRelated, 4),
+            (PetitionType::BadUser, 5),
+            (PetitionType::Suggestions, 6),
+            (PetitionType::GameTip, 7),
+            (PetitionType::OperationRelated, 8),
+            (PetitionType::Other, 9),
+        ];
+        for (kind, wire) in expected {
+            assert_eq!(PetitionType::from_wire(wire), Some(kind), "{kind:?}");
+        }
+        // 0 is Java's `values()[-1]` — an ArrayIndexOutOfBounds there, `None`
+        // here — and the subtraction must not wrap at `i32::MIN`.
+        for wire in [i32::MIN, -1, 0, 10, i32::MAX] {
+            assert_eq!(PetitionType::from_wire(wire), None, "{wire}");
+        }
     }
 }
