@@ -86,23 +86,44 @@ fn maybe_cond2(ctx: &mut QuestCtx, a: i32, b: i32, c: i32, d: i32) {
     }
 }
 
+/// Hand over `amount` of a hunt material, chiming MIDDLE on the drop that
+/// fills the stack.
+fn collect(ctx: &mut QuestCtx, item: i32, amount: i64, cap: i64) {
+    ctx.give_items(item, amount);
+    ctx.play_sound(if ctx.quest_items_count(item) >= cap {
+        quest_sounds::MIDDLE
+    } else {
+        quest_sounds::ITEMGET
+    });
+}
+
+/// One charm leg: while the ordeal necklace and everything in `held` are
+/// carried and none of `blockers` has been turned in yet, each kill drops
+/// `amount` of `item` up to `cap`.
+fn charm_kill(
+    ctx: &mut QuestCtx,
+    held: &[i32],
+    blockers: &[i32],
+    item: i32,
+    amount: i64,
+    cap: i64,
+) {
+    if has(ctx, ORDEAL_NECKLACE)
+        && held.iter().all(|&i| has(ctx, i))
+        && blockers.iter().all(|&i| !has(ctx, i))
+        && ctx.quest_items_count(item) < cap
+    {
+        collect(ctx, item, amount, cap);
+    }
+}
+
 /// A two-material spider leg: 2 feelers up to 10, then 2 feet up to 10.
 fn spider_kill(ctx: &mut QuestCtx) {
     if has(ctx, ORDEAL_NECKLACE) && has(ctx, TAKUNA_CHARM) && !has(ctx, HANDIWORK_SPIDER_BROOCH) {
         if ctx.quest_items_count(MARSH_SPIDER_FEELER) < 10 {
-            ctx.give_items(MARSH_SPIDER_FEELER, 2);
-            ctx.play_sound(if ctx.quest_items_count(MARSH_SPIDER_FEELER) >= 10 {
-                quest_sounds::MIDDLE
-            } else {
-                quest_sounds::ITEMGET
-            });
+            collect(ctx, MARSH_SPIDER_FEELER, 2, 10);
         } else if ctx.quest_items_count(MARSH_SPIDER_FEET) < 10 {
-            ctx.give_items(MARSH_SPIDER_FEET, 2);
-            ctx.play_sound(if ctx.quest_items_count(MARSH_SPIDER_FEET) >= 10 {
-                quest_sounds::MIDDLE
-            } else {
-                quest_sounds::ITEMGET
-            });
+            collect(ctx, MARSH_SPIDER_FEET, 2, 10);
         }
     }
 }
@@ -261,51 +282,31 @@ impl QuestScript for Q00232TestOfTheLord {
         }
         match ctx.npc_id {
             MARSH_SPIDER => spider_kill(ctx),
-            BREKA_ORC_SHAMAN | BREKA_ORC_OVERLORD => {
-                if has(ctx, ORDEAL_NECKLACE)
-                    && has(ctx, VARKEES_CHARM)
-                    && has(ctx, MANAKIAS_ORDERS)
-                    && !has(ctx, HUGE_ORC_FANG)
-                    && !has(ctx, MANAKIAS_AMULET)
-                    && ctx.quest_items_count(BREKA_ORC_FANG) < 20
-                {
-                    ctx.give_items(BREKA_ORC_FANG, 2);
-                    ctx.play_sound(if ctx.quest_items_count(BREKA_ORC_FANG) >= 20 {
-                        quest_sounds::MIDDLE
-                    } else {
-                        quest_sounds::ITEMGET
-                    });
-                }
-            }
-            ENCHANTED_MONSTEREYE => {
-                if has(ctx, ORDEAL_NECKLACE)
-                    && has(ctx, CHIANTA_CHARM)
-                    && !has(ctx, MONSTER_EYE_WOODCARVING)
-                    && ctx.quest_items_count(ENCHANTED_MONSTER_CORNEA) < 20
-                {
-                    ctx.give_items(ENCHANTED_MONSTER_CORNEA, 1);
-                    ctx.play_sound(if ctx.quest_items_count(ENCHANTED_MONSTER_CORNEA) >= 20 {
-                        quest_sounds::MIDDLE
-                    } else {
-                        quest_sounds::ITEMGET
-                    });
-                }
-            }
+            BREKA_ORC_SHAMAN | BREKA_ORC_OVERLORD => charm_kill(
+                ctx,
+                &[VARKEES_CHARM, MANAKIAS_ORDERS],
+                &[HUGE_ORC_FANG, MANAKIAS_AMULET],
+                BREKA_ORC_FANG,
+                2,
+                20,
+            ),
+            ENCHANTED_MONSTEREYE => charm_kill(
+                ctx,
+                &[CHIANTA_CHARM],
+                &[MONSTER_EYE_WOODCARVING],
+                ENCHANTED_MONSTER_CORNEA,
+                1,
+                20,
+            ),
             TIMAK_ORC | TIMAK_ORC_ARCHER | TIMAK_ORC_SOLDIER | TIMAK_ORC_WARRIOR
-            | TIMAK_ORC_SHAMAN | TIMAK_ORC_OVERLORD => {
-                if has(ctx, ORDEAL_NECKLACE)
-                    && has(ctx, HATOS_CHARM)
-                    && !has(ctx, SWORD_INTO_SKULL)
-                    && ctx.quest_items_count(TIMAK_ORC_SKULL) < 10
-                {
-                    ctx.give_items(TIMAK_ORC_SKULL, 1);
-                    ctx.play_sound(if ctx.quest_items_count(TIMAK_ORC_SKULL) >= 10 {
-                        quest_sounds::MIDDLE
-                    } else {
-                        quest_sounds::ITEMGET
-                    });
-                }
-            }
+            | TIMAK_ORC_SHAMAN | TIMAK_ORC_OVERLORD => charm_kill(
+                ctx,
+                &[HATOS_CHARM],
+                &[SWORD_INTO_SKULL],
+                TIMAK_ORC_SKULL,
+                1,
+                10,
+            ),
             RAGNA_ORC_OVERLORD | RAGNA_ORC_SEER => {
                 // The notice first; the head only once the notice is in hand.
                 if has(ctx, MARTANKUS_CHARM)

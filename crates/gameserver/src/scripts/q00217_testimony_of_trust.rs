@@ -110,6 +110,23 @@ fn reagent_kill(
     }
 }
 
+/// The elemental guardian legs: each dryad/lirein kill has a `flag * 33`%
+/// chance to summon the matching guardian, where `flag` rises with the number
+/// of failed attempts.
+fn guardian_kill(ctx: &mut QuestCtx, guardian: i32) {
+    if ctx.memo_state() != 2 {
+        return;
+    }
+    let flag = ctx
+        .get_var("flag")
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1);
+    if ctx.roll(100) < flag * 33 {
+        ctx.spawn_attacker(guardian, true);
+        ctx.play_sound(quest_sounds::BEFORE_BATTLE);
+    }
+}
+
 pub struct Q00217TestimonyOfTrust;
 
 impl QuestScript for Q00217TestimonyOfTrust {
@@ -290,30 +307,8 @@ impl QuestScript for Q00217TestimonyOfTrust {
         }
         let memo = ctx.memo_state();
         match ctx.npc_id {
-            DRYAD | DRYAD_ELDER => {
-                if memo == 2 {
-                    let flag = ctx
-                        .get_var("flag")
-                        .and_then(|s| s.parse().ok())
-                        .unwrap_or(1);
-                    if ctx.roll(100) < flag * 33 {
-                        ctx.spawn_attacker(ACTEA_OF_VERDANT_WILDS, true);
-                        ctx.play_sound(quest_sounds::BEFORE_BATTLE);
-                    }
-                }
-            }
-            LIREIN | LIREIN_ELDER => {
-                if memo == 2 {
-                    let flag = ctx
-                        .get_var("flag")
-                        .and_then(|s| s.parse().ok())
-                        .unwrap_or(1);
-                    if ctx.roll(100) < flag * 33 {
-                        ctx.spawn_attacker(LUELL_OF_ZEPHYR_WINDS, true);
-                        ctx.play_sound(quest_sounds::BEFORE_BATTLE);
-                    }
-                }
-            }
+            DRYAD | DRYAD_ELDER => guardian_kill(ctx, ACTEA_OF_VERDANT_WILDS),
+            LIREIN | LIREIN_ELDER => guardian_kill(ctx, LUELL_OF_ZEPHYR_WINDS),
             ACTEA_OF_VERDANT_WILDS => {
                 if memo == 2 && !has(ctx, SEED_OF_VERDURE) {
                     ctx.give_items(SEED_OF_VERDURE, 1);

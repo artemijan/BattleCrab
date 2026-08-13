@@ -197,57 +197,31 @@ impl QuestScript for Q00223TestOfTheChampion {
         if !ctx.has_qs() || !ctx.is_started() {
             return;
         }
-        let player = ctx.player;
         match ctx.npc_id {
-            HARPY => {
-                if ctx.npc_script_value() == 0 {
-                    ctx.set_npc_var_int(LAST_ATTACKER, player);
-                    if ctx.quest_items_count(WHITE_ROSE_INSIGNIA) > 0
-                        && ctx.quest_items_count(HARPYS_EGG) < 30
-                        && ctx.roll(2) == 0
-                    {
-                        // 70% one matriarch, else two.
-                        ctx.spawn_attacker(HARPY_MATRIARCH, false);
-                        if ctx.roll(10) >= 7 {
-                            ctx.spawn_attacker(HARPY_MATRIARCH, false);
-                        }
-                    }
-                    ctx.set_npc_script_value(1);
-                } else if ctx.npc_script_value() == 1 {
-                    ctx.set_npc_script_value(2);
-                }
-            }
-            ROAD_SCAVENGER => {
-                if ctx.npc_script_value() == 0 {
-                    ctx.set_npc_var_int(LAST_ATTACKER, player);
-                    if ctx.quest_items_count(MOUENS_1ST_ORDER) > 0
-                        && ctx.quest_items_count(ROAD_RATMAN_HEAD) < 10
-                        && ctx.roll(2) == 0
-                    {
-                        ctx.spawn_attacker(ROAD_COLLECTOR, false);
-                        if ctx.roll(10) >= 7 {
-                            ctx.spawn_attacker(ROAD_COLLECTOR, false);
-                        }
-                    }
-                    ctx.set_npc_script_value(1);
-                } else if ctx.npc_script_value() == 1 {
-                    ctx.set_npc_script_value(2);
-                }
-            }
-            BLOODY_AXE_ELITE => {
-                if ctx.npc_script_value() == 0 {
-                    ctx.set_npc_var_int(LAST_ATTACKER, player);
-                    if ctx.quest_items_count(IRON_ROSE_RING) > 0
-                        && ctx.quest_items_count(BLOODY_AXE_HEAD) < 10
-                        && ctx.roll(2) == 0
-                    {
-                        ctx.spawn_attacker(BLOODY_AXE_ELITE, false);
-                    }
-                    ctx.set_npc_script_value(1);
-                } else if ctx.npc_script_value() == 1 {
-                    ctx.set_npc_script_value(2);
-                }
-            }
+            HARPY => ambush(
+                ctx,
+                WHITE_ROSE_INSIGNIA,
+                HARPYS_EGG,
+                30,
+                HARPY_MATRIARCH,
+                true,
+            ),
+            ROAD_SCAVENGER => ambush(
+                ctx,
+                MOUENS_1ST_ORDER,
+                ROAD_RATMAN_HEAD,
+                10,
+                ROAD_COLLECTOR,
+                true,
+            ),
+            BLOODY_AXE_ELITE => ambush(
+                ctx,
+                IRON_ROSE_RING,
+                BLOODY_AXE_HEAD,
+                10,
+                BLOODY_AXE_ELITE,
+                false,
+            ),
             _ => {}
         }
     }
@@ -257,60 +231,11 @@ impl QuestScript for Q00223TestOfTheChampion {
             return;
         }
         match ctx.npc_id {
-            HARPY | HARPY_MATRIARCH => {
-                if ctx.quest_items_count(WHITE_ROSE_INSIGNIA) > 0
-                    && ctx.quest_items_count(HARPYS_EGG) < 30
-                {
-                    let at_end = ctx.quest_items_count(HARPYS_EGG) >= 28;
-                    ctx.give_items(HARPYS_EGG, 2);
-                    if at_end {
-                        ctx.play_sound(quest_sounds::MIDDLE);
-                        maybe_finish_insignia(ctx);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
-                }
-            }
-            MEDUSA => {
-                if ctx.quest_items_count(WHITE_ROSE_INSIGNIA) > 0
-                    && ctx.quest_items_count(MEDUSA_VENOM) < 30
-                {
-                    let at_end = ctx.quest_items_count(MEDUSA_VENOM) >= 27;
-                    ctx.give_items(MEDUSA_VENOM, 3);
-                    if at_end {
-                        ctx.play_sound(quest_sounds::MIDDLE);
-                        maybe_finish_insignia(ctx);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
-                }
-            }
-            WINDSUS => {
-                if ctx.quest_items_count(WHITE_ROSE_INSIGNIA) > 0
-                    && ctx.quest_items_count(WINDSUS_BILE) < 30
-                {
-                    let at_end = ctx.quest_items_count(WINDSUS_BILE) >= 27;
-                    ctx.give_items(WINDSUS_BILE, 3);
-                    if at_end {
-                        ctx.play_sound(quest_sounds::MIDDLE);
-                        maybe_finish_insignia(ctx);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
-                }
-            }
+            HARPY | HARPY_MATRIARCH => insignia_kill(ctx, HARPYS_EGG, 2),
+            MEDUSA => insignia_kill(ctx, MEDUSA_VENOM, 3),
+            WINDSUS => insignia_kill(ctx, WINDSUS_BILE, 3),
             ROAD_SCAVENGER | ROAD_COLLECTOR => {
-                if ctx.quest_items_count(MOUENS_1ST_ORDER) > 0
-                    && ctx.quest_items_count(ROAD_RATMAN_HEAD) < 10
-                {
-                    let at_end = ctx.quest_items_count(ROAD_RATMAN_HEAD) >= 9;
-                    ctx.give_items(ROAD_RATMAN_HEAD, 1);
-                    if at_end {
-                        ctx.set_cond(11, true);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
-                }
+                order_kill(ctx, MOUENS_1ST_ORDER, ROAD_RATMAN_HEAD, 10, 11)
             }
             LETO_LIZARDMAN
             | LETO_LIZARDMAN_ARCHER
@@ -318,31 +243,9 @@ impl QuestScript for Q00223TestOfTheChampion {
             | LETO_LIZARDMAN_WARRIOR
             | LETO_LIZARDMAN_SHAMAN
             | LETO_LIZARDMAN_OCERLORD => {
-                if ctx.quest_items_count(MOUENS_2ND_ORDER) > 0
-                    && ctx.quest_items_count(LETO_LIZARDMAN_FANG) < 10
-                {
-                    let at_end = ctx.quest_items_count(LETO_LIZARDMAN_FANG) >= 9;
-                    ctx.give_items(LETO_LIZARDMAN_FANG, 1);
-                    if at_end {
-                        ctx.set_cond(13, true);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
-                }
+                order_kill(ctx, MOUENS_2ND_ORDER, LETO_LIZARDMAN_FANG, 10, 13)
             }
-            BLOODY_AXE_ELITE => {
-                if ctx.quest_items_count(IRON_ROSE_RING) > 0
-                    && ctx.quest_items_count(BLOODY_AXE_HEAD) < 10
-                {
-                    let at_end = ctx.quest_items_count(BLOODY_AXE_HEAD) >= 9;
-                    ctx.give_items(BLOODY_AXE_HEAD, 1);
-                    if at_end {
-                        ctx.set_cond(3, true);
-                    } else {
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
-                }
-            }
+            BLOODY_AXE_ELITE => order_kill(ctx, IRON_ROSE_RING, BLOODY_AXE_HEAD, 10, 3),
             _ => {}
         }
     }
@@ -379,6 +282,55 @@ impl QuestScript for Q00223TestOfTheChampion {
             CAPTAIN_MOUEN => Some(mouen_talk(ctx)),
             MASON => Some(mason_talk(ctx)),
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+}
+
+/// The first hit on an ambush mob marks its attacker and, on a coin flip,
+/// calls in reinforcements while the leg's collection is unfinished. `pair`
+/// legs roll a further 30% for a second spawn.
+fn ambush(ctx: &mut QuestCtx, order: i32, drop: i32, cap: i64, spawn: i32, pair: bool) {
+    if ctx.npc_script_value() == 0 {
+        let player = ctx.player;
+        ctx.set_npc_var_int(LAST_ATTACKER, player);
+        if ctx.quest_items_count(order) > 0 && ctx.quest_items_count(drop) < cap && ctx.roll(2) == 0
+        {
+            ctx.spawn_attacker(spawn, false);
+            if pair && ctx.roll(10) >= 7 {
+                ctx.spawn_attacker(spawn, false);
+            }
+        }
+        ctx.set_npc_script_value(1);
+    } else if ctx.npc_script_value() == 1 {
+        ctx.set_npc_script_value(2);
+    }
+}
+
+/// One of the three insignia legs: `amount` per kill up to 30, chiming MIDDLE
+/// on the stack that fills.
+fn insignia_kill(ctx: &mut QuestCtx, item: i32, amount: i64) {
+    if ctx.quest_items_count(WHITE_ROSE_INSIGNIA) > 0 && ctx.quest_items_count(item) < 30 {
+        let at_end = ctx.quest_items_count(item) >= 30 - amount;
+        ctx.give_items(item, amount);
+        if at_end {
+            ctx.play_sound(quest_sounds::MIDDLE);
+            maybe_finish_insignia(ctx);
+        } else {
+            ctx.play_sound(quest_sounds::ITEMGET);
+        }
+    }
+}
+
+/// One of the order legs: one drop per kill while `order` is held, advancing to
+/// `done_cond` on the kill that fills the stack.
+fn order_kill(ctx: &mut QuestCtx, order: i32, item: i32, cap: i64, done_cond: i32) {
+    if ctx.quest_items_count(order) > 0 && ctx.quest_items_count(item) < cap {
+        let at_end = ctx.quest_items_count(item) >= cap - 1;
+        ctx.give_items(item, 1);
+        if at_end {
+            ctx.set_cond(done_cond, true);
+        } else {
+            ctx.play_sound(quest_sounds::ITEMGET);
         }
     }
 }

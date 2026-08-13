@@ -324,33 +324,9 @@ impl QuestScript for Q00221TestimonyOfProsperity {
         }
         match ctx.npc_id {
             MANDRAGORA_SPROUT1 | MANDRAGORA_SAPLING | MANDRAGORA_BLOSSOM | MANDRAGORA_SPROUT2 => {
-                if has(ctx, RING_OF_TESTIMONY_1ST)
-                    && has(ctx, BRIGHTS_LIST)
-                    && !has(ctx, EMILYS_RECIPE)
-                    && ctx.quest_items_count(MANDRAGORA_PETAL) < 20
-                {
-                    ctx.give_items(MANDRAGORA_PETAL, 1);
-                    ctx.play_sound(if ctx.quest_items_count(MANDRAGORA_PETAL) == 20 {
-                        quest_sounds::MIDDLE
-                    } else {
-                        quest_sounds::ITEMGET
-                    });
-                }
+                ingredient_kill(ctx, MANDRAGORA_PETAL, 20)
             }
-            GIANT_CRIMSON_ANT => {
-                if has(ctx, RING_OF_TESTIMONY_1ST)
-                    && has(ctx, BRIGHTS_LIST)
-                    && !has(ctx, EMILYS_RECIPE)
-                    && ctx.quest_items_count(CRIMSON_MOSS) < 10
-                {
-                    ctx.give_items(CRIMSON_MOSS, 1);
-                    ctx.play_sound(if ctx.quest_items_count(CRIMSON_MOSS) == 10 {
-                        quest_sounds::MIDDLE
-                    } else {
-                        quest_sounds::ITEMGET
-                    });
-                }
-            }
+            GIANT_CRIMSON_ANT => ingredient_kill(ctx, CRIMSON_MOSS, 10),
             MARSH_STAKATO | MARSH_STAKATO_WORKER | MARSH_STAKATO_SOLDIER | MARSH_STAKATO_DRONE => {
                 key_material(
                     ctx,
@@ -449,6 +425,23 @@ impl QuestScript for Q00221TestimonyOfProsperity {
 
 /// A Key-of-Titan reagent leg (gated on Ring 2nd + Nikola's List); cond 8 once
 /// all three of shell/sac/thorn reach their caps.
+/// One of Emily's two ingredient legs: gathered one per kill while Bright's
+/// list is open and the recipe is not yet in hand.
+fn ingredient_kill(ctx: &mut QuestCtx, item: i32, cap: i64) {
+    if has(ctx, RING_OF_TESTIMONY_1ST)
+        && has(ctx, BRIGHTS_LIST)
+        && !has(ctx, EMILYS_RECIPE)
+        && ctx.quest_items_count(item) < cap
+    {
+        ctx.give_items(item, 1);
+        ctx.play_sound(if ctx.quest_items_count(item) == cap {
+            quest_sounds::MIDDLE
+        } else {
+            quest_sounds::ITEMGET
+        });
+    }
+}
+
 fn key_material(ctx: &mut QuestCtx, own: i32, cap: i64, others: [(i32, i64); 2]) {
     if has(ctx, RING_OF_TESTIMONY_2ND)
         && has(ctx, NIKOLAS_LIST)
