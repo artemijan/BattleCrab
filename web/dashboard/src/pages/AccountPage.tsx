@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type SubmitEvent } from "react";
 
 import { ApiError, api, type Character } from "../lib/api";
+import { CharacterItemsDialog } from "../components/CharacterItemsDialog";
 import { Alert, Button, Field, Panel, Spinner, cx } from "../components/ui";
 
 /** Interlude has five playable races; the ids are the datapack's own. */
@@ -297,26 +298,46 @@ function GameAccountPanel({
 }
 
 function CharacterRow({ character }: { character: Character }) {
+  const [itemsOpen, setItemsOpen] = useState(false);
+
   return (
-    <li className="flex items-center gap-4 px-5 py-3.5">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate font-medium">{character.name}</p>
-          {character.online && (
-            <span
-              className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5
-                         text-[11px] font-medium text-emerald-600 dark:text-emerald-300"
-            >
-              <span className="size-1.5 rounded-full bg-emerald-400" aria-hidden />
-              Online
-            </span>
-          )}
+    <li>
+      <button
+        type="button"
+        onClick={() => setItemsOpen(true)}
+        className="group flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors
+                   hover:bg-(--surface-strong)"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="truncate font-medium">{character.name}</p>
+            {character.online && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5
+                           text-[11px] font-medium text-emerald-600 dark:text-emerald-300"
+              >
+                <span className="size-1.5 rounded-full bg-emerald-400" aria-hidden />
+                Online
+              </span>
+            )}
+          </div>
+          {/* The owning account is the panel heading now, so it is not repeated. */}
+          <p className="mt-0.5 truncate text-sm text-(--text-muted)">
+            Level {character.level} · {raceName(character.race)} · {playtime(character.onlineTime)}
+          </p>
         </div>
-        {/* The owning account is the panel heading now, so it is not repeated. */}
-        <p className="mt-0.5 truncate text-sm text-(--text-muted)">
-          Level {character.level} · {raceName(character.race)} · {playtime(character.onlineTime)}
-        </p>
-      </div>
+        <span
+          className="shrink-0 text-xs text-(--text-faint) opacity-0 transition-opacity
+                     group-hover:opacity-100 group-focus-visible:opacity-100"
+          aria-hidden
+        >
+          Items ›
+        </span>
+      </button>
+
+      {itemsOpen && (
+        <CharacterItemsDialog name={character.name} onClose={() => setItemsOpen(false)} />
+      )}
     </li>
   );
 }

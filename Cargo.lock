@@ -1935,6 +1935,7 @@ dependencies = [
  "mime_guess",
  "models",
  "rand 0.8.6",
+ "regex",
  "rust-embed",
  "serde",
  "serde_json",
@@ -3886,6 +3887,16 @@ dependencies = [
  "cc",
  "pkg-config",
  "vcpkg",
+]
+
+[[package]]
+name = "libwebp-sys"
+version = "0.9.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54cd30df7c7165ce74a456e4ca9732c603e8dc5e60784558c1c6dc047f876733"
+dependencies = [
+ "cc",
+ "glob",
 ]
 
 [[package]]
@@ -7275,6 +7286,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.10.9",
+ "webp",
 ]
 
 [[package]]
@@ -7926,6 +7938,15 @@ dependencies = [
  "objc2-foundation 0.3.2",
  "url",
  "web-sys",
+]
+
+[[package]]
+name = "webp"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c071456adef4aca59bf6a583c46b90ff5eb0b4f758fc347cea81290288f37ce1"
+dependencies = [
+ "libwebp-sys",
 ]
 
 [[package]]

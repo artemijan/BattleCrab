@@ -8,14 +8,14 @@
 //! breath. `/email/verify` remains, but only to confirm the address a
 //! registration was made with.
 
-use axum::extract::{Query, State};
+use axum::extract::{Path, Query, State};
 use axum::http::{HeaderMap, HeaderValue, StatusCode};
 use axum::response::IntoResponse;
 use axum::{Json, Router};
 use serde::Deserialize;
 
 use crate::auth::{cookie, verify_password};
-use crate::db::{accounts, characters};
+use crate::db::{accounts, characters, items};
 use crate::error::{ApiError, ApiResult};
 use crate::routes::{current_account, validate_login, validate_password};
 use crate::state::AppState;
@@ -29,6 +29,10 @@ pub fn router() -> Router<AppState> {
             axum::routing::get(list_game_accounts).post(create_game_account),
         )
         .route("/characters", axum::routing::get(list_characters))
+        .route(
+            "/characters/{name}/items",
+            axum::routing::get(character_items),
+        )
 }
 
 #[derive(Deserialize)]
@@ -180,4 +184,91 @@ async fn list_characters(
     // Characters hang off game accounts, not off the master account itself.
     let chars = characters::list_for_master(&app.db, account.subject()).await?;
     Ok(Json(chars))
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ItemRow {
+    /// Row identity for React keys — stacks of the same item are distinct rows.
+    pub object_id: i32,
+    pub item_id: i32,
+    pub name: String,
+    /// `Weapon`, `Armor`, `EtcItem` — or `Unknown` off-catalog.
+    #[serde(rename = "type")]
+    pub kind: String,
+    /// Lowercased icon reference, the atlas map's key. Absent when the
+    /// catalog has no icon for the item (the UI shows an empty cell).
+    pub icon: Option<String>,
+    pub count: i64,
+    pub enchant: i32,
+    pub equipped: bool,
+    /// Paperdoll slot id (`model::inventory::PaperdollSlot` numbering) for
+    /// worn items, so the UI can draw the equipment doll. Null in the bag.
+    pub slot: Option<i32>,
+    /// Quest items get their own tab, as in the game client. Off-catalog
+    /// items report false.
+    pub quest: bool,
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CharacterItemsResponse {
+    pub inventory: Vec<ItemRow>,
+    pub warehouse: Vec<ItemRow>,
+}
+
+/// One character's inventory (worn gear included) and private warehouse,
+/// enriched with names and icons from the item catalog.
+///
+/// A character outside the session's game accounts answers 404, not 403 — the
+/// route must not confirm that a name exists to someone who does not own it.
+async fn character_items(
+    State(app): State<AppState>,
+    headers: HeaderMap,
+    Path(name): Path<String>,
+) -> ApiResult<Json<CharacterItemsResponse>> {
+    let account = current_account(&app, &headers).await?;
+
+    let character = characters::find_by_name(&app.db, &name)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    let owned = accounts::game_accounts_for_master(&app.db, account.subject())
+        .await?
+        .iter()
+        .any(|login| login.eq_ignore_ascii_case(&character.account_name));
+    if !owned {
+        return Err(ApiError::NotFound);
+    }
+
+    let mut rows = items::for_character(&app.db, character.char_id).await?;
+    // Worn gear first in paperdoll-slot order, then the bag in its own order.
+    rows.sort_by_key(|r| (r.loc != items::LOC_EQUIPPED, r.loc_data));
+
+    let mut response = CharacterItemsResponse {
+        inventory: Vec::new(),
+        warehouse: Vec::new(),
+    };
+    for row in rows {
+        let def = app.items.get(row.item_id);
+        let out = ItemRow {
+            object_id: row.object_id,
+            item_id: row.item_id,
+            // A placeholder name rather than dropping the row: an item the
+            // catalog lacks still exists and still occupies a slot.
+            name: def.map_or_else(|| format!("Item {}", row.item_id), |d| d.name.clone()),
+            kind: def.map_or_else(|| "Unknown".to_string(), |d| d.kind.clone()),
+            icon: def.and_then(|d| d.icon.clone()),
+            count: row.count,
+            enchant: row.enchant,
+            equipped: row.loc == items::LOC_EQUIPPED,
+            slot: (row.loc == items::LOC_EQUIPPED).then_some(row.loc_data),
+            quest: def.is_some_and(|d| d.quest),
+        };
+        if row.loc == items::LOC_WAREHOUSE {
+            response.warehouse.push(out);
+        } else {
+            response.inventory.push(out);
+        }
+    }
+    Ok(Json(response))
 }

@@ -27,6 +27,9 @@ fn test_config() -> DashboardConfig {
         public_base_url: "http://localhost".into(),
         site_base_url: "https://battlecrab.com".into(),
         allowed_origins: "battlecrab.com".into(),
+        // No catalog in tests: items come back with placeholder names, which
+        // the items test asserts on explicitly.
+        game_data_dir: String::new(),
         database_url: String::new(),
         database_max_connections: 1,
         session_secret: "test-secret".into(),
@@ -480,6 +483,92 @@ async fn characters_from_every_game_account_are_listed_together() {
         body_json(listed).await,
         serde_json::json!(["alice1", "alice2"])
     );
+}
+
+#[tokio::test]
+async fn character_items_split_by_location_with_worn_gear_first() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+    add_game_account(&pool, "alice@example.com", "alice1").await;
+    sqlx::query(
+        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
+         VALUES ('alice1', 1, 'Shen', 42, 100)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+    // A worn weapon, adena in the bag, and a warehoused stack — plus another
+    // character's row that must not bleed in.
+    sqlx::query(
+        "INSERT INTO items (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, mana_left, time) VALUES
+         (1, 101, 57, 25000, 0, 'INVENTORY', 0, -1, 0),
+         (1, 102, 12000, 1, 7, 'PAPERDOLL', 5, -1, 0),
+         (1, 103, 1864, 300, 0, 'WAREHOUSE', 0, -1, 0),
+         (2, 201, 57, 999, 0, 'INVENTORY', 0, -1, 0)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let response = app
+        .oneshot(get_with_cookie(
+            "/api/v1/account/characters/Shen/items",
+            &cookie,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = body_json(response).await;
+
+    let inventory = body["inventory"].as_array().unwrap();
+    assert_eq!(inventory.len(), 2);
+    // Worn gear leads, bag follows.
+    assert_eq!(inventory[0]["itemId"], 12000);
+    assert_eq!(inventory[0]["equipped"], true);
+    assert_eq!(inventory[0]["enchant"], 7);
+    // The paperdoll slot (here 5 = right hand) comes along for worn items so
+    // the UI can place them on the equipment doll; bag items carry null.
+    assert_eq!(inventory[0]["slot"], 5);
+    assert_eq!(inventory[1]["itemId"], 57);
+    assert_eq!(inventory[1]["count"], 25000);
+    assert_eq!(inventory[1]["equipped"], false);
+    assert_eq!(inventory[1]["slot"], serde_json::Value::Null);
+    // Tests run without a datapack (GameDataDir is empty), so enrichment
+    // falls back to placeholders rather than dropping rows.
+    assert_eq!(inventory[1]["name"], "Item 57");
+    assert_eq!(inventory[1]["type"], "Unknown");
+
+    let warehouse = body["warehouse"].as_array().unwrap();
+    assert_eq!(warehouse.len(), 1);
+    assert_eq!(warehouse[0]["itemId"], 1864);
+}
+
+#[tokio::test]
+async fn character_items_of_someone_elses_character_are_not_found() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "alice@example.com").await;
+    add_game_account(&pool, "mallory@example.com", "mallory1").await;
+    sqlx::query(
+        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
+         VALUES ('mallory1', 3, 'NotYours', 30, 300)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    // 404 for a character that exists but is someone else's, and 404 for one
+    // that does not exist at all — indistinguishable on purpose.
+    for name in ["NotYours", "NoSuchChar"] {
+        let response = app
+            .clone()
+            .oneshot(get_with_cookie(
+                &format!("/api/v1/account/characters/{name}/items"),
+                &cookie,
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NOT_FOUND, "{name}");
+    }
 }
 
 #[tokio::test]

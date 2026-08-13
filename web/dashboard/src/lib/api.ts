@@ -65,6 +65,31 @@ export type ServerStatus = {
   playersOnline: number;
 };
 
+/** One row of a character's belongings — a stack, a worn piece, or a deposit. */
+export type CharacterItem = {
+  /** Unique per row; stacks of the same item are distinct rows. */
+  objectId: number;
+  itemId: number;
+  name: string;
+  /** `Weapon`, `Armor`, `EtcItem` — or `Unknown` when the item is off-catalog. */
+  type: string;
+  /** Atlas key for `ItemIcon`; null when the catalog has no icon for it. */
+  icon: string | null;
+  count: number;
+  enchant: number;
+  equipped: boolean;
+  /** Paperdoll slot id for worn items (see `PaperdollSlot` server-side); null in the bag. */
+  slot: number | null;
+  /** Quest items get their own tab, as in the game client. */
+  quest: boolean;
+};
+
+export type CharacterItems = {
+  /** Carried and worn, worn gear first. */
+  inventory: CharacterItem[];
+  warehouse: CharacterItem[];
+};
+
 /* ----------------------------- Admin types ------------------------------ */
 
 export type AdminMasterSummary = {
@@ -205,6 +230,10 @@ export const api = {
     post<{ login: string }>("/account/game-accounts", { login, password }),
 
   characters: () => request<Character[]>("/account/characters"),
+
+  /** Inventory and warehouse of one of the session's own characters. */
+  characterItems: (name: string) =>
+    request<CharacterItems>(`/account/characters/${encodeURIComponent(name)}/items`),
 
   status: () => request<ServerStatus>("/server/status"),
 

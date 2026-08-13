@@ -115,6 +115,11 @@ pub struct DashboardConfig {
     /// arbitrary origins would let any site drive a logged-in user's account.
     pub allowed_origins: String,
 
+    /// The game server's data root (the directory holding `data/`), for the
+    /// item definitions the character-items endpoint enriches from. Empty
+    /// disables the catalog; items then come back with placeholder names.
+    pub game_data_dir: String,
+
     /// Must point at the *same* SQLite file the login/game servers use — a
     /// stale copy would silently create accounts nobody can log in with.
     pub database_url: String,
@@ -214,6 +219,8 @@ impl DashboardConfig {
             public_base_url: p.get_string("PublicBaseUrl", "http://localhost:8080"),
             site_base_url: p.get_string("SiteBaseUrl", "https://battlecrab.com"),
             allowed_origins: p.get_string("AllowedOrigins", "battlecrab.com"),
+
+            game_data_dir: p.get_string("GameDataDir", "dist/game"),
 
             // Key names match `LoginServer.ini` (`URL`,
             // `MaximumDatabaseConnections`) so both servers are configured the

@@ -18,3 +18,9 @@ declare module "*.jpg" {
   const url: string;
   export default url;
 }
+// JSON is imported `with { type: "file" }` (a URL to fetch lazily), never
+// inlined — see ItemIcon.tsx, whose atlas map is far too big to bundle.
+declare module "*.json" {
+  const url: string;
+  export default url;
+}

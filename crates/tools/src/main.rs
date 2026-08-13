@@ -32,6 +32,13 @@ enum Command {
     /// One stage of that pipeline on its own: decrypted `.dat` <-> text.
     DatText(cli::dat_text::Args),
 
+    /// Export item icons from the client's texture packages as PNGs.
+    ExportIcon(cli::export_icon::Args),
+
+    /// Pack every datapack-referenced item icon into one sprite sheet + map
+    /// for the web dashboard.
+    IconAtlas(cli::icon_atlas::Args),
+
     /// Edit system-message colours in a terminal UI.
     MsgColor(cli::msg_color::Args),
 
@@ -54,6 +61,8 @@ fn main() {
         Command::SpawnPockets(args) => cli::spawn_pockets::run(&cli.game_dir, &args),
         Command::ClientDat(args) => cli::client_dat::run(&args),
         Command::DatText(args) => cli::dat_text::run(&args),
+        Command::ExportIcon(args) => cli::export_icon::run(&args),
+        Command::IconAtlas(args) => cli::icon_atlas::run(&args),
         Command::MsgColor(args) => cli::msg_color::run(&args),
         Command::GenMessages(args) => cli::gen_messages::run(&args),
         Command::SyncMessages(args) => cli::sync_messages::run(&args),

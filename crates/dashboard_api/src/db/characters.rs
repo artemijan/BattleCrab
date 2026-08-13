@@ -96,6 +96,28 @@ pub async fn list_for_master(
     Ok(rows.into_iter().map(to_summary).collect())
 }
 
+/// Just enough of a character to authorize and run an items lookup: its id
+/// (what `items.owner_id` references) and its game account (what ownership is
+/// checked against). Deliberately not the full `Model` — see the module doc.
+pub struct CharacterRef {
+    pub char_id: i32,
+    pub account_name: String,
+}
+
+/// Finds a live character by its exact name. Character names are unique
+/// game-wide, which is what makes the name a usable route parameter.
+pub async fn find_by_name(db: &DatabaseConnection, name: &str) -> ApiResult<Option<CharacterRef>> {
+    let row = Entity::find()
+        .filter(Column::CharName.eq(name))
+        .filter(Column::Deletetime.eq(0))
+        .one(db)
+        .await?;
+    Ok(row.map(|r| CharacterRef {
+        char_id: r.char_id,
+        account_name: r.account_name.unwrap_or_default(),
+    }))
+}
+
 /// Player count for the public status endpoint.
 ///
 /// Caveat worth remembering: this reads persisted `online` flags, so a hard

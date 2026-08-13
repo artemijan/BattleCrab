@@ -15,6 +15,7 @@ pub mod cors;
 pub mod csrf;
 pub mod db;
 pub mod error;
+pub mod items;
 pub mod mail;
 pub mod routes;
 pub mod state;

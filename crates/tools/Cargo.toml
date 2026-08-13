@@ -25,6 +25,11 @@ clap = { version = "4", features = ["derive"] }
 # each file used. All of these are already in the workspace's dependency graph.
 num-bigint-dig.workspace = true
 flate2 = "1"
+# Lossless WebP for the icon atlas — ~20% smaller than the PNG floor for this
+# content. Real libwebp (vendored C), because the pure-Rust encoders compress
+# this content *worse* than PNG. A C build is fine here: `tools` is an offline
+# local binary, never cross-compiled by the deploy.
+webp = { version = "0.3", default-features = false }
 crc32fast = "1"
 rayon = "1"
 serde = { version = "1", features = ["derive"] }

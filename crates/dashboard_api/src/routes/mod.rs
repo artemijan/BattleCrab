@@ -167,6 +167,7 @@ mod tests {
             public_base_url: "http://localhost".into(),
             site_base_url: "http://localhost:3000".into(),
             allowed_origins: "battlecrab.com".into(),
+            game_data_dir: String::new(),
             database_url: String::new(),
             database_max_connections: 1,
             session_secret: "s".into(),

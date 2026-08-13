@@ -1,5 +1,6 @@
 .idea
 dist/client/system
+dist/client/SysTextures
 .claude
 .mcp.json
 .worktrees

@@ -281,6 +281,24 @@ body {
   animation: rise 0.55s var(--ease-out-soft) both;
 }
 
+/* A quieter rise for content swapped *inside* an already-open surface (tab
+   panes): shorter travel and duration than the entrance animation, so the
+   switch reads as the same surface changing, not a new one arriving. */
+@keyframes rise-soft {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-rise-soft {
+  animation: rise-soft 0.3s var(--ease-out-soft) both;
+}
+
 @utility animate-fade {
   animation: fade 0.4s var(--ease-out-soft) both;
 }
@@ -330,6 +348,17 @@ body {
   .bg-field span {
     animation: none !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Modal dialogs anchor to the viewport, not the document. Chrome's UA sheet
+   positions <dialog> absolutely, and Tailwind's `.fixed` cannot override it
+   from inside @layer utilities — so a dialog opened from a scrolled page
+   would hang above the fold. Deliberately unlayered: that is what lets it
+   win. Centering (inset-0, m-auto) still comes from utilities on the element.
+   --------------------------------------------------------------------------- */
+dialog:modal {
+  position: fixed;
 }
 
 /* ---------------------------------------------------------------------------

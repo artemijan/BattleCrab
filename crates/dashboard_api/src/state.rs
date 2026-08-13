@@ -13,6 +13,9 @@ pub type AppState = Arc<App>;
 pub struct App {
     pub db: DatabaseConnection,
     pub config: DashboardConfig,
+    /// Item id → name/type/icon from the datapack, for the character-items
+    /// endpoint. Empty when `GameDataDir` is unset or absent.
+    pub items: crate::items::Catalog,
     pub key: SigningKey,
     /// Which browser origins may call the API (see `cors`).
     pub origin_policy: OriginPolicy,
@@ -46,9 +49,11 @@ impl App {
         // window keeps one host from farming accounts.
         let register_limiter = RateLimiter::new(5, 3600);
         let secure_cookies = config.public_base_url.starts_with("https://");
+        let items = crate::items::Catalog::load(&config.game_data_dir);
         Self {
             db,
             config,
+            items,
             key,
             origin_policy,
             mailer,
