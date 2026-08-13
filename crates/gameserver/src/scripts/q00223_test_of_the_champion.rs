@@ -134,57 +134,17 @@ impl QuestScript for Q00223TestOfTheChampion {
                 None
             }
             "30624-05.htm" | "30196-02.html" | "30625-02.html" => Some(event.to_string()),
-            "30624-10.html" => {
-                if ctx.quest_items_count(MASONS_LETTER) > 0 {
-                    ctx.take_items(MASONS_LETTER, 1);
-                    ctx.give_items(ASCALONS_2ND_LETTER, 1);
-                    ctx.set_cond(5, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30624-14.html" => {
-                if ctx.quest_items_count(GROOTS_LETTER) > 0 {
-                    ctx.take_items(GROOTS_LETTER, 1);
-                    ctx.give_items(ASCALONS_3RD_LETTER, 1);
-                    ctx.set_cond(9, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30093-02.html" => {
-                if ctx.quest_items_count(ASCALONS_2ND_LETTER) > 0 {
-                    ctx.take_items(ASCALONS_2ND_LETTER, 1);
-                    ctx.give_items(WHITE_ROSE_INSIGNIA, 1);
-                    ctx.set_cond(6, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30196-03.html" => {
-                if ctx.quest_items_count(ASCALONS_3RD_LETTER) > 0 {
-                    ctx.take_items(ASCALONS_3RD_LETTER, 1);
-                    ctx.give_items(MOUENS_1ST_ORDER, 1);
-                    ctx.set_cond(10, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
+            "30624-10.html" => hand_off(ctx, event, MASONS_LETTER, ASCALONS_2ND_LETTER, 5),
+            "30624-14.html" => hand_off(ctx, event, GROOTS_LETTER, ASCALONS_3RD_LETTER, 9),
+            "30093-02.html" => hand_off(ctx, event, ASCALONS_2ND_LETTER, WHITE_ROSE_INSIGNIA, 6),
+            "30196-03.html" => hand_off(ctx, event, ASCALONS_3RD_LETTER, MOUENS_1ST_ORDER, 10),
+            "30625-03.html" => hand_off(ctx, event, ASCALONS_1ST_LETTER, IRON_ROSE_RING, 2),
             "30196-06.html" => {
                 if ctx.quest_items_count(ROAD_RATMAN_HEAD) >= 10 {
                     ctx.take_items(MOUENS_1ST_ORDER, 1);
                     ctx.give_items(MOUENS_2ND_ORDER, 1);
                     ctx.take_items(ROAD_RATMAN_HEAD, -1);
                     ctx.set_cond(12, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30625-03.html" => {
-                if ctx.quest_items_count(ASCALONS_1ST_LETTER) > 0 {
-                    ctx.take_items(ASCALONS_1ST_LETTER, 1);
-                    ctx.give_items(IRON_ROSE_RING, 1);
-                    ctx.set_cond(2, true);
                     return Some(event.to_string());
                 }
                 None
@@ -284,6 +244,19 @@ impl QuestScript for Q00223TestOfTheChampion {
             _ => Some(ctx.no_quest_html()),
         }
     }
+}
+
+/// One relay hand-off: swap `from` for `to` and advance, but only while the
+/// player still carries the letter this NPC is waiting on — otherwise the page
+/// is refused, as in Java's `hasQuestItems` gate.
+fn hand_off(ctx: &mut QuestCtx, event: &str, from: i32, to: i32, cond: i32) -> Option<String> {
+    if ctx.quest_items_count(from) == 0 {
+        return None;
+    }
+    ctx.take_items(from, 1);
+    ctx.give_items(to, 1);
+    ctx.set_cond(cond, true);
+    Some(event.to_string())
 }
 
 /// The first hit on an ambush mob marks its attacker and, on a coin flip,
