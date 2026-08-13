@@ -89,6 +89,22 @@ pub(crate) fn skill_power_mul(world: &World, caster_oid: i32, magic: bool) -> f6
         .unwrap_or(1.0)
 }
 
+/// Snapshot the target's buff list through `f` (`None` filters an entry out),
+/// collecting up front so the caller's loop can take `&mut World` — the
+/// borrow-splitting idiom the dispel/expiry family shares. A missing `Buffs`
+/// component is an empty snapshot.
+pub(crate) fn buffs_snapshot<T>(
+    world: &World,
+    object_id: i32,
+    f: impl FnMut(&ActiveBuff) -> Option<T>,
+) -> Vec<T> {
+    world
+        .objects
+        .get_component::<Buffs>(&object_id)
+        .map(|buffs| buffs.0.iter().filter_map(f).collect())
+        .unwrap_or_default()
+}
+
 /// The effects whose Java handler gates on `Formulas.calcSkillEvasion` in its
 /// `calcSuccess` — i.e. the damage-dealing family. Kept as an explicit list
 /// rather than "anything with a power" so adding a damage effect has to make a

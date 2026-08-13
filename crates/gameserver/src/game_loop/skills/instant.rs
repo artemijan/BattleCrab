@@ -1184,17 +1184,9 @@ pub(super) fn hp(world: &mut World, ctx: &CastCtx, amount: f64, percent: bool) {
 /// Snapshotted into a Vec because both dispel paths re-enter `world.data` to
 /// decide what to strip, which they cannot do while the `Buffs` borrow is live.
 fn buffs_on(world: &World, target_oid: i32) -> Vec<(i32, i32)> {
-    world
-        .objects
-        .get_component::<Buffs>(&target_oid)
-        .map(|buffs| {
-            buffs
-                .0
-                .iter()
-                .map(|b| (b.skill_id, b.skill_level))
-                .collect()
-        })
-        .unwrap_or_default()
+    crate::game_loop::skills::effects::buffs_snapshot(world, target_oid, |b| {
+        Some((b.skill_id, b.skill_level))
+    })
 }
 
 pub(super) fn dispel_by_slot(

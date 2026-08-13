@@ -15,7 +15,7 @@
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
 use crate::game_loop::helpers::send_to_client;
-use crate::model::components::{Buffs, SkillBook};
+use crate::model::components::SkillBook;
 use crate::model::inventory::Inventory;
 use crate::model::skill::StatModifierEffect;
 use crate::world::World;
@@ -58,16 +58,11 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
         .map(|b| (b.skill_id, b.effects.clone()))
         .collect();
 
-    let current: Vec<(i32, Vec<StatModifierEffect>)> = world
-        .objects
-        .get_component::<Buffs>(&object_id)
-        .map(|b| {
-            b.0.iter()
-                .filter(|buff| buff.passive && book.0.contains_key(&buff.skill_id))
-                .map(|buff| (buff.skill_id, buff.effects.clone()))
-                .collect()
-        })
-        .unwrap_or_default();
+    let current: Vec<(i32, Vec<StatModifierEffect>)> =
+        crate::game_loop::skills::effects::buffs_snapshot(world, object_id, |buff| {
+            (buff.passive && book.0.contains_key(&buff.skill_id))
+                .then(|| (buff.skill_id, buff.effects.clone()))
+        });
     if same_buff_set(&current, &desired_pairs) {
         return false;
     }

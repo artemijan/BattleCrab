@@ -296,16 +296,9 @@ pub(crate) fn expire_buffs_where(
     object_id: i32,
     matches: impl Fn(&World, &crate::model::skill::ActiveBuff) -> bool,
 ) -> usize {
-    let skill_ids: Vec<i32> = world
-        .objects
-        .get_component::<Buffs>(&object_id)
-        .map(|b| {
-            b.0.iter()
-                .filter(|buff| matches(world, buff))
-                .map(|buff| buff.skill_id)
-                .collect()
-        })
-        .unwrap_or_default();
+    let skill_ids: Vec<i32> = buffs_snapshot(world, object_id, |buff| {
+        matches(world, buff).then_some(buff.skill_id)
+    });
     let count = skill_ids.len();
     for skill_id in skill_ids {
         handle_buff_expire(world, object_id, skill_id);

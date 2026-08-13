@@ -10,17 +10,8 @@ use super::*;
 /// is what stops Flames of Invincibility from stripping the clan/transform
 /// buffs that `isStayAfterDeath()` also protects.
 pub(crate) fn dispel_by_slot_myself(world: &mut World, target_oid: i32, dispel: &[String]) {
-    let candidates: Vec<(i32, i32)> = world
-        .objects
-        .get_component::<Buffs>(&target_oid)
-        .map(|buffs| {
-            buffs
-                .0
-                .iter()
-                .map(|b| (b.skill_id, b.skill_level))
-                .collect()
-        })
-        .unwrap_or_default();
+    let candidates: Vec<(i32, i32)> =
+        buffs_snapshot(world, target_oid, |b| Some((b.skill_id, b.skill_level)));
     let to_dispel: Vec<i32> = candidates
         .into_iter()
         .filter(|&(sid, slvl)| {
@@ -50,17 +41,9 @@ pub(crate) fn dispel_by_slot_myself(world: &mut World, target_oid: i32, dispel: 
 /// survives a cancel it would lose upstream — which is the conservative
 /// direction for a buff-stripping effect, and consistent with the fn above.
 pub(crate) fn dispel_all(world: &mut World, target_oid: i32) {
-    let candidates: Vec<(i32, i32, bool)> = world
-        .objects
-        .get_component::<Buffs>(&target_oid)
-        .map(|buffs| {
-            buffs
-                .0
-                .iter()
-                .map(|b| (b.skill_id, b.skill_level, b.passive))
-                .collect()
-        })
-        .unwrap_or_default();
+    let candidates: Vec<(i32, i32, bool)> = buffs_snapshot(world, target_oid, |b| {
+        Some((b.skill_id, b.skill_level, b.passive))
+    });
     let to_dispel: Vec<i32> = candidates
         .into_iter()
         // Passives never sit in Java's `_actives` list at all.
@@ -96,18 +79,11 @@ pub(crate) fn dispel_by_category(
     if is_dead(world, target_oid) {
         return;
     }
-    let candidates: Vec<(i32, i32, BuffSlot)> = world
-        .objects
-        .get_component::<Buffs>(&target_oid)
-        .map(|buffs| {
-            buffs
-                .0
-                .iter()
-                .rev()
-                .map(|b| (b.skill_id, b.skill_level, b.slot))
-                .collect()
-        })
-        .unwrap_or_default();
+    let mut candidates: Vec<(i32, i32, BuffSlot)> = buffs_snapshot(world, target_oid, |b| {
+        Some((b.skill_id, b.skill_level, b.slot))
+    });
+    // Reverse cast order — Java's `getDances()`/`getBuffs()` reversed.
+    candidates.reverse();
     let mut to_dispel: Vec<i32> = Vec::new();
     match slot {
         DispelSlot::Buff => {
