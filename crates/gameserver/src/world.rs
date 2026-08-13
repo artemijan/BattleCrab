@@ -1014,6 +1014,17 @@ impl World {
 
     /// Java `Rnd.get(bound)`: uniform in `[0, bound)`. Tests can pre-queue
     /// outcomes via `forced_rolls`.
+    /// The castle row for `castle_id` — Java `CastleManager.getCastleById`,
+    /// which fifteen call sites re-derived with a linear find.
+    pub fn castle(&self, castle_id: i32) -> Option<&crate::model::castle::Castle> {
+        self.castles.iter().find(|c| c.id == castle_id)
+    }
+
+    /// Mutable [`Self::castle`].
+    pub fn castle_mut(&mut self, castle_id: i32) -> Option<&mut crate::model::castle::Castle> {
+        self.castles.iter_mut().find(|c| c.id == castle_id)
+    }
+
     pub fn roll(&mut self, bound: i32) -> i32 {
         #[cfg(test)]
         if let Some(v) = self.forced_rolls.pop_front() {

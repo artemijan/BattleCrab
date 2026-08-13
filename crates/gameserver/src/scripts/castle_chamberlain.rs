@@ -1002,7 +1002,7 @@ fn siege_in_progress(ctx: &QuestCtx) -> bool {
 /// The castle's display name ("Gludio", …) for the `<Name>-d/du/tu.html` pages.
 fn castle_name(ctx: &QuestCtx) -> String {
     chamberlain_castle_id(ctx.npc_id)
-        .and_then(|id| ctx.world.castles.iter().find(|c| c.id == id))
+        .and_then(|id| ctx.world.castle(id))
         .map(|c| c.name.clone())
         .unwrap_or_default()
 }

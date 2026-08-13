@@ -27,7 +27,7 @@ use crate::world::World;
 /// Java `Castle.getTaxPercent(type)` — the percent for the castle's current
 /// side, off `Feature.ini`. An unknown castle taxes nothing.
 pub(crate) fn tax_percent(world: &World, castle_id: i32, tax_type: TaxType) -> i32 {
-    let Some(castle) = world.castles.iter().find(|c| c.id == castle_id) else {
+    let Some(castle) = world.castle(castle_id) else {
         return 0;
     };
     let f = &world.cfg.feature;
@@ -129,7 +129,7 @@ pub(crate) fn add_to_treasury_no_tax(world: &mut World, castle_id: i32, amount: 
         return false;
     }
     let max_adena = world.cfg.character.max_adena;
-    let Some(castle) = world.castles.iter_mut().find(|c| c.id == castle_id) else {
+    let Some(castle) = world.castle_mut(castle_id) else {
         return false;
     };
     if amount < 0 {

@@ -71,7 +71,7 @@ fn set_next_siege_date(world: &mut World, castle_id: i32, now: i64) {
         return; // a future date is already set — the owner's choice included
     }
     let next = next_siege_millis(now, entry.weekday, entry.hour);
-    let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) else {
+    let Some(c) = world.castle_mut(castle_id) else {
         return;
     };
     c.siege_date = next;
@@ -187,7 +187,7 @@ pub(crate) fn run_auto_task(world: &mut World, castle_id: i32, now: i64) {
         }
         // Java `endTimeRegistration(true)` — the automatic close does **not**
         // save; the flag is re-derived at the next boot from the siege date.
-        if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+        if let Some(c) = world.castle_mut(castle_id) {
             c.time_registration_over = true;
         }
     }

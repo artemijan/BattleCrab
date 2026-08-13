@@ -351,7 +351,7 @@ pub(crate) fn handle_request_set_castle_siege_time(world: &mut World, client_id:
     }
 
     // Set the date, close the window, persist, and re-arm the auto-start.
-    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+    if let Some(c) = world.castle_mut(castle_id) {
         c.siege_date = chosen_millis;
         c.time_registration_over = true;
     }

@@ -19,7 +19,7 @@ use super::*;
 pub(super) fn reopen_time_registration(world: &mut World, castle_id: i32) {
     const ONE_DAY_MS: i64 = 86_400_000;
     let end = commons::util::now_millis() + ONE_DAY_MS;
-    let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) else {
+    let Some(c) = world.castle_mut(castle_id) else {
         return;
     };
     c.siege_time_registration_end = end;
@@ -56,7 +56,7 @@ pub(super) fn increase_blood_alliance(world: &mut World, clan_id: i32) {
 /// owner's placed-mercenary count is cleared. A no-op (and no DB write) when it
 /// was already 0, which it always is until the mercenary system lands.
 pub(super) fn reset_castle_ticket_count(world: &mut World, castle_id: i32) {
-    let Some(castle) = world.castles.iter_mut().find(|c| c.id == castle_id) else {
+    let Some(castle) = world.castle_mut(castle_id) else {
         return;
     };
     if castle.ticket_buy_count == 0 {
@@ -122,7 +122,7 @@ pub(super) fn record_castle_taken_for_nobles(world: &mut World, clan_id: i32, ca
 /// nothing to strip.)
 /// `Castle.setShowNpcCrest` — flip the flag and persist it when it changes.
 pub(crate) fn set_show_npc_crest(world: &mut World, castle_id: i32, show: bool) {
-    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id)
+    if let Some(c) = world.castle_mut(castle_id)
         && c.show_npc_crest != show
     {
         c.show_npc_crest = show;
@@ -209,7 +209,7 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     // `_castle.setFirstMidVictory(true)` — the castle has now been engraved
     // once, which is what finally lets two *attacker* clans fight each other
     // (`isAutoAttackable`'s siege block reads this).
-    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+    if let Some(c) = world.castle_mut(castle_id) {
         c.first_mid_victory = true;
     }
     // `teleportPlayer(Attacker, SIEGEFLAG)` — the *new* attackers (the clans

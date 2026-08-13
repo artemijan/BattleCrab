@@ -809,7 +809,7 @@ fn spawn_npc_entity(
         .zone_data
         .tax_castle_at(x, y, z)
         .and_then(|castle_id| {
-            let castle = world.castles.iter().find(|c| c.id == castle_id)?;
+            let castle = world.castle(castle_id)?;
             if !(world.cfg.npc.show_crest_without_quest || castle.show_npc_crest) {
                 return None;
             }

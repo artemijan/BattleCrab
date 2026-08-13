@@ -194,7 +194,7 @@ fn nearest_castle_name(world: &World, x: i32, y: i32, z: i32) -> String {
         .data
         .zone_data
         .nearest_castle_at(x, y, z)
-        .and_then(|id| world.castles.iter().find(|c| c.id == id))
+        .and_then(|id| world.castle(id))
         .map(|c| c.name.clone())
         .unwrap_or_default()
 }

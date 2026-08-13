@@ -242,7 +242,7 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     update_player_siege_state_flags(world, castle_id, true);
     super::zones::refresh_siege_zone_for_all(world);
     // `_castle.setFirstMidVictory(false)`.
-    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+    if let Some(c) = world.castle_mut(castle_id) {
         c.first_mid_victory = false;
     }
 
