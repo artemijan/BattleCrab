@@ -415,3 +415,24 @@ pub(crate) fn save_all_players(world: &mut World) {
         info!("GameLoop: saved {count} online player(s) on shutdown.");
     }
 }
+
+/// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`
+/// and the timer half of the memory-first model. Flushes **at most one** due
+/// player per sweep (Java's `break; // Prevent SQL flood`) and reschedules it
+/// one `CharacterDataStoreInterval` out. Because gameplay only mutates in-memory
+/// components, this — together with the logout and shutdown flushes — is the
+/// sole writer of character state, so no packet flood can become a DB flood.
+pub(crate) fn autosave_tick(world: &mut World) {
+    let interval = world.cfg.character.character_data_store_interval_ticks;
+    // The single due player this sweep (lowest object id = deterministic).
+    let due = world
+        .player_autosave_due
+        .iter()
+        .filter(|&(_, &due)| world.tick >= due)
+        .map(|(&oid, _)| oid)
+        .min();
+    if let Some(oid) = due {
+        world.player_autosave_due.insert(oid, world.tick + interval);
+        store_player_now(world, oid);
+    }
+}

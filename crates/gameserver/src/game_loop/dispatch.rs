@@ -94,10 +94,16 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::CHARACTER_SELECT => handle_character_select(world, client_id, body),
         cop::ENTER_WORLD => handle_enter_world(world, client_id),
         // Boats (G24.5): board / step off a ferry — boatId + (x, y, z).
-        cop::REQUEST_GET_ON_VEHICLE => handle_get_on_off_vehicle(world, client_id, body, true),
-        cop::REQUEST_GET_OFF_VEHICLE => handle_get_on_off_vehicle(world, client_id, body, false),
+        cop::REQUEST_GET_ON_VEHICLE => {
+            super::boats::handle_get_on_off_vehicle(world, client_id, body, true)
+        }
+        cop::REQUEST_GET_OFF_VEHICLE => {
+            super::boats::handle_get_on_off_vehicle(world, client_id, body, false)
+        }
         // Boats: walk around on deck — boatId + target (x,y,z) + origin (x,y,z).
-        cop::REQUEST_MOVE_TO_LOCATION_IN_VEHICLE => handle_move_in_vehicle(world, client_id, body),
+        cop::REQUEST_MOVE_TO_LOCATION_IN_VEHICLE => {
+            super::boats::handle_move_in_vehicle(world, client_id, body)
+        }
         // RequestSkillCoolTime (IN_GAME): resend the reuse timers.
         cop::REQUEST_SKILL_COOL_TIME => {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id)
@@ -243,44 +249,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // packet — a resurrection proposal, a Summon Friend prompt, `.offline`
         // and the admin confirm — so each claimant reports whether the reply
         // was its own and the admin handler takes what is left.
-        cop::DLG_ANSWER => {
-            if let Some(answer) = cp::DlgAnswer::read(body) {
-                let oid = match world.clients.get(&client_id) {
-                    Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
-                    _ => None,
-                };
-                let claimed = oid.is_some_and(|oid| {
-                    super::death::handle_revive_answer(world, oid, answer.answer == 1)
-                })
-                // `.offline`'s "Do you wish to exit the game?" — matched by the
-                // echoed message id, as Java's `DlgAnswer` does.
-                // Summon Friend, matched by the echoed message id as Java's
-                // `DlgAnswer` does. `requester_id` is checked inside: the
-                // client echoes which summoner it is answering, and a prompt
-                // must not be answered into a *different* summoner's teleport.
-                || (answer.message_id
-                    == server_packets::sm_ids::C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT
-                        as i32
-                    && oid.is_some_and(|oid| {
-                        super::skills::effects::control::accept_summon_request(
-                            world,
-                            oid,
-                            answer.requester_id,
-                            answer.answer == 1,
-                        )
-                    }))
-                || (answer.message_id
-                    == server_packets::sm_ids::DO_YOU_WISH_TO_EXIT_THE_GAME as i32
-                    && super::offline_trade::handle_exit_game_answer(
-                        world,
-                        client_id,
-                        answer.answer == 1,
-                    ));
-                if !claimed {
-                    super::admin::handle_dlg_answer(world, client_id, answer);
-                }
-            }
-        }
+        cop::DLG_ANSWER => dispatch_dlg_answer(world, client_id, body),
         // RequestActionUse (IN_GAME): the action bar's non-skill buttons. Only
         // the servitor commands are handled so far.
         cop::REQUEST_ACTION_USE => {
@@ -510,44 +479,6 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
     }
-}
-
-/// `RequestGetOnVehicle` / `RequestGetOffVehicle`: read `boatId + (x, y, z)` and
-/// board / disembark for the in-game player (G24.5).
-fn handle_get_on_off_vehicle(world: &mut World, client_id: u32, body: &[u8], boarding: bool) {
-    let Some(player) = world.player_oid(client_id) else {
-        return;
-    };
-    let mut r = commons::network::PacketReader::new(body);
-    let Some([boat_oid, x, y, z]) = r.read_i32_array::<4>() else {
-        return;
-    };
-    if boarding {
-        super::boats::board(world, player, boat_oid, (x, y, z));
-    } else {
-        super::boats::disembark(world, player, boat_oid, (x, y, z));
-    }
-}
-
-/// `RequestMoveToLocationInVehicle`: the player walks around on a ferry's deck.
-/// Reads boatId + target (x,y,z) + origin (x,y,z), all relative to the boat.
-fn handle_move_in_vehicle(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(player) = world.player_oid(client_id) else {
-        return;
-    };
-    let mut r = commons::network::PacketReader::new(body);
-    let (Some(boat_oid), Some(tx), Some(ty), Some(tz), Some(ox), Some(oy), Some(oz)) = (
-        r.read_i32(),
-        r.read_i32(),
-        r.read_i32(),
-        r.read_i32(),
-        r.read_i32(),
-        r.read_i32(),
-        r.read_i32(),
-    ) else {
-        return;
-    };
-    super::boats::move_in_vehicle(world, player, boat_oid, (tx, ty, tz), (ox, oy, oz));
 }
 
 /// Dispatch an extended (`0xD0`) client packet by its 2-byte sub-opcode.
@@ -970,5 +901,42 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         _ => error!("GameLoop: client {client_id} sent ex-opcode 0x{sub:04x}, unhandled."),
+    }
+}
+
+/// The `DlgAnswer` claim chain: which system does a `ConfirmDlg` answer
+/// belong to? Tried in order — revive request, then the message-id-matched
+/// prompts (Summon Friend, `.offline`'s exit confirm) — with the admin
+/// command confirms as the unclaimed fallback.
+fn dispatch_dlg_answer(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(answer) = cp::DlgAnswer::read(body) else {
+        return;
+    };
+    let oid = match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
+        _ => None,
+    };
+    let claimed = oid
+        .is_some_and(|oid| super::death::handle_revive_answer(world, oid, answer.answer == 1))
+        // Summon Friend, matched by the echoed message id as Java's
+        // `DlgAnswer` does. `requester_id` is checked inside: the client
+        // echoes which summoner it is answering, and a prompt must not be
+        // answered into a *different* summoner's teleport.
+        || (answer.message_id
+            == server_packets::sm_ids::C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT as i32
+            && oid.is_some_and(|oid| {
+                super::skills::effects::control::accept_summon_request(
+                    world,
+                    oid,
+                    answer.requester_id,
+                    answer.answer == 1,
+                )
+            }))
+        // `.offline`'s "Do you wish to exit the game?" — matched by the
+        // echoed message id, as Java's `DlgAnswer` does.
+        || (answer.message_id == server_packets::sm_ids::DO_YOU_WISH_TO_EXIT_THE_GAME as i32
+            && super::offline_trade::handle_exit_game_answer(world, client_id, answer.answer == 1));
+    if !claimed {
+        super::admin::handle_dlg_answer(world, client_id, answer);
     }
 }

@@ -865,3 +865,47 @@ fn heading_toward(x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
     let units = angle / std::f64::consts::TAU * 65536.0;
     (units as i32).rem_euclid(65536)
 }
+
+// The packet readers, moved out of dispatch.rs to live with the flows they feed.
+/// `RequestGetOnVehicle` / `RequestGetOffVehicle`: read `boatId + (x, y, z)` and
+/// board / disembark for the in-game player (G24.5).
+pub(crate) fn handle_get_on_off_vehicle(
+    world: &mut World,
+    client_id: u32,
+    body: &[u8],
+    boarding: bool,
+) {
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = commons::network::PacketReader::new(body);
+    let Some([boat_oid, x, y, z]) = r.read_i32_array::<4>() else {
+        return;
+    };
+    if boarding {
+        board(world, player, boat_oid, (x, y, z));
+    } else {
+        disembark(world, player, boat_oid, (x, y, z));
+    }
+}
+
+/// `RequestMoveToLocationInVehicle`: the player walks around on a ferry's deck.
+/// Reads boatId + target (x,y,z) + origin (x,y,z), all relative to the boat.
+pub(crate) fn handle_move_in_vehicle(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = commons::network::PacketReader::new(body);
+    let (Some(boat_oid), Some(tx), Some(ty), Some(tz), Some(ox), Some(oy), Some(oz)) = (
+        r.read_i32(),
+        r.read_i32(),
+        r.read_i32(),
+        r.read_i32(),
+        r.read_i32(),
+        r.read_i32(),
+        r.read_i32(),
+    ) else {
+        return;
+    };
+    move_in_vehicle(world, player, boat_oid, (tx, ty, tz), (ox, oy, oz));
+}
