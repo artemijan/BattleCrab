@@ -725,11 +725,7 @@ fn teleport_player_rand(world: &mut World, player_oid: i32, base: (i32, i32, i32
 }
 
 fn quest_items_count(world: &World, oid: i32, item_id: i32) -> i64 {
-    world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&oid)
-        .map(|inv| inv.count_of(item_id))
-        .unwrap_or(0)
+    crate::game_loop::helpers::count_of(world, oid, item_id)
 }
 
 fn player_flag(world: &World, oid: i32, key: &str) -> i32 {

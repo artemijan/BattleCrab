@@ -418,10 +418,7 @@ pub(crate) fn try_enter_with_occupancy(
 // deduplication should carry.
 
 fn has_stone(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&oid)
-        .is_some_and(|inv| inv.count_of(PORTAL_STONE) > 0)
+    crate::game_loop::helpers::count_of(world, oid, PORTAL_STONE) > 0
 }
 
 fn players_in_lair(world: &World) -> usize {

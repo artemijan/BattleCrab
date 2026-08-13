@@ -111,11 +111,7 @@ fn fight_active(world: &mut World) -> bool {
 }
 
 fn gazkh_count(world: &World, oid: i32) -> i64 {
-    world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&oid)
-        .map(|inv| inv.count_of(GAZKH))
-        .unwrap_or(0)
+    crate::game_loop::helpers::count_of(world, oid, GAZKH)
 }
 
 /// Begin the encounter: the first three Velociraptors enter the nest.
