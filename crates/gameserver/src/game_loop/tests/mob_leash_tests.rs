@@ -289,14 +289,12 @@ fn a_leashed_mob_clears_the_selection_ring_it_leaves_behind() {
         "server-side target released too"
     );
     let packets = drain(&mut rx);
-    let unselect = packets.iter().position(|p| {
-        p[0] == server_packets::opcodes::TARGET_UNSELECTED
-            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == PLAYER
-    });
-    let delete = packets.iter().position(|p| {
-        p[0] == server_packets::opcodes::DELETE_OBJECT
-            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == MOB
-    });
+    let unselect = packets
+        .iter()
+        .position(|p| is_for(p, server_packets::opcodes::TARGET_UNSELECTED, PLAYER));
+    let delete = packets
+        .iter()
+        .position(|p| is_for(p, server_packets::opcodes::DELETE_OBJECT, MOB));
     let unselect = unselect.expect("TargetUnselected releases the ring");
     let delete = delete.expect("DeleteObject un-spawns the mob at its old spot");
     assert!(
@@ -311,10 +309,11 @@ fn a_leashed_mob_clears_the_selection_ring_it_leaves_behind() {
         "and the mob is re-introduced on its spawn point"
     );
     assert!(
-        !drain(&mut idle_rx).iter().any(|p| {
-            p[0] == server_packets::opcodes::TARGET_UNSELECTED
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == PLAYER + 1
-        }),
+        !drain(&mut idle_rx).iter().any(|p| is_for(
+            p,
+            server_packets::opcodes::TARGET_UNSELECTED,
+            PLAYER + 1
+        )),
         "the onlooker never selected it, so nothing to unselect"
     );
 }

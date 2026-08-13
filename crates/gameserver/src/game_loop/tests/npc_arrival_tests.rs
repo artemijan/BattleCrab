@@ -109,8 +109,7 @@ fn a_mob_attacks_on_the_tick_it_arrives_in_range() {
     assert!(
         packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::ATTACK
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == MOB),
+            .any(|p| is_for(p, server_packets::opcodes::ATTACK, MOB)),
         "the arrival swing is broadcast as Attack"
     );
 }

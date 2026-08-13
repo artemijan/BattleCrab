@@ -1606,6 +1606,16 @@ fn has_opcode(pkts: &[Vec<u8>], opcode: u8) -> bool {
     pkts.iter().any(|p| p[0] == opcode)
 }
 
+/// True if `pkt` is an `opcode` packet *about* `object_id` — the shape of the
+/// broadcasts that lead with the subject's object id (Attack, Die, StopMove,
+/// SocialAction, TargetUnselected, DeleteObject, StatusUpdate, …). A packet too
+/// short to carry the id is simply not a match, rather than a panic.
+fn is_for(pkt: &[u8], opcode: u8, object_id: i32) -> bool {
+    pkt.len() >= 5
+        && pkt[0] == opcode
+        && i32::from_le_bytes(pkt[1..5].try_into().unwrap()) == object_id
+}
+
 /// The i16 that follows the opcode byte on every packet in `pkts` whose opcode
 /// is `opcode` — a SystemMessage id, an `EX` sub-opcode, whichever the caller
 /// asked for.

@@ -2734,10 +2734,11 @@ fn admin_social_radius_affects_nearby_player() {
 
     on_packet(&mut world, 1, build_admin("social 3 500"));
     assert!(
-        drain(&mut other_rx).iter().any(|p| {
-            p[0] == server_packets::opcodes::SOCIAL_ACTION
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 8804
-        }),
+        drain(&mut other_rx).iter().any(|p| is_for(
+            p,
+            server_packets::opcodes::SOCIAL_ACTION,
+            8804
+        )),
         "the nearby player got the gesture"
     );
 }

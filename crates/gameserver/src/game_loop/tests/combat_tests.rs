@@ -310,8 +310,9 @@ fn melee_kill_rewards_and_decay() {
     assert!(nvit(&world, npc_oid).dead);
     let packets = drain(&mut a_rx);
     assert!(
-        packets.iter().any(|p| p[0] == server_packets::opcodes::DIE
-            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
+        packets
+            .iter()
+            .any(|p| is_for(p, server_packets::opcodes::DIE, npc_oid)),
         "Die broadcast for the monster"
     );
     // XP: 2000 × share 1.0 × gap 1.0 (same level) → 4500 + 2000 = 6500 ⇒ level 6.
@@ -440,10 +441,9 @@ fn decaying_mob_sends_target_unselected_to_all_holders() {
     // Player 1 lands the kill — the corpse stays selected (sweep window).
     death::npc_do_die(&mut world, npc_oid, 3001);
     let got_unselect = |packets: &[Vec<u8>], player_oid: i32| {
-        packets.iter().any(|p| {
-            p[0] == server_packets::opcodes::TARGET_UNSELECTED
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == player_oid
-        })
+        packets
+            .iter()
+            .any(|p| is_for(p, server_packets::opcodes::TARGET_UNSELECTED, player_oid))
     };
     assert!(
         !got_unselect(&drain(&mut a_rx), 3001),
@@ -670,8 +670,7 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     assert!(
         packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::ATTACK
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 3001),
+            .any(|p| is_for(p, server_packets::opcodes::ATTACK, 3001)),
         "player swung after closing in"
     );
     assert!(nvit(&world, npc_oid).cur_hp < 5000.0, "monster took damage");
@@ -700,8 +699,7 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     assert!(
         packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::ATTACK
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
+            .any(|p| is_for(p, server_packets::opcodes::ATTACK, npc_oid)),
         "monster swung back"
     );
     assert!(pvit(&world, 3001).cur_hp < hp_before, "player HP bitten");
@@ -771,8 +769,7 @@ fn idle_monster_random_walks_near_spawn() {
     assert!(
         packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
+            .any(|p| is_for(p, server_packets::opcodes::MOVE_TO_LOCATION, npc_oid)),
         "the wander is broadcast as MoveToLocation"
     );
 }
@@ -811,10 +808,7 @@ fn idle_npc_plays_random_social_animation() {
     let packets = drain(&mut a_rx);
     let social = packets
         .iter()
-        .find(|p| {
-            p[0] == server_packets::opcodes::SOCIAL_ACTION
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid
-        })
+        .find(|p| is_for(p, server_packets::opcodes::SOCIAL_ACTION, npc_oid))
         .expect("idle NPC broadcast a SocialAction");
     let action_id = i32::from_le_bytes(social[5..9].try_into().unwrap());
     assert!(
@@ -950,8 +944,7 @@ fn aggressive_monster_aggros_idle_player() {
     assert!(
         packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::ATTACK
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid),
+            .any(|p| is_for(p, server_packets::opcodes::ATTACK, npc_oid)),
         "unprovoked attack on the idle player"
     );
     assert!(pvit(&world, 3001).cur_hp < 5000.0, "the swing landed");
@@ -1028,10 +1021,7 @@ fn player_death_penalty_and_revive_to_village() {
     let packets = drain(&mut a_rx);
     let die = packets
         .iter()
-        .find(|p| {
-            p[0] == server_packets::opcodes::DIE
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 3001
-        })
+        .find(|p| is_for(p, server_packets::opcodes::DIE, 3001))
         .expect("player Die packet");
     assert_eq!(
         i32::from_le_bytes(die[5..9].try_into().unwrap()),

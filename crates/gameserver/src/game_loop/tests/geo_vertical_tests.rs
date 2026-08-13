@@ -67,10 +67,7 @@ fn force_attack(world: &mut World, npc: i32, target: i32) {
 fn attack_packets(packets: &[Vec<u8>], attacker: i32) -> usize {
     packets
         .iter()
-        .filter(|p| {
-            p[0] == server_packets::opcodes::ATTACK
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == attacker
-        })
+        .filter(|p| is_for(p, server_packets::opcodes::ATTACK, attacker))
         .count()
 }
 

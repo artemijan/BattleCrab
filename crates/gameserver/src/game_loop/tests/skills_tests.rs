@@ -1304,10 +1304,7 @@ fn nuke_kills_at_zero_hp() {
     for packets in [&a_packets, &b_packets] {
         let die = packets
             .iter()
-            .find(|p| {
-                p[0] == server_packets::opcodes::DIE
-                    && i32::from_le_bytes(p[1..5].try_into().unwrap()) == 3002
-            })
+            .find(|p| is_for(p, server_packets::opcodes::DIE, 3002))
             .expect("Die packet for B");
         assert_eq!(
             i32::from_le_bytes(die[5..9].try_into().unwrap()),
@@ -1362,8 +1359,7 @@ fn cast_nuke_damages_siege_door() {
     let pkts = drain(&mut rx);
     assert!(
         pkts.iter()
-            .any(|p| p[0] == server_packets::opcodes::STATUS_UPDATE
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == door),
+            .any(|p| is_for(p, server_packets::opcodes::STATUS_UPDATE, door)),
         "the gate's HP bar is refreshed for onlookers",
     );
 }
@@ -2104,10 +2100,7 @@ fn moving_mob_death_broadcasts_stop_move() {
     let packets = drain(&mut a_rx);
     let stop_idx = packets
         .iter()
-        .position(|p| {
-            p[0] == server_packets::opcodes::STOP_MOVE
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid
-        })
+        .position(|p| is_for(p, server_packets::opcodes::STOP_MOVE, npc_oid))
         .expect("StopMove broadcast for the dying mob");
     // Frozen at the death spot (40,0), not the move destination (400,0).
     let stop = &packets[stop_idx];
@@ -2124,10 +2117,7 @@ fn moving_mob_death_broadcasts_stop_move() {
     // Ordering: StopMove precedes Die (Java doDie order).
     let die_idx = packets
         .iter()
-        .position(|p| {
-            p[0] == server_packets::opcodes::DIE
-                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == npc_oid
-        })
+        .position(|p| is_for(p, server_packets::opcodes::DIE, npc_oid))
         .expect("Die broadcast");
     assert!(stop_idx < die_idx, "StopMove is sent before Die");
 }
