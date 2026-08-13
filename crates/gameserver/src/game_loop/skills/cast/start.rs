@@ -193,26 +193,8 @@ pub(crate) fn start_casting(
         player.cast_seq += 1;
         player.cast_seq
     };
-    world.objects.add_components(
-        &object_id,
-        Casting(crate::model::CastState {
-            skill_id: skill.id,
-            skill_level: skill.level,
-            skill_sub_level: skill.sub_level,
-            target_object_id: target_oid,
-            seq: cast_seq,
-            launched: false,
-            cancel_ms,
-            cool_ms,
-            trigger_item_object_id: 0,
-        }),
-    );
-    world.scheduler.schedule(
-        world.tick + ms_to_ticks(hit_ms),
-        ScheduledTask::SkillLaunch {
-            player_object_id: object_id,
-            cast_seq,
-        },
+    begin_cast(
+        world, object_id, target_oid, skill, cast_seq, hit_ms, cancel_ms, cool_ms,
     );
 
     // `SkillCaster.startCasting`'s channeling hook: the `SkillChannelizer`
@@ -229,6 +211,47 @@ pub(crate) fn start_casting(
             },
         );
     }
+}
+
+/// The shared arm of `SkillCaster.startCasting`, player and NPC caster alike:
+/// occupy the `Casting` slot and arm the `SkillLaunch` timer `hit_ms` out.
+/// Everything caster-specific stays with the callers — the cast-time formulas
+/// differ deliberately (DEX/WIT for a player, raw `atkSpd/333` for an NPC),
+/// and the sequence counter lives on `Player` for one and `NpcAi` for the
+/// other. `trigger_item_object_id` starts 0 for both; the item-skill path
+/// stamps it right after via [`super::abort::set_cast_trigger_item`].
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn begin_cast(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    seq: u64,
+    hit_ms: i32,
+    cancel_ms: i32,
+    cool_ms: i32,
+) {
+    world.objects.add_components(
+        &caster_oid,
+        Casting(crate::model::CastState {
+            skill_id: skill.id,
+            skill_level: skill.level,
+            skill_sub_level: skill.sub_level,
+            target_object_id: target_oid,
+            seq,
+            launched: false,
+            cancel_ms,
+            cool_ms,
+            trigger_item_object_id: 0,
+        }),
+    );
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(hit_ms),
+        ScheduledTask::SkillLaunch {
+            player_object_id: caster_oid,
+            cast_seq: seq,
+        },
+    );
 }
 
 /// Every cast-stop path funnels here — Java `SkillCaster.stopCasting`: free

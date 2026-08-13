@@ -243,7 +243,7 @@ pub(crate) fn resolve_cast_target(
         TargetType::OwnerPet => caster.object_id,
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
-    let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
+    let (.., target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
     // A corpse (`NPC_BODY`) is *supposed* to be dead; `EnemyNot` explicitly
     // "works on dead targets... as well" (a heal landing on a fresh corpse
     // ahead of a resurrection); every other target type rejects the dead.
@@ -255,27 +255,48 @@ pub(crate) fn resolve_cast_target(
     {
         return Err(sm_ids::INVALID_TARGET);
     }
-    // "Geodata check when character is within range" — every non-self
-    // handler ends with `GeoEngine.canSeeTarget` → CANNOT_SEE_TARGET. Java's
-    // `canSeeTarget(asker, target)` short-circuits to `true` when the target
-    // is a door (GeoEngine.java: `target.isDoor() || canSeeTarget(...)`) — a
-    // closed siege gate occludes the ray to its own centre, so without this a
-    // gate could never be nuked.
+    finalize_target(world, caster.object_id, resolved, skill)
+}
+
+/// The closing gates of `Target.java`/`Enemy.java`/`EnemyOnly.java`, shared
+/// verbatim by the player resolver above and the NPC resolver
+/// (`npc::cast::resolve_npc_cast_target`):
+///
+/// - "Geodata check when character is within range" — `GeoEngine.canSeeTarget`
+///   → CANNOT_SEE_TARGET, short-circuited to pass when the target is a door
+///   (`target.isDoor() || canSeeTarget(...)`): a closed siege gate occludes
+///   the ray to its own centre, so without this a gate could never be nuked.
+/// - `Enemy`/`EnemyOnly`'s peace-zone refusal — "cannot be used by playables
+///   on playables in peace zone" — SM 2167, after the LOS check, matching the
+///   handlers' order.
+///
+/// `Err` carries the player path's system message; the NPC path drops it with
+/// `.ok()`.
+pub(crate) fn finalize_target(
+    world: &World,
+    caster_oid: i32,
+    resolved: i32,
+    skill: &Skill,
+) -> Result<i32, i16> {
+    use server_packets::sm_ids;
+    let (Some(from), Some(to)) = (
+        maybe_position(world, caster_oid),
+        maybe_position(world, resolved),
+    ) else {
+        return Err(sm_ids::CANNOT_SEE_TARGET);
+    };
     let target_is_door = world
         .objects
         .has_component::<crate::model::door::Door>(&resolved);
     if !target_is_door
         && !world
             .geo
-            .can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, tx, ty, tz)
+            .can_see_target(from.x, from.y, from.z, to.x, to.y, to.z)
     {
         return Err(sm_ids::CANNOT_SEE_TARGET);
     }
-    // `Enemy`/`EnemyOnly.java`: "Skills with this target type cannot be used
-    // by playables on playables in peace zone, but can be used by and on
-    // NPCs" — SM 2167 (after the LOS check, matching the handlers' order).
     if matches!(skill.target_type, TargetType::Enemy | TargetType::EnemyOnly)
-        && crate::game_loop::zones::is_inside_peace_zone(world, caster.object_id, resolved)
+        && crate::game_loop::zones::is_inside_peace_zone(world, caster_oid, resolved)
     {
         return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
     }

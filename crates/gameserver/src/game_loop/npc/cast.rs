@@ -31,10 +31,8 @@ use crate::model::components::{Casting, Position, Vitals};
 use crate::model::npc::AggroList;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
-use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
@@ -386,7 +384,7 @@ pub(crate) fn resolve_npc_cast_target(
     selected_oid: i32,
     skill: &Skill,
 ) -> Option<i32> {
-    use crate::game_loop::{abnormal, servitor, target, zones};
+    use crate::game_loop::{abnormal, servitor, target};
     use crate::model::skill::TargetType;
 
     // Java passes `getActiveChar().isMovementDisabled()` as `dontMove`, which
@@ -517,38 +515,11 @@ pub(crate) fn resolve_npc_cast_target(
         TargetType::Other => selected_oid,
     };
 
-    // "Geodata check when character is within range" — the closing gate of
-    // `Target.java`, `Enemy.java` and `EnemyOnly.java`. `canSeeTarget` short-
-    // circuits to true for a door (a closed gate occludes the ray to its own
-    // centre), matching `GeoEngine.canSeeTarget(asker, target)`.
-    let (Some(from), Some(to)) = (
-        maybe_position(world, npc_oid),
-        maybe_position(world, resolved),
-    ) else {
-        return None;
-    };
-    let target_is_door = world
-        .objects
-        .has_component::<crate::model::door::Door>(&resolved);
-    if !target_is_door
-        && !world
-            .geo
-            .can_see_target(from.x, from.y, from.z, to.x, to.y, to.z)
-    {
-        return None;
-    }
-
-    // `Enemy.java`/`EnemyOnly.java` close with the peace-zone refusal, after
-    // the LOS check. It is a playable-on-playable rule, so it never fires for
-    // a monster caster — ported for shape and for the servitor casts that do
-    // reach this path.
-    if matches!(skill.target_type, TargetType::Enemy | TargetType::EnemyOnly)
-        && zones::is_inside_peace_zone(world, npc_oid, resolved)
-    {
-        return None;
-    }
-
-    Some(resolved)
+    // The closing LOS + peace-zone gates, shared with the player resolver.
+    // The peace-zone half is a playable-on-playable rule, so it never fires
+    // for a monster caster — kept for shape and for the servitor casts that
+    // do reach this path.
+    crate::game_loop::skills::cast::finalize_target(world, npc_oid, resolved, skill).ok()
 }
 
 /// `Util.checkIfInRange(skill.getCastRange(), npc, target, false)` as the
@@ -680,30 +651,11 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
             None => return,
         }
     };
-    world.objects.add_components(
-        &npc_oid,
-        Casting(crate::model::CastState {
-            skill_id: skill.id,
-            skill_level: skill.level,
-            skill_sub_level: 0,
-            target_object_id: target_oid,
-            seq,
-            launched: false,
-            // NPCs have no interrupt window of their own to model yet: the
-            // whole cast is the hit phase, and the launch task lands the
-            // effects immediately after.
-            cancel_ms: 0,
-            cool_ms,
-            // NPCs cast no item skills.
-            trigger_item_object_id: 0,
-        }),
-    );
-    world.scheduler.schedule(
-        world.tick + ms_to_ticks(hit_ms),
-        ScheduledTask::SkillLaunch {
-            player_object_id: npc_oid,
-            cast_seq: seq,
-        },
+    // Through the shared `begin_cast`, with `cancel_ms = 0`: NPCs have no
+    // interrupt window of their own to model yet — the whole cast is the hit
+    // phase, and the launch task lands the effects immediately after.
+    crate::game_loop::skills::cast::begin_cast(
+        world, npc_oid, target_oid, skill, seq, hit_ms, 0, cool_ms,
     );
 }
 
