@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Caches compiled dependencies (not workspace crates) keyed on
       # Cargo.lock; cache-on-failure keeps the warm cache even when tests fail,
@@ -53,7 +53,7 @@ jobs:
 
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: junit
           path: target/nextest/ci/junit.xml
@@ -62,7 +62,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Cache bun packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('web/dashboard/bun.lock') }}
@@ -89,7 +89,7 @@ jobs:
       group: deploy-production
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Materialize deploy.env and SSH key
         # Non-secret values may live as environment *variables* (visible in
@@ -171,7 +171,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Cache bun packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('web/dashboard/bun.lock') }}
@@ -179,7 +179,7 @@ jobs:
 
       # The ziglang wheel is ~50MB; keep pip's download cache warm.
       - name: Cache pip downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pip
           key: pip-cargo-zigbuild-${{ runner.os }}
