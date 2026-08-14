@@ -186,6 +186,56 @@ body {
   animation: drift-c 38s var(--ease-out-soft) infinite alternate;
 }
 
+/* Phones get the same design built from cheap primitives. Two GPU-heavy
+   pieces made iOS Safari queue taps for seconds and cook the phone, because it
+   re-evaluates them on far more frames than it strictly needs to (any
+   invalidation — tap highlight, URL-bar resize, a 1px scroll — cascades into
+   them; the desktop echo of this is the 133ms-stall story in Layout.tsx's
+   Brand comment):
+     - the drifting blobs: three huge `filter: blur(90px)` layers, animated,
+       forcing every backdrop-filter above them to re-blur continuously;
+     - the glass itself: large-radius backdrop blurs on header/dialog/menu.
+   Below, blobs keep their colours as pre-faded radial gradients (visually the
+   soft field, costing a plain paint) and glass trades its blur for a more
+   opaque surface. `pointer: coarse` is the media feature that means
+   phone/tablet rather than guessing from width. These are unlayered on
+   purpose — they must beat the `@utility` definitions above. */
+@media (pointer: coarse) {
+  .bg-field span {
+    animation: none;
+    filter: none;
+    will-change: auto;
+  }
+  .bg-field span:nth-child(1) {
+    background: radial-gradient(circle closest-side, var(--blob-a), transparent);
+  }
+  .bg-field span:nth-child(2) {
+    background: radial-gradient(circle closest-side, var(--blob-b), transparent);
+  }
+  .bg-field span:nth-child(3) {
+    background: radial-gradient(circle closest-side, var(--blob-c), transparent);
+  }
+
+  /* Glass survives, at half the radius. What hung the phone was blurring an
+     already-filtered animated backdrop at 22–28px; over the flat gradient
+     field above, a 14px blur is within budget. If phones ever hang again,
+     this is the dial: cheaper is `none` plus an opaque
+     color-mix(in srgb, var(--page-bg) 85%, transparent) background. */
+  .glass,
+  .glass-strong {
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+
+  /* The one blur that stays gone: a full-viewport backdrop-filter is the
+     single most expensive rect there is, and the 60% dim carries the modal
+     separation on its own. */
+  dialog::backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 @keyframes drift-a {
   to {
     transform: translate3d(6rem, 4rem, 0) scale(1.15);
