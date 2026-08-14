@@ -191,7 +191,9 @@ jobs:
         run: |
           pip3 install --user cargo-zigbuild \
             || pip3 install --user --break-system-packages cargo-zigbuild
-          cargo zigbuild --version
+          # Sanity check: the subcommand rejects --version, so probe with --help.
+          command -v cargo-zigbuild
+          cargo zigbuild --help > /dev/null
 
       - name: Add Rust target
         run: |
