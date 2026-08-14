@@ -58,6 +58,16 @@ pub enum ApiError {
     #[error("too many attempts, try again later")]
     RateLimited,
 
+    /// The endpoint demands a captcha and none was sent. Distinct from
+    /// `RateLimited` so the SPA knows to render the widget and retry.
+    #[error("please complete the captcha and try again")]
+    CaptchaRequired,
+
+    /// A captcha token was sent but did not verify — stale, mangled, replayed,
+    /// or siteverify was unreachable (we fail closed; the split lives in logs).
+    #[error("captcha verification failed, please try again")]
+    CaptchaFailed,
+
     #[error("this link is invalid or has expired")]
     InvalidToken,
 
@@ -77,6 +87,17 @@ impl From<models::sea_orm::DbErr> for ApiError {
         // The message is logged, never returned — it can carry SQL and paths.
         tracing::error!("database error: {e}");
         ApiError::Internal(anyhow_lite::Error("database error".into()))
+    }
+}
+
+impl From<crate::turnstile::CaptchaError> for ApiError {
+    fn from(e: crate::turnstile::CaptchaError) -> Self {
+        use crate::turnstile::CaptchaError;
+        match e {
+            CaptchaError::Missing => ApiError::CaptchaRequired,
+            // Fail closed: an unreachable siteverify answers like a bad token.
+            CaptchaError::Rejected | CaptchaError::Unavailable => ApiError::CaptchaFailed,
+        }
     }
 }
 
@@ -103,6 +124,8 @@ impl ApiError {
             ApiError::AccountBanned => (StatusCode::FORBIDDEN, "account_banned"),
             ApiError::NotFound => (StatusCode::NOT_FOUND, "not_found"),
             ApiError::RateLimited => (StatusCode::TOO_MANY_REQUESTS, "rate_limited"),
+            ApiError::CaptchaRequired => (StatusCode::TOO_MANY_REQUESTS, "captcha_required"),
+            ApiError::CaptchaFailed => (StatusCode::FORBIDDEN, "captcha_failed"),
             ApiError::InvalidToken => (StatusCode::BAD_REQUEST, "invalid_token"),
             ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "internal"),
         }

@@ -941,3 +941,62 @@ lands:
 - First commands: config reload and graceful restart; kick/announce ride the same channel later.
 - Each command logs actor + action like every §16 mutation, and lands in the audit table once §7's
   storage decision unlocks it.
+
+## 17. Bot protection — Cloudflare Turnstile (2026-08-14)
+
+Three endpoints were cheap for a bot and costly for us: `/auth/register` (creates a real game
+account and sends a verification mail), `/auth/forgot-password` (sends mail — and had **no rate
+limit at all**), and `/auth/login` (online guessing against unsalted SHA-1, §5.2, where the rate
+limiter is the primary defence). All three now sit behind Cloudflare Turnstile.
+
+### 17.1 Where the captcha applies
+
+| Endpoint | Policy |
+| --- | --- |
+| `POST /auth/register` | Token always required. Verified **before** the 5/hour IP limiter, so a fumbled widget doesn't burn the budget; tokens are single-use at siteverify, so this order is not a limiter bypass. |
+| `POST /auth/forgot-password` | Token always required, then a new per-IP limiter (5/hour, `state.forgot_limiter`). Both gates run before the account lookup, so the always-202 non-enumeration contract (§5.4) is untouched. |
+| `POST /auth/login` | **Conditional.** The happy path never touches Turnstile. Once the per-IP/per-account limiter rejects, a missing token answers `429 captcha_required` (the SPA's cue to render the widget) and a valid single-use token buys exactly that one attempt past the limiter. With the verifier *disabled*, the limiter stays a hard 429 — a missing env var must never become a bypass. |
+
+Error codes: `captcha_required` (429) and `captcha_failed` (403), mirrored in the SPA's
+`ApiErrorCode`. Verification **fails closed**: an unreachable/erroring siteverify maps to
+`captcha_failed`, never to a pass.
+
+### 17.2 Server side (`turnstile.rs`)
+
+`TurnstileVerifier` mirrors the `Mailer` contract: built from config, disabled when
+`DASHBOARD_TURNSTILE_SECRET` is unset (every check passes, `main` warns at boot), which is what
+keeps local dev and the whole test suite offline. Enabled, it POSTs
+`secret`/`response`/`remoteip` to `challenges.cloudflare.com/turnstile/v0/siteverify` (reqwest,
+rustls — same zigbuild constraint as lettre) with a 5s timeout. Secret-side error codes
+(`invalid-input-secret`, …) log at `error!`; user-side ones (`invalid-input-response`,
+`timeout-or-duplicate`) at `debug!`.
+
+The *site* key is public and never reaches the server: it is baked into the SPA at build time as
+`__TURNSTILE_SITE_KEY__` (same bare-identifier define as `__API_BASE__`), defaulting to
+Cloudflare's always-passing test key `1x00000000000000000000AA` — coherent with the disabled
+backend in dev. Both deploy scripts pass `TURNSTILE_SITE_KEY` into the build and grep the output
+for it, so a silent substitution failure (shipping the test key to production) fails the deploy.
+
+### 17.3 Client identity behind the tunnel (`client_ip`)
+
+Production runs behind a Cloudflare Tunnel (§9), so the TCP peer is always `127.0.0.1` — which
+meant **every per-IP rate-limit bucket was one shared global bucket** in production. Fixed by
+`routes::client_ip`: it trusts `CF-Connecting-IP` **only when the peer is loopback** (only
+cloudflared can reach the loopback bind; a directly exposed instance keeps ignoring spoofable
+headers), falling back to the TCP peer. Every limiter key and Turnstile's `remoteip` now use it.
+
+### 17.4 Frontend
+
+`components/Captcha.tsx` wraps `@marsidev/react-turnstile` (theme-wired to §8's toggle, flexible
+size). Register and forgot-password render it always and gate submit on the token; login renders
+it only after `captcha_required` arrives. Every failed mutation resets the widget — tokens are
+single-use, so a kept token could only fail again as `timeout-or-duplicate`. Playwright suites
+stub the Cloudflare loader (`tests/turnstile-stub.ts`); `tests/captcha.test.ts` drives the three
+contracts end to end in a real browser.
+
+### 17.5 Ops
+
+Create the widget once: Cloudflare dashboard → Turnstile → Add widget, hostname `battlecrab.com`,
+mode Managed. The secret goes into `deploy.env` as `DASHBOARD_TURNSTILE_SECRET` (lands in the
+chmod-600 EnvironmentFile), the site key as `TURNSTILE_SITE_KEY` (both deploy scripts). Deploying
+without them keeps working — captcha disabled, loud warnings at deploy and boot.

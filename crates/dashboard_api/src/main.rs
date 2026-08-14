@@ -150,6 +150,17 @@ async fn main() {
             missing.join(", "),
         );
     }
+
+    if !state.turnstile.is_enabled() {
+        // Same contract as the mailer: not fatal (a captcha outage must never
+        // be able to brick a deploy), but production should never run this way.
+        tracing::warn!(
+            "captcha is DISABLED — ${} is unset or empty. Registration, password-reset \
+             and throttled logins will not require a Turnstile check. Fine for local \
+             dev; production sets it in the systemd EnvironmentFile.",
+            dashboard_api::config::TURNSTILE_SECRET_ENV,
+        );
+    }
     let app = dashboard_api::app(state);
 
     let listener = match tokio::net::TcpListener::bind(addr).await {

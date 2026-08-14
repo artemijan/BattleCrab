@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { useState, type SubmitEvent } from "react";
+import { useRef, useState, type SubmitEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { ApiError, api } from "../lib/api";
+import { Captcha, type CaptchaHandle } from "../components/Captcha";
 import { Alert, Button, Field } from "../components/ui";
 import { AuthShell, messageFor } from "./Auth";
 
@@ -15,9 +16,13 @@ import { AuthShell, messageFor } from "./Auth";
  */
 export function ForgotPassword() {
   const [email, setEmail] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<CaptchaHandle>(null);
 
   const submit = useMutation({
-    mutationFn: () => api.forgotPassword(email),
+    mutationFn: () => api.forgotPassword(email, captchaToken),
+    // The single-use token is spent either way; a retry needs a fresh one.
+    onError: () => captchaRef.current?.reset(),
   });
 
   const onSubmit = (e: SubmitEvent) => {
@@ -57,7 +62,13 @@ export function ForgotPassword() {
             autoFocus
             required
           />
-          <Button type="submit" loading={submit.isPending} className="mt-1 w-full py-3">
+          <Captcha ref={captchaRef} onToken={setCaptchaToken} />
+          <Button
+            type="submit"
+            loading={submit.isPending}
+            disabled={!captchaToken}
+            className="mt-1 w-full py-3"
+          >
             Send reset link
           </Button>
         </form>

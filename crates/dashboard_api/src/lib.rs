@@ -19,6 +19,7 @@ pub mod items;
 pub mod mail;
 pub mod routes;
 pub mod state;
+pub mod turnstile;
 pub mod web;
 
 use std::time::Duration;

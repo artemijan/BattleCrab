@@ -23,6 +23,12 @@ const sourcemap = process.env.SOURCEMAP === "1";
 // credentials to origins it lists.
 const apiBaseUrl = process.env.API_BASE_URL ?? "https://api.battlecrab.com/api/v1";
 
+// Turnstile *site* key — public by design, safe to bake into the bundle. The
+// default is Cloudflare's always-passes test key, so a build without the env
+// var still renders a working (auto-succeeding) widget; the deploy scripts set
+// the real key and grep the output to prove the substitution happened.
+const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY ?? "1x00000000000000000000AA";
+
 await rm(outdir, { recursive: true, force: true });
 
 const result = await Bun.build({
@@ -37,6 +43,7 @@ const result = await Bun.build({
     "process.env.NODE_ENV": JSON.stringify("production"),
     // A bare identifier, not process.env.* — see the comment in src/lib/api.ts.
     __API_BASE__: JSON.stringify(apiBaseUrl),
+    __TURNSTILE_SITE_KEY__: JSON.stringify(turnstileSiteKey),
   },
   // Content-hashed asset names, so everything except index.html can be cached
   // immutably (the cache headers in crates/dashboard_api/src/web.rs rely on it).

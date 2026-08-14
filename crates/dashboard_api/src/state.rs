@@ -7,6 +7,7 @@ use crate::auth::ratelimit::RateLimiter;
 use crate::config::DashboardConfig;
 use crate::cors::OriginPolicy;
 use crate::mail::Mailer;
+use crate::turnstile::TurnstileVerifier;
 
 pub type AppState = Arc<App>;
 
@@ -24,6 +25,12 @@ pub struct App {
     pub mailer: Mailer,
     pub login_limiter: RateLimiter,
     pub register_limiter: RateLimiter,
+    /// Throttles `/auth/forgot-password`, which sends email: without a cap one
+    /// host could bomb an inbox and burn the SES sender reputation.
+    pub forgot_limiter: RateLimiter,
+    /// Verifies Turnstile tokens. A pass-everything no-op when the secret is
+    /// unconfigured, so local development needs no Cloudflare account.
+    pub turnstile: TurnstileVerifier,
     /// Whether to mark cookies `Secure`. Off for plain-HTTP local dev, since a
     /// `Secure` cookie is silently dropped by the browser over http://.
     pub secure_cookies: bool,
@@ -48,6 +55,9 @@ impl App {
         // Registration is rarer than login; a tighter budget over a longer
         // window keeps one host from farming accounts.
         let register_limiter = RateLimiter::new(5, 3600);
+        // Same shape and rationale as registration: each request sends a mail.
+        let forgot_limiter = RateLimiter::new(5, 3600);
+        let turnstile = TurnstileVerifier::from_config(&config);
         let secure_cookies = config.public_base_url.starts_with("https://");
         let items = crate::items::Catalog::load(&config.game_data_dir);
         Self {
@@ -59,6 +69,8 @@ impl App {
             mailer,
             login_limiter,
             register_limiter,
+            forgot_limiter,
+            turnstile,
             secure_cookies,
         }
     }

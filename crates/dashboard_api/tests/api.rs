@@ -51,6 +51,9 @@ fn test_config() -> DashboardConfig {
         smtp_from: "BattleCrab <no-reply@battlecrab.com>".into(),
         smtp_username: String::new(),
         smtp_password: String::new(),
+        // Captcha stays disabled by default, same rationale as SMTP. Tests
+        // that exercise the enabled path swap in `TurnstileVerifier::for_tests`.
+        turnstile_secret: String::new(),
     }
 }
 
@@ -2052,4 +2055,343 @@ async fn an_admin_creates_a_gm_game_account_at_their_own_level() {
         .await
         .unwrap();
     assert_eq!(refused.status(), StatusCode::FORBIDDEN);
+}
+
+// ---------------------------------------------------------------------------
+// Turnstile captcha
+// ---------------------------------------------------------------------------
+
+/// Stand-in for Cloudflare's siteverify: answers every request with JSON
+/// chosen by the token in the form body — `good-token` verifies, anything else
+/// is rejected. Returns the URL to point `TurnstileVerifier::for_tests` at.
+async fn fake_siteverify() -> String {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let url = format!("http://{}/siteverify", listener.local_addr().unwrap());
+    tokio::spawn(async move {
+        while let Ok((mut stream, _)) = listener.accept().await {
+            tokio::spawn(async move {
+                let mut buf = Vec::new();
+                let mut tmp = [0u8; 1024];
+                // Read until the headers and the whole declared body arrived.
+                loop {
+                    let n = match stream.read(&mut tmp).await {
+                        Ok(0) | Err(_) => break,
+                        Ok(n) => n,
+                    };
+                    buf.extend_from_slice(&tmp[..n]);
+                    let text = String::from_utf8_lossy(&buf);
+                    if let Some(head_end) = text.find("\r\n\r\n") {
+                        let content_length = text
+                            .lines()
+                            .find_map(|l| {
+                                let (name, value) = l.split_once(':')?;
+                                if name.eq_ignore_ascii_case("content-length") {
+                                    value.trim().parse::<usize>().ok()
+                                } else {
+                                    None
+                                }
+                            })
+                            .unwrap_or(0);
+                        if buf.len() >= head_end + 4 + content_length {
+                            break;
+                        }
+                    }
+                }
+                let request = String::from_utf8_lossy(&buf);
+                let body = if request.contains("response=good-token") {
+                    r#"{"success":true}"#
+                } else {
+                    r#"{"success":false,"error-codes":["invalid-input-response"]}"#
+                };
+                let response = format!(
+                    "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\n\
+                     content-length: {}\r\nconnection: close\r\n\r\n{}",
+                    body.len(),
+                    body
+                );
+                let _ = stream.write_all(response.as_bytes()).await;
+                let _ = stream.shutdown().await;
+            });
+        }
+    });
+    url
+}
+
+/// `test_app`, but with the captcha verifier enabled and pointed at a fake
+/// siteverify. The default `test_config` leaves the secret empty, so every
+/// other test runs captcha-free.
+async fn test_app_with_turnstile() -> (axum::Router, SqlitePool) {
+    let url = fake_siteverify().await;
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
+    let mut state = App::new(db, test_config());
+    state.turnstile = dashboard_api::turnstile::TurnstileVerifier::for_tests("secret", &url);
+    (dashboard_api::app(Arc::new(state)), pool)
+}
+
+/// `post`, with the client identity Cloudflare's tunnel would attach.
+fn post_as_ip(path: &str, ip: &str, body: serde_json::Value) -> Request<Body> {
+    with_peer(
+        Request::builder()
+            .method("POST")
+            .uri(path)
+            .header(header::CONTENT_TYPE, "application/json")
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header("CF-Connecting-IP", ip)
+            .body(Body::from(body.to_string()))
+            .unwrap(),
+    )
+}
+
+#[tokio::test]
+async fn register_demands_a_captcha_when_the_verifier_is_enabled() {
+    let (app, _pool) = test_app_with_turnstile().await;
+
+    // No token at all: the SPA is told to render the widget.
+    let missing = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(missing.status(), StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(
+        body_json(missing).await["error"]["code"],
+        "captcha_required"
+    );
+
+    // A token siteverify rejects.
+    let bad = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({
+                "email": "alice@example.com",
+                "password": "correct-horse",
+                "captchaToken": "stale-token",
+            }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(bad.status(), StatusCode::FORBIDDEN);
+    assert_eq!(body_json(bad).await["error"]["code"], "captcha_failed");
+
+    // A token siteverify accepts.
+    let good = app
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({
+                "email": "alice@example.com",
+                "password": "correct-horse",
+                "captchaToken": "good-token",
+            }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(good.status(), StatusCode::CREATED);
+}
+
+#[tokio::test]
+async fn forgot_password_works_without_a_captcha_when_disabled() {
+    // The plain 202 contract, captcha unconfigured — the default deployment
+    // shape for local dev, and a guard that the gate really is a no-op.
+    let (app, pool) = test_app().await;
+    verified_master(&pool, &app, "alice@example.com").await;
+
+    let response = app
+        .oneshot(post(
+            "/api/v1/auth/forgot-password",
+            serde_json::json!({ "email": "alice@example.com" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::ACCEPTED);
+}
+
+#[tokio::test]
+async fn forgot_password_requires_a_captcha_and_is_rate_limited() {
+    let (app, _pool) = test_app_with_turnstile().await;
+
+    let missing = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/forgot-password",
+            serde_json::json!({ "email": "alice@example.com" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(missing.status(), StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(
+        body_json(missing).await["error"]["code"],
+        "captcha_required"
+    );
+
+    // With a valid token the answer is 202 whether or not the account exists —
+    // the captcha must not become an enumeration oracle.
+    for _ in 0..5 {
+        let accepted = app
+            .clone()
+            .oneshot(post(
+                "/api/v1/auth/forgot-password",
+                serde_json::json!({ "email": "ghost@example.com", "captchaToken": "good-token" }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(accepted.status(), StatusCode::ACCEPTED);
+    }
+
+    // The 6th request from the same IP trips the mail budget even with a
+    // perfectly good captcha: solving challenges must not buy unlimited mail.
+    let throttled = app
+        .oneshot(post(
+            "/api/v1/auth/forgot-password",
+            serde_json::json!({ "email": "ghost@example.com", "captchaToken": "good-token" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(throttled.status(), StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(body_json(throttled).await["error"]["code"], "rate_limited");
+}
+
+#[tokio::test]
+async fn throttled_login_demands_then_accepts_a_captcha() {
+    let (app, _pool) = test_app_with_turnstile().await;
+    let registered = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({
+                "email": "alice@example.com",
+                "password": "correct-horse",
+                "captchaToken": "good-token",
+            }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(registered.status(), StatusCode::CREATED);
+
+    // Burn the login budget (5 in test_config) with wrong passwords.
+    for _ in 0..5 {
+        let attempt = app
+            .clone()
+            .oneshot(post(
+                "/api/v1/auth/login",
+                serde_json::json!({ "email": "alice@example.com", "password": "wrong-horse" }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(attempt.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    // Throttled and tokenless: the SPA's cue to render the widget.
+    let challenged = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/login",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(challenged.status(), StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(
+        body_json(challenged).await["error"]["code"],
+        "captcha_required"
+    );
+
+    // A rejected token does not get past the limiter.
+    let bad = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/login",
+            serde_json::json!({
+                "email": "alice@example.com",
+                "password": "correct-horse",
+                "captchaToken": "stale-token",
+            }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(bad.status(), StatusCode::FORBIDDEN);
+    assert_eq!(body_json(bad).await["error"]["code"], "captcha_failed");
+
+    // A good token buys the attempt; the right password then logs in and
+    // resets the budget.
+    let assisted = app
+        .clone()
+        .oneshot(post(
+            "/api/v1/auth/login",
+            serde_json::json!({
+                "email": "alice@example.com",
+                "password": "correct-horse",
+                "captchaToken": "good-token",
+            }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(assisted.status(), StatusCode::OK);
+
+    // The reset is observable: the next plain login needs no captcha.
+    let plain = app
+        .oneshot(post(
+            "/api/v1/auth/login",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(plain.status(), StatusCode::OK);
+}
+
+#[tokio::test]
+async fn the_cf_header_separates_rate_limit_buckets() {
+    // Captcha disabled — this exercises the client-ip fix on its own. The
+    // register budget is 5/hour per IP; behind the tunnel every request used
+    // to look like 127.0.0.1 and share one bucket.
+    let (app, _pool) = test_app().await;
+
+    for i in 0..5 {
+        let response = app
+            .clone()
+            .oneshot(post_as_ip(
+                "/api/v1/auth/register",
+                "203.0.113.7",
+                serde_json::json!({
+                    "email": format!("user{i}@example.com"),
+                    "password": "correct-horse",
+                }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::CREATED);
+    }
+
+    // Same forwarded IP: budget spent.
+    let throttled = app
+        .clone()
+        .oneshot(post_as_ip(
+            "/api/v1/auth/register",
+            "203.0.113.7",
+            serde_json::json!({ "email": "user5@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(throttled.status(), StatusCode::TOO_MANY_REQUESTS);
+
+    // A different visitor behind the same tunnel: its own budget.
+    let other = app
+        .oneshot(post_as_ip(
+            "/api/v1/auth/register",
+            "198.51.100.2",
+            serde_json::json!({ "email": "bob@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(other.status(), StatusCode::CREATED);
 }

@@ -68,6 +68,29 @@ pub async fn require_admin(app: &AppState, headers: &HeaderMap) -> ApiResult<Acc
     Ok(account)
 }
 
+/// The real client address, for rate-limit keys and Turnstile's `remoteip`.
+///
+/// Production runs behind a Cloudflare Tunnel: `cloudflared` dials out and
+/// forwards to a loopback bind, so the TCP peer is always `127.0.0.1` and
+/// keying anything on it collapses every visitor into one bucket. Cloudflare
+/// sets `CF-Connecting-IP` on every request it proxies.
+///
+/// The header is trusted **only when the peer is loopback** — that is what
+/// makes it safe: on the tunnel deployment nothing but `cloudflared` can reach
+/// the socket, while a directly exposed instance keeps using the TCP peer and
+/// ignores whatever headers a client invents.
+pub fn client_ip(headers: &HeaderMap, peer: &std::net::SocketAddr) -> String {
+    if peer.ip().is_loopback()
+        && let Some(forwarded) = headers
+            .get("cf-connecting-ip")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.trim().parse::<std::net::IpAddr>().ok())
+    {
+        return forwarded.to_string();
+    }
+    peer.ip().to_string()
+}
+
 /// Account names must survive the round trip into the game client's login box.
 /// Restricting to ASCII alphanumerics keeps us inside what the client accepts;
 /// see DASHBOARD.md §12 open question 5 — this needs confirming against a
@@ -185,6 +208,8 @@ mod tests {
             smtp_from: "BattleCrab <no-reply@battlecrab.com>".into(),
             smtp_username: String::new(),
             smtp_password: String::new(),
+            // Empty: captcha disabled, like SMTP — tests never touch the network.
+            turnstile_secret: String::new(),
         }
     }
 
@@ -223,6 +248,30 @@ mod tests {
         assert!(validate_email("a@@b").is_err());
         assert!(validate_email("@b.c").is_err());
         assert!(validate_email("a b@c.d").is_err());
+    }
+
+    #[test]
+    fn the_cf_header_is_honored_only_from_loopback() {
+        let mut headers = HeaderMap::new();
+        headers.insert("cf-connecting-ip", "203.0.113.7".parse().unwrap());
+
+        let loopback: std::net::SocketAddr = "127.0.0.1:8080".parse().unwrap();
+        let public: std::net::SocketAddr = "198.51.100.2:443".parse().unwrap();
+
+        // Behind the tunnel the header is the only truth.
+        assert_eq!(client_ip(&headers, &loopback), "203.0.113.7");
+        // Directly exposed, a spoofed header must not override the peer.
+        assert_eq!(client_ip(&headers, &public), "198.51.100.2");
+        // No header at all: the peer stands.
+        assert_eq!(client_ip(&HeaderMap::new(), &loopback), "127.0.0.1");
+    }
+
+    #[test]
+    fn a_garbage_cf_header_falls_back_to_the_peer() {
+        let mut headers = HeaderMap::new();
+        headers.insert("cf-connecting-ip", "not-an-ip".parse().unwrap());
+        let loopback: std::net::SocketAddr = "127.0.0.1:8080".parse().unwrap();
+        assert_eq!(client_ip(&headers, &loopback), "127.0.0.1");
     }
 
     #[test]

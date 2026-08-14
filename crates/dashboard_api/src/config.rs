@@ -81,6 +81,16 @@ pub const OBSOLETE_SMTP_INI_KEYS: [&str; 6] = [
 /// Default envelope sender, used when `DASHBOARD_SMTP_FROM` is unset.
 const DEFAULT_SMTP_FROM: &str = "BattleCrab <no-reply@battlecrab.com>";
 
+/// Cloudflare Turnstile secret key. Environment-only for the same reason as
+/// `SESSION_SECRET_ENV`: `Dashboard.ini` is committed, and a secret placed in
+/// it is one `git add` away from living in history forever. Unset means the
+/// captcha is disabled (`turnstile::TurnstileVerifier` passes everything and
+/// `main` warns at boot).
+///
+/// The matching *site* key is public and lives in the SPA build
+/// (`TURNSTILE_SITE_KEY` → `web/dashboard/build.ts`); the server never needs it.
+pub const TURNSTILE_SECRET_ENV: &str = "DASHBOARD_TURNSTILE_SECRET";
+
 pub struct DashboardConfig {
     pub bind_address: String,
     pub port: u16,
@@ -178,6 +188,10 @@ pub struct DashboardConfig {
     pub smtp_username: String,
     /// From `DASHBOARD_SMTP_PASSWORD` — never the config file.
     pub smtp_password: String,
+
+    /// From `DASHBOARD_TURNSTILE_SECRET` — never the config file. Empty
+    /// disables the captcha entirely (see `turnstile`).
+    pub turnstile_secret: String,
 }
 
 impl DashboardConfig {
@@ -210,6 +224,15 @@ impl DashboardConfig {
                  Remove the key, and rotate the value if it was ever committed.",
                 DASHBOARD_CONFIG_FILE,
                 SESSION_SECRET_ENV,
+            );
+        }
+
+        if p.contains_key("TurnstileSecret") {
+            tracing::error!(
+                "{} defines TurnstileSecret — it is IGNORED (the secret comes from ${} only). \
+                 Remove the key, and rotate the value if it was ever committed.",
+                DASHBOARD_CONFIG_FILE,
+                TURNSTILE_SECRET_ENV,
             );
         }
 
@@ -285,6 +308,9 @@ impl DashboardConfig {
                 .unwrap_or_else(|| DEFAULT_SMTP_FROM.to_string()),
             smtp_username: std::env::var(SMTP_USERNAME_ENV).unwrap_or_default(),
             smtp_password: std::env::var(SMTP_PASSWORD_ENV).unwrap_or_default(),
+
+            // Environment-only, like the session secret. Empty = disabled.
+            turnstile_secret: std::env::var(TURNSTILE_SECRET_ENV).unwrap_or_default(),
         }
     }
 }
@@ -380,6 +406,11 @@ mod secret_tests {
                     SMTP_ENV_VARS.join(", "),
                 );
             }
+            assert!(
+                !line.starts_with("TurnstileSecret"),
+                "Dashboard.ini defines TurnstileSecret ({line:?}) — the captcha secret is \
+                 environment-only; see ${TURNSTILE_SECRET_ENV}",
+            );
         }
     }
 

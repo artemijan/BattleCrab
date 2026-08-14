@@ -16,6 +16,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import type { Browser, Page } from "playwright";
 
+import { stubTurnstile } from "./turnstile-stub";
+
 const DIST = new URL("../dist", import.meta.url).pathname;
 
 const distBuilt = await Bun.file(`${DIST}/index.html`).exists();
@@ -80,6 +82,7 @@ async function open(path: string, width: number, signedIn = false): Promise<Page
     body: JSON.stringify(body),
   });
 
+  await stubTurnstile(page);
   await page.route("**/api/v1/**", (route) => {
     const p = new URL(route.request().url()).pathname;
     if (p.endsWith("/auth/me")) {

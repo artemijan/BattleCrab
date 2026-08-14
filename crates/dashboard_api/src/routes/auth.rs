@@ -15,7 +15,7 @@ use std::net::SocketAddr;
 use crate::auth::{cookie, token, verify_password};
 use crate::db::accounts;
 use crate::error::{ApiError, ApiResult};
-use crate::routes::{current_account, validate_email, validate_password};
+use crate::routes::{client_ip, current_account, validate_email, validate_password};
 use crate::state::AppState;
 
 pub fn router() -> Router<AppState> {
@@ -33,9 +33,15 @@ pub fn router() -> Router<AppState> {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Credentials {
     pub email: String,
     pub password: String,
+    /// Turnstile token from the SPA's widget. Register requires it whenever
+    /// the verifier is enabled; login only demands one once the rate limiter
+    /// starts rejecting.
+    #[serde(default)]
+    pub captcha_token: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -99,12 +105,22 @@ async fn send_verification(app: &AppState, email: &str) {
 async fn register(
     State(app): State<AppState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Json(body): Json<Credentials>,
 ) -> ApiResult<impl IntoResponse> {
     if !app.config.registration_enabled {
         return Err(ApiError::RegistrationDisabled);
     }
-    if !app.register_limiter.check(&peer.ip().to_string()) {
+
+    let ip = client_ip(&headers, &peer);
+    // Captcha before the limiter, so a fumbled widget doesn't burn the tight
+    // 5/hour budget. Not a bypass: tokens are single-use at siteverify, so
+    // captcha-passing traffic still lands on the limiter below.
+    app.turnstile
+        .verify(body.captcha_token.as_deref(), Some(&ip))
+        .await?;
+
+    if !app.register_limiter.check(&ip) {
         return Err(ApiError::RateLimited);
     }
 
@@ -136,6 +152,7 @@ async fn register(
 async fn login(
     State(app): State<AppState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Json(body): Json<Credentials>,
 ) -> ApiResult<impl IntoResponse> {
     // Not `validate_email`: a stricter validator would turn a login attempt for
@@ -145,11 +162,28 @@ async fn login(
 
     // Limit per-IP *and* per-account: neither a spray from many IPs at one
     // account nor a walk of many accounts from one IP should get a free pass.
-    let ip_key = format!("ip:{}", peer.ip());
+    // Both checks run unconditionally — `check` records the attempt, and
+    // short-circuiting would leave one budget silently untouched.
+    let ip = client_ip(&headers, &peer);
+    let ip_key = format!("ip:{ip}");
     let account_key = format!("account:{email}");
-    if !app.login_limiter.check(&ip_key) || !app.login_limiter.check(&account_key) {
-        tracing::warn!("rate limited login for {email} from {}", peer.ip());
-        return Err(ApiError::RateLimited);
+    let ip_ok = app.login_limiter.check(&ip_key);
+    let account_ok = app.login_limiter.check(&account_key);
+    if !ip_ok || !account_ok {
+        // With no verifier configured the limiter stays a hard stop — it is
+        // the primary defence for the unsalted SHA-1 hashes, and a missing
+        // env var must not turn into a bypass.
+        if !app.turnstile.is_enabled() {
+            tracing::warn!("rate limited login for {email} from {ip}");
+            return Err(ApiError::RateLimited);
+        }
+        // A valid single-use token buys exactly this attempt past the limiter:
+        // each further try costs the caller another solved challenge. Missing
+        // token → `captcha_required`, which is the SPA's cue to show the widget.
+        tracing::warn!("rate limited login for {email} from {ip} — demanding a captcha");
+        app.turnstile
+            .verify(body.captcha_token.as_deref(), Some(&ip))
+            .await?;
     }
 
     // Master lookup only: a game account shares this address, and matching one
@@ -226,14 +260,31 @@ async fn resend_verification(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ForgotPasswordRequest {
     pub email: String,
+    #[serde(default)]
+    pub captcha_token: Option<String>,
 }
 
 async fn forgot_password(
     State(app): State<AppState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Json(body): Json<ForgotPasswordRequest>,
 ) -> ApiResult<StatusCode> {
+    // Captcha and a per-IP budget, both before the lookup: each request can
+    // send a mail, so an uncapped endpoint lets one host bomb an inbox and
+    // burn the SES sender reputation. Neither gate depends on whether the
+    // address exists, so neither is an enumeration oracle.
+    let ip = client_ip(&headers, &peer);
+    app.turnstile
+        .verify(body.captcha_token.as_deref(), Some(&ip))
+        .await?;
+    if !app.forgot_limiter.check(&ip) {
+        return Err(ApiError::RateLimited);
+    }
+
     // Always 202, whether or not the address exists — otherwise this endpoint
     // becomes an account-enumeration oracle.
     if let Some(account) = accounts::find_master_by_email(&app.db, &body.email).await? {

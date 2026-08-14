@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, type SubmitEvent } from "react";
+import { useRef, useState, type SubmitEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { ApiError, api, type Account } from "../lib/api";
+import { Captcha, type CaptchaHandle } from "../components/Captcha";
 import { Alert, Button, Field, Panel } from "../components/ui";
 
 export function AuthShell({
@@ -42,6 +43,10 @@ export function messageFor(error: unknown): string {
         return "An account already exists for that email address.";
       case "rate_limited":
         return "Too many attempts. Wait a few minutes and try again.";
+      case "captcha_required":
+        return "Please complete the check below and try again.";
+      case "captcha_failed":
+        return "The check didn't pass. Give it another try.";
       case "registration_disabled":
         return "Registration is currently closed.";
       default:
@@ -56,12 +61,27 @@ export function Login() {
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // The captcha appears only once the server demands one (`captcha_required`,
+  // i.e. the rate limiter tripped) — the happy path stays widget-free. It then
+  // stays until a successful login unmounts the form.
+  const [captchaNeeded, setCaptchaNeeded] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<CaptchaHandle>(null);
 
   const submit = useMutation({
-    mutationFn: () => api.login(email, password),
+    mutationFn: () => api.login(email, password, captchaToken),
     onSuccess: (account: Account) => {
       queryClient.setQueryData(["me"], account);
       navigate("/account");
+    },
+    onError: (error: unknown) => {
+      if (error instanceof ApiError && error.code === "captcha_required") {
+        setCaptchaNeeded(true);
+        return;
+      }
+      // Tokens are single-use: whatever else went wrong, the spent one can
+      // only fail again, so mint a fresh challenge for the retry.
+      captchaRef.current?.reset();
     },
   });
 
@@ -114,7 +134,13 @@ export function Login() {
         >
           Forgot your password?
         </Link>
-        <Button type="submit" loading={submit.isPending} className="mt-1 w-full py-3">
+        {captchaNeeded && <Captcha ref={captchaRef} onToken={setCaptchaToken} />}
+        <Button
+          type="submit"
+          loading={submit.isPending}
+          disabled={captchaNeeded && !captchaToken}
+          className="mt-1 w-full py-3"
+        >
           Log in
         </Button>
       </form>
@@ -128,17 +154,22 @@ export function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<CaptchaHandle>(null);
 
   // Checked here purely for a fast, friendly message — the server enforces the
   // real rules, and these must not drift from routes::validate_*
   const mismatch = confirm.length > 0 && confirm !== password;
 
   const submit = useMutation({
-    mutationFn: () => api.register(email, password),
+    mutationFn: () => api.register(email, password, captchaToken),
     onSuccess: (account: Account) => {
       queryClient.setQueryData(["me"], account);
       navigate("/account");
     },
+    // Any failure spends the single-use token (`email_taken` included) — the
+    // retry needs a fresh challenge or it would only ever be a duplicate.
+    onError: () => captchaRef.current?.reset(),
   });
 
   const onSubmit = (e: SubmitEvent) => {
@@ -193,10 +224,13 @@ export function Register() {
           autoComplete="new-password"
           required
         />
+        {/* interaction-only: this page is the one with the height budget (see
+            AuthShell) — the widget stays collapsed unless Cloudflare escalates. */}
+        <Captcha ref={captchaRef} onToken={setCaptchaToken} interactionOnly />
         <Button
           type="submit"
           loading={submit.isPending}
-          disabled={mismatch}
+          disabled={mismatch || !captchaToken}
           className="mt-1 w-full py-3"
         >
           Create account

@@ -19,6 +19,8 @@ export type ApiErrorCode =
   | "account_banned"
   | "not_found"
   | "rate_limited"
+  | "captcha_required"
+  | "captcha_failed"
   | "invalid_token"
   | "internal";
 
@@ -190,10 +192,13 @@ const post = <T>(path: string, body: unknown) =>
   request<T>(path, { method: "POST", body: JSON.stringify(body) });
 
 export const api = {
-  register: (email: string, password: string) =>
-    post<Account>("/auth/register", { email, password }),
+  register: (email: string, password: string, captchaToken: string | null) =>
+    post<Account>("/auth/register", { email, password, captchaToken }),
 
-  login: (email: string, password: string) => post<Account>("/auth/login", { email, password }),
+  // The token is optional: the server only demands one once the rate limiter
+  // has started rejecting this client (error code `captcha_required`).
+  login: (email: string, password: string, captchaToken?: string | null) =>
+    post<Account>("/auth/login", { email, password, captchaToken }),
 
   resendVerification: () => post<void>("/auth/resend-verification", {}),
 
@@ -201,7 +206,8 @@ export const api = {
 
   me: () => request<Account>("/auth/me"),
 
-  forgotPassword: (email: string) => post<void>("/auth/forgot-password", { email }),
+  forgotPassword: (email: string, captchaToken: string | null) =>
+    post<void>("/auth/forgot-password", { email, captchaToken }),
 
   resetPassword: (token: string, password: string) =>
     post<void>("/auth/reset-password", { token, password }),
