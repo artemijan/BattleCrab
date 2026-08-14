@@ -34,7 +34,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Caches compiled dependencies (not workspace crates) keyed on
+      # Cargo.lock; cache-on-failure keeps the warm cache even when tests fail,
+      # so a fix-up push doesn't recompile the world.
       - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
 
       - name: Install cargo-nextest
         uses: taiki-e/install-action@v2
@@ -56,6 +61,13 @@ jobs:
           if-no-files-found: ignore
 
       - uses: oven-sh/setup-bun@v2
+
+      - name: Cache bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('web/dashboard/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
 
       - name: Dashboard SPA typecheck
         working-directory: web/dashboard
@@ -101,9 +113,28 @@ jobs:
           source deploy.env
           ssh-keyscan -p "${SSH_PORT:-22}" -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
 
+      # Separate cache from build-test (rust-cache keys on the job id): this
+      # job compiles release artifacts for the zigbuild cross target, which
+      # would only pollute the test job's debug cache.
       - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
 
       - uses: oven-sh/setup-bun@v2
+
+      - name: Cache bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('web/dashboard/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      # The ziglang wheel is ~50MB; keep pip's download cache warm.
+      - name: Cache pip downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-cargo-zigbuild-${{ runner.os }}
 
       - name: Install cargo-zigbuild (bundles zig)
         # The PyPI package ships the cargo-zigbuild binary and pulls in the
