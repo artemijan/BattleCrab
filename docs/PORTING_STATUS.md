@@ -33,6 +33,13 @@ this order:
 3. **[PROGRESS.md](PROGRESS.md)** — the dated journal of what landed and why.
    Narrative, not enforced.
 
+All three answer "what did we *mark*", and none answers "what did we *miss*".
+[§ Measured gaps](#measured-gaps--the-axes-nothing-above-measures) is the
+counterweight: a set-difference against the Java tree on the axes none of them
+reach — client opcodes, the action bar, the handler families, zone types,
+datapack files, quest registration and config keys. Read a ✅ below as "the
+gate was met and nothing is marked outstanding", not as "nothing is missing".
+
 This file is a snapshot; it is not machine-checked. Where it states a number,
 the command that regenerates it is given.
 
@@ -120,6 +127,12 @@ empty. The sweep that began at 180 markers on 2026-08-03 closed the last two on
 2026-08-07 — the block list and `Say2`'s jail gate, both opened days earlier by
 the world-chat port.
 
+That number counts **markers**, not gaps. A marker inventory can only see work
+somebody stopped to mark; what a milestone never looked at is invisible to it,
+and to the census beside it. See
+[§ Measured gaps](#measured-gaps--the-axes-nothing-above-measures) for a
+set-difference audit of the axes neither one covers.
+
 The count is still **enforced**, by
 `deferral_markers_match_the_recorded_inventory` in
 `crates/tools/tests/coverage_census.rs`, which now expects an empty list: a new
@@ -141,6 +154,126 @@ deleted on 2026-08-07; recover it the way any retired plan is recovered:
 git log --diff-filter=D --format=%H -1 -- docs/DEFERRALS.md
 git show <sha>^:docs/DEFERRALS.md
 ```
+
+---
+
+## Measured gaps — the axes nothing above measures
+
+**Audited 2026-08-14.** The marker inventory is empty and
+`datapack_skill_coverage_census` holds the skill axis to a named residue. Both
+are real; neither is a statement about the port as a whole. The census measures
+**skills only**, and markers only exist where someone chose to leave one — so
+between them they say nothing about client opcodes, the action bar, the handler
+families in `dist/game/data/scripts/handlers`, zone types, datapack files,
+quest registration or config keys.
+
+This section is that other half: a set-difference of the Java tree against the
+port across those axes. It is a snapshot, like the rest of this file, and every
+number below names the command that re-derives it in
+[§ Re-deriving these numbers](#re-deriving-these-numbers).
+
+Two mechanisms produce most of the list, and both fail **silently** — which is
+why none of it ever became a marker:
+
+- **`RequestActionUse` is an allow-list** (`game_loop/servitor/ai.rs`). An
+  action id that is not on it returns without a word: no packet, no log line,
+  no `TODO`. Its own doc comment says so — *"Other action ids (sit, socials,
+  the per-summon skill buttons) are not handled here yet"*.
+- **The config layer reads about half the keys the dist ships.** An unread key
+  is not a parse error; it is a value an operator sets in `dist/game/config`
+  that nothing consults. Several are instead hardcoded to this dist's value
+  inside a comment quoting the key — behaviourally identical *for the shipped
+  config*, and inert for anyone who edits it.
+
+### In-chronicle and reachable
+
+| # | Area | Gap | Evidence | Effect in game |
+|---|---|---|---|---|
+| 1 | Emotes | No client→server path for social actions | The 20 `SocialAction` rows in `ActionData.xml` are dropped by the allow-list. (`SOCIAL_ACTION` 0x34 is `null` in Java too, so the packet is *not* the route — parity there.) | `/socialhello`, `/socialbow`, … do nothing |
+| 2 | Pet & servitor commands | Action ids 15/16/17/19 (PetHold/Attack/Stop/Unsummon), 54 PetMove, 52 UnsummonServitor, 53 ServitorMove, 1103/1104 ServitorMode, and all **57** `PetSkillUse` rows | Same allow-list — only 0, 21, 22, 23, 38, 61, 65 plus the 105 `ServitorSkillUse` ids pass | A tamed pet cannot be ordered or made to cast; summons lack move/mode/return |
+| 3 | Walk/run | `RunWalk` (`ActionData` id 1) unhandled player-side | only `server_packets::change_move_type` exists, for NPCs. (`CHANGE_MOVE_TYPE` 0x35 is `null` in Java.) | `/walk` and `/run` do nothing |
+| 4 | Karma decay | `Formulas.calculateKarmaLost` + `data/stats/chars/pcKarmaIncrease.xml` not ported | `PlayerStat.addExp`'s karma-reduction branch has no counterpart in `death/progression.rs::add_exp_and_sp`; the XML is read by nothing | A PK can never work karma off by hunting |
+| 5 | Siege mercenaries | `itemhandlers/MercTicket` — **499** ticket items | `siege/capture.rs:57` already says so: *"which it always is until the mercenary system lands"* | Castle owners cannot post mercenary defenders |
+| 6 | Item handlers | 18 of 30 unported. Reachable: MercTicket (499 items), SummonItems (62), Elixir (62), Book (50), Bypass (30), PetFood (9), CharmOfCourage (6), RollingDice (5), Maps (2), Calculator (1), Harvester (1) | `ItemHandler` in `data/item_data.rs` has 11 variants; an unrecognised name falls to `None` | Dice, a Book, Wolf Food, a Charm of Courage: consumed, no effect |
+| 7 | `player_help` bypass | Not implemented | referenced by **92** files under `data/html/help/` | The whole in-game help book is dead |
+| 8 | `TerritoryStatus` bypass | Not implemented. This is the *tax rate* button, **not** Territory War | referenced by **254** HTML files — fishermen, pet managers, `default/` | Dead button on hundreds of town NPCs |
+| 9 | Observation | `observe` / `observesiege` / `observeoracle` | 12 files under `data/html/observation/` (npc 31031); only the Olympiad observer path is ported | Coliseum and Oracle observation unavailable |
+| 10 | Zone types | `MotherTreeZone` (16), `NoStoreZone` (18), `NoSummonFriendZone` (27), `LandingZone` (69) | `zone_data.rs::kind_from_type` returns `None` — the zone is silently dropped at load | Elven regen bonus, no-store and no-recall areas unenforced |
+| 11 | `enchantHPBonus.xml` | Read by nothing | `grep -rl enchantHPBonus crates/` is empty | Armour enchant HP bonus missing from max HP |
+| 12 | Quests | **36** of the 216 `QuestMasterHandler` loads: Q00500, Q00933, Q00935, Q10866, and the whole Q10993–Q11023 newbie chain (31) | Java's `QUESTS[]` vs `scripts/q*.rs` | Q00255 *is* ported, as `tutorial.rs`; the 17 `not_done` stubs are not gaps |
+| 13 | AI scripts | `BabyPets` (Baby Buffalo/Kookaburra/Cougar auto-heal, skills 4717/4718); `OlyBuffer` (npc 36402) | neither name nor its skills/ids appear in `crates/` | The arena buffer spawns and talking to it does nothing |
+| 14 | Config | **320** keys shipped in the ten core in-chronicle `.ini` files, parsed by Java, read by nothing here | GrandBoss respawn intervals ×13, all 36 `AltOly*`, Feature.ini ×61 (clan-level costs), General.ini ×75 (`AllowFishing`, `AllowWarehouse`, `AllowWear`, `AllowRefund`…), Character.ini ×76, Rates ×22, NPC ×15, PVP ×11, Siege ×4 | Contradicts the README's *"behaves as that config says"*. `AltOlyStartTime`, `SiegeHourList` and `PvPVsNormalTime` are hardcoded to this dist's value |
+| 15 | Client packets | **21** of the 155 *wired* base opcodes have no arm | clan-war replies 0x04/0x06/0x08, `RequestGiveNickName` 0x0B, pledge member list 0x4D / extended 0x66, skill list 0x38, rotation 0x5B/0x5C, pet name 0x93, pet pickup 0x98, item preview 0xC7, observer return 0xC1, `//gmlist` 0x8B, recipe-shop prev 0xC0, boats 0x76, GameGuard 0xCB | Ex: 103 of 199 wired handled; the remaining 96 are overwhelmingly post-Interlude |
+| 16 | Admin commands | 79 of 458 absent, ~10 of them against **ported** systems | `//mammon_find`, `//mammon_respawn`, `//set_vitality_level`, `//instance_spawns`, `//tvt_add\|advance\|remove`, `//zone_visual`, `//fakechat`, `//delete_group` | G13's row says "361 of 443 … all off-chronicle, dev tooling or N/A" — the Mammon, TvT, vitality and instance ones are none of those |
+| 17 | Buylists | Limited stock (`count`/`restock_delay`) untracked; castle-guard price scaling skipped | documented at `data/buy_list_data.rs:9`, whose stated reason — "no sieges" — went stale when G24 landed | Limited-stock goods sell as unlimited |
+| 18 | Skill census residue | 133 `<effect>` names, 61 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
+
+### Measured, and correctly out of scope
+
+Not gaps — the audit reached them and they are off-chronicle, config-disabled,
+or unimplemented in Java too. Recorded so the next audit need not re-derive it:
+fort siege, territory war, Gracia/Hellbound, elemental attributes,
+Sayune/shuttles/airships, mentor, commission, the 9 daily-mission handlers,
+prime shop, beauty shop, appearance stones, Seven Signs (`SSQZone`, 41 zones),
+96 wired Ex opcodes, and 13 base opcodes that are `null` in Java's own enum
+(`SOCIAL_ACTION`, `CHANGE_MOVE_TYPE`, `CHANGE_WAIT_TYPE`, `REQUEST_EVALUATE`,
+`REQUEST_MAGIC_LIST`, `NET_PING`, `REQUEST_SSQ_STATUS`, `REQUEST_BUY_PROCURE`
+among them). `PetSkillData.xml` is unread but nearly irrelevant here: of its
+1046 npc ids only 8 are reachable from an Interlude-range summon skill.
+`FakePlayers`, `OfflinePlay`, `.lang` and `.changepassword` are all disabled in
+this dist's config. The 17 `quests/not_done` classes load in Java and do
+nothing, so their absence is parity.
+
+Four families came back **clean**: chat handlers (all 13 registered ones land),
+community-board handlers, user commands, and target handlers.
+
+### Re-deriving these numbers
+
+```sh
+# rows 2, 3 — action-bar handlers the dist declares, against the allow-list
+grep -oE 'handler="[A-Za-z]+"' dist/game/data/ActionData.xml | sort | uniq -c | sort -rn
+
+# row 6 — item handlers the dist actually uses, by item count
+grep -rhoE 'name="handler"[[:space:]]+val="[A-Za-z]+"' dist/game/data/stats/items/*.xml \
+  | sed 's/.*val="//;s/"//' | sort | uniq -c | sort -rn
+
+# rows 7, 8 — how much HTML reaches an unported bypass
+grep -rl player_help     dist/game/data/html | wc -l
+grep -rl TerritoryStatus dist/game/data/html | wc -l
+
+# row 10 — zone types in use, against `kind_from_type`
+grep -rhoE 'type="[A-Za-z]+"' dist/game/data/zones/*.xml | sort | uniq -c | sort -rn
+
+# row 12 — quests Java loads, against the ported scripts
+grep -oE 'Q[0-9]{5}_[A-Za-z0-9]+\.class' \
+  ../interlude_classic/dist/game/data/scripts/quests/QuestMasterHandler.java \
+  | sed 's/_.*//;s/^Q//' | sort -u > /tmp/jq.txt
+ls crates/gameserver/src/scripts/ | grep -E '^q[0-9]' | sed 's/_.*//;s/^q//' | sort > /tmp/rq.txt
+# 54 rows: discount Q10506 (commented out in Java) and the 17 `not_done`
+# stubs, which load but do nothing there either, to reach the 36 above.
+comm -23 /tmp/jq.txt /tmp/rq.txt
+
+# row 14 — coarse form. The 320 figure is stricter: intersected with the keys
+# Java's `Config` actually parses, then narrowed to the ten core .ini files.
+grep -rhoE '^[A-Za-z0-9_]+[[:space:]]*=' dist/game/config/*.ini dist/game/config/Custom/*.ini \
+  | sed 's/[[:space:]]*=//' | sort -u > /tmp/ini.txt
+grep -rhoE 'get_[a-z_]+\("[A-Za-z0-9_]+"' crates/ --include='*.rs' \
+  | sed 's/.*("//;s/"//' | sort -u > /tmp/read.txt
+comm -23 /tmp/ini.txt /tmp/read.txt | wc -l   # 862 of 1342 shipped keys
+
+# row 16 — admin commands
+grep -oE 'command="[a-zA-Z_0-9]+"' dist/game/config/AdminCommands.xml \
+  | sed 's/.*command="//;s/"//' | sort -u > /tmp/ja.txt
+grep -rhoE '"admin_[a-z_0-9]+"' crates/ --include='*.rs' | tr -d '"' | sort -u > /tmp/ra.txt
+comm -23 /tmp/ja.txt /tmp/ra.txt
+```
+
+Row 15 needs the opcode value, not the name — the two trees name the same
+packet differently often enough that a name diff lies. Parse `(0x..,` out of
+`network/ClientPackets.java`, **discarding the `null`-handler entries**, and
+match against the `pub const …: u8` table in `network/client_packets.rs`. The
+first cut of this audit skipped that filter and reported 34 missing where the
+real figure is 21.
 
 ---
 
