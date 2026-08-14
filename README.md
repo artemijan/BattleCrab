@@ -9,6 +9,11 @@
   L2J, but in Rust.
 </p>
 
+<p align="center">
+  🦀 <b>Play it live: <a href="https://battlecrab.com">battlecrab.com</a></b> —
+  create an account and jump in.
+</p>
+
 ---
 
 ## A port, not a fork
