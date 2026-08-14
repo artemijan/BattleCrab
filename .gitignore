@@ -13,11 +13,9 @@ dist/game/log/*
 dist/login/log/*
 **/.DS_Store
 
-# Personal deploy tooling — points at a specific operator's server, and holds
-# credentials (deploy-web.sh carries a Cloudflare API token).
-deploy.sh
-deploy-dashboard.sh
-deploy-web.sh
+# Deploy configuration — every credential and machine-specific value lives
+# here, never in the (committed) deploy*.sh scripts. deploy.env.example is the
+# committed template; CI reconstructs this file from the DEPLOY_ENV secret.
 deploy.env
 # Launcher build-time config: points a build at a specific deployment
 crates/launcher/.env

@@ -1,0 +1,129 @@
+# CI/CD: every push to main goes build -> test -> deploy; pull requests run
+# build + test only.
+#
+# The deploy job needs a GitHub Environment named "production" with two secrets:
+#
+#   DEPLOY_ENV       The full content of deploy.env (see deploy.env.example).
+#                    It is written to disk verbatim and sourced by the three
+#                    deploy scripts — one secret to maintain instead of a dozen.
+#   DEPLOY_SSH_KEY   Private key (OpenSSH PEM, the whole file including the
+#                    BEGIN/END lines) authorized for REMOTE_USER@REMOTE_HOST.
+#                    Kept out of DEPLOY_ENV because it is multi-line, which an
+#                    env file sourced by bash cannot carry safely.
+#
+# The deploy scripts are the same ones used for manual deploys from a
+# workstation; CI only reconstructs deploy.env and the SSH key, then runs them.
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+
+      - name: Build
+        run: cargo build --workspace --locked
+
+      - name: Test
+        run: cargo nextest run --workspace --locked --profile ci
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit
+          path: target/nextest/ci/junit.xml
+          if-no-files-found: ignore
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Dashboard SPA typecheck
+        working-directory: web/dashboard
+        run: |
+          bun install --frozen-lockfile
+          bun run typecheck
+
+  deploy:
+    name: Deploy
+    needs: build-test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: production
+      url: https://battlecrab.com
+    # Never run two deploys at once; a queued newer deploy supersedes waiting on
+    # an older queued one, but an in-flight deploy is never cancelled mid-rsync.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Materialize deploy.env and SSH key
+        env:
+          DEPLOY_ENV: ${{ secrets.DEPLOY_ENV }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          if [[ -z "$DEPLOY_ENV" || -z "$DEPLOY_SSH_KEY" ]]; then
+            echo "::error::DEPLOY_ENV and/or DEPLOY_SSH_KEY secret is empty." \
+                 "Configure them on the 'production' environment (see the" \
+                 "header of this workflow and deploy.env.example)."
+            exit 1
+          fi
+          printf '%s\n' "$DEPLOY_ENV" > deploy.env
+          chmod 600 deploy.env
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Pin the host key so the first ssh call cannot be MITM'd or stall on
+          # an interactive prompt.
+          source deploy.env
+          ssh-keyscan -p "${SSH_PORT:-22}" -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install cargo-zigbuild (bundles zig)
+        # The PyPI package ships the cargo-zigbuild binary and pulls in the
+        # ziglang wheel, which cargo-zigbuild finds on its own — no system zig
+        # needed. ~/.local/bin is already on PATH on GitHub runners.
+        run: |
+          pip3 install --user cargo-zigbuild \
+            || pip3 install --user --break-system-packages cargo-zigbuild
+          cargo zigbuild --version
+
+      - name: Add Rust target
+        run: |
+          source deploy.env
+          rustup target add "${TARGET_TRIPLE:-x86_64-unknown-linux-gnu}"
+
+      - name: Deploy login + game servers
+        run: ./deploy.sh
+
+      - name: Deploy dashboard API
+        run: ./deploy-dashboard.sh
+
+      - name: Deploy web frontend
+        run: ./deploy-web.sh
