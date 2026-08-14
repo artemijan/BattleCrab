@@ -144,8 +144,22 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           # Pin the host key so the first ssh call cannot be MITM'd or stall on
-          # an interactive prompt.
-          ssh-keyscan -p "${SSH_PORT:-22}" -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
+          # an interactive prompt. Retried, because a single scan can drop on
+          # runner egress hiccups — and under `bash -e` that used to fail the
+          # whole step with no message at all.
+          for attempt in 1 2 3; do
+            ssh-keyscan -T 10 -p "${SSH_PORT:-22}" -H "$REMOTE_HOST" > /tmp/hostkeys || true
+            [[ -s /tmp/hostkeys ]] && break
+            echo "ssh-keyscan attempt $attempt got no keys, retrying in 5s..."
+            sleep 5
+          done
+          if [[ ! -s /tmp/hostkeys ]]; then
+            echo "::error::ssh-keyscan got no host keys from $REMOTE_HOST:${SSH_PORT:-22}" \
+                 "after 3 attempts — check that the server's firewall allows SSH" \
+                 "from GitHub-hosted runner IPs, not just your own."
+            exit 1
+          fi
+          cat /tmp/hostkeys >> ~/.ssh/known_hosts
 
       # Separate cache from build-test (rust-cache keys on the job id): this
       # job compiles release artifacts for the zigbuild cross target, which
