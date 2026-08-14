@@ -1,15 +1,14 @@
 # CI/CD: every push to main goes build -> test -> deploy; pull requests run
 # build + test only.
 #
-# The deploy job needs a GitHub Environment named "production" with two secrets:
+# The deploy job needs a GitHub Environment named "production" carrying the
+# deploy.env variables (see deploy.env.example) as individual secrets and/or
+# variables, NAMED EXACTLY as they appear in that file — each one is looked up
+# in vars first, then secrets, and written into a deploy.env on the runner.
+# Plus one extra secret that is not a deploy.env variable:
 #
-#   DEPLOY_ENV       The full content of deploy.env (see deploy.env.example).
-#                    It is written to disk verbatim and sourced by the three
-#                    deploy scripts — one secret to maintain instead of a dozen.
 #   DEPLOY_SSH_KEY   Private key (OpenSSH PEM, the whole file including the
 #                    BEGIN/END lines) authorized for REMOTE_USER@REMOTE_HOST.
-#                    Kept out of DEPLOY_ENV because it is multi-line, which an
-#                    env file sourced by bash cannot carry safely.
 #
 # The deploy scripts are the same ones used for manual deploys from a
 # workstation; CI only reconstructs deploy.env and the SSH key, then runs them.
@@ -93,24 +92,59 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Materialize deploy.env and SSH key
+        # Non-secret values may live as environment *variables* (visible in
+        # logs), secrets as environment *secrets* (masked); each name checks
+        # vars first, then secrets, so either placement works.
         env:
-          DEPLOY_ENV: ${{ secrets.DEPLOY_ENV }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          REMOTE_HOST: ${{ vars.REMOTE_HOST || secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ vars.REMOTE_USER || secrets.REMOTE_USER }}
+          REMOTE_PATH: ${{ vars.REMOTE_PATH || secrets.REMOTE_PATH }}
+          SSH_PORT: ${{ vars.SSH_PORT || secrets.SSH_PORT }}
+          TARGET_TRIPLE: ${{ vars.TARGET_TRIPLE || secrets.TARGET_TRIPLE }}
+          TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY || secrets.TURNSTILE_SITE_KEY }}
+          DASHBOARD_TURNSTILE_SECRET: ${{ secrets.DASHBOARD_TURNSTILE_SECRET }}
+          DASHBOARD_SESSION_SECRET: ${{ secrets.DASHBOARD_SESSION_SECRET }}
+          DASHBOARD_SMTP_HOST: ${{ vars.DASHBOARD_SMTP_HOST || secrets.DASHBOARD_SMTP_HOST }}
+          DASHBOARD_SMTP_USERNAME: ${{ vars.DASHBOARD_SMTP_USERNAME || secrets.DASHBOARD_SMTP_USERNAME }}
+          DASHBOARD_SMTP_PASSWORD: ${{ secrets.DASHBOARD_SMTP_PASSWORD }}
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if [[ -z "$DEPLOY_ENV" || -z "$DEPLOY_SSH_KEY" ]]; then
-            echo "::error::DEPLOY_ENV and/or DEPLOY_SSH_KEY secret is empty." \
-                 "Configure them on the 'production' environment (see the" \
-                 "header of this workflow and deploy.env.example)."
-            exit 1
-          fi
-          printf '%s\n' "$DEPLOY_ENV" > deploy.env
+          # Fail fast, by name, on anything the deploy scripts hard-require.
+          for required in DEPLOY_SSH_KEY REMOTE_HOST REMOTE_USER REMOTE_PATH \
+                          DASHBOARD_SESSION_SECRET CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            if [[ -z "${!required}" ]]; then
+              echo "::error::$required is not set on the 'production' environment" \
+                   "(as a variable or secret). See deploy.env.example."
+              exit 1
+            fi
+          done
+          # Assemble deploy.env for the deploy scripts to source, skipping
+          # unset optionals. Values are single-quoted so nothing is
+          # word-split or glob-expanded when sourced.
+          : > deploy.env
           chmod 600 deploy.env
+          for v in REMOTE_HOST REMOTE_USER REMOTE_PATH SSH_PORT TARGET_TRIPLE \
+                   TURNSTILE_SITE_KEY DASHBOARD_TURNSTILE_SECRET \
+                   DASHBOARD_SESSION_SECRET DASHBOARD_SMTP_HOST \
+                   DASHBOARD_SMTP_USERNAME DASHBOARD_SMTP_PASSWORD \
+                   CLOUDFLARE_TUNNEL_TOKEN CLOUDFLARE_API_TOKEN \
+                   CLOUDFLARE_ACCOUNT_ID; do
+            if [[ "${!v}" == *"'"* ]]; then
+              echo "::error::$v contains a single quote, which the env-file writer cannot escape."
+              exit 1
+            fi
+            if [[ -n "${!v}" ]]; then
+              printf "%s='%s'\n" "$v" "${!v}" >> deploy.env
+            fi
+          done
           mkdir -p ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           # Pin the host key so the first ssh call cannot be MITM'd or stall on
           # an interactive prompt.
-          source deploy.env
           ssh-keyscan -p "${SSH_PORT:-22}" -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
 
       # Separate cache from build-test (rust-cache keys on the job id): this
