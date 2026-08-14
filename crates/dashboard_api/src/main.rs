@@ -43,11 +43,17 @@ async fn main() {
     // produces an empty database, and every request 500s at runtime instead.
     // Naming the path here, and refusing to boot below, is what makes a
     // misconfigured URL obvious (DASHBOARD.md §10).
-    let db_path = dashboard_api::db::sqlite_path(&config.database_url);
-    let absolute = db_path.as_ref().map(|p| {
-        std::env::current_dir()
-            .map(|cwd| cwd.join(p))
-            .unwrap_or_else(|_| p.clone())
+    // Resolved the same way `commons::db::init` will resolve it — a relative
+    // path against the *executable's* directory, never the cwd. These used to
+    // disagree: this check joined the cwd, so started from the repo root it
+    // examined (and blamed, in the FATAL below) the real database while `init`
+    // opened — and created — an empty one next to the binary in target/debug.
+    let absolute = dashboard_api::db::sqlite_path(&config.database_url).map(|p| {
+        if p.is_absolute() {
+            p
+        } else {
+            commons::db::executable_dir().join(p)
+        }
     });
 
     match &absolute {
@@ -55,20 +61,20 @@ async fn main() {
         None => tracing::info!("opening database {}", config.database_url),
     }
 
-    // Refuse to create one. If the file is absent the URL is wrong, or the
-    // server was started from the wrong working directory.
-    if let (Some(path), Some(shown)) = (&db_path, &absolute)
-        && !path.exists()
+    // Refuse to create one. If the file is absent the URL is wrong.
+    if let Some(shown) = &absolute
+        && !shown.exists()
     {
         eprintln!(
             "FATAL: database file does not exist:\n  {}\n\n\
                  dashboard_api will not create one — it must open the SAME SQLite file the \
                  login and game servers use.\n\
-                 Run it from the directory that file lives in, or set an absolute path via \
-                 DIST_GAME_CONFIG_DASHBOARD_URL.\n\
-                 Current working directory: {}",
+                 A relative path resolves against the executable's directory (target/debug \
+                 under `cargo run`), not the working directory — set an absolute path via \
+                 DIST_GAME_CONFIG_DASHBOARD_URL, e.g.\n  \
+                 DIST_GAME_CONFIG_DASHBOARD_URL='jdbc:sqlite:/path/to/interlude_classic.db?\
+                 journal_mode=WAL&busy_timeout=5000'",
             shown.display(),
-            std::env::current_dir().unwrap_or_default().display()
         );
         std::process::exit(1);
     }
