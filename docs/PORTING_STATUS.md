@@ -199,7 +199,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **162** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and four of Character.ini's clusters with them**; what remains is Character 44, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **155** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and five of Character.ini's clusters with them**; what remains is Character 37, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
@@ -502,7 +502,31 @@ this dist's pledge tree declares required items; and
 `ClanMember.getOnlineStatus`, and the port does not track per-member online
 time.
 
-What is left is Character (34 live keys past these four clusters — enchant/augment
+**Cluster 5 — interruption and fake death (7 keys)** — found one behaviour
+missing outright. `BreakStun` ships **True** (Java's own default is `false`, so
+this dist opts *into* it) and the port had no stun break at all: a stunned
+character stayed stunned for the full duration however hard they were hit. Now
+`Formulas.calcStunBreak`, filtered on the `STUN` abnormal type rather than the
+`BLOCK_ACTIONS` flag — sleep and paralyze carry the same flag and must survive.
+
+`AltGameCancelByHit` is one string key Java reads twice, into
+`ALT_GAME_CANCEL_CAST` and `ALT_GAME_CANCEL_BOW`. `calcAtkBreak` starts at
+`init = 0` and refuses outright when it stays there, so with the key set to
+neither, damage interrupts nothing. The port hardcoded the `15`, which made a
+cast interruptible however the key was set. `EffectTickRatio` and
+`FakeDeathDamageStand` were likewise hardcoded — the former as
+`const EFFECT_TICK_RATIO_MS = 666`, and it drives both the DoT cadence *and*
+the per-tick amount.
+
+Three are carried without a consumer: `FakeDeathUntarget` (**False**, so Java's
+sweep clearing the feigning player out of everyone's target slot never runs —
+the port has no such sweep, which is the same behaviour),
+`PlayerFakeDeathUpProtection` (**0**, the fake-death sibling of
+`PlayerSpawnProtection`, so it never arms), and `MaxTriggeredBuffAmount`, which
+caps `SkillBuffType.TRIGGER` buffs — a classification the port's buff list does
+not carry, so there is no count to cap yet.
+
+What is left is Character (27 live keys past these five clusters — enchant/augment
 gates, the karma trio, the clan/ally day penalties, character creation and
 auto-loot), General (71 — mostly dev tooling and persistence-model choices the
 port made differently: memory-first saves, no `HtmCache`, no grid on/off), and

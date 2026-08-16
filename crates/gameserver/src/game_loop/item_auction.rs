@@ -675,7 +675,7 @@ pub(crate) fn link_bypass(
 ) {
     // No npc there ⇒ id 0, which never matches an auction instance below.
     let instance_id = crate::game_loop::helpers::npc_id_of(world, npc_oid).unwrap_or(0);
-    if world.item_auctions.instances.get(&instance_id).is_none() {
+    if !world.item_auctions.instances.contains_key(&instance_id) {
         return;
     }
     match command.split_whitespace().nth(1) {

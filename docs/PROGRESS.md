@@ -6603,3 +6603,109 @@ one.
 
 Character.ini stands at **44** unread keys (82 → 72 → 64 → 56 → 44), and row 14
 at **162**.
+
+---
+
+## Character.ini, cluster 5 (row 14) — interruption and fake death
+
+Seven keys. One was a behaviour the port did not have at all.
+
+**`BreakStun` was missing entirely.** It ships **True** while Java's own
+default is `false`, so this is one of the few keys where the dist opts *into*
+behaviour rather than out of it — and the port never broke a stun on damage, so
+a stunned character stayed down for the full duration however hard they were
+hit. Ported as `Formulas.calcStunBreak`: a 1-in-14 roll per non-DoT hit.
+
+The filter is on the **abnormal type**, not the flag. Sleep and paralyze carry
+the same `BLOCK_ACTIONS` flag as stun, and Java removes only
+`AbnormalType.STUN`; keying off the flag would have let any hit wake a sleeping
+target, which is a different game. Java's second condition —
+`info.getTime() <= info.getSkill().getAbnormalTime()`, sparing a stun whose
+duration was doubled by skill mastery until it burns back down — is always true
+here because the port models no such doubling. Written down rather than
+dropped, since it becomes load-bearing the moment mastery durations land.
+
+**`AltGameCancelByHit` is one string key Java reads twice**, into
+`ALT_GAME_CANCEL_CAST` and `ALT_GAME_CANCEL_BOW`, with `all` setting both and
+anything unrecognised setting neither. That last case matters:
+`calcAtkBreak` starts at `init = 0` and returns `false` outright when it stays
+there, so with the key set to neither, damage interrupts nothing at all. The
+port hardcoded the `15`, so a cast was interruptible however the key was set.
+The parse is now a small `cancel_by_hit` helper with its own unit test — which
+also removed the doubled `getString` call I had faithfully mirrored from Java.
+
+`EffectTickRatio` was `const EFFECT_TICK_RATIO_MS: u64 = 666` with a doc
+saying *"Not yet a Rust config knob"*. It drives both the DoT cadence and the
+per-tick amount (`power × ticks × ratio / 1000`), so the test moves it and
+checks both halves follow. `FakeDeathDamageStand` was a hardcoded `true`.
+
+Three are carried without a consumer, each with the reason stated:
+`FakeDeathUntarget` (**False** — the sweep that clears the feigning player out
+of everyone else's target slot never runs, and the port has no such sweep, so
+the behaviour already matches), `PlayerFakeDeathUpProtection` (**0** — the
+fake-death sibling of `PlayerSpawnProtection`, never arms), and
+`MaxTriggeredBuffAmount`, which caps `SkillBuffType.TRIGGER` buffs; the port's
+buff list carries no such classification, so there is no separate count to cap.
+
+3443 green, clippy clean, fmt clean. Six new tests; all four wirings falsified
+independently — including the abnormal-type filter, by widening it back to the
+`BLOCK_ACTIONS` flag and watching the sleep test fail.
+
+Character.ini stands at **37** unread keys (82 → 72 → 64 → 56 → 44 → 37), and
+row 14 at **155**.
+
+---
+
+## Burning down the grandfathered clippy allow-list
+
+`Cargo.toml`'s `[workspace.lints.clippy]` carried 16 grandfathered `allow`s from
+when the linter gate went in, with the standing instruction to *"delete one, fix
+what surfaces, commit both together."* Measured, they masked **178 violations**.
+
+Nine are gone and the count they masked is now zero: `while_let_loop`
+(**already at zero** — stale, and nothing would have told us),
+`assertions_on_constants`, `drop_non_drop`, `if_same_then_else`,
+`explicit_counter_loop`, `unnecessary_sort_by`, `unnecessary_get_then_check`,
+`question_mark`, and `doc_lazy_continuation` (38 sites, pure doc indentation).
+
+`cargo clippy --fix` handled only 2 of the 178; the rest were applied from
+clippy's own JSON suggestions by byte span, then the five with no machine
+suggestion by hand:
+
+- `assertions_on_constants` was `debug_assert!(MAX_NEWBIE_BUFF_LEVEL > 0)` on a
+  `const` — now `const _: () = assert!(…)`, which actually checks at compile
+  time instead of only in debug builds.
+- Both `drop_non_drop` sites were `drop((npc, vitals))` on ECS borrow guards
+  that are plain references, so the calls were no-ops; NLL already ends those
+  borrows at last use, which the compiler confirmed by accepting the removal.
+- `if_same_then_else` in `baium.rs` was Java's bottom two HP bands sharing a
+  skill pool, and in `q00225` two distinct quest states landing on one page —
+  collapsed, with the shared-ness written down rather than duplicated.
+
+Removing the allows surfaced two lints that had been masked by them
+(`useless_conversion`, one more `explicit_counter_loop`), which is the argument
+for burning them down: an allow hides more than its own name.
+
+The seven that remain each carry the reason they stay, in the file.
+
+### The bug this shook out
+
+Fixing the lints turned a full-suite run red on
+`a_hit_wakes_a_slept_player_but_leaves_a_stun_alone` — not from the lint work,
+but from **cluster 5's stun break**. That test asserts a hit leaves a stun
+alone, which stopped being true 1 time in 14 the moment `calcStunBreak` landed.
+Cluster 5's own suite run had passed *by luck* (13/14), which is precisely how
+a probabilistic regression hides.
+
+Worse, the test's comment claimed *"Java's 14 % `calcStunBreak` is gated on
+`BreakStun`, which this dist leaves off"* — **the dist ships `True`**. The same
+class of error as `DaysToPassToDissolveAClan = 7`: a comment asserting a config
+value nobody had checked against the file.
+
+Two fixes: that test now disables `BreakStun` explicitly for its control arm
+(it is testing `stopEffectsOnDamage`, a different mechanic) with the corrected
+claim; and my own new stun-break tests, which sampled a live 1-in-14 RNG and
+were themselves flaky ~7 % of runs, now pin the roll through `forced_rolls`.
+Stress-run 20× to confirm.
+
+3443 green, clippy clean with nine fewer allows, fmt clean.

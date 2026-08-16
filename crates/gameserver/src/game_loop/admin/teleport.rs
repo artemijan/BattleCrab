@@ -72,10 +72,10 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
 /// `AdminTeleport`'s `//move_to <x> <y> <z>` (the main-menu "Teleport" button,
 /// `admin_move_to $qbox`) — a faithful port of `AdminTeleport`'s `admin_move_to`
 /// + `teleportTo`. Empty coordinates (blank QuickBox) open `teleports.htm`
-/// (Java's `StringIndexOutOfBoundsException` branch); a non-numeric token sends
-/// the usage line and opens `teleports.htm` (`NumberFormatException`); too few
-/// tokens sends "Wrong or no Coordinates given." (`teleportTo`'s
-/// `NoSuchElementException`); valid coordinates teleport the GM and confirm.
+///   (Java's `StringIndexOutOfBoundsException` branch); a non-numeric token sends
+///   the usage line and opens `teleports.htm` (`NumberFormatException`); too few
+///   tokens sends "Wrong or no Coordinates given." (`teleportTo`'s
+///   `NoSuchElementException`); valid coordinates teleport the GM and confirm.
 pub(super) fn admin_move_to(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     if args.is_empty() {
         super::menu::show_admin_html(world, client_id, "teleports.htm");

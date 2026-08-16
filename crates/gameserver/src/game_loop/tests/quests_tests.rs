@@ -353,13 +353,12 @@ fn quest_q00258_accept_collect_turn_in() {
         "Cloth Cap rewarded on roll 0"
     );
     assert!(
-        world
+        !world
             .objects
             .get_component::<crate::model::components::Quests>(&3001)
             .unwrap()
             .0
-            .get("Q00258_BringWolfPelts")
-            .is_none(),
+            .contains_key("Q00258_BringWolfPelts"),
         "repeatable exit forgets the quest"
     );
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_finish".to_string()));
@@ -465,13 +464,12 @@ fn quest_q00320_chance_drops_and_adena_reward() {
             .contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1_ADENA)
     );
     assert!(
-        world
+        !world
             .objects
             .get_component::<crate::model::components::Quests>(&3001)
             .unwrap()
             .0
-            .get("Q00320_BonesTellTheFuture")
-            .is_none()
+            .contains_key("Q00320_BonesTellTheFuture")
     );
 }
 
@@ -510,13 +508,12 @@ fn quest_abort_wipes_state_and_items() {
 
     let pkts = drain(&mut rx);
     assert!(
-        world
+        !world
             .objects
             .get_component::<crate::model::components::Quests>(&3001)
             .unwrap()
             .0
-            .get("Q00258_BringWolfPelts")
-            .is_none(),
+            .contains_key("Q00258_BringWolfPelts"),
         "abort forgets the quest"
     );
     assert_eq!(
@@ -7882,8 +7879,8 @@ fn quest_q00300_reward_skin_and_bone() {
         .level = 36;
 
     let q = "Q00300_HuntingLetoLizardman";
-    let mut obj = 0x5000_0000;
-    for (reward_roll, reward_item) in [(600, 1867), (800, 1872)] {
+    for (i, (reward_roll, reward_item)) in [(600, 1867), (800, 1872)].into_iter().enumerate() {
+        let obj = 0x5000_0000 + i as i32;
         // (Re)start the repeatable quest and inject a full batch of bracelets.
         handle_request_bypass_to_server(
             &mut world,
@@ -7902,7 +7899,6 @@ fn quest_q00300_reward_skin_and_bone() {
                 .unwrap()
                 .add_item(&data.item_data, obj, 7139, 60);
         }
-        obj += 1;
         let before = item_count(&world, 3001, reward_item);
         world.forced_rolls.push_back(reward_roll);
         handle_request_bypass_to_server(
@@ -8187,10 +8183,9 @@ fn quest_q00266_reward_buckets() {
         p.race = 1;
     }
     let q = "Q00266_PleasOfPixies";
-    let mut obj = 0x5200_0000;
     let mob = NPC_OID + 1;
-    let mut mi = 0;
-    for (roll, item, adena) in [(30, 1338, 500), (60, 1337, 5000)] {
+    for (mi, (roll, item, adena)) in [(30, 1338, 500), (60, 1337, 5000)].into_iter().enumerate() {
+        let (obj, mi) = (0x5200_0000 + mi as i32, mi as i32);
         handle_request_bypass_to_server(
             &mut world,
             1,
@@ -8208,12 +8203,10 @@ fn quest_q00266_reward_buckets() {
                 .unwrap()
                 .add_item(&data.item_data, obj, 1334, 98);
         }
-        obj += 1;
         add_test_npc(&mut world, mob + mi, 20537, "Monster", 5, 30, 0, 0);
         world.forced_rolls.push_back(0);
         world.forced_rolls.push_back(0);
         death::npc_do_die(&mut world, mob + mi, 3001);
-        mi += 1;
         assert_eq!(quest_cond(&world, 3001, q), Some(2));
         let adena_before = item_count(&world, 3001, 57);
         world.forced_rolls.push_back(roll);

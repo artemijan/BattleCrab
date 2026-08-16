@@ -89,9 +89,7 @@ impl QuestScript for FirstClassTransferTalk {
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let npc = ctx.npc_id;
-        let Some(&(_, master_race)) = MASTERS.iter().find(|(id, _)| *id == npc) else {
-            return None;
-        };
+        let &(_, master_race) = MASTERS.iter().find(|(id, _)| *id == npc)?;
         if master_race != ctx.player_race() {
             return Some(format!("{npc}_no.html"));
         }

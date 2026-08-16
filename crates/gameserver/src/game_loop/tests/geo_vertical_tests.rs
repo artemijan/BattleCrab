@@ -5,8 +5,8 @@
 //! `thinkAttack` refuses to engage a target it cannot see and walks a
 //! geo-validated route instead, a chase runs through the same geodata clamp
 //! + path worker as any other walk, hate zeroes for targets outside the 3×3
-//! surrounding regions (`AggroInfo.checkHate`), and a timed-out fighting
-//! monster teleports back to its spawn.
+//!   surrounding regions (`AggroInfo.checkHate`), and a timed-out fighting
+//!   monster teleports back to its spawn.
 
 use super::*;
 use crate::data::npc_data::AiType;

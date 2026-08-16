@@ -478,9 +478,7 @@ impl QuestScript for CastleDoorManager {
         let base = doorman_html(ctx.npc_id);
         match action {
             "manageDoors" => {
-                let Some(arg) = tokens.next() else {
-                    return None;
-                };
+                let arg = tokens.next()?;
                 if !doorman_rights(ctx) {
                     return Some(format!("{base}-no.html"));
                 }
@@ -499,9 +497,7 @@ impl QuestScript for CastleDoorManager {
             }
             // The doorman's two posts (`pos_*01` / `pos_*02`).
             "teleport" => {
-                let Some(arg) = tokens.next() else {
-                    return None;
-                };
+                let arg = tokens.next()?;
                 if !doorman_rights(ctx) {
                     return Some(format!("{base}-no.html"));
                 }
@@ -699,9 +695,7 @@ impl QuestScript for CastleTeleporter {
             // `teleportMe <n>`: post `n`'s three candidate spots, one picked at
             // random; post 5 is the lord's own and refuses everyone else.
             "teleportMe" => {
-                let Some(n) = tokens.next().and_then(|s| s.trim().parse::<i32>().ok()) else {
-                    return None;
-                };
+                let n = tokens.next().and_then(|s| s.trim().parse::<i32>().ok())?;
                 if n == 5 {
                     if !is_teleporter_owner(ctx) {
                         return Some("CastleTeleporter-noAuthority.html".to_string());

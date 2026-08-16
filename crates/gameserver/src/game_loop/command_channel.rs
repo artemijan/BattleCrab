@@ -11,9 +11,9 @@
 //! - `RequestExAcceptJoinMPCC` re-validates that the requestor still leads a
 //!   party — Java NPEs on `requestor.getParty()` if it dissolved mid-invite
 //!   (`RequestExAcceptJoinMPCC.java:54`).
-//! Kept faithfully even though they look odd: the duplicate SM 1580/1582 the
-//! accept path sends on top of the constructor/`addParty` broadcasts, and the
-//! roster query answering for any party with no shared-channel check.
+//!   Kept faithfully even though they look odd: the duplicate SM 1580/1582 the
+//!   accept path sends on top of the constructor/`addParty` broadcasts, and the
+//!   roster query answering for any party with no shared-channel check.
 
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::{get_others_in_matching_room, send_to_client};

@@ -81,7 +81,6 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         // has time to walk to it. Read here, before the borrows drop.
         let extended = npc.spoiler_object_id != 0 || npc.seeded;
         let max_hp = vitals.max_hp;
-        drop((npc, vitals));
         world.objects.remove_component::<Movement>(&npc_oid);
         let mut corpse_secs = world
             .data

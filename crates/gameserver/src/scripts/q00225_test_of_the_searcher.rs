@@ -435,9 +435,12 @@ fn tyra_talk(ctx: &mut QuestCtx) -> String {
 
 fn tree_talk(ctx: &mut QuestCtx) -> String {
     if has(ctx, COMBINED_MAP) {
-        if !has(ctx, RUSTED_KEY) && !has(ctx, GOLD_BAR) {
-            "30627-01.html".to_string()
-        } else if has(ctx, RUSTED_KEY) && ctx.quest_items_count(GOLD_BAR) >= 20 {
+        // Two different states land on the same page: nothing collected yet,
+        // and the key plus a full 20 bars. Java writes them as separate
+        // branches; kept as one `||` so the pair stays visible.
+        if (!has(ctx, RUSTED_KEY) && !has(ctx, GOLD_BAR))
+            || (has(ctx, RUSTED_KEY) && ctx.quest_items_count(GOLD_BAR) >= 20)
+        {
             "30627-01.html".to_string()
         } else {
             ctx.no_quest_html()

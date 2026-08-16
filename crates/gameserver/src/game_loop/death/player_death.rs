@@ -17,7 +17,10 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // id, and there is no signal when that goes wrong.
     let killer_oid = crate::game_loop::pvp::acting_player(world, killer_oid);
     {
-        let Some((p, mut vitals)) = world
+        // The `Player` half is the "is this actually a player?" test —
+        // `get_many_mut` yields `None` unless every component is present — so
+        // it is fetched and not read.
+        let Some((_player, mut vitals)) = world
             .objects
             .get_many_mut::<(&mut crate::model::Player, &mut Vitals)>(&player_oid)
         else {
@@ -28,7 +31,6 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         }
         vitals.dead = true;
         vitals.cur_hp = 0.0;
-        drop((p, vitals));
         world.objects.remove_component::<Movement>(&player_oid);
         world.objects.remove_component::<Intent>(&player_oid);
         world

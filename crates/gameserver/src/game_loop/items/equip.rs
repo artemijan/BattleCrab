@@ -125,10 +125,10 @@ pub(crate) fn use_equipable_item(
 ///      *during* the equip, once per paperdoll slot it mutates;
 ///   2. `Player.useEquippableItem` then calls `broadcastUserInfo` (`UserInfo`);
 ///   3. …and finally `sendInventoryUpdate` (`InventoryUpdate`).
-/// `ExUserInfoEquipSlot` — not just `InventoryUpdate` — is what drives the
-/// client's own paperdoll rendering; skipping it leaves newly equipped
-/// rings/earrings invisible on the paperdoll even though the inventory list is
-/// correct. Two deliberate divergences from Java, both verified in-game:
+///      `ExUserInfoEquipSlot` — not just `InventoryUpdate` — is what drives the
+///      client's own paperdoll rendering; skipping it leaves newly equipped
+///      rings/earrings invisible on the paperdoll even though the inventory list is
+///      correct. Two deliberate divergences from Java, both verified in-game:
 ///   * We send one `ExUserInfoEquipSlot` for the whole action instead of one
 ///     per `setPaperdollItem` call. The packet is a full 33-slot paperdoll
 ///     snapshot, so a single send after all slot mutations already carries the

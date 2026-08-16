@@ -345,7 +345,7 @@ pub(super) fn admin_top_spawn_count(world: &mut World, client_id: u32, args: &[&
         }
     }
     let mut sorted: Vec<(i32, i32)> = counts.into_iter().collect();
-    sorted.sort_by(|a, b| b.1.cmp(&a.1));
+    sorted.sort_by_key(|b| std::cmp::Reverse(b.1));
     send_message(world, client_id, &format!("=== Top {top} spawns ==="));
     for (npc_id, count) in sorted.into_iter().take(top) {
         let name = npc_template_name(world, npc_id);

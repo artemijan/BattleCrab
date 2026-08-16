@@ -658,9 +658,7 @@ pub(crate) fn spawn_one(
             def.chase_range,
         )
     };
-    let Some((x, y, z, heading)) = loc else {
-        return None;
-    };
+    let (x, y, z, heading) = loc?;
     // `Spawn.initializeNpc`'s `ENABLE_RANDOM_MONSTER_SPAWNS` jitter.
     let (x, y) = randomize_spawn_point(world, npc_id, x, y, z, heading);
     let oid = spawn_npc_entity(

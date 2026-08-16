@@ -564,3 +564,62 @@ fn the_over_enchant_sweep_destroys_only_the_offending_instance() {
         "its plain duplicate — same item id — must survive"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Cluster 5 — interruption and fake death
+// ---------------------------------------------------------------------------
+
+/// The parse. `AltGameCancelByHit` is a *string* key Java reads twice, once
+/// per branch, so the two booleans are the interesting part.
+#[test]
+fn the_interruption_keys_parse_to_the_shipped_values() {
+    let c = CharacterConfig::load_from(crate::data::DIST_GAME);
+    assert!(c.alt_game_cancel_cast, "`cast` enables the cast branch");
+    assert!(!c.alt_game_cancel_bow, "…and leaves the bow branch off");
+    assert!(
+        c.alt_game_stun_break,
+        "BreakStun — Java's own default is false"
+    );
+    assert!(c.fake_death_damage_stand);
+    assert!(!c.fake_death_untarget);
+    assert_eq!(c.player_fake_death_up_protection, 0, "never arms");
+    assert_eq!(c.effect_tick_ratio_ms, 666);
+    assert_eq!(c.triggered_buffs_max_amount, 12);
+}
+
+/// `Formulas.calcAtkBreak` starts at `init = 0` and returns `false` when it
+/// stays there. The port hardcoded the 15, so a cast was interruptible however
+/// the key was set.
+#[test]
+fn a_cast_is_only_interruptible_while_the_cast_branch_is_on() {
+    use crate::model::formulas::calc_atk_break;
+    // A roll of 0 breaks whenever the branch applies at all.
+    assert!(
+        calc_atk_break(100.0, 1.0, 0, 0.0, 1.0, true),
+        "with the branch on, a low roll interrupts"
+    );
+    assert!(
+        !calc_atk_break(100.0, 1.0, 0, 0.0, 1.0, false),
+        "with it off, `init <= 0` refuses outright — even on a roll of 0"
+    );
+}
+
+/// `EffectTickRatio` sets both the DoT cadence and the per-tick amount, so
+/// halving it halves the interval and the damage together.
+#[test]
+fn the_effect_tick_ratio_drives_both_cadence_and_amount() {
+    use crate::game_loop::skills::effects::{dot_interval_ticks, dot_tick_damage};
+    // Curse Poison lvl 1: power 11, ticks 5 → every 5 × 666 ms for ~36.6.
+    assert_eq!(
+        dot_interval_ticks(5, 666),
+        33,
+        "3330 ms in 100 ms game ticks"
+    );
+    assert!((dot_tick_damage(11.0, 5, 666) - 36.63).abs() < 0.01);
+    // Halved ratio → halved both.
+    assert_eq!(dot_interval_ticks(5, 333), 16);
+    assert!((dot_tick_damage(11.0, 5, 333) - 18.315).abs() < 0.01);
+    // Guards.
+    assert_eq!(dot_interval_ticks(0, 666), 0, "no ticks, no schedule");
+    assert_eq!(dot_interval_ticks(5, 0), 0, "a zero ratio suppresses it");
+}

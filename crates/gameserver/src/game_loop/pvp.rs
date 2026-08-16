@@ -610,9 +610,7 @@ pub(crate) fn calculate_karma_gain(pk_count: i32) -> i32 {
 }
 
 pub(crate) fn get_killer_rep_and_pk(world: &mut World, killer_oid: i32) -> Option<(i32, i32)> {
-    let Some(p) = world.objects.get_component::<Player>(&killer_oid) else {
-        return None;
-    };
+    let p = world.objects.get_component::<Player>(&killer_oid)?;
     Some((p.reputation, p.pk_kills))
 }
 /// `Player.onKillUpdatePvPReputation` — the counters and karma a player kill

@@ -462,6 +462,41 @@ pub struct CharacterConfig {
     /// skill's required items are consumed and shown, and no entry in this
     /// dist's pledge tree declares any.
     pub life_crystal_needed: bool,
+
+    // --- Interruption and fake death --------------------------------------
+    /// `AltGameCancelByHit`, split the way Java splits it: one string key
+    /// (`bow` / `cast` / `all` / anything else) into two booleans. **`cast`**
+    /// here, so a hit can interrupt a *cast* but never a bow shot.
+    /// `Formulas.calcAtkBreak` sets its `init` to 15 when the matching branch
+    /// applies and returns `false` outright when `init <= 0` — so with both
+    /// off nothing is ever interrupted by damage.
+    pub alt_game_cancel_cast: bool,
+    pub alt_game_cancel_bow: bool,
+    /// `BreakStun` — **True**: a hit on a stunned target has a 1-in-14 chance
+    /// to free them (`Formulas.calcStunBreak`). Java's own default is `false`,
+    /// so this is one of the few keys where the dist opts *into* behaviour.
+    pub alt_game_stun_break: bool,
+    /// `FakeDeathDamageStand` — **True**: any damage while playing dead stands
+    /// the player back up.
+    pub fake_death_damage_stand: bool,
+    /// `FakeDeathUntarget` — **False**, so the sweep that clears the feigning
+    /// player out of everyone else's target slot never runs. The port has no
+    /// such sweep, which is the same behaviour.
+    pub fake_death_untarget: bool,
+    /// `PlayerFakeDeathUpProtection` (seconds) — a grace window against
+    /// aggressive monsters after *standing up* from fake death, the sibling of
+    /// `PlayerSpawnProtection`. **0**, so it never arms.
+    pub player_fake_death_up_protection: i32,
+    /// `EffectTickRatio` (ms) — the period of one effect "tick", so a
+    /// `ticks="N"` effect fires every `N × ratio` ms and each tick is worth
+    /// `power × N × ratio / 1000` (`AbstractEffect.getTicksMultiplier`).
+    pub effect_tick_ratio_ms: i64,
+    /// `MaxTriggeredBuffAmount` — `EffectList.isLimitExceeded`'s cap on
+    /// concurrently active **trigger** buffs. Parsed and not wired: the port's
+    /// buff list does not classify a buff as `SkillBuffType.TRIGGER`, so there
+    /// is no separate count to cap. Wiring it means adding that
+    /// classification first.
+    pub triggered_buffs_max_amount: i32,
     /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
     /// a castle town whose siege is running? **False** on this dist (Java's
     /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
@@ -644,6 +679,14 @@ impl Default for CharacterConfig {
             alt_clan_members_time_for_bonus_ms: 30 * 60 * 1000,
             alt_command_channel_friends: true,
             life_crystal_needed: true,
+            alt_game_cancel_cast: true,
+            alt_game_cancel_bow: false,
+            alt_game_stun_break: true,
+            fake_death_damage_stand: true,
+            fake_death_untarget: false,
+            player_fake_death_up_protection: 0,
+            effect_tick_ratio_ms: 666,
+            triggered_buffs_max_amount: 12,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             teleport_watchdog_timeout_ticks: 0,
@@ -652,6 +695,21 @@ impl Default for CharacterConfig {
             enable_modify_skill_duration: false,
             skill_duration_list: HashMap::new(),
         }
+    }
+}
+
+/// `AltGameCancelByHit` → `(ALT_GAME_CANCEL_CAST, ALT_GAME_CANCEL_BOW)`.
+///
+/// Java reads the key twice, once per boolean, comparing case-insensitively
+/// against `cast`/`bow` with `all` setting both. Anything else leaves both
+/// off, which makes `Formulas.calcAtkBreak` return `false` outright — damage
+/// then interrupts nothing.
+fn cancel_by_hit(raw: &str) -> (bool, bool) {
+    match raw.trim().to_ascii_lowercase().as_str() {
+        "cast" => (true, false),
+        "bow" => (false, true),
+        "all" => (true, true),
+        _ => (false, false),
     }
 }
 
@@ -980,6 +1038,18 @@ impl CharacterConfig {
             alt_command_channel_friends: p
                 .get_bool("AltCommandChannelFriends", d.alt_command_channel_friends),
             life_crystal_needed: p.get_bool("LifeCrystalNeeded", d.life_crystal_needed),
+            alt_game_cancel_cast: cancel_by_hit(&p.get_string("AltGameCancelByHit", "Cast")).0,
+            alt_game_cancel_bow: cancel_by_hit(&p.get_string("AltGameCancelByHit", "Cast")).1,
+            alt_game_stun_break: p.get_bool("BreakStun", d.alt_game_stun_break),
+            fake_death_damage_stand: p.get_bool("FakeDeathDamageStand", d.fake_death_damage_stand),
+            fake_death_untarget: p.get_bool("FakeDeathUntarget", d.fake_death_untarget),
+            player_fake_death_up_protection: p.get_int(
+                "PlayerFakeDeathUpProtection",
+                d.player_fake_death_up_protection,
+            ),
+            effect_tick_ratio_ms: p.get_long("EffectTickRatio", d.effect_tick_ratio_ms),
+            triggered_buffs_max_amount: p
+                .get_int("MaxTriggeredBuffAmount", d.triggered_buffs_max_amount),
             teleport_while_siege_in_progress: p.get_bool(
                 "TeleportWhileSiegeInProgress",
                 d.teleport_while_siege_in_progress,
@@ -1017,6 +1087,18 @@ mod tests {
     /// to ship in order, so only a deliberately unsorted input can show that
     /// the port sorts too — without it, `binary_search` would silently miss
     /// entries on an operator-edited list.
+    /// One string key, four meanings — and the "neither" case is the one that
+    /// matters, because it is what makes damage interrupt nothing at all.
+    #[test]
+    fn cancel_by_hit_parses_its_four_settings() {
+        assert_eq!(cancel_by_hit("cast"), (true, false));
+        assert_eq!(cancel_by_hit("bow"), (false, true));
+        assert_eq!(cancel_by_hit("all"), (true, true));
+        assert_eq!(cancel_by_hit("  ALL "), (true, true), "trimmed, any case");
+        assert_eq!(cancel_by_hit("none"), (false, false));
+        assert_eq!(cancel_by_hit(""), (false, false));
+    }
+
     #[test]
     fn id_lists_are_sorted_and_deduped_like_javas() {
         assert_eq!(parse_id_list("3,1,2"), vec![1, 2, 3]);

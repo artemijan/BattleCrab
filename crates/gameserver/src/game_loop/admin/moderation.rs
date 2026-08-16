@@ -511,7 +511,7 @@ pub(crate) fn dualbox_ips(world: &World, threshold: usize) -> Vec<(String, usize
         .into_iter()
         .filter(|(_, c)| *c >= threshold)
         .collect();
-    hits.sort_by(|a, b| b.1.cmp(&a.1));
+    hits.sort_by_key(|b| std::cmp::Reverse(b.1));
     hits
 }
 

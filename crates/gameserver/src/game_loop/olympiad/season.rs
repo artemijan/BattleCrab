@@ -14,7 +14,7 @@ fn compute_noble_ranks(world: &World) -> std::collections::HashMap<i32, u8> {
         .map(|(&id, n)| (id, n.points))
         .collect();
     // Highest points first (Java orders the query by points DESC).
-    classified.sort_by(|a, b| b.1.cmp(&a.1));
+    classified.sort_by_key(|b| std::cmp::Reverse(b.1));
 
     let total = classified.len() as f64;
     let mut r1 = (total * 0.01).round() as usize;

@@ -60,7 +60,7 @@ impl LootRule {
 
 /// A leader's pending loot-rule change (`Party._changeRequestDistributionType`
 /// + `_changeDistributionTypeAnswers`): every other member must agree within
-/// 15 s.
+///   15 s.
 #[derive(Debug, Clone)]
 pub struct LootChangeRequest {
     pub rule: LootRule,

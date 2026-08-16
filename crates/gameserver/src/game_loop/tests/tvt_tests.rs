@@ -994,7 +994,7 @@ fn teleport_to_arena_groups_teams_into_parties_and_ccs() {
     tvt::teleport_to_arena(&mut world);
 
     assert!(
-        world.parties.get(&pre_party).is_none(),
+        !world.parties.contains_key(&pre_party),
         "the pre-existing party dissolved when its members left for the arena"
     );
     for team in [

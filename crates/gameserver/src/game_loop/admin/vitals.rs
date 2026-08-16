@@ -124,8 +124,8 @@ pub(super) fn admin_res_monster(world: &mut World, client_id: u32, object_id: i3
 
 /// Java `AdminRes.doResurrect` — revive one dead creature. For a player: revive
 /// + restore vitals (Java restores 100% of lost death-exp). For an NPC corpse:
-/// cancel its pending decay (via the `!dead` guard) and revive it in place with
-/// a `Revive` broadcast and refilled HP.
+///   cancel its pending decay (via the `!dead` guard) and revive it in place with
+///   a `Revive` broadcast and refilled HP.
 fn res_creature(world: &mut World, target: i32) {
     if !world
         .objects

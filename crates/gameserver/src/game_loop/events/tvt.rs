@@ -1163,7 +1163,7 @@ fn broadcast_scoreboard(world: &mut World, instance_id: i32, state: i32) {
                 .map(|p| (p.name.clone(), score))
         })
         .collect();
-    rows.sort_by(|a, b| b.1.cmp(&a.1));
+    rows.sort_by_key(|b| std::cmp::Reverse(b.1));
     let refs: Vec<(&str, i32)> = rows.iter().map(|(n, s)| (n.as_str(), *s)).collect();
     let pkt = sp::ex_pvp_match_cc_record(state, &refs);
     instances::broadcast_to_instance(world, instance_id, &pkt);

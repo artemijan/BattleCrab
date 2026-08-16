@@ -379,7 +379,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         let busy = event_work + boundary_start.elapsed();
         tick_busy_micros().set(busy.as_micros() as u64);
         if busy > TICK_OVERRUN_WARN {
-            timings.sort_by(|a, b| b.1.cmp(&a.1));
+            timings.sort_by_key(|b| std::cmp::Reverse(b.1));
             let slowest = timings
                 .iter()
                 .take(3)

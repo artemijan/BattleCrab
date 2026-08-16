@@ -96,9 +96,7 @@ impl QuestScript for Q00622SpecialtyLiquorDelivery {
                 }
             }
             "31543-02.html" | "31544-02.html" | "31545-02.html" | "31546-02.html" => {
-                let Some(cond) = talker_cond(ctx.npc_id) else {
-                    return None;
-                };
+                let cond = talker_cond(ctx.npc_id)?;
                 if !ctx.is_cond(cond) {
                     return None;
                 }

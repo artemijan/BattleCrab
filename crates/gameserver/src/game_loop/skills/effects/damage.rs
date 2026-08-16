@@ -594,28 +594,23 @@ pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
     }
 }
 
-/// Java `Config.EFFECT_TICK_RATIO` (character.ini `EffectTickRatio`, default
-/// 666 ms) — the base period of an over-time effect's tick. Not yet a Rust
-/// config knob; the datapack assumes the retail default.
-const EFFECT_TICK_RATIO_MS: u64 = 666;
-
 /// `effect.getTicks() * EFFECT_TICK_RATIO` expressed in whole game ticks
 /// (`game_loop::TICK` = 100 ms): both the delay to the first DoT tick and the
 /// interval between ticks (Java `scheduleAtFixedRate(task, period, period)`).
 /// `0` when `ticks <= 0`, which suppresses scheduling.
-pub(crate) fn dot_interval_ticks(ticks: i32) -> u64 {
-    if ticks <= 0 {
+pub(crate) fn dot_interval_ticks(ticks: i32, ratio_ms: i64) -> u64 {
+    if ticks <= 0 || ratio_ms <= 0 {
         return 0;
     }
-    (ticks as u64 * EFFECT_TICK_RATIO_MS) / crate::game_loop::TICK.as_millis() as u64
+    (ticks as u64 * ratio_ms as u64) / crate::game_loop::TICK.as_millis() as u64
 }
 
 /// Damage per DoT tick: `power * getTicksMultiplier()`, where
 /// `getTicksMultiplier() = ticks * EFFECT_TICK_RATIO / 1000`
 /// (`AbstractEffect`). Curse Poison lvl 1 (power 11, ticks 5) → `11 * 5 * 666 /
 /// 1000 ≈ 36.6` every `5 * 666 = 3330 ms`.
-pub(crate) fn dot_tick_damage(power: f64, ticks: i32) -> f64 {
-    power * (ticks as f64 * EFFECT_TICK_RATIO_MS as f64) / 1000.0
+pub(crate) fn dot_tick_damage(power: f64, ticks: i32, ratio_ms: i64) -> f64 {
+    power * (ticks as f64 * ratio_ms as f64) / 1000.0
 }
 
 /// Arm the first `DamOverTimeTick` for a skill carrying a `DamOverTime` effect
@@ -643,7 +638,10 @@ pub(crate) fn schedule_dam_over_time(
             | SkillEffect::FakeDeath { ticks, .. }
                 if *ticks > 0 =>
             {
-                Some(dot_interval_ticks(*ticks))
+                Some(dot_interval_ticks(
+                    *ticks,
+                    world.cfg.character.effect_tick_ratio_ms,
+                ))
             }
             _ => None,
         })

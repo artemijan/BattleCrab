@@ -891,21 +891,30 @@ pub fn map_range(value: f64, from_min: f64, from_max: f64, to_min: f64, to_max: 
     (value - from_min) * (to_max - to_min) / (from_max - from_min) + to_min
 }
 
-/// `Formulas.calcAtkBreak`, `ALT_GAME_CANCEL_CAST` branch (default config
-/// `AltGameCancelByHit = cast`): the caller must already have checked that
-/// the target is casting and still abortable (pre-launch) — that check is
-/// what sets `init = 15`. `men_bonus` is the target's `BaseStat.MEN` bonus;
+/// `Formulas.calcAtkBreak`. `men_bonus` is the target's `BaseStat.MEN` bonus;
 /// `roll` is `Rnd.get(100)`. `cancel_add`/`cancel_mul` are the target's
 /// `Stat.ATTACK_CANCEL` modifiers (Java `getStat().getValue(ATTACK_CANCEL,
 /// init)`), which buffs like Concentration lower. The raid/HP-blocked/
 /// channeling guards still don't apply to players yet.
+///
+/// `applies` is Java's `init > 0` test — it starts at **0** and only reaches
+/// 15 when a branch of `AltGameCancelByHit` matches what the target is doing
+/// (`ALT_GAME_CANCEL_CAST` while casting abortably, `ALT_GAME_CANCEL_BOW`
+/// while mid-shot with a bow). `init <= 0` returns `false` outright, so with
+/// the key set to neither, damage interrupts nothing at all. The port used to
+/// hardcode the 15, which meant a cast was always interruptible however the
+/// key was set.
 pub fn calc_atk_break(
     dmg: f64,
     men_bonus: f64,
     roll: i32,
     cancel_add: f64,
     cancel_mul: f64,
+    applies: bool,
 ) -> bool {
+    if !applies {
+        return false;
+    }
     let init = 15.0 + (13.0 * dmg).sqrt() - (men_bonus * 100.0 - 100.0);
     let rate = (init * cancel_mul + cancel_add).clamp(1.0, 99.0);
     (roll as f64) < rate
@@ -1641,13 +1650,13 @@ mod tests {
     #[test]
     fn atk_break_rate_and_clamps() {
         // dmg 100 → 15 + √1300 ≈ 51.06: roll 51 breaks, 52 doesn't.
-        assert!(calc_atk_break(100.0, 1.0, 51, 0.0, 1.0));
-        assert!(!calc_atk_break(100.0, 1.0, 52, 0.0, 1.0));
+        assert!(calc_atk_break(100.0, 1.0, 51, 0.0, 1.0, true));
+        assert!(!calc_atk_break(100.0, 1.0, 52, 0.0, 1.0, true));
         // Huge MEN bonus can't push the rate below 1%.
-        assert!(calc_atk_break(0.0, 2.0, 0, 0.0, 1.0));
-        assert!(!calc_atk_break(0.0, 2.0, 1, 0.0, 1.0));
+        assert!(calc_atk_break(0.0, 2.0, 0, 0.0, 1.0, true));
+        assert!(!calc_atk_break(0.0, 2.0, 1, 0.0, 1.0, true));
         // Massive damage caps at 99% — roll 99 still survives.
-        assert!(!calc_atk_break(1e9, 1.0, 99, 0.0, 1.0));
+        assert!(!calc_atk_break(1e9, 1.0, 99, 0.0, 1.0, true));
     }
 
     /// `Stat.ATTACK_CANCEL`: Concentration's -18 DIFF lowers the interrupt rate
@@ -1655,11 +1664,11 @@ mod tests {
     #[test]
     fn atk_break_honors_cancel_stat() {
         assert!(
-            calc_atk_break(100.0, 1.0, 40, 0.0, 1.0),
+            calc_atk_break(100.0, 1.0, 40, 0.0, 1.0, true),
             "no buff: 40 < 51.06 breaks"
         );
         assert!(
-            !calc_atk_break(100.0, 1.0, 40, -18.0, 1.0),
+            !calc_atk_break(100.0, 1.0, 40, -18.0, 1.0, true),
             "Concentration: 40 > 33.06 survives"
         );
     }

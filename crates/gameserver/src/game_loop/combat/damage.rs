@@ -302,11 +302,16 @@ pub(crate) fn apply_physical_damage(
     } else {
         // `Creature.reduceCurrentHp`: `if (isPlayer() && isFakeDeath() &&
         // Config.FAKE_DEATH_DAMAGE_STAND && amount > 0) stopFakeDeath(true)`.
-        // `FakeDeathDamageStand = True` on this dist, so taking a hit while
-        // playing dead stands you back up — otherwise a rogue could feign
-        // death and soak a whole fight from the floor.
-        if damage > 0.0 {
+        // With the key off a rogue could feign death and soak a whole fight
+        // from the floor, which is why this dist turns it on.
+        if damage > 0.0 && world.cfg.character.fake_death_damage_stand {
             crate::game_loop::skills::effects::break_fake_death_on_damage(world, target);
+        }
+        // `PlayerStatus.reduceHp`: `if (!isDOT) { if (calcStunBreak(...))
+        // stopStunning(true); }` — a hit can shake a stun off. DoT ticks are
+        // excluded, so a poison cannot free you.
+        if !is_dot {
+            crate::game_loop::skills::effects::try_break_stun(world, target);
         }
         player_receive_damage(world, target, attacker, damage);
     }
@@ -831,7 +836,14 @@ pub(crate) fn player_receive_damage_ex(
             })
             .unwrap_or((0.0, 1.0));
         let break_roll = world.roll(100);
-        if formulas::calc_atk_break(damage, men_bonus, break_roll, cancel_add, cancel_mul) {
+        // The caller already established the target is casting and still
+        // abortable, so the `cast` branch is the one that can apply here; the
+        // `bow` branch belongs to an auto-attack in flight, which this path
+        // does not model.
+        let applies = world.cfg.character.alt_game_cancel_cast;
+        if formulas::calc_atk_break(
+            damage, men_bonus, break_roll, cancel_add, cancel_mul, applies,
+        ) {
             break_cast(world, player_oid);
             maybe_distance_too_far(world, player_oid);
         }

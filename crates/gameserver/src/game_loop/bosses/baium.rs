@@ -610,9 +610,9 @@ fn choose_skill(world: &mut World, baium_oid: i32) -> i32 {
         &[ENERGY_WAVE, EARTH_QUAKE]
     } else if cur > max * 0.5 {
         &[GROUP_HOLD, ENERGY_WAVE, EARTH_QUAKE]
-    } else if cur > max * 0.25 {
-        &[THUNDERBOLT, GROUP_HOLD, ENERGY_WAVE, EARTH_QUAKE]
     } else {
+        // Java writes the ≤25 % band separately, but with the same four
+        // skills as the 25-50 % one — collapsed here rather than duplicated.
         &[THUNDERBOLT, GROUP_HOLD, ENERGY_WAVE, EARTH_QUAKE]
     };
     for skill in pool {

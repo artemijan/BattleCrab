@@ -31,12 +31,12 @@ const CALM_GLOBAL_AGGRO: i32 = -25;
 
 /// The tail Java runs when a mob stops hating everyone — `setGlobalAggro(-25)`
 /// + `clearAggroList()` + `setWalking()` + `setIntention(ACTIVE)`. It appears
-/// in `Attackable.setTarget(null)` (`Attackable.java` 1861-1881), which is what
-/// [`on_forget_object`] ports, and in the three `Attackable.reduceHate`
-/// branches (873-919) — which nothing on this chronicle reaches, so that caller
-/// is left unwired on purpose: `AddHate` double-negates its way into *raising*
-/// hate (see the note in `skills::effects`) and `TransferHate` (skill 489,
-/// Shift Target) is off-chronicle here.
+///   in `Attackable.setTarget(null)` (`Attackable.java` 1861-1881), which is what
+///   [`on_forget_object`] ports, and in the three `Attackable.reduceHate`
+///   branches (873-919) — which nothing on this chronicle reaches, so that caller
+///   is left unwired on purpose: `AddHate` double-negates its way into *raising*
+///   hate (see the note in `skills::effects`) and `TransferHate` (skill 489,
+///   Shift Target) is off-chronicle here.
 ///
 /// Without this a mob whose last hated player vanished re-seeds hate from the
 /// very next scan tick and re-aggros instantly; Java stands it down for ~25 s.

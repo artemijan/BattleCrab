@@ -2373,7 +2373,7 @@ fn clan_level_up_ladder() {
 /// The pledge-skill learn flow: the leader-only list (`ExAcquirableSkillListBy
 /// Class` PLEDGE), the reputation gate, and a successful learn — rep deducted
 /// + persisted, the skill stored/broadcast, and the refreshed list offering
-/// the next level.
+///   the next level.
 #[test]
 fn pledge_skill_learning_spends_reputation() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;

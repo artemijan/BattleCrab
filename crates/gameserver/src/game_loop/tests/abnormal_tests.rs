@@ -1223,17 +1223,23 @@ fn a_hit_wakes_a_slept_player_but_leaves_a_stun_alone() {
         "and the buff row is gone, not just the flag"
     );
 
-    // Control: same hit, a stun instead.
+    // Control: same hit, a stun instead — a stun is not `removedOnDamage`, so
+    // `stopEffectsOnDamage` must leave it be.
     let (mut world, _db, _l) = sleep_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+    // `BreakStun` is turned **off** here deliberately. It ships `True` on this
+    // dist — the comment that used to sit here claimed the opposite — and gives
+    // every non-DoT hit a 1-in-14 chance to free a stunned target. That is a
+    // *different* mechanic (`Formulas.calcStunBreak`, tested separately); left
+    // on, it would make the assertion below fail one time in fourteen.
+    world.cfg.character.alt_game_stun_break = false;
     land(&mut world, STUN_ID, VICTIM);
     crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
     assert!(
         abnormal::is_blocked_from_actions(&world, VICTIM),
         "a stun is not `removedOnDamage` — hitting a stunned target does not \
-         free them (Java's 14% `calcStunBreak` is gated on `BreakStun`, which \
-         this dist leaves off)"
+         itself free them"
     );
 }
 
@@ -3788,5 +3794,97 @@ fn a_hidden_buff_is_absent_from_the_icon_row_and_the_visuals() {
     assert!(
         abnormal::visual_effects(&world, CASTER).is_empty(),
         "a hidden buff shows the effected no visual either"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// `BreakStun` — a hit can shake a stun off (`Formulas.calcStunBreak`)
+// ---------------------------------------------------------------------------
+
+/// The port had no stun break at all, so a stunned player stayed stunned for
+/// the full duration however hard they were hit. `BreakStun` ships **True**
+/// (Java's own default is `false`), which makes the omission live.
+///
+/// The roll is pinned through `forced_rolls` rather than sampled: at 1-in-14 a
+/// statistical assertion is flaky about 7 % of the time, which is exactly the
+/// failure the first version of this test produced.
+#[test]
+fn a_hit_can_break_a_stun_but_only_on_the_one_in_fourteen_roll() {
+    use crate::game_loop::skills::effects::try_break_stun;
+    use crate::model::skill::effect_flag;
+
+    let (mut world, _db, _l) = cc_world();
+    let _caster = ingame_caster(&mut world, CID, 3001, 0, 0);
+    let _victim = ingame_caster(&mut world, VICTIM_CID, 3002, 40, 0);
+
+    let stunned =
+        |w: &World| crate::game_loop::abnormal::flags_of(w, 3002) & effect_flag::BLOCK_ACTIONS != 0;
+    let stun = |w: &mut World| {
+        let skill = w.data.skill_data.get(STUN_ID, 1).expect("stun").clone();
+        crate::game_loop::skills::effects::apply_skill_effects(w, 3001, 3002, &skill);
+        assert!(stunned(w), "the victim is stunned to begin with");
+    };
+
+    // A losing roll (`Rnd.get(14) != 0`) leaves the stun in place.
+    stun(&mut world);
+    world.forced_rolls.push_back(1);
+    try_break_stun(&mut world, 3002);
+    assert!(stunned(&world), "a non-zero roll does not free the victim");
+
+    // The winning roll does.
+    world.forced_rolls.push_back(0);
+    try_break_stun(&mut world, 3002);
+    assert!(!stunned(&world), "`Rnd.get(14) == 0` shakes the stun off");
+
+    // With the key off, even the winning roll is never reached.
+    world.cfg.character.alt_game_stun_break = false;
+    stun(&mut world);
+    world.forced_rolls.push_back(0);
+    try_break_stun(&mut world, 3002);
+    assert!(stunned(&world), "BreakStun=False leaves the stun alone");
+    assert_eq!(
+        world.forced_rolls.len(),
+        1,
+        "…and does not even consume the roll, because the key is checked first"
+    );
+}
+
+/// Only `STUN` is shaken off. Sleep and paralyze carry the same
+/// `BLOCK_ACTIONS` flag and must survive — Java filters on the abnormal type,
+/// not the flag.
+#[test]
+fn breaking_a_stun_leaves_other_block_actions_debuffs_alone() {
+    use crate::game_loop::skills::effects::try_break_stun;
+    use crate::model::skill::{SkillEffect, effect_flag};
+
+    let (mut world, _db, _l) = cc_world();
+    // A sleep: same mechanic, different abnormal type.
+    const SLEEP_ID: i32 = 9302;
+    world.data.skill_data.insert_for_test(cc_skill(
+        SLEEP_ID,
+        SkillEffect::BlockActions { conditional: false },
+        "SLEEP",
+    ));
+    let _caster = ingame_caster(&mut world, CID, 3001, 0, 0);
+    let _victim = ingame_caster(&mut world, VICTIM_CID, 3002, 40, 0);
+
+    let skill = world
+        .data
+        .skill_data
+        .get(SLEEP_ID, 1)
+        .expect("sleep")
+        .clone();
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3002, &skill);
+    assert!(crate::game_loop::abnormal::flags_of(&world, 3002) & effect_flag::BLOCK_ACTIONS != 0);
+
+    // Force the *winning* roll every time: even then the sleep must survive,
+    // because the filter is the abnormal type and not the flag.
+    for _ in 0..20 {
+        world.forced_rolls.push_back(0);
+        try_break_stun(&mut world, 3002);
+    }
+    assert!(
+        crate::game_loop::abnormal::flags_of(&world, 3002) & effect_flag::BLOCK_ACTIONS != 0,
+        "a sleep is not a stun and must not be shaken off"
     );
 }

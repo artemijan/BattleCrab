@@ -315,10 +315,8 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
     // (mirrors `resolve_initial_items`), then hand the resolved paperdoll to
     // `from_char` as stored `ItemRow`s.
     let mut inv = Inventory::new();
-    let mut next_oid = 1000;
-    for entry in data.initial_equipment.get(class_id) {
-        let oid = next_oid;
-        next_oid += 1;
+    for (i, entry) in data.initial_equipment.get(class_id).iter().enumerate() {
+        let oid = 1000 + i as i32;
         inv.add_item(&data.item_data, oid, entry.item_id, entry.count);
         if entry.equipped {
             inv.equip_item(&data.item_data, oid);
@@ -497,10 +495,8 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     // penalty) plus a D-grade BLUNT staff (15149) — a weapon that is NOT
     // bow/pole, equipped through the real slot logic.
     let mut inv = Inventory::new();
-    let mut next_oid = 2000;
-    for item_id in [6, 425, 461, 15149] {
-        let oid = next_oid;
-        next_oid += 1;
+    for (i, item_id) in [6, 425, 461, 15149].into_iter().enumerate() {
+        let oid = 2000 + i as i32;
         inv.add_item(&data.item_data, oid, item_id, 1);
         inv.equip_item(&data.item_data, oid);
     }

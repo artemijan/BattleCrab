@@ -284,7 +284,7 @@ fn finalize_awards_to_the_highest() {
 
     assert_eq!(world.clan_halls[&ONYX].owner_id, 20, "clan 20 won the hall");
     assert!(
-        world.clan_hall_bids.get(&ONYX).is_none(),
+        !world.clan_hall_bids.contains_key(&ONYX),
         "the bids are cleared"
     );
 }
@@ -322,7 +322,7 @@ fn the_weekly_close_finalizes_and_rearms() {
     crate::game_loop::clans::hall_auction::handle_auction_end(&mut world);
 
     assert_eq!(world.clan_halls[&ONYX].owner_id, 20, "the top bidder won");
-    assert!(world.clan_hall_bids.get(&ONYX).is_none(), "bids cleared");
+    assert!(!world.clan_hall_bids.contains_key(&ONYX), "bids cleared");
     assert!(world.scheduler.len() > before, "next week's close is armed");
 }
 

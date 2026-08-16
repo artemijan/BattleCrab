@@ -876,7 +876,7 @@ fn receiving_an_attachment_moves_the_item_and_clears_the_flag() {
     );
     let m = world.mail.get(77).unwrap();
     assert!(!m.has_attachments);
-    assert!(world.mail.attachments.get(&77).is_none());
+    assert!(!world.mail.attachments.contains_key(&77));
 
     let b_pkts = drain(&mut b_rx);
     let sms = ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
@@ -1249,5 +1249,5 @@ fn a_row_without_items_is_a_plain_letter() {
         .find(|m| m.receiver_id == 3001)
         .expect("delivered");
     assert!(!msg.has_attachments);
-    assert!(world.mail.attachments.get(&msg.id).is_none());
+    assert!(!world.mail.attachments.contains_key(&msg.id));
 }

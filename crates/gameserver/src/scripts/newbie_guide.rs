@@ -22,6 +22,10 @@ const NEWBIE_GUIDES: &[i32] = &[30598, 30599, 30600, 30601, 30602];
 /// button (for servers that disable newbie buffs) is unreachable here and
 /// is not ported.
 const MAX_NEWBIE_BUFF_LEVEL: i32 = 40;
+/// The buff loop below divides by this, so a zero would be a silent no-op
+/// rather than a crash. Checked at compile time — it is a constant, so a
+/// runtime `debug_assert!` could only ever fire in a debug build.
+const _: () = assert!(MAX_NEWBIE_BUFF_LEVEL > 0);
 
 pub struct NewbieGuide;
 
@@ -71,7 +75,6 @@ impl QuestScript for NewbieGuide {
                 ctx.play_tutorial_voice("tutorial_voice_026");
             }
         }
-        debug_assert!(MAX_NEWBIE_BUFF_LEVEL > 0);
         Some(format!("{}.htm", ctx.npc_id))
     }
 

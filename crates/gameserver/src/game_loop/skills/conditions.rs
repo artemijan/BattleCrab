@@ -100,9 +100,7 @@ pub(crate) fn check_cast(
         .iter()
         .chain(skill.target_conditions.iter())
     {
-        if let Err(refusal) = eval(world, caster_oid, skill, target_oid, cond) {
-            return Err(refusal);
-        }
+        eval(world, caster_oid, skill, target_oid, cond)?;
     }
     Ok(())
 }

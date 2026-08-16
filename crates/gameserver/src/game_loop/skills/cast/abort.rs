@@ -95,9 +95,9 @@ pub(crate) fn abort_cast_when_untargeted(world: &mut World, object_id: i32) {
 /// Port of `Creature.breakCast`: a cast broken by *incoming damage* (as opposed
 /// to a self-initiated `abortCast`). It performs the same abort — `MagicSkillCanceled`
 /// + `ActionFailed`, only for a not-yet-launched cast — and then, if the victim
-/// is a player, additionally sends the `YOUR_CASTING_HAS_BEEN_INTERRUPTED`
-/// system message. That extra message is the sole difference from [`abort_cast`],
-/// which is why the movement/self-abort call sites keep using `abort_cast`.
+///   is a player, additionally sends the `YOUR_CASTING_HAS_BEEN_INTERRUPTED`
+///   system message. That extra message is the sole difference from [`abort_cast`],
+///   which is why the movement/self-abort call sites keep using `abort_cast`.
 pub(crate) fn break_cast(world: &mut World, object_id: i32) {
     let breakable = world
         .objects

@@ -361,12 +361,9 @@ pub(crate) fn on_first_talk(world: &mut World, dr_chaos_oid: i32) -> Option<Stri
     }
     let drain = 1 + world.roll(5);
     let timer = {
-        let Some(st) = world
+        let st = world
             .objects
-            .get_component_mut::<DrChaosState>(&dr_chaos_oid)
-        else {
-            return None;
-        };
+            .get_component_mut::<DrChaosState>(&dr_chaos_oid)?;
         st.pissed_off -= drain;
         st.pissed_off
     };

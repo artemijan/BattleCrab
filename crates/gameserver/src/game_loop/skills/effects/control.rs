@@ -1406,3 +1406,38 @@ pub(crate) fn cp(world: &mut World, target_oid: i32, amount: f64, percent: bool)
         broadcast_vitals(world, target_oid);
     }
 }
+
+/// `Formulas.calcStunBreak` + `Creature.stopStunning` — a hit has a 1-in-14
+/// chance to shake off a stun (`BreakStun`, **True** on this dist and `false`
+/// in Java's own default, so the dist opts *into* it).
+///
+/// Java's removal is narrower than "every BLOCK_ACTIONS effect": it takes the
+/// ones whose `AbnormalType` is `STUN`, and only while
+/// `info.getTime() <= info.getSkill().getAbnormalTime()` — the guard that
+/// spares a stun whose duration was doubled by skill mastery until it has
+/// burned back down to the normal length. The port models no such doubling, so
+/// that second half is always true here; it is written down rather than
+/// silently dropped, because it becomes load-bearing the moment mastery
+/// durations land.
+///
+/// Sleep and paralyze also carry `BLOCK_ACTIONS` and are deliberately **not**
+/// removed — only `STUN` is, which is why this filters on the abnormal type
+/// rather than the flag.
+pub(crate) fn try_break_stun(world: &mut World, object_id: i32) {
+    if !world.cfg.character.alt_game_stun_break {
+        return;
+    }
+    if crate::game_loop::abnormal::flags_of(world, object_id)
+        & crate::model::skill::effect_flag::BLOCK_ACTIONS
+        == 0
+    {
+        return;
+    }
+    // `Rnd.get(14) == 0`.
+    if world.roll(14) != 0 {
+        return;
+    }
+    super::ticks::expire_buffs_where(world, object_id, |_, buff| {
+        buff.abnormal_type.eq_ignore_ascii_case("STUN")
+    });
+}

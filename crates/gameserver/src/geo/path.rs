@@ -206,9 +206,9 @@ impl<'a> CellNodeBuffer<'a> {
             }
 
             self.get_neighbors();
-            match self.open.pop() {
-                None => return None, // No more ways.
-                Some(e) => self.current = e.idx,
+            {
+                let e = self.open.pop()?;
+                self.current = e.idx
             }
         }
         None

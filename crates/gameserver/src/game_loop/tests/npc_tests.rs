@@ -57,11 +57,11 @@ fn queued_action_slot_is_last_click_wins() {
 
 /// `Action` selects a player target: the selector gets `MyTargetSelected`
 /// + a `StatusUpdate` (target's HP) + the `ActionFailed` terminator; the
-/// target itself gets `TargetSelected` (never `MyTargetSelected`). A
-/// repeat click on the same target is a no-op (only `ActionFailed`).
-/// `RequestTargetCanceld{target_lost:true}` clears it and broadcasts
-/// `TargetUnselected` to everyone including the canceller (Java uses
-/// includeSelf=true there; without it the client keeps its target).
+///   target itself gets `TargetSelected` (never `MyTargetSelected`). A
+///   repeat click on the same target is a no-op (only `ActionFailed`).
+///   `RequestTargetCanceld{target_lost:true}` clears it and broadcasts
+///   `TargetUnselected` to everyone including the canceller (Java uses
+///   includeSelf=true there; without it the client keeps its target).
 #[test]
 fn action_selects_switches_and_cancels_target() {
     let (mut world, ..) = test_world();

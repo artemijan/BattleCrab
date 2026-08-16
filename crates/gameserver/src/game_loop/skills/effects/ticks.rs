@@ -39,6 +39,7 @@ pub(crate) fn handle_dam_over_time_tick(
     // for an NPC effector (no client to message — the base no-op).
     let caster_name = player_name_or_empty(world, caster_oid);
 
+    let ratio_ms = world.cfg.character.effect_tick_ratio_ms;
     let mut interval = 0;
     // Set when a tick returns Java's `false` for a *toggle*, which cancels it
     // (`BuffInfo.onTick` only honours the return value for toggles).
@@ -50,7 +51,7 @@ pub(crate) fn handle_dam_over_time_tick(
             // `HealOverTime.onActionTime`. `power` is negative for the upkeep
             // toggles, so this both heals and drains.
             SkillEffect::HealOverTime { power, ticks } if *ticks > 0 => {
-                interval = dot_interval_ticks(*ticks);
+                interval = dot_interval_ticks(*ticks, ratio_ms);
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
                 let max_hp = v.max_hp as f64;
                 // Java's early bails: at full HP a healing tick is skipped, and
@@ -66,7 +67,7 @@ pub(crate) fn handle_dam_over_time_tick(
                     deactivate_toggle |= is_toggle;
                     continue;
                 }
-                let mut hp = v.cur_hp + dot_tick_damage(*power, *ticks);
+                let mut hp = v.cur_hp + dot_tick_damage(*power, *ticks, ratio_ms);
                 // Cap at max when healing, floor at 1 when draining — a HoT
                 // upkeep never kills its owner.
                 hp = if *power > 0.0 { hp.min(max_hp) } else { hp.max(1.0) };
@@ -91,14 +92,14 @@ pub(crate) fn handle_dam_over_time_tick(
             // the way the first shove threw them instead of being re-aimed
             // away from a caster who may be dead, gone or long out of range.
             SkillEffect::Fear { ticks } if *ticks > 0 => {
-                interval = dot_interval_ticks(*ticks);
+                interval = dot_interval_ticks(*ticks, ratio_ms);
                 fear_action(world, None, target_oid);
             }
             // `ChameleonRest.onActionTime` — Relax's stand-up and out-of-MP
             // stops, **without** its HP-full stop: you are resting to hide,
             // not to heal, so a full HP bar does not retire it.
             SkillEffect::ChameleonRest { power, ticks } if *ticks > 0 => {
-                interval = dot_interval_ticks(*ticks);
+                interval = dot_interval_ticks(*ticks, ratio_ms);
                 if world.objects.has_component::<crate::model::Player>(&target_oid)
                     && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
                 {
@@ -108,7 +109,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
                     continue;
                 };
-                let drain = dot_tick_damage(*power, *ticks);
+                let drain = dot_tick_damage(*power, *ticks, ratio_ms);
                 // Java compares before spending and bails on `>`, so a tick that
                 // costs exactly the remaining MP still runs.
                 if drain > v.cur_mp {
@@ -125,7 +126,7 @@ pub(crate) fn handle_dam_over_time_tick(
             // would take MP to zero or below, and the write floors at 1 rather
             // than 0 — a drain wearing this handler can never empty the pool.
             SkillEffect::ManaHealOverTime { power, ticks } if *ticks > 0 => {
-                interval = dot_interval_ticks(*ticks);
+                interval = dot_interval_ticks(*ticks, ratio_ms);
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
                     continue;
                 };
@@ -143,7 +144,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 } else if v.cur_mp - *power <= 0.0 {
                     continue;
                 }
-                let delta = dot_tick_damage(*power, *ticks);
+                let delta = dot_tick_damage(*power, *ticks, ratio_ms);
                 let restored = if *power > 0.0 {
                     (v.cur_mp + delta).min(ceiling)
                 } else {
@@ -157,7 +158,7 @@ pub(crate) fn handle_dam_over_time_tick(
             // `Relax.onActionTime` — the MP upkeep above, plus the two extra
             // stop conditions the plain upkeep effects do not have.
             SkillEffect::Relax { power, ticks } if *ticks > 0 => {
-                interval = dot_interval_ticks(*ticks);
+                interval = dot_interval_ticks(*ticks, ratio_ms);
                 // "the holder stood up" — Java returns `false` outright, which
                 // cancels the toggle. Standing is how a player turns Relax off.
                 if world.objects.has_component::<crate::model::Player>(&target_oid)
@@ -177,7 +178,7 @@ pub(crate) fn handle_dam_over_time_tick(
                     deactivate_toggle = true;
                     continue;
                 }
-                let drain = dot_tick_damage(*power, *ticks);
+                let drain = dot_tick_damage(*power, *ticks, ratio_ms);
                 if drain > v.cur_mp && is_toggle {
                     send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
                     deactivate_toggle = true;
@@ -193,9 +194,9 @@ pub(crate) fn handle_dam_over_time_tick(
             | SkillEffect::FakeDeath { power, ticks }
                 if *ticks > 0 =>
             {
-                interval = dot_interval_ticks(*ticks);
+                interval = dot_interval_ticks(*ticks, ratio_ms);
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
-                let drain = dot_tick_damage(*power, *ticks);
+                let drain = dot_tick_damage(*power, *ticks, ratio_ms);
                 if drain > v.cur_mp && is_toggle {
                     // Out of MP: the toggle switches itself off.
                     send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
@@ -219,8 +220,8 @@ pub(crate) fn handle_dam_over_time_tick(
         if *ticks <= 0 {
             continue;
         }
-        interval = dot_interval_ticks(*ticks);
-        let mut damage = dot_tick_damage(*power, *ticks);
+        interval = dot_interval_ticks(*ticks, ratio_ms);
+        let mut damage = dot_tick_damage(*power, *ticks, ratio_ms);
         // `!canKill`: a tick may never drop the target below 1 HP.
         if !*can_kill {
             let cur_hp = world

@@ -1,9 +1,9 @@
 //! Port of the party flows: `RequestJoinParty`/`RequestAnswerJoinParty`/
 //! `RequestWithDrawalParty`/`RequestOustPartyMember`/`RequestChangePartyLeader`
 //! + `Party`'s member management, loot-rule voting, the 12 s position
-//! broadcast, and the `PartySmallWindowUpdate` vitals piggyback.
-//! Out of scope (PLAN_G10_SOCIAL.md): command channels, matching rooms,
-//! tactical signs, pets/servitors, duels, block list.
+//!   broadcast, and the `PartySmallWindowUpdate` vitals piggyback.
+//!   Out of scope (PLAN_G10_SOCIAL.md): command channels, matching rooms,
+//!   tactical signs, pets/servitors, duels, block list.
 
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_player;

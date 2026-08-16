@@ -466,7 +466,7 @@ impl CombatStats {
     /// `pAtkSpd / 333` (the finalized `p_atk_spd` is `weaponBase × dexBonus × mul
     /// + add`) whenever `mul ≥ 0.7` and there is no move-type term — the case for
     /// every player here. Sending a bare `1.0` (the old value) left the swing
-    /// animation at base cadence while Super Haste quadrupled the actual p_atk_spd.
+    ///   animation at base cadence while Super Haste quadrupled the actual p_atk_spd.
     pub fn client_atk_speed_multiplier(&self) -> f64 {
         self.p_atk_spd as f64 / 333.0
     }
@@ -897,10 +897,10 @@ impl PlayerVariables {
 
 /// A player's active private *manufacture* store (Java `Player._manufactureItems`
 /// + store title): the recipes they craft-for-hire and the adena fee each.
-/// Present only while the store is open; not persisted (`StoreRecipeShopList =
+///   Present only while the store is open; not persisted (`StoreRecipeShopList =
 /// False`). The store *type* byte (MANUFACTURE) lives on
-/// [`Player::store_type`](crate::model::Player::store_type). `items` are
-/// `(recipe_list_id, cost)`.
+///   [`Player::store_type`](crate::model::Player::store_type). `items` are
+///   `(recipe_list_id, cost)`.
 #[derive(Component, Debug, Clone, Default)]
 pub struct ManufactureStore {
     pub items: Vec<(i32, i64)>,
