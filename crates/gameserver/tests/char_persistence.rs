@@ -140,6 +140,8 @@ fn recv(rx: &std::sync::mpsc::Receiver<gameserver::events::GameEvent>) -> DbEven
             | DbEvent::ClanHallBiddersLoaded { .. }
             | DbEvent::ResidenceFunctionsLoaded { .. }
             | DbEvent::SiegeGuardsLoaded { .. }
+            | DbEvent::MercenariesLoaded { .. }
+            | DbEvent::BuyListStockLoaded { .. }
             | DbEvent::OlympiadLoaded { .. }
             | DbEvent::HeroesLoaded { .. }
             | DbEvent::NpcRespawnsLoaded { .. }

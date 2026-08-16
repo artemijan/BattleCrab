@@ -26,6 +26,14 @@ pub struct GeneralConfig {
     pub gm_startup_silence: bool,
     /// `GMStartupAutoList`: register the GM in the visible GM list on login
     /// (vs. hidden). Drives the `addGm` hidden flag.
+    /// `AllowWear` (True here) — whether the try-on shop works at all.
+    pub allow_wear: bool,
+    /// `WearDelay` (5 s) — how long a previewed outfit stays on before the
+    /// server tells the client to drop it.
+    pub wear_delay: i32,
+    /// `WearPrice` (10 adena) — charged **per previewed slot**, not per
+    /// request.
+    pub wear_price: i32,
     pub gm_startup_auto_list: bool,
     /// `GMStartupDietMode`: auto-enable diet mode (no weight overload) on login.
     pub gm_startup_diet_mode: bool,
@@ -229,6 +237,9 @@ impl GeneralConfig {
             gm_startup_invulnerable: p.get_bool("GMStartupInvulnerable", d.gm_startup_invulnerable),
             gm_startup_invisible: p.get_bool("GMStartupInvisible", d.gm_startup_invisible),
             gm_startup_silence: p.get_bool("GMStartupSilence", d.gm_startup_silence),
+            allow_wear: p.get_bool("AllowWear", true),
+            wear_delay: p.get_int("WearDelay", 5),
+            wear_price: p.get_int("WearPrice", 10),
             gm_startup_auto_list: p.get_bool("GMStartupAutoList", d.gm_startup_auto_list),
             gm_startup_diet_mode: p.get_bool("GMStartupDietMode", d.gm_startup_diet_mode),
             gm_give_special_skills: p.get_bool("GMGiveSpecialSkills", d.gm_give_special_skills),

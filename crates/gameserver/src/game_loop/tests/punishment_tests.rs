@@ -39,6 +39,7 @@ fn add_jail_zone(world: &mut World) {
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
 }
 

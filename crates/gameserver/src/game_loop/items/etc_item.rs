@@ -50,7 +50,223 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
                 charge_fish_shot(world, object_id, item_id);
             }
         }
+        // `SummonItems extends ItemSkillsTemplate` — the guards, then the same
+        // cast. `use_item_skills` is what parks the collar as Java's
+        // `PetItemHolder`, so the delegation is not a shortcut: it is where the
+        // summon effect gets the item it needs.
+        ItemHandler::SummonItems => {
+            if summon_item_allowed(world, client_id, object_id) {
+                use_item_skills(world, client_id, object_id, item_object_id)
+            }
+        }
+        ItemHandler::Book => read_book(world, client_id, object_id, item_object_id),
+        ItemHandler::RollingDice => roll_dice(world, client_id, object_id, item_object_id),
+        ItemHandler::PetFood => feed_mount(world, client_id, object_id, item_object_id),
+        ItemHandler::MercTicket => {
+            if let Some(item_id) = item_id_of(world, object_id, item_object_id) {
+                crate::game_loop::siege::use_mercenary_ticket(
+                    world,
+                    client_id,
+                    object_id,
+                    item_object_id,
+                    item_id,
+                );
+            }
+        }
         ItemHandler::None => {}
+    }
+}
+
+/// `handlers/itemhandlers/SummonItems`' guard block, in Java's order.
+///
+/// The observer-mode and casting legs are folded into the two the port models:
+/// `all_skills_disabled` already covers Java's `isAllSkillsDisabled()`, and an
+/// in-flight cast is the `Casting` component.
+fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> bool {
+    use crate::network::server_packets::sm_ids;
+    if !crate::game_loop::flood::gate(
+        world,
+        client_id,
+        crate::config::flood_protector::FloodAction::ItemPetSummon,
+    ) {
+        return false;
+    }
+    if crate::game_loop::abnormal::all_skills_disabled(world, object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::Casting>(&object_id)
+    {
+        return false;
+    }
+    if crate::game_loop::sit_stand::is_sitting(world, object_id) {
+        crate::game_loop::helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING,
+        );
+        return false;
+    }
+    // `player.hasPet() || player.isMounted()` — one summon at a time, and a
+    // rider is already using theirs.
+    let mounted = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(crate::model::Player::is_mounted);
+    if mounted || crate::game_loop::servitor::pet_of(world, object_id).is_some() {
+        crate::game_loop::helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_ALREADY_HAVE_A_PET,
+        );
+        return false;
+    }
+    if world
+        .objects
+        .get_component::<crate::model::components::AttackState>(&object_id)
+        .is_some_and(|st| st.attack_end_tick > world.tick)
+    {
+        crate::game_loop::helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_CANNOT_SUMMON_DURING_COMBAT,
+        );
+        return false;
+    }
+    true
+}
+
+/// `handlers/itemhandlers/Book` — show `data/html/help/<itemId>.htm`.
+///
+/// The book is **not** consumed, and Java answers with `ActionFailed` after the
+/// page so the client stops waiting on the use.
+fn read_book(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
+    let Some(item_id) = item_id_of(world, object_id, item_object_id) else {
+        return;
+    };
+    let path = format!("{}data/html/help/{item_id}.htm", world.data.root);
+    // Java's missing-file branch says so in the window rather than staying
+    // silent, which is how a datapack gap gets noticed.
+    let html = crate::data::htm_cache::read_htm(&path).unwrap_or_else(|| {
+        format!("<html><body>My Text is missing:<br>data/html/help/{item_id}.htm</body></html>")
+    });
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message_item(0, item_id, &html),
+    );
+    send_action_failed(world, client_id);
+}
+
+/// `handlers/itemhandlers/RollingDice` — roll 1–6 and land the die in front of
+/// the roller.
+fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
+    use crate::network::server_packets::sm_ids;
+    let Some(item_id) = item_id_of(world, object_id, item_object_id) else {
+        return;
+    };
+    // Java's `rollDice` returns 0 when the flood protector refuses, and the
+    // caller turns that into the "try again later" message.
+    if !crate::game_loop::flood::gate(
+        world,
+        client_id,
+        crate::config::flood_protector::FloodAction::RollDice,
+    ) {
+        crate::game_loop::helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_MAY_NOT_THROW_THE_DICE_AT_THIS_TIME_TRY_AGAIN_LATER,
+        );
+        return;
+    }
+    // `Rnd.get(1, 6)`.
+    let number = world.roll(6) + 1;
+
+    // "Retail dice position land calculation": 40 units along the heading,
+    // then geo-validated so the die cannot land through a wall.
+    let Some(pos) = crate::game_loop::guard::maybe_position(world, object_id) else {
+        return;
+    };
+    let radian = (pos.heading as f64) * (360.0 / 65536.0) * std::f64::consts::PI / 180.0;
+    let course = std::f64::consts::PI;
+    let x = pos.x + ((std::f64::consts::PI + radian + course).cos() * 40.0) as i32;
+    let y = pos.y + ((std::f64::consts::PI + radian + course).sin() * 40.0) as i32;
+    let (dx, dy, dz) = world
+        .geo
+        .get_valid_location(pos.x, pos.y, pos.z, x, y, pos.z);
+
+    crate::game_loop::helpers::broadcast_including_self(
+        world,
+        object_id,
+        &server_packets::dice(object_id, item_id, number, dx, dy, dz),
+    );
+
+    // The result line: always to the roller; also to everyone nearby in a peace
+    // zone, or to the party outside one (Java's own `TODO: Verify this!`).
+    let name = crate::game_loop::helpers::player_name(world, object_id).unwrap_or_default();
+    let sm = server_packets::system_message_with(
+        sm_ids::C1_HAS_ROLLED_A_S2,
+        &[
+            server_packets::SmParam::Text(name),
+            server_packets::SmParam::Int(number),
+        ],
+    );
+    send_to_client(world, client_id, sm.clone());
+    let in_peace = world
+        .objects
+        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
+    if in_peace {
+        crate::game_loop::helpers::broadcast_from(world, object_id, &sm);
+    } else if let Some(party) = crate::game_loop::command_channel::party_id_of(world, object_id) {
+        crate::game_loop::party::broadcast_to_party(world, party, &sm, Some(object_id));
+    }
+}
+
+/// `handlers/itemhandlers/PetFood`'s **player** branch: a mounted rider eating
+/// the food their mount takes.
+///
+/// The pet-eats-from-its-own-bag branch is a different packet entirely
+/// (`RequestPetUseItem` → `servitor::handle_pet_use_item`), which was ported
+/// with G29; only this half was missing.
+fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id: i32) {
+    use crate::network::server_packets::sm_ids;
+    let Some(item_id) = item_id_of(world, object_id, item_object_id) else {
+        return;
+    };
+    let mount_npc_id = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .filter(|p| p.is_mounted())
+        .map(|p| p.mount_npc_id)
+        .unwrap_or(0);
+    let eats = mount_npc_id != 0
+        && world
+            .data
+            .pet_data
+            .get(mount_npc_id)
+            .is_some_and(|t| t.food_item_id == item_id);
+    if !eats {
+        // Java's fall-through for every other case, mount or not.
+        crate::game_loop::helpers::send_sm_to_player(
+            world,
+            object_id,
+            sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS,
+            &[server_packets::SmParam::ItemName(item_id)],
+        );
+        return;
+    }
+    // `player.destroyItem("Consume", objectId, 1, null, false)`.
+    let changes = crate::game_loop::items::destroy_item_by_id(world, object_id, item_id, 1);
+    if changes.is_empty() {
+        return;
+    }
+    crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
+    for (skill_id, skill_level) in item_skills(world, item_id) {
+        if let Some(skill) = skill_by_id(world, skill_id, skill_level) {
+            crate::game_loop::skills::effects::apply_skill_effects(
+                world, object_id, object_id, &skill,
+            );
+        }
     }
 }
 

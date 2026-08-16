@@ -837,6 +837,9 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         return;
     };
     let name = npc_name_or_empty(world, pet_oid);
+    // Java's `GMViewItemList(Pet)` ctor: `cha.getInventoryLimit()`, which for a
+    // pet is `Config.INVENTORY_MAXIMUM_PET`.
+    let limit = world.cfg.npc.inventory_maximum_pet as i32;
     let Some(inv) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&pet_oid)
@@ -844,7 +847,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         send_message(world, client_id, "This pet carries no inventory.");
         return;
     };
-    let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
+    let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
     send_to_client(world, client_id, pkt);
 }
 

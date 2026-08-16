@@ -141,8 +141,97 @@ pub(crate) fn add_exp_and_sp(
         );
     }
 
+    // `PlayerStat.addExp`'s "Set new karma" block, which runs on the **uncapped**
+    // amount that was asked for, not on what the level cap let through.
+    reduce_karma_for_exp(world, player_oid, exp);
+
     let new_level = level_for_exp(world, new_exp, max_level);
     apply_level_change(world, player_oid, old_level, new_level);
+}
+
+/// Java `PlayerStat.addExp`'s karma block: earning experience works a PK's
+/// reputation back toward 0.
+///
+/// ```java
+/// if (!player.isCursedWeaponEquipped() && (player.getReputation() < 0)
+///     && (player.isGM() || !player.isInsideZone(ZoneId.PVP)))
+/// {
+///     final int karmaLost = Formulas.calculateKarmaLost(player, value);
+///     if (karmaLost > 0) player.setReputation(Math.min(reputation + karmaLost, 0));
+/// }
+/// ```
+///
+/// The three gates are all exemptions, and the middle one is the reason this is
+/// cheap to call unconditionally: only a player with **negative** reputation —
+/// a PK — has anything to work off. A cursed-weapon bearer is exempt because
+/// their karma is the weapon's, not theirs, and it is cleared when the weapon
+/// leaves. The arena gate exempts an *ordinary* player grinding inside a PvP
+/// zone, but not a GM — Java's `isGM() ||` short-circuits ahead of it.
+fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
+    let Some((reputation, level, cursed)) = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .map(|p| (p.reputation, p.level, p.cursed_weapon_equipped_id != 0))
+    else {
+        return;
+    };
+    if cursed || reputation >= 0 {
+        return;
+    }
+    if !crate::game_loop::helpers::is_gm(world, player_oid)
+        && crate::game_loop::pvp::in_pvp_zone(world, player_oid)
+    {
+        return;
+    }
+    let karma_lost = calculate_karma_lost(world, level, exp as f64);
+    if karma_lost <= 0 {
+        return;
+    }
+    // `Player.setReputation`'s ceiling (`Config.MAX_REPUTATION`, 0 here) — a
+    // PK working their karma off stops at it rather than going positive.
+    let max_reputation = world.cfg.pvp.max_reputation;
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player_oid)
+    {
+        p.reputation = (p.reputation + karma_lost).min(max_reputation);
+    }
+    // The karma flag and name colour other clients draw come off the
+    // reputation sign, so a PK crossing back to 0 has to be redrawn.
+    crate::game_loop::pvp::update_pvp_title_and_color(world, player_oid, false);
+    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
+}
+
+/// Java `Formulas.calculateKarmaLost(player, finalExp)`:
+///
+/// ```java
+/// final double karmaLooseMul = KarmaData.getInstance().getMultiplier(player.getLevel());
+/// if (finalExp > 0) return (int) ((Math.abs(finalExp / Config.RATE_KARMA_LOST) / karmaLooseMul) / 30);
+/// return (int) ((Math.abs(finalExp) / karmaLooseMul) / 30);
+/// ```
+///
+/// The rate divides the experience *before* the per-level divisor, so raising
+/// `RateXp` on a server that leaves `RateKarmaLost = -1` (this dist) does not
+/// speed redemption up: both sides scale together and the two cancel. That is
+/// deliberate in Java — the alternative would make karma trivial on a high-rate
+/// server.
+///
+/// The negative branch exists because Java calls this from the death path too,
+/// where `finalExp` is the experience *lost*; nothing in this port reaches it
+/// yet, and it is ported for shape rather than left to surprise the next caller.
+pub(crate) fn calculate_karma_lost(world: &World, level: i32, final_exp: f64) -> i32 {
+    let Some(mul) = world.data.karma.multiplier(level) else {
+        return 0;
+    };
+    if mul <= 0.0 {
+        return 0;
+    }
+    let scaled = if final_exp > 0.0 {
+        (final_exp / world.cfg.rates.rate_karma_lost).abs()
+    } else {
+        final_exp.abs()
+    };
+    ((scaled / mul) / 30.0) as i32
 }
 
 /// Java `Player.removeExpAndSp` — subtract exp/sp (each floored at 0) and
@@ -173,9 +262,80 @@ pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp
 fn apply_level_change(world: &mut World, player_oid: i32, old_level: i32, new_level: i32) {
     if new_level != old_level {
         set_level(world, player_oid, new_level);
+        if new_level > old_level {
+            add_reputation_to_clan_for_levels(world, player_oid, new_level);
+        }
         return;
     }
     crate::game_loop::player_info::send_user_info(world, player_oid);
+}
+
+/// `PlayableStat.LAST_PLEDGE_REPUTATION_LEVEL` — the highest level this
+/// character has already been paid clan reputation for.
+const LAST_PLEDGE_REPUTATION_LEVEL: &str = "LAST_PLEDGE_REPUTATION_LEVEL";
+
+/// `PlayableStat.addReputationToClanBasedOnLevel` — a member levelling up
+/// earns their clan reputation, scaled by the level band they reached.
+///
+/// Two guards carry the weight:
+///
+/// - **Clan level 3 or above**, else nothing is paid at all.
+/// - **`LAST_PLEDGE_REPUTATION_LEVEL`**, which is the anti-farm: the grant
+///   covers only levels *above* the highest already paid for, so dying back
+///   down and re-levelling earns nothing the second time. Skipping it would
+///   turn a delevel loop into an infinite reputation source.
+///
+/// Every band is **0 on this dist**, so the whole function pays nothing today
+/// — including the `reputation == 0` early return, which is why no message
+/// goes out either. It is implemented rather than stubbed because the config
+/// is the only thing making it inert.
+fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_level: i32) {
+    let Some(clan_id) = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .map(|p| p.clan_id)
+        .filter(|&id| id != 0)
+    else {
+        return;
+    };
+    // "When a character from clan level 3 or above increases its level, CRP
+    // are added".
+    if world.clans.get(&clan_id).is_none_or(|c| c.level < 3) {
+        return;
+    }
+    let last_paid = world
+        .objects
+        .get_component::<crate::model::components::PlayerVariables>(&player_oid)
+        .map_or(0, |v| v.get_int(LAST_PLEDGE_REPUTATION_LEVEL, 0));
+    if last_paid >= new_level {
+        return;
+    }
+    let f = &world.cfg.feature;
+    // One band lookup per level gained, counting down from the new level.
+    let raw: i32 = ((last_paid + 1)..=new_level)
+        .map(|level| f.reputation_for_level(level))
+        .sum();
+    let multiplier = f.level_obtained_reputation_multiplier;
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVariables>(&player_oid)
+    {
+        v.0.insert(
+            LAST_PLEDGE_REPUTATION_LEVEL.to_string(),
+            new_level.to_string(),
+        );
+    }
+    if raw == 0 {
+        return;
+    }
+    let reputation = (f64::from(raw) * multiplier).ceil() as i32;
+    crate::game_loop::clans::add_clan_reputation(world, clan_id, reputation);
+    // Java tells every online member what the clan just earned.
+    let msg = crate::network::server_packets::system_message_with(
+        sm_ids::YOUR_CLAN_HAS_ADDED_S1_POINTS_TO_ITS_CLAN_REPUTATION,
+        &[SmParam::Int(reputation)],
+    );
+    crate::game_loop::clans::broadcast_to_clan(world, clan_id, &msg);
 }
 
 /// The `PlayableStat.addExp` level scan: highest level whose threshold the

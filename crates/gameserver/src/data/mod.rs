@@ -18,6 +18,7 @@ pub mod cursed_weapon_data;
 pub(crate) mod dist;
 pub mod door_data;
 pub mod enchant_data;
+pub mod enchant_hp_bonus;
 pub mod enchant_skill_groups;
 pub mod experience;
 pub mod fishing_data;
@@ -30,6 +31,7 @@ pub mod initial_shortcut;
 pub mod instance_data;
 pub mod item_auction_data;
 pub mod item_data;
+pub mod karma_data;
 pub mod manor_data;
 pub mod map_region;
 pub mod multisell_data;
@@ -71,6 +73,7 @@ pub use cubic_data::CubicData;
 pub use cursed_weapon_data::CursedWeaponData;
 pub use door_data::DoorData;
 pub use enchant_data::EnchantData;
+pub use enchant_hp_bonus::EnchantHpBonusData;
 pub use enchant_skill_groups::EnchantSkillGroups;
 pub use experience::ExperienceData;
 pub use fishing_data::FishingData;
@@ -80,6 +83,7 @@ pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
 pub use initial_shortcut::InitialShortcutData;
 pub use item_data::ItemData;
+pub use karma_data::KarmaData;
 pub use map_region::MapRegionData;
 pub use multisell_data::MultisellData;
 pub use npc_ai_skills::{AiSkillScope, NpcAiSkillIndex, NpcAiSkills};
@@ -208,6 +212,10 @@ pub struct GameData {
     pub npc_ai_skills: NpcAiSkillIndex,
     pub spawn_data: SpawnData,
     pub hit_condition_bonus: HitConditionBonusData,
+    /// `KarmaData` — the per-level divisor `Formulas.calculateKarmaLost` reads.
+    pub karma: KarmaData,
+    /// `EnchantItemHPBonusData` — the max-HP an enchanted armour piece adds.
+    pub enchant_hp_bonus: EnchantHpBonusData,
     pub xp_lost: PlayerXpPercentLostData,
     pub map_region: MapRegionData,
     pub zone_data: ZoneData,
@@ -316,6 +324,8 @@ impl GameData {
             npc_ai_skills,
             spawn_data: SpawnData::load_from(file_path),
             hit_condition_bonus: HitConditionBonusData::load_from(file_path),
+            karma: KarmaData::load_from(file_path),
+            enchant_hp_bonus: EnchantHpBonusData::load_from(file_path),
             xp_lost: PlayerXpPercentLostData::load_from(file_path),
             map_region: MapRegionData::load_from(file_path),
             zone_data: ZoneData::load_from(file_path),
@@ -394,6 +404,8 @@ impl GameData {
             npc_ai_skills: NpcAiSkillIndex::default(),
             spawn_data: SpawnData::empty(),
             hit_condition_bonus: HitConditionBonusData::default(),
+            karma: KarmaData::empty(),
+            enchant_hp_bonus: EnchantHpBonusData::empty(),
             xp_lost: PlayerXpPercentLostData::empty(),
             map_region: MapRegionData::empty(),
             zone_data: ZoneData::empty(),

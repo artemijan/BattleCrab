@@ -41,7 +41,10 @@ pub const PARTY_ACTION_BLOCK_ID: i32 = -3;
 pub const ACTION_BLOCK_ID: i32 = -4;
 pub const CHAT_BLOCK_ID: i32 = -5;
 
-/// `ActionData.xml` id 65 — the `/AutoHuntingReport` button.
+/// `ActionData.xml` id 65 — the `/AutoHuntingReport` button. Dispatch reaches
+/// the handler by name (`player_actions`), so nothing outside the tests needs
+/// the id; it stays as the name for it.
+#[allow(dead_code)]
 pub const BOT_REPORT_ACTION_ID: i32 = 65;
 
 /// Java `ReporterCharData`: a reporter's daily budget.

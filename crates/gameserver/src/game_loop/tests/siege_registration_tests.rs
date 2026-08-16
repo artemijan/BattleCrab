@@ -881,6 +881,7 @@ fn a_headquarters_needs_an_hq_zone() {
             damage: None,
             swamp: None,
             condition: None,
+            mother_tree: None,
         }
     }
 

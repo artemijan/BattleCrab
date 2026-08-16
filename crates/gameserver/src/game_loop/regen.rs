@@ -58,6 +58,9 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         let (castle_hp_mult, castle_mp_mult) = castle_regen_mult(world, object_id);
         let (hall_hp_mult, hall_mp_mult) =
             (hall_hp_mult * castle_hp_mult, hall_mp_mult * castle_mp_mult);
+        // The mother tree's flat bonus — an *addition*, not a multiplier, and
+        // the last thing Java adds before the movement term.
+        let mother_tree = mother_tree_regen_bonus(world, object_id);
         let Some((player, mut vitals, mut pvitals, base, mods)) =
             world.objects.get_many_mut::<(
                 &Player,
@@ -79,6 +82,7 @@ pub(crate) fn run_regen_tick(world: &mut World) {
             &world.data,
             hall_hp_mult,
             hall_mp_mult,
+            mother_tree,
             cfg_mult,
         ) else {
             continue;
@@ -94,6 +98,25 @@ pub(crate) fn run_regen_tick(world: &mut World) {
 
 /// The clan-hall HP/MP regen multipliers for a player: `(1.0, 1.0)` unless the
 /// player is a clan member standing in **their own** hall that has bought the
+/// Java's `ZoneManager.getZone(player, MotherTreeZone.class)` lookup inside the
+/// two regen finalizers: the Elven Village nursery and the Devil's Isle healing
+/// pool each add a flat `(HpRegenBonus, MpRegenBonus)` to a player standing in
+/// them. `(0, 0)` everywhere else.
+pub(crate) fn mother_tree_regen_bonus(world: &World, object_id: i32) -> (f64, f64) {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&object_id)
+    else {
+        return (0.0, 0.0);
+    };
+    world
+        .data
+        .zone_data
+        .mother_tree_at(pos.x, pos.y, pos.z)
+        .map(|z| (f64::from(z.hp_regen_bonus), f64::from(z.mp_regen_bonus)))
+        .unwrap_or((0.0, 0.0))
+}
+
 /// `HP_REGEN` / `MP_REGEN` function (Java `RegenHPFinalizer`/`RegenMPFinalizer`,
 /// whose `clanHallIndex == posChIndex` check is "you are in the hall your clan
 /// owns" — derived here from the hall's `owner_id`).
@@ -244,6 +267,11 @@ pub(crate) fn regen_player(
     // clan member stands in their own hall (`RegenHPFinalizer`/`RegenMPFinalizer`).
     hall_hp_mult: f64,
     hall_mp_mult: f64,
+    // `MotherTreeZone`'s flat `(HpRegenBonus, MpRegenBonus)` — Java adds these
+    // to the finalizer's base *after* every residence multiplier and *before*
+    // the sitting term ("Mother Tree effect is calculated at last"), which is
+    // why they arrive as a summand rather than another factor.
+    mother_tree: (f64, f64),
     // `Hp`/`Mp`/`CpRegenMultiplier` from `Character.ini`, as fractions. Passed
     // in rather than read from `World` because this function takes only the
     // components it touches; all three are ×1.0 on this dist.
@@ -285,7 +313,9 @@ pub(crate) fn regen_player(
     if vitals.cur_hp < vitals.max_hp as f64 {
         let regen = finalize(
             Stat::RegenerateHpRate,
-            t.base_hp_regen(p.level) * cfg_mult.0 * movement * level_mod * con_bonus * hall_hp_mult,
+            (t.base_hp_regen(p.level) * cfg_mult.0 * level_mod * con_bonus * hall_hp_mult
+                + mother_tree.0)
+                * movement,
         );
         vitals.cur_hp = (vitals.cur_hp + regen).min(vitals.max_hp as f64);
         updates.push((
@@ -296,7 +326,9 @@ pub(crate) fn regen_player(
     if vitals.cur_mp < vitals.max_mp as f64 {
         let regen = finalize(
             Stat::RegenerateMpRate,
-            t.base_mp_regen(p.level) * cfg_mult.1 * movement * level_mod * men_bonus * hall_mp_mult,
+            (t.base_mp_regen(p.level) * cfg_mult.1 * level_mod * men_bonus * hall_mp_mult
+                + mother_tree.1)
+                * movement,
         );
         vitals.cur_mp = (vitals.cur_mp + regen).min(vitals.max_mp as f64);
         updates.push((

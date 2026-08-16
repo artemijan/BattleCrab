@@ -52,6 +52,31 @@ pub fn change_move_type(object_id: i32, running: bool) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/ObservationMode` — put the client into spectator mode
+/// looking at `(x, y, z)`. The two trailing ints are Java's own
+/// `// TODO: Find me`, sent verbatim.
+pub fn observation_mode(x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::OBSERVER_START);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(0);
+    w.write_i32(0xc0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ObservationReturn` — leave spectator mode, back at
+/// `(x, y, z)`.
+pub fn observation_return(x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::OBSERVER_END);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/MoveToPawn` — "walk toward that creature, stopping
 /// at `distance`" (chasing/follow movement; plain destination moves use
 /// `MoveToLocation`).

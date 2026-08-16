@@ -188,7 +188,9 @@ fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
     if p.transform_id != 0 {
         return refuse("You can't sell buffs in Transform state!");
     }
-    // Java also tests `ZoneId.NO_STORE`, a zone kind this port does not load.
+    // `isInsideZone(NO_STORE) || !isInsideZone(PEACE) || isJailed()` — all
+    // three answer with the same line.
+    let no_store = crate::game_loop::private_store::in_no_store_zone(world, player_oid);
     let in_peace = world
         .objects
         .get_component::<crate::model::components::ZoneFlags>(&player_oid)
@@ -197,7 +199,7 @@ fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
         .objects
         .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.jailed);
-    if !in_peace || jailed {
+    if no_store || !in_peace || jailed {
         return refuse("You can't sell buffs here!");
     }
     true

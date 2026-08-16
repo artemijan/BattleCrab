@@ -10,7 +10,7 @@ use crate::data::item_data::{self, ItemData, ItemKind};
 /// indices of the paperdoll array. The numeric values are storage/DB indices
 /// (`items.loc_data`), **not** the client wire order; packets order slots via
 /// `InventorySlot` / `PAPERDOLL_ORDER`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(usize)]
 pub enum PaperdollSlot {
     Under = 0,
@@ -609,7 +609,7 @@ impl Inventory {
     /// nothing else is equipped (`Inventory.getPaperdollIndex`, single-slot
     /// cases only — the dual-slot/two-handed cases are resolved in
     /// `equip_item`).
-    fn primary_slot(body_part: i32) -> Option<PaperdollSlot> {
+    pub(crate) fn primary_slot(body_part: i32) -> Option<PaperdollSlot> {
         use item_data::*;
         Some(match body_part {
             SLOT_L_BRACELET => PaperdollSlot::LBracelet,

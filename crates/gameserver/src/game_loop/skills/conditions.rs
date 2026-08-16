@@ -196,6 +196,23 @@ pub(crate) fn send_refusal(
 /// reachable here — the skill name goes into the *generic* refusal, which
 /// `send_refusal` builds. Kept in the signature so adding such a condition
 /// doesn't have to re-thread it.
+/// Evaluate one condition on its own — the dispatcher's per-condition step,
+/// exposed so a test can exercise a single gate without building a `Skill`
+/// around it. `eval` ignores the skill argument for every condition this
+/// helper is used with.
+#[cfg(test)]
+pub(crate) fn check_for_test(
+    world: &World,
+    caster: i32,
+    target: i32,
+    conds: &[SkillCondition],
+) -> bool {
+    let skill = crate::model::skill::Skill::default();
+    conds
+        .iter()
+        .all(|c| eval(world, caster, &skill, target, c).is_ok())
+}
+
 fn eval(
     world: &World,
     caster: i32,
@@ -294,6 +311,7 @@ fn eval(
             ok(siege_deployable(world, caster))
         }
         SkillCondition::CallPc => call_pc(world, caster),
+        SkillCondition::CanUntransform => can_untransform(world, caster),
         // ---- target state --------------------------------------------------
         SkillCondition::TargetPc => ok(is_player(world, target)),
         SkillCondition::TargetRace { race } => ok(race_of(world, target) == Some(*race)),
@@ -720,6 +738,38 @@ fn siege_deployable(world: &World, caster: i32) -> bool {
         })
 }
 
+/// `CanUntransformSkillCondition` — may this caster drop their transform?
+///
+/// Two of Java's three legs refuse silently (dead, or holding a cursed weapon).
+/// The third is the one the `LandingZone` kind exists for: a wyvern rider has
+/// to be low enough, and the 69 landing zones are where "low enough" is.
+fn can_untransform(world: &World, caster: i32) -> Result<(), Refusal> {
+    let Some(p) = player(world, caster) else {
+        return Err(Refusal(None));
+    };
+    // `isAlikeDead() || isCursedWeaponEquipped()`.
+    if crate::game_loop::helpers::is_dead(world, caster)
+        || crate::game_loop::abnormal::flags_of(world, caster)
+            & crate::model::skill::effect_flag::FAKE_DEATH
+            != 0
+        || p.cursed_weapon_equipped_id != 0
+    {
+        return Err(Refusal(None));
+    }
+    // `isFlyingMounted()` — the wyvern, the one flying mount on this chronicle.
+    const MOUNT_WYVERN: u8 = 2;
+    if p.mount_type == MOUNT_WYVERN {
+        let over_landing = crate::game_loop::guard::maybe_position(world, caster)
+            .is_some_and(|pos| world.data.zone_data.in_landing_zone(pos.x, pos.y, pos.z));
+        if !over_landing {
+            return Err(Refusal(Some(RefusalLine::Sm(
+                sm_ids::YOU_ARE_TOO_HIGH_TO_PERFORM_THIS_ACTION,
+            ))));
+        }
+    }
+    Ok(())
+}
+
 /// `OpCallPcSkillCondition` — Summon Friend's caster-side gate.
 fn call_pc(world: &World, caster: i32) -> Result<(), Refusal> {
     let Some(p) = player(world, caster) else {
@@ -738,9 +788,18 @@ fn call_pc(world: &World, caster: i32) -> Result<(), Refusal> {
     if world.objects.has_component::<OlympiadObserver>(&caster) {
         return Err(Refusal(None));
     }
-    // Java also tests `ZoneId.NO_SUMMON_FRIEND` and `JAIL`; the port has
-    // neither zone kind, so only the jail *state* is available.
-    if p.jailed {
+    // `isInsideZone(NO_SUMMON_FRIEND) || isInsideZone(JAIL) || isFlyingMounted()`
+    // — plus the jail *punishment* state, which the port tracks separately from
+    // the zone and which Java reaches through `PunishmentAffect` instead.
+    let in_blocked_zone =
+        crate::game_loop::guard::maybe_position(world, caster).is_some_and(|pos| {
+            world
+                .data
+                .zone_data
+                .in_no_summon_friend_zone(pos.x, pos.y, pos.z)
+                || world.data.zone_data.in_jail_zone(pos.x, pos.y, pos.z)
+        });
+    if p.jailed || in_blocked_zone {
         return Err(Refusal(Some(RefusalLine::Sm(
             sm_ids::YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA,
         ))));

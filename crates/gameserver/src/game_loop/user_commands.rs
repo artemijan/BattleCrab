@@ -654,7 +654,7 @@ fn olympiad_stat(world: &World, client_id: u32, object_id: i32) {
         .olympiad
         .nobles
         .get(&target)
-        .map_or(crate::model::olympiad::DEFAULT_POINTS, |n| n.points);
+        .map_or(world.cfg.olympiad.start_points, |n| n.points);
     send_sm(
         world,
         client_id,
@@ -670,9 +670,10 @@ fn olympiad_stat(world: &World, client_id: u32, object_id: i32) {
         world,
         client_id,
         sm_ids::THE_MATCHES_THIS_WEEK_ARE_ALL_CLASS_BATTLES,
-        &[SmParam::Int(
-            world.olympiad.remaining_weekly_matches(object_id),
-        )],
+        &[SmParam::Int(world.olympiad.remaining_weekly_matches(
+            object_id,
+            world.cfg.olympiad.max_weekly_matches,
+        ))],
     );
 }
 

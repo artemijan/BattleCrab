@@ -122,7 +122,7 @@ fn send_sm(ctx: &QuestCtx, sm_id: i16) {
 /// (`AltOlyMarkPerPoint` each) and clear the variable — refused while the
 /// inventory is over 80 % full.
 fn calculate_points_done(ctx: &mut QuestCtx) {
-    use crate::game_loop::olympiad::{MARK_ITEM, MARK_PER_POINT, UNCLAIMED_POINTS_VAR};
+    use crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR;
     if !inventory_under_80(ctx) {
         send_sm(
             ctx,
@@ -133,7 +133,12 @@ fn calculate_points_done(ctx: &mut QuestCtx) {
     let points = unclaimed_points(ctx);
     if points > 0 {
         ctx.unset_player_var(UNCLAIMED_POINTS_VAR);
-        ctx.give_items(MARK_ITEM, points as i64 * MARK_PER_POINT);
+        // `AltOlyCompRewItem` × `AltOlyMarkPerPoint`.
+        let (item, per_point) = (
+            ctx.world.cfg.olympiad.comp_reward_item,
+            ctx.world.cfg.olympiad.mark_per_point,
+        );
+        ctx.give_items(item, points as i64 * per_point);
     }
 }
 
@@ -178,10 +183,11 @@ fn register_1v1(ctx: &mut QuestCtx) -> Option<String> {
         return Some("OlyManager-noNoble.html".to_string());
     }
     let (base_class, name) = base_class_and_name(ctx);
+    let start_points = ctx.world.cfg.olympiad.start_points;
     if ctx
         .world
         .olympiad
-        .noble_points_or_create(ctx.player, base_class, &name)
+        .noble_points_or_create(ctx.player, base_class, &name, start_points)
         <= 0
     {
         return Some("OlyManager-noPoints.html".to_string());

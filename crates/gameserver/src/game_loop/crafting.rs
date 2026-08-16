@@ -353,6 +353,15 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
         send_to_client(world, client_id, sp::system_message_with(sm_ids::WHILE_YOU_ARE_ENGAGED_IN_COMBAT_YOU_CANNOT_OPERATE_A_PRIVATE_STORE_OR_PRIVATE_WORKSHOP, &[]));
         return;
     }
+    // `isInsideZone(ZoneId.NO_STORE)` — a workshop is a store like any other.
+    if crate::game_loop::private_store::in_no_store_zone(world, oid) {
+        send_to_client(
+            world,
+            client_id,
+            sp::system_message_with(sm_ids::YOU_CANNOT_OPEN_A_PRIVATE_STORE_HERE, &[]),
+        );
+        return;
+    }
 
     // Validate every recipe is in the seller's book; a bad id punishes and
     // aborts the whole set (Java `handleIllegalPlayerAction` + return).
@@ -1184,4 +1193,33 @@ fn current_store_items(world: &World, oid: i32) -> Vec<(i32, i64)> {
 /// Whether the object is running a manufacture store (for `Action` routing).
 pub(crate) fn is_manufacture_owner(world: &World, oid: i32) -> bool {
     store_type(world, oid) == STORE_TYPE_MANUFACTURE
+}
+
+/// `RequestRecipeShopManagePrev` (0xC0) — the "back" button in a manufacture
+/// store's browse window, which re-opens the seller's list.
+///
+/// Java reads the *target*, not a packet field, and requires it to be a
+/// player; a dead or untargeted requester gets `ActionFailed`. Note it does
+/// **not** re-check that the target is actually running a store — Java hands
+/// `RecipeShopSellList` a player whose manufacture list may be empty, and
+/// [`open_sell_list`]'s own `store_type` guard is what makes that a no-op
+/// here rather than an empty window.
+pub(crate) fn handle_request_recipe_shop_manage_prev(world: &mut World, client_id: u32) {
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let target = world
+        .objects
+        .get_component::<crate::model::components::TargetRef>(&player)
+        .copied()
+        .unwrap_or_default()
+        .0;
+    // `isAlikeDead() || getTarget() == null || !getTarget().isPlayer()`.
+    let target = target.filter(|t| world.objects.has_component::<crate::model::Player>(t));
+    let Some(manufacturer) = target.filter(|_| !crate::game_loop::helpers::is_dead(world, player))
+    else {
+        crate::game_loop::helpers::send_action_failed(world, client_id);
+        return;
+    };
+    open_sell_list(world, client_id, player, manufacturer);
 }

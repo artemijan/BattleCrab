@@ -819,6 +819,7 @@ fn give_collar(world: &mut World) -> i32 {
             )]
             .into_iter()
             .collect(),
+            skills: Vec::new(),
         });
     let World { data, objects, .. } = world;
     objects
@@ -4578,6 +4579,7 @@ fn add_great_wolf(world: &mut World) {
             levels: [(55, lvl(1_000_000)), (56, lvl(1_200_000))]
                 .into_iter()
                 .collect(),
+            skills: Vec::new(),
         });
 }
 
@@ -4768,6 +4770,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
             )]
             .into_iter()
             .collect(),
+            skills: Vec::new(),
         });
     world
         .data
@@ -4788,6 +4791,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
             )]
             .into_iter()
             .collect(),
+            skills: Vec::new(),
         });
     set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL, 1_150_000);
     pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 3");
@@ -4882,6 +4886,7 @@ fn restore_reads_the_level_off_the_collar_enchant() {
             )]
             .into_iter()
             .collect(),
+            skills: Vec::new(),
         });
     let World { data, objects, .. } = &mut world;
     objects
@@ -5345,10 +5350,18 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
     );
     // 3. It no longer obeys.
     drain(&mut out);
-    crate::game_loop::servitor::handle_request_action_use(
+    // The order dispatches through `ActionData.xml`'s handler table, which the
+    // fixture world ships empty — without the row the refusal below would be
+    // "no handler found" rather than "the servitor is unresponsive".
+    world.data.action_data.insert_row_for_test(
+        crate::game_loop::player_actions::action::SERVITOR_STOP,
+        "ServitorStop",
+        0,
+    );
+    crate::game_loop::player_actions::handle_request_action_use(
         &mut world,
         CID,
-        &action_use_body(crate::game_loop::servitor::action::SERVITOR_STOP),
+        &action_use_body(crate::game_loop::player_actions::action::SERVITOR_STOP),
     );
     let pkts = drain(&mut out);
     assert!(
@@ -5502,5 +5515,443 @@ fn dismount_stores_the_drained_feed_on_the_collar_row() {
         world.objects.get_component::<PlayerPets>(&OWNER).unwrap().0[&collar].fed,
         37,
         "the drained gauge went back onto the pets row"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// The pet/servitor window orders (`handlers/playeractions/*`)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::servitor::{handle_pet_action, handle_servitor_action};
+
+/// Hit `summon_oid` for 50, as an auto-attack from `attacker`.
+fn hit(world: &mut World, summon_oid: i32, attacker: i32) {
+    crate::game_loop::combat::npc_receive_damage(world, summon_oid, attacker, 50.0, true);
+}
+
+fn hate_for(world: &World, summon_oid: i32, foe: i32) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&summon_oid)
+        .and_then(|a| a.0.get(&foe))
+        .map(|i| i.hate)
+        .unwrap_or(0.0)
+}
+
+/// **A summon does not fight back on its own.** Java's `Summon` is not an
+/// `Attackable`: `SummonAI.onEvtAttacked` retaliates only in the `ServitorMode`
+/// defending stance, and a fresh summon starts passive. The port used to run
+/// every summon through the ordinary monster reaction, so it always retaliated
+/// — this is the gate that stops it.
+#[test]
+fn a_passive_summon_does_not_fight_back() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
+
+    hit(&mut world, oid, FOE);
+
+    assert_eq!(hate_for(&world, oid, FOE), 0.0, "no hate is taken");
+    assert_ne!(
+        world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(&oid)
+            .unwrap()
+            .intention,
+        crate::model::npc::NpcIntention::Attack,
+        "and it does not switch to attacking"
+    );
+    // The damage tally is still kept — it is what decides kill credit.
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&oid)
+            .and_then(|a| a.0.get(&FOE))
+            .map(|i| i.damage)
+            .unwrap_or(0.0)
+            > 0.0,
+        "but the damage is recorded"
+    );
+}
+
+/// `ServitorMode` option 2 — the defending stance. Now the same hit produces
+/// the retaliation Java's `defendAttack` does.
+#[test]
+fn servitor_mode_defending_makes_it_fight_back() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
+
+    handle_servitor_action(&mut world, CID, OWNER, "ServitorMode", 2);
+    assert!(
+        world
+            .objects
+            .get_component::<ServitorOf>(&oid)
+            .unwrap()
+            .defending,
+        "the stance is set"
+    );
+
+    hit(&mut world, oid, FOE);
+
+    assert!(hate_for(&world, oid, FOE) > 0.0, "it takes the attacker");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(&oid)
+            .unwrap()
+            .intention,
+        crate::model::npc::NpcIntention::Attack
+    );
+
+    // Option 1 puts it back to passive.
+    handle_servitor_action(&mut world, CID, OWNER, "ServitorMode", 1);
+    assert!(
+        !world
+            .objects
+            .get_component::<ServitorOf>(&oid)
+            .unwrap()
+            .defending
+    );
+}
+
+/// `defendAttack`'s `owner != attacker` guard: a defending summon does not turn
+/// on its own master, however it got hit by them.
+#[test]
+fn a_defending_summon_never_turns_on_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+    handle_servitor_action(&mut world, CID, OWNER, "ServitorMode", 2);
+
+    hit(&mut world, oid, OWNER);
+
+    assert_eq!(hate_for(&world, oid, OWNER), 0.0, "its master is exempt");
+}
+
+/// The pet window's orders reach the **pet**, not the servitor slot — the two
+/// live in different halves of `SummonRef` and the old dispatcher could reach
+/// neither.
+#[test]
+fn the_pet_window_orders_reach_the_pet() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
+    world
+        .objects
+        .add_components(&OWNER, crate::model::components::TargetRef(Some(FOE)));
+
+    handle_pet_action(&mut world, CID, OWNER, "PetAttack", 0);
+    assert!(
+        hate_for(&world, pet, FOE) > 0.0,
+        "PetAttack takes the target"
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<ServitorOf>(&pet)
+            .unwrap()
+            .following,
+        "and stops trailing"
+    );
+
+    handle_pet_action(&mut world, CID, OWNER, "PetStop", 0);
+    assert_eq!(hate_for(&world, pet, FOE), 0.0, "PetStop drops the target");
+    assert!(
+        world
+            .objects
+            .get_component::<ServitorOf>(&pet)
+            .unwrap()
+            .following,
+        "and resumes following"
+    );
+
+    handle_pet_action(&mut world, CID, OWNER, "PetHold", 0);
+    assert!(
+        !world
+            .objects
+            .get_component::<ServitorOf>(&pet)
+            .unwrap()
+            .following,
+        "PetHold toggles the follow off"
+    );
+}
+
+/// `Pet.isUncontrollable()` — a pet whose hunger gauge has hit 0 ignores every
+/// order and says so.
+#[test]
+fn a_starving_pet_ignores_its_owner() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+    add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
+    world
+        .objects
+        .add_components(&OWNER, crate::model::components::TargetRef(Some(FOE)));
+    world.objects.get_component_mut::<PetOf>(&pet).unwrap().fed = 0;
+    drain(&mut rx);
+
+    handle_pet_action(&mut world, CID, OWNER, "PetAttack", 0);
+
+    assert_eq!(hate_for(&world, pet, FOE), 0.0, "the order is refused");
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE),
+        "and the owner is told why"
+    );
+}
+
+/// `UnsummonPet` refuses mid-fight, and on the way out stores the pet — the
+/// session's fed/exp deltas ride out on the row, not with the entity.
+#[test]
+fn unsummoning_a_pet_refuses_in_combat_and_otherwise_stores_it() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+
+    // In combat stance → refused, pet still out.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::AttackState>(&pet)
+        .unwrap()
+        .stance_until_tick = world.tick + 100;
+    handle_pet_action(&mut world, CID, OWNER, "UnsummonPet", 0);
+    assert!(pet_of(&world, OWNER).is_some(), "refused mid-fight");
+
+    // Out of combat → gone, and the fed value reached the owner's saved row.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::AttackState>(&pet)
+        .unwrap()
+        .stance_until_tick = 0;
+    // Above the wolf's 55 % hunger limit — below it the *hungry* refusal fires
+    // first, which is a different branch and a different message.
+    world.objects.get_component_mut::<PetOf>(&pet).unwrap().fed = 200;
+    handle_pet_action(&mut world, CID, OWNER, "UnsummonPet", 0);
+
+    assert!(pet_of(&world, OWNER).is_none(), "the pet is put away");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerPets>(&OWNER)
+            .and_then(|p| p.0.get(&collar))
+            .map(|r| r.fed),
+        Some(200),
+        "and its state was stored on the way out"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// The collar as an *item* (`handlers/itemhandlers/SummonItems`)
+// ---------------------------------------------------------------------------
+
+/// **The pet system's way in.** Every pet collar on this dist declares
+/// `handler="SummonItems"` — the Wolf Collar included — and that name used to
+/// fall through `ItemHandler`'s match to `None`, so using a collar consumed the
+/// click and did nothing. Summoning worked in every test because the tests set
+/// `pending_pet_collar` by hand; no client could reach it.
+///
+/// This drives the real path: a real collar item, the real `UseItem` dispatch,
+/// the real `Summon Pet` (2046) skill off the item's own `<skills>`.
+#[test]
+fn using_a_collar_item_summons_the_pet() {
+    let (mut world, _db, _l) = servitor_world();
+    world.data.item_data = crate::data::dist::items_owned();
+    world.data.skill_data = crate::data::dist::skills_owned();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+
+    assert!(pet_of(&world, OWNER).is_none(), "no pet before the click");
+    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    // Summon Pet (2046) has `hitTime 5000`, so the effect lands 50 ticks out.
+    advance_ticks(&mut world, 60);
+
+    assert!(
+        pet_of(&world, OWNER).is_some(),
+        "using the collar brings the wolf out"
+    );
+}
+
+/// `SummonItems`' own guards, which `ItemSkillsTemplate` has no reason to
+/// carry: one summon at a time.
+#[test]
+fn a_second_collar_click_is_refused_while_a_pet_is_out() {
+    let (mut world, _db, _l) = servitor_world();
+    world.data.item_data = crate::data::dist::items_owned();
+    world.data.skill_data = crate::data::dist::skills_owned();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    advance_ticks(&mut world, 60);
+    let first = pet_of(&world, OWNER).expect("summoned");
+    drain(&mut rx);
+
+    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    advance_ticks(&mut world, 60);
+
+    assert_eq!(
+        pet_of(&world, OWNER),
+        Some(first),
+        "the same pet is still out, not a second one"
+    );
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE),
+        "and the owner is told they already have one"
+    );
+}
+
+/// A seated player cannot summon (`YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING`).
+#[test]
+fn a_seated_player_cannot_use_a_collar() {
+    let (mut world, _db, _l) = servitor_world();
+    world.data.item_data = crate::data::dist::items_owned();
+    world.data.skill_data = crate::data::dist::skills_owned();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&OWNER)
+        .unwrap()
+        .sitting = true;
+
+    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    advance_ticks(&mut world, 60);
+
+    assert!(pet_of(&world, OWNER).is_none(), "refused while seated");
+}
+
+/// **`RequestPetGetItem` (0x98) walks the pet to the item, then puts it in the
+/// pet's own bag.**
+///
+/// The two-stage shape is the point: the order only sets the errand, and the
+/// lift happens on a later think once the pet is within 36 units. A test that
+/// dropped the item under the pet's feet would pass without the walk ever
+/// working.
+#[test]
+fn a_pet_fetches_a_ground_item_into_its_own_bag() {
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).unwrap();
+
+    // Adena on the floor, well out of reach.
+    let item = spawn_ground_item(&mut world, 57, 100, 0, 600, 0, 0, 0, DropSource::Npc);
+
+    let mut body = vec![cop::REQUEST_PET_GET_ITEM];
+    body.extend_from_slice(&item.to_le_bytes());
+    on_packet(&mut world, CID, body);
+
+    // The errand is running and the pet stopped trailing its owner.
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::SummonPickup>(&pet),
+        "the fetch order is pending"
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<ServitorOf>(&pet)
+            .unwrap()
+            .following,
+        "and the pet stopped following"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Movement>(&pet)
+            .is_some(),
+        "it is walking to the item"
+    );
+
+    // Put the pet on top of the item and think again — now it lifts.
+    {
+        let p = world.objects.get_component_mut::<Position>(&pet).unwrap();
+        p.x = 600;
+        p.y = 0;
+    }
+    crate::game_loop::servitor::pet_pickup_think(&mut world, pet);
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::SummonPickup>(&pet),
+        "the errand is over"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<ServitorOf>(&pet)
+            .unwrap()
+            .following,
+        "and the pet trails its owner again"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::PetInventory>(&OWNER)
+            .unwrap()
+            .0
+            .count_of(57),
+        100,
+        "the adena is in the pet's bag, not the owner's"
+    );
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&item),
+        "and off the floor"
+    );
+}
+
+/// **A starving pet refuses the errand and says why.** The one guard in this
+/// packet that sends a message rather than a bare `ActionFailed`.
+#[test]
+fn a_starving_pet_will_not_fetch() {
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).unwrap();
+    // `isUncontrollable()` — the hunger gauge at zero.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet)
+        .unwrap()
+        .fed = 0;
+    let item = spawn_ground_item(&mut world, 57, 100, 0, 10, 0, 0, 0, DropSource::Npc);
+    drain(&mut rx);
+
+    let mut body = vec![cop::REQUEST_PET_GET_ITEM];
+    body.extend_from_slice(&item.to_le_bytes());
+    on_packet(&mut world, CID, body);
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::SummonPickup>(&pet),
+        "no errand was taken"
+    );
+    assert!(
+        has_sm(
+            &drain(&mut rx),
+            server_packets::sm_ids::WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET
+        ),
+        "and the owner is told why"
     );
 }

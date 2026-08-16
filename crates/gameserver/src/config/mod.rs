@@ -53,8 +53,12 @@ pub use premium::PremiumConfig;
 pub use sell_buffs::SellBuffsConfig;
 mod common;
 pub mod grand_boss;
+pub mod olympiad;
+pub mod pvp;
 
 pub use grand_boss::GrandBossConfig;
+pub use olympiad::OlympiadConfig;
+pub use pvp::PvpConfig;
 pub use rates::RatesConfig;
 pub use security::SecurityConfig;
 pub use server::ServerConfig;
@@ -70,6 +74,10 @@ pub struct CombatConfig {
     pub character: CharacterConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
+    /// `PVP.ini` — flag timers, reputation bounds, the (inert) anti-feed block.
+    pub pvp: PvpConfig,
+    /// `Olympiad.ini` — the season clock, point economy and match rules.
+    pub olympiad: OlympiadConfig,
     /// `GrandBoss.ini` respawn windows, read by the grand-boss lifecycle.
     pub grand_boss: GrandBossConfig,
     /// General.ini runtime keys the game thread reads (ground-item auto-destroy,
@@ -134,6 +142,8 @@ pub struct Config {
     pub geoengine: GeoEngineConfig,
     pub npc: NpcConfig,
     pub rates: RatesConfig,
+    pub pvp: PvpConfig,
+    pub olympiad: OlympiadConfig,
     pub grand_boss: GrandBossConfig,
     pub community_board: CommunityBoardConfig,
     pub premium: PremiumConfig,
@@ -212,6 +222,8 @@ impl Config {
         let geoengine = GeoEngineConfig::load_from(root);
         let npc = NpcConfig::load_from(root);
         let rates = RatesConfig::load_from(root);
+        let pvp = PvpConfig::load_from(root);
+        let olympiad = OlympiadConfig::load_from(root);
         let grand_boss = GrandBossConfig::load_from(root);
         let community_board = CommunityBoardConfig::load_from(root);
         let premium = PremiumConfig::load_from(root);
@@ -245,6 +257,8 @@ impl Config {
             geoengine,
             npc,
             rates,
+            pvp,
+            olympiad,
             grand_boss,
             community_board,
             premium,
@@ -283,6 +297,8 @@ impl Config {
             character: self.character.clone(),
             npc: self.npc.clone(),
             rates: self.rates.clone(),
+            pvp: self.pvp,
+            olympiad: self.olympiad.clone(),
             grand_boss: self.grand_boss.clone(),
             general: self.general.clone(),
             community_board: self.community_board.clone(),

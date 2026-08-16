@@ -86,6 +86,7 @@ fn insert_tax_zone(world: &mut World, castle_id: i32) {
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
 }
 
@@ -644,6 +645,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
     crate::game_loop::castle::update_castle_function(
         &mut world,
@@ -673,6 +675,7 @@ fn the_crown_is_granted_once() {
     own_as_leader(&mut world, GLUDIO, 500);
     drain(&mut rx);
 
+    add_quest_items(&mut world, &[(6841, "Crown of Gludio", false)]);
     chamberlain(&mut world, "give_crown");
     assert_eq!(
         world

@@ -250,10 +250,11 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // and the admin confirm — so each claimant reports whether the reply
         // was its own and the admin handler takes what is left.
         cop::DLG_ANSWER => dispatch_dlg_answer(world, client_id, body),
-        // RequestActionUse (IN_GAME): the action bar's non-skill buttons. Only
-        // the servitor commands are handled so far.
+        // RequestActionUse (IN_GAME): the action bar's non-skill buttons,
+        // dispatched through `ActionData.xml`'s handler table
+        // (`player_actions`) exactly as Java's `PlayerActionHandler` map is.
         cop::REQUEST_ACTION_USE => {
-            super::servitor::handle_request_action_use(world, client_id, body)
+            super::player_actions::handle_request_action_use(world, client_id, body)
         }
         cop::REQUEST_GIVE_ITEM_TO_PET => {
             super::servitor::handle_give_item_to_pet(world, client_id, body)
@@ -305,6 +306,14 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::ANSWER_TRADE_REQUEST => super::trade::handle_answer(world, client_id, body),
         cop::ADD_TRADE_ITEM => super::trade::handle_add_item(world, client_id, body),
         cop::TRADE_DONE => super::trade::handle_done(world, client_id, body),
+        // ObserverReturn (IN_GAME): leave the Broadcasting Tower's spectator
+        // mode. The Olympiad's viewer answers `RequestOlympiadObserverEnd`
+        // instead, and each handler ignores the other's state.
+        cop::OBSERVER_RETURN => {
+            if let Some(player) = world.player_oid(client_id) {
+                super::observation::handle_observer_return(world, client_id, player);
+            }
+        }
         cop::REQUEST_QUEST_LIST => super::quests::handle_request_quest_list(world, client_id),
         cop::REQUEST_QUEST_ABORT => {
             super::quests::handle_request_quest_abort(world, client_id, body)
@@ -358,6 +367,33 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         cop::REQUEST_SURRENDER_PLEDGE_WAR => {
             super::clans::handle_request_surrender_pledge_war(world, client_id, body)
+        }
+        cop::REQUEST_PLEDGE_MEMBER_LIST => {
+            super::clans::handle_request_pledge_member_list(world, client_id)
+        }
+        cop::REQUEST_MAGIC_SKILL_LIST => {
+            super::skills::handle_request_magic_skill_list(world, client_id, body)
+        }
+        cop::REQUEST_GM_LIST => super::admin::handle_request_gm_list(world, client_id),
+        cop::SNOOP_QUIT => super::chat::handle_snoop_quit(world, client_id, body),
+        cop::REQUEST_GIVE_NICK_NAME => {
+            super::clans::handle_request_give_nick_name(world, client_id, body)
+        }
+        cop::REQUEST_LINK_HTML => super::bypass::handle_request_link_html(world, client_id, body),
+        cop::REQUEST_PET_GET_ITEM => {
+            super::servitor::handle_request_pet_get_item(world, client_id, body)
+        }
+        cop::REQUEST_PREVIEW_ITEM => {
+            super::shop::handle_request_preview_item(world, client_id, body)
+        }
+        cop::REQUEST_GM_COMMAND => super::admin::handle_request_gm_command(world, client_id, body),
+        cop::START_ROTATING => super::position::handle_start_rotating(world, client_id, body),
+        cop::FINISH_ROTATING => super::position::handle_finish_rotating(world, client_id, body),
+        cop::CANNOT_MOVE_ANYMORE_IN_VEHICLE => {
+            super::position::handle_cannot_move_anymore_in_vehicle(world, client_id, body)
+        }
+        cop::REQUEST_RECIPE_SHOP_MANAGE_PREV => {
+            super::crafting::handle_request_recipe_shop_manage_prev(world, client_id)
         }
         cop::REQUEST_ALLY_INFO => super::clans::handle_request_ally_info(world, client_id),
         cop::REQUEST_SET_PLEDGE_CREST => {
@@ -932,6 +968,12 @@ fn dispatch_dlg_answer(world: &mut World, client_id: u32, body: &[u8]) {
                     answer.answer == 1,
                 )
             }))
+        // `MercTicket`'s "Place $s1 in the current location and direction" —
+        // claimed by the pending ticket on the player rather than the message
+        // id, since Java gates it on `removeAction(MERCENARY_CONFIRM)`.
+        || oid.is_some_and(|oid| {
+            super::siege::handle_mercenary_confirm(world, oid, answer.answer == 1)
+        })
         // `.offline`'s "Do you wish to exit the game?" — matched by the
         // echoed message id, as Java's `DlgAnswer` does.
         || (answer.message_id == server_packets::sm_ids::DO_YOU_WISH_TO_EXIT_THE_GAME as i32

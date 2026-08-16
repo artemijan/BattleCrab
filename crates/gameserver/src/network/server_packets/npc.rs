@@ -5,6 +5,7 @@ use commons::network::PacketWriter;
 use super::opcodes;
 use crate::data::npc_data::NpcTemplate;
 use crate::enums::NpcInfoType;
+use crate::model::inventory::PaperdollSlot;
 use crate::network::masks;
 
 /// Port of `serverpackets/NpcSay`'s npc-string shape (`new NpcSay(npc,
@@ -662,6 +663,59 @@ pub fn special_camera(
     w.write_i32(is_wide);
     w.write_i32(rel_angle);
     w.write_i32(unk);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/NicknameChanged` — `object_id`'s title is now
+/// `title`. Broadcast beside a `UserInfo` so onlookers redraw the plate
+/// without a full re-spawn.
+pub fn nickname_changed(object_id: i32, title: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::NICK_NAME_CHANGED);
+    w.write_i32(object_id);
+    w.write_string(title);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ShopPreviewInfo` — the "try on" outfit.
+///
+/// `slots` is the previewed item id per paperdoll slot; anything absent is 0
+/// (the client draws what the character actually wears there).
+///
+/// The wire layout is Java's, quirks included: it leads with
+/// `PAPERDOLL_TOTALSLOTS` (**32**) but then writes only **19** ints, and the
+/// right hand is written **twice** — at the r-hand position and again where a
+/// second weapon slot would go. Neither is a transcription slip; the client
+/// reads a fixed 19 and this is the order it reads them in.
+pub fn shop_preview_info(slots: &std::collections::HashMap<PaperdollSlot, i32>) -> Vec<u8> {
+    use PaperdollSlot as P;
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SHOP_PREVIEW_INFO);
+    w.write_i32(32); // Java's PAPERDOLL_TOTALSLOTS, not the count that follows
+    let at = |s: PaperdollSlot| slots.get(&s).copied().unwrap_or(0);
+    for slot in [
+        P::Under,
+        P::REar,
+        P::LEar,
+        P::Neck,
+        P::RFinger,
+        P::LFinger,
+        P::Head,
+        P::RHand,
+        P::LHand,
+        P::Gloves,
+        P::Chest,
+        P::Legs,
+        P::Feet,
+        P::Cloak,
+        P::RHand, // written twice, as Java does
+        P::Hair,
+        P::Hair2,
+        P::RBracelet,
+        P::LBracelet,
+    ] {
+        w.write_i32(at(slot));
+    }
     w.into_bytes()
 }
 

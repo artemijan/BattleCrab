@@ -2434,6 +2434,11 @@ pub enum SkillCondition {
     EquipWeapon { mask: u32 },
     /// `EquipShield` — the secondary slot holds an `ArmorType.SHIELD`.
     EquipShield,
+    /// `CanUntransform` — may this caster drop their transform? The only leg
+    /// that ever refuses on this dist is the altitude one: a **flying-mounted**
+    /// player (a wyvern rider) must be standing over a `LandingZone`, which is
+    /// what those 69 zones exist for.
+    CanUntransform,
     /// `Op1hWeapon` / `Op2hWeapon` — the equipped weapon is of a listed type
     /// **and** its body part is (or is not) `SLOT_LR_HAND`. Java returns on the
     /// first type match rather than continuing, so a weapon of a listed type

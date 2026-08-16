@@ -419,3 +419,68 @@ fn in_transit_arrival_shout_fires_while_sailing_then_stops_once_docked() {
         "no in-transit shout once the ferry has docked"
     );
 }
+
+/// **`CannotMoveAnymoreInVehicle` (0x76) parks the rider at a deck spot.**
+///
+/// The deck-walking twin of `CannotMoveAnymore`: what changes is the *seat
+/// offset*, so the rider keeps riding rather than being left at a world
+/// coordinate the boat is about to sail away from.
+#[test]
+fn a_stop_on_deck_updates_the_seat_and_heading() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, -3600);
+    let boat = spawn_on(&mut world, route(fare_dock_sched()));
+    boats::board(&mut world, 100, boat, (0, 0, 0));
+    drain(&mut rx);
+
+    let mut body = vec![cop::CANNOT_MOVE_ANYMORE_IN_VEHICLE];
+    for v in [boat, 40, -15, 0, 12345] {
+        body.extend_from_slice(&v.to_le_bytes());
+    }
+    on_packet(&mut world, 1, body);
+
+    let iv = world.objects.get_component::<InVehicle>(&100).unwrap();
+    assert_eq!(
+        (iv.seat_x, iv.seat_y, iv.seat_z),
+        (40, -15, 0),
+        "seat moved"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Position>(&100)
+            .unwrap()
+            .heading,
+        12345,
+        "and the heading was committed"
+    );
+    assert!(
+        has_opcode(
+            &drain(&mut rx),
+            server_packets::opcodes::STOP_MOVE_IN_VEHICLE
+        ),
+        "the stop is broadcast, the mover included"
+    );
+}
+
+/// **A stop naming a boat the player is not on changes nothing.** Java checks
+/// the wire's boat id against the one they are actually aboard, which is what
+/// stops a forged packet re-seating someone onto another ship.
+#[test]
+fn a_stop_on_deck_for_the_wrong_boat_is_ignored() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, -3600);
+    let boat = spawn_on(&mut world, route(fare_dock_sched()));
+    boats::board(&mut world, 100, boat, (7, 7, 0));
+    drain(&mut rx);
+
+    let mut body = vec![cop::CANNOT_MOVE_ANYMORE_IN_VEHICLE];
+    for v in [boat + 999, 40, -15, 0, 12345] {
+        body.extend_from_slice(&v.to_le_bytes());
+    }
+    on_packet(&mut world, 1, body);
+
+    let iv = world.objects.get_component::<InVehicle>(&100).unwrap();
+    assert_eq!((iv.seat_x, iv.seat_y), (7, 7), "the seat is untouched");
+    assert!(drain(&mut rx).is_empty(), "and nothing is broadcast");
+}

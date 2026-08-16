@@ -5431,3 +5431,909 @@ server → game server: create, relogin, restart, re-select, re-enter, logout,
 DB assertions) runs green in ~7 s wherever the untracked `interlude_classic.db`
 exists, and self-skips where it doesn't. The `TODO(login-playauth)` marker
 retires: inventory 10 → 9 (census + DEFERRALS.md updated together).
+
+### The action bar was an allow-list — emotes and `/walk` restored (2026-08-14)
+
+The measured-gaps audit ([PORTING_STATUS.md](PORTING_STATUS.md#measured-gaps--the-axes-nothing-above-measures))
+started with `RequestActionUse`, and the finding was not a missing handler but a
+missing *router*. Dispatch lived in `servitor/ai.rs` and opened with an
+allow-list: seven hard-coded ids plus the `ServitorSkillUse` bindings, and
+anything else `return`ed — no packet, no system message, no log line. Of the 251
+rows `ActionData.xml` declares, 66 were unreachable that way, including all 20
+`SocialAction` rows and `RunWalk`. None of it had a marker, because nothing in
+the code knew the rows existed; the module's own comment ("Other action ids …
+are not handled here yet") was the only trace.
+
+Dispatch is now Java's shape — a table. `data/action_data.rs` keeps every row's
+`handler`/`option` instead of only the servitor skills, and the new
+`game_loop/player_actions.rs` maps handler name → behaviour, with
+`RequestActionUse.runImpl`'s four guards in front of it (the conditional
+fake-death leg that keeps action 0 legal, the `BOT_PENALTY` action block, the
+transform's `<actions>` list, and the action-51 fallback). A handler with no arm
+logs Java's own "couldn't find handler with name" — so the *remaining* gaps
+(the pet commands, `ServitorMove`/`Mode`, `UnsummonServitor`, the 57
+`PetSkillUse` rows) are now visible rather than silent, which is the half that
+mattered.
+
+Two handlers landed with it. `SocialAction`: the 17 plain emotes behind
+`canMakeSocialAction` — whose `AI_INTENTION_IDLE` clause maps to "no `Intent`,
+no `Movement`, not resting", the three states a player can hold here — plus
+Show Off's `broadcastInfo`. The couple socials (Exchange Bows, High Five, Couple
+Dance) carry a `SKIP(census)`: they negotiate over `ExAskCoupleAction`, a packet
+no Interlude client can answer. `RunWalk`: the toggle plus
+`Creature.setRunning(boolean)`, whose `ChangeMoveType` broadcast and
+`broadcastUserInfo` were the missing half — `Speeds::move_speed` already picked
+the walk figure off the same flag, so no stat recalculation was needed.
+
+The fixture worlds ship `ActionData::empty()`, so four existing setups were
+asserting against a dispatcher that could no longer reach their handler
+(`SitStand`, `BotReport`, `ServitorStop`, `PrivateStore`); each now declares the
+row it exercises, which is the honest shape for a data-driven dispatch. `player_actions_tests.rs` covers the new behaviour, and the three
+behavioural cases were confirmed to fail with the handler arms stubbed out.
+
+### The pet and servitor window orders (2026-08-15)
+
+Row 2 of the measured-gaps audit, and the rest of what the action-bar allow-list
+had been swallowing: nine `handlers/playeractions/*` entries — `PetHold`,
+`PetAttack`, `PetStop`, `PetMove`, `UnsummonPet`, `PetSkillUse`, `ServitorMove`,
+`ServitorMode`, `UnsummonServitor`. With the router from the day before in
+place, each is a match arm; the work was underneath it, in three parts.
+
+**The order primitives were servitor-scoped and had to be summon-scoped.**
+`servitor_attack`/`_stop`/`_toggle_follow` each resolved `servitor_of(owner)`
+first, so there was no way to point them at a pet. They now split: a
+`summon_*` core taking the summon's own id, and a thin `servitor_*` wrapper that
+resolves it. That is exactly the relationship the data already had — a pet
+carries the same `ServitorOf` link as a skill-summoned servitor, which is why
+follow, leash and attack worked for pets before any of this. Only the *guards*
+differ, and those stay in the handlers: a pet can starve
+(`isUncontrollable()`), and `UnsummonPet` additionally refuses on death, combat
+and hunger because putting a pet away persists it.
+
+**`PetSkillUse` needed pet skills, which the loader had never read.** 47 of the
+56 files under `data/stats/pets` declare a `<skills>` block and `PetDataTable`
+was skipping all of it. The level is not the NPC template's: a pet levels
+independently, so `PetData.getAvailableLevel(skillId, petLvl)` resolves it, and
+that function has two shapes sharing one table — a fixed `skillLevel` gated on
+`minLevel`, and `skillLevel="0"` meaning "scale off the pet's level" on the
+`lvl/10`-then-one-per-5 curve, clamped to the skill's own max because the
+formula assumes at least ten levels. Both are ported and both are tested against
+the shipped Baby Buffalo, whose 4717/4718 pair is the auto-scaling case.
+
+**`ServitorMode` had nothing to toggle, and finding that out was the real
+result.** Java's `Summon` is not an `Attackable`: `SummonAI.onEvtAttacked`
+retaliates only in the defending stance and a fresh summon starts passive. This
+port ran every summon through the ordinary monster damage reaction, so pets and
+servitors **always** fought back — the stance the button selects did not exist,
+and adding the flag without the gate would have been a config key with no
+reader. The gate is now in `combat::damage::npc_receive_damage`, along with
+`defendAttack`'s exemption for the owner's own hits. The damage tally is kept
+either way, because kill credit reads it. `avoidAttack` — the passive stance's
+sidestep — carries a `SKIP(census)`: cosmetic movement with no combat
+consequence and no avoid state to hang it on.
+
+Java's `UnsummonPet` sends the *hunger* message on its betrayed branch, a
+copy-paste slip in the reference. Ported as-is, marked at the site: a client
+that sees different text here has diverged from the server it mirrors.
+
+That closes the action bar for this chronicle. 13 of the 251 rows still have no
+arm and all four handlers behind them are post-Interlude (`AirshipAction`,
+`TacticalSignTarget`, `TacticalSignUse`, `TeleportBookmark`). Seven new tests,
+each confirmed to fail with its subject disabled; 3297 green.
+
+### Karma decay — a PK can work it off again (2026-08-15)
+
+Row 4 of the measured-gaps audit. `Formulas.calculateKarmaLost` and the table it
+reads had never been ported, so `PlayerStat.addExp`'s "Set new karma" block had
+no counterpart here: reputation only ever went *down*. The one way back was
+dying, which is not the mechanic — retail expects a PK to grind their karma off.
+
+Three pieces, none of them large. `KarmaData` reads
+`data/stats/chars/pcKarmaIncrease.xml` (99 rows), whose per-level divisor is the
+whole design: 1.14 at level 1 and 190 by level 79, so the same hunt buys a deep
+PK roughly a 170th of the redemption it buys a beginner. `RateKarmaLost` joins
+the config with Java's `-1 → RateXp` fallback resolved at load, which this dist
+uses — and because the rate divides the experience *before* the per-level
+divisor, raising `RateXp` does not make redemption cheaper: the two cancel.
+There is a test for exactly that, since it looks like a bug until you see why.
+The block itself sits in `add_exp_and_sp` behind Java's three exemptions: a
+cursed-weapon bearer (their karma is the weapon's), anyone whose reputation is
+not negative, and a PvP zone — unless the player is a GM, because Java's
+`isGM() ||` short-circuits ahead of the zone test.
+
+**The port's level cap is five levels higher than Java's, and this is how that
+surfaced.** Java's `KarmaData` stops parsing at `MaximumPlayerLevel` and
+`getMultiplier` unboxes a `Double` straight out of the map, so it would throw
+for any level past 79 — it never does, because `ExperienceData` computes
+`MAX_LEVEL = maxLevel + 1`, clamps it to `MaximumPlayerLevel` (80), and caps exp
+at `getExpForLevel(MAX_LEVEL) - 1`, leaving 79 as the highest attainable level.
+Checking whether the port had the same guarantee showed it does not: it reads
+`maxLevel="85"` raw, applies neither the `+1` nor the clamp, and reads
+`MaximumPlayerLevel` nowhere at all — so characters here can reach 84. The karma
+lookup was written to answer across that whole range rather than paper over it,
+and the cap is recorded as its own row (19) rather than changed: narrowing a
+live server's level ceiling is not a porting decision.
+
+Seven tests, each confirmed to fail with its subject disabled — including the
+two that only bite on a *positive*-reputation player and a cursed-weapon bearer,
+which pass trivially against a no-op and had to be rewritten to be worth
+anything. 3305 green.
+
+### Item handlers — and the pet system had no way in (2026-08-15)
+
+Row 6 of the measured-gaps audit was recorded as a tail of small conveniences:
+18 unported `handlers/itemhandlers/*` names, dice and books and pet food, ranked
+by how many items carried each. That framing was wrong, and the count is what
+hid it.
+
+**Every pet collar on this dist declares `handler="SummonItems"`** — Wolf
+Collar, the dragonflutes, the panpipes, all 54 obtainable ones. `SummonItems`
+was not in `ItemHandler`'s name match, so it resolved to `None`, whose arm in
+`use_etc_item` is `{}`. Using a collar consumed the click and did nothing. The
+whole pet system — summoning, feeding, levelling, evolution, everything G29
+built and everything row 2 added on top two days ago — **could not be reached
+from a client at all**. Every test that summoned a pet reached past the handler
+and set `pending_pet_collar` directly, which is exactly why 3300 green tests
+never noticed; the collar-parking code inside `use_item_skills`, written for
+this, had never once run against a real collar.
+
+`SummonItems extends ItemSkillsTemplate`, so the fix is its guard block —
+flood gate, not sitting, no pet already out, not mounted, not mid-swing — and
+then delegation to the existing item-skill path, which is where the collar gets
+parked as Java's `PetItemHolder`. The test drives the real `UseItem` dispatch
+with a real Wolf Collar and the real `Summon Pet` (2046) off the item's own
+`<skills>`; it fails without the one-line mapping. The first draft of it did
+not, because it called `use_item_by_object_id` — the auto-potion entry, which
+bypasses the handler dispatch entirely — and passed against the bug. Worth
+remembering: for a dispatch fix, the test has to enter where the client does.
+
+Three smaller handlers landed with it. `Book` opens `data/html/help/<itemId>.htm`
+and does not consume the book. `RollingDice` rolls 1–6, lands the die 40 units
+along the roller's heading through `get_valid_location`, and tells the roller,
+the peace zone or the party — Java's own `TODO: Verify this!` on that last
+branch is preserved as written. `PetFood` covers the branch that was missing: a
+mounted rider feeding the mount they sit on, the pet-eats-from-its-own-bag half
+having shipped with G29 under a different packet. `Elixir` collapses onto
+`ItemSkills`, the way `ItemSkillsTemplate` already did — its only addition in
+Java is a "not a pet" guard the port gets for free.
+
+Fourteen names remain unmapped and all are off-chronicle or unobtainable here:
+`Appearance`, `EnchantAttribute`, `ChangeAttributeCrystal`, `NicknameColor`,
+`SpecialXMas`, `Maps`, `Calculator`, `Harvester`, `CharmOfCourage`, `Bypass`
+and the support boxes appear in no shop, drop list or quest reward on this dist.
+`MercTicket` is row 5 and stays there. Five new tests, all falsified; 3310 green.
+
+### Siege mercenaries (2026-08-15)
+
+Row 5, and the last of the measured-gaps audit's large ones. `MercTicket` was
+the single reachable item handler row 6 left behind, because it is not really an
+item handler — it is the front door of a subsystem, and the subsystem was the
+work.
+
+Between sieges the castle's owning clan buys posting tickets from the Mercenary
+Manager and uses them where it wants a defender to stand. 499 `<guard>` rows
+ship across the nine castles, and the loader had been reading exactly one field
+out of them: `itemId → castleId`, enough for `ItemAction`'s pickup refusal
+(which was ported years' worth of milestones ago and was the only consumer) and
+nothing else. It now reads the whole row — the npc the ticket posts,
+`npcMaxAmount`, and `stationary` — because every rule in the system is expressed
+in those three.
+
+The posting flow is Java's: authority (own the castle, hold `CS_MERCENARIES`),
+the ticket belongs to *this* castle, no siege running, 25 units clear of every
+other posting, and under the guard's own cap; then a `ConfirmDlg` with a 15 s
+timer, and only on **yes** does the row get written, the ticket get dropped
+where the mercenary will stand, and the item leave the bag. Both the spacing and
+the cap are re-checked on the answer, as Java does, because 15 seconds is long
+enough for someone else to have taken the spot.
+
+Persistence rides the table that was already half-ported: `castle_siege_guards`
+rows with `isHired = 1`, beside the stationed garrison's `isHired = 0` rows that
+the boot path has always loaded. Both are pushed at boot now; the hired ones
+spawn beside the garrison when the siege starts, lifted 20 units as
+`spawnMe(x, y, z + 20)` does. A change of ownership clears the lot —
+`deleteTickets` plus `removeSiegeGuards` — which is what `capture.rs` had been
+waiting for behind a comment reading "which it always is until the mercenary
+system lands".
+
+Eight tests, all falsified: the posting loop, the decline path, the spacing
+rule, the cap, the authority gate, the siege-in-progress gate, the siege-start
+spawn and the ownership clear-out. Adding one boot event broke ten
+`char_persistence` tests, which filter boot pushes by variant — a reminder that
+`DbEvent` has an implicit contract with that filter. 3318 green.
+
+### The help book and the tax-rate button (2026-08-15)
+
+Rows 7 and 8 of the measured-gaps audit — two bypass handlers, ~40 lines each,
+dead on 346 htm files between them.
+
+`bypasshandlers/PlayerHelp` is the in-game help book. 92 pages under
+`data/html/help/` link to each other through `bypass -h player_help <page>`, and
+none of those links did anything; the `Book` item handler restored in row 6
+opens the first page of that book, so the two gaps compounded. Ported with
+Java's `..` traversal guard and its `#<itemId>` suffix, which becomes
+`NpcHtmlMessage(0, itemId)` — an item-bound dialog the client does *not* close
+when a button inside it is pressed, which is precisely what lets a book page
+through its own "Next Page".
+
+`bypasshandlers/TerritoryStatus` is the "See the local lord and tax rate" button
+that 254 folk htmls carry — fishermen, pet managers, warehouse keepers, the
+`default/` pages. The lookup that makes it work is worth writing down:
+`Npc.getCastle()` is `CastleManager.findNearestCastle`, **not** the siege zone
+the NPC stands in, which is why an NPC in the middle of a town answers at all
+rather than throwing on a null castle. `nearest_castle_at` was already the port
+of exactly that. Owned castles get `territorystatus.htm` with the clan and its
+leader; unowned get `territorynoclan.htm`, which words itself differently
+("Current Manor Status") — a detail the first draft of the test asserted wrong.
+
+The other thing that test got wrong the first time: it checked "no `%` survives"
+as a stand-in for "every placeholder was filled". The owned page renders
+`Tax Rate : 0 %`, so a literal `%` is correct output. It now names the six
+placeholders instead. Five tests, all falsified — including the traversal guard,
+which passes trivially against a disabled handler and had to be falsified
+against the guard itself. 3323 green.
+
+### Four zone kinds that were dropped at load (2026-08-15)
+
+Row 10. `ZoneData::kind_from_type` returns `None` for a kind the port has no
+behaviour for — deliberately, "so mixed files can be read without pulling in
+unported behaviour" — and four kinds had been sitting on the wrong side of that
+line: `MotherTreeZone` (6 zones), `NoStoreZone` (18), `NoSummonFriendZone` (27)
+and `LandingZone` (69). The zones never reached the world, so every rule keyed
+on them was unenforced.
+
+Three separate files had already noticed from the other end. `private_store.rs`:
+"The `NO_STORE` zone kind is not loaded, so that one leg is absent."
+`sell_buffs.rs`: "Java also tests `ZoneId.NO_STORE`, a zone kind this port does
+not load." `conditions.rs`: "Java also tests `ZoneId.NO_SUMMON_FRIEND` and
+`JAIL`; the port has neither zone kind." Three comments, honestly written at the
+time, all describing the same four missing lines of parser — which is the shape
+this whole audit keeps finding: the gap was known locally and invisible globally.
+
+The kinds are geometry-queried rather than mask bits. That is not a shortcut:
+the `u8` membership mask has been full since `Swamp` took the last bit, and
+these four want geometry anyway — three are asked once, at the moment of an
+action, and the mother tree needs the zone itself for its bonus values.
+
+Consumers, one each. `MotherTreeZone` carries `HpRegenBonus`/`MpRegenBonus`,
+which Java adds to the regen base *after* every residence multiplier and
+*before* the sitting term ("Mother Tree effect is calculated at last") — so the
+port's regen expression had to be re-associated to add rather than multiply at
+that point. `NoStoreZone` now refuses private stores, manufacture workshops and
+buff shops. `NoSummonFriendZone` closes `OpCallPc`'s two missing zone legs (the
+`JAIL` *zone* came free with it — the port had only the punishment state).
+
+`LandingZone` needed a new skill condition to mean anything: `CanUntransform`,
+whose only refusing branch is the altitude one — a wyvern rider must be over a
+landing zone to drop their transform. That moved the coverage census from 61
+unhandled `<condition>` names to 60, and its reachable count from 734 to 733;
+both were updated deliberately, which is what that gate is for.
+
+`ssq.xml`'s ten further mother trees stay unloaded: they are the Seven Signs
+main event's (`ssq_main_event_*`), and this dist has no Seven Signs.
+
+Six tests, all falsified. 3329 green.
+
+### Enchanted armour was worth nothing extra (2026-08-15)
+
+Row 11. `data/stats/enchantHPBonus.xml` was read by no crate, so
+`MaxHpFinalizer`'s "Apply enchanted item bonus HP" arm had no counterpart here
+and every enchanted armour piece was worth exactly its unenchanted stats. A
+fully +12 set is several hundred HP short of what the data says it should be —
+the kind of gap a player feels and a test suite cannot see, because nothing was
+wrong with any number the port computed. The number it never added was the one
+missing.
+
+The loader is small; two details in it are not obvious. The file declares
+`grade="S80"` **twice**, and Java's `EnumMap.put` means the second row wins — a
+`HashMap` insert reproduces that without needing to know it was a mistake. And
+`getHPBonus` indexes the grade's list by enchant level *clamped to its length*,
+so a +20 piece keeps the +12 figure rather than running off the end.
+
+The consumer's exclusion list is by **body part**, not item kind: necklace,
+earrings and rings are excluded, and `ItemKind::Armor` covers all three — so
+testing the kind alone would have paid an HP bonus on a +12 ring. There is a
+test for exactly that, because it is the mistake the shape of the data invites.
+
+Java reads `getOlyEnchantLevel()` rather than the raw enchant, which caps the
+level during an Olympiad match at `AltOlyArmorEnchantLimit`. That key is `-1`
+(no limit) on this dist, so the two are the same number and the finalizer needs
+no Olympiad context — parity, not a deferral.
+
+Three tests, all falsified. 3332 green.
+
+### The Broadcasting Tower's seats (2026-08-15)
+
+Row 9, and the last of the audit's small ones. `bypasshandlers/Observation` was
+in no handler table, so every button on the Coliseum tower's twelve htmls did
+nothing.
+
+A tower sells a view: pay the fee, get teleported to a fixed camera point, and
+stay in free-look until the client asks to come back. Java drives the Coliseum
+stands, the nine castle siege overlooks and the Oracle galleries off one table
+of 31 positions. **Only the Coliseum's three seats are reachable on this dist**
+— one `BroadcastingTower` npc ships (31031) and the htmls bind `observe 18`,
+`19`, `20` — but all three verbs and the whole table are ported: they are arms
+over one array, and the alternative is explaining the absence at every future
+audit.
+
+**The interesting decision was two observer modes rather than one.** The port
+already had the Olympiad's spectator, which is scoped into a match instance and
+answers `ExOlympiadMode`. Java shares a single `_observerMode` flag between the
+two flavours but keeps two enter/leave pairs and, decisively, two *client*
+packets: `ObserverReturn` (0xC1) for the plain one, `RequestOlympiadObserverEnd`
+for the arena. Folding the tower's viewer into the Olympiad component would
+have had the wrong packet strand whichever viewer answered second, so there are
+two components and each handler ignores the other's state.
+
+That brought `ObserverReturn` in as a side effect — one off row 15's list of
+unhandled base opcodes, 21 → 20 — along with the `ObservationMode` (0xEB) and
+`ObservationReturn` (0xEC) server packets.
+
+What makes it more than a teleport is `Action.runImpl`'s `inObserverMode()`
+gate: a spectator clicks nothing, or the free-look camera becomes a way to
+target and act on things across the map. Both sites needing it (`Action`,
+`ValidatePosition`) already carried "no observer mode yet" comments.
+
+Five tests. The click-gate one passed against a disabled gate on the first
+attempt — entering the mode teleports the viewer to the Coliseum, so the click
+it made was being refused for *range*, not for observing. It now puts the target
+beside the seat and asserts the same click lands once the viewer leaves the
+mode. 3337 green.
+
+### Baby pets heal again, and the arena buffer works (2026-08-15)
+
+Row 13 — the last two unported AI scripts, and the end of the audit's small
+rows.
+
+`BabyPets`: a Baby Buffalo, Kookaburra or Cougar watches its owner's health and
+heals unasked. Every 5 s it rolls twice — 25 % at Heal Trick, which fires below
+80 % HP, and 75 % at Greater Heal Trick, held back for below 15 %. The two gates
+are what make them different skills rather than the same one twice. Both
+auto-scale off the *pet's* level on the `skillLevel="0"` curve, which is why
+this could not land before row 2 taught `PetData` to read `<skills>`. Java hangs
+the timer on the owner and cancels it on logout; the port keys it on the pet and
+lets the chain lapse, which needs no logout hook.
+
+`OlyBuffer`: two stand in every Olympiad arena instance and sell five buffs from
+a list of nine. The allowance is the **NPC's** `scriptValue`, not the player's,
+which is what makes it per arena-entry.
+
+**A datapack quirk worth writing down, because it looks exactly like a bug.**
+Every `Heal` skill on this dist — the players' Heal (1011) included — declares
+its power as `<effect name="Heal"><item>power</item></effect>` with no value.
+Java's `SkillData` parses a nested `<item>` into a *list*, not a parameter, so
+`params.getDouble("power", 0)` is **0** there too. A heal's entire amount is
+`sqrt(2 · mAtk)` plus the shot bonus. Chasing `Heal { power: 0.0 }` through the
+port's parser took a while before the Java side turned out to agree; it is
+parity, and it is now recorded in PORTING_STATUS.md so the next reader stops
+sooner.
+
+That quirk also shaped the tests. The first draft asserted on the owner's HP
+after the heal, which failed for a fixture pet with no M.Atk — and once the pet
+had some, the 5 s timer's *next* tick rolled randomly and healed anyway, hiding
+the gate the negative tests exist to prove. They now assert on the cast the
+script starts (its skill, level and target) and leave "does a heal heal" to one
+separate test. Nine tests; the two pure helpers aside, all fail with their
+subject disabled. 3346 green.
+
+### Row 16 mostly corrected itself (2026-08-15)
+
+The measured-gaps audit recorded 79 of 458 admin commands missing, and singled
+out "~10 against ported systems" — naming `//mammon_find`, `//mammon_respawn`,
+`//set_vitality_level` and `//tvt_add|advance|remove`, and concluding that the
+G13 milestone row's "all off-chronicle, dev tooling or N/A" was wrong. Working
+the row showed the audit was the thing that was wrong, twice over.
+
+**The diff was case-sensitive.** `AdminCommands.xml` declares
+`admin_deleteNpcByObjectId` in camelCase; Java lower-cases every command before
+dispatch, and the port registers the lower-cased spelling. It had been ported
+all along. 79 → 78.
+
+**A missing command is only a gap if Java has a handler for it.** Checking each
+survivor against the `admincommandhandlers` sources and `MasterHandler`'s
+registration list put **34 of the 78** in a bucket the audit had no notion of:
+XML access-level rows with no implementation behind them, dead in Java too. That
+bucket contains every command the audit had named. `AdminVitality` registers
+`admin_set_vitality` — a different string from the `admin_set_vitality_level`
+the XML declares. There is no `AdminMammon` class at all. Nothing registers the
+`admin_tvt_*` trio. **G13's original claim was right.**
+
+Of the 44 with a live handler, 25 are off-chronicle and 12 are dev tooling or
+architecturally N/A. That left four: `//zone_visual` and `//zone_visual_clear`,
+now ported, and `//instancezone` / `//instancezone_clear`, which display and
+clear a reuse table that `user_commands::instance_zone` already documented as
+permanently empty on this dist — Java's window would be as blank as the port's.
+
+`//zone_visual` drops adena every 10 units along a zone's boundary so a GM can
+see where it actually is — one arm per shape, polygon, cuboid and cylinder, and
+a clear that decays exactly the markers it dropped rather than everything
+lying around. Two tests, both falsified. 3348 green.
+
+The lesson is not about admin commands. Three of the audit's rows have now been
+sharpened or overturned by working them (2's real headline, 6's, and this one's
+whole premise), and in each case the correction came from checking the *Java*
+side properly rather than from the port. A set-difference is a hypothesis.
+
+### Row 17 — 38 % of the merchant catalogue was unbuyable (2026-08-15)
+
+The audit recorded row 17 as "limited stock (`count`/`restock_delay`)
+untracked; castle-guard price scaling skipped". Both true. Neither was the
+important thing, and the reason is the same shape as row 16's: the row was
+derived from the datapack and the *parser*, and three of Java's buy-list rules
+live in the **`Product` constructor** instead.
+
+`_price = (price < 0) ? item.getReferencePrice() : price`. A bare
+`<item id="2505" />` is not a product with no price — it sells at the item's
+own reference price. The port kept the parser's -1, and `RequestBuyItem`'s
+`price < 0` guard refused the sale. **3079 of the 8198 product lines on the
+npc-served lists declare no price**, so 38 % of the merchant catalogue was
+inert: Cooper in Gludin sold nothing at all, and the window quoted -1 adena.
+Java's own `price < 0` check can never fire, because the constructor has
+already replaced it.
+
+The second: `Config.CORRECT_PRICES` floors a declared price at the item's sell
+value, but Java's condition ends `&& (buyList.getNpcsAllowed() != null)`. The
+GM-shop lists under `custom/` have no `<npcs>` block, and that clause is the
+only thing keeping their `price="0"` lines free. The port applied the floor to
+every list, putting a price on **2691** GM-shop lines. Java reads the npc set
+*as parsed so far*, so it is document order that decides — reproduced rather
+than hoisted to a second pass, since a file listing items before `<npcs>` would
+behave differently in Java too.
+
+Both were caught by writing the loader test against the real dist files and
+asking what each number should be, rather than asserting the current behaviour.
+The old test had a loop asserting `p.price >= t.sell_price()` for every product
+on every list — a faithful description of the bug.
+
+The row's own two items are done as well. 1928 limited-stock lines across 147
+files now carry a count: `ProductStock` on the world (Java holds it on the
+`Product`, which `world.data` being shared and immutable rules out), a
+sold-out gate before any adena moves, `decreaseCount`, and
+`BuyListTaskManager`'s restock beat. The map is **sparse** — an absent key is a
+full shelf, so nothing needs pre-filling and `restock()` is a `remove`. The
+timer is armed by the first sale since a restock and not re-armed by later
+ones, which is `add`'s `containsKey` no-op; pushing the deadline forward per
+sale would let a busy merchant stay empty forever, and that has its own test.
+The `buylists` table has been in the baseline migration since day one and had
+never been written to.
+
+`RateSiegeGuardsPrice` is wired, and is a ×1 identity on this dist — so the
+half of that note that had gone stale was its stated *reason* ("no sieges",
+written before G24 landed), not the skip itself. Tested at a rate of 3 so the
+arithmetic is exercised rather than confirmed to be an identity.
+
+One Java bug is deliberately not reproduced. `BuyList.writeImpl` writes
+`_list.size()` as the entry count and *then* skips sold-out products, so the
+packet claims more items than it carries and the client reads into whatever
+follows. The port counts after filtering, and the test asserts the declared
+count matches the bytes written. Matching Java here would mean emitting a
+malformed packet, not a different game rule — the one distinction that decides
+these calls.
+
+Nine new tests plus a rewritten loader test, each falsified against its own
+fix. 3357 green, clippy clean.
+
+### Row 15 — thirteen packets ported, seven proved dead (2026-08-15)
+
+Twenty of Java's 155 wired base opcodes had no arm here. The row split almost
+exactly in half, and the half that needed the most care was the half with no
+work in it.
+
+Two derivation errors first. The port's packet arms are **not all in
+`dispatch.rs`** — `ProtocolVersion` is handled a layer down in
+`network/connection.rs` — so a `dispatch.rs`-only scan reported 21 missing
+where the real figure is 20. And `StartRotating`/`FinishRotating` matched a
+grep only because the port has *server* packets of the same names for the
+`Bluff` spin, at different opcodes; the client-side pair really was absent.
+
+Then the row-16 question, asked seven times: does Java's handler do anything?
+
+- `MoveWithDelta` (0x52): `runImpl` is the comment `// TODO this`.
+- `RequestPledgeExtendedInfo` (0x66): empty `runImpl`.
+- `GameGuardReply` (0xCB): hashes the reply into `_isAuthedGG`, whose getter
+  has no callers — and `GameGuardQuery` is never sent, so the client is never
+  asked. Inert *and* unreachable.
+- The three clan-war replies (0x04/0x06/0x08): each returns unless
+  `getActiveRequester()` is set, and nothing in the clan-war path sets it. The
+  declarations act unilaterally, with no confirm dialog. The reachable routes
+  to `MUTUAL` — declaring back, and five kills — were already ported.
+- `RequestChangePetName` (0x93): refuses when the pet has a name, and
+  `Npc.getName()` returns the *template* name because neither `Pet` nor
+  `Summon` overrides it. `setName` writes a field nothing reads. All 873 pet
+  templates on this dist have names, so **no pet can be renamed in Java**.
+
+The thirteen that were real: clan roster (0x4D), skill list (0x38), `/gmlist`
+(0x8B), snoop quit (0xB4), the rotation pair (0x5B/0x5C), boat-deck stop
+(0x76), recipe-shop back (0xC0), title grant (0x0B), html link (0x22), pet
+fetch (0x98), item preview (0xC7) and the GM view command (0x7E).
+
+**Implementing `/gmlist` falsified a note the tree already carried.**
+`flags::register_gm` said the `hidden` flag was inert because "every
+`getAllGms` call site passes `includeHidden = true`". `AdminData.
+sendListToPlayer` passes `player.isGM()` — so a plain player's list filters on
+it. And since `GMStartupAutoList = False` here, every GM is flagged hidden,
+which means a player's `/gmlist` always answers "there are no GMs currently
+visible" *with a GM standing next to them*. That reads like a stub, so it has
+a test saying it is not one.
+
+Two of the thirteen needed real subsystems rather than a packet arm. Pet fetch
+has no NPC pick-up intention to hang off — the port's `NpcIntention` has
+Active/Attack/MoveTo — so the errand rides as a `SummonPickup` component that
+the summon think checks ahead of the follow, and the lift goes into
+`PetInventory` with the *owner's* loot rules, which is whose party Java tests.
+The GM view command needed five `GMView*` packets on top of the two already
+ported; its `isGM() && allowAltG()` gate reduces to `isGM()` here, because the
+only two `isGM` levels both carry `allowAltg`.
+
+One deliberate substitution: Java's try-on expiry sends
+`ExUserInfoEquipSlot`, an extended packet at sub-opcode 0x156 that no Interlude
+client can parse. The port sends the full `UserInfo` it already has — the
+Interlude-era way of saying the same thing.
+
+27 new tests. Every one falsified against its own fix except
+`a_clanless_roster_request_sends_nothing`, which asserts silence and so passes
+with the handler removed too — noted in its own doc comment rather than left
+looking load-bearing. The path-traversal test needed the same care: pointed at
+a nonexistent file it passed with the `..` guard removed, so it now points at
+`../html/villagemaster/30026.htm`, which normalises back to a real file and
+fails the moment the guard goes.
+
+3384 green, clippy clean. Re-running the opcode diff over both dispatch layers
+now returns exactly the seven documented non-ports.
+
+### Row 12 — the audit shrank before any porting started (2026-08-16)
+
+Row 12 was recorded as 36 missing quests. The arithmetic gives **35**: 53 ids
+are absent from `scripts/`, minus Q00255 (ported as `tutorial.rs`, so the
+filename-based diff misses it) and minus the 17 `not_done` stubs, which
+register a start NPC and an impossible level gate and override nothing —
+inert in Java too.
+
+Then the check the id diff cannot do: is each survivor *reachable on this
+dist*? Three were not, for three different reasons.
+
+**Q00933 / Q00935** (Dungeon of Abyss, east and west wings) name NPCs
+31774–31777. All four are declared as templates and **none appears in any
+spawn file**. There is nobody to talk to. Unreachable, not unported.
+
+**Q00500 Brothers Bound in Chains** is reachable in Java — the Penitent's
+Manacles grant skill 55701, whose effect is `SummonAgathion npcId 9021` — and
+that is exactly the problem. Every branch of the quest is gated on
+`getAgathionId() == SIN_EATER`: the rebuff loop, the kill counter, the
+unsummon cleanup. The port has **no agathion system at all** (`char_info.rs`
+hardcodes `write_i32(0) // agathion id`), and `cubic_data.rs` already records
+agathions as the subsystem deferred behind cubics, 166 `SummonAgathion` skills
+deep. It also wants `QuestType.DAILY` + `isNowAvailable`, which the port does
+not model. Porting the script would produce a quest whose every path returns
+early. This is a subsystem gap that happens to be shaped like a quest.
+
+That leaves 32. Two are ported here — `Q10866_PunitiveOperationOnTheDevilIsle`
+(a self-contained level-70 courier run, and the smallest whole quest in the
+row) and `Q11001_TombsOfAncestors` (the Human newbie line's first step, chosen
+as the template for the other 29 because it exercises every shape the chain
+uses: level *range* + race conditions, a five-stage cond ladder, four drop
+tables with per-monster chances, on-screen banners, and two alternative reward
+branches).
+
+Two datapack findings on the way, both recorded so nobody re-investigates them
+as porting bugs:
+
+- **Q11000 Moon Knight is uncompletable in Java on this dist.** At cond 7→8 it
+  gives items 49559 and 49560; neither exists in the datapack. The next step
+  gates on `hasQuestItems(..., ROLENTO_BAG, IRON_SCALE_GUILD_CERTIFICATE)`,
+  which is therefore never true, and the quest stalls at cond 8 permanently.
+- **Item 49772 (Scroll of Blood Melody) does not exist**, and five quests hand
+  it out on completion. It is only ever `giveItems` and never checked, so those
+  quests finish — the reward is silently absent, in Java as here.
+
+Two porting details worth keeping. `on_talk` must call `ctx.ensure_qs()` —
+Java's `getQuestState(player, true)` is what materialises the CREATED state
+that the start button then starts, and without it the quest simply never
+begins (both tests caught this immediately). And Q11001's cond 4 needs **both**
+its drops: the Orc Warrior branch checks the Werewolf Fangs and the Werewolf
+branch checks the Broken Swords, so a test feeding only one would pass against
+a port that dropped the second half and leave every player stuck at cond 4.
+That is the assertion the test is built around.
+
+One test needed a second pass. The forged-payout test for Q10866 originally
+used a player who had never talked to the NPC — the outer `has_qs()` guard
+caught them, so removing the inner `isStarted()` guard changed nothing and the
+test proved nothing. It now has the player *talk* first (creating a CREATED
+state) before firing the reward bypass, which is the only state in which that
+guard is what stands between them and 13 136 free adena.
+
+3386 green, clippy clean. **30 quests remain** — the rest of the newbie chain
+(five race lines of six, minus the two ported, plus Moon Knight), each
+~200 lines of Rust against a framework that already has everything they need.
+
+### Row 12 closed — 32 quests, and a phantom-item bug (2026-08-16)
+
+The remaining 30 landed: the 31-quest newbie chain minus the one already done,
+plus Moon Knight. Five race lines run the same script with different ids, so
+the 25 collect quests are tables over a shared `scripts/newbie_chain`
+skeleton and the five "Future \<race\>" capstones share a second one; each
+quest file is its own constants, its own Java citations, and its own quirks.
+Moon Knight and Q10866 stayed hand-written — they are genuinely bespoke.
+
+**Porting Q11000 found a live bug.** Rolento hands over items 49559 and 49560,
+which this datapack does not declare, and Gudz then gates on holding both — so
+Java stalls at cond 8 and the quest cannot be finished. The port did **not**
+stall: `add_inventory_item_inner` reads the template with
+`.unwrap_or(false)` for stackability and creates the item regardless, where
+Java's `ItemContainer.addItem` logs `Invalid ItemId` and returns null. Any
+script giving an id the datapack lacks was minting a phantom item, and any
+script that then *checked* for it behaved differently here.
+
+Fixing it in the shared path was the obvious move and the wrong one for this
+turn: that path carries loot, admin grants, lottery, monster race, cursed
+weapons and more, and tightening it failed **26** tests whose fixtures depend
+on the leniency. That is a core-invariant change with its own blast radius, not
+part of porting a quest chain, so it is written up for a decision of its own.
+Scoping the check to `QuestCtx::give_items` — the quest-facing helper, which is
+where Java's `AbstractScript.giveItems` lands — failed **five**, every one
+genuine fixture debt where a script hands out an item the test world never
+declared (Tunatun's whip, the Pagan anteroom key, the castle crown, an Infinity
+weapon, Marks of Battle). Those five fixtures now declare them.
+
+**A test premise of mine was wrong, and the code was right.** `Stage::capped`
+models Java's two drop variants — most stages guard with
+`getQuestItemsCount(...) < need`, a few omit it and the roll entirely. I wrote
+a test asserting the uncapped stages collect *past* the requirement and it
+failed at 10, not 11. The reason: every uncapped stage on this dist waits on a
+single item, so the kill that reaches the requirement also advances the cond
+and the stage stops being live before an extra drop can happen. The flag is
+faithful but **unobservable here**, and would only show on an uncapped stage
+whose advance names a second item — the two-drop shape Q11001 uses, which no
+quest combines with it. Both the module doc and the test now say so; the test
+pins the *roll* instead, which is observable.
+
+One Java bug reproduced rather than fixed: `Q11006`'s `a_cleric.html` sets cond
+**5**, the wizard's cond, while Zigaunt (the cleric trainer) answers only at
+cond 6. A cleric is therefore served by Parina, and Zigaunt's page is dead.
+Both hand out the same reward, so the quest still completes.
+
+An existing test also had to be retargeted rather than repaired.
+`quest_window_drops_a_finished_quest_with_nothing_to_say` asserted Parina's
+quest window was *empty* for a player with a finished Q404 — but Q11006 lists
+her in its `addTalkId`, so the window legitimately has something in it now. The
+assertion is now about Q404 contributing no row, which is what the test was
+ever about. (Q11006 shows Lector's *mage* page at Parina because Java's
+`else if (getClassId() == MAGE)` arm carries no NPC check — also faithful.)
+
+Q11001 was folded into the shared table too, so there is one implementation of
+the collect walk rather than two.
+
+3390 green, clippy clean. Re-running the quest diff leaves 21 absent: the 17
+`not_done` stubs, Q00255 (ported under another name), and the three
+non-portables. **Row 12 is closed.**
+
+### Row 14 — the audit's method was the biggest error in it (2026-08-16)
+
+Row 14 recorded 319 config keys parsed by Java and read by nothing here. The
+figure came from grepping the port for `get_*("Key")` **string literals**, and
+the port does not always write them that way: `GrandBossConfig` builds
+`IntervalOf{name}Spawn` / `RandomOf{name}Spawn` with `format!`, so all **13
+GrandBoss respawn keys — which the row listed by name as a gap — have been
+read all along.** The flood-protector block and the PvP colour ladder are
+built the same way. Re-derived over literal *and* formatted reads: **298**.
+
+Then the row-16 question, which the audit had not asked at all: is the key a
+gap only because the port skips it, or does Java skip it too?
+
+- **27 are dead in Java.** The `Config` field is assigned from the ini and read
+  by nothing outside `Config.java` — the clan level 6–11 costs and
+  requirements, ability points and their reset fee, dual-class and transfer
+  skill-deletion fees, blood oath and blood alliance points, the
+  non-droppable and pet item lists, the custom teleport table. Porting them
+  ports nothing.
+- **23 are read only by fortress code**, off-chronicle on this dist.
+- **17 are list-shaped** and reach their fields through helpers the
+  field-mapping pass does not follow; counted, not yet triaged.
+
+That leaves ~222 live and relevant, and they are not one job. General (69) is
+mostly dev tooling (`Debug*Packets`, `AltDev*`, `SkillCheck*`) and
+persistence-model choices the port made differently on purpose — memory-first
+saves instead of `LazyItemsUpdate`/`UpdateItemsOnCharStore`, no `HtmCache`
+toggle, no grid on/off. Olympiad (32), Feature (22), Rates (19), NPC (13) and
+Character (61) are real gameplay knobs against systems the port has.
+
+**PVP.ini is wired** — nine keys, four of which had real values baked into the
+code. `PvPVsNormalTime`/`PvPVsPvPTime` were `const` tick counts;
+`ReputationIncrease` was a `const 0`; and `MaxReputation` was a bare `.min(0)`
+in the karma-recovery path, which is *why* reputation can never go positive
+here — now the config says so instead of a literal. `CanGMDropEquipment` was an
+unconditional "a GM never drops", now the gate Java actually writes
+(`!isGM() || KARMA_DROP_GM`), which agrees with the shipped `False`.
+
+The four anti-feed keys are parsed and deliberately inert: `AntiFeedEnable =
+False`, and Java's `AntiFeedManager` checks it first in every entry point, so
+porting the manager would be dead weight. Carrying the values makes switching
+it on a change in one place.
+
+`PvpConfig` holds itself to the shipped file the way `GrandBossConfig` does —
+a test asserts `default() == load_from(dist)`, because a drifted default is a
+production/test split nothing else would catch.
+
+3393 green, clippy clean. Two new behaviour tests, both falsified. The gap is
+**289** and the doc now carries the triage rather than just the number.
+
+### Olympiad.ini wired — 36 keys that were already correct, and invisible (2026-08-16)
+
+A different shape of gap from PVP's. The port already carried **every** shipped
+Olympiad value, each as a `const` with its Java key in the doc comment —
+`COMP_START_MS_OF_DAY = 18 * 3600 * 1000` beside `/// AltOlyStartTime = 18`,
+and so on through the whole file. That is how they were checked against the
+dist in the first place. It is also exactly why they were useless: the values
+were right and unreachable, so an operator editing `Olympiad.ini` changed
+nothing at all.
+
+Now wired: the season clock (`AltOlyStartTime`/`AltOlyMin`, `AltOlyCPeriod`,
+`AltOlyCompetitionDays`, `AltOlyPeriod` × `AltOlyPeriodMultiplier`,
+`AltOlyVPeriod`, `AltOlyWPeriod`), the point economy (`AltOlyStartPoints`,
+`AltOlyWeeklyPoints`, `AltOlyMaxPoints`, the two dividers, `AltOlyHeroPoints`,
+`AltOlyRank1..5Points`, `AltOlyCompRewItem`, `AltOlyMarkPerPoint`) and the
+match rules (`AltOlyClassedParticipants`/`NonClassed`,
+`AltOlyMaxWeeklyMatches`, `AltOlyMinMatchesForPoints`, `AltOlyBattle`).
+
+`AltOlyCompetitionDays` was the one with a trap in it. Java's `1,7` is
+`Calendar` numbering — Sunday is 1 — and the port's season clock is 0-indexed,
+so the file means **Sunday and Saturday**. Copying the numbers across
+unshifted would move the Olympiad to Monday and Sunday, which is the kind of
+thing that looks fine in review and is wrong every weekend, so the conversion
+has its own test.
+
+Two of the constants lived in `model::olympiad` rather than the game loop
+(`DEFAULT_POINTS`, `MAX_WEEKLY_MATCHES`) and are reached from methods with no
+`World`. Rather than give the model a config handle, `NobleStats::fresh` and
+`remaining_weekly_matches` now take the number — the callers all have `world`,
+and the model stays a plain data type.
+
+Five keys are parsed and inert, for Java's reasons: the weapon and armour
+enchant limits are **-1**, which Java treats as "no limit" rather than
+comparing against, `AltOlyRestrictedItems` is empty, and
+`AltOlyWinReward`/`AltOlyLoserReward` are the literal `None`, which
+`parseItemsList` turns into no list. The reward pair is still parsed the way
+Java parses it (`itemId,count;…`, `none` → empty), so the day the datapack
+fills them in the only work left is at the use site.
+
+`OlympiadConfig` holds itself to the shipped file the way `GrandBossConfig` and
+`PvpConfig` do, plus two tests that pin the claims the module doc makes: the
+calendar shift, and that the inert five are still inert.
+
+3399 green, clippy clean. Three new behaviour tests, both clock ones falsified
+against a re-hardcoded constant. The config gap is **253**, down from 289.
+
+### Feature.ini and Rates.ini — two behaviours, not just values (2026-08-16)
+
+Rates was the easy half and turned out to be almost entirely neutral. Eleven
+keys ship at ×1; the three instance rates ship at **-1**, which is Java's "use
+`RateXp`/`RateSp`" *sentinel* rather than a multiplier — reading it as one
+would have divided every instance award by minus one;
+`UseQuestRewardMultipliers = False` gates the four per-type quest rates off
+entirely, and `BossDropEnable = False` gates its three companions. Only
+`EventItemMaxLevelDifference = 9` carries a non-neutral value, and nothing on
+this dist configures an event drop for it to gate. All 20 are now read;
+`RateKarmaExpLost` (a PK's death exp loss) and `PetXpRate`/`SinEaterXpRate`
+are wired to real consumers, and the rest carry the reason each is inert.
+
+Feature needed **two behaviours ported**, which is why it was worth doing
+rather than just wiring numbers.
+
+`Castle.updateClansReputation` had no counterpart at all — a siege ending moved
+no clan reputation in the port. It does now, with the detail that decides the
+interesting case: the captor gains `min(TakeCastlePoints, maxreward)` where
+`maxreward` is the former owner's score **before** it is docked, so taking a
+castle off a bankrupt clan pays nothing. A castle with no former owner pays the
+full amount uncapped; a successful defence pays `CastleDefendedPoints`.
+
+`PlayableStat.addReputationToClanBasedOnLevel` was missing too: a member
+levelling up earns their clan reputation by level band, gated on clan level 3
+and on `LAST_PLEDGE_REPUTATION_LEVEL` — the anti-farm variable that makes the
+grant cover only levels above the highest already paid for. Without it a
+delevel loop is an infinite reputation source. Every band is **0** on this
+dist, so it pays nothing today; implemented rather than stubbed because the
+config is the only thing making it inert.
+
+**A test comment of mine was wrong and the code was right.** I asserted the
+former owner's reputation would floor at 0 after being docked 3000 from 2000.
+It lands at -1000, and that is correct: Java's `Clan.setReputationScore` has an
+explicit arm for *crossing below zero* (it strips the clan skills from members,
+and restores them on the way back up), so negative clan reputation is a modelled
+state, not an underflow. The assertion now says so.
+
+The derivation needed a third correction, in the same family as row 14's first
+two. A literal-only scan misses `format!`-built keys (found earlier); it also
+misses **array-driven** reads, which is how the 13 `LevelUp…ReputationScore`
+bands are loaded — a `names` array walked with `p.get_int(key, 0)`. Counting
+any ini key the port mentions as a string literal anywhere catches all three
+shapes. On that measure the gap is **209**, and Feature's remaining 38 are
+exactly the buckets already classified as not-portable: 21 fortress keys, the
+12 dead `ClanLevel6..11` keys, and five more dead in Java.
+
+3404 green, clippy clean. Five new tests; the two castle-settlement ones
+falsified against the cap and the defence payout.
+
+---
+
+## NPC.ini (row 14) — 15 keys, and the two that would have broken the game
+
+Fifteen keys left unread. Two are dead in Java, eight are inert at the shipped
+values, and five had a consumer already in the tree.
+
+**Two dead.** `DmgPenaltyForLvLDifferences` and
+`CritDmgPenaltyForLvLDifferences` parse into `NPC_DMG_PENALTY` /
+`NPC_CRIT_DMG_PENALTY` and are read by nothing outside `Config.java`. The note
+already in `config/npc.rs` said exactly this; re-deriving it confirmed it, so
+nothing changed there.
+
+**Two that would have been a hundredfold bug.** `Raid{P,M}{Attack,Defence}
+Multiplier` ship as `100`, and reading `100` as a multiplier is the obvious
+thing to do. Java stores `getDouble(key, 100) / 100` — the shipped value is
+**×1.0**. Every raid boss on the server would have had 100× P.Atk. The four
+fields carry the divided value and the field doc says why; the test asserts a
+raid and a non-raid finalize *identically* at the shipped numbers, which is the
+only assertion that catches this.
+
+**Six more inert, each for a reason in Java.** `AltMobAgroInPeaceZone = True`
+makes `AttackableAI`'s peace-zone skip unreachable (the guard is `!config &&
+…`). `GuardAttackAggroMob = False` makes `Monster`'s guard-retaliation branch
+unreachable. `AltAttackableNpcs = True` feeds `canBeAttacked()`, not
+`isAttackable()` as I first wrote — its one caller is
+`Creature.onForcedAttack`'s refusal, which therefore never fires.
+`AttackablesCampPlayerCorpses = False` folds into the drift-home test; the port
+reaches the same place by a shorter route, since `think_attack` drops a dead
+target from the aggro list and the next think takes the no-target branch.
+Wiring `True` would mean *keeping* a corpse as a target — a real change to the
+attack loop for no gain at this dist's value. Both raid respawn multipliers are
+1.0.
+
+**Five wired.**
+
+- `MaximumSlotsForPet` replaced a `const PET_INVENTORY_SLOTS = 12` I had added
+  during row 12 and a literal `12` in `enter_world.rs` whose comment read *"the
+  key isn't parsed yet"*.
+- `SpoiledCorpseExtendTime` — a spoiled **or seeded** corpse now lingers the
+  extra 10 s, which is the whole point of the key: it is the time the sweeper
+  has to walk over. Java's guard is `isSpoiled() || isSeeded()`, and both
+  halves have a test.
+- `CorpseConsumeSkillAllowedTimeBeforeDecay` — a corpse inside the last 2 s of
+  its life now refuses the sweep with "the corpse is too old" rather than
+  taking it. This needed a new piece of state: Java can *read* a corpse's
+  remaining decay time off `DecayTaskManager`, but the port's decay is a
+  fire-and-forget `ScheduledTask`, so `Npc.decay_at_tick` records the deadline
+  at death.
+- The four raid stat multipliers, in `npc_finalized_stats` beside the champion
+  ones.
+- The two raid respawn multipliers, scaling a DB-backed boss's window *before*
+  it is rolled — and only a DB-backed one, since an ordinary spawn line
+  respawns through `Spawn.decreaseCount`, which never sees them. Both halves
+  of that rule have a test.
+
+### Three things the porting turned up
+
+**Java's `_isRaid` is an instance flag, not a template one.** `Monster.onSpawn`
+calls `setIsRaidMinion(_master.isRaid())`, and `setIsRaidMinion` writes the very
+same `_isRaid` field `isRaid()` reads — so a raid boss's escort scales like the
+boss. Only the spawn site knows it is building a minion, so `is_raid` is the
+caller's answer rather than the template's. `ChampionStatMods` became
+`NpcStatMods`, carrying both guards independently: a champion raid minion takes
+both multipliers, matching Java's two separate `if`s.
+
+**`GMViewItemList` was writing the wrong inventory limit at three of four call
+sites.** The comment in `enter_world.rs` claimed `Config.INVENTORY_MAXIMUM_PET`.
+Java's only live caller passes a `Player` and writes `player.getInventoryLimit()`
+— the pet ctor is unused there. The port reuses the packet for both, so the
+limit is now a parameter: the player's own limit at the three player dumps, the
+pet limit at `//show_pet_inv`.
+
+**My first cut of the old-corpse gate had the sentinel backwards.** A corpse
+with no decay scheduled has `decay_at_tick == 0`, which the gate read as "0 ms
+left" — too old, refuse. Java's `getRemainingTime` answers `Long.MAX_VALUE` for
+a creature it has no schedule for, i.e. never old. An existing spoil test caught
+it on the full run; the fixed version has its own case.
+
+3413 green, clippy clean. Nine new tests. All five wired behaviours were
+falsified by disabling them one at a time — six tests failed, and the one that
+correctly stayed green (ordinary spawns are unaffected by the raid multipliers)
+cannot fail when the scaling is removed.

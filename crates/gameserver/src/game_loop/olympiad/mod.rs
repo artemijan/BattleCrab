@@ -17,6 +17,7 @@
 //! buffs on entry, and announces the round's end to everyone online. Only the
 //! stadium instancing (needs G27) remains a follow-up.
 
+use crate::config::OlympiadConfig;
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
@@ -37,31 +38,13 @@ use crate::world::World;
 
 // --- the competition-period state machine (dist `config/Olympiad.ini`) ---
 
-/// `AltOlyStartTime = 18` (18:00), as milliseconds past midnight.
-const COMP_START_MS_OF_DAY: i64 = 18 * 3600 * 1000;
-/// `AltOlyCPeriod` — the competition window length (6 h).
-const COMP_PERIOD_MS: i64 = 21_600_000;
-/// `AltOlyWPeriod` — the weekly refresh interval (1 week).
-const WEEKLY_PERIOD_MS: i64 = 604_800_000;
-/// `AltOlyWeeklyPoints` — points added to every noble each week.
-const WEEKLY_POINTS: i32 = 10;
-/// `AltOlyCompetitionDays = 1,7` (Java `Calendar` Sun=1…Sat=7) → 0-indexed
-/// days-of-week Sunday (0) and Saturday (6): the Olympiad runs weekends only.
-const COMP_DAYS: &[i64] = &[0, 6];
-
 /// How often the match-making sweep runs while the window is open (Java
 /// `OlympiadGameManager` fixed rate).
 const GAME_MANAGER_PERIOD_MS: i64 = 30_000;
 /// Stadiums available for concurrent matches (Java one `OlympiadGameTask` per
 /// `OlympiadStadiumZone`; `zones/olympiad_stadium.xml` defines four).
 const NUM_ARENAS: usize = 4;
-/// `AltOlyNonClassedParticipants = 20` — the non-class queue must hold at least
-/// this many before any 1v1 matches are generated (Java
-/// `hasEnoughRegisteredNonClassed`).
-const NONCLASSED_MIN: usize = 20;
 
-/// `AltOlyMinMatchesForPoints = 10` — matches needed to be hero-eligible.
-const HERO_MIN_MATCHES: i32 = 10;
 /// Java's `LIMIT 10` on every class-leaderboard query. The page has fifteen
 /// rows; the rest are blanked.
 const LEADER_BOARD_LIMIT: usize = 10;
@@ -69,33 +52,20 @@ const LEADER_BOARD_LIMIT: usize = 10;
 const HERO_SOCIAL_ACTION: i32 = 20016;
 /// Java `Hero.ACTION_HERO_GAINED` — the diary entry written by `setHeroGained`.
 const HERO_ACTION_GAINED_HERO: i32 = 2;
-/// `AltOlyVPeriod` — the validation period after a round ends (24 h).
-const VALIDATION_PERIOD_MS: i64 = 86_400_000;
-/// `AltOlyPeriod = DAY` × `AltOlyPeriodMultiplier = 14` — the round runs for
-/// this many days (the last is the validation day), ending at noon.
-const OLYMPIAD_PERIOD_DAYS: i64 = 14;
 /// Noon, as milliseconds past midnight (Java `setNewOlympiadEnd` anchors the
 /// end at `HOUR_OF_DAY 12`).
 const NOON_MS_OF_DAY: i64 = 12 * 3600 * 1000;
 
 /// `Olympiad.setNewOlympiadEnd`'s `DAY` branch: noon today plus
 /// `(multiplier - 1)` days (the final day is reserved for validation).
-pub(crate) fn next_olympiad_end(now_ms: i64) -> i64 {
+pub(crate) fn next_olympiad_end(cfg: &OlympiadConfig, now_ms: i64) -> i64 {
     let noon_today = now_ms - ms_of_day(now_ms) + NOON_MS_OF_DAY;
-    noon_today + (OLYMPIAD_PERIOD_DAYS - 1) * MILLIS_PER_DAY
+    noon_today + (cfg.period_days() - 1) * MILLIS_PER_DAY
 }
 
 /// The per-character variable holding points earned this round but not yet
 /// exchanged for marks (Java `Olympiad.UNCLAIMED_OLYMPIAD_POINTS_VAR`).
 pub(crate) const UNCLAIMED_POINTS_VAR: &str = "UNCLAIMED_OLYMPIAD_POINTS";
-/// `AltOlyCompRewItem = 45584` — "Mark of Battle", the exchange reward.
-pub(crate) const MARK_ITEM: i32 = 45584;
-/// `AltOlyMarkPerPoint = 20` — marks granted per unclaimed point.
-pub(crate) const MARK_PER_POINT: i64 = 20;
-/// `AltOlyHeroPoints = 300` — trade-point bonus for being a hero.
-const HERO_TRADE_POINTS: i32 = 300;
-/// `AltOlyRank{1..5}Points` — trade-point bonus by end-of-round percentile rank.
-const RANK_TRADE_POINTS: [i32; 5] = [200, 80, 50, 30, 15];
 
 /// Day of week for an epoch-millis instant, 0 = Sunday … 6 = Saturday (epoch
 /// day 0, 1970-01-01, was a Thursday → offset 4).
@@ -109,24 +79,24 @@ fn ms_of_day(now_ms: i64) -> i64 {
 
 /// Whether `now_ms` falls inside a competition window (a competition day,
 /// between 18:00 and 18:00 + 6 h).
-pub(crate) fn in_comp_window(now_ms: i64) -> bool {
-    COMP_DAYS.contains(&day_of_week(now_ms))
-        && (COMP_START_MS_OF_DAY..COMP_START_MS_OF_DAY + COMP_PERIOD_MS)
-            .contains(&ms_of_day(now_ms))
+pub(crate) fn in_comp_window(cfg: &OlympiadConfig, now_ms: i64) -> bool {
+    let start = cfg.comp_start_ms_of_day();
+    cfg.competition_days.contains(&day_of_week(now_ms))
+        && (start..start + cfg.comp_period_ms).contains(&ms_of_day(now_ms))
 }
 
 /// The epoch-millis instant the window covering `now_ms` closes.
-fn window_end(now_ms: i64) -> i64 {
-    now_ms - ms_of_day(now_ms) + COMP_START_MS_OF_DAY + COMP_PERIOD_MS
+fn window_end(cfg: &OlympiadConfig, now_ms: i64) -> i64 {
+    now_ms - ms_of_day(now_ms) + cfg.comp_start_ms_of_day() + cfg.comp_period_ms
 }
 
 /// Milliseconds from `now_ms` to the next competition-day 18:00 strictly in the
 /// future (Java `getMillisToCompBegin` / `setNewCompBegin`).
-pub(crate) fn next_comp_start_delay_ms(now_ms: i64) -> i64 {
-    let today_start = now_ms - ms_of_day(now_ms) + COMP_START_MS_OF_DAY;
+pub(crate) fn next_comp_start_delay_ms(cfg: &OlympiadConfig, now_ms: i64) -> i64 {
+    let today_start = now_ms - ms_of_day(now_ms) + cfg.comp_start_ms_of_day();
     for d in 0..8 {
         let candidate = today_start + d * MILLIS_PER_DAY;
-        if candidate > now_ms && COMP_DAYS.contains(&day_of_week(candidate)) {
+        if candidate > now_ms && cfg.competition_days.contains(&day_of_week(candidate)) {
             return candidate - now_ms;
         }
     }
@@ -157,7 +127,7 @@ pub(crate) fn schedule_at_boot(world: &mut World) {
         if world.olympiad.olympiad_end <= now {
             // Fresh install, or the end elapsed while the server was down: set a
             // new period boundary rather than ending instantly.
-            world.olympiad.olympiad_end = next_olympiad_end(now);
+            world.olympiad.olympiad_end = next_olympiad_end(&world.cfg.olympiad, now);
         }
         world.scheduler.schedule(
             fire_at(world, world.olympiad.olympiad_end - now),
@@ -175,11 +145,11 @@ pub(crate) fn schedule_at_boot(world: &mut World) {
 /// Arm the daily competition window (Java `Olympiad.init`): open it now if we're
 /// inside one, otherwise schedule the next start.
 fn arm_comp_schedule(world: &mut World, now: i64) {
-    if in_comp_window(now) {
+    if in_comp_window(&world.cfg.olympiad, now) {
         open_comp_window(world, now);
     } else {
         world.scheduler.schedule(
-            fire_at(world, next_comp_start_delay_ms(now)),
+            fire_at(world, next_comp_start_delay_ms(&world.cfg.olympiad, now)),
             ScheduledTask::OlympiadCompStart,
         );
     }
@@ -188,7 +158,7 @@ fn arm_comp_schedule(world: &mut World, now: i64) {
 /// Open the window: registration/matches are allowed until it closes.
 fn open_comp_window(world: &mut World, now: i64) {
     world.olympiad.in_comp_period = true;
-    world.olympiad.comp_end_tick = fire_at(world, window_end(now) - now);
+    world.olympiad.comp_end_tick = fire_at(world, window_end(&world.cfg.olympiad, now) - now);
     world
         .scheduler
         .schedule(world.olympiad.comp_end_tick, ScheduledTask::OlympiadCompEnd);
@@ -219,7 +189,7 @@ pub(crate) fn handle_comp_end(world: &mut World) {
     tracing::info!("Olympiad: competition window closed.");
     let now = commons::util::now_millis();
     world.scheduler.schedule(
-        fire_at(world, next_comp_start_delay_ms(now)),
+        fire_at(world, next_comp_start_delay_ms(&world.cfg.olympiad, now)),
         ScheduledTask::OlympiadCompStart,
     );
 }
@@ -227,16 +197,20 @@ pub(crate) fn handle_comp_end(world: &mut World) {
 /// `OlympiadWeeklyChange`: add the weekly points, reset the weekly match
 /// counters (both skipped during the validation period), and reschedule.
 pub(crate) fn handle_weekly_change(world: &mut World) {
+    let (weekly_points, weekly_period) = (
+        world.cfg.olympiad.weekly_points,
+        world.cfg.olympiad.weekly_period_ms,
+    );
     if world.olympiad.period == 0 {
         for noble in world.olympiad.nobles.values_mut() {
-            noble.points += WEEKLY_POINTS;
+            noble.points += weekly_points;
             noble.comp_done_week = 0;
         }
     }
     let now = commons::util::now_millis();
-    world.olympiad.next_weekly_change = now + WEEKLY_PERIOD_MS;
+    world.olympiad.next_weekly_change = now + weekly_period;
     world.scheduler.schedule(
-        fire_at(world, WEEKLY_PERIOD_MS),
+        fire_at(world, weekly_period),
         ScheduledTask::OlympiadWeeklyChange,
     );
 }

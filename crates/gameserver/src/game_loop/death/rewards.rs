@@ -815,7 +815,9 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
     else {
         return;
     };
-    if victim.is_gm(&world.data) {
+    // `!isGM() || Config.KARMA_DROP_GM` — a GM's corpse drops only when the
+    // config says it may. False on this dist, so a GM never drops.
+    if victim.is_gm(&world.data) && !world.cfg.pvp.karma_drop_gm {
         return;
     }
     let (reputation, pk_kills) = (victim.reputation, victim.pk_kills);

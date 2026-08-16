@@ -86,7 +86,7 @@ grep -rhoE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ --include='*.rs' | so
 | G10 | Social systems — chat, party, friends | ✅ | 0 |
 | G11 | Scripting engine + quests | ✅ | 0 |
 | G12 | Static world breadth — zones, all 1180 doors, static objects | ✅ | 0 |
-| G13 | Admin / GM command system | ✅ **361 of 443** `AdminCommands.xml` commands dispatched; the 82 absent are all off-chronicle, dev tooling, architecturally N/A, or unreachable in Java too — see below | 0 |
+| G13 | Admin / GM command system | ✅ `AdminCommands.xml` commands dispatched; the absent ones are off-chronicle, dev tooling, architecturally N/A, or **unreachable in Java too** — a claim the measured-gaps audit disputed and then confirmed, see [row 16](#measured-gaps--the-axes-nothing-above-measures) | 0 |
 | G13.9 | TODO parity sweep | ✅ | 0 |
 
 ### Game server — breadth
@@ -172,13 +172,18 @@ port across those axes. It is a snapshot, like the rest of this file, and every
 number below names the command that re-derives it in
 [§ Re-deriving these numbers](#re-deriving-these-numbers).
 
-Two mechanisms produce most of the list, and both fail **silently** — which is
-why none of it ever became a marker:
+Two mechanisms produced most of the list, and both failed **silently** — which
+is why none of it ever became a marker:
 
-- **`RequestActionUse` is an allow-list** (`game_loop/servitor/ai.rs`). An
-  action id that is not on it returns without a word: no packet, no log line,
-  no `TODO`. Its own doc comment says so — *"Other action ids (sit, socials,
-  the per-summon skill buttons) are not handled here yet"*.
+- **`RequestActionUse` was an allow-list** (`game_loop/servitor/ai.rs`). An
+  action id that was not on it returned without a word: no packet, no log line,
+  no `TODO`. Its own doc comment said so — *"Other action ids (sit, socials,
+  the per-summon skill buttons) are not handled here yet"*. **Fixed on
+  2026-08-14**: dispatch is now table-driven off `ActionData.xml` in
+  `game_loop/player_actions.rs`, and a handler with no arm logs Java's own
+  "couldn't find handler with name" rather than vanishing. Every in-chronicle
+  handler behind it landed over 2026-08-14/15 (rows 1, 2 and 3); 13 rows remain,
+  all post-Interlude.
 - **The config layer reads about half the keys the dist ships.** An unread key
   is not a parse error; it is a value an operator sets in `dist/game/config`
   that nothing consults. Several are instead hardcoded to this dist's value
@@ -187,26 +192,429 @@ why none of it ever became a marker:
 
 ### In-chronicle and reachable
 
+The **`#` column is a stable id, not a position**: a row that closes leaves its
+number behind rather than renumbering the rest, so the cross-references in
+[§ Re-deriving these numbers](#re-deriving-these-numbers) keep pointing at the
+same work. Closed rows move to [§ Closed](#closed).
+
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 1 | Emotes | No client→server path for social actions | The 20 `SocialAction` rows in `ActionData.xml` are dropped by the allow-list. (`SOCIAL_ACTION` 0x34 is `null` in Java too, so the packet is *not* the route — parity there.) | `/socialhello`, `/socialbow`, … do nothing |
-| 2 | Pet & servitor commands | Action ids 15/16/17/19 (PetHold/Attack/Stop/Unsummon), 54 PetMove, 52 UnsummonServitor, 53 ServitorMove, 1103/1104 ServitorMode, and all **57** `PetSkillUse` rows | Same allow-list — only 0, 21, 22, 23, 38, 61, 65 plus the 105 `ServitorSkillUse` ids pass | A tamed pet cannot be ordered or made to cast; summons lack move/mode/return |
-| 3 | Walk/run | `RunWalk` (`ActionData` id 1) unhandled player-side | only `server_packets::change_move_type` exists, for NPCs. (`CHANGE_MOVE_TYPE` 0x35 is `null` in Java.) | `/walk` and `/run` do nothing |
-| 4 | Karma decay | `Formulas.calculateKarmaLost` + `data/stats/chars/pcKarmaIncrease.xml` not ported | `PlayerStat.addExp`'s karma-reduction branch has no counterpart in `death/progression.rs::add_exp_and_sp`; the XML is read by nothing | A PK can never work karma off by hunting |
-| 5 | Siege mercenaries | `itemhandlers/MercTicket` — **499** ticket items | `siege/capture.rs:57` already says so: *"which it always is until the mercenary system lands"* | Castle owners cannot post mercenary defenders |
-| 6 | Item handlers | 18 of 30 unported. Reachable: MercTicket (499 items), SummonItems (62), Elixir (62), Book (50), Bypass (30), PetFood (9), CharmOfCourage (6), RollingDice (5), Maps (2), Calculator (1), Harvester (1) | `ItemHandler` in `data/item_data.rs` has 11 variants; an unrecognised name falls to `None` | Dice, a Book, Wolf Food, a Charm of Courage: consumed, no effect |
-| 7 | `player_help` bypass | Not implemented | referenced by **92** files under `data/html/help/` | The whole in-game help book is dead |
-| 8 | `TerritoryStatus` bypass | Not implemented. This is the *tax rate* button, **not** Territory War | referenced by **254** HTML files — fishermen, pet managers, `default/` | Dead button on hundreds of town NPCs |
-| 9 | Observation | `observe` / `observesiege` / `observeoracle` | 12 files under `data/html/observation/` (npc 31031); only the Olympiad observer path is ported | Coliseum and Oracle observation unavailable |
-| 10 | Zone types | `MotherTreeZone` (16), `NoStoreZone` (18), `NoSummonFriendZone` (27), `LandingZone` (69) | `zone_data.rs::kind_from_type` returns `None` — the zone is silently dropped at load | Elven regen bonus, no-store and no-recall areas unenforced |
-| 11 | `enchantHPBonus.xml` | Read by nothing | `grep -rl enchantHPBonus crates/` is empty | Armour enchant HP bonus missing from max HP |
-| 12 | Quests | **36** of the 216 `QuestMasterHandler` loads: Q00500, Q00933, Q00935, Q10866, and the whole Q10993–Q11023 newbie chain (31) | Java's `QUESTS[]` vs `scripts/q*.rs` | Q00255 *is* ported, as `tutorial.rs`; the 17 `not_done` stubs are not gaps |
-| 13 | AI scripts | `BabyPets` (Baby Buffalo/Kookaburra/Cougar auto-heal, skills 4717/4718); `OlyBuffer` (npc 36402) | neither name nor its skills/ids appear in `crates/` | The arena buffer spawns and talking to it does nothing |
-| 14 | Config | **320** keys shipped in the ten core in-chronicle `.ini` files, parsed by Java, read by nothing here | GrandBoss respawn intervals ×13, all 36 `AltOly*`, Feature.ini ×61 (clan-level costs), General.ini ×75 (`AllowFishing`, `AllowWarehouse`, `AllowWear`, `AllowRefund`…), Character.ini ×76, Rates ×22, NPC ×15, PVP ×11, Siege ×4 | Contradicts the README's *"behaves as that config says"*. `AltOlyStartTime`, `SiegeHourList` and `PvPVsNormalTime` are hardcoded to this dist's value |
-| 15 | Client packets | **21** of the 155 *wired* base opcodes have no arm | clan-war replies 0x04/0x06/0x08, `RequestGiveNickName` 0x0B, pledge member list 0x4D / extended 0x66, skill list 0x38, rotation 0x5B/0x5C, pet name 0x93, pet pickup 0x98, item preview 0xC7, observer return 0xC1, `//gmlist` 0x8B, recipe-shop prev 0xC0, boats 0x76, GameGuard 0xCB | Ex: 103 of 199 wired handled; the remaining 96 are overwhelmingly post-Interlude |
-| 16 | Admin commands | 79 of 458 absent, ~10 of them against **ported** systems | `//mammon_find`, `//mammon_respawn`, `//set_vitality_level`, `//instance_spawns`, `//tvt_add\|advance\|remove`, `//zone_visual`, `//fakechat`, `//delete_group` | G13's row says "361 of 443 … all off-chronicle, dev tooling or N/A" — the Mammon, TvT, vitality and instance ones are none of those |
-| 17 | Buylists | Limited stock (`count`/`restock_delay`) untracked; castle-guard price scaling skipped | documented at `data/buy_list_data.rs:9`, whose stated reason — "no sieges" — went stale when G24 landed | Limited-stock goods sell as unlimited |
-| 18 | Skill census residue | 133 `<effect>` names, 61 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
+| 14 | Config | **194** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini's live keys are wired**; what remains is Character 76, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
+| 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
+| 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
+
+### Closed
+
+| # | Area | Landed | What it took |
+|---|---|---|---|
+| 1 | Emotes | 2026-08-14 | `handlers/playeractions/SocialAction` — the 17 plain socials plus Show Off's info re-broadcast, behind Java's `canMakeSocialAction` gate. The three couple socials (16/17/18) carry a `SKIP(census)`: they negotiate over `ExAskCoupleAction`, which no Interlude client can answer |
+| 3 | Walk/run | 2026-08-14 | `handlers/playeractions/RunWalk` + `Creature.setRunning(boolean)`, whose `ChangeMoveType` broadcast and `broadcastUserInfo` were the missing half. `Speeds::move_speed` already read the flag, so walking reaches the movement maths with no recalculation |
+| 2 | Pet & servitor commands | 2026-08-15 | All nine handlers: `PetHold`/`PetAttack`/`PetStop`/`PetMove`/`UnsummonPet`/`PetSkillUse`, `ServitorMove`, `ServitorMode`, `UnsummonServitor`. Three parts — the order primitives generalised from servitor-scoped to summon-scoped (a pet carries the same `ServitorOf` link), `<skills>` added to the `PetData` loader with Java's `getAvailableLevel` scaling, and `SummonAI._isDefending` |
+| 4 | Karma decay | 2026-08-15 | `KarmaData` (`pcKarmaIncrease.xml`, 99 rows), `RateKarmaLost` with Java's `-1 → RateXp` fallback, and `Formulas.calculateKarmaLost` wired into `add_exp_and_sp` behind its three exemptions (cursed weapon, non-negative reputation, PvP zone unless GM) |
+| 5 | Siege mercenaries | 2026-08-15 | `MercTicket` + the hired half of `SiegeGuardManager`: the full `<guard>` row (npc, `npcMaxAmount`, `stationary`), the `ConfirmDlg` posting flow with its spacing and cap rules, `castle_siege_guards` rows at `isHired = 1` loaded at boot, the spawn beside the garrison at siege start, and the clear-out on a change of ownership |
+| 6 | Item handlers | 2026-08-15 | `SummonItems`, `Book`, `RollingDice`, `PetFood` and `Elixir` (which collapses onto `ItemSkills` the way `ItemSkillsTemplate` already did). The 14 names still unmapped are off-chronicle or unobtainable here — `Appearance`, `EnchantAttribute`, `ChangeAttributeCrystal`, `NicknameColor`, `SpecialXMas`, `Maps`, `Calculator`, `Harvester`, `CharmOfCourage`, `Bypass` and the support boxes are in no shop, drop list or quest reward on this dist; `MercTicket` is row 5 |
+| 9 | Observation | 2026-08-15 | `bypasshandlers/Observation` + `Player.enterObserverMode` / `leaveObserverMode`, the `ObservationMode`/`ObservationReturn` packets and the `ObserverReturn` client packet (0xC1, one off row 15's list). Only the Coliseum's three seats are reachable here; all three verbs and the whole 31-row table are ported anyway |
+| 10 | Zone types | 2026-08-15 | `MotherTreeZone` (6), `NoStoreZone` (18), `NoSummonFriendZone` (27) and `LandingZone` (69), each with its consumer: the flat regen bonus Java adds "at last", the private-store / workshop / buff-shop refusal, `OpCallPc`'s missing zone legs, and a new `CanUntransform` condition — which is the *only* thing `LandingZone` gates, and could not be ported until the kind existed |
+| 11 | `enchantHPBonus.xml` | 2026-08-15 | `EnchantItemHPBonusData` + `MaxHpFinalizer`'s "Apply enchanted item bonus HP" arm: a flat per-piece figure by grade and enchant level, ×1.5 for a one-piece suit, and Java's three excluded slots (necklace, earrings, rings) |
+| 13 | AI scripts | 2026-08-15 | `BabyPets` — the three baby pets' 5 s auto-heal, both rolls and both HP gates, on a scheduler chain keyed to the pet — and `OlyBuffer`, the arena vendor's five buffs per NPC |
+| 16a | `//zone_visual` | 2026-08-15 | `AdminZone`'s zone visualiser: adena markers every 10 units along each boundary, one arm per zone shape, and a clear that decays exactly the markers it dropped. The rest of row 16 stays open — see its (corrected) row above |
+| 12 | Quests | 2026-08-16 | **All 32 portable quests ported.** Q10866, the 31-quest newbie chain (five race lines of six, plus Moon Knight), and the shared `newbie_chain` skeleton the 25 collect quests are tables over. Three of the 35 are **not** quest-scripting work and stay out: Q00933/Q00935 (NPCs never spawned) and Q00500 (needs the unported agathion subsystem). The audit's 36 was 35 | Java's `QUESTS[]` vs `scripts/q*.rs`, then each survivor against the dist's spawns, items and htmls | Q00255 is ported as `tutorial.rs`; the 17 `not_done` stubs are inert in Java too. See below |
+| 15 | Client packets | 2026-08-15 | **13 base opcodes implemented, 7 shown to have no behaviour to port.** The 13: clan roster 0x4D, skill list 0x38, `/gmlist` 0x8B, snoop quit 0xB4, rotation 0x5B/0x5C, boat stop 0x76, recipe-shop back 0xC0, title grant 0x0B, html link 0x22, pet fetch 0x98, item preview 0xC7, GM view 0x7E — the last bringing five `GMView*` packets with it. Ex-opcodes untouched (96 of 199 unhandled, overwhelmingly post-Interlude). See below |
+| 17 | Buylists | 2026-08-15 | Limited stock in full (`count`/`restock_delay` → `ProductStock` on the world, the buy gate, `decreaseCount`, `BuyListTaskManager`'s restock beat, the sold-out packet filter, and the `buylists` table that had been sitting unused since the baseline migration) — **plus two pricing bugs the row's own premise had missed.** See below |
+| 7 | `player_help` bypass | 2026-08-15 | `bypasshandlers/PlayerHelp` — the help book's own page links, with Java's `..` traversal guard and the `#<itemId>` suffix that marks the dialog item-bound so a button inside it does not close the book |
+| 8 | `TerritoryStatus` bypass | 2026-08-15 | `bypasshandlers/TerritoryStatus`. The lookup is `findNearestCastle`, **not** the siege zone the NPC stands in — which is what lets a fisherman in the middle of a town answer at all |
+
+**Row 16 mostly corrected itself.** The audit's original figure was 79 missing
+of 458 with "~10 against ported systems, so the G13 row's 'all off-chronicle'
+claim is wrong". Working the row showed the audit was the thing that was wrong,
+in two ways.
+
+The diff was **case-sensitive**. `AdminCommands.xml` declares
+`admin_deleteNpcByObjectId`; Java lower-cases every command before dispatch and
+the port registers the lower-cased spelling. It was ported all along. 79 → 78.
+
+And a missing command is only a gap if **Java has a handler for it**. Checking
+each survivor against the `admincommandhandlers` sources and `MasterHandler`'s
+registration list put **34 of the 78** in the "no live handler anywhere" bucket
+— XML access-level rows with no implementation, dead in Java too. That bucket
+contains every command the audit had called out by name as targeting a ported
+system: `//mammon_find`, `//mammon_respawn`, `//set_vitality_level` (whose
+handler registers `admin_set_vitality`, a different string) and
+`//tvt_add|advance|remove`. None of them exists in Java either. The G13 row's
+original claim was right and the audit's correction of it was wrong.
+
+Of the 44 with a live handler, 25 are off-chronicle (fort sieges, fences,
+Gracia, elemental `//setl*`, fake players) and 12 are dev tooling or
+architecturally N/A (script reloading against compiled-in scripts, runtime
+config editing, the fight calculator, the login-server console). That left
+**four**: `//zone_visual` and `//zone_visual_clear`, which are ported here, and
+the two `//instancezone` commands, which are not.
+
+**Row 14's headline was inflated by the audit's own method, and its real
+content is the triage.** The recorded 319 came from grepping the port for
+`get_*("Key")` string literals — but the port builds some key names with
+`format!`, and all **13 GrandBoss respawn keys** (which the row listed as a
+gap) are read that way. They were never missing. The corrected derivation, run
+over both literal and formatted reads, gives **298**, now **289** after the
+work below.
+
+Of those 289:
+
+- **27 are dead in Java too** — the `Config` field is assigned from the ini and
+  read by nothing outside `Config.java`. The clan level 6–11 costs and
+  requirements, ability points, dual-class skill-deletion fees, the blood
+  oath/alliance points and the non-droppable/pet item lists are all in this
+  bucket. Porting them would mean porting nothing.
+- **23 are read only by fortress code**, which is off-chronicle here.
+- **17 are list-shaped** (`AutoLootItemIds`, `EnchantBlackList`,
+  `AltOlyRestrictedItems`, …) and are assigned to their fields through helpers
+  the field-mapping pass does not see; they are counted but not yet triaged.
+- The remaining **~222** are live and in-chronicle: General 69, Character 61,
+  Olympiad 32, Feature 22, Rates 19, NPC 13, Server 6. (Olympiad, Rates,
+  Feature and NPC have since been read; General, Character and Server remain.)
+
+**PVP.ini is wired**, closing the nine keys that block hardcoded. Four of them
+had real values baked in: `PvPVsNormalTime`/`PvPVsPvPTime` were `const`
+tick counts, `ReputationIncrease` was a `const 0`, and `MaxReputation` was a
+literal `.min(0)` in the karma-recovery path — the reason reputation can never
+go positive on this dist, which now reads as the config saying so.
+`CanGMDropEquipment` was an unconditional "a GM never drops"; it is now the
+gate Java writes (`!isGM() || KARMA_DROP_GM`), which agrees with the shipped
+`False`.
+
+The four anti-feed keys are parsed and left inert on purpose:
+`AntiFeedEnable = False`, and Java's `AntiFeedManager` tests it first in every
+entry point, so the manager is dead weight on this dist. Carrying the values
+makes turning it on a change in one place rather than a hunt.
+
+**Olympiad.ini is wired too** — all 36 keys, and the shape of the problem was
+different from PVP's. The port already carried every shipped value as a `const`
+with the Java key in its doc comment: that is *how* they were verified against
+the dist, and equally why an operator editing `Olympiad.ini` changed nothing.
+The season clock (start time, window length, competition days, round length,
+validation window), the point economy (start/weekly/max points, the divider,
+the rank and hero bonuses, the mark item and rate) and the match rules
+(participants needed, weekly cap, battle length) now read the file.
+
+`AltOlyCompetitionDays` needed care: Java's value is `Calendar` numbering with
+Sunday = 1, and the port's season clock is 0-indexed, so the shipped `1,7`
+means Sunday and Saturday. An off-by-one moves the Olympiad to Monday and
+Sunday, so the conversion has its own test.
+
+Five keys are parsed and inert, all for Java's reasons rather than the port's:
+the weapon and armour enchant limits are **-1**, which Java reads as "no limit"
+rather than comparing against; `AltOlyRestrictedItems` is empty; and
+`AltOlyWinReward`/`AltOlyLoserReward` are the literal `None`, which
+`parseItemsList` turns into no list at all. They are parsed anyway so the
+values are visible and honouring them later is a change at the use site.
+
+**Rates.ini is now fully read, and Feature.ini's live keys with it.** Rates
+turned out to be almost entirely neutral: eleven keys ship at ×1, the three
+instance rates ship at **-1** — which is Java's "use `RateXp`/`RateSp`"
+*sentinel*, not a multiplier — `UseQuestRewardMultipliers` is False (gating the
+four per-type quest rates off entirely), and `BossDropEnable` is False (gating
+its three companions). Only `EventItemMaxLevelDifference = 9` carries a
+non-neutral value, and nothing on this dist configures an event drop for it to
+gate. `RateKarmaExpLost` (a PK's death exp loss) and `PetXpRate`/
+`SinEaterXpRate` are wired to their consumers; the rest are carried with the
+reason each is inert written down.
+
+Feature needed **two behaviours ported**, not just values read.
+`Castle.updateClansReputation` had no counterpart at all: a siege ending moved
+no clan reputation. It now does, including the detail that decides the case —
+the captor gains `min(TakeCastlePoints, what the former owner had *before*
+being docked)`, so taking a castle off a bankrupt clan pays nothing. And
+`PlayableStat.addReputationToClanBasedOnLevel` — a member levelling up earning
+their clan reputation — was missing along with its anti-farm guard
+(`LAST_PLEDGE_REPUTATION_LEVEL`, which stops a delevel loop being an infinite
+reputation source). Every band is 0 on this dist, so it pays nothing today; it
+is implemented rather than stubbed because the config is the only thing making
+it inert.
+
+Feature's remaining 38 are exactly the buckets already classified as
+not-portable: 21 fortress keys, the 12 dead `ClanLevel6..11` cost/requirement
+keys, and five more dead in Java (`FestivalOfDarknessWin`,
+`KillBallistaPoints`, `BloodAlliancePoints`, `BloodOathPoints`,
+`KnightsEpaulettePoints`).
+
+**NPC.ini is now fully read.** Fifteen keys, and the split was two dead, eight
+inert and five with a consumer already sitting in the tree waiting for them:
+
+- **Two are dead in Java**: `DmgPenaltyForLvLDifferences` and
+  `CritDmgPenaltyForLvLDifferences` parse into `NPC_DMG_PENALTY` /
+  `NPC_CRIT_DMG_PENALTY`, which nothing outside `Config.java` reads. The note
+  already in `config/npc.rs` saying so was independently re-derived and holds.
+- **Eight are parsed and inert at the shipped values**, each for a reason in
+  Java rather than a shortcut here, and each written down at the field:
+  `AltMobAgroInPeaceZone = True` makes `AttackableAI`'s peace-zone skip
+  unreachable; `GuardAttackAggroMob = False` makes `Monster`'s guard-retaliation
+  branch unreachable; `AltAttackableNpcs = True` makes
+  `Creature.onForcedAttack`'s `!canBeAttacked()` refusal unreachable;
+  `AttackablesCampPlayerCorpses = False` is the behaviour the port already has
+  (a dead target leaves the aggro list, so the next think drifts home); and the
+  four `Raid{P,M}{Attack,Defence}Multiplier` keys ship at `100`, which Java
+  divides by 100 — **×1.0, not ×100**, and reading the raw number would have
+  buffed every raid boss a hundredfold.
+- **Five are wired.** `MaximumSlotsForPet` replaced a `const 12` in
+  `servitor::pet` and a literal `12` in `enter_world` whose comment read "the
+  key isn't parsed yet". `SpoiledCorpseExtendTime` and
+  `CorpseConsumeSkillAllowedTimeBeforeDecay` are the two halves of the sweeper's
+  timing window — a spoiled or seeded corpse now lingers the extra 10 s, and a
+  corpse inside the last 2 s of its life refuses the sweep ("the corpse is too
+  old") instead of taking it. The four raid stat multipliers now run in
+  `npc_finalized_stats` alongside the champion ones, and the two raid respawn
+  multipliers scale a DB-backed boss's window before it is rolled.
+
+Three things surfaced while porting it. Java's `_isRaid` is an **instance**
+flag, not a template one — `Monster.onSpawn` calls
+`setIsRaidMinion(_master.isRaid())`, which writes the same field — so a raid
+boss's escort takes the raid multipliers too; `ChampionStatMods` became
+`NpcStatMods` to carry both guards independently. `GMViewItemList`'s inventory
+limit was documented as the *pet* limit; Java's only live caller passes a
+`Player`, so three of the port's four call sites were writing the wrong number
+and now send the player's own limit (the fourth, `//show_pet_inv`, is the pet
+one and was right). And the first cut of the old-corpse gate read a "no decay
+scheduled" corpse as "0 ms left"; Java's `getRemainingTime` answers
+`Long.MAX_VALUE` there, which an existing spoil test caught.
+
+What is left is General (71 — mostly dev tooling and persistence-model choices
+the port made differently: memory-first saves, no `HtmCache`, no grid on/off),
+Character (76), which is real gameplay knobs, and Server (7), which is
+infrastructure. Those want a row each rather than a single sweep.
+
+**Row 12 closed, and porting it found a live inventory divergence.** The
+recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus
+Q00255 which is ported as `tutorial.rs`, minus the 17 `not_done` stubs).
+Checking each survivor against the datapack took three more off the
+quest-scripting list:
+
+- **Q00933 / Q00935** (Dungeon of Abyss wings) — NPCs 31774–31777 are declared
+  as templates but appear in **no spawn file**. Nobody to talk to.
+- **Q00500 Brothers Bound in Chains** — reachable in Java (the Penitent's
+  Manacles grant skill 55701 → `SummonAgathion npcId 9021`), but gated
+  end-to-end on the player having that agathion, and agathions are an unported
+  subsystem `cubic_data.rs` already names as deferred (166 `SummonAgathion`
+  skills). It also needs the daily-quest reset. A subsystem gap wearing a
+  quest's clothes.
+
+The other **32 are ported**. The 25 collect quests are tables over a shared
+`scripts/newbie_chain` skeleton — five race lines running the same script with
+different ids — and the five "Future \<race\>" capstones share a second one.
+Moon Knight and Q10866 are bespoke enough to stay hand-written.
+
+**The divergence.** Q11000's Rolento hands over items 49559 and 49560, which
+this datapack does not declare, and Gudz then gates on holding both — so the
+quest stalls at cond 8 in Java. It did **not** stall here: the port's shared
+add-item path reads the template with `.unwrap_or(false)` for stackability and
+creates the item anyway, where Java's `ItemContainer.addItem` logs
+`Invalid ItemId` and returns null. Any script giving an id the datapack lacks
+was minting a phantom item.
+
+The fix is scoped to `QuestCtx::give_items` rather than the shared path. The
+shared version is what loot, admin grants, lottery and the rest go through, and
+tightening it failed 26 tests whose fixtures rely on the leniency — that is a
+core-invariant change with its own blast radius, not part of porting a quest
+chain, and it is left for a decision of its own. Validating the quest path
+alone failed five, all genuine fixture debt (a script handing out an item the
+test world never declared), and those five now declare them.
+
+Two datapack facts recorded so they are not re-investigated as porting bugs:
+
+- **Q11000 Moon Knight cannot be finished**, in Java or here, for the reason
+  above. Everything up to cond 8 is real content; the port reproduces the dead
+  end rather than inventing the two items.
+- **Item 49772 (Scroll of Blood Melody) does not exist**, and five quests award
+  it on completion. It is only ever `giveItems`, never checked, so those quests
+  finish with the reward silently absent — in Java as here.
+
+And one Java bug reproduced: `Q11006`'s `a_cleric.html` sets cond **5**, the
+wizard's cond, while Zigaunt (the cleric trainer) answers only at cond 6. A
+cleric is served by Parina and Zigaunt's page is unreachable. Both pay the same
+reward, so the quest still completes.
+
+**Row 15 split almost exactly in half, and the dead half had to be proved
+dead.** Twenty base opcodes were listed as unhandled. Thirteen were real and
+are ported; the other **seven have no behaviour to port**, and each needed the
+Java side read rather than the port's absence noted:
+
+- `MoveWithDelta` (0x52) — `runImpl` is the comment `// TODO this`.
+- `RequestPledgeExtendedInfo` (0x66) — empty `runImpl`.
+- `GameGuardReply` (0xCB) — hashes the reply into `_isAuthedGG`, whose getter
+  `isAuthedGG()` has **no callers**. Doubly inert: `GameGuardQuery` is never
+  sent, so the client is never asked in the first place.
+- The three clan-war replies (0x04/0x06/0x08) — every one returns unless
+  `getActiveRequester()` is set, and nothing in the clan-war path sets it
+  (`onTransactionRequest` is called only by trade, duel, party room, MPCC and
+  friend invites). The declarations act unilaterally. Both reachable routes to
+  `ClanWarState.MUTUAL` — declaring back, and five kills — were already ported
+  in the 0x03 handler and `clan_war_on_kill`, so the replies add only a branch
+  Java cannot legitimately reach.
+- `RequestChangePetName` (0x93) — refuses when the pet already has a name, and
+  `Npc.getName()` returns `getTemplate().getName()` (neither `Pet` nor `Summon`
+  overrides it, so the `_name` that `setName` writes is never read). All 873
+  pet templates here have a name, so **no pet can ever be renamed in Java**.
+
+Two of the thirteen corrected notes already in the tree. `flags::register_gm`
+claimed the `hidden` flag was inert because "every `getAllGms` call site passes
+`includeHidden = true`" — `AdminData.sendListToPlayer` passes
+`player.isGM()`, so a plain player's `/gmlist` filters on it. And because
+`GMStartupAutoList = False` here, *every* GM is flagged hidden, which is why a
+player's `/gmlist` correctly answers "there are no GMs currently visible" with
+a GM standing beside them. `gm_util`'s "no `//gmlist` consumer yet" is now
+false too.
+
+`RequestGMCommand` (0x7E) was the largest single item: five new `GMView*`
+packets on top of the two already ported. Its `isGM() && allowAltG()` gate
+reduces to `isGM()` on this dist — only levels 70 and 100 are GMs and both
+carry `allowAltg`, so the seven other `allowAltg` levels never reach it.
+
+**Row 17's real headline was not limited stock.** The row was recorded as
+"limited stock untracked, castle-guard price scaling skipped". Both were true,
+but three of Java's rules live in the **`Product` constructor** rather than in
+`BuyListData.parseDocument`, and reading only the parser had missed two of
+them.
+
+The larger one: `_price = (price < 0) ? item.getReferencePrice() : price`. A
+bare `<item id="2505" />` is not a product without a price — it sells at the
+item's own reference price. The port kept the parser's -1 and
+`RequestBuyItem` refused the purchase, so **3079 of the 8198 product lines on
+the npc-served lists were unbuyable**: 38 % of the merchant catalogue, whole
+shops at a time. Cooper in Gludin sold nothing at all.
+
+The second: `Config.CORRECT_PRICES` floors a declared price at the item's sell
+value, but Java's condition ends `&& (buyList.getNpcsAllowed() != null)`. The
+GM-shop lists under `custom/` have no `<npcs>` block, and that clause is the
+only reason their `price="0"` lines stay free. Applying the floor
+unconditionally, as the port did, put a price on **2691** GM-shop lines.
+
+Neither was reachable from the audit's framing, and neither is about limited
+stock. The row's original two items were real and are also done: 1928
+limited-stock lines across 147 files now track a count and restock on
+`BuyListTaskManager`'s schedule, and `RateSiegeGuardsPrice` scales the eleven
+`CASTLE_GUARD` items — a ×1 identity on this dist, so the *stale* half of that
+note was the stated reason ("no sieges", written before G24), not the skip.
+Java's `MAX_EQUIPABLE_ITEM_GRADE` filter came along with it; it drops five S80
+lines from one GM list and nothing else here.
+
+One Java bug is deliberately **not** reproduced. `BuyList.writeImpl` writes
+`_list.size()` as the entry count and *then* skips every sold-out product, so
+the packet claims more items than it carries and the client parses into the
+following bytes. The port counts after filtering. This is the rare case where
+matching Java would mean emitting a malformed packet rather than a different
+game rule, and the test asserts the declared count matches the bytes written.
+
+**A datapack quirk found while porting row 13, recorded so it is not
+re-investigated as a bug.** Every `Heal` skill on this dist writes its power as
+`<effect name="Heal"><item>power</item></effect>` with no value anywhere.
+Java's `SkillData` parses a nested `<item>` into a *list*, not a parameter, so
+`params.getDouble("power", 0)` returns **0** — in Java as well as here. A heal's
+whole amount is therefore `sqrt(2 · mAtk)` plus the shot bonus. The port is at
+parity; the `Heal { power: 0.0 }` it produces looks like a parse failure and is
+not one.
+
+**Row 11 was one unread file and one missing loop.** Every enchanted armour
+piece in the game was worth exactly its unenchanted stats — a +12 set silently
+short by hundreds of HP. Java's exclusion list is by **body part**, not item
+kind, which is the detail worth keeping: `ItemKind::Armor` covers jewellery too,
+so testing the kind alone would have paid a bonus on a +12 ring.
+
+The Olympiad wrinkle is parity rather than a gap: Java reads
+`getOlyEnchantLevel()`, which caps the enchant during a match at
+`AltOlyArmorEnchantLimit` — **-1 (no limit) on this dist**, so the capped and
+raw levels are the same number here and the finalizer needs no match context.
+
+**Row 9 needed a second observer mode, not a bigger one.** The port already had
+the Olympiad's spectator (`olympiad::observer`), which is scoped into a match
+instance and answers `ExOlympiadMode`. Java shares one `_observerMode` flag
+between the two but keeps two enter/leave pairs and two *client* packets, so
+folding the tower's viewer into the Olympiad component would have had the wrong
+packet strand whichever viewer answered second. Two components, as Java has two
+paths.
+
+The gate that makes it more than a teleport is `Action.runImpl`'s
+`inObserverMode()` — a spectator clicks nothing. Both sites that need it
+(`Action` and `ValidatePosition`) already carried "no observer mode yet" notes.
+
+**Row 10's four kinds were dropped at load, and the loader said so.**
+`kind_from_type` returns `None` for an unported kind "so mixed files can be read
+without pulling in unported behaviour" — correct as a policy, and it meant every
+rule keyed on those four was unenforced with nothing to show for it. Two of them
+had already been noticed from the other side: `private_store.rs` and
+`sell_buffs.rs` each carried a comment reading "a zone kind this port does not
+load", and `conditions.rs`'s `call_pc` one reading "the port has neither zone
+kind". Three comments describing the same missing four lines of parser.
+
+The `u8` membership mask has been full since `Swamp` took the last bit, so all
+four are geometry-queried like `NoLanding` and `Fishing` — which is what they
+want anyway: three are asked at the moment of an action, and the mother tree
+needs the *zone* (for its bonuses) rather than a flag.
+
+Not loaded: `ssq.xml`'s ten further `MotherTreeZone`s. They are the Seven Signs
+main event's (`ssq_main_event_*`), and this dist has no Seven Signs.
+
+**Rows 7 and 8 were two dead buttons on 346 files between them**, and both are
+~40 lines. The reason they sat unported is visible in the audit's own framing:
+they were recorded as "bypass handlers", a category that reads like plumbing,
+when what they actually are is the in-game help book (92 pages, reached from the
+`Book` item handler row 6 restored) and the "who owns this land and what does it
+tax" button on every fisherman, pet manager and warehouse keeper in the game.
+
+**Row 5 finished what row 6 started.** `MercTicket` was the one reachable item
+handler row 6 left behind, because it is not really an item handler: it is the
+front door of a subsystem. The `<siegeGuards>` loader had been reading only
+`itemId → castleId` — enough for the pickup refusal that already existed, not
+enough to know *which* guard a ticket posts or how many of it a castle may
+field. `siege/capture.rs`'s own comment ("which it always is until the mercenary
+system lands") is now stale in the good way: postings are cleared there for
+real.
+
+SKIP(census): Java's `spawnMercenary` also spawns a 3-second preview of the
+guard at the moment of posting (`scheduleDespawn(3000)`). The siege-start spawn
+is the real one and is unaffected.
+
+**Row 6 was mis-titled in this table until it was worked.** It read as a tail of
+small conveniences — dice, a readable book, pet food — and the count of affected
+items was the least interesting thing about it. **Every pet collar on this dist,
+the Wolf Collar included, declares `handler="SummonItems"`**, and that name fell
+through `ItemHandler`'s match to `None`, whose arm is `{}`. Using a collar
+therefore did nothing at all: the entire pet system — summoning, feeding,
+levelling, evolution, all of G29 and all of row 2 above — had **no entry point
+from the client**. Every test that summoned a pet did it by setting
+`pending_pet_collar` by hand, so the gap was invisible from inside the suite.
+The collar path now runs end-to-end, under a test that drives the real
+`UseItem` dispatch and fails without the one-line mapping.
+
+Rows 1 and 3 fell out of the same change that made the dispatch table-driven,
+which is why they closed together: the handlers are ~30 lines each, and what was
+actually missing was a router that could reach them.
+
+**Row 2 carried a behaviour change worth knowing about.** Java's `Summon` is not
+an `Attackable`: `SummonAI.onEvtAttacked` retaliates only in the `ServitorMode`
+*defending* stance, and a fresh summon starts passive. The port ran every summon
+through the ordinary monster damage reaction, so summons and pets **always**
+fought back — there was no stance for `ServitorMode` to select. That gate is now
+in `combat::damage::npc_receive_damage`, which makes the toggle mean something
+and matches retail: your pet does not pick fights until you tell it to. The
+damage tally is still kept either way, because kill credit reads it.
+
+Only 13 rows in `ActionData.xml` are left without an arm, and all four handlers
+behind them are post-Interlude: `AirshipAction` (4), `TacticalSignTarget` (4),
+`TacticalSignUse` (4), `TeleportBookmark` (1).
+
+**Row 4 is where row 19 came from.** Java's karma table stops at
+`MaximumPlayerLevel` and `getMultiplier` unboxes straight out of the map, so it
+would throw for any level past it — which never happens there, because the same
+config also caps the attainable level one short of it. Checking that the port
+had the same guarantee is what showed it does not: it reads `maxLevel` raw and
+reads `MaximumPlayerLevel` nowhere. The lookup therefore answers from the row the
+file declares (1–99) and falls back to the highest row below, so decay keeps
+working across the port's wider range; the cap itself is left alone as row 19,
+because narrowing it is a live-server decision, not a porting one.
+
+Covered by `game_loop/tests/player_actions_tests.rs`, the pet/servitor order
+tests at the end of `game_loop/tests/servitor_tests.rs`, and the karma-decay
+section of `game_loop/tests/pvp_kill_tests.rs`.
 
 ### Measured, and correctly out of scope
 
@@ -230,7 +638,8 @@ community-board handlers, user commands, and target handlers.
 ### Re-deriving these numbers
 
 ```sh
-# rows 2, 3 — action-bar handlers the dist declares, against the allow-list
+# rows 1, 2, 3 — action-bar handlers the dist declares, against the arms in
+# `game_loop/player_actions.rs::dispatch`
 grep -oE 'handler="[A-Za-z]+"' dist/game/data/ActionData.xml | sort | uniq -c | sort -rn
 
 # row 6 — item handlers the dist actually uses, by item count
@@ -249,23 +658,44 @@ grep -oE 'Q[0-9]{5}_[A-Za-z0-9]+\.class' \
   ../interlude_classic/dist/game/data/scripts/quests/QuestMasterHandler.java \
   | sed 's/_.*//;s/^Q//' | sort -u > /tmp/jq.txt
 ls crates/gameserver/src/scripts/ | grep -E '^q[0-9]' | sed 's/_.*//;s/^q//' | sort > /tmp/rq.txt
-# 54 rows: discount Q10506 (commented out in Java) and the 17 `not_done`
-# stubs, which load but do nothing there either, to reach the 36 above.
+# 53 rows. Discount Q00255 (ported as `tutorial.rs`, not `q00255_*.rs`) and
+# the 17 `not_done` stubs, which load but do nothing in Java either, to reach
+# **35** — the row's headline said 36.
 comm -23 /tmp/jq.txt /tmp/rq.txt
 
-# row 14 — coarse form. The 320 figure is stricter: intersected with the keys
-# Java's `Config` actually parses, then narrowed to the ten core .ini files.
+# …then the part the id diff cannot tell you. For each survivor, check its
+# NPCs are actually spawned and its items actually exist:
+grep -rl 'id="31774"' dist/game/data/spawns/    # Q00933: no output = unreachable
+grep -l  '<item id="49559"' dist/game/data/stats/items/*.xml   # Q11000: none
+
+# row 14 — coarse form, and **it over-reports**. A literal-only scan of the
+# port misses every key it builds with `format!` (all 13 GrandBoss respawn
+# keys, the flood-protector block, the PvP colour ladder), so the real figure
+# is smaller than this prints. The strict form intersects with the keys Java's
+# `Config` actually parses, narrows to the ten core .ini files, and expands
+# the port's `format!` patterns before subtracting.
 grep -rhoE '^[A-Za-z0-9_]+[[:space:]]*=' dist/game/config/*.ini dist/game/config/Custom/*.ini \
   | sed 's/[[:space:]]*=//' | sort -u > /tmp/ini.txt
 grep -rhoE 'get_[a-z_]+\("[A-Za-z0-9_]+"' crates/ --include='*.rs' \
   | sed 's/.*("//;s/"//' | sort -u > /tmp/read.txt
 comm -23 /tmp/ini.txt /tmp/read.txt | wc -l   # 862 of 1342 shipped keys
 
+# …and the count is only the start. A key is a gap only if Java *reads* the
+# field it fills; check each survivor's `Config.FIELD` against the tree:
+grep -rn 'Config\.CLAN_LEVEL_6_COST' ../interlude_classic/java | grep -v Config.java  # none
+
 # row 16 — admin commands
 grep -oE 'command="[a-zA-Z_0-9]+"' dist/game/config/AdminCommands.xml \
   | sed 's/.*command="//;s/"//' | sort -u > /tmp/ja.txt
 grep -rhoE '"admin_[a-z_0-9]+"' crates/ --include='*.rs' | tr -d '"' | sort -u > /tmp/ra.txt
 comm -23 /tmp/ja.txt /tmp/ra.txt
+
+# row 17 — buy-list product lines, by whether they declare a price and a stock
+grep -rhoE '<item [^>]*/>' dist/game/data/buylists/*.xml dist/game/data/buylists/custom/*.xml \
+  | wc -l                                              # 12062 product lines
+grep -rhoE '<item [^>]*/>' dist/game/data/buylists/*.xml | grep -vc 'price='   # 3079 bare
+grep -rlE 'count="' dist/game/data/buylists/*.xml | wc -l                      # 147 files
+grep -rhoE 'count="[0-9]+"' dist/game/data/buylists/*.xml | wc -l              # 1928 lines
 ```
 
 Row 15 needs the opcode value, not the name — the two trees name the same
@@ -274,6 +704,27 @@ packet differently often enough that a name diff lies. Parse `(0x..,` out of
 match against the `pub const …: u8` table in `network/client_packets.rs`. The
 first cut of this audit skipped that filter and reported 34 missing where the
 real figure is 21.
+
+Two further corrections came out of working it. The port's arms are not all in
+`dispatch.rs` — `PROTOCOL_VERSION` is handled a layer down in
+`network/connection.rs`, so a `dispatch.rs`-only scan over-reports by one (21,
+not the 20 recorded). And a missing arm is only a gap if Java's handler *does*
+something: seven of the twenty turned out to be empty, unreachable, or gated on
+state nothing sets. Re-run the scan over both files:
+
+```sh
+# every cop:: name referenced by either dispatch layer, resolved to its opcode
+grep -rhoE 'cop::[A-Z_0-9]+' crates/gameserver/src/game_loop/dispatch.rs \
+  crates/gameserver/src/network/connection.rs | sort -u
+```
+
+Rows 16 and 17 are the reason the commands above are a *starting* point.
+A set difference over a datapack is a hypothesis: it tells you a name is
+absent, not that a behaviour is. Row 16's survivors had to be checked against
+Java's own handler registry — 34 of 78 turned out to be dead there too — and
+row 17's two largest findings were not in the XML at all, but in the `Product`
+constructor that reads it. Both times the correction came from reading the
+**Java** side more carefully, not the port.
 
 ---
 

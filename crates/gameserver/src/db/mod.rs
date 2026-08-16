@@ -19,18 +19,18 @@
 use std::thread::JoinHandle;
 
 use models::entity::{
-    account_gsdata, account_premium, bbs_favorites, bot_reported_char_data, buffer_schemes, castle,
-    castle_manor_procure, castle_manor_production, castle_siege_guards, character_friends,
-    character_hennas, character_macroses, character_offline_trade, character_offline_trade_items,
-    character_quests, character_recipebook, character_reco_bonus, character_shortcuts,
-    character_skills, character_skills_save, character_subclasses, character_summon_skills_save,
-    character_summons, character_variables, characters, clan_data, clan_notices, clan_privs,
-    clan_skills, clan_subpledges, clan_wars, clanhall, clanhall_auctions_bidders, crests,
-    cursed_weapons, custom_mail, global_variables, grandboss_data, heroes, heroes_diary,
-    item_auction, item_auction_bid, item_variations, items, lottery, mdt_bets, mdt_history,
-    messages, npc_respawns, olympiad_data, olympiad_nobles, olympiad_nobles_eom, petition_feedback,
-    pets, pledge_applicant, pledge_recruit, pledge_waiting_list, punishments, residence_functions,
-    siege_clans,
+    account_gsdata, account_premium, bbs_favorites, bot_reported_char_data, buffer_schemes,
+    buylists, castle, castle_manor_procure, castle_manor_production, castle_siege_guards,
+    character_friends, character_hennas, character_macroses, character_offline_trade,
+    character_offline_trade_items, character_quests, character_recipebook, character_reco_bonus,
+    character_shortcuts, character_skills, character_skills_save, character_subclasses,
+    character_summon_skills_save, character_summons, character_variables, characters, clan_data,
+    clan_notices, clan_privs, clan_skills, clan_subpledges, clan_wars, clanhall,
+    clanhall_auctions_bidders, crests, cursed_weapons, custom_mail, global_variables,
+    grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid, item_variations, items,
+    lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles,
+    olympiad_nobles_eom, petition_feedback, pets, pledge_applicant, pledge_recruit,
+    pledge_waiting_list, punishments, residence_functions, siege_clans,
 };
 use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use models::sea_orm::Condition;

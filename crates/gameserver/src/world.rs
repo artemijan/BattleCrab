@@ -377,6 +377,28 @@ pub struct World {
     /// garrison), spawned at siege start (`DbEvent::SiegeGuardsLoaded`).
     pub siege_guards: HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
 
+    /// `ZoneManager._debugItems` — the adena markers `//zone_visual` drops
+    /// along zone borders, so `//zone_visual_clear` can decay exactly those and
+    /// nothing else a player happens to have dropped nearby.
+    pub zone_debug_items: Vec<i32>,
+
+    /// The mutable half of a buy-list `Product`: how many of a limited-stock
+    /// line are left, and when it restocks. Java keeps both *on* the `Product`
+    /// (`AtomicLong _count`); `world.data` is shared and immutable here, so the
+    /// counts hang off the world instead, keyed `(list_id, item_id)`.
+    ///
+    /// **Sparse — an absent key means full stock.** Java pre-fills every
+    /// product at construction, but "unseen" and "untouched since the last
+    /// restock" are the same state, so there is nothing to pre-fill; see
+    /// [`crate::game_loop::shop`].
+    pub buy_list_stock: HashMap<(i32, i32), crate::game_loop::shop::ProductStock>,
+
+    /// Per-castle **hired** mercenaries — the same table's `isHired = 1` rows,
+    /// posted by the owning clan with tickets between sieges and spawned
+    /// alongside the garrison when the siege starts (Java
+    /// `SiegeGuardManager._droppedTickets`).
+    pub mercenaries: HashMap<i32, Vec<crate::model::siege::Mercenary>>,
+
     /// The Grand Olympiad (G25): period state, the noble registry, and the two
     /// registration queues (Java `Olympiad` + `OlympiadManager`).
     pub olympiad: crate::model::olympiad::OlympiadState,
@@ -634,6 +656,9 @@ impl World {
             clan_notices: HashMap::new(),
             auction_end_tick: 0,
             siege_guards: HashMap::new(),
+            buy_list_stock: HashMap::new(),
+            mercenaries: HashMap::new(),
+            zone_debug_items: Vec::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),
             bot_reports: crate::game_loop::bot_report::BotReportTable::default(),
             instances: crate::model::instance::InstanceManager::default(),

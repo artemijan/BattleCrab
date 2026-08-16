@@ -1,20 +1,29 @@
 //! Merchant shop: `Merchant.showBuyWindow` behind the `Buy` bypass,
 //! `RequestBuyItem` (0x40) purchasing, and `RequestSellItem` (0x37) selling
-//! back at reference-price/2 (G15). Multisell, limited stock, castle tax, and
-//! the weight/capacity gates (no `maxLoad`/slot enforcement exists yet — a G5
-//! deferral) are out of scope.
+//! back at reference-price/2 (G15). Multisell is out of scope.
+//!
+//! This module also owns the runtime half of `model/buylist/Product` —
+//! `getCount`/`decreaseCount`/`restock` and the `BuyListTaskManager` timer
+//! behind them. Java keeps the count on the product; the port keeps
+//! `world.data` immutable and hangs [`ProductStock`] off the world instead
+//! (see [`crate::world::World::buy_list_stock`]). The static half —
+//! `count`/`restock_delay` parsing, prices, the grade filter — is in
+//! [`crate::data::buy_list_data`].
 
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use tracing::warn;
 
+use crate::data::buy_list_data::Product;
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::send_message;
 use crate::model::components::TargetRef;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::sm_ids;
 use crate::network::trade;
+use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::castle::{handle_tax_payment, npc_tax_rate as merchant_tax_rate};
@@ -24,6 +33,124 @@ use crate::game_loop::helpers::npc_id_of;
 
 /// `MAX_ADENA` (Config.MAX_ADENA default 99 999 999 999).
 const MAX_ADENA: i64 = 99_999_999_999;
+
+/// What Java stores in `Product._count` plus what `BuyListTaskManager` holds
+/// for it — kept together because they are written together on every sale.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProductStock {
+    /// `Product.getCount()` — remaining, never below 0 in the getter.
+    pub count: i64,
+    /// The absolute epoch-ms deadline `BuyListTaskManager` holds, and the
+    /// `next_restock_time` column. **0 means no timer is armed**, matching
+    /// `getRestockDelay`'s `getOrDefault(product, 0L)`.
+    pub next_restock_time: i64,
+}
+
+/// `Product.getCount()` for a product that may never have been touched.
+/// An absent entry is a full shelf, which is why nothing is pre-filled.
+pub(crate) fn stock_left(world: &World, list_id: i32, product: &Product) -> i64 {
+    if !product.has_limited_stock() {
+        // `_count == null` → 0. Not a bug to route around: the BuyList packet
+        // writes `getCount()` straight into the quantity field, and 0 is what
+        // the client reads as "no limit shown".
+        return 0;
+    }
+    world
+        .buy_list_stock
+        .get(&(list_id, product.item_id))
+        .map_or(product.max_count, |s| s.count.max(0))
+}
+
+/// `Product.decreaseCount(value)`: arm the restock timer if one is not already
+/// running, then subtract. Java returns whether the result stayed at or above
+/// zero and **skips delivery when it did not** — an oversell hands the buyer
+/// nothing, having already taken their adena. Reproduced; the validation pass
+/// makes it unreachable.
+fn decrease_count(world: &mut World, list_id: i32, product: &Product, value: i64) -> bool {
+    let key = (list_id, product.item_id);
+    let mut stock = world
+        .buy_list_stock
+        .get(&key)
+        .copied()
+        .unwrap_or(ProductStock {
+            count: product.max_count,
+            next_restock_time: 0,
+        });
+    // `BuyListTaskManager.add` is a no-op when the product already has a
+    // deadline, so the clock starts at the *first* sale after a restock and
+    // is not pushed back by later ones.
+    if stock.next_restock_time == 0 {
+        stock.next_restock_time = world.now_millis() + product.restock_delay_ms;
+        world.scheduler.schedule(
+            world.tick + restock_ticks(product.restock_delay_ms),
+            ScheduledTask::BuyListRestock {
+                list_id,
+                item_id: product.item_id,
+            },
+        );
+    }
+    stock.count -= value;
+    let ok = stock.count >= 0;
+    world.buy_list_stock.insert(key, stock);
+    save_stock(world, list_id, product.item_id, stock);
+    ok
+}
+
+/// `Product.restock()` — back to `maxCount`, timer cleared. Dropping the entry
+/// says exactly that, since an absent key is a full shelf.
+pub(crate) fn handle_restock(world: &mut World, list_id: i32, item_id: i32) {
+    let Some(product) = world
+        .data
+        .buy_lists
+        .get(list_id)
+        .and_then(|l| l.product(item_id))
+    else {
+        return;
+    };
+    let max_count = product.max_count;
+    world.buy_list_stock.remove(&(list_id, item_id));
+    save_stock(
+        world,
+        list_id,
+        item_id,
+        ProductStock {
+            count: max_count,
+            next_restock_time: 0,
+        },
+    );
+}
+
+/// `Product.restartRestockTask(nextRestockTime)` at boot: resume a deadline
+/// that outlived the shutdown, or restock immediately if it has already passed.
+pub(crate) fn restart_restock_task(world: &mut World, list_id: i32, item_id: i32, deadline: i64) {
+    let remaining = deadline - world.now_millis();
+    if remaining > 0 {
+        world.scheduler.schedule(
+            world.tick + restock_ticks(remaining),
+            ScheduledTask::BuyListRestock { list_id, item_id },
+        );
+    } else {
+        handle_restock(world, list_id, item_id);
+    }
+}
+
+/// Java's restock task polls every 60 s, so a product restocks up to a minute
+/// *late* there; the port's scheduler fires on the deadline itself. The
+/// shortest delay this dist declares is an hour, so the difference is under
+/// 2 % either way.
+fn restock_ticks(delay_ms: i64) -> u64 {
+    (delay_ms.max(0) as u64 * super::time::TICKS_PER_SECOND).div_ceil(1000)
+}
+
+fn save_stock(world: &mut World, list_id: i32, item_id: i32, stock: ProductStock) {
+    // `Product.save()` — an upsert on every decrease and every restock.
+    let _ = world.db.send(crate::db::DbCommand::SaveBuyListStock {
+        list_id,
+        item_id,
+        count: stock.count.max(0),
+        next_restock_time: stock.next_restock_time,
+    });
+}
 
 /// Whether the NPC is a merchant (Java `instanceof Merchant` — the
 /// `Merchant`/`Fisherman` instance classes; the `type` attribute stands in
@@ -94,11 +221,15 @@ pub(crate) fn show_buy_window_taxed(
     let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
         return;
     };
-    helpers::send_to_client(
-        world,
-        client_id,
-        trade::buy_list(list, inventory, &world.data, tax_rate),
+    let packet = trade::buy_list(
+        list,
+        inventory,
+        &world.data,
+        tax_rate,
+        world.cfg.rates.rate_siege_guards_price,
+        |p| stock_left(world, list_id, p),
     );
+    helpers::send_to_client(world, client_id, packet);
     helpers::send_to_client(
         world,
         client_id,
@@ -118,10 +249,10 @@ pub(crate) fn show_buy_window_taxed(
     super::helpers::block_inventory(world, player);
 }
 
-/// Port of `clientpackets/RequestBuyItem.runImpl`, minus the systems that
-/// don't exist: karma gate, GM bypasses, limited stock, and the weight/slot
-/// capacity checks (no encumbrance enforcement yet). Castle tax is applied and
-/// paid into the merchant's castle treasury.
+/// Port of `clientpackets/RequestBuyItem.runImpl`, minus the karma gate and
+/// the GM bypasses. Castle tax is applied and paid into the merchant's castle
+/// treasury; limited stock is gated here and consumed in the delivery loop,
+/// and the weight and slot checks are Java's, quirk included (see below).
 pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestBuyItem::read(body) else {
         return;
@@ -170,11 +301,13 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             );
             return;
         };
-        let stackable = world
-            .data
-            .item_data
-            .get(line.item_id)
-            .is_some_and(|t| t.is_stackable);
+        let template = world.data.item_data.get(line.item_id);
+        let stackable = template.is_some_and(|t| t.is_stackable);
+        // `product.getPrice()` — read once here, as Java does, so the
+        // CASTLE_GUARD rate lands on the validation *and* the charge.
+        let unit_price = template.map_or(product.price, |t| {
+            product.price_at(t, world.cfg.rates.rate_siege_guards_price)
+        });
         if !stackable && line.count > 1 {
             super::punishment::illegal_action(
                 world,
@@ -191,7 +324,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             );
             return;
         }
-        if product.price < 0 {
+        if unit_price < 0 {
             warn!(
                 "Shop: no price for item {} on buylist {}.",
                 line.item_id, pkt.list_id
@@ -199,7 +332,31 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             send_action_failed(world, client_id);
             return;
         }
-        if MAX_ADENA / line.count < product.price {
+        // `Config.ONLY_GM_ITEMS_FREE` (True here). A 0 price survives the
+        // loader only on a list with no `<npcs>` block — the GM shop — and no
+        // such list can be opened at a merchant, so this is the second lock on
+        // a door that is already shut. Java punishes rather than refusing.
+        if unit_price == 0 && !helpers::is_gm(world, player) {
+            send_message(
+                world,
+                client_id,
+                "Ohh Cheat dont work? You have a problem now!",
+            );
+            super::punishment::illegal_action(
+                world,
+                player,
+                &format!("Player {player} tried buy item for 0 adena."),
+            );
+            return;
+        }
+        // "trying to buy more then available" — refused silently, before any
+        // adena moves. `stock_left` is the whole shelf for a product nobody
+        // has bought from yet.
+        if product.has_limited_stock() && line.count > stock_left(world, pkt.list_id, product) {
+            send_action_failed(world, client_id);
+            return;
+        }
+        if MAX_ADENA / line.count < unit_price {
             super::punishment::illegal_action(
                 world,
                 player,
@@ -210,7 +367,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             return;
         }
         // Java: per-item price with tax first, then multiply by the count.
-        let price = (product.price as f64
+        let price = (unit_price as f64
             * (1.0 + castle_tax_rate + f64::from(product.base_tax) / 100.0))
             as i64;
         sub_total += line.count * price;
@@ -238,11 +395,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     //
     // Both checks are skipped outright for a GM (`!player.isGM() && …`), which
     // is broader than `validate_weight`'s own diet-mode exemption.
-    let is_gm = world
-        .objects
-        .get_component::<crate::model::Player>(&player)
-        .is_some_and(|p| p.is_gm(&world.data));
-    if !is_gm {
+    if !helpers::is_gm(world, player) {
         let (mut weight, mut slots): (i64, i64) = (0, 0);
         for line in &pkt.items {
             let unit_weight = world
@@ -290,9 +443,23 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         return;
     }
 
-    // Deliver.
+    // Deliver. A limited-stock line is decremented first and handed over only
+    // if the decrement stayed at or above zero, which is Java's order.
     let mut added: Vec<crate::model::inventory::ItemChange> = Vec::new();
     for line in &pkt.items {
+        let Some(product) = world
+            .data
+            .buy_lists
+            .get(pkt.list_id)
+            .and_then(|l| l.product(line.item_id))
+            .cloned()
+        else {
+            continue;
+        };
+        if product.has_limited_stock() && !decrease_count(world, pkt.list_id, &product, line.count)
+        {
+            continue;
+        }
         if let Some(changes) =
             helpers::add_inventory_item_changes(world, player, line.item_id, line.count)
         {
@@ -549,4 +716,153 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         .map(crate::model::inventory::ItemChange::Modified)
         .collect();
     send_sell_list_refresh(world, client_id, player, changes);
+}
+
+/// `RequestPreviewItem` (0xC7) — the merchant window's "try on" button.
+///
+/// The outfit is **not** equipped: nothing enters the inventory and no stat
+/// changes, the client is simply told to draw those items for `WearDelay`
+/// seconds. What it costs is real, though — `WearPrice` **per slot**.
+///
+/// SKIP(census): Java's Kamael weapon/armour filters (rapier, crossbow,
+/// ancient sword, heavy/magic armour) are skipped — Kamael is a Gracia race
+/// and no character on this dist can be one, so every branch is unreachable.
+pub(crate) fn handle_request_preview_item(world: &mut World, client_id: u32, body: &[u8]) {
+    use crate::model::inventory::PaperdollSlot;
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = commons::network::PacketReader::new(body);
+    let Some([_unk, list_id, count]) = r.read_i32_array::<3>() else {
+        return;
+    };
+    // "prevent too long lists" — Java abandons the *read*, so nothing runs.
+    if count > 100 {
+        return;
+    }
+    let count = count.max(0);
+    let mut wanted = Vec::with_capacity(count as usize);
+    for _ in 0..count {
+        let Some(id) = r.read_i32() else { return };
+        wanted.push(id);
+    }
+
+    // `AltGameKarmaPlayerCanShop` — a criminal may not even window-shop.
+    let reputation = world
+        .objects
+        .get_component::<crate::model::Player>(&player)
+        .map_or(0, |p| p.reputation);
+    if !world.cfg.character.alt_karma_player_can_shop && reputation < 0 {
+        return;
+    }
+    // The merchant + range gate, skipped outright for a GM (who may preview
+    // from the `//gmshop` window with nothing targeted).
+    let is_merchant_target = targeted_merchant(world, player).is_some();
+    if !helpers::is_gm(world, player) && !is_merchant_target {
+        return;
+    }
+    if count < 1 || list_id >= 4_000_000 {
+        send_action_failed(world, client_id);
+        return;
+    }
+    let Some(list) = world.data.buy_lists.get(list_id) else {
+        super::punishment::illegal_action(
+            world,
+            player,
+            &format!("Player {player} sent a false BuyList list_id {list_id}"),
+        );
+        return;
+    };
+
+    let mut outfit: std::collections::HashMap<PaperdollSlot, i32> =
+        std::collections::HashMap::new();
+    let mut total_price: i64 = 0;
+    let wear_price = i64::from(world.cfg.general.wear_price);
+    for &item_id in &wanted {
+        if list.product(item_id).is_none() {
+            super::punishment::illegal_action(
+                world,
+                player,
+                &format!(
+                    "Player {player} sent a false BuyList list_id {list_id} and item_id {item_id}"
+                ),
+            );
+            return;
+        }
+        let Some(template) = world.data.item_data.get(item_id) else {
+            continue;
+        };
+        // Anything that does not go in a paperdoll slot is silently skipped,
+        // not refused — Java `continue`s, so a potion in the list costs
+        // nothing and shows nothing.
+        let Some(slot) = crate::model::inventory::Inventory::primary_slot(template.body_part)
+        else {
+            continue;
+        };
+        if outfit.contains_key(&slot) {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::YOU_CAN_NOT_TRY_THOSE_ITEMS_ON_AT_THE_SAME_TIME,
+                &[],
+            );
+            return;
+        }
+        outfit.insert(slot, item_id);
+        total_price += wear_price;
+        if total_price > MAX_ADENA {
+            super::punishment::illegal_action(
+                world,
+                player,
+                &format!(
+                    "Player {player} tried to purchase over {MAX_ADENA} adena worth of goods."
+                ),
+            );
+            return;
+        }
+    }
+
+    // "a Try On is not Free".
+    if total_price > 0
+        && !super::quests::take_items(world, client_id, player, ADENA_ID, total_price)
+    {
+        send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
+        return;
+    }
+    if outfit.is_empty() {
+        return;
+    }
+    helpers::send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::shop_preview_info(&outfit),
+    );
+    // `ThreadPool.schedule(new RemoveWearItemsTask(player), WEAR_DELAY * 1000)`.
+    let delay = (world.cfg.general.wear_delay.max(0) as u64) * super::time::TICKS_PER_SECOND;
+    world.scheduler.schedule(
+        world.tick + delay,
+        ScheduledTask::RemoveWornPreview { player_oid: player },
+    );
+}
+
+/// `RemoveWearItemsTask` — the try-on wearing off.
+///
+/// Java sends `ExUserInfoEquipSlot`, which is an **extended packet at
+/// sub-opcode 0x156** and so unreadable by any Interlude client. The port
+/// sends the full `UserInfo` it already has, which is the Interlude-era way of
+/// saying the same thing: redraw this character from its real paperdoll.
+pub(crate) fn handle_remove_worn_preview(world: &mut World, player_oid: i32) {
+    if !world
+        .objects
+        .has_component::<crate::model::Player>(&player_oid)
+    {
+        return;
+    }
+    helpers::send_sm_to_player(
+        world,
+        player_oid,
+        sm_ids::YOU_ARE_NO_LONGER_TRYING_ON_EQUIPMENT,
+        &[],
+    );
+    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
 }

@@ -137,6 +137,61 @@ pub struct NpcConfig {
     /// castle each time one of the three Mammon merchants relocates
     /// (`ai/others/Mammons/*`). **True** on this dist; Java defaults it false.
     pub announce_mammon_spawn: bool,
+
+    // --- NPC.ini's remaining live keys (row 14) ---------------------------
+    /// `MaximumSlotsForPet` (Java `INVENTORY_MAXIMUM_PET`) — the pet bag's
+    /// slot count, and the limit the `GMViewItemList` header carries.
+    pub inventory_maximum_pet: usize,
+    /// `Raid{P,M}{Attack,Defence}Multiplier`, already divided by 100 — Java
+    /// stores `getDouble(key, 100) / 100`, so the shipped `100` is **×1.0**
+    /// and reading the raw number as a multiplier would buff every raid boss
+    /// a hundredfold.
+    pub raid_p_atk_multiplier: f64,
+    pub raid_m_atk_multiplier: f64,
+    pub raid_p_def_multiplier: f64,
+    pub raid_m_def_multiplier: f64,
+    /// `RaidMinRespawnMultiplier` / `RaidMaxRespawnMultiplier` — scale a raid
+    /// boss's respawn window. Both 1.0 here.
+    pub raid_min_respawn_multiplier: f64,
+    pub raid_max_respawn_multiplier: f64,
+    /// `SpoiledCorpseExtendTime` (seconds) — a spoiled corpse lingers this
+    /// much longer before decaying, so the sweeper has time to reach it.
+    pub spoiled_corpse_extend_time: i32,
+    /// `CorpseConsumeSkillAllowedTimeBeforeDecay` (ms) — a corpse this close
+    /// to decaying is too old to sweep or harvest.
+    pub corpse_consume_skill_allowed_time_before_decay: i32,
+    // The four below are **parsed and inert at the shipped values**, the same
+    // way `PvpConfig`'s anti-feed block is: each guards a Java branch that
+    // does nothing at the value this dist ships, so the port already agrees
+    // with it. They are carried so the values are visible and so a change of
+    // mind is an edit at one named place rather than a new concept.
+    //
+    /// `AltMobAgroInPeaceZone` — **True**. `AttackableAI:169` reads
+    /// `if (!ALT_MOB_AGRO_IN_PEACEZONE && target.isInsideZone(PEACE) &&
+    /// target.isInsideZone(NO_PVP))`, so with it on the skip never fires and
+    /// mobs aggro everywhere. The port has no peace-zone aggro gate, which is
+    /// that same behaviour.
+    pub alt_mob_agro_in_peace_zone: bool,
+    /// `AltAttackableNpcs` — **True**. It feeds `Npc.canBeAttacked()`, not
+    /// `isAttackable()`, and the one caller is `Creature.onForcedAttack`'s
+    /// `!target.canBeAttacked() && !allowPeaceAttack` refusal — so with it on
+    /// that refusal never fires for an NPC.
+    pub alt_attackable_npcs: bool,
+    /// `AttackablesCampPlayerCorpses` — **False**: `AttackableAI:486` folds
+    /// `(target.isPlayer() && !ATTACKABLES_CAMP_PLAYER_CORPSES &&
+    /// target.isAlikeDead())` into the drift-home test, so a mob that killed
+    /// someone out past `MaxDriftRange` walks back instead of standing over
+    /// the body. The port lands there by a shorter route: `think_attack` drops
+    /// a dead target from the aggro list, so the very next think takes the
+    /// no-target branch and goes home. Wiring `True` would mean *keeping* a
+    /// corpse as a target, which is a real change to the attack loop for no
+    /// gain at this dist's value.
+    pub attackables_camp_player_corpses: bool,
+    /// `GuardAttackAggroMob` — **False**, and `Monster:74` reads
+    /// `if (GUARD_ATTACK_AGGRO_MOB && getTemplate().isAggressive() &&
+    /// (attacker instanceof Guard))`, so the branch never runs: a guard
+    /// hitting an aggressive monster does not make it turn on the guard.
+    pub guard_attack_aggro_mob: bool,
 }
 
 impl Default for NpcConfig {
@@ -183,6 +238,20 @@ impl Default for NpcConfig {
             min_npc_level_for_dmg_penalty: 78,
             skill_dmg_penalty_for_lvl_differences: vec![0.8, 0.7, 0.65, 0.62],
             announce_mammon_spawn: false,
+            // These thirteen match the dist as well as Java's own fallbacks.
+            inventory_maximum_pet: 12,
+            raid_p_atk_multiplier: 1.0,
+            raid_m_atk_multiplier: 1.0,
+            raid_p_def_multiplier: 1.0,
+            raid_m_def_multiplier: 1.0,
+            raid_min_respawn_multiplier: 1.0,
+            raid_max_respawn_multiplier: 1.0,
+            spoiled_corpse_extend_time: 10,
+            corpse_consume_skill_allowed_time_before_decay: 2000,
+            alt_mob_agro_in_peace_zone: true,
+            alt_attackable_npcs: true,
+            attackables_camp_player_corpses: false,
+            guard_attack_aggro_mob: false,
         }
     }
 }
@@ -264,6 +333,36 @@ impl NpcConfig {
                 d.skill_dmg_penalty_for_lvl_differences,
             ),
             announce_mammon_spawn: p.get_bool("AnnounceMammonSpawn", d.announce_mammon_spawn),
+            inventory_maximum_pet: p
+                .get_int("MaximumSlotsForPet", d.inventory_maximum_pet as i32)
+                .max(0) as usize,
+            // Java stores these already divided by 100 — see the field docs.
+            raid_p_atk_multiplier: f64::from(p.get_float("RaidPAttackMultiplier", 100.0)) / 100.0,
+            raid_m_atk_multiplier: f64::from(p.get_float("RaidMAttackMultiplier", 100.0)) / 100.0,
+            raid_p_def_multiplier: f64::from(p.get_float("RaidPDefenceMultiplier", 100.0)) / 100.0,
+            raid_m_def_multiplier: f64::from(p.get_float("RaidMDefenceMultiplier", 100.0)) / 100.0,
+            raid_min_respawn_multiplier: f64::from(p.get_float(
+                "RaidMinRespawnMultiplier",
+                d.raid_min_respawn_multiplier as f32,
+            )),
+            raid_max_respawn_multiplier: f64::from(p.get_float(
+                "RaidMaxRespawnMultiplier",
+                d.raid_max_respawn_multiplier as f32,
+            )),
+            spoiled_corpse_extend_time: p
+                .get_int("SpoiledCorpseExtendTime", d.spoiled_corpse_extend_time),
+            corpse_consume_skill_allowed_time_before_decay: p.get_int(
+                "CorpseConsumeSkillAllowedTimeBeforeDecay",
+                d.corpse_consume_skill_allowed_time_before_decay,
+            ),
+            alt_mob_agro_in_peace_zone: p
+                .get_bool("AltMobAgroInPeaceZone", d.alt_mob_agro_in_peace_zone),
+            alt_attackable_npcs: p.get_bool("AltAttackableNpcs", d.alt_attackable_npcs),
+            attackables_camp_player_corpses: p.get_bool(
+                "AttackablesCampPlayerCorpses",
+                d.attackables_camp_player_corpses,
+            ),
+            guard_attack_aggro_mob: p.get_bool("GuardAttackAggroMob", d.guard_attack_aggro_mob),
         }
     }
 }

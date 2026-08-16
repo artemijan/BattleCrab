@@ -76,15 +76,22 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         vitals.dead = true;
         vitals.cur_hp = 0.0;
         let npc_id = npc.npc_id;
+        // `DecayTaskManager.add`: a corpse someone spoiled or seeded lingers
+        // `SpoiledCorpseExtendTime` seconds longer, so the sweeper/harvester
+        // has time to walk to it. Read here, before the borrows drop.
+        let extended = npc.spoiler_object_id != 0 || npc.seeded;
         let max_hp = vitals.max_hp;
         drop((npc, vitals));
         world.objects.remove_component::<Movement>(&npc_oid);
-        let corpse_secs = world
+        let mut corpse_secs = world
             .data
             .npc_data
             .get(npc_id)
             .and_then(|t| t.corpse_time)
             .unwrap_or(world.cfg.npc.default_corpse_time);
+        if extended {
+            corpse_secs += world.cfg.npc.spoiled_corpse_extend_time;
+        }
         (corpse_secs, max_hp)
     };
     let Some(region) = region_cell_of(world, npc_oid) else {
@@ -232,8 +239,15 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // The mob stays *selected* while its corpse lasts — a player keeps it in
     // target so corpse actions (sweep/spoil, looting) can act on it. The
     // selection is dropped only when the corpse decays; see `handle_npc_decay`.
+    let decay_at = world.tick + corpse_secs.max(0) as u64 * 10;
+    if let Some(npc) = world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+    {
+        npc.decay_at_tick = decay_at;
+    }
     world.scheduler.schedule(
-        world.tick + corpse_secs.max(0) as u64 * 10,
+        decay_at,
         ScheduledTask::NpcDecay {
             npc_object_id: npc_oid,
         },
@@ -284,8 +298,18 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // `Spawn.decreaseCount`: respawn only when the spawn line asked for it
     // (`_doRespawn = respawnMinDelay > 0`), with the ± random spread.
     if npc.respawn_secs > 0 {
-        let min = (npc.respawn_secs - npc.respawn_random_secs).max(0);
-        let max = npc.respawn_secs + npc.respawn_random_secs;
+        let mut min = (npc.respawn_secs - npc.respawn_random_secs).max(0);
+        let mut max = npc.respawn_secs + npc.respawn_random_secs;
+        // `DBSpawnManager.updateStatus` scales the window before rolling it:
+        // `respawnMinDelay = getRespawnMinDelay() * RAID_MIN_RESPAWN_MULTIPLIER`
+        // and the same for max. Only the DB-backed bosses go through that
+        // manager — an ordinary spawn line's respawn is `Spawn.decreaseCount`,
+        // which never sees the multipliers. Both are 1.0 on this dist.
+        if db_saved {
+            min = (f64::from(min) * world.cfg.npc.raid_min_respawn_multiplier) as i32;
+            max = (f64::from(max) * world.cfg.npc.raid_max_respawn_multiplier) as i32;
+            max = max.max(min);
+        }
         let delay_secs = if max > min {
             min + world.roll(max - min + 1)
         } else {

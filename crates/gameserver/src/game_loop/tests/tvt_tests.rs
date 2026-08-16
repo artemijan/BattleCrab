@@ -663,6 +663,7 @@ fn register_hq_zones(world: &mut World) {
             damage: None,
             swamp: None,
             condition: None,
+            mother_tree: None,
         });
     }
 }

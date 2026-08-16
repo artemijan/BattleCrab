@@ -171,6 +171,20 @@ pub fn auto_attack_stop(object_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `serverpackets/Dice` — the die lands at `(x, y, z)` showing
+/// `number`. Broadcast to the roller and everyone who can see them.
+pub fn dice(object_id: i32, item_id: i32, number: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::DICE);
+    w.write_i32(object_id);
+    w.write_i32(item_id);
+    w.write_i32(number);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/SocialAction` (also carries the level-up effect,
 /// `SocialAction.LEVEL_UP` = 2122).
 pub const SOCIAL_ACTION_LEVEL_UP: i32 = 2122;

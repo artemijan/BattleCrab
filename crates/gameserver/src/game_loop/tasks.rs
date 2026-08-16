@@ -223,6 +223,12 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::AntharasClearZone => {
                 antharas::handle_clear_zone(world);
             }
+            ScheduledTask::BuyListRestock { list_id, item_id } => {
+                shop::handle_restock(world, list_id, item_id);
+            }
+            ScheduledTask::RemoveWornPreview { player_oid } => {
+                shop::handle_remove_worn_preview(world, player_oid);
+            }
             ScheduledTask::ClanHallAuctionEnd => {
                 clans::hall_auction::handle_auction_end(world);
             }
@@ -320,6 +326,9 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::PetFeedTick { pet_oid } => {
                 servitor::handle_feed_tick(world, pet_oid);
+            }
+            ScheduledTask::BabyPetHealTick { pet_oid } => {
+                crate::scripts::baby_pets::handle_heal_tick(world, pet_oid);
             }
             ScheduledTask::DamOverTimeTick {
                 caster,

@@ -362,25 +362,33 @@ const MON_1800: i64 = 4 * MS_PER_DAY + 18 * 3600 * 1000;
 #[test]
 fn competition_window_is_weekends_at_1800() {
     use crate::game_loop::olympiad::{in_comp_window, next_comp_start_delay_ms};
+    // The shipped `Olympiad.ini`: 18:00, six hours, Saturday and Sunday.
+    let cfg = crate::config::OlympiadConfig::default();
 
     // Saturday inside the 18:00–00:00 window is open; before/after is not.
-    assert!(in_comp_window(SAT_1800 + 30 * 60 * 1000), "Sat 18:30 open");
-    assert!(!in_comp_window(SAT_1800 - 3600 * 1000), "Sat 17:00 closed");
     assert!(
-        !in_comp_window(SAT_1800 + 7 * 3600 * 1000),
+        in_comp_window(&cfg, SAT_1800 + 30 * 60 * 1000),
+        "Sat 18:30 open"
+    );
+    assert!(
+        !in_comp_window(&cfg, SAT_1800 - 3600 * 1000),
+        "Sat 17:00 closed"
+    );
+    assert!(
+        !in_comp_window(&cfg, SAT_1800 + 7 * 3600 * 1000),
         "Sun 01:00 (past the 6 h window) closed"
     );
     // A weekday is never a competition day.
     assert!(
-        !in_comp_window(MON_1800 + 30 * 60 * 1000),
+        !in_comp_window(&cfg, MON_1800 + 30 * 60 * 1000),
         "Mon 18:30 closed"
     );
 
     // From Monday 18:00 the next start is Saturday 18:00 — five days off.
-    assert_eq!(next_comp_start_delay_ms(MON_1800), 5 * MS_PER_DAY);
+    assert_eq!(next_comp_start_delay_ms(&cfg, MON_1800), 5 * MS_PER_DAY);
     // Just before Saturday's window, the next start is a few hours away.
     assert_eq!(
-        next_comp_start_delay_ms(SAT_1800 - 3600 * 1000),
+        next_comp_start_delay_ms(&cfg, SAT_1800 - 3600 * 1000),
         3600 * 1000,
         "one hour to Saturday 18:00"
     );
@@ -389,9 +397,10 @@ fn competition_window_is_weekends_at_1800() {
 #[test]
 fn olympiad_period_ends_at_noon_after_13_days() {
     use crate::game_loop::olympiad::next_olympiad_end;
+    let cfg = crate::config::OlympiadConfig::default();
     // From Saturday 18:00, the round ends at noon 13 days on (14-day period, the
     // last day reserved for validation).
-    let end = next_olympiad_end(SAT_1800);
+    let end = next_olympiad_end(&cfg, SAT_1800);
     assert_eq!(end, 15 * MS_PER_DAY + 12 * 3600 * 1000, "noon, 13 days out");
     assert!(end > SAT_1800, "always in the future");
 }
@@ -430,7 +439,7 @@ fn weekly_change_adds_points_and_resets_matches() {
     use crate::model::olympiad::NobleStats;
     let (mut world, _tx, _db, _l) = test_world();
     world.olympiad.period = 0;
-    let mut noble = NobleStats::fresh(2, "N".into()); // 10 points
+    let mut noble = NobleStats::fresh(2, "N".into(), DEFAULT_POINTS); // 10 points
     noble.comp_done_week = 7;
     world.olympiad.nobles.insert(500, noble);
 
@@ -511,7 +520,7 @@ fn stage_match(
     let rx_a = ingame_player(world, a as u32, a, 500, 500, 0);
     let _rb = ingame_player(world, b as u32, b, 600, 600, 0);
     for (oid, pts, name) in [(a, pts_a, "A"), (b, pts_b, "B")] {
-        let mut n = NobleStats::fresh(2, name.into());
+        let mut n = NobleStats::fresh(2, name.into(), DEFAULT_POINTS);
         n.points = pts;
         world.olympiad.nobles.insert(oid, n);
         world.olympiad.in_competition.insert(oid);
@@ -540,7 +549,7 @@ fn pre_fight_countdown_announces_then_teleports_then_fights() {
         world
             .olympiad
             .nobles
-            .insert(oid, NobleStats::fresh(2, "N".into()));
+            .insert(oid, NobleStats::fresh(2, "N".into(), DEFAULT_POINTS));
         world.olympiad.in_competition.insert(oid);
     }
 
@@ -691,7 +700,7 @@ fn point_transfer_is_clamped() {
 /// Insert a noble record with the given competition record.
 fn insert_noble(world: &mut World, oid: i32, class: i32, points: i32, done: i32, won: i32) {
     use crate::model::olympiad::NobleStats;
-    let mut n = NobleStats::fresh(class, format!("N{oid}"));
+    let mut n = NobleStats::fresh(class, format!("N{oid}"), DEFAULT_POINTS);
     n.points = points;
     n.comp_done = done;
     n.comp_won = won;
@@ -879,6 +888,7 @@ fn point_mark_exchange_gives_marks_of_battle() {
         .unwrap()
         .set_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 10);
 
+    add_quest_items(&mut world, &[(45584, "Mark of Battle", true)]);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -891,7 +901,7 @@ fn point_mark_exchange_gives_marks_of_battle() {
             .objects
             .get_component::<Inventory>(&100)
             .unwrap()
-            .count_of(crate::game_loop::olympiad::MARK_ITEM),
+            .count_of(world.cfg.olympiad.comp_reward_item),
         200
     );
     assert_eq!(
@@ -1022,7 +1032,7 @@ fn point_exchange_refused_when_inventory_over_80_percent() {
             .objects
             .get_component::<Inventory>(&100)
             .unwrap()
-            .count_of(crate::game_loop::olympiad::MARK_ITEM),
+            .count_of(world.cfg.olympiad.comp_reward_item),
         0,
         "no marks while the bag is full"
     );
@@ -1096,6 +1106,17 @@ fn monument_hero_claims_rewards() {
     world.olympiad.heroes.push((100, 2)); // crowned hero
     // The hero rewards gate on `isHero`, i.e. a *claimed* crown.
     world.olympiad.claimed_heroes.insert(100);
+
+    // `give_items` refuses an id the datapack does not declare (Java
+    // `ItemContainer.addItem` logs `Invalid ItemId`), so the fixture declares
+    // the weapon and the circlet the script hands out.
+    add_quest_items(
+        &mut world,
+        &[
+            (6611, "Infinity Sword", false),
+            (6842, "Hero Circlet", false),
+        ],
+    );
 
     // Pick an Infinity weapon from the list.
     handle_request_bypass_to_server(
@@ -1509,7 +1530,7 @@ fn an_observer_follows_the_arena_into_the_next_match() {
         world
             .olympiad
             .nobles
-            .insert(oid, NobleStats::fresh(2, "N".into()));
+            .insert(oid, NobleStats::fresh(2, "N".into(), DEFAULT_POINTS));
         world.olympiad.in_competition.insert(oid);
     }
     crate::game_loop::olympiad::start_match(&mut world, 0, 400, 500);
@@ -1519,5 +1540,82 @@ fn an_observer_follows_the_arena_into_the_next_match() {
         crate::game_loop::helpers::instance_of(&world, 300),
         second,
         "the spectator was re-scoped into the new match's instance"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Olympiad.ini, wired (row 14)
+// ---------------------------------------------------------------------------
+
+/// **The season clock follows the config, not constants.** Start hour, window
+/// length and competition days were all `const`; an operator moving the
+/// Olympiad to weekday evenings changed nothing.
+#[test]
+fn the_competition_window_follows_the_configured_clock() {
+    use crate::game_loop::olympiad::{in_comp_window, next_comp_start_delay_ms};
+    let mut cfg = crate::config::OlympiadConfig::default();
+    // Move it to Monday, 20:30, for two hours.
+    cfg.competition_days = vec![1];
+    cfg.start_hour = 20;
+    cfg.start_minute = 30;
+    cfg.comp_period_ms = 2 * 3600 * 1000;
+
+    let mon_2030 = MON_1800 + 2 * 3600 * 1000 + 30 * 60 * 1000;
+    assert!(in_comp_window(&cfg, mon_2030 + 60_000), "Mon 20:31 open");
+    assert!(!in_comp_window(&cfg, mon_2030 - 60_000), "Mon 20:29 closed");
+    assert!(
+        !in_comp_window(&cfg, mon_2030 + 3 * 3600 * 1000),
+        "Mon 23:30 past the two-hour window"
+    );
+    // Saturday is no longer a competition day at all.
+    assert!(!in_comp_window(&cfg, SAT_1800 + 3 * 3600 * 1000));
+    // From Saturday 18:00 the next start is Monday 20:30.
+    assert_eq!(
+        next_comp_start_delay_ms(&cfg, SAT_1800),
+        2 * MS_PER_DAY + 2 * 3600 * 1000 + 30 * 60 * 1000
+    );
+}
+
+/// **The round length follows `AltOlyPeriod` × `AltOlyPeriodMultiplier`.**
+#[test]
+fn the_round_length_follows_the_configured_period() {
+    use crate::game_loop::olympiad::next_olympiad_end;
+    let mut cfg = crate::config::OlympiadConfig::default();
+    // A one-week round instead of fourteen days.
+    cfg.period_unit_days = 7;
+    cfg.period_multiplier = 1;
+    assert_eq!(cfg.period_days(), 7);
+    assert_eq!(
+        next_olympiad_end(&cfg, SAT_1800),
+        8 * MS_PER_DAY + 12 * 3600 * 1000,
+        "noon, six days out"
+    );
+}
+
+/// **A fresh noble starts on `AltOlyStartPoints`, and the weekly cap is
+/// `AltOlyMaxWeeklyMatches`.** Both were constants in `model::olympiad`.
+#[test]
+fn start_points_and_weekly_cap_follow_the_config() {
+    use crate::model::olympiad::NobleStats;
+    let n = NobleStats::fresh(2, "N".into(), 42);
+    assert_eq!(
+        n.points, 42,
+        "the record is created with the configured points"
+    );
+
+    let mut state = crate::model::olympiad::OlympiadState::default();
+    state
+        .nobles
+        .insert(700, NobleStats::fresh(2, "N".into(), 10));
+    state.nobles.get_mut(&700).unwrap().comp_done_week = 4;
+    assert_eq!(
+        state.remaining_weekly_matches(700, 30),
+        26,
+        "the shipped cap of 30"
+    );
+    assert_eq!(
+        state.remaining_weekly_matches(700, 5),
+        1,
+        "and it is the caller's number, not a constant"
     );
 }

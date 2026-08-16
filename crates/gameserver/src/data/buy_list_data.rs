@@ -1,16 +1,30 @@
 //! Port of `data/xml/BuyListData` — every `data/buylists/*.xml` merchant
 //! list plus `data/buylists/custom/*.xml` (the GM-shop lists opened via
 //! `//buy`; Java parses both directories). The file name is the list id.
-//! Scoped to the G12 Buy slice:
 //!
-//! - `CorrectPrices` (General.ini, **True** here) is applied at load like
-//!   Java: a declared price below the item's sell value (reference price /
-//!   2) is floored to it.
-//! - Limited stock (`count`/`restock_delay`, 3 files) is **not** tracked —
-//!   those products sell as unlimited, and the DB-backed restock counts are
-//!   skipped with them (deliberate deviation until something needs them).
-//! - `CASTLE_GUARD` price scaling and the max-equipable-grade filter are
-//!   skipped (no sieges; grade config is default off).
+//! Three of Java's rules live in the **`Product` constructor** rather than in
+//! `parseDocument`, which is easy to miss when reading the loader alone:
+//!
+//! - **An undeclared `price` is not "no price".** `_price = (price < 0) ?
+//!   item.getReferencePrice() : price` — a bare `<item id="6902" />` sells at
+//!   the item's own reference price. 3079 of the 8198 product lines on the
+//!   npc-served lists declare no price, so treating -1 as unbuyable takes 38 %
+//!   of the merchant catalogue off the shelves.
+//! - `restock_delay` is in **minutes** (`_restockDelay = restockDelay *
+//!   60000`).
+//! - Limited stock is `_maxCount > -1`, so `count="0"` is a stocked product
+//!   with nothing left — not an unlimited one.
+//!
+//! `CorrectPrices` (General.ini, **True** here) floors a declared price at the
+//! item's sell value (reference price / 2), but only `if … &&
+//! (buyList.getNpcsAllowed() != null)` — the GM-shop lists under `custom/`
+//! have no `<npcs>` block, and that is what keeps their `price="0"` lines free.
+//!
+//! The mutable half of a `Product` — how many are left and when they restock —
+//! is **not** here: `world.data` is shared and immutable, so the counts live on
+//! the `World` (`buy_list_stock`) and the rules in `game_loop/shop.rs`.
+
+use crate::data::item_data::CrystalType;
 
 use std::collections::HashMap;
 
@@ -23,13 +37,70 @@ use crate::data::xml::attr_str;
 
 pub const BUYLISTS_DIR: &str = "data/buylists";
 
+/// `Config.MAX_EQUIPABLE_ITEM_GRADE` (`Character.ini`, **S** on this dist).
+/// Products above it — but below `EVENT`, which is the escape hatch for event
+/// gear that carries no real grade — never reach the list. Held as a constant
+/// rather than read from config because `GameData::load_from` takes none;
+/// `recipe_data` states the same value for the same filter.
+const MAX_EQUIPABLE_ITEM_GRADE: CrystalType = CrystalType::S;
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Product {
     pub item_id: i32,
-    /// Adena price per unit; -1 = undeclared (a buy attempt is rejected).
+    /// Adena price per unit. Never negative: an undeclared `price` was
+    /// resolved to the item's reference price at load, exactly as Java's
+    /// `Product` constructor does.
     pub price: i64,
     /// `baseTax` percent (the packet/charge multiply by `1 + base_tax/100`).
     pub base_tax: i32,
+    /// `count` — the full stock. **-1 = unlimited**, which is what
+    /// `has_limited_stock` tests; `0` is a real (empty) stock.
+    pub max_count: i64,
+    /// `restock_delay` converted from minutes to ms, like Java's constructor.
+    /// -60000 when undeclared, which is unreachable: every one of this dist's
+    /// 1928 limited-stock lines declares one.
+    pub restock_delay_ms: i64,
+}
+
+impl Product {
+    /// `Product.hasLimitedStock()`.
+    pub fn has_limited_stock(&self) -> bool {
+        self.max_count > -1
+    }
+
+    /// `Product.getPrice()` — the stored price, scaled by
+    /// `Config.RATE_SIEGE_GUARDS_PRICE` when the item is a `CASTLE_GUARD`
+    /// (the mercenary posting tickets, 11 of them on this dist). The rate
+    /// ships as 1, so this is an identity here; it is a getter in Java and
+    /// stays a getter here rather than being folded in at load, because the
+    /// rate is config and the load is not.
+    pub fn price_at(&self, template: &crate::data::item_data::ItemTemplate, rate: f64) -> i64 {
+        if template.etc_item_type == crate::data::item_data::EtcItemType::CastleGuard {
+            return (self.price as f64 * rate) as i64;
+        }
+        self.price
+    }
+
+    /// Test hook: the shape 10 134 of this dist's 12 062 product lines have.
+    pub fn unlimited(item_id: i32, price: i64, base_tax: i32) -> Self {
+        Self {
+            item_id,
+            price,
+            base_tax,
+            max_count: -1,
+            restock_delay_ms: -60_000,
+        }
+    }
+
+    /// Test hook: the other 1928 — `count` in stock, restocking `minutes`
+    /// after the first sale.
+    pub fn limited(item_id: i32, price: i64, count: i64, minutes: i64) -> Self {
+        Self {
+            max_count: count,
+            restock_delay_ms: minutes * 60_000,
+            ..Self::unlimited(item_id, price, 0)
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -146,13 +217,35 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                             warn!("BuyListData: item {item_id} not found (buylist {list_id})");
                             continue;
                         };
-                        let mut price: i64 =
+                        // `Config.MAX_EQUIPABLE_ITEM_GRADE` — Java `break`s out
+                        // of the item node, dropping the line entirely.
+                        let grade = template.crystal_type.level();
+                        if grade > MAX_EQUIPABLE_ITEM_GRADE.level()
+                            && grade < CrystalType::Event.level()
+                        {
+                            continue;
+                        }
+                        let declared: i64 =
                             attr(b"price").and_then(|v| v.parse().ok()).unwrap_or(-1);
                         // `Config.CORRECT_PRICES` (True on this dist): never
-                        // sell below the item's own sell value.
+                        // sell below the item's own sell value — but only on a
+                        // list an npc serves. The `getNpcsAllowed() != null`
+                        // half is what leaves the GM shop's `price="0"` lines
+                        // free, and it reads the block parsed *so far*, so it
+                        // is document order that decides, like Java's.
                         let sell_price = template.sell_price();
-                        if price > -1 && sell_price > price {
+                        let mut price = declared;
+                        if !list.npcs.is_empty() && declared > -1 && sell_price > declared {
+                            warn!(
+                                "BuyListData: buy price {declared} is less than sell price \
+                                 {sell_price} for ItemID:{item_id} of buylist {list_id}."
+                            );
                             price = sell_price;
+                        }
+                        // `Product`'s constructor, not the parser: an
+                        // undeclared price is the item's reference price.
+                        if price < 0 {
+                            price = template.price;
                         }
                         let base_tax = attr(b"baseTax")
                             .and_then(|v| v.parse().ok())
@@ -161,6 +254,12 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                             item_id,
                             price,
                             base_tax,
+                            max_count: attr(b"count").and_then(|v| v.parse().ok()).unwrap_or(-1),
+                            // `restockDelay * 60000` — the attribute is minutes.
+                            restock_delay_ms: attr(b"restock_delay")
+                                .and_then(|v| v.parse::<i64>().ok())
+                                .unwrap_or(-1)
+                                * 60_000,
                         });
                     }
                     _ => {}
@@ -220,19 +319,89 @@ mod tests {
         assert_eq!(p.price, 400);
         assert_eq!(p.base_tax, 50, "list-level baseTax applied");
 
-        // CorrectPrices: no product declares a price below its sell value.
+        // CorrectPrices floors an npc-served list at the sell value…
+        for list in data.by_id.values().filter(|l| !l.npcs.is_empty()) {
+            for p in &list.products {
+                let Some(t) = items.get(p.item_id) else {
+                    continue;
+                };
+                assert!(
+                    p.price >= t.sell_price(),
+                    "buylist {} item {}",
+                    list.list_id,
+                    p.item_id
+                );
+            }
+        }
+        // …and leaves the GM shop alone, which is the only reason `//buy`
+        // hands out free gear. 9964 is the weapon shop; every line is 0.
+        let gm_weapons = data.get(9964).expect("GM weapon buylist 9964");
+        assert!(gm_weapons.npcs.is_empty());
+        assert_eq!(gm_weapons.product(893).expect("line 893").price, 0);
+        assert!(
+            items.get(893).expect("item 893").sell_price() > 0,
+            "the floor would have been non-zero had it applied"
+        );
+
+        // No price attribute means the item's *reference* price, not "no
+        // sale" — Java resolves it in `Product`'s constructor. 3079 of the
+        // npc-served lines rely on this.
+        let cooper = data.get(3082900).expect("buylist 3082900");
+        let canine = cooper.product(2505).expect("Iron Canine line");
+        assert_eq!(canine.price, items.get(2505).expect("item 2505").price);
+        assert!(canine.price > 0);
         for list in data.by_id.values() {
             for p in &list.products {
-                if p.price > -1
-                    && let Some(t) = items.get(p.item_id)
-                {
+                assert!(p.price >= 0, "buylist {} item {}", list.list_id, p.item_id);
+            }
+        }
+
+        // Limited stock: 1928 lines across 147 files, every one with a
+        // restock delay, and the minutes→ms conversion applied.
+        let mut limited = 0;
+        let mut limited_files = std::collections::HashSet::new();
+        for list in data.by_id.values() {
+            for p in &list.products {
+                if p.has_limited_stock() {
+                    limited += 1;
+                    limited_files.insert(list.list_id);
                     assert!(
-                        p.price >= t.sell_price(),
-                        "buylist {} item {}",
+                        p.restock_delay_ms > 0,
+                        "buylist {} item {} has stock but no restock delay",
                         list.list_id,
                         p.item_id
                     );
                 }
+            }
+        }
+        assert_eq!(limited, 1928, "limited-stock product lines");
+        assert_eq!(limited_files.len(), 147, "files declaring limited stock");
+        let hall = data.get(3538400).expect("buylist 3538400");
+        let soe = hall.product(1829).expect("Scroll of Escape: Clan Hall");
+        assert_eq!(soe.max_count, 5);
+        assert_eq!(soe.restock_delay_ms, 60 * 60_000, "60 minutes, in ms");
+        let shield = hall.product(6902).expect("Pledge Shield");
+        assert!(!shield.has_limited_stock(), "no count attribute");
+        assert_eq!(shield.max_count, -1);
+
+        // `MaxEquipableItemGrade = S` drops the five S80 lines on the GM
+        // armour list, and nothing else on this dist.
+        let gm_armour = data.get(9917).expect("GM armour buylist 9917");
+        for id in [10170, 16025, 16026, 21712, 22175] {
+            assert!(
+                gm_armour.product(id).is_none(),
+                "S80 item {id} should be filtered out"
+            );
+        }
+        for list in data.by_id.values() {
+            for p in &list.products {
+                let grade = items.get(p.item_id).expect("template").crystal_type.level();
+                assert!(
+                    grade <= CrystalType::S.level() || grade >= CrystalType::Event.level(),
+                    "buylist {} item {} is above grade S",
+                    list.list_id,
+                    p.item_id
+                );
             }
         }
     }

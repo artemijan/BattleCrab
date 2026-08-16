@@ -20,6 +20,18 @@ impl<'w> QuestCtx<'w> {
         if self.simulated || count <= 0 {
             return;
         }
+        // `ItemContainer.addItem` logs `Invalid ItemId` and returns null when
+        // the datapack declares no template, so the player receives nothing.
+        // The port's shared add path is lenient and would mint the item, which
+        // matters whenever a script *checks* for what it just gave: `Q11000`'s
+        // Rolento hands over two ids this dist does not define, and it is
+        // precisely their absence that strands the quest at cond 8. Validating
+        // here keeps quest scripts honest without touching the other give
+        // paths (loot, admin, lottery…), whose fixtures rely on the leniency.
+        if self.world.data.item_data.get(item_id).is_none() {
+            tracing::warn!("Invalid ItemId ({item_id}) requested by quest give_items");
+            return;
+        }
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);
     }
 

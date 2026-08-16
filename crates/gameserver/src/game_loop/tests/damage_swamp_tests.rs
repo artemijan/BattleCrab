@@ -48,6 +48,7 @@ fn insert_damage_zone(world: &mut World, p: DamageZoneParams) {
         damage: Some(p),
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
     refresh_zone_masks(world);
 }
@@ -64,6 +65,7 @@ fn insert_swamp_zone(world: &mut World, p: SwampZoneParams) {
         damage: None,
         swamp: Some(p),
         condition: None,
+        mother_tree: None,
     });
 }
 

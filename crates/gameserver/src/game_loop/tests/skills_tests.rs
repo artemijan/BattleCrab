@@ -6398,6 +6398,7 @@ fn own_summon_interact_fires_summon_talk() {
             expires_at_tick: u64::MAX,
             life_time_secs: 0,
             following: true,
+            defending: false,
             consume_item_id: 0,
             consume_item_count: 0,
             next_consume_tick: u64::MAX,

@@ -289,18 +289,26 @@ fn grant_special_skills(world: &mut World, client_id: u32, object_id: i32) {
 }
 
 /// Java `AdminData.addGm(player, hidden)`: register the live GM with a
-/// hidden-from-`//gmlist` flag of
+/// hidden-from-`/gmlist` flag of
 /// `!GMStartupAutoList || !hasAccess("admin_gmliston")`.
 ///
-/// **Verified skip, not a gap.** The flag is inert in this Java build too:
-/// every `getAllGms` call site passes `includeHidden = true`
-/// (`broadcastToGMs`, `broadcastMessageToGMs`, `AdminServerInfo`), and there
-/// is no `//gmlist` command at all — `//gmliston`/`//gmlistoff` only flip a
-/// value nothing reads. The port derives GMs on demand from `is_gm` (see
-/// `admin::moderation::admin_gmchat`), which is observably identical.
-fn register_gm(world: &World, _object_id: i32, access_level: i32) {
-    let _hidden = !world.data.gm.startup_auto_list
+/// **This flag is observable, and an earlier note here said it was not.** That
+/// note claimed every `getAllGms` call site passes `includeHidden = true`;
+/// `AdminData.sendListToPlayer` passes `player.isGM()`, so a plain player's
+/// `/gmlist` filters on it. The rest of the note holds: nothing ever clears the
+/// flag (`showGm`/`hideGm` have no callers and `//gmliston` only prints), and
+/// the *broadcast* paths do pass `true`.
+///
+/// On this dist `GMStartupAutoList = False`, so the left disjunct is already
+/// true and **every GM is hidden** — which is why a normal player's `/gmlist`
+/// always answers "no GMs currently visible". See
+/// [`super::handle_request_gm_list`].
+fn register_gm(world: &mut World, object_id: i32, access_level: i32) {
+    let hidden = !world.data.gm.startup_auto_list
         || !world.data.admin.has_access("admin_gmliston", access_level);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.gm_hidden = hidden;
+    }
 }
 
 /// `//setinvul` / `//setundying` — toggle the flag on the targeted player.

@@ -347,3 +347,236 @@ fn war_deaths_never_drop_items() {
         .sum::<usize>();
     assert_eq!(dropped, 0, "a war death leaves nothing on the ground");
 }
+
+// ---------------------------------------------------------------------------
+// Karma decay — `PlayerStat.addExp`'s "Set new karma" block
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::death::add_exp_and_sp;
+
+/// Give the world a karma table and put `oid` at `level` with `reputation`.
+fn pk_at(world: &mut World, oid: i32, level: i32, reputation: i32) {
+    // Two rows far enough apart to show the divisor doing its job: level 10 is
+    // cheap redemption, level 70 is ~100x dearer, both taken from the shape of
+    // the shipped table rather than its exact values.
+    world.data.karma.insert_for_test(10, 2.0);
+    world.data.karma.insert_for_test(70, 200.0);
+    let p = world
+        .objects
+        .get_component_mut::<Player>(&oid)
+        .expect("player");
+    p.level = level;
+    p.reputation = reputation;
+}
+
+/// **The mechanic this row was about.** A PK grinding experience works their
+/// reputation back toward 0; before this there was no path back at all short
+/// of dying.
+#[test]
+fn hunting_works_a_pks_karma_off() {
+    let (mut world, ..) = test_world();
+    two_players(&mut world);
+    pk_at(&mut world, KILLER, 10, -50_000);
+
+    // 30 · 2.0 · 6000 = 360 000 exp buys 6000 karma back at level 10.
+    add_exp_and_sp(&mut world, KILLER, 360_000.0, 0.0, false);
+
+    assert_eq!(rep(&world, KILLER), -44_000, "karma worked off by hunting");
+}
+
+/// `Math.min(reputation + karmaLost, 0)` — redemption stops at clean, it does
+/// not run past into positive reputation.
+#[test]
+fn karma_decay_stops_at_zero() {
+    let (mut world, ..) = test_world();
+    two_players(&mut world);
+    pk_at(&mut world, KILLER, 10, -100);
+
+    add_exp_and_sp(&mut world, KILLER, 360_000.0, 0.0, false);
+
+    assert_eq!(rep(&world, KILLER), 0, "clamped at clean");
+}
+
+/// The per-level divisor is the whole point of `pcKarmaIncrease.xml`: the same
+/// hunt buys a high-level PK far less redemption.
+#[test]
+fn karma_decay_slows_down_with_level() {
+    let redeemed = |level: i32| {
+        let (mut world, ..) = test_world();
+        two_players(&mut world);
+        pk_at(&mut world, KILLER, level, -1_000_000);
+        add_exp_and_sp(&mut world, KILLER, 360_000.0, 0.0, false);
+        rep(&world, KILLER) + 1_000_000
+    };
+    let (low, high) = (redeemed(10), redeemed(70));
+    assert!(low > 0 && high > 0, "both redeem something ({low}, {high})");
+    assert_eq!(
+        low / high,
+        100,
+        "the level-70 divisor is 100x the level-10 one, so redemption is 100x slower"
+    );
+}
+
+/// `getReputation() < 0` is a gate, not a no-op for everyone else. A player
+/// with *positive* reputation is the case that proves it: the block ends in
+/// `Math.min(reputation + karmaLost, 0)`, so letting them through would drag
+/// them down to 0 rather than leave them alone.
+#[test]
+fn a_player_with_positive_reputation_is_left_alone() {
+    let (mut world, ..) = test_world();
+    two_players(&mut world);
+    pk_at(&mut world, KILLER, 10, 500);
+
+    add_exp_and_sp(&mut world, KILLER, 360_000.0, 0.0, false);
+
+    assert_eq!(rep(&world, KILLER), 500, "untouched, not clamped to 0");
+}
+
+/// The arena exemption: an ordinary player grinding inside a PvP zone works
+/// nothing off, but Java's `isGM() ||` short-circuits ahead of the zone test,
+/// so a GM does.
+#[test]
+fn a_pvp_zone_exempts_an_ordinary_player_but_not_a_gm() {
+    let in_arena_redeems = |gm: bool| {
+        let (mut world, ..) = test_world();
+        two_players(&mut world);
+        pk_at(&mut world, KILLER, 10, -50_000);
+        world.objects.add_components(
+            &KILLER,
+            ZoneFlags {
+                mask: crate::data::zone_data::ZoneKind::Pvp.bit(),
+                ..Default::default()
+            },
+        );
+        if gm {
+            // `is_gm` resolves the access level through `AccessLevels.xml`,
+            // which the fixture world ships empty — without the real table a
+            // level-100 character is not a GM and the branch never runs.
+            world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
+            world
+                .objects
+                .get_component_mut::<Player>(&KILLER)
+                .unwrap()
+                .access_level = 100;
+        }
+        add_exp_and_sp(&mut world, KILLER, 360_000.0, 0.0, false);
+        rep(&world, KILLER) != -50_000
+    };
+    assert!(!in_arena_redeems(false), "an arena grind buys nothing");
+    assert!(in_arena_redeems(true), "a GM is exempt from the exemption");
+}
+
+/// `!player.isCursedWeaponEquipped()` — the bearer's karma belongs to the
+/// weapon and is cleared when it leaves, so hunting must not chip at it.
+#[test]
+fn a_cursed_weapon_bearer_works_nothing_off() {
+    let (mut world, ..) = test_world();
+    two_players(&mut world);
+    pk_at(&mut world, KILLER, 10, -50_000);
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER)
+        .unwrap()
+        .cursed_weapon_equipped_id = 8190;
+
+    add_exp_and_sp(&mut world, KILLER, 360_000.0, 0.0, false);
+
+    assert_eq!(
+        rep(&world, KILLER),
+        -50_000,
+        "the weapon's karma is untouched"
+    );
+}
+
+/// `RateKarmaLost` divides the experience *before* the per-level divisor, so a
+/// server that leaves it at `-1` (this dist → `RateXp`) sees the two cancel:
+/// raising the XP rate does not make karma cheaper to shed.
+#[test]
+fn the_xp_rate_does_not_make_redemption_cheaper() {
+    let redeemed = |rate: f64| {
+        let (mut world, ..) = test_world();
+        two_players(&mut world);
+        world.cfg.rates.rate_karma_lost = rate;
+        pk_at(&mut world, KILLER, 10, -1_000_000);
+        // The hunt yields `rate` times as much exp on a `rate`-times server.
+        add_exp_and_sp(&mut world, KILLER, 360_000.0 * rate, 0.0, false);
+        rep(&world, KILLER) + 1_000_000
+    };
+    assert!(redeemed(1.0) > 0, "the baseline actually redeems something");
+    assert_eq!(
+        redeemed(1.0),
+        redeemed(10.0),
+        "ten times the exp at ten times the rate redeems the same karma"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// PVP.ini, wired (row 14)
+// ---------------------------------------------------------------------------
+
+/// **The flag timers come from `PvPVsNormalTime`/`PvPVsPvPTime`, not from
+/// constants.** Both were hardcoded to the shipped 120 s / 60 s; an operator
+/// editing PVP.ini changed nothing.
+#[test]
+fn pvp_flag_durations_follow_the_config() {
+    let (mut world, _db, _l) = cast_test_world();
+    two_players(&mut world);
+    // A clean target: the *normal* timer applies.
+    world.cfg.pvp.pvp_normal_time_ms = 30_000; // 300 ticks
+    world.cfg.pvp.pvp_pvp_time_ms = 5_000; // 50 ticks
+    world.tick = 1_000;
+
+    pvp::update_pvp_status_target(&mut world, KILLER, VICTIM);
+    let st = world.objects.get_component::<PvpState>(&KILLER).unwrap();
+    assert_eq!(st.flag, 1, "attacker is flagged");
+    assert_eq!(
+        st.expires_tick,
+        1_000 + 300,
+        "the clean-target flag lasts PvPVsNormalTime"
+    );
+
+    // A flagged target shortens it to PvPVsPvPTime.
+    world
+        .objects
+        .get_component_mut::<PvpState>(&VICTIM)
+        .unwrap()
+        .flag = 1;
+    world.tick = 2_000;
+    pvp::update_pvp_status_target(&mut world, KILLER, VICTIM);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<PvpState>(&KILLER)
+            .unwrap()
+            .expires_tick,
+        2_000 + 50,
+        "against a flagged target it is PvPVsPvPTime"
+    );
+}
+
+/// **`MaxReputation` is the ceiling reputation cannot pass**, and it was
+/// hardcoded as `.min(0)` in the karma-recovery path. The shipped 0 is what
+/// keeps reputation from ever going positive on this dist; raising it is what
+/// an operator would do to restore retail behaviour.
+#[test]
+fn reputation_is_clamped_to_the_configured_maximum() {
+    let (mut world, _db, _l) = cast_test_world();
+    two_players(&mut world);
+    world.cfg.pvp.reputation_increase = 500;
+    world.cfg.pvp.max_reputation = 100;
+    // A PK victim, a clean killer within ten levels: the lawful branch pays
+    // `reputation_increase` — and the clamp caps it.
+    world
+        .objects
+        .get_component_mut::<Player>(&VICTIM)
+        .unwrap()
+        .reputation = -1;
+
+    kill(&mut world);
+
+    assert_eq!(
+        rep(&world, KILLER),
+        100,
+        "500 earned, clamped to MaxReputation"
+    );
+}

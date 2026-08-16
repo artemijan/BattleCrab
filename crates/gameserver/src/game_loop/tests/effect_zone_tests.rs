@@ -87,6 +87,7 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
     refresh_zone_masks(world);
 }

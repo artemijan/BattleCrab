@@ -544,6 +544,79 @@ pub(crate) async fn run(
             DbCommand::UpdateCastleTicketCount { castle_id, count } => {
                 set_castle_col(&db, castle_id, castle::Column::TicketBuyCount, count.into()).await;
             }
+            DbCommand::SaveBuyListStock {
+                list_id,
+                item_id,
+                count,
+                next_restock_time,
+            } => {
+                warn_err(
+                    buylists::Entity::insert(buylists::ActiveModel {
+                        buylist_id: Set(list_id),
+                        item_id: Set(item_id),
+                        count: Set(count),
+                        next_restock_time: Set(next_restock_time),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            buylists::Column::BuylistId,
+                            buylists::Column::ItemId,
+                        ])
+                        .update_columns([
+                            buylists::Column::Count,
+                            buylists::Column::NextRestockTime,
+                        ])
+                        .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
+            }
+            DbCommand::AddHiredSiegeGuard {
+                castle_id,
+                npc_id,
+                x,
+                y,
+                z,
+                heading,
+            } => {
+                warn_err(
+                    castle_siege_guards::Entity::insert(castle_siege_guards::ActiveModel {
+                        castle_id: Set(castle_id),
+                        npc_id: Set(npc_id),
+                        x: Set(x),
+                        y: Set(y),
+                        z: Set(z),
+                        heading: Set(heading),
+                        respawn_delay: Set(0),
+                        is_hired: Set(1),
+                        ..Default::default()
+                    })
+                    .exec(&db)
+                    .await,
+                );
+            }
+            DbCommand::RemoveHiredSiegeGuard { npc_id, x, y, z } => {
+                warn_err(
+                    castle_siege_guards::Entity::delete_many()
+                        .filter(castle_siege_guards::Column::NpcId.eq(npc_id))
+                        .filter(castle_siege_guards::Column::X.eq(x))
+                        .filter(castle_siege_guards::Column::Y.eq(y))
+                        .filter(castle_siege_guards::Column::Z.eq(z))
+                        .filter(castle_siege_guards::Column::IsHired.eq(1))
+                        .exec(&db)
+                        .await,
+                );
+            }
+            DbCommand::ClearHiredSiegeGuards { castle_id } => {
+                warn_err(
+                    castle_siege_guards::Entity::delete_many()
+                        .filter(castle_siege_guards::Column::CastleId.eq(castle_id))
+                        .filter(castle_siege_guards::Column::IsHired.eq(1))
+                        .exec(&db)
+                        .await,
+                );
+            }
             DbCommand::AddFreightItems { owner_id, items } => {
                 for it in &items {
                     warn_err(

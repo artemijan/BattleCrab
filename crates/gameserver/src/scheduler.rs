@@ -156,6 +156,17 @@ pub enum ScheduledTask {
     /// leaves: NPCs (the exit cube, straggler minions) despawn, players are
     /// teleported to the exit.
     AntharasClearZone,
+    /// `BuyListTaskManager`'s restock beat for one limited-stock buy-list line:
+    /// back to `count`. Armed by the first sale after a restock, not by each.
+    BuyListRestock {
+        list_id: i32,
+        item_id: i32,
+    },
+    /// `RequestPreviewItem`'s `RemoveWearItemsTask` — the try-on outfit wears
+    /// off and the client is told to redraw the real one.
+    RemoveWornPreview {
+        player_oid: i32,
+    },
     /// The weekly clan-hall auction close (`ClanHallAuctionManager.onEnd`):
     /// finalize every hall's auction, then re-arm for next week.
     ClanHallAuctionEnd,
@@ -302,6 +313,12 @@ pub enum ScheduledTask {
     /// Java `Pet.FeedTask` — a fixed 10 s period that burns food and
     /// auto-eats from the pet's own inventory when it gets hungry.
     PetFeedTick {
+        pet_oid: i32,
+    },
+    /// `ai/areas/BeastFarm/BabyPets`' `HEAL` timer — a 5 s repeat that gives a
+    /// Baby Buffalo/Kookaburra/Cougar its chance to heal its owner. Keyed by
+    /// the pet and self-cancelling once it is no longer out.
+    BabyPetHealTick {
         pet_oid: i32,
     },
     /// Java `PetFeedTask` — the *rider's* copy of the same 10 s clock: a mount
@@ -876,6 +893,16 @@ impl Scheduler {
     #[cfg(test)]
     pub fn pending_tasks_for_test(&self) -> Vec<ScheduledTask> {
         self.heap.iter().map(|e| e.task.clone()).collect()
+    }
+
+    /// Both together, for a test that needs to find *when* a particular task
+    /// is due (e.g. the raid respawn window a config multiplier scaled).
+    #[cfg(test)]
+    pub fn pending_for_test(&self) -> Vec<(u64, ScheduledTask)> {
+        self.heap
+            .iter()
+            .map(|e| (e.fire_at, e.task.clone()))
+            .collect()
     }
 
     pub fn len(&self) -> usize {

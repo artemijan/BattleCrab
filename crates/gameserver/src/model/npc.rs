@@ -157,6 +157,13 @@ pub struct Npc {
     pub is_defender: bool,
     pub random_animation: bool,
     pub attackable: bool,
+    /// Java `DecayTaskManager`'s scheduled fire time for this corpse, kept on
+    /// the instance because `getRemainingTime` is a *readable* quantity in
+    /// Java — `Attackable.isOldCorpse` asks how much of the corpse's life is
+    /// left before letting a sweep through. The port's decay is a
+    /// `ScheduledTask`, which is fire-and-forget, so the deadline is recorded
+    /// here at death. `0` = no corpse pending (alive, or already decayed).
+    pub decay_at_tick: u64,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -440,6 +447,7 @@ impl Npc {
             special_drop: false,
             must_reward_exp_sp: true,
             spoiler_object_id: 0,
+            decay_at_tick: 0,
             crest_clan_id: 0,
             sweep_items: None,
             seed_id: 0,
@@ -797,7 +805,7 @@ fn spawn_npc_entity(
         &world.data,
         t,
         &crate::model::components::Buffs::default(),
-        crate::model::ChampionStatMods::of(&world.cfg.champion, champion),
+        crate::model::NpcStatMods::of(&world.cfg, champion, t.is_raid()),
     );
 
     // `Npc.onSpawn`: an NPC standing in a castle's TAX zone wears the owner
@@ -835,6 +843,7 @@ fn spawn_npc_entity(
         special_drop: false,
         must_reward_exp_sp: true,
         spoiler_object_id: 0,
+        decay_at_tick: 0,
         crest_clan_id,
         sweep_items: None,
         seed_id: 0,
@@ -1158,7 +1167,7 @@ mod tests {
             &data,
             t,
             &crate::model::components::Buffs::default(),
-            crate::model::ChampionStatMods::default(),
+            crate::model::NpcStatMods::default(),
         );
         // HP: 4× (skill 4408) × (2632 base × 1.58 CON bonus).
         assert_eq!(max_hp as i32, 16635, "max HP");

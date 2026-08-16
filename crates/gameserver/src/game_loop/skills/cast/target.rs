@@ -184,6 +184,33 @@ pub(crate) fn resolve_cast_target(
                 {
                     return Err(sm_ids::THERE_ARE_NO_PRIORITY_RIGHTS_ON_A_SWEEPER);
                 }
+                // `isOldCorpse(sweeper, CORPSE_CONSUME_SKILL_ALLOWED_TIME_BEFORE_DECAY)`
+                // — a corpse with less than that long left to live is too far
+                // gone to sweep, so a sweeper who arrives at the last moment
+                // is refused rather than paying MP for nothing.
+                let decay_at = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&t)
+                    .map(|n| n.decay_at_tick)
+                    .unwrap_or(0);
+                // `DecayTaskManager.getRemainingTime` answers `Long.MAX_VALUE`
+                // for a creature it has no schedule for, so a corpse with no
+                // decay pending is never "old". `0` is that same "unscheduled"
+                // state here.
+                let ticks_left = if decay_at == 0 {
+                    u64::MAX
+                } else {
+                    decay_at.saturating_sub(world.tick)
+                };
+                let min_ticks = (world
+                    .cfg
+                    .npc
+                    .corpse_consume_skill_allowed_time_before_decay
+                    .max(0)
+                    / 100) as u64;
+                if ticks_left < min_ticks {
+                    return Err(sm_ids::THE_CORPSE_IS_TOO_OLD_THE_SKILL_CANNOT_BE_USED);
+                }
             }
             t
         }

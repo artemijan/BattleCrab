@@ -44,6 +44,23 @@ pub struct SiegeSpawn {
     pub heading: i32,
 }
 
+/// A mercenary the castle owner has posted with a ticket (Java's
+/// `castle_siege_guards` rows with `isHired = 1`, plus the ticket item lying on
+/// the ground that marks the spot).
+#[derive(Debug, Clone, Copy)]
+pub struct Mercenary {
+    pub item_id: i32,
+    pub npc_id: i32,
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub heading: i32,
+    /// The dropped ticket's object id — Java keeps the `Item` itself in
+    /// `_droppedTickets` and decays it when the posting is undone. 0 for a row
+    /// restored at boot before its ticket has been re-dropped.
+    pub ticket_oid: i32,
+}
+
 /// A castle's siege (Java `Castle.getSiege()`).
 #[derive(Debug, Clone)]
 pub struct Siege {

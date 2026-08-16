@@ -435,6 +435,30 @@ pub(crate) fn handle_request_pledge_member_power_info(
     );
 }
 
+/// `RequestPledgeMemberList` (0x4D): the clan window asking for the roster
+/// again — Java `PledgeShowMemberListAll.sendAllTo(player)`, the same
+/// one-packet-per-sub-unit fan-out login uses. A clanless player is answered
+/// with nothing at all (Java's `if (clan != null)` has no else).
+pub(crate) fn handle_request_pledge_member_list(world: &mut World, client_id: u32) {
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let Some(clan_id) = world
+        .objects
+        .get_component::<Player>(&player)
+        .map(|p| p.clan_id)
+        .filter(|&id| id != 0)
+    else {
+        return;
+    };
+    let Some(clan) = world.clans.get(&clan_id) else {
+        return;
+    };
+    for pkt in server_packets::pledge_show_member_list_all_tabs(clan, &world.objects) {
+        send_to_client(world, client_id, pkt);
+    }
+}
+
 /// `RequestPledgeMemberInfo` (ex 0x16): the member-detail pane.
 pub(crate) fn handle_request_pledge_member_info(world: &World, client_id: u32, ex_body: &[u8]) {
     let Some(player) = world.player_oid(client_id) else {
@@ -763,3 +787,97 @@ fn send_clan_master_html(world: &World, client_id: u32, npc_oid: i32, file: &str
 }
 
 // --- G18 slice 4: clan wars ------------------------------------------------
+
+/// `RequestGiveNickName` (0x0B) — grant a title, either to a clan member or
+/// (for a noble) to yourself.
+///
+/// The self-branch is checked **first and unconditionally**: a noble typing
+/// their own name gets the title with no clan, privilege or level test at all,
+/// which is what makes nobless a personal cosmetic rather than a clan one.
+/// Everyone else goes through `CL_GIVE_TITLE` + clan level 3.
+///
+/// Both success paths message the **recipient**, not the granter — a leader
+/// retitling a member sees nothing.
+pub(crate) fn handle_request_give_nick_name(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = PacketReader::new(body);
+    let Some(target) = r.read_string() else {
+        return;
+    };
+    let Some(title) = r.read_string() else { return };
+
+    let (is_noble, own_name, clan_id) = match world.objects.get_component::<Player>(&player) {
+        Some(p) => (p.is_noble, p.name.clone(), p.clan_id),
+        None => return,
+    };
+
+    // "Noblesse can bestow a title to themselves".
+    if is_noble && target.eq_ignore_ascii_case(&own_name) {
+        set_title_and_broadcast(world, player, title);
+        return;
+    }
+
+    if !crate::game_loop::clans::has_clan_privilege(
+        world,
+        player,
+        crate::model::clan::CL_GIVE_TITLE,
+    ) {
+        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    // Java reads `getClan().getLevel()` unguarded here; the privilege check
+    // above already returned for a clanless player, so it cannot be null.
+    let level = world.clans.get(&clan_id).map_or(0, |c| c.level);
+    if level < 3 {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::A_PLAYER_CAN_ONLY_BE_GRANTED_A_TITLE_IF_CLAN_LEVEL_3,
+        );
+        return;
+    }
+
+    // `getClan().getClanMember(_target)` — membership is decided by the
+    // roster, so an offline member is "in the clan but not online" and a
+    // non-member is a different message entirely.
+    let member_id = world
+        .clans
+        .get(&clan_id)
+        .and_then(|c| {
+            c.members
+                .iter()
+                .find(|m| m.name.eq_ignore_ascii_case(&target))
+        })
+        .map(|m| m.char_id);
+    let Some(member_id) = member_id else {
+        send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
+        return;
+    };
+    if !world.objects.has_component::<Player>(&member_id) {
+        send_sm(world, client_id, sm_ids::THAT_PLAYER_IS_NOT_ONLINE);
+        return;
+    }
+    set_title_and_broadcast(world, member_id, title);
+}
+
+/// `member.setTitle(t)` + `broadcastTitleInfo()` — a `UserInfo` to the wearer
+/// and a `NicknameChanged` to everyone who can see them.
+fn set_title_and_broadcast(world: &mut World, oid: i32, title: String) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
+        p.title = title.clone();
+    }
+    crate::game_loop::helpers::send_sm_to_player(
+        world,
+        oid,
+        sm_ids::YOUR_TITLE_HAS_BEEN_CHANGED,
+        &[],
+    );
+    crate::game_loop::player_info::broadcast_user_info(world, oid);
+    crate::game_loop::helpers::broadcast_including_self(
+        world,
+        oid,
+        &crate::network::server_packets::nickname_changed(oid, &title),
+    );
+}

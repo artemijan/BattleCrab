@@ -144,13 +144,13 @@ fn champion_stat_multipliers_scale_attack_but_not_max_hp() {
         &world.data,
         &t,
         &Buffs::default(),
-        crate::model::ChampionStatMods::default(),
+        crate::model::NpcStatMods::default(),
     );
     let champ = crate::model::npc_finalized_stats(
         &world.data,
         &t,
         &Buffs::default(),
-        crate::model::ChampionStatMods::of(&world.cfg.champion, true),
+        crate::model::NpcStatMods::of(&world.cfg, true, false),
     );
 
     assert!(
@@ -187,7 +187,7 @@ fn a_stat_recompute_keeps_the_champion_multipliers() {
     t.base_p_atk = 100.0;
     world.data.npc_data.insert_for_test(t.clone());
 
-    let mods = crate::model::ChampionStatMods::of(&world.cfg.champion, true);
+    let mods = crate::model::NpcStatMods::of(&world.cfg, true, false);
     let before = crate::model::npc_finalized_stats(&world.data, &t, &Buffs::default(), mods);
 
     let mut combat = before.0;
@@ -738,7 +738,7 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
         &world.data,
         &t,
         &Buffs::default(),
-        crate::model::ChampionStatMods::default(),
+        crate::model::NpcStatMods::default(),
     )
     .0
     .p_atk;
@@ -801,7 +801,7 @@ fn npc_weapon_mastery_needs_the_template_weapon() {
         &world.data,
         &armed,
         &Buffs::default(),
-        crate::model::ChampionStatMods::default(),
+        crate::model::NpcStatMods::default(),
     )
     .0
     .p_atk;
@@ -809,7 +809,7 @@ fn npc_weapon_mastery_needs_the_template_weapon() {
         &world.data,
         &bare,
         &Buffs::default(),
-        crate::model::ChampionStatMods::default(),
+        crate::model::NpcStatMods::default(),
     )
     .0
     .p_atk;

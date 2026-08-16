@@ -29,12 +29,6 @@ const RELATION_ATTACKER: i32 = 0x400;
 /// `Player.getSiegeState()`'s attacker value.
 const ATTACKER_SIDE: u8 = 1;
 
-/// `Config.PVP_NORMAL_TIME` (PvPVsNormalTime, 120 s) in 100 ms ticks — how long
-/// the flag lasts after a hostile action toward a *clean* target.
-const PVP_NORMAL_TICKS: u64 = 1200;
-/// `Config.PVP_PVP_TIME` (PvPVsPvPTime, 60 s) — the (shorter) flag when the
-/// target is already a PK or flagged (`checkIfPvP`).
-const PVP_PVP_TICKS: u64 = 600;
 /// The flag blinks (value 2) over its final 20 s (`PvpFlagTaskManager`).
 const PVP_BLINK_TICKS: u64 = 200;
 
@@ -62,7 +56,7 @@ fn in_peace(world: &World, oid: i32) -> bool {
 
 /// In an `ArenaZone` (`ZoneId.PVP`): free-for-all, and hostile actions there
 /// don't raise a flag.
-fn in_pvp_zone(world: &World, oid: i32) -> bool {
+pub(crate) fn in_pvp_zone(world: &World, oid: i32) -> bool {
     world
         .objects
         .get_component::<ZoneFlags>(&oid)
@@ -271,7 +265,8 @@ pub(crate) fn update_pvp_status(world: &mut World, object_id: i32) {
     if in_pvp_zone(world, object_id) || active_siege_castle(world, object_id).is_some() {
         return;
     }
-    set_flag_lasts(world, object_id, PVP_NORMAL_TICKS);
+    let ticks = world.cfg.pvp.normal_ticks();
+    set_flag_lasts(world, object_id, ticks);
 }
 
 /// Java `Player.updatePvPStatus(Creature target)`: flag the actor for a hostile
@@ -302,9 +297,9 @@ pub(crate) fn update_pvp_status_target(world: &mut World, object_id: i32, target
         return;
     }
     let ticks = if check_if_pvp(world, object_id, target_oid) {
-        PVP_PVP_TICKS
+        world.cfg.pvp.pvp_ticks()
     } else {
-        PVP_NORMAL_TICKS
+        world.cfg.pvp.normal_ticks()
     };
     set_flag_lasts(world, object_id, ticks);
 }
@@ -454,7 +449,8 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
 /// already-flagged player keeps their existing (unrefreshed) timer.
 pub(crate) fn start_pvp_flag_on_siege_exit(world: &mut World, object_id: i32) {
     if flag_of(world, object_id) == 0 {
-        set_flag_lasts(world, object_id, PVP_NORMAL_TICKS);
+        let ticks = world.cfg.pvp.normal_ticks();
+        set_flag_lasts(world, object_id, ticks);
     }
 }
 
@@ -589,11 +585,6 @@ pub(crate) fn calculate_karma_gain(pk_count: i32) -> i32 {
     }
 }
 
-/// `Config.ReputationIncrease` — reputation granted for killing a PK. **0 on
-/// this dist**, so the branch that uses it is inert here; ported for
-/// faithfulness (and so an operator raising it gets the retail behaviour).
-const REPUTATION_INCREASE: i32 = 0;
-
 pub(crate) fn get_killer_rep_and_pk(world: &mut World, killer_oid: i32) -> Option<(i32, i32)> {
     let Some(p) = world.objects.get_component::<Player>(&killer_oid) else {
         return None;
@@ -649,11 +640,17 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
         v - k
     };
 
+    // `Player.setReputation` clamps to `Config.MAX_REPUTATION` — 0 here, which
+    // is what stops reputation ever going positive on this dist.
+    let (reputation_increase, max_reputation) = (
+        world.cfg.pvp.reputation_increase,
+        world.cfg.pvp.max_reputation,
+    );
     if let Some(p) = world.objects.get_component_mut::<Player>(&killer_oid) {
         if legitimate {
             // Killing a PK within ±10 levels earns reputation back.
             if victim_rep < 0 && killer_rep >= 0 && level_diff < 11 && level_diff > -11 {
-                p.reputation = killer_rep + REPUTATION_INCREASE;
+                p.reputation = (killer_rep + reputation_increase).min(max_reputation);
             }
             p.pvp_kills += 1;
         } else if killer_rep > 0 && killer_pk == 0 {

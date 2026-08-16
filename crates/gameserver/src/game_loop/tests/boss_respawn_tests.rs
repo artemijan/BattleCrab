@@ -93,6 +93,78 @@ fn row(respawn_time: i64, cur_hp: f64, cur_mp: f64) -> NpcRespawnRow {
 
 // ---------------------------------------------------------------------------
 
+/// `DBSpawnManager.updateStatus`: `respawnMinDelay = getRespawnMinDelay() *
+/// RAID_MIN_RESPAWN_MULTIPLIER` (and the same for max) *before* the window is
+/// rolled — so halving the multipliers halves the wait. Only the DB-backed
+/// bosses go through that manager, which the sibling test below pins.
+#[test]
+fn raid_respawn_multipliers_scale_a_boss_window_before_it_is_rolled() {
+    let respawn_delay_ticks = |mult: f64| {
+        let (mut world, _db, _l) = boss_world();
+        world.cfg.npc.raid_min_respawn_multiplier = mult;
+        world.cfg.npc.raid_max_respawn_multiplier = mult;
+        crate::model::npc::spawn_all(&mut world);
+        crate::game_loop::boss_respawn::resolve_boot(&mut world, Vec::new());
+        let oid = live_boss(&mut world).expect("boss placed");
+        crate::game_loop::death::npc_do_die(&mut world, oid, 0);
+        // The corpse has to decay before `decreaseCount` schedules the respawn.
+        crate::game_loop::death::handle_npc_decay(&mut world, oid);
+        world
+            .scheduler
+            .pending_for_test()
+            .into_iter()
+            .find_map(|(tick, task)| {
+                matches!(task, crate::scheduler::ScheduledTask::NpcRespawn { .. })
+                    .then_some(tick - world.tick)
+            })
+            .expect("a respawn was scheduled")
+    };
+
+    // The spawn line says 86 400 s with no random spread, so the roll is exact
+    // and the multiplier is the only thing that can move the number.
+    assert_eq!(
+        respawn_delay_ticks(1.0),
+        86_400 * 10,
+        "the shipped 1.0 must leave the window alone"
+    );
+    assert_eq!(
+        respawn_delay_ticks(0.5),
+        43_200 * 10,
+        "halving the multiplier halves the wait"
+    );
+    assert_eq!(respawn_delay_ticks(2.0), 172_800 * 10);
+}
+
+/// The other half of that rule: an *ordinary* spawn line respawns through
+/// `Spawn.decreaseCount`, which never sees the raid multipliers. Without the
+/// `db_saved` guard the multiplier would rescale every mob in the world.
+#[test]
+fn the_raid_respawn_multipliers_leave_ordinary_spawns_alone() {
+    let (mut world, _db, _l) = boss_world();
+    world.cfg.npc.raid_min_respawn_multiplier = 0.5;
+    world.cfg.npc.raid_max_respawn_multiplier = 0.5;
+    // Same line, but not DB-backed.
+    world.data.spawn_data.spawns[0].groups[0].npcs[0].db_save = false;
+    crate::model::npc::spawn_all(&mut world);
+    let oid = live_boss(&mut world).expect("a non-dbSave line spawns statically");
+    crate::game_loop::death::npc_do_die(&mut world, oid, 0);
+    crate::game_loop::death::handle_npc_decay(&mut world, oid);
+    let delay = world
+        .scheduler
+        .pending_for_test()
+        .into_iter()
+        .find_map(|(tick, task)| {
+            matches!(task, crate::scheduler::ScheduledTask::NpcRespawn { .. })
+                .then_some(tick - world.tick)
+        })
+        .expect("a respawn was scheduled");
+    assert_eq!(
+        delay,
+        86_400 * 10,
+        "an ordinary spawn's window must not be scaled"
+    );
+}
+
 #[test]
 fn static_pass_defers_db_save_spawns_instead_of_placing_them() {
     // The whole ownership split: `spawn_all` must NOT place a dbSave boss, or

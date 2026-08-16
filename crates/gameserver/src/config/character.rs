@@ -55,6 +55,11 @@ pub struct CharacterConfig {
     /// `RestorePetOnReconnect` / `RestoreServitorOnReconnect` — a summon that
     /// was out at logout comes back on the next login. **Both True on this
     /// dist**, so the reconnect path is live content, not an opt-in.
+    /// `KeyboardMovement` (True on this dist) — gates the two rotation
+    /// packets the client sends while turning with the keyboard. Java returns
+    /// from both handlers when it is off, so a false here makes a turning
+    /// player's heading stop propagating to onlookers.
+    pub keyboard_movement: bool,
     pub restore_pet_on_reconnect: bool,
     pub restore_servitor_on_reconnect: bool,
     /// `AutoLoot`: monster drops go straight to the killer's inventory (the
@@ -352,6 +357,7 @@ impl Default for CharacterConfig {
             alt_karma_player_can_use_warehouse: true,
             freight_price: 1000,
             freight_slots: 200,
+            keyboard_movement: true,
             restore_pet_on_reconnect: true,
             restore_servitor_on_reconnect: true,
             auto_loot: false,
@@ -504,6 +510,7 @@ impl CharacterConfig {
             ),
             freight_price: p.get_int("FreightPrice", d.freight_price),
             freight_slots: p.get_int("MaximumFreightSlots", d.freight_slots),
+            keyboard_movement: p.get_bool("KeyboardMovement", true),
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             castle_zone_fame_task_frequency: p.get_int(

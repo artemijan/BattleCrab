@@ -60,6 +60,14 @@ pub mod sm_ids {
     /// "You cannot open a Private Store here." — `canOpenPrivateStore`'s
     /// `Custom/PrivateStoreRange.ini` spacing rule.
     pub const YOU_CANNOT_OPEN_A_PRIVATE_STORE_HERE: i16 = 1296;
+    /// "Observation is only possible during a siege."
+    pub const OBSERVATION_IS_ONLY_POSSIBLE_DURING_A_SIEGE: i16 = 780;
+    /// "You may not observe a siege with a servitor summoned."
+    pub const YOU_MAY_NOT_OBSERVE_A_SIEGE_WITH_A_SERVITOR_SUMMONED: i16 = 782;
+    /// "You are too high to perform this action. Please lower your altitude and
+    /// try again." — `CanUntransform`'s refusal for a rider outside a
+    /// `LandingZone`.
+    pub const YOU_ARE_TOO_HIGH_TO_PERFORM_THIS_ACTION: i16 = 2721;
     /// "You can't build headquarters here." — `BuildCampSkillCondition`'s
     /// `isInsideZone(ZoneId.HQ)` gate, the only one of its branches with a
     /// message of its own.
@@ -90,6 +98,9 @@ pub mod sm_ids {
     pub const WHILE_OPERATING_A_PRIVATE_STORE_OR_WORKSHOP_YOU_CANNOT_DISCARD_DESTROY_OR_TRADE_AN_ITEM: i16 = 1065;
     /// `You cannot do that while fishing.` (Java's `_2` variant.)
     pub const YOU_CANNOT_DO_THAT_WHILE_FISHING_2: i16 = 1470;
+    /// `You cannot do that while fishing.` — Java's `_3` variant, same text on
+    /// the next id. `SocialAction.useSocial` sends this one.
+    pub const YOU_CANNOT_DO_THAT_WHILE_FISHING_3: i16 = 1471;
     /// `That item cannot be discarded or exchanged.` — the `TYPE2_QUEST` gate.
     pub const THAT_ITEM_CANNOT_BE_DISCARDED_OR_EXCHANGED: i16 = 603;
     /// `You cannot destroy or crystallize items while enchanting attributes.`
@@ -174,6 +185,14 @@ pub mod sm_ids {
     // Clan admin (`//pledge`, `//give_clan_skills`)
     pub const S1_IS_NOT_A_CLAN_LEADER: i16 = 9;
     pub const THE_TARGET_MUST_BE_A_CLAN_MEMBER: i16 = 234;
+    /// "Your title has been changed." — `RequestGiveNickName`'s success, sent
+    /// to the *recipient* rather than the granter.
+    pub const YOUR_TITLE_HAS_BEEN_CHANGED: i16 = 214;
+    /// "Your clan has added $s1 point(s) to its Clan Reputation." — the
+    /// member-level-up grant (`LevelUp…ReputationScore`).
+    pub const YOUR_CLAN_HAS_ADDED_S1_POINTS_TO_ITS_CLAN_REPUTATION: i16 = 1781;
+    /// "A player can only be granted a title if the clan is level 3 or above."
+    pub const A_PLAYER_CAN_ONLY_BE_GRANTED_A_TITLE_IF_CLAN_LEVEL_3: i16 = 271;
     pub const THE_CLAN_SKILL_S1_HAS_BEEN_ADDED: i16 = 1788;
     pub const CLAN_HAS_DISPERSED: i16 = 193;
     pub const YOUR_CLAN_S_LEVEL_HAS_INCREASED: i16 = 274;
@@ -309,6 +328,7 @@ pub mod sm_ids {
     /// `ItemAction`'s mercenary-ticket pickup refusal.
     pub const YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING: i16 = 654;
     pub const THERE_ARE_NO_PRIORITY_RIGHTS_ON_A_SWEEPER: i16 = 683;
+    pub const THE_CORPSE_IS_TOO_OLD_THE_SKILL_CANNOT_BE_USED: i16 = 1247;
     /// "Your shield defense has succeeded." (Interlude has no separate perfect-
     /// block message; the perfect block reuses this.)
     pub const SHIELD_DEFENSE_SUCCEEDED: i16 = 111;
@@ -397,6 +417,12 @@ pub mod sm_ids {
     pub const YOU_HAVE_EARNED_S1_RAID_POINTS: i16 = 1725;
     /// "You already have a pet."
     pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
+    /// "You cannot summon during combat." — `SummonItems`' attacking guard.
+    pub const YOU_CANNOT_SUMMON_DURING_COMBAT: i16 = 578;
+    /// "$c1 has rolled a $s2." — the party dice result.
+    pub const C1_HAS_ROLLED_A_S2: i16 = 834;
+    /// "You may not throw the dice at this time. Try again later."
+    pub const YOU_MAY_NOT_THROW_THE_DICE_AT_THIS_TIME_TRY_AGAIN_LATER: i16 = 835;
     /// "Your pet gained $s1 XP."
     pub const YOUR_PET_GAINED_S1_XP: i16 = 1014;
     /// "Your pet ate a little, but is still hungry."
@@ -426,6 +452,44 @@ pub mod sm_ids {
     pub const NOT_ENOUGH_ITEMS_TO_MAINTAIN_SERVITOR: i16 = 1142;
     /// "You do not have a servitor."
     pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2310;
+    // Mercenary posting (`handlers/itemhandlers/MercTicket`).
+    /// "Place $s1 in the current location and direction. Do you wish to continue?"
+    pub const PLACE_S1_IN_THE_CURRENT_LOCATION_AND_DIRECTION_DO_YOU_WISH_TO_CONTINUE: i16 = 651;
+    /// "You do not have the authority to position mercenaries."
+    pub const YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_POSITION_MERCENARIES: i16 = 653;
+    /// "Mercenaries cannot be positioned here."
+    pub const MERCENARIES_CANNOT_BE_POSITIONED_HERE: i16 = 655;
+    /// "This mercenary cannot be positioned anymore."
+    pub const THIS_MERCENARY_CANNOT_BE_POSITIONED_ANYMORE: i16 = 656;
+    /// "Positioning cannot be done here because the distance between
+    /// mercenaries is too short."
+    pub const POSITIONING_CANNOT_BE_DONE_HERE_BECAUSE_THE_DISTANCE_BETWEEN_MERCENARIES_IS_TOO_SHORT:
+        i16 = 657;
+    // The pet-window orders (`handlers/playeractions/Pet*`).
+    /// "You do not have a pet."
+    pub const YOU_DO_NOT_HAVE_A_PET: i16 = 2312;
+    /// "Your pet uses $s1." — the baby pets' auto-heal announcement.
+    pub const YOUR_PET_USES_S1: i16 = 1018;
+    /// "When your pet's hunger gauge is at 0, you cannot use your pet."
+    pub const WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET: i16 = 3212;
+    /// "Your pet cannot carry any more items." Java declares this string
+    /// twice (545 and 546); `Pet.doPickupItem` sends 545.
+    pub const YOUR_PET_CANNOT_CARRY_ANY_MORE_ITEMS: i16 = 545;
+    /// "You can not try those items on at the same time." — two previewed
+    /// items competing for one paperdoll slot.
+    pub const YOU_CAN_NOT_TRY_THOSE_ITEMS_ON_AT_THE_SAME_TIME: i16 = 1368;
+    /// "You are no longer trying on equipment." — the try-on timer expiring.
+    pub const YOU_ARE_NO_LONGER_TRYING_ON_EQUIPMENT: i16 = 1306;
+    /// "Dead pets cannot be returned to their summoning item."
+    pub const DEAD_PETS_CANNOT_BE_RETURNED_TO_THEIR_SUMMONING_ITEM: i16 = 589;
+    /// "A pet cannot be unsummoned during battle."
+    pub const A_PET_CANNOT_BE_UNSUMMONED_DURING_BATTLE: i16 = 579;
+    /// "You may not restore a hungry pet."
+    pub const YOU_MAY_NOT_RESTORE_A_HUNGRY_PET: i16 = 594;
+    /// "Your pet is too high level to control."
+    pub const YOUR_PET_IS_TOO_HIGH_LEVEL_TO_CONTROL: i16 = 1918;
+    /// "A servitor whom is engaged in battle cannot be de-activated."
+    pub const A_SERVITOR_WHOM_IS_ENGAGED_IN_BATTLE_CANNOT_BE_DE_ACTIVATED: i16 = 1724;
     /// "Resurrection has already been proposed."
     pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1512;
     /// "$s1 cannot be used due to unsuitable terms."
@@ -764,6 +828,12 @@ pub mod sm_ids {
     pub const THERE_ARE_S1_PETITIONS_CURRENTLY_ON_THE_WAITING_LIST: i16 = 601;
     pub const THE_PETITION_SERVICE_IS_CURRENTLY_UNAVAILABLE: i16 = 602;
     pub const THERE_ARE_NO_GMS_CURRENTLY_VISIBLE: i16 = 702;
+    /// `======<GM List>======` — the header `RequestGmList` prints above the
+    /// names.
+    pub const GM_LIST: i16 = 703;
+    /// `GM : $c1` — one line per listed GM. Java fills it with `addString`,
+    /// so the parameter is plain text despite the `$c1` spelling.
+    pub const GM_C1: i16 = 704;
     pub const YOU_HAVE_SUBMITTED_S1_PETITIONS_YOU_MAY_SUBMIT_S2_MORE_TODAY: i16 = 730;
     pub const WE_HAVE_RECEIVED_S1_PETITIONS_FROM_YOU_TODAY_MAXIMUM: i16 = 733;
     pub const THE_PETITION_WAS_CANCELED_YOU_MAY_SUBMIT_S1_MORE_TODAY: i16 = 736;
@@ -773,6 +843,10 @@ pub mod sm_ids {
         i16 = 2484;
     pub const YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_CHATTING_IS_NOT_ALLOWED: i16 =
         2483;
+    /// `RequestActionUse`'s bot-penalty refusal — the action bar is blocked
+    /// while a `BOT_PENALTY` buff names that action.
+    pub const YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_YOUR_ACTIONS_HAVE_BEEN_RESTRICTED:
+        i16 = 2485;
     // Bot reporting (`BotReportTable.reportBot`). Names shortened from the
     // client's; the full ones are in `commons::system_messages`.
     pub const CANNOT_REPORT_IN_PEACE_ZONE_OR_BATTLEGROUND: i16 = 2377;

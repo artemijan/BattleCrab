@@ -147,6 +147,14 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     };
     let shift = pkt.action_id == 1;
 
+    // `Action.runImpl`: a spectator clicks nothing. The Broadcasting Tower's
+    // free-look camera would otherwise let a viewer target and act on whatever
+    // it is pointed at.
+    if crate::game_loop::observation::is_observing(world, object_id) {
+        send_action_failed(world, client_id);
+        return;
+    }
+
     // `Npc.canTarget`: `if (player.isLockedTarget() && getLockedTarget() != this)`
     // — a taunted playable may not click *away* from the taunter onto another
     // NPC. Java refuses with "Failed to change enmity" and an ActionFailed,

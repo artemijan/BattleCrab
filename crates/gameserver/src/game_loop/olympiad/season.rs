@@ -10,7 +10,7 @@ fn compute_noble_ranks(world: &World) -> std::collections::HashMap<i32, u8> {
         .olympiad
         .nobles
         .iter()
-        .filter(|(_, n)| n.comp_done >= HERO_MIN_MATCHES)
+        .filter(|(_, n)| n.comp_done >= world.cfg.olympiad.min_matches_for_points)
         .map(|(&id, n)| (id, n.points))
         .collect();
     // Highest points first (Java orders the query by points DESC).
@@ -70,11 +70,11 @@ fn olympiad_trade_point(
     // rides the crown, not the claim, so a hero who has not been to the monument
     // yet still exchanges at the hero rate.
     let hero = if world.olympiad.is_crowned(object_id) {
-        HERO_TRADE_POINTS
+        world.cfg.olympiad.hero_points
     } else {
         0
     };
-    hero + RANK_TRADE_POINTS[(rank as usize) - 1]
+    hero + world.cfg.olympiad.rank_points[(rank as usize) - 1]
 }
 
 /// After a round ends, bank each noble's exchangeable points on their
@@ -196,7 +196,8 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
     world.broadcast_to_all_online(&announce);
 
     let now = commons::util::now_millis();
-    world.olympiad.validation_end = now + VALIDATION_PERIOD_MS;
+    let validation_period = world.cfg.olympiad.validation_period_ms;
+    world.olympiad.validation_end = now + validation_period;
     save_all(world);
     // `updateMonthlyData`, which Java runs right after `saveOlympiadStatus`:
     // freeze this cycle's nobles as the leaderboard the Olympiad Manager shows
@@ -204,7 +205,7 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
     // `save_all`'s `SaveOlympiad`, so it copies rows that are already written.
     snapshot_eom(world);
     world.scheduler.schedule(
-        fire_at(world, VALIDATION_PERIOD_MS),
+        fire_at(world, validation_period),
         ScheduledTask::OlympiadValidationEnd,
     );
 }
@@ -236,7 +237,9 @@ pub(crate) fn class_leader_board(world: &World, class_id: i32) -> Vec<String> {
         .olympiad
         .eom_nobles
         .iter()
-        .filter(|n| n.class_id == class_id && n.comp_done >= HERO_MIN_MATCHES)
+        .filter(|n| {
+            n.class_id == class_id && n.comp_done >= world.cfg.olympiad.min_matches_for_points
+        })
         .collect();
     rows.sort_by(|a, b| {
         b.points
@@ -257,7 +260,7 @@ pub(crate) fn handle_validation_end(world: &mut World) {
     world.olympiad.current_cycle += 1;
     world.olympiad.nobles.clear(); // `deleteNobles` (TRUNCATE olympiad_nobles)
     let now = commons::util::now_millis();
-    world.olympiad.olympiad_end = next_olympiad_end(now);
+    world.olympiad.olympiad_end = next_olympiad_end(&world.cfg.olympiad, now);
     save_all(world);
     tracing::info!(
         "Olympiad: validation ended; cycle {} begins.",

@@ -103,7 +103,11 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
     }
 
     // Weekly match cap.
-    if world.olympiad.remaining_weekly_matches(object_id) < 1 {
+    if world
+        .olympiad
+        .remaining_weekly_matches(object_id, world.cfg.olympiad.max_weekly_matches)
+        < 1
+    {
         send_sm(
             world,
             object_id,
@@ -126,12 +130,14 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
         return false;
     }
 
-    // First-ever registration creates the noble's record with the starting points.
+    // First-ever registration creates the noble's record with
+    // `AltOlyStartPoints`.
+    let start_points = world.cfg.olympiad.start_points;
     world
         .olympiad
         .nobles
         .entry(object_id)
-        .or_insert_with(|| NobleStats::fresh(info.base_class_id, info.name.clone()));
+        .or_insert_with(|| NobleStats::fresh(info.base_class_id, info.name.clone(), start_points));
 
     match kind {
         CompetitionType::Classed => {

@@ -29,6 +29,13 @@ fn report_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>)
         allow_reports_from_same_clan_members: false,
         punishments: Vec::new(),
     };
+    // The report arrives as `RequestActionUse`, which dispatches through
+    // `ActionData.xml`'s handler table; the fixture world ships an empty one.
+    world.data.action_data.insert_row_for_test(
+        crate::game_loop::bot_report::BOT_REPORT_ACTION_ID,
+        "BotReport",
+        0,
+    );
     let rx = ingame_player(&mut world, 1, 6001, 0, 0, 0);
     let _bot_rx = ingame_player(&mut world, 2, 6002, 50, 0, 0);
     // Java refuses a target with zero exp ("has not acquired any XP after

@@ -171,6 +171,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             expires_at_tick: u64::MAX,
             life_time_secs: 0,
             following: true,
+            defending: false,
             consume_item_id: 0,
             consume_item_count: 0,
             next_consume_tick: u64::MAX,
@@ -235,6 +236,9 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     send_pet_item_list(world, owner_oid);
     // `ai/others/Servitors/SinEater.onSummonSpawn` — the one pet with a voice.
     crate::scripts::sin_eater::on_spawn(world, pet_oid);
+    // `ai/areas/BeastFarm/BabyPets.onSummonSpawn` — the three baby pets heal
+    // their owner on a 5 s timer. A no-op for every other species.
+    crate::scripts::baby_pets::on_summon_spawn(world, pet_oid);
     Some(pet_oid)
 }
 
@@ -265,4 +269,230 @@ pub(crate) fn equip_pet_item(world: &mut World, owner_oid: i32, pet_oid: i32, ob
     send_pet_item_list(world, owner_oid);
     send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Default);
     broadcast_summon_info(world, pet_oid, false);
+}
+
+/// `Npc.INTERACTION_DISTANCE`-ish reach for a pet lifting an item — Java's
+/// `thinkPickUp` uses `maybeMoveToPawn(target, 36)`, the same 36 units the
+/// player path uses.
+const PET_PICKUP_RANGE: f64 = 36.0;
+
+/// `RequestPetGetItem` (0x98) — order the pet to fetch a ground item.
+///
+/// Every guard here is Java's, in Java's order, and each answers with
+/// `ActionFailed` rather than a message except the hunger one. The
+/// fort-siege combat-flag check has no counterpart (forts are off-chronicle);
+/// the castle siege-guard *ticket* check does — a mercenary ticket lying in a
+/// castle's grounds may not be pocketed by a pet.
+pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(owner_oid) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = commons::network::PacketReader::new(body);
+    let Some(item_oid) = r.read_i32() else {
+        return;
+    };
+    // `!player.hasPet()` — a servitor is not a pet and cannot fetch.
+    let Some(pet_oid) = pet_of(world, owner_oid) else {
+        crate::game_loop::helpers::send_action_failed(world, client_id);
+        return;
+    };
+    let Some(ground) = world
+        .objects
+        .get_component::<crate::model::components::GroundItem>(&item_oid)
+        .cloned()
+    else {
+        crate::game_loop::helpers::send_action_failed(world, client_id);
+        return;
+    };
+    // `CastleManager.getCastle(item)` + `getSiegeGuardByItem(castle, item)` —
+    // a mercenary posting ticket lying on castle ground stays where it was
+    // dropped, pet or no pet.
+    let on_castle_ticket = crate::game_loop::guard::maybe_position(world, item_oid)
+        .and_then(|p| world.data.zone_data.siege_castle_at(p.x, p.y, p.z))
+        .is_some_and(|castle_id| {
+            world
+                .data
+                .castle_siege_guards
+                .by_item(castle_id, ground.item_id)
+                .is_some()
+        });
+    if on_castle_ticket {
+        crate::game_loop::helpers::send_action_failed(world, client_id);
+        return;
+    }
+    if crate::game_loop::helpers::is_dead(world, pet_oid) {
+        crate::game_loop::helpers::send_action_failed(world, client_id);
+        return;
+    }
+    // `pet.isUncontrollable()` — a starved pet takes no orders, and this one
+    // *does* get told why.
+    if super::is_uncontrollable(world, pet_oid) {
+        crate::game_loop::helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET,
+        );
+        return;
+    }
+
+    // `setIntention(AI_INTENTION_PICK_UP, item)`: stop trailing the owner and
+    // walk. The follow flag comes back when the errand ends, which is what
+    // Java's `getFollowStatus()` save/restore around `doPickupItem` does.
+    if let Some(l) = world
+        .objects
+        .get_component_mut::<crate::model::components::ServitorOf>(&pet_oid)
+    {
+        l.following = false;
+    }
+    world.objects.add_components(
+        &pet_oid,
+        crate::model::components::SummonPickup {
+            item_object_id: item_oid,
+        },
+    );
+    // Think once now so a pet already standing on the item lifts it without
+    // waiting a tick — the same reason the player path thinks synchronously.
+    pet_pickup_think(world, pet_oid);
+}
+
+/// The `SummonPickup` half of the summon think: walk, then lift.
+///
+/// Returns `true` while the errand is still running, which tells the caller to
+/// skip the follow tick — an errand outranks trailing the owner.
+pub(crate) fn pet_pickup_think(world: &mut World, pet_oid: i32) -> bool {
+    let Some(order) = world
+        .objects
+        .get_component::<crate::model::components::SummonPickup>(&pet_oid)
+        .copied()
+    else {
+        return false;
+    };
+    let item_oid = order.item_object_id;
+    // `checkTargetLost` — someone else lifted it, or it decayed.
+    let gone = !world
+        .objects
+        .has_component::<crate::model::components::GroundItem>(&item_oid);
+    if gone || crate::game_loop::helpers::is_dead(world, pet_oid) {
+        end_pickup(world, pet_oid);
+        return false;
+    }
+    let (Some(item_pos), Some(pet_pos)) = (
+        crate::game_loop::guard::maybe_position(world, item_oid),
+        crate::game_loop::guard::maybe_position(world, pet_oid),
+    ) else {
+        end_pickup(world, pet_oid);
+        return false;
+    };
+    let dx = f64::from(item_pos.x - pet_pos.x);
+    let dy = f64::from(item_pos.y - pet_pos.y);
+    if (dx * dx + dy * dy).sqrt() > PET_PICKUP_RANGE {
+        crate::game_loop::ai::move_npc_to(world, pet_oid, item_pos.x, item_pos.y, item_pos.z);
+        return true;
+    }
+    end_pickup(world, pet_oid);
+    pet_pickup_item(world, pet_oid, item_oid);
+    false
+}
+
+/// Drop the errand and go back to trailing the owner (Java restores
+/// `getFollowStatus()` after `doPickupItem`).
+fn end_pickup(world: &mut World, pet_oid: i32) {
+    world
+        .objects
+        .remove_component::<crate::model::components::SummonPickup>(&pet_oid);
+    if let Some(l) = world
+        .objects
+        .get_component_mut::<crate::model::components::ServitorOf>(&pet_oid)
+    {
+        l.following = true;
+    }
+}
+
+/// `Pet.doPickupItem` — the pet's own version of the lift.
+///
+/// The loot rules are the **owner's**: drop protection is checked against the
+/// player, because Java passes `getOwner()` into the looter-party test and the
+/// pet has no party of its own. What differs from the player path is only
+/// where the item lands (`PetInventory`) and the one message that says so.
+fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
+    use crate::model::components::GroundItem;
+    let Some(owner_oid) = world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&pet_oid)
+        .map(|l| l.owner_object_id)
+    else {
+        return;
+    };
+    let Some(client_id) = crate::game_loop::helpers::client_for_player(world, owner_oid) else {
+        return;
+    };
+    let Some(g) = world
+        .objects
+        .get_component::<GroundItem>(&item_oid)
+        .cloned()
+    else {
+        return;
+    };
+    // Loot protection, measured against the owner exactly as Java does.
+    if g.owner_id != 0
+        && world.tick < g.owner_until_tick
+        && g.owner_id != owner_oid
+        && !crate::game_loop::command_channel::is_in_looter_party(world, owner_oid, g.owner_id)
+    {
+        crate::game_loop::helpers::send_action_failed(world, client_id);
+        crate::game_loop::helpers::send_sm_to_client(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1,
+            &[crate::network::server_packets::SmParam::ItemName(g.item_id)],
+        );
+        return;
+    }
+    // `_inventory.validateCapacity(target)` — the pet's own bag, not the
+    // owner's, and its own refusal message.
+    if !pet_inventory_has_room(world, owner_oid, g.item_id) {
+        crate::game_loop::helpers::send_action_failed(world, client_id);
+        crate::game_loop::helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOUR_PET_CANNOT_CARRY_ANY_MORE_ITEMS,
+        );
+        return;
+    }
+    let Some(region) = crate::game_loop::helpers::region_cell_of(world, item_oid) else {
+        return;
+    };
+    crate::game_loop::ground_items::despawn_ground_item(world, item_oid, region);
+    let World { data, objects, .. } = world;
+    let Some(oid) = objects
+        .get_component::<crate::model::inventory::PetInventory>(&owner_oid)
+        .map(|_| item_oid)
+    else {
+        return;
+    };
+    if let Some(pi) = objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner_oid)
+    {
+        pi.0.add_item(&data.item_data, oid, g.item_id, g.count);
+    }
+    send_pet_item_list(world, owner_oid);
+}
+
+/// `PetInventory.validateCapacity` — a stackable the pet already holds needs
+/// no new slot; anything else does.
+pub(crate) fn pet_inventory_has_room(world: &World, owner_oid: i32, item_id: i32) -> bool {
+    let Some(pi) = world
+        .objects
+        .get_component::<crate::model::inventory::PetInventory>(&owner_oid)
+    else {
+        return false;
+    };
+    let stackable = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_stackable);
+    if stackable && pi.0.count_of(item_id) > 0 {
+        return true;
+    }
+    pi.0.items().len() < world.cfg.npc.inventory_maximum_pet
 }

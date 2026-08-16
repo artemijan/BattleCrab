@@ -116,7 +116,7 @@ pub(crate) fn compute_heroes(world: &World) -> Vec<(i32, i32)> {
             .iter()
             .filter(|(_, n)| {
                 (n.class_id == hero_class || Some(n.class_id) == parent)
-                    && n.comp_done >= HERO_MIN_MATCHES
+                    && n.comp_done >= world.cfg.olympiad.min_matches_for_points
                     && n.comp_won > 0
             })
             .max_by(|(_, a), (_, b)| {

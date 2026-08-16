@@ -57,3 +57,74 @@ fn a_non_snooped_players_chat_reaches_no_snooper() {
         "only the snooped player is mirrored"
     );
 }
+
+/// **`SnoopQuit` (0xB4) takes both halves of the link apart** — the GM stops
+/// receiving lines *and* stops being recorded as snooping.
+#[test]
+fn snoop_quit_unlinks_both_sides() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 3001, 100);
+    let _victim = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    on_packet(&mut world, 1, build_admin("snoop P3002"));
+    drain(&mut gm_rx);
+
+    let mut body = vec![cop::SNOOP_QUIT];
+    body.extend_from_slice(&3002i32.to_le_bytes());
+    on_packet(&mut world, 1, body);
+
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&3002)
+            .unwrap()
+            .snoop_listeners
+            .is_empty(),
+        "the target no longer lists the GM"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .snooped
+            .is_empty(),
+        "and the GM no longer lists the target"
+    );
+
+    // The chat that used to be mirrored now is not.
+    on_packet(
+        &mut world,
+        2,
+        [vec![cop::SAY2], say2_body("still secret", 0, None)].concat(),
+    );
+    assert!(
+        !has_opcode(&drain(&mut gm_rx), SNOOP_OPCODE),
+        "no more snoop lines"
+    );
+}
+
+/// **A quit naming a player who is gone changes nothing.** Java looks the id
+/// up in the world first and returns on a miss, so the GM's own entry survives
+/// — asserted so the guard is not "simplified" into a blind retain.
+#[test]
+fn snoop_quit_for_an_absent_player_is_ignored() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 3001, 100);
+    let _victim = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    on_packet(&mut world, 1, build_admin("snoop P3002"));
+    drain(&mut gm_rx);
+
+    let mut body = vec![cop::SNOOP_QUIT];
+    body.extend_from_slice(&999_999i32.to_le_bytes());
+    on_packet(&mut world, 1, body);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .snooped,
+        vec![3002],
+        "the live link is untouched"
+    );
+}

@@ -395,6 +395,79 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
         DbEvent::HeroesLoaded { heroes, diary } => {
             crate::game_loop::olympiad::apply_heroes_loaded(world, heroes, diary);
         }
+        // `BuyListData.load`'s restore loop and both its guards: a row whose
+        // list or product the datapack no longer declares is warned about and
+        // dropped, and `count < maxCount` skips a row that is already full —
+        // which also discards its deadline, since a full product has no timer.
+        //
+        // That second check is what handles a row for a product that has since
+        // *lost* its `count` attribute, too: an unlimited product's `maxCount`
+        // is -1, so every saved count is `>=` it. No separate limited-stock
+        // test is needed, and Java has none either.
+        DbEvent::BuyListStockLoaded { rows } => {
+            let mut restored = 0usize;
+            for (list_id, item_id, count, next_restock_time) in rows {
+                let Some(max_count) = world
+                    .data
+                    .buy_lists
+                    .get(list_id)
+                    .and_then(|l| l.product(item_id))
+                    .map(|p| p.max_count)
+                else {
+                    tracing::warn!(
+                        "BuyList stock found in database but not loaded from xml! \
+                         BuyListId: {list_id} ItemId: {item_id}"
+                    );
+                    continue;
+                };
+                if count >= max_count {
+                    continue;
+                }
+                world.buy_list_stock.insert(
+                    (list_id, item_id),
+                    crate::game_loop::shop::ProductStock {
+                        count,
+                        next_restock_time,
+                    },
+                );
+                crate::game_loop::shop::restart_restock_task(
+                    world,
+                    list_id,
+                    item_id,
+                    next_restock_time,
+                );
+                restored += 1;
+            }
+            tracing::info!("BuyListData: Restored stock for {restored} products.");
+        }
+        // The hired half of the siege-guard table. `Mercenary` carries the
+        // ticket item id too, which the row does not: it is recovered from the
+        // npc id through `CastleSiegeGuards`, the same lookup Java's
+        // `getSiegeGuardByNpc` does at load.
+        DbEvent::MercenariesLoaded { guards } => {
+            let mut total = 0usize;
+            for (castle_id, spawn) in guards {
+                let item_id = world
+                    .data
+                    .castle_siege_guards
+                    .by_npc(castle_id, spawn.npc_id)
+                    .map(|h| h.item_id)
+                    .unwrap_or(0);
+                world.mercenaries.entry(castle_id).or_default().push(
+                    crate::model::siege::Mercenary {
+                        item_id,
+                        npc_id: spawn.npc_id,
+                        x: spawn.x,
+                        y: spawn.y,
+                        z: spawn.z,
+                        heading: spawn.heading,
+                        ticket_oid: 0,
+                    },
+                );
+                total += 1;
+            }
+            tracing::info!("GameLoop: loaded {total} hired siege guard tickets.");
+        }
         DbEvent::SiegeGuardsLoaded { guards } => {
             let mut by_castle: std::collections::HashMap<
                 i32,

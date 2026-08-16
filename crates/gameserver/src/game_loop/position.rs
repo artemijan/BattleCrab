@@ -636,13 +636,14 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
         return;
     };
     let object_id = session.player_object_id();
-    // Java bails while casting, teleporting, or in observer mode (no observer
-    // mode yet). The teleporting bail is load-bearing: during a far teleport
+    // Java bails while casting, teleporting, or in observer mode. The
+    // teleporting bail is load-bearing: during a far teleport
     // the client keeps reporting its OLD position until it finishes loading
     // and sends Appearing — without the bail, the out-of-sync snap below
     // reverts the server position to the pre-teleport spot and the client
     // hangs on the black loading screen.
     if objects.has_component::<Casting>(&object_id)
+        || objects.has_component::<crate::model::components::Observing>(&object_id)
         || objects
             .get_component::<Player>(&object_id)
             .is_none_or(|p| p.teleporting)
@@ -783,5 +784,103 @@ pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body
         world,
         object_id,
         &server_packets::stop_move(object_id, x, y, z, heading),
+    );
+}
+
+/// `StartRotating` (0x5B) — the client turning on the spot with the keyboard,
+/// mirrored to everyone who can see it so the character faces the same way on
+/// their screens mid-turn.
+///
+/// SKIP(census): Java's airship branch (`isInAirShip() && isCaptain()`, which
+/// rotates the ship instead) has no counterpart — airships are Gracia, and no
+/// airship exists on this dist.
+pub(crate) fn handle_start_rotating(world: &mut World, client_id: u32, body: &[u8]) {
+    if !world.cfg.character.keyboard_movement {
+        return;
+    }
+    let mut r = commons::network::PacketReader::new(body);
+    let Some([degree, side]) = r.read_i32_array::<2>() else {
+        return;
+    };
+    let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    // `broadcastPacket` — onlookers only; the turning client is already
+    // drawing its own rotation.
+    super::helpers::broadcast_to_others(
+        world,
+        object_id,
+        &server_packets::start_rotation(object_id, degree, side, 0),
+    );
+}
+
+/// `FinishRotating` (0x5C) — the turn settled. Unlike its opening half this
+/// one **commits the heading server-side**, which is what makes a keyboard
+/// turn survive the next `ValidatePosition`.
+pub(crate) fn handle_finish_rotating(world: &mut World, client_id: u32, body: &[u8]) {
+    if !world.cfg.character.keyboard_movement {
+        return;
+    }
+    let mut r = commons::network::PacketReader::new(body);
+    // The second int is Java's `readInt(); // Unknown.`
+    let Some([degree, _unknown]) = r.read_i32_array::<2>() else {
+        return;
+    };
+    let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+        pos.heading = degree;
+    }
+    super::helpers::broadcast_to_others(
+        world,
+        object_id,
+        &server_packets::stop_rotation(object_id, degree, 0),
+    );
+}
+
+/// `CannotMoveAnymoreInVehicle` (0x76) — the deck-walking counterpart of
+/// [`handle_cannot_move_anymore`]: the player stopped while standing on a
+/// boat, so the position that changes is the **seat offset**, not a world
+/// coordinate.
+///
+/// Java checks the boat id off the wire against the one the player is actually
+/// on, which is what stops a forged packet re-seating someone onto a boat they
+/// are not aboard.
+pub(crate) fn handle_cannot_move_anymore_in_vehicle(
+    world: &mut World,
+    client_id: u32,
+    body: &[u8],
+) {
+    let mut r = commons::network::PacketReader::new(body);
+    let Some([boat_id, x, y, z, heading]) = r.read_i32_array::<5>() else {
+        return;
+    };
+    let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    // `player.isInBoat() && player.getBoat().getObjectId() == _boatId`.
+    use crate::model::boat::InVehicle;
+    let aboard = world
+        .objects
+        .get_component::<InVehicle>(&object_id)
+        .is_some_and(|v| v.boat_object_id == boat_id);
+    if !aboard {
+        return;
+    }
+    // `setInVehiclePosition` — the seat offset, which `move_passengers` keeps
+    // the absolute position pinned to.
+    if let Some(v) = world.objects.get_component_mut::<InVehicle>(&object_id) {
+        v.seat_x = x;
+        v.seat_y = y;
+        v.seat_z = z;
+    }
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+        pos.heading = heading;
+    }
+    super::helpers::broadcast_including_self(
+        world,
+        object_id,
+        &server_packets::stop_move_in_vehicle(object_id, boat_id, x, y, z, heading),
     );
 }

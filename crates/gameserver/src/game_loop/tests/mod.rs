@@ -57,6 +57,7 @@ mod attribute_tests;
 mod augment_skill_tests;
 mod auto_play_tests;
 mod auto_potions_tests;
+mod baby_pets_tests;
 mod baium_tests;
 mod basic_property_tests;
 mod block_list_tests;
@@ -117,6 +118,7 @@ mod mana_drain_tests;
 mod mana_restore_tests;
 mod manor_tests;
 mod melee_variants_tests;
+mod mercenary_tests;
 mod minion_tests;
 mod misc_tests;
 mod mob_leash_tests;
@@ -127,19 +129,23 @@ mod movement_tests;
 mod noble_tests;
 mod npc_arrival_tests;
 mod npc_cast_tests;
+mod npc_config_tests;
 mod npc_path_tests;
 mod npc_regen_tests;
 mod npc_tests;
+mod observation_tests;
 mod offline_trade_tests;
 mod olympiad_tests;
 mod onhit_tests;
 mod orfen_tests;
 mod others_scripts_tests;
 mod overhit_tests;
+mod packet_gap_tests;
 mod party_room_tests;
 mod pc_cafe_tests;
 mod periodic_tests;
 mod petition_tests;
+mod player_actions_tests;
 mod premium_rates_tests;
 mod punishment_tests;
 mod pvp_kill_tests;
@@ -154,6 +160,7 @@ mod sailren_tests;
 mod sell_buffs_tests;
 mod servitor_tests;
 mod shadow_weapons_tests;
+mod shop_stock_tests;
 mod shortcuts_tests;
 mod siege_registration_tests;
 mod siege_schedule_tests;
@@ -183,6 +190,7 @@ mod water_tests;
 mod weight_tests;
 mod world_chat_tests;
 mod wyvern_tests;
+mod zone_kinds_tests;
 mod zones_tests;
 
 /// The dist catalogues — see [`crate::data::dist`]. Re-exported here because
@@ -606,6 +614,8 @@ async fn character_create_inserts_into_real_schema() {
         npc_ai_skills: Default::default(),
         spawn_data: crate::data::SpawnData::empty(),
         hit_condition_bonus: crate::data::HitConditionBonusData::default(),
+        karma: crate::data::KarmaData::empty(),
+        enchant_hp_bonus: crate::data::EnchantHpBonusData::empty(),
         xp_lost: crate::data::PlayerXpPercentLostData::empty(),
         map_region: crate::data::MapRegionData::empty(),
         zone_data: crate::data::ZoneData::empty(),
@@ -2056,6 +2066,7 @@ fn insert_zone(
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
 }
 
@@ -2076,6 +2087,7 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
 }
 
@@ -2097,6 +2109,7 @@ fn insert_hq_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, 
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
 }
 
@@ -2214,16 +2227,8 @@ fn shop_world() -> (World, db::CmdRx, UnboundedReceiver<bytes::Bytes>) {
             list_id: 3,
             npcs: vec![30001],
             products: vec![
-                crate::data::buy_list_data::Product {
-                    item_id: 41,
-                    price: 100,
-                    base_tax: 0,
-                },
-                crate::data::buy_list_data::Product {
-                    item_id: 1061,
-                    price: 10,
-                    base_tax: 0,
-                },
+                crate::data::buy_list_data::Product::unlimited(41, 100, 0),
+                crate::data::buy_list_data::Product::unlimited(1061, 10, 0),
             ],
         });
     add_test_npc(&mut world, NPC_OID, 30001, "Merchant", 5, 100, 0, 0);

@@ -914,9 +914,9 @@ fn close_buy_store(world: &mut World, owner: i32) {
 /// already has a store up — so the rule spaces shops apart rather than blocking
 /// on any passer-by.
 ///
-/// The second half is the state check. The `NO_STORE` zone kind is not loaded,
-/// so that one leg is absent; the rest — including `_isSellingBuffs`, which
-/// landed with the sell-buffs slice — are here.
+/// The second half is the state check, `isInsideZone(NO_STORE)` included: 18
+/// zones on this dist forbid a shop outright, and Java answers that leg with
+/// its own message before the generic refusal.
 pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) -> bool {
     // Java `!_isSellingBuffs` — a buff shop and an ordinary store are mutually
     // exclusive, and both ride the same `PACKAGE_SELL` store type.
@@ -970,6 +970,13 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
             }
         }
     }
+    // `isInsideZone(ZoneId.NO_STORE)`. Java's callers re-test the zone after a
+    // refusal purely to pick the message; testing it here and sending the
+    // message on the spot is the same behaviour with one lookup.
+    if in_no_store_zone(world, owner) {
+        send_cannot_open_here(world, client_id);
+        return false;
+    }
     world
         .objects
         .get_component::<crate::model::components::Vitals>(&owner)
@@ -982,6 +989,12 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
         && !world
             .objects
             .has_component::<crate::model::components::Casting>(&owner)
+}
+
+/// Java `isInsideZone(ZoneId.NO_STORE)` for a player, by position.
+pub(crate) fn in_no_store_zone(world: &World, owner: i32) -> bool {
+    maybe_position(world, owner)
+        .is_some_and(|pos| world.data.zone_data.in_no_store_zone(pos.x, pos.y, pos.z))
 }
 
 fn send_cannot_open_here(world: &World, client_id: u32) {

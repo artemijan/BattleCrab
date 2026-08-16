@@ -53,7 +53,14 @@ pub(super) fn do_sell(world: &mut World, client_id: u32, object_id: i32, command
         send_to_client(
             world,
             client_id,
-            crate::network::trade::buy_list(&list, inv, &world.data, 0.0),
+            crate::network::trade::buy_list(
+                &list,
+                inv,
+                &world.data,
+                0.0,
+                world.cfg.rates.rate_siege_guards_price,
+                |p| crate::game_loop::shop::stock_left(world, CB_SELL_BUYLIST, p),
+            ),
         );
         send_to_client(
             world,

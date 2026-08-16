@@ -1062,11 +1062,9 @@ fn a_manager_serves_its_item_buylist() {
         .insert_for_test(crate::data::buy_list_data::BuyList {
             list_id: 3544700, // 35447 * 100 + 0 (item level 1)
             npcs: vec![35447],
-            products: vec![crate::data::buy_list_data::Product {
-                item_id: 6902,
-                price: 1000,
-                base_tax: 0,
-            }],
+            products: vec![crate::data::buy_list_data::Product::unlimited(
+                6902, 1000, 0,
+            )],
         });
     let player = 8800;
     let mut rx = ingame_player(&mut world, 17, player, 120, 100, 0);

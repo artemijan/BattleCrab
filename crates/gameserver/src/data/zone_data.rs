@@ -106,6 +106,21 @@ pub enum ZoneKind {
     /// geometry (`no_item_drop_at`), never by membership mask — the u8 mask is
     /// full — so it claims no bit.
     Condition,
+    /// Java `MotherTreeZone` → `ZoneId.MOTHER_TREE`: the Elven Village nursery
+    /// and Devil's Isle healing pool. Carries its own HP/MP regen bonus, which
+    /// the regen finalizers add *before* the sitting multiplier.
+    MotherTree,
+    /// Java `NoStoreZone` → `ZoneId.NO_STORE`: no private store, buy store,
+    /// manufacture shop or buff shop may open here.
+    NoStore,
+    /// Java `NoSummonFriendZone` → `ZoneId.NO_SUMMON_FRIEND`: Summon Friend
+    /// and its relatives refuse to reach into (or out of) this area.
+    NoSummonFriend,
+    /// Java `LandingZone` → `ZoneId.LANDING`: where a wyvern rider is low
+    /// enough to dismiss their transform. The inverse of [`ZoneKind::NoLanding`],
+    /// and a different gate — that one refuses *dismounting*, this one permits
+    /// *untransforming*.
+    Landing,
 }
 
 impl ZoneKind {
@@ -132,6 +147,16 @@ impl ZoneKind {
             // Same: the dismount gate asks "is this point inside one", and the
             // u8 mask has no free bit left anyway.
             ZoneKind::NoLanding => 0,
+            // All four of row 10's kinds are asked "is this point inside one"
+            // at the moment of the action (open a store, cast Summon Friend,
+            // untransform) or need the *zone* rather than the flag (the mother
+            // tree's regen bonus), so none of them claims a bit — which is just
+            // as well, since the `u8` mask has been full since `Swamp` took the
+            // last one.
+            ZoneKind::MotherTree
+            | ZoneKind::NoStore
+            | ZoneKind::NoSummonFriend
+            | ZoneKind::Landing => 0,
             // Queried by geometry (`clan_hall_at`), no membership bit.
             ZoneKind::ClanHall => 0,
             // Queried by geometry (`zones_at`), no membership bit (u8 mask full).
@@ -173,6 +198,24 @@ pub struct Zone {
     pub swamp: Option<SwampZoneParams>,
     /// `ConditionZone` flags; `None` for every other kind.
     pub condition: Option<ConditionZoneParams>,
+    /// `MotherTreeZone` parameters; `None` for every other kind.
+    pub mother_tree: Option<MotherTreeParams>,
+}
+
+/// Java `MotherTreeZone`'s four `<stat>`s. The regen pair is what the HP/MP
+/// finalizers add; the message pair fires on the zone boundary.
+///
+/// `affectedRace` also appears on the Elven Village zones and is **not** parsed
+/// here — Java's `MotherTreeZone.setParameter` does not handle it either, so it
+/// falls through to the base `ZoneType` bag that no consumer reads. An elf and
+/// a dwarf standing in the nursery get the same bonus in Java, and do here.
+#[derive(Debug, Clone, Copy, Default, serde::Serialize, serde::Deserialize)]
+pub struct MotherTreeParams {
+    pub hp_regen_bonus: i32,
+    pub mp_regen_bonus: i32,
+    /// `enterMsgId` / `leaveMsgId`; 0 when the zone declares none.
+    pub enter_msg_id: i32,
+    pub leave_msg_id: i32,
 }
 
 /// Java `ConditionZone`'s two `<stat>`s. Both default to **false** (the Java
@@ -322,6 +365,14 @@ impl ZoneData {
             // sibling file; its flag has no consumer on Interlude, so it is
             // deliberately not loaded.
             ("no_drop_item.xml", ZoneKind::Condition),
+            // Row 10's four kinds, each in a file of its own bar the mother
+            // trees. `ssq.xml`'s ten `MotherTreeZone`s are deliberately left
+            // out with the rest of that file: they are the Seven Signs main
+            // event's (`ssq_main_event_*`), and this dist has no Seven Signs.
+            ("elven_mother_tree.xml", ZoneKind::MotherTree),
+            ("custom_no_store.xml", ZoneKind::NoStore),
+            ("no_summon_friend.xml", ZoneKind::NoSummonFriend),
+            ("landing.xml", ZoneKind::Landing),
         ] {
             let before = zones.len();
             parse_file(
@@ -532,6 +583,32 @@ impl ZoneData {
             .map(|zn| zn.castle_id)
     }
 
+    /// Java `ZoneManager.getZone(player, MotherTreeZone.class)` — the mother
+    /// tree covering this point, with its regen bonuses.
+    pub fn mother_tree_at(&self, x: i32, y: i32, z: i32) -> Option<&MotherTreeParams> {
+        self.zones_at(x, y, z)
+            .find(|zn| zn.kind == ZoneKind::MotherTree)
+            .and_then(|zn| zn.mother_tree.as_ref())
+    }
+
+    /// Java `isInsideZone(ZoneId.NO_STORE)`.
+    pub fn in_no_store_zone(&self, x: i32, y: i32, z: i32) -> bool {
+        self.zones_at(x, y, z)
+            .any(|zn| zn.kind == ZoneKind::NoStore)
+    }
+
+    /// Java `isInsideZone(ZoneId.NO_SUMMON_FRIEND)`.
+    pub fn in_no_summon_friend_zone(&self, x: i32, y: i32, z: i32) -> bool {
+        self.zones_at(x, y, z)
+            .any(|zn| zn.kind == ZoneKind::NoSummonFriend)
+    }
+
+    /// Java `isInsideZone(ZoneId.LANDING)`.
+    pub fn in_landing_zone(&self, x: i32, y: i32, z: i32) -> bool {
+        self.zones_at(x, y, z)
+            .any(|zn| zn.kind == ZoneKind::Landing)
+    }
+
     /// Java `isInsideZone(ZoneId.HQ)` — the castle whose headquarters area
     /// covers this point, if any (`BuildCampSkillCondition`'s last gate).
     pub fn hq_castle_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
@@ -574,6 +651,10 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "TaxZone" => ZoneKind::Tax,
         "HqZone" => ZoneKind::Hq,
         "ConditionZone" => ZoneKind::Condition,
+        "MotherTreeZone" => ZoneKind::MotherTree,
+        "NoStoreZone" => ZoneKind::NoStore,
+        "NoSummonFriendZone" => ZoneKind::NoSummonFriend,
+        "LandingZone" => ZoneKind::Landing,
         _ => return None,
     })
 }
@@ -625,6 +706,10 @@ fn parse_file(
         spawns: Vec<(i32, i32, i32)>,
         no_item_drop: bool,
         no_bookmark: bool,
+        hp_regen_bonus: i32,
+        mp_regen_bonus: i32,
+        enter_msg_id: i32,
+        leave_msg_id: i32,
     }
     let mut cur: Option<Pending> = None;
 
@@ -666,6 +751,13 @@ fn parse_file(
                             no_item_drop: p.no_item_drop,
                             no_bookmark: p.no_bookmark,
                         });
+                    let mother_tree =
+                        (p.kind == ZoneKind::MotherTree).then_some(MotherTreeParams {
+                            hp_regen_bonus: p.hp_regen_bonus,
+                            mp_regen_bonus: p.mp_regen_bonus,
+                            enter_msg_id: p.enter_msg_id,
+                            leave_msg_id: p.leave_msg_id,
+                        });
                     if p.kind == ZoneKind::ResidenceTeleport && p.castle_id > 0 {
                         spawns_out.insert(p.castle_id, p.spawns.clone());
                     }
@@ -684,6 +776,7 @@ fn parse_file(
                         damage,
                         swamp,
                         condition,
+                        mother_tree,
                     });
                 }
                 continue;
@@ -722,6 +815,10 @@ fn parse_file(
                     spawns: Vec::new(),
                     no_item_drop: false,
                     no_bookmark: false,
+                    hp_regen_bonus: 0,
+                    mp_regen_bonus: 0,
+                    enter_msg_id: 0,
+                    leave_msg_id: 0,
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
@@ -792,6 +889,10 @@ fn parse_file(
                     "removeEffectsOnExit" => p.remove_effects_on_exit = val == "true",
                     "damageHPPerSec" => p.dmg_hp = val.parse().unwrap_or(p.dmg_hp),
                     "damageMPPerSec" => p.dmg_mp = val.parse().unwrap_or(p.dmg_mp),
+                    "HpRegenBonus" => p.hp_regen_bonus = val.parse().unwrap_or(0),
+                    "MpRegenBonus" => p.mp_regen_bonus = val.parse().unwrap_or(0),
+                    "enterMsgId" => p.enter_msg_id = val.parse().unwrap_or(0),
+                    "leaveMsgId" => p.leave_msg_id = val.parse().unwrap_or(0),
                     "move_bonus" => p.move_bonus = val.parse().unwrap_or(p.move_bonus),
                     // `ConditionZone.setParameter` compares case-insensitively.
                     "NoItemDrop" => p.no_item_drop = val.eq_ignore_ascii_case("true"),
@@ -843,8 +944,16 @@ mod tests {
         // `RequestDropItem` refuses (`ZoneId.NO_ITEM_DROP`).
         // 1269 → 1278: `no_landing.xml`'s 9 `NoLandingZone`s — the airspace a
         // wyvern rider may not dismount over (G33).
-        assert_eq!(data.zones.len(), 1278);
+        // 1278 → 1398 with row 10's four kinds: `devil_isle.xml`'s healing pool
+        // (+1, the file was already loaded for its `EffectZone`s) and
+        // `elven_mother_tree.xml`'s 5 mother trees, `custom_no_store.xml`'s 18,
+        // `no_summon_friend.xml`'s 27 and `landing.xml`'s 69.
+        assert_eq!(data.zones.len(), 1398);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(count(ZoneKind::MotherTree), 6);
+        assert_eq!(count(ZoneKind::NoStore), 18);
+        assert_eq!(count(ZoneKind::NoSummonFriend), 27);
+        assert_eq!(count(ZoneKind::Landing), 69);
         assert_eq!(count(ZoneKind::Condition), 7, "no_drop_item.xml");
         // Every zone in that file declares the flag, and nothing else does.
         assert!(
@@ -953,6 +1062,7 @@ mod tests {
             damage: None,
             swamp: None,
             condition: None,
+            mother_tree: None,
         });
         assert_eq!(data.mask_at(500, 500, 0), ZoneKind::Peace.bit());
         assert_eq!(data.mask_at(1500, 500, 0), 0);
@@ -1016,6 +1126,10 @@ mod effect_zone_tests {
                         | ZoneKind::Water
                         | ZoneKind::NoRestart
                         | ZoneKind::NoLanding
+                        | ZoneKind::MotherTree
+                        | ZoneKind::NoStore
+                        | ZoneKind::NoSummonFriend
+                        | ZoneKind::Landing
                         | ZoneKind::Hq
                         | ZoneKind::Pvp
                         | ZoneKind::Siege

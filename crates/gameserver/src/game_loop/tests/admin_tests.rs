@@ -6911,3 +6911,106 @@ fn setclass_drops_a_dye_the_new_class_cannot_wear() {
         "the dye the new class cannot wear came off"
     );
 }
+
+// ---------------------------------------------------------------------------
+// `//zone_visual` / `//zone_visual_clear` (measured-gaps row 16)
+// ---------------------------------------------------------------------------
+
+/// `AdminZone`'s visualiser: adena markers every 10 units along each boundary
+/// of every zone covering the GM, and a clear that removes exactly those.
+#[test]
+fn zone_visual_outlines_the_zone_and_clears_it_again() {
+    use crate::data::zone_data::{Zone, ZoneKind};
+    let (mut world, ..) = admin_world();
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
+    world.next_npc_object_id = 0x6000_0000;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5401, 100);
+    // A 200x200 cuboid around the origin: its border is 4 × (200/10) = 80
+    // markers.
+    world.data.zone_data.insert(Zone {
+        id: 4242,
+        name: "test_visual".into(),
+        kind: ZoneKind::Peace,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: -100,
+                x2: 100,
+                y1: -100,
+                y2: 100,
+            },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id: 0,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+        condition: None,
+        mother_tree: None,
+    });
+    drain(&mut gm_rx);
+
+    admin::use_admin_command(&mut world, 1, "admin_zone_visual all", false);
+
+    assert_eq!(
+        world.zone_debug_items.len(),
+        80,
+        "20 steps per side, both sides of each axis"
+    );
+    let sample = world.zone_debug_items[0];
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&sample),
+        "the markers are real ground items"
+    );
+
+    admin::use_admin_command(&mut world, 1, "admin_zone_visual_clear", false);
+
+    assert!(world.zone_debug_items.is_empty(), "the list is emptied");
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&sample),
+        "and the markers are gone from the world"
+    );
+}
+
+/// A numeric argument visualises that one zone by id; an unknown id says so
+/// and drops nothing.
+#[test]
+fn zone_visual_takes_a_zone_id() {
+    let (mut world, ..) = admin_world();
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(crate::data::DIST_GAME);
+    world.next_npc_object_id = 0x6100_0000;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5402, 100);
+    let zone_id = world
+        .data
+        .zone_data
+        .zones
+        .iter()
+        .map(|z| z.id)
+        .find(|&id| id > 0)
+        .expect("the dist ships zones with ids");
+    drain(&mut gm_rx);
+
+    admin::use_admin_command(
+        &mut world,
+        1,
+        &format!("admin_zone_visual {zone_id}"),
+        false,
+    );
+    assert!(
+        !world.zone_debug_items.is_empty(),
+        "the named zone was outlined"
+    );
+
+    admin::use_admin_command(&mut world, 1, "admin_zone_visual_clear", false);
+    admin::use_admin_command(&mut world, 1, "admin_zone_visual 99999999", false);
+    assert!(
+        world.zone_debug_items.is_empty(),
+        "an unknown id outlines nothing"
+    );
+}

@@ -159,8 +159,8 @@ const EFFECTS: &[(&str, usize)] = &[("StatUp", 9), ("SafeFallHeight", 1)];
 const EFFECT_SCOPES: &[(&str, usize)] = &[];
 
 /// `<condition>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 61 name(s), 1 learnable
-/// skill(s) affected, 734 reachable.
+/// the work list, worst first. Category totals: 60 name(s), 1 learnable
+/// skill(s) affected, 733 reachable.
 ///
 /// **G34 S1 took this from 111 names / 215 learnable skills down to this.**
 /// The single learnable hold-out is `OpSweeper`, left out on purpose: Java's
@@ -238,7 +238,7 @@ fn datapack_skill_coverage_census() {
         // overstates anything. It did until 2026-08-06.
         ("effect", &gaps.effects, EFFECTS, 133, 10, 975),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
-        ("condition", &gaps.conditions, CONDITIONS, 61, 1, 734),
+        ("condition", &gaps.conditions, CONDITIONS, 60, 1, 733),
         ("targetType", &gaps.target_types, TARGET_TYPES, 8, 0, 457),
         ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
         (

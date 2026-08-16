@@ -5,7 +5,7 @@
 use commons::network::PacketWriter;
 
 use crate::data::GameData;
-use crate::data::buy_list_data::BuyList;
+use crate::data::buy_list_data::{BuyList, Product};
 use crate::model::inventory::{Inventory, ItemInstance};
 
 const EX: u8 = 0xFE;
@@ -19,11 +19,20 @@ pub const EX_BUY_SELL_LIST: i16 = 0xB8;
 /// `Merchant.showBuyWindow` passes `getCastleTaxRate(BUY)`, or 0 when the caller
 /// asks for an untaxed window — the mercenary manager's lists do). It is added
 /// to the product's own `baseTax` before the price is written.
+/// `stock` answers `Product.getCount()` for each product — 0 for an unlimited
+/// one, the remaining count otherwise. Taken as a closure so the packet does
+/// not need the whole `World` (the counts live there, the templates in `data`).
+///
+/// Java writes `_list.size()` for the entry count and *then* skips every
+/// sold-out product, so its own packet claims more items than it carries.
+/// Counting after the filter, as here, is the only way the client parses it.
 pub fn buy_list(
     list: &BuyList,
     inventory: &Inventory,
     data: &GameData,
     castle_tax_rate: f64,
+    siege_guards_price_rate: f64,
+    stock: impl Fn(&Product) -> i64,
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(EX);
@@ -35,15 +44,19 @@ pub fn buy_list(
     let products: Vec<_> = list
         .products
         .iter()
-        .filter_map(|p| data.item_data.get(p.item_id).map(|t| (p, t)))
+        .map(|p| (p, stock(p)))
+        // `if ((product.getCount() > 0) || !product.hasLimitedStock())` — a
+        // sold-out line leaves the window entirely until it restocks.
+        .filter(|&(p, left)| left > 0 || !p.has_limited_stock())
+        .filter_map(|(p, left)| data.item_data.get(p.item_id).map(|t| (p, t, left)))
         .collect();
     w.write_i16(products.len() as i16);
-    for (p, t) in products {
+    for (p, t, left) in products {
         w.write_u8(0); // mask
         w.write_i32(0); // object id
         w.write_i32(p.item_id);
         w.write_u8(if t.is_quest_item { 0xFF } else { 0 }); // T1
-        w.write_i64(0); // count (unlimited stock)
+        w.write_i64(left); // `Product.getCount()` — 0 when unlimited
         w.write_u8(t.type2 as u8);
         w.write_u8(0); // custom type 1
         w.write_i16(0); // equipped
@@ -54,7 +67,8 @@ pub fn buy_list(
         w.write_i32(0); // time
         w.write_u8(1); // available
         w.write_i64(
-            (p.price as f64 * (1.0 + castle_tax_rate + f64::from(p.base_tax) / 100.0)) as i64,
+            (p.price_at(t, siege_guards_price_rate) as f64
+                * (1.0 + castle_tax_rate + f64::from(p.base_tax) / 100.0)) as i64,
         );
     }
     w.into_bytes()

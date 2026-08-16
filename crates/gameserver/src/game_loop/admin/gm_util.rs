@@ -24,9 +24,11 @@ use super::{find_online_player, send_message, send_sm};
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 
-/// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the GM
-/// list. There is no `//gmlist` consumer yet, so this messages + re-shows the GM
-/// menu (the hidden flag is a no-op; see `flags::register_gm`).
+/// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the
+/// GM list. Both are **message-only in Java too**: neither calls `showGm` or
+/// `hideGm` (which have no callers at all), so the `hidden` flag stays whatever
+/// enter-world set it to. The list itself is served by the `/gmlist` packet —
+/// see [`super::handle_request_gm_list`].
 pub(super) fn admin_gmlist(world: &mut World, client_id: u32, on: bool) {
     send_message(
         world,

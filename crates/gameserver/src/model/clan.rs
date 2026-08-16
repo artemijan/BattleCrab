@@ -271,6 +271,9 @@ impl Clan {
 
 /// `ClanPrivilege.CL_JOIN_CLAN` (ordinal 1) — required to invite into the clan.
 pub const CL_JOIN_CLAN: i32 = 1 << 1;
+/// `ClanPrivilege.CL_GIVE_TITLE` — set another member's title
+/// (`RequestGiveNickName`).
+pub const CL_GIVE_TITLE: i32 = 1 << 2;
 
 /// `ClanPrivilege.CL_VIEW_WAREHOUSE` (ordinal 3) — required to withdraw from
 /// the clan warehouse.

@@ -106,7 +106,25 @@ pub const SAY2: u8 = 0x4A;
 /// `PetitionVotePacket` (G31) — the feedback prompt after a consultation ends.
 pub const PETITION_VOTE: u8 = 0xFC;
 /// `Snoop` (G31) — a mirrored chat line to a GM eavesdropping via `//snoop`.
+/// `ServerPackets.NICK_NAME_CHANGED` — one creature's title changed; sent
+/// to everyone who can see them so the name plate redraws.
+/// `ServerPackets.SHOP_PREVIEW_INFO` — the try-on outfit, one item id per
+/// paperdoll slot.
+/// The `RequestGMCommand` answer packets (`ServerPackets.GM_VIEW_*`).
+pub const GM_VIEW_CHARACTER_INFO: u8 = 0x95;
+pub const GM_VIEW_SKILL_INFO: u8 = 0x97;
+pub const GM_VIEW_QUEST_INFO: u8 = 0x99;
+pub const GM_VIEW_WAREHOUSE_WITHDRAW_LIST: u8 = 0x9B;
+pub const GM_HENNA_INFO: u8 = 0xF0;
+pub const SHOP_PREVIEW_INFO: u8 = 0xF6;
+pub const NICK_NAME_CHANGED: u8 = 0xCC;
 pub const SNOOP: u8 = 0xDB;
+/// `Dice` — the party dice landing animation (`handlers/itemhandlers/RollingDice`).
+pub const DICE: u8 = 0xDA;
+/// `ObservationMode` — the client enters free-camera spectator mode at a point.
+pub const OBSERVER_START: u8 = 0xEB;
+/// `ObservationReturn` — and comes back out of it.
+pub const OBSERVER_END: u8 = 0xEC;
 /// `BlockListPacket` — the ignore list, answering `RequestBlock`'s BLOCKLIST.
 pub const BLOCK_LIST: u8 = 0xD5;
 pub const ASK_JOIN_PARTY: u8 = 0x39;

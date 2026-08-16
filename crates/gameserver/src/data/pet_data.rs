@@ -66,6 +66,18 @@ pub struct PetLevel {
     pub spiritshot_count: i32,
 }
 
+/// Java `PetData.PetSkillLearn` — one `<skills><skill/>` row.
+#[derive(Debug, Clone, Copy, Default, serde::Serialize, serde::Deserialize)]
+pub struct PetSkillLearn {
+    pub skill_id: i32,
+    /// `skillLevel="0"` is the **auto-scaling** marker: the level is derived
+    /// from the pet's own level instead of being fixed. See
+    /// [`PetTemplate::available_level`].
+    pub skill_level: i32,
+    /// The pet level at which this row becomes usable.
+    pub min_level: i32,
+}
+
 /// Port of `model/actor/templates/PetData` — one pet species.
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct PetTemplate {
@@ -83,6 +95,10 @@ pub struct PetTemplate {
     pub load: i32,
     /// Per-level rows, indexed by level.
     pub levels: HashMap<i32, PetLevel>,
+    /// `<skills>` — what this species can be ordered to cast from the pet
+    /// window (`handlers/playeractions/PetSkillUse`). 47 of the 56 files
+    /// declare one; the Baby Buffalo's pair (4717/4718) is the auto-heal.
+    pub skills: Vec<PetSkillLearn>,
 }
 
 impl PetTemplate {
@@ -115,6 +131,45 @@ impl PetTemplate {
     /// never delevels because the exp curve was retuned under it.
     pub fn exp_for_level(&self, level: i32) -> i64 {
         self.levels.get(&level).map(|l| l.exp).unwrap_or(0)
+    }
+
+    /// Java `PetData.getAvailableLevel(skillId, petLvl)` — which level of
+    /// `skill_id` this pet may cast, or 0 for "not this pet's skill".
+    ///
+    /// Two shapes live in the same table. A row with a **fixed** `skillLevel`
+    /// applies once the pet reaches its `minLevel`, and the highest such row
+    /// wins. A row with `skillLevel="0"` scales off the pet's own level on the
+    /// same curve the buff/heal families use elsewhere — `lvl/10` below 70,
+    /// then one level per 5 — and short-circuits the scan, which is why an
+    /// auto-scaling row and a fixed row for the same skill do not mix.
+    ///
+    /// `max_skill_level` is Java's `SkillData.getMaxLevel(skillId)`, passed in
+    /// rather than looked up so this loader stays free of `SkillData`: the
+    /// formula overshoots for skills with fewer than 12 levels ("formula usable
+    /// for skill that have 10 or more skill levels") and Java clamps it.
+    ///
+    /// The trailing `found && lvl == 0 → 1` is Java's: a row exists but the
+    /// pet is below every `minLevel`, and it still gets level 1.
+    pub fn available_level(&self, skill_id: i32, pet_level: i32, max_skill_level: i32) -> i32 {
+        let mut lvl = 0;
+        let mut found = false;
+        for row in self.skills.iter().filter(|s| s.skill_id == skill_id) {
+            found = true;
+            if row.skill_level == 0 {
+                lvl = if pet_level < 70 {
+                    (pet_level / 10).max(1)
+                } else {
+                    7 + ((pet_level - 70) / 5)
+                };
+                if lvl > max_skill_level {
+                    lvl = max_skill_level;
+                }
+                break;
+            } else if row.min_level <= pet_level && row.skill_level > lvl {
+                lvl = row.skill_level;
+            }
+        }
+        if found && lvl == 0 { 1 } else { lvl }
     }
 
     /// Java `PetDataTable.getPetLevelData(petId, petLevel)`: the exact row,
@@ -223,6 +278,29 @@ fn parse_str(
                         cur = Some(t);
                     }
                     b"stats" => in_stats = true,
+                    // `<skills><skill minLevel= skillId= skillLevel=/></skills>`
+                    // — a sibling of `<stats>`, not a child, so it needs no
+                    // `in_stats` guard. The element name is `skill`, which
+                    // nothing else in a pet file uses.
+                    b"skill" => {
+                        let mut row = PetSkillLearn::default();
+                        for a in e.attributes().flatten() {
+                            let v = String::from_utf8_lossy(&a.value)
+                                .parse::<i32>()
+                                .unwrap_or(0);
+                            match a.key.as_ref() {
+                                b"skillId" => row.skill_id = v,
+                                b"skillLevel" => row.skill_level = v,
+                                b"minLevel" => row.min_level = v,
+                                _ => {}
+                            }
+                        }
+                        if let Some(t) = cur.as_mut()
+                            && row.skill_id != 0
+                        {
+                            t.skills.push(row);
+                        }
+                    }
                     b"stat" => {
                         cur_level = e
                             .attributes()
@@ -463,6 +541,66 @@ mod tests {
             wolf.max_meal(top + 50),
             wolf.max_meal(top),
             "past the table, use its top row"
+        );
+    }
+
+    /// `<skills>` reaches the template, and `available_level` reproduces both
+    /// shapes Java's `getAvailableLevel` handles. The Baby Buffalo is the
+    /// auto-scaling case (`skillLevel="0"`), which is also what makes its
+    /// heal-trick pair castable at all.
+    #[test]
+    fn real_dist_pet_skills_load_and_scale() {
+        let d = dist::pets();
+        let buffalo = d.get(12780).expect("Baby Buffalo 12780 loads");
+        assert!(
+            buffalo.skills.iter().any(|s| s.skill_id == 4717),
+            "Heal Trick is declared"
+        );
+        assert!(
+            buffalo.skills.iter().any(|s| s.skill_id == 4718),
+            "Greater Heal Trick too"
+        );
+        assert!(
+            buffalo.skills.iter().all(|s| s.skill_level == 0),
+            "both auto-scale off the pet's level"
+        );
+
+        // `skillLevel="0"` → lvl/10 below 70, floored at 1, then 7 + (lvl-70)/5.
+        // 12 is the real `getMaxLevel(4717)` on this dist, and the clamp is
+        // what keeps the formula from overshooting it.
+        assert_eq!(buffalo.available_level(4717, 5, 12), 1, "floored at 1");
+        assert_eq!(buffalo.available_level(4717, 40, 12), 4);
+        assert_eq!(buffalo.available_level(4717, 75, 12), 8);
+        assert_eq!(buffalo.available_level(4717, 99, 12), 12, "12 is its top");
+        // And the clamp bites when the skill has fewer levels than the formula
+        // assumes — Java's "formula usable for skill that have 10 or more skill
+        // levels" caveat.
+        assert_eq!(
+            buffalo.available_level(4717, 99, 3),
+            3,
+            "clamped to the skill's own max"
+        );
+        assert_eq!(
+            buffalo.available_level(1234, 40, 12),
+            0,
+            "not this pet's skill"
+        );
+
+        // The fixed-level shape: a `skillLevel` with a `minLevel` gate.
+        let fixed = d
+            .by_npc
+            .values()
+            .find(|t| t.skills.iter().any(|s| s.skill_level > 0))
+            .expect("some species declares a fixed-level skill");
+        let row = fixed.skills.iter().find(|s| s.skill_level > 0).unwrap();
+        assert_eq!(
+            fixed.available_level(row.skill_id, row.min_level - 1, 99),
+            1,
+            "below its minLevel the row still answers 1 (Java's `found` tail)"
+        );
+        assert_eq!(
+            fixed.available_level(row.skill_id, row.min_level, 99),
+            row.skill_level
         );
     }
 }

@@ -272,7 +272,16 @@ pub(crate) fn apply_death_exp_penalty_ex(
     // `calculateDeathExpPenalty`'s killer branch: a raid, an ordinary monster
     // or a playable each scale the lost *percentage* by their own stat
     // (`Residence Death Fortune` 610 grants the mob one at ×0.88).
-    let percent = percent * reduce_exp_lost_mul(world, player_oid, killer_oid);
+    let mut percent = percent * reduce_exp_lost_mul(world, player_oid, killer_oid);
+    // `if (getReputation() < 0) percentLost *= Config.RATE_KARMA_EXP_LOST;` —
+    // a PK can be made to lose more (or less) than everyone else. 1 here.
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_some_and(|p| p.reputation < 0)
+    {
+        percent *= world.cfg.rates.rate_karma_exp_lost;
+    }
     let mut lost = (((hi - lo) as f64) * percent / 100.0).round() as i64;
     if at_war_with_killer {
         lost /= 4;

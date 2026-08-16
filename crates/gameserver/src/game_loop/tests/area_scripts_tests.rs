@@ -172,6 +172,10 @@ fn tunatun_hands_out_one_whip_at_level_82() {
     let (mut world, _db, _l) = combat_test_world();
     const TUNATUN: i32 = 31537;
     const WHIP: i32 = 15473;
+    // `give_items` refuses an id the datapack does not declare (Java
+    // `ItemContainer.addItem` logs `Invalid ItemId`), so the fixture must
+    // declare what the script hands out.
+    add_quest_items(&mut world, &[(WHIP, "Kitchen Whip", false)]);
     add_test_npc(&mut world, NPC_OID, TUNATUN, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
 
@@ -280,6 +284,7 @@ fn pagan_keys_honor_auto_loot() {
     let (mut world, _db, _l) = combat_test_world();
     const ZOMBIE_WORKER: i32 = 22140;
     const ANTEROOM_KEY: i32 = 8273;
+    add_quest_items(&mut world, &[(ANTEROOM_KEY, "Anteroom Key", true)]);
     world
         .data
         .npc_data
@@ -1071,6 +1076,7 @@ fn fs_world() -> (
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
     for id in [
         crate::game_loop::four_sepulchers::CONQUEROR_MANAGER,

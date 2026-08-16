@@ -74,7 +74,7 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
             &world.data,
             &petted,
             &buffs,
-            crate::model::ChampionStatMods::default(),
+            crate::model::NpcStatMods::default(),
         );
 
     // A pet's worn armour adds to its defences. Java runs pets through the same

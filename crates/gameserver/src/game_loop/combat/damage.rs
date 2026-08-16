@@ -370,6 +370,25 @@ pub(crate) fn npc_receive_damage(
     };
     let mut became_running = false;
     let mut died = false;
+    // `SummonAI.onEvtAttacked` — an **owned summon** is not an `Attackable` in
+    // Java and does not retaliate on its own. It reacts only in the
+    // `ServitorMode` "defending" stance (`_isDefending`, action 1104); the
+    // passive stance runs `avoidAttack` instead, which merely sidesteps.
+    //
+    // SKIP(census): the sidestep. `avoidAttack` sets `_startAvoid`, and the
+    // summon shuffles a few units away on the next AI run — cosmetic movement
+    // with no combat consequence, and the port has no avoid state to hang it
+    // on.
+    //
+    // Java's `defendAttack` also declines when the attacker *is* the owner, so
+    // a stray AoE from its own master cannot turn a summon on them.
+    let summon_retaliates = match world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&npc_oid)
+    {
+        Some(link) => link.defending && link.owner_object_id != attacker_oid,
+        None => true,
+    };
     let (cur_hp, max_hp) = {
         let Some((mut aggro, mut ai, mut vitals, mut speeds)) =
             world
@@ -387,18 +406,23 @@ pub(crate) fn npc_receive_damage(
         // why Sword/Blunt Weapon Mastery (217) helps a tank hold aggro through
         // ordinary swings and does nothing for their taunts.
         let hate = damage * 100.0 / (level + 7) as f64 * hate_attack_mul;
+        // The damage tally is kept either way — it is what `doDie` reads to
+        // decide who gets the kill credit, and that is true of a summon that
+        // never fought back.
         let entry = aggro.0.entry(attacker_oid).or_default();
         entry.damage += damage;
-        entry.hate += hate;
-        if ai.global_aggro < 0 {
-            ai.global_aggro = 0;
+        if summon_retaliates {
+            entry.hate += hate;
+            if ai.global_aggro < 0 {
+                ai.global_aggro = 0;
+            }
+            ai.attack_timeout_tick = now + ATTACK_TIMEOUT_TICKS;
+            if !speeds.running {
+                speeds.running = true;
+                became_running = true;
+            }
+            ai.intention = NpcIntention::Attack;
         }
-        ai.attack_timeout_tick = now + ATTACK_TIMEOUT_TICKS;
-        if !speeds.running {
-            speeds.running = true;
-            became_running = true;
-        }
-        ai.intention = NpcIntention::Attack;
 
         // `Creature.reduceCurrentHp`'s champion arm: the hit is divided by
         // `ChampionHp` — Java models a champion's bulk as damage reduction,

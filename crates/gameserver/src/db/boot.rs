@@ -166,9 +166,19 @@ pub(crate) async fn send_boot_events(db: &DatabaseConnection, event_tx: &EventTx
         diary: load_hero_diary(db).await,
     });
 
-    // `SiegeGuardManager` — the stationed siege guards, spawned at siege start.
+    // `BuyListData.load`'s second half: the merchant stock that survived the
+    // last shutdown, and how long each has left before it refills.
+    let _ = event_tx.send(DbEvent::BuyListStockLoaded {
+        rows: load_buy_list_stock(db).await,
+    });
+
+    // `SiegeGuardManager` — the stationed siege guards, spawned at siege start,
+    // and the mercenaries the owning clans hired between sieges.
     let _ = event_tx.send(DbEvent::SiegeGuardsLoaded {
         guards: load_siege_guards(db).await,
+    });
+    let _ = event_tx.send(DbEvent::MercenariesLoaded {
+        guards: load_hired_siege_guards(db).await,
     });
 
     // `ClanTable`'s boot restore, likewise unprompted.

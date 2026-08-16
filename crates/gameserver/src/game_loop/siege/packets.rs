@@ -196,7 +196,10 @@ pub(crate) fn send_siege_info(
     let hour_options: Vec<i32> = if can_set_time && can_pick_siege_time(world, castle_id) {
         weekday
             .map(|wd| {
-                SIEGE_HOUR_LIST
+                world
+                    .cfg
+                    .feature
+                    .siege_hour_list
                     .iter()
                     .map(|&h| (next_siege_millis(now_millis, wd, h) / 1000) as i32)
                     .collect()
@@ -343,7 +346,10 @@ pub(crate) fn handle_request_set_castle_siege_time(world: &mut World, client_id:
     else {
         return;
     };
-    if !SIEGE_HOUR_LIST
+    if !world
+        .cfg
+        .feature
+        .siege_hour_list
         .iter()
         .any(|&h| next_siege_millis(now, weekday, h) == chosen_millis)
     {

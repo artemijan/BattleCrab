@@ -2,12 +2,6 @@ use super::*;
 
 use crate::model::clan::{SUBUNIT_ACADEMY, SUBUNIT_KNIGHT1, SUBUNIT_ROYAL1, SubPledge};
 
-/// `CreateRoyalGuardCost = 5000` (Feature.ini) — the reputation price of a
-/// royal-guard unit.
-const ROYAL_GUARD_COST: i32 = 5000;
-/// `CreateKnightUnitCost = 10000` — the reputation price of a knight unit.
-const KNIGHT_UNIT_COST: i32 = 10_000;
-
 /// `VillageMaster.isValidName`/name-length checks shared by clan/sub-pledge
 /// names: alphanumeric, 2..=16 chars (this dist's `ClanNameTemplate = .*`, so
 /// the retail regex itself is not ported — same simplification `create_clan`
@@ -130,12 +124,13 @@ fn create_sub_pledge(
         }
         return;
     }
+    // `CreateRoyalGuardCost` / `CreateKnightUnitCost`.
     let cost = if requested_type == SUBUNIT_ACADEMY {
         0
     } else if pledge_type < SUBUNIT_KNIGHT1 {
-        ROYAL_GUARD_COST
+        world.cfg.feature.create_royal_guard_cost
     } else {
-        KNIGHT_UNIT_COST
+        world.cfg.feature.create_knight_unit_cost
     };
     if cost > 0 && clan.reputation_score < cost {
         send_sm(world, client_id, sm_ids::THE_CLAN_REPUTATION_IS_TOO_LOW);

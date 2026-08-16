@@ -516,12 +516,15 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
     // Read the champion flag out before the multi-borrow below: a champion's
     // recomputed stats must keep their multipliers, or the first buff cast on
     // one would quietly strip them back to the ordinary template values.
-    let champion_mods = crate::model::ChampionStatMods::of(
-        &world.cfg.champion,
+    // Same for the raid flag: a raid boss (or a raid boss's minion) recomputing
+    // after a buff must keep its raid multipliers.
+    let champion_mods = crate::model::NpcStatMods::of(
+        &world.cfg,
         world
             .objects
             .get_component::<crate::model::npc::Npc>(&target_oid)
             .is_some_and(|n| n.champion),
+        t.is_raid() || crate::game_loop::minions::is_raid_minion(world, target_oid),
     );
     if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
         &Buffs,

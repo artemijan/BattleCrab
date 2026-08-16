@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::{death, servitor};
+use crate::game_loop::{death, player_actions};
 
 /// A move click during a cast is rejected (ActionFailed, cast keeps going)
 /// but saved as the next intention, and the move starts by itself once the
@@ -995,12 +995,21 @@ fn sit_action_body(action_id: i32) -> Vec<u8> {
 #[test]
 fn sitting_down_and_standing_up_each_take_an_animation() {
     let (mut world, ..) = cast_test_world();
+    // `RequestActionUse` dispatches through `ActionData.xml`'s handler table,
+    // and the fixture world ships an empty one — without the row the packet
+    // finds no handler and the assertions below would pass against a player
+    // who never sat down.
+    world.data.action_data.insert_row_for_test(
+        crate::game_loop::player_actions::action::SIT_STAND,
+        "SitStand",
+        0,
+    );
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     drain(&mut rx);
     let seated = |w: &World| crate::game_loop::sit_stand::is_sitting(w, 3001);
     let blocked = |w: &World| crate::game_loop::abnormal::is_blocked_from_actions(w, 3001);
 
-    servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    player_actions::handle_request_action_use(&mut world, 1, &sit_action_body(0));
     assert!(seated(&world), "seated the instant the toggle is used");
     assert!(blocked(&world), "…and blocked while the animation plays");
     let wt = drain(&mut rx)
@@ -1018,7 +1027,7 @@ fn sitting_down_and_standing_up_each_take_an_animation() {
     assert!(!blocked(&world), "but free to act again");
 
     // Stand: the flag survives until the stand animation finishes.
-    servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    player_actions::handle_request_action_use(&mut world, 1, &sit_action_body(0));
     assert!(
         seated(&world),
         "standing up is not instant — the flag holds through the animation"

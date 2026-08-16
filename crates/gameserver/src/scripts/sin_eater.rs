@@ -101,7 +101,7 @@ pub(crate) fn on_summon_talk(world: &mut World, pet_oid: i32) {
     say(world, pet_oid, line);
 }
 
-fn is_sin_eater(world: &World, pet_oid: i32) -> bool {
+pub(crate) fn is_sin_eater(world: &World, pet_oid: i32) -> bool {
     world
         .objects
         .get_component::<Npc>(&pet_oid)

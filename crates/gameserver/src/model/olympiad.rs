@@ -50,13 +50,13 @@ pub struct NobleStats {
 }
 
 impl NobleStats {
-    /// A noble's very first record: the starting points, no matches yet
+    /// A noble's very first record: `AltOlyStartPoints`, no matches yet
     /// (Java `registerNoble`'s fresh `StatSet`).
-    pub fn fresh(class_id: i32, name: String) -> Self {
+    pub fn fresh(class_id: i32, name: String, start_points: i32) -> Self {
         Self {
             class_id,
             name,
-            points: DEFAULT_POINTS,
+            points: start_points,
             comp_done: 0,
             comp_won: 0,
             comp_lost: 0,
@@ -73,9 +73,10 @@ impl NobleStats {
 pub const OLYMPIAD_ENABLED: bool = true;
 
 /// `AltOlyStartPoints` — a noble's starting Olympiad points.
+/// `AltOlyStartPoints`'s shipped value, kept for the tests that assert a fresh
+/// noble's balance without loading a config.
 pub const DEFAULT_POINTS: i32 = 10;
 /// `AltOlyMaxWeeklyMatches` — matches a noble may enter per week.
-pub const MAX_WEEKLY_MATCHES: i32 = 30;
 /// `AltOlyClassedParticipants` — cap per class-based queue.
 pub const CLASSED_PARTICIPANTS: usize = 20;
 /// `AltOlyNonClassedParticipants` — cap on the non-class queue.
@@ -195,15 +196,18 @@ impl OlympiadState {
 
     /// A noble's points, creating the record with the starting points if this
     /// is the first time it is asked for (Java `getNoblePoints`).
+    /// `start_points` is `AltOlyStartPoints`, used only when the record has to
+    /// be created.
     pub fn noble_points_or_create(
         &mut self,
         object_id: i32,
         base_class_id: i32,
         name: &str,
+        start_points: i32,
     ) -> i32 {
         self.nobles
             .entry(object_id)
-            .or_insert_with(|| NobleStats::fresh(base_class_id, name.to_string()))
+            .or_insert_with(|| NobleStats::fresh(base_class_id, name.to_string(), start_points))
             .points
     }
 
@@ -216,9 +220,10 @@ impl OlympiadState {
 
     /// Matches a noble may still enter this week (Java
     /// `getRemainingWeeklyMatches`). An unknown noble has the full allowance.
-    pub fn remaining_weekly_matches(&self, object_id: i32) -> i32 {
+    /// `max` is `AltOlyMaxWeeklyMatches`.
+    pub fn remaining_weekly_matches(&self, object_id: i32, max: i32) -> i32 {
         let done = self.nobles.get(&object_id).map_or(0, |n| n.comp_done_week);
-        (MAX_WEEKLY_MATCHES - done).max(0)
+        (max - done).max(0)
     }
 
     /// Whether `object_id` is currently fighting a match (Java

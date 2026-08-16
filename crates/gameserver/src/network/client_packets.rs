@@ -2,6 +2,33 @@
 //! `gameserver/network/clientpackets`. G1 covers only the transport handshake
 //! packet `ProtocolVersion`; gameplay packets are parsed/dispatched on the game
 //! thread from G2 on.
+//!
+//! # The base opcodes with no arm
+//!
+//! Java's `ClientPackets` wires 155 base opcodes. Seven of them have **no
+//! behaviour to port** — each was checked on the Java side rather than inferred
+//! from the absence of a handler here, and each is a deliberate non-port
+//! (`SKIP(census)`), not a gap:
+//!
+//! - `MOVE_WITH_DELTA` (0x52) — the whole `runImpl` is `// TODO this`.
+//! - `REQUEST_PLEDGE_EXTENDED_INFO` (0x66) — empty `runImpl`.
+//! - `GAME_GUARD_REPLY` (0xCB) — validates a SHA and stores the result in
+//!   `_isAuthedGG`, whose only reader `isAuthedGG()` is **called by nothing**.
+//!   Unreachable as well as inert: `GameGuardQuery` is never sent, so the
+//!   client is never asked.
+//! - `REQUEST_REPLY_START_PLEDGE` (0x04), `REQUEST_REPLY_STOP_PLEDGE_WAR`
+//!   (0x06), `REQUEST_REPLY_SURRENDER_PLEDGE_WAR` (0x08) — all three return
+//!   immediately unless `getActiveRequester()` is set, and **nothing in the
+//!   clan-war path ever sets it** (`onTransactionRequest` is called only by
+//!   trade, duel, party-room, MPCC and friend invites). The war declarations
+//!   act unilaterally, and both reachable routes to `ClanWarState::MUTUAL` —
+//!   declaring back, and five kills — are ported in
+//!   [`crate::game_loop::clans::wars`].
+//! - `REQUEST_CHANGE_PET_NAME` (0x93) — guarded by `if (pet.getName() != null
+//!   && !pet.getName().isEmpty())`, and neither `Pet` nor `Summon` overrides
+//!   `Npc.getName()`, which returns `getTemplate().getName()`. All 873 pet
+//!   templates on this dist have a name, so the guard is always true and every
+//!   rename is refused with `YOU_CANNOT_SET_THE_NAME_OF_THE_PET`.
 
 use commons::network::PacketReader;
 
@@ -10,6 +37,8 @@ pub mod opcodes {
     pub const LOGOUT: u8 = 0x00;
     pub const MOVE_BACKWARD_TO_LOCATION: u8 = 0x0F;
     pub const PROTOCOL_VERSION: u8 = 0x0E;
+    /// `ObserverReturn` — leave the Broadcasting Tower's spectator mode.
+    pub const OBSERVER_RETURN: u8 = 0xC1;
     pub const AUTH_LOGIN: u8 = 0x2B;
     pub const CHARACTER_CREATE: u8 = 0x0C;
     pub const CHARACTER_DELETE: u8 = 0x0D;
@@ -156,6 +185,40 @@ pub mod opcodes {
     pub const REQUEST_ALLY_CREST: u8 = 0x92;
     pub const REQUEST_STOP_PLEDGE_WAR: u8 = 0x05;
     pub const REQUEST_SURRENDER_PLEDGE_WAR: u8 = 0x07;
+    /// `RequestPledgeMemberList` — the clan window's roster tab, re-requested.
+    /// Empty body.
+    pub const REQUEST_PLEDGE_MEMBER_LIST: u8 = 0x4D;
+    /// `RequestMagicSkillList` — "resend my skill list", one int (the
+    /// requester's own object id, which Java verifies).
+    pub const REQUEST_MAGIC_SKILL_LIST: u8 = 0x38;
+    /// `RequestGmList` — the `/gmlist` chat command. Empty body.
+    pub const REQUEST_GM_LIST: u8 = 0x8B;
+    /// `SnoopQuit` — the snooped player's id; closes one `//snoop` window.
+    pub const SNOOP_QUIT: u8 = 0xB4;
+    /// `StartRotating` — keyboard turn begins: `degree`, `side`.
+    pub const START_ROTATING: u8 = 0x5B;
+    /// `FinishRotating` — keyboard turn settles: `degree`, then an int Java
+    /// itself labels "Unknown".
+    pub const FINISH_ROTATING: u8 = 0x5C;
+    /// `CannotMoveAnymoreInVehicle` — stopped while walking a boat's deck:
+    /// `boatId`, `x`, `y`, `z`, `heading`.
+    pub const CANNOT_MOVE_ANYMORE_IN_VEHICLE: u8 = 0x76;
+    /// `RequestRecipeShopManagePrev` — the browse window's back button.
+    /// Empty body.
+    pub const REQUEST_RECIPE_SHOP_MANAGE_PREV: u8 = 0xC0;
+    /// `RequestGiveNickName` — grant a title: target name, then the title.
+    pub const REQUEST_GIVE_NICK_NAME: u8 = 0x0B;
+    /// `RequestLinkHtml` — an `action="link <path>"` html anchor.
+    pub const REQUEST_LINK_HTML: u8 = 0x22;
+    /// `RequestPetGetItem` — order the pet to fetch one ground item.
+    pub const REQUEST_PET_GET_ITEM: u8 = 0x98;
+    /// `RequestPreviewItem` — the shop's "try on" button: unknown int, list
+    /// id, count, then that many item ids.
+    pub const REQUEST_PREVIEW_ITEM: u8 = 0xC7;
+    /// `RequestGMCommand` — a GM inspecting a player: target name, then a
+    /// command number (1 status, 2 clan, 3 skills, 4 quests, 5 inventory,
+    /// 6 warehouse).
+    pub const REQUEST_GM_COMMAND: u8 = 0x7E;
     pub const REQUEST_BUY_ITEM: u8 = 0x40;
     pub const REQUEST_JOIN_PARTY: u8 = 0x42;
     pub const REQUEST_ANSWER_JOIN_PARTY: u8 = 0x43;

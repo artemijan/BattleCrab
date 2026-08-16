@@ -1200,13 +1200,41 @@ pub(crate) async fn load_cursed_weapons(db: &DatabaseConnection) -> Vec<CursedWe
 
 /// `ClanTable`'s boot restore: every `clan_data` row + its member roster
 /// from `characters WHERE clanid=?` (Java `Clan.restore`).
+/// `SELECT * FROM buylists` — the stock counters `BuyListData.load` restores
+/// after parsing the XML. Rows for lists or items the datapack no longer
+/// declares are dropped on the game thread, where the lists are.
+pub(crate) async fn load_buy_list_stock(db: &DatabaseConnection) -> Vec<(i32, i32, i64, i64)> {
+    buylists::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|r| (r.buylist_id, r.item_id, r.count, r.next_restock_time))
+        .collect()
+}
+
+/// The **hired** mercenaries (`castle_siege_guards WHERE isHired=1`) — the
+/// postings the owning clan paid for between sieges.
+pub(crate) async fn load_hired_siege_guards(
+    db: &DatabaseConnection,
+) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
+    load_guards_where(db, 1).await
+}
+
 /// The stationed siege guards (`castle_siege_guards WHERE isHired=0`) — the
 /// non-mercenary garrison spawned at siege start.
 pub(crate) async fn load_siege_guards(
     db: &DatabaseConnection,
 ) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
+    load_guards_where(db, 0).await
+}
+
+async fn load_guards_where(
+    db: &DatabaseConnection,
+    is_hired: i32,
+) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
     castle_siege_guards::Entity::find()
-        .filter(castle_siege_guards::Column::IsHired.eq(0))
+        .filter(castle_siege_guards::Column::IsHired.eq(is_hired))
         .all(db)
         .await
         .unwrap_or_default()

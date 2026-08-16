@@ -80,6 +80,11 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
             .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
             .unwrap_or(0);
         handle_link(world, client_id, npc_object_id, html_path.trim());
+    } else if command.starts_with("player_help ") {
+        // `bypasshandlers/PlayerHelp` — the in-game help book. 92 pages under
+        // `data/html/help/` link to each other through it, and the `Book` item
+        // handler opens the first one.
+        handle_player_help(world, client_id, &command);
     } else if command == "NpcViewMod" || command.starts_with("NpcViewMod ") {
         // `bypasshandlers/NpcViewMod`: the shift-click NPC info window's own
         // buttons (Show Drop / pages). Java resolves the target by object id
@@ -186,6 +191,97 @@ fn handle_link(world: &mut World, client_id: u32, npc_object_id: i32, html_path:
     );
 }
 
+/// Port of `bypasshandlers/PlayerHelp` — `bypass -h player_help <page>`.
+///
+/// The page name may carry an `#<itemId>` suffix, which Java turns into
+/// `NpcHtmlMessage(0, itemId)`: an item-bound dialog the client does **not**
+/// close when a button inside it is pressed, which is what lets the help book
+/// page through its own "Next Page" links.
+fn handle_player_help(world: &mut World, client_id: u32, command: &str) {
+    // `command.substring(12)` — everything past `player_help `.
+    let path = &command["player_help ".len()..];
+    // Java's own traversal guard, verbatim.
+    if path.is_empty() || path.contains("..") {
+        return;
+    }
+    // `new StringTokenizer(path).nextToken()` — the first whitespace-delimited
+    // token, then split on `#`.
+    let token = path.split_whitespace().next().unwrap_or("");
+    let (page, item_id) = match token.split_once('#') {
+        Some((page, id)) => (page, id.parse::<i32>().unwrap_or(0)),
+        None => (token, 0),
+    };
+    let html =
+        crate::data::htm_cache::read_htm(format!("{}data/html/help/{page}", world.data.root))
+            .unwrap_or_default();
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message_item(0, item_id, &html),
+    );
+}
+
+/// Port of `bypasshandlers/TerritoryStatus` — the "local lord and tax rate"
+/// button. 254 htm files carry it: fishermen, pet managers, warehouse keepers
+/// and the `default/` folk pages.
+///
+/// `npc.getCastle()` is `findNearestCastle`, **not** the siege zone the NPC
+/// stands in — which is why a fisherman in the middle of a town can answer at
+/// all. `nearest_castle_at` is that lookup.
+fn handle_territory_status(world: &mut World, client_id: u32, npc_object_id: i32) {
+    let Some(pos) = crate::game_loop::guard::maybe_position(world, npc_object_id) else {
+        return;
+    };
+    let Some(castle_id) = world.data.zone_data.nearest_castle_at(pos.x, pos.y, pos.z) else {
+        return;
+    };
+    let owner = super::siege::owner_clan_id_opt(world, castle_id);
+    let file = if owner.is_some() {
+        "territorystatus.htm"
+    } else {
+        "territorynoclan.htm"
+    };
+    let Some(mut html) =
+        crate::data::htm_cache::read_htm(format!("{}data/html/{file}", world.data.root))
+    else {
+        return;
+    };
+    if let Some(clan_id) = owner
+        && let Some(clan) = world.clans.get(&clan_id)
+    {
+        let leader = clan
+            .members
+            .iter()
+            .find(|m| m.char_id == clan.leader_id)
+            .map(|m| m.name.clone())
+            .unwrap_or_default();
+        html = html
+            .replace("%clanname%", &clan.name)
+            .replace("%clanleadername%", &leader);
+    }
+    let castle_name = world
+        .castle(castle_id)
+        .map(|c| c.name.clone())
+        .unwrap_or_default();
+    let tax = super::castle::tax_percent(world, castle_id, super::castle::TaxType::Buy);
+    // Castles 1..=6 are Aden, 7..=9 (Goddard, Rune, Schuttgart) are Elmore.
+    let territory = if castle_id > 6 {
+        "The Kingdom of Elmore"
+    } else {
+        "The Kingdom of Aden"
+    };
+    let html = html
+        .replace("%castlename%", &castle_name)
+        .replace("%taxpercent%", &tax.to_string())
+        .replace("%objectId%", &npc_object_id.to_string())
+        .replace("%territory%", territory);
+    send_to_client(
+        world,
+        client_id,
+        server_packets::npc_html_message(npc_object_id, &html),
+    );
+}
+
 /// Port of `Npc.onBypassFeedback` + the `VillageMaster` override: route an
 /// NPC-scoped command by its first token. The caller has already verified
 /// the NPC exists and is within `INTERACTION_DISTANCE`.
@@ -224,6 +320,21 @@ fn npc_bypass(
         "Link" => {
             let html_path = command.strip_prefix("Link").unwrap_or("").trim();
             handle_link(world, client_id, npc_object_id, html_path);
+        }
+        // `bypasshandlers/TerritoryStatus.java` — "See the local lord and tax
+        // rate", on 254 of the dist's folk pages.
+        "TerritoryStatus" => handle_territory_status(world, client_id, npc_object_id),
+        // `bypasshandlers/Observation.java` — the Broadcasting Tower's seats.
+        "observe" | "observesiege" | "observeoracle" => {
+            let args = command.strip_prefix(verb).unwrap_or("").trim();
+            super::observation::handle_bypass(
+                world,
+                client_id,
+                object_id,
+                npc_object_id,
+                verb,
+                args,
+            );
         }
         // `bypasshandlers/Loto.java` — the Lucky Lottery ticket seller dialog.
         "Loto" => super::lottery::loto_bypass(world, client_id, object_id, npc_object_id, command),
@@ -482,6 +593,10 @@ fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
         "Chat",
         "Loto",
         "ItemAuction",
+        "TerritoryStatus",
+        "observe",
+        "observesiege",
+        "observeoracle",
         "Buy",
         "Augment",
         "multisell",
@@ -504,4 +619,55 @@ fn canonical_handler_verb(verb: &str) -> Option<&'static str> {
 
 fn is_village_master(world: &World, npc_object_id: i32) -> bool {
     npc_template(world, npc_object_id).is_some_and(|t| t.type_name.starts_with("VillageMaster"))
+}
+
+/// `RequestLinkHtml` (0x22) — an html `<a action="link ...">`, which serves a
+/// page straight out of `data/html/` instead of running a bypass command.
+///
+/// The two input guards are Java's and both matter: an empty link is dropped,
+/// and a link containing `..` is refused before it can escape the html root.
+///
+/// The `validateHtmlAction` deviation documented at the top of this module
+/// applies here too — Java recovers the origin NPC from the recorded action
+/// and range-checks it, so this resolves [`LastFolkNpc`] and applies the same
+/// `INTERACTION_DISTANCE` check that follows validation there.
+pub(crate) fn handle_request_link_html(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = commons::network::PacketReader::new(body);
+    let Some(link) = r.read_string() else {
+        return;
+    };
+    if link.is_empty() {
+        warn!("Player {player} sent empty html link!");
+        return;
+    }
+    // Path traversal — Java's own check, and the only thing between the
+    // client and the rest of the filesystem.
+    if link.contains("..") {
+        warn!("Player {player} sent invalid html link: link {link}");
+        return;
+    }
+    // Java's origin id: 0 when the page came from no NPC, which skips the
+    // range check entirely.
+    let npc_object_id = world
+        .objects
+        .get_component::<LastFolkNpc>(&player)
+        .map_or(0, |&LastFolkNpc(oid)| oid);
+    if npc_object_id > 0 && !super::target::can_interact(world, player, npc_object_id) {
+        // Java logs nothing here — "this could be a common case".
+        return;
+    }
+    let path = format!("{}data/html/{link}", world.data.root);
+    let Some(html) = crate::data::htm_cache::read_htm(path) else {
+        warn!("Player {player} requested missing html link: {link}");
+        return;
+    };
+    let html = html.replace("%objectId%", &npc_object_id.to_string());
+    crate::game_loop::helpers::send_to_client(
+        world,
+        client_id,
+        crate::network::server_packets::npc_html_message(npc_object_id, &html),
+    );
 }

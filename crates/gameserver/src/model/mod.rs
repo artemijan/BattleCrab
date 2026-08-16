@@ -441,6 +441,10 @@ pub struct Player {
     /// identity has to be parked somewhere in between. Taken (not copied) by
     /// the effect, so a stale collar can never summon a second pet.
     pub pending_pet_collar: Option<i32>,
+    /// The mercenary ticket awaiting its `ConfirmDlg` answer (Java's
+    /// `MercTicket._items` map, keyed by player). Object id, not item id: the
+    /// answer destroys that exact stack entry.
+    pub pending_mercenary_ticket: Option<i32>,
     /// Java `Creature._isTeleporting`: position pushed server-side, waiting
     /// for the client's `Appearing`.
     pub teleporting: bool,
@@ -475,6 +479,13 @@ pub struct Player {
     /// Java `Player._snoopedPlayer`: the players this (GM) character is snooping
     /// — kept so the relationship can be torn down. Transient.
     pub snooped: Vec<i32>,
+    /// `AdminData._gmList`'s value half — whether this GM is hidden from the
+    /// `/gmlist` a **non-GM** player runs. Set once at enter-world by
+    /// `admin::flags::register_gm`; nothing in this Java build ever flips it
+    /// afterwards (`showGm`/`hideGm` have no callers, and `//gmliston` only
+    /// prints a message). **True for every GM on this dist**, because it is
+    /// `!GMStartupAutoList || …` and `GMStartupAutoList = False`.
+    pub gm_hidden: bool,
     /// `Player._questZoneId` (default -1): the quest zone the client last
     /// selected (`ExSendSelectedQuestZoneID`), read by quest teleports
     /// (`TeleportHolder`). Transient — not persisted.
@@ -1224,6 +1235,7 @@ impl Player {
             revive_request: None,
             summon_request: None,
             pending_pet_collar: None,
+            pending_mercenary_ticket: None,
             teleporting: false,
             jailed: false,
             sitting: false,
@@ -1232,6 +1244,7 @@ impl Player {
             last_petition_gm_name: None,
             snoop_listeners: Vec::new(),
             snooped: Vec::new(),
+            gm_hidden: false,
             quest_zone_id: -1,
             charged_shots: 0,
             auto_shots: Vec::new(),
@@ -1975,35 +1988,58 @@ fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> 
 /// mods) — the config itself lives on `World`, which the stat layer has no
 /// access to.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct ChampionStatMods {
+pub(crate) struct NpcStatMods {
     /// `ChampionAtk` — P.Atk and M.Atk.
     pub atk: f64,
     /// `ChampionSpdAtk` — P.Atk speed and M.Atk speed.
     pub spd_atk: f64,
+    /// `RaidPAttackMultiplier` / `RaidMAttackMultiplier` — the raid-only pass
+    /// in `P|MAttackFinalizer`, applied *after* the champion one.
+    pub raid_p_atk: f64,
+    pub raid_m_atk: f64,
+    /// `RaidPDefenceMultiplier` / `RaidMDefenceMultiplier` — same, in
+    /// `P|MDefenseFinalizer`. All four are 1.0 on this dist.
+    pub raid_p_def: f64,
+    pub raid_m_def: f64,
 }
 
-impl Default for ChampionStatMods {
+impl Default for NpcStatMods {
     fn default() -> Self {
         Self {
             atk: 1.0,
             spd_atk: 1.0,
+            raid_p_atk: 1.0,
+            raid_m_atk: 1.0,
+            raid_p_def: 1.0,
+            raid_m_def: 1.0,
         }
     }
 }
 
-impl ChampionStatMods {
-    /// Java's `Config.CHAMPION_ENABLE && creature.isChampion()` guard, which
-    /// every champion finalizer repeats: the multipliers only bite when both
-    /// hold.
-    pub(crate) fn of(cfg: &crate::config::ChampionConfig, champion: bool) -> Self {
-        if cfg.enable && champion {
-            Self {
-                atk: cfg.atk,
-                spd_atk: cfg.spd_atk,
-            }
-        } else {
-            Self::default()
+impl NpcStatMods {
+    /// The two guards the finalizers repeat: champion multipliers need
+    /// `Config.CHAMPION_ENABLE && creature.isChampion()`, raid multipliers need
+    /// `creature.isRaid()`. They are independent — a champion raid minion takes
+    /// both.
+    ///
+    /// `is_raid` is the caller's, not the template's, because Java's `_isRaid`
+    /// is an *instance* flag: `Monster.onSpawn` calls
+    /// `setIsRaidMinion(_master.isRaid())`, which sets the very same field, so
+    /// a raid boss's escort scales like the boss. Only the spawn site knows
+    /// whether it is building a minion.
+    pub(crate) fn of(cfg: &crate::config::CombatConfig, champion: bool, is_raid: bool) -> Self {
+        let mut m = Self::default();
+        if cfg.champion.enable && champion {
+            m.atk = cfg.champion.atk;
+            m.spd_atk = cfg.champion.spd_atk;
         }
+        if is_raid {
+            m.raid_p_atk = cfg.npc.raid_p_atk_multiplier;
+            m.raid_m_atk = cfg.npc.raid_m_atk_multiplier;
+            m.raid_p_def = cfg.npc.raid_p_def_multiplier;
+            m.raid_m_def = cfg.npc.raid_m_def_multiplier;
+        }
+        m
     }
 }
 
@@ -2017,7 +2053,7 @@ pub(crate) fn npc_finalized_stats(
     data: &GameData,
     t: &crate::data::npc_data::NpcTemplate,
     buffs: &Buffs,
-    champion: ChampionStatMods,
+    mods_in: NpcStatMods,
 ) -> (CombatStats, Speeds, f64, f64) {
     let sb = &data.stat_bonus;
     let caps = &data.combat_caps;
@@ -2028,10 +2064,14 @@ pub(crate) fn npc_finalized_stats(
     // bonus `npc_combat_stats` has already folded in, so scaling the base here
     // lands on the same number Java's chain does, and the caps below still
     // clamp last exactly like `validateValue`.
-    base.p_atk *= champion.atk;
-    base.m_atk *= champion.atk;
-    base.p_atk_spd = (base.p_atk_spd as f64 * champion.spd_atk) as i32;
-    base.m_atk_spd = (base.m_atk_spd as f64 * champion.spd_atk) as i32;
+    base.p_atk *= mods_in.atk * mods_in.raid_p_atk;
+    base.m_atk *= mods_in.atk * mods_in.raid_m_atk;
+    base.p_atk_spd = (base.p_atk_spd as f64 * mods_in.spd_atk) as i32;
+    base.m_atk_spd = (base.m_atk_spd as f64 * mods_in.spd_atk) as i32;
+    // `P|MDefenseFinalizer`'s raid pass. There is no champion equivalent —
+    // a champion hits harder but is no tougher.
+    base.p_def *= mods_in.raid_p_def;
+    base.m_def *= mods_in.raid_m_def;
     // Template passive skills are the NPC's innate stat base; player-cast buffs
     // (buffs.0) stack on top through the same maps.
     let mut mods = npc_passive_mods(data, t);
@@ -2113,12 +2153,12 @@ pub(crate) fn recompute_npc_stats_from_buffs(
     data: &GameData,
     t: &crate::data::npc_data::NpcTemplate,
     buffs: &Buffs,
-    champion: ChampionStatMods,
+    mods_in: NpcStatMods,
     combat: &mut CombatStats,
     speeds: &mut Speeds,
     vitals: &mut Vitals,
 ) {
-    let (new_combat, new_speeds, max_hp, max_mp) = npc_finalized_stats(data, t, buffs, champion);
+    let (new_combat, new_speeds, max_hp, max_mp) = npc_finalized_stats(data, t, buffs, mods_in);
     *combat = new_combat;
     // Preserve the live running/swimming state (a mid-chase mob is running);
     // only the speed magnitudes recompute.
@@ -2365,7 +2405,33 @@ pub fn calc_max_hp(
     let item = inventory
         .map(|inv| equipped_stat_sum(inv, data, Stat::MaxHp))
         .unwrap_or(0.0);
-    mul * base + add + item
+    let enchant = inventory
+        .map(|inv| enchanted_armour_hp(inv, data))
+        .unwrap_or(0.0);
+    mul * base + add + item + enchant
+}
+
+/// `MaxHpFinalizer`'s "Apply enchanted item bonus HP" arm: every equipped
+/// **armour** piece that is enchanted adds a flat figure from
+/// `enchantHPBonus.xml`, on top of its own `maxHp` stat.
+///
+/// Java excludes three slots by body part — necklace, earrings and rings —
+/// which is why the test is on the slot rather than on "is it a jewel":
+/// `ItemKind::Armor` covers jewellery too.
+fn enchanted_armour_hp(inventory: &Inventory, data: &GameData) -> f64 {
+    use crate::data::item_data::{ItemKind, SLOT_LR_EAR, SLOT_LR_FINGER, SLOT_NECK};
+    inventory
+        .equipped_items()
+        .iter()
+        .filter(|item| item.enchant_level > 0)
+        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+        .filter(|(_, t)| t.kind == ItemKind::Armor)
+        .filter(|(_, t)| !matches!(t.body_part, SLOT_NECK | SLOT_LR_EAR | SLOT_LR_FINGER))
+        .map(|(item, t)| {
+            data.enchant_hp_bonus
+                .bonus(t.crystal_type, item.enchant_level, t.body_part)
+        })
+        .sum()
 }
 
 /// `MaxMpFinalizer`: `mul·(baseMpMax(level)·MEN bonus) + add` + equipped `maxMp`.

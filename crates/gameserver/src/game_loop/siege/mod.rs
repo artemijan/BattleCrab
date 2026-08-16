@@ -17,6 +17,11 @@
 mod battlefield;
 mod capture;
 mod doors;
+mod mercenaries;
+#[cfg(test)]
+pub(crate) use mercenaries::clear_castle as clear_castle_mercenaries;
+pub(crate) use mercenaries::handle_confirm as handle_mercenary_confirm;
+pub(crate) use mercenaries::use_ticket as use_mercenary_ticket;
 mod packets;
 mod registration;
 mod schedule;
@@ -46,10 +51,6 @@ use super::helpers::{ms_to_ticks, send_sm_bare_to_player, send_sm_to_client};
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
 const SIEGE_LENGTH_MIN: i32 = 120;
-
-/// `Config.SIEGE_HOUR_LIST` — `Feature.ini`'s `SiegeHourList = 16,20`, the hours
-/// a castle owner may choose from for their siege (via `RequestSetCastleSiegeTime`).
-const SIEGE_HOUR_LIST: &[u32] = &[16, 20];
 
 /// `Siege.startSiege` (lifecycle slice). Called only with a registered attacker
 /// (the admin path guards that).
@@ -103,6 +104,8 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
         .cloned()
         .unwrap_or_default();
     spawn_siege_npcs(world, castle_id, &guards);
+    // …and the mercenaries the owner posted with tickets between sieges.
+    mercenaries::spawn_hired(world, castle_id);
 
     // `updatePlayerSiegeStateFlags(false)` — every online member of a
     // registered clan learns which side they are on.
@@ -225,6 +228,48 @@ pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32,
 
 /// `Siege.endSiege` — announce the finish, declare the winner (or a draw), and
 /// clear the battlefield.
+/// `Castle.updateClansReputation` — the siege's reputation settlement, run
+/// once as the siege closes.
+///
+/// Three outcomes, and the middle one is the easy one to get wrong: the captor
+/// gains `TakeCastlePoints` **capped by what the former owner actually had**
+/// (Java's `min(TAKE_CASTLE_POINTS, maxreward)`, where `maxreward` is the
+/// former owner's score *before* it is docked), so taking a castle off a
+/// bankrupt clan pays nothing. A castle with no former owner pays the full
+/// amount uncapped, and a successful defence pays `CastleDefendedPoints`.
+fn update_clans_reputation(world: &mut World, former_owner: i32, new_owner: Option<i32>) {
+    let f = &world.cfg.feature;
+    let (take, defended, loose) = (
+        f.take_castle_points,
+        f.castle_defended_points,
+        f.loose_castle_points,
+    );
+    if former_owner == 0 {
+        // `_formerOwner == null` — an unowned castle taken: the captor gets the
+        // full amount with no cap.
+        if let Some(new) = new_owner {
+            crate::game_loop::clans::add_clan_reputation(world, new, take);
+        }
+        return;
+    }
+    match new_owner {
+        Some(new) if new != former_owner => {
+            let max_reward = world
+                .clans
+                .get(&former_owner)
+                .map_or(0, |c| c.reputation_score)
+                .max(0);
+            crate::game_loop::clans::add_clan_reputation(world, former_owner, -loose);
+            crate::game_loop::clans::add_clan_reputation(world, new, take.min(max_reward));
+        }
+        // Held it, or nobody took it: Java's `else` branch is "the owner is the
+        // former owner", which covers the draw too.
+        _ => {
+            crate::game_loop::clans::add_clan_reputation(world, former_owner, defended);
+        }
+    }
+}
+
 pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     let first_owner = match world.sieges.get_mut(&castle_id) {
         Some(siege) if siege.in_progress => {
@@ -272,12 +317,16 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
                 reset_castle_ticket_count(world, castle_id);
                 record_castle_taken_for_nobles(world, owner_id, castle_id);
             }
+            update_clans_reputation(world, first_owner, Some(owner_id));
         }
-        None => broadcast_sm(
-            world,
-            sm_ids::THE_SIEGE_OF_S1_HAS_ENDED_IN_A_DRAW,
-            castle_id,
-        ),
+        None => {
+            broadcast_sm(
+                world,
+                sm_ids::THE_SIEGE_OF_S1_HAS_ENDED_IN_A_DRAW,
+                castle_id,
+            );
+            update_clans_reputation(world, first_owner, None);
+        }
     }
 
     // `teleportPlayer(NotOwner, TOWN)` — clear the battlefield at the end too.

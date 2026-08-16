@@ -7,9 +7,6 @@ use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 /// `AltClanMembersForWar = 15` on this dist.
 const CLAN_MEMBERS_FOR_WAR: usize = 15;
 
-/// `ReputationScorePerKill = 1` (Feature.ini) — the mutual-war kill transfer.
-const REPUTATION_SCORE_PER_KILL: i32 = 1;
-
 /// The war between two clans, either direction (Java `Clan.getWarWith`).
 pub(crate) fn war_between(world: &World, a: i32, b: i32) -> Option<&ClanWar> {
     world.clan_wars.iter().find(|w| {
@@ -623,8 +620,9 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
     let (state, attacker_id) = (war.state, war.attacker_id);
 
     if victim_level > 4 && state == ClanWarState::Mutual {
-        // Mutual war: 1 reputation moves from the victim's clan to the
-        // killer's — but only while the victim clan has any to lose.
+        // Mutual war: `ReputationScorePerKill` moves from the victim's clan to
+        // the killer's — but only while the victim clan has any to lose.
+        let per_kill = world.cfg.feature.reputation_score_per_kill;
         if world
             .clans
             .get(&victim_clan)
@@ -632,8 +630,8 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
             .unwrap_or(0)
             > 0
         {
-            add_clan_reputation(world, victim_clan, -REPUTATION_SCORE_PER_KILL);
-            add_clan_reputation(world, killer_clan, REPUTATION_SCORE_PER_KILL);
+            add_clan_reputation(world, victim_clan, -per_kill);
+            add_clan_reputation(world, killer_clan, per_kill);
         }
         let killer_clan_name = clan_name_or_empty(world, killer_clan);
         let victim_clan_name = clan_name_or_empty(world, victim_clan);

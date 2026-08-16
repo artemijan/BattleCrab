@@ -497,6 +497,38 @@ pub enum DbCommand {
         castle_id: i32,
         count: i32,
     },
+    /// `Product.save()` — upsert the remaining stock and restock deadline of
+    /// one limited-stock buy-list line. Written on every sale and every
+    /// restock, which is Java's rate too.
+    SaveBuyListStock {
+        list_id: i32,
+        item_id: i32,
+        count: i64,
+        next_restock_time: i64,
+    },
+    /// `SiegeGuardManager.addTicket` — a posted mercenary, written as a
+    /// `castle_siege_guards` row with `isHired = 1`.
+    AddHiredSiegeGuard {
+        castle_id: i32,
+        npc_id: i32,
+        x: i32,
+        y: i32,
+        z: i32,
+        heading: i32,
+    },
+    /// `SiegeGuardManager.removeSiegeGuard` — one posting undone, matched the
+    /// way Java matches it: npc id **and** exact position.
+    RemoveHiredSiegeGuard {
+        npc_id: i32,
+        x: i32,
+        y: i32,
+        z: i32,
+    },
+    /// `SiegeGuardManager.removeSiegeGuards(castle)` — every posting cleared,
+    /// which is what a change of ownership does.
+    ClearHiredSiegeGuards {
+        castle_id: i32,
+    },
     /// `RequestPackageSend` to an **offline** recipient — insert the freighted
     /// items straight into their `items` rows (`loc = FREIGHT`), since there is
     /// no live `Freight` component to write through. An online recipient's
@@ -1274,6 +1306,16 @@ pub enum DbEvent {
     SiegeGuardsLoaded {
         guards: Vec<(i32, crate::model::siege::SiegeSpawn)>,
     },
+    /// The same table's `isHired = 1` rows — the mercenaries the owning clans
+    /// posted between sieges. Pushed unprompted at boot beside the garrison.
+    MercenariesLoaded {
+        guards: Vec<(i32, crate::model::siege::SiegeSpawn)>,
+    },
+    /// The `buylists` table — the remaining stock of every limited-stock
+    /// product that has been sold since its last restock. `BuyListData.load`
+    /// reads it right after parsing the XML; pushed unprompted at boot here.
+    /// `(list_id, item_id, count, next_restock_time)`.
+    BuyListStockLoaded { rows: Vec<(i32, i32, i64, i64)> },
     /// The `castle_manor_production` + `castle_manor_procure` tables (Java
     /// `CastleManorManager.loadDb`), pushed unprompted at boot. Filtered to
     /// known seeds/crops and grouped by castle/period on the game thread.

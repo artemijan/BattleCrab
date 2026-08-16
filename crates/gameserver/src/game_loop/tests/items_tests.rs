@@ -2748,6 +2748,7 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
             no_item_drop: true,
             no_bookmark: false,
         }),
+        mother_tree: None,
     });
     let ground_oid = world.next_npc_object_id;
 
@@ -4275,6 +4276,13 @@ fn package_store_is_all_or_nothing() {
     drain(&mut buyer_rx);
 
     // `/packagesale` → the manage window opens with the package flag set.
+    // The press dispatches through `ActionData.xml`'s handler table, which the
+    // fixture world ships empty: without the row the packet finds no handler
+    // and no window opens at all.
+    world
+        .data
+        .action_data
+        .insert_row_for_test(61, "PrivateStore", 8);
     let mut act = PacketWriter::new();
     act.write_u8(cop::REQUEST_ACTION_USE);
     act.write_i32(61);
@@ -5313,4 +5321,203 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
     press(&mut world);
     assert_eq!(level(&world), 1, "past the 2 s window it enchants normally");
     assert_eq!(scrolls_left(&world), 2, "and now a scroll is consumed");
+}
+
+// ---------------------------------------------------------------------------
+// Item handlers restored with row 6 (`Book`, `RollingDice`, `PetFood`)
+// ---------------------------------------------------------------------------
+
+/// `handlers/itemhandlers/Book` — a readable book opens
+/// `data/html/help/<itemId>.htm` and is **not** consumed. 31 of the 50 book
+/// items on this dist are sold in shops; before this they were eaten in
+/// silence.
+#[test]
+fn a_book_opens_its_help_page_and_survives() {
+    let (mut world, ..) = test_world();
+    world.data.item_data = dist::items_owned();
+    world.data.root = crate::data::DIST_GAME.to_string();
+    world.id_pool = 0x4400_0000..0x4400_0200;
+    let mut rx = ingame_player(&mut world, 1, 8801, 0, 0, 0);
+    const BOOK: i32 = 7100; // "Importance of Strain"
+    items::add_inventory_item(&mut world, 8801, BOOK, 1).unwrap();
+    let obj = item_oid(&world, 8801, BOOK);
+    drain(&mut rx);
+
+    crate::game_loop::items::use_equipable_item(&mut world, 1, 8801, obj);
+
+    let html = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .expect("the page opens");
+    assert!(html.len() > 32, "and it carries the file's text");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&8801)
+            .unwrap()
+            .count_of(BOOK),
+        1,
+        "reading a book does not consume it"
+    );
+}
+
+/// `handlers/itemhandlers/RollingDice` — the die lands in front of the roller
+/// and everyone nearby sees the number.
+#[test]
+fn rolling_a_die_broadcasts_the_result() {
+    let (mut world, ..) = test_world();
+    world.data.item_data = dist::items_owned();
+    world.id_pool = 0x4500_0000..0x4500_0200;
+    let mut rx = ingame_player(&mut world, 1, 8802, 0, 0, 0);
+    let mut bystander = ingame_player(&mut world, 2, 8803, 60, 0, 0);
+    const DIE: i32 = 4625; // Dice (Heart)
+    items::add_inventory_item(&mut world, 8802, DIE, 1).unwrap();
+    let obj = item_oid(&world, 8802, DIE);
+    drain(&mut rx);
+    drain(&mut bystander);
+
+    crate::game_loop::items::use_equipable_item(&mut world, 1, 8802, obj);
+
+    let rolled = drain(&mut rx);
+    let dice = rolled
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::DICE)
+        .expect("the die is thrown");
+    // objectId, itemId, number, x, y, z
+    let number = i32::from_le_bytes([dice[9], dice[10], dice[11], dice[12]]);
+    assert!((1..=6).contains(&number), "a six-sided die, got {number}");
+    assert!(
+        rolled
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE),
+        "and the roller is told the number"
+    );
+    assert!(
+        drain(&mut bystander)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::DICE),
+        "bystanders see it land"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Enchanted armour's max-HP bonus (measured-gaps row 11)
+// ---------------------------------------------------------------------------
+
+/// **`enchantHPBonus.xml` was read by nothing**, so an enchanted set was worth
+/// exactly its unenchanted stats. `MaxHpFinalizer` adds a flat per-piece figure
+/// on top, keyed on the piece's grade and enchant level.
+#[test]
+fn enchanted_armour_adds_its_max_hp_bonus() {
+    use crate::data::item_data::CrystalType;
+    let (mut world, ..) = test_world();
+    world.data.item_data = dist::items_owned();
+    world.data.enchant_hp_bonus =
+        crate::data::EnchantHpBonusData::load_from(crate::data::DIST_GAME);
+    world.id_pool = 0x4700_0000..0x4700_0200;
+    let _rx = ingame_player(&mut world, 1, 8901, 0, 0, 0);
+
+    // Dark Crystal Leather Armor — an A-grade chest piece: neither jewellery
+    // nor a one-piece suit, so it takes the plain arm of the bonus. The grade
+    // is read rather than assumed; the point of the test is that the piece's
+    // *own* grade row is what gets paid.
+    const CHEST: i32 = 2385;
+    let (grade, body_part) = {
+        let t = world.data.item_data.get(CHEST).expect("a chest piece");
+        (t.crystal_type, t.body_part)
+    };
+    assert_ne!(
+        grade,
+        CrystalType::None,
+        "a graded piece, or there is no row"
+    );
+    assert_eq!(
+        body_part,
+        crate::data::item_data::SLOT_CHEST,
+        "the plain arm, not the full-armour one"
+    );
+
+    items::add_inventory_item(&mut world, 8901, CHEST, 1).unwrap();
+    let obj = item_oid(&world, 8901, CHEST);
+    crate::game_loop::items::use_equipable_item(&mut world, 1, 8901, obj);
+
+    let max_hp_at = |world: &mut World, enchant: i32| -> f64 {
+        if let Some(inv) = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&8901)
+        {
+            inv.set_enchant_level(obj, enchant);
+        }
+        crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, 8901);
+        world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&8901)
+            .unwrap()
+            .max_hp as f64
+    };
+
+    let plain = max_hp_at(&mut world, 0);
+    let plus4 = max_hp_at(&mut world, 4);
+    let plus12 = max_hp_at(&mut world, 12);
+
+    let expected4 = world.data.enchant_hp_bonus.bonus(grade, 4, body_part);
+    assert!(expected4 > 0.0, "the shipped table has a +4 B-grade figure");
+    assert_eq!(
+        plus4 - plain,
+        expected4,
+        "a +4 piece is worth exactly its table row"
+    );
+    assert!(plus12 > plus4, "and +12 more than +4");
+}
+
+/// Java excludes necklace, earrings and rings by **body part** — `ItemKind`
+/// calls them armour too, so testing the kind alone would pay a bonus on a
+/// +12 ring.
+#[test]
+fn enchanted_jewellery_pays_no_hp_bonus() {
+    let (mut world, ..) = test_world();
+    world.data.item_data = dist::items_owned();
+    world.data.enchant_hp_bonus =
+        crate::data::EnchantHpBonusData::load_from(crate::data::DIST_GAME);
+    world.id_pool = 0x4800_0000..0x4800_0200;
+    let _rx = ingame_player(&mut world, 1, 8902, 0, 0, 0);
+
+    // Necklace of Mermaid — B-grade, `SLOT_NECK`.
+    const NECKLACE: i32 = 916;
+    let neck_slot = world
+        .data
+        .item_data
+        .get(NECKLACE)
+        .expect("a B-grade neck")
+        .body_part;
+    assert_eq!(
+        neck_slot,
+        crate::data::item_data::SLOT_NECK,
+        "slot assumption"
+    );
+
+    items::add_inventory_item(&mut world, 8902, NECKLACE, 1).unwrap();
+    let obj = item_oid(&world, 8902, NECKLACE);
+    crate::game_loop::items::use_equipable_item(&mut world, 1, 8902, obj);
+    crate::game_loop::helpers::recalculate_player_stats_and_vitals(&mut world, 8902);
+    let plain = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&8902)
+        .unwrap()
+        .max_hp;
+
+    if let Some(inv) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&8902)
+    {
+        inv.set_enchant_level(obj, 12);
+    }
+    crate::game_loop::helpers::recalculate_player_stats_and_vitals(&mut world, 8902);
+    let enchanted = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&8902)
+        .unwrap()
+        .max_hp;
+
+    assert_eq!(plain, enchanted, "a +12 necklace grants no HP");
 }

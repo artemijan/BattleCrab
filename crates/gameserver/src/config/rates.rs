@@ -12,9 +12,64 @@ pub struct RatesConfig {
     /// `RateXp` / `RateSp` — multiply every NPC's template exp/sp reward.
     pub rate_xp: f64,
     pub rate_sp: f64,
+    /// `RateKarmaLost` — the divisor on experience *earned* when working karma
+    /// off (`Formulas.calculateKarmaLost`). **`-1` means "use `RateXp`"**, which
+    /// is what this dist ships, and Java resolves that at load time rather than
+    /// at each use — so this field never holds -1.
+    pub rate_karma_lost: f64,
     /// `RateRaidbossPointsReward` — multiplies a raid boss's raid-point
     /// award. 1 on this dist.
     pub rate_raidboss_points: f64,
+    /// `RateSiegeGuardsPrice` — multiplies the price of a `CASTLE_GUARD`
+    /// item (the mercenary tickets) wherever it appears on a buy list
+    /// (Java `Product.getPrice`). **1 on this dist**, so the multiply is
+    /// numerically inert — carried anyway because it is the only thing
+    /// standing between a server that raises it and a free garrison.
+    pub rate_siege_guards_price: f64,
+    /// `RateKarmaExpLost` — scales the **exp a PK loses on death** (Java
+    /// multiplies `percentLost` by it when `getReputation() < 0`). 1 here.
+    pub rate_karma_exp_lost: f64,
+    /// `PetXpRate` / `SinEaterXpRate` — multiply what a pet earns. Java picks
+    /// the Sin Eater rate for that pet and `PetXpRate` for the rest. Both 1.
+    pub pet_xp_rate: f64,
+    pub sin_eater_xp_rate: f64,
+    /// `RateInstanceXp` / `RateInstanceSp` / `RateInstancePartyXp`. **-1 is a
+    /// sentinel**, not a multiplier: Java reads it as "use `RateXp`/`RateSp`",
+    /// which is what this dist ships, so instances run at the ordinary rate.
+    pub rate_instance_xp: f64,
+    pub rate_instance_sp: f64,
+    pub rate_instance_party_xp: f64,
+    /// `RateExtractable` — the extractable-item yield multiplier. 1 here.
+    pub rate_extractable: f64,
+    /// `UseQuestRewardMultipliers` — **False** here, and it gates the four
+    /// per-type rates below entirely: with it off, quest rewards use the flat
+    /// `RateQuestReward` instead and the type split never runs.
+    pub use_quest_reward_multipliers: bool,
+    /// `RateQuestRewardPotion` / `Scroll` / `Recipe` / `Material`, all 1 and
+    /// all unreachable while the flag above is off.
+    pub rate_quest_reward_potion: f64,
+    pub rate_quest_reward_scroll: f64,
+    pub rate_quest_reward_recipe: f64,
+    pub rate_quest_reward_material: f64,
+    /// `HerbDropAmountMultiplier` / `HerbDropChanceMultiplier` — applied to
+    /// herb drop groups at NPC-template load. Both 1.
+    pub herb_drop_amount_multiplier: f64,
+    pub herb_drop_chance_multiplier: f64,
+    /// `DropMaxOccurrencesRaidboss` — how many times one raid-boss drop group
+    /// may roll. 1 here.
+    pub drop_max_occurrences_raidboss: i32,
+    /// `EventItemMaxLevelDifference` — the level gap past which an event drop
+    /// is withheld. **9**, the one non-neutral value in this block, and inert
+    /// only because no event drop is configured.
+    pub event_item_max_level_difference: i32,
+    /// `BossDropEnable` — **False**; with it off the three keys below never
+    /// apply. They describe an extra drop injected into every boss in a level
+    /// band at `NpcData` load.
+    pub boss_drop_enable: bool,
+    pub boss_drop_min_level: i32,
+    pub boss_drop_max_level: i32,
+    /// `BossDropList` — `itemId,min,max,chance;…`.
+    pub boss_drop_list: Vec<(i32, i64, i64, f64)>,
     /// `PetFoodRate` — multiplies what one helping of pet food restores
     /// (Java `Feed`: `normal * Config.PET_FOOD_RATE`). 1 on this dist.
     pub pet_food_rate: i32,
@@ -112,7 +167,29 @@ impl Default for RatesConfig {
         Self {
             rate_xp: 1.0,
             rate_sp: 1.0,
+            rate_karma_lost: 1.0,
             rate_raidboss_points: 1.0,
+            rate_siege_guards_price: 1.0,
+            rate_karma_exp_lost: 1.0,
+            pet_xp_rate: 1.0,
+            sin_eater_xp_rate: 1.0,
+            rate_instance_xp: -1.0,
+            rate_instance_sp: -1.0,
+            rate_instance_party_xp: -1.0,
+            rate_extractable: 1.0,
+            use_quest_reward_multipliers: false,
+            rate_quest_reward_potion: 1.0,
+            rate_quest_reward_scroll: 1.0,
+            rate_quest_reward_recipe: 1.0,
+            rate_quest_reward_material: 1.0,
+            herb_drop_amount_multiplier: 1.0,
+            herb_drop_chance_multiplier: 1.0,
+            drop_max_occurrences_raidboss: 1,
+            event_item_max_level_difference: 9,
+            boss_drop_enable: false,
+            boss_drop_min_level: 40,
+            boss_drop_max_level: 999,
+            boss_drop_list: vec![(4356, 1, 2, 100.0)],
             pet_food_rate: 1,
             rate_drop_manor: 1,
             rate_party_xp: 1.0,
@@ -167,7 +244,53 @@ impl RatesConfig {
         Self {
             rate_xp: p.get_float("RateXp", 1.0) as f64,
             rate_sp: p.get_float("RateSp", 1.0) as f64,
+            rate_karma_lost: {
+                // `RATE_KARMA_LOST = getFloat("RateKarmaLost", -1); if (== -1)
+                // RATE_KARMA_LOST = RATE_XP;`
+                let raw = p.get_float("RateKarmaLost", -1.0) as f64;
+                if raw == -1.0 {
+                    p.get_float("RateXp", 1.0) as f64
+                } else {
+                    raw
+                }
+            },
             rate_raidboss_points: p.get_float("RateRaidbossPointsReward", 1.0) as f64,
+            rate_siege_guards_price: p.get_float("RateSiegeGuardsPrice", 1.0) as f64,
+            rate_karma_exp_lost: f64::from(p.get_float("RateKarmaExpLost", 1.0)),
+            pet_xp_rate: f64::from(p.get_float("PetXpRate", 1.0)),
+            sin_eater_xp_rate: f64::from(p.get_float("SinEaterXpRate", 1.0)),
+            rate_instance_xp: f64::from(p.get_float("RateInstanceXp", -1.0)),
+            rate_instance_sp: f64::from(p.get_float("RateInstanceSp", -1.0)),
+            rate_instance_party_xp: f64::from(p.get_float("RateInstancePartyXp", -1.0)),
+            rate_extractable: f64::from(p.get_float("RateExtractable", 1.0)),
+            use_quest_reward_multipliers: p.get_bool("UseQuestRewardMultipliers", false),
+            rate_quest_reward_potion: f64::from(p.get_float("RateQuestRewardPotion", 1.0)),
+            rate_quest_reward_scroll: f64::from(p.get_float("RateQuestRewardScroll", 1.0)),
+            rate_quest_reward_recipe: f64::from(p.get_float("RateQuestRewardRecipe", 1.0)),
+            rate_quest_reward_material: f64::from(p.get_float("RateQuestRewardMaterial", 1.0)),
+            herb_drop_amount_multiplier: f64::from(p.get_float("HerbDropAmountMultiplier", 1.0)),
+            herb_drop_chance_multiplier: f64::from(p.get_float("HerbDropChanceMultiplier", 1.0)),
+            drop_max_occurrences_raidboss: p.get_int("DropMaxOccurrencesRaidboss", 1),
+            event_item_max_level_difference: p.get_int("EventItemMaxLevelDifference", 9),
+            boss_drop_enable: p.get_bool("BossDropEnable", false),
+            boss_drop_min_level: p.get_int("BossDropMinLevel", 40),
+            boss_drop_max_level: p.get_int("BossDropMaxLevel", 999),
+            boss_drop_list: p
+                .get_string("BossDropList", "")
+                .split(';')
+                .filter_map(|e| {
+                    let f: Vec<&str> = e.split(',').map(str::trim).collect();
+                    match f[..] {
+                        [id, lo, hi, ch] => Some((
+                            id.parse().ok()?,
+                            lo.parse().ok()?,
+                            hi.parse().ok()?,
+                            ch.parse().ok()?,
+                        )),
+                        _ => None,
+                    }
+                })
+                .collect(),
             pet_food_rate: p.get_int("PetFoodRate", 1),
             rate_drop_manor: p.get_int("RateDropManor", 1),
             rate_party_xp: p.get_float("RatePartyXp", 1.0) as f64,
@@ -237,4 +360,35 @@ pub(crate) fn parse_id_multiplier_list(raw: &str) -> HashMap<i32, f64> {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod row14_tests {
+    use super::*;
+
+    /// The block added for row 14 claims specific shipped values; hold it to
+    /// them. Every one is neutral or disabled, which is *why* wiring them
+    /// changes nothing today — and exactly why a drift would go unnoticed.
+    #[test]
+    fn the_rates_block_matches_the_shipped_ini() {
+        let r = RatesConfig::load_from(crate::data::DIST_GAME);
+        assert_eq!(r.rate_karma_exp_lost, 1.0);
+        assert_eq!(r.pet_xp_rate, 1.0);
+        assert_eq!(r.sin_eater_xp_rate, 1.0);
+        // -1 is Java's "use RateXp/RateSp" sentinel, not a multiplier.
+        assert_eq!(r.rate_instance_xp, -1.0);
+        assert_eq!(r.rate_instance_sp, -1.0);
+        assert_eq!(r.rate_instance_party_xp, -1.0);
+        assert!(
+            !r.use_quest_reward_multipliers,
+            "the four per-type quest rates are gated off"
+        );
+        assert!(!r.boss_drop_enable, "the boss-drop injection is off");
+        assert_eq!(
+            r.boss_drop_list,
+            vec![(4356, 1, 2, 100.0)],
+            "parsed even though disabled"
+        );
+        assert_eq!(r.event_item_max_level_difference, 9);
+    }
 }

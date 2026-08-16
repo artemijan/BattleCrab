@@ -52,10 +52,14 @@ pub(super) fn increase_blood_alliance(world: &mut World, clan_id: i32) {
         .send(DbCommand::UpdateClanBloodAlliance { clan_id, count });
 }
 
-/// Java `Castle.setTicketBuyCount(0)` — the castle changed hands, so the former
-/// owner's placed-mercenary count is cleared. A no-op (and no DB write) when it
-/// was already 0, which it always is until the mercenary system lands.
+/// Java `Castle.setTicketBuyCount(0)` + `SiegeGuardManager.deleteTickets` — the
+/// castle changed hands, so the former owner's mercenary postings and the
+/// counter behind them both go. A no-op (and no DB write) when the count was
+/// already 0.
 pub(super) fn reset_castle_ticket_count(world: &mut World, castle_id: i32) {
+    // The postings themselves are cleared regardless of the counter: a castle
+    // restored from the DB has mercenaries but no live buy count.
+    super::mercenaries::clear_castle(world, castle_id);
     let Some(castle) = world.castle_mut(castle_id) else {
         return;
     };

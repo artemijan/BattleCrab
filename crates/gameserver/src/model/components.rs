@@ -534,6 +534,19 @@ pub struct PathWait {
 #[derive(Component, Debug, Clone)]
 pub struct Casting(pub crate::model::CastState);
 
+/// Java `Player._observerMode` for the **plain** flavour — the Broadcasting
+/// Tower's spectator seats (`bypasshandlers/Observation`). Present only while
+/// observing; `return_pos` is Java's `_lastLoc`, where `leaveObserverMode` puts
+/// the viewer back.
+///
+/// The Olympiad's spectator mode is [`OlympiadObserver`] and is deliberately a
+/// different component: Java shares one flag but two enter/leave pairs and two
+/// client packets, and answering the wrong one would strand a viewer.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct Observing {
+    pub return_pos: (i32, i32, i32),
+}
+
 /// A persistent AI intention (the attack loop) — **present only while set**,
 /// so the player combat tick sweeps intent-holders only.
 #[derive(Component, Debug, Clone, Copy)]
@@ -992,6 +1005,18 @@ impl StatModifiers {
     }
 }
 
+/// A pet ordered to fetch a ground item (`RequestPetGetItem` →
+/// `AI_INTENTION_PICK_UP`). Java hangs the target on the AI's intention; the
+/// port's NPC intention enum has no pick-up arm, so the order rides as its own
+/// component and the summon think checks it before the follow.
+///
+/// Dropped on arrival, on the item vanishing, and on any other order — which
+/// is what `changeIntention` does there.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct SummonPickup {
+    pub item_object_id: i32,
+}
+
 /// A summoned servitor's link to its owner — Java `Summon._owner` plus the
 /// `Servitor` bookkeeping the `Summon` effect sets up.
 ///
@@ -1017,6 +1042,12 @@ pub struct ServitorOf {
     /// servitor trails its owner when it has nothing else to do. Toggled by the
     /// "hold" action; cleared when it is ordered to attack.
     pub following: bool,
+    /// Java `SummonAI._isDefending` — the `ServitorMode` toggle (action
+    /// 1103/1104). When set, being attacked makes the summon turn on its
+    /// attacker; when clear, Java's `avoidAttack` has it sidestep instead.
+    /// Defaults to **false**, matching `SummonAI`'s field initialiser: a fresh
+    /// summon is in passive mode until the owner says otherwise.
+    pub defending: bool,
     /// Java `Servitor._itemConsume` — the upkeep item the owner pays
     /// periodically (a gemstone on the golems). `0` = no upkeep.
     pub consume_item_id: i32,

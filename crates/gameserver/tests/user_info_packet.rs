@@ -105,6 +105,7 @@ async fn user_info_test() {
         last_petition_gm_name: None,
         snoop_listeners: Vec::new(),
         snooped: Vec::new(),
+        gm_hidden: false,
         quest_zone_id: 0,
         charged_shots: 0,
         auto_shots: Vec::new(),
@@ -123,6 +124,7 @@ async fn user_info_test() {
         revive_request: None,
         summon_request: None,
         pending_pet_collar: None,
+        pending_mercenary_ticket: None,
     };
     let position = Position {
         x: -90939,

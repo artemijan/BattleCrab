@@ -34,7 +34,7 @@ pub(crate) fn handle_game_manager(world: &mut World) {
 /// queue is large enough (Java `hasEnoughRegisteredNonClassed`); then each free
 /// arena takes a 2-player game until the queue runs dry.
 fn make_matches(world: &mut World) {
-    if world.olympiad.non_class_registers.len() < NONCLASSED_MIN {
+    if world.olympiad.non_class_registers.len() < world.cfg.olympiad.nonclassed_participants {
         return;
     }
     // The stadium slots already busy with a running match.
@@ -66,13 +66,8 @@ fn make_matches(world: &mut World) {
 const ARENA_SPAWN_A: (i32, i32, i32) = (-89597, -252841, -3320);
 const ARENA_SPAWN_B: (i32, i32, i32) = (-86544, -252846, -3320);
 /// `AltOlyBattle` — the battle length (5 min); an undecided fight is a draw.
-const BATTLE_MS: i64 = 300_000;
 /// How often a running match is polled for a result.
 const MATCH_POLL_MS: i64 = 1000;
-/// `AltOlyDividerNonClassed` / `AltOlyMaxPoints` — the point-transfer formula.
-const POINT_DIVIDER: i32 = 5;
-const MAX_TRANSFER_POINTS: i32 = 10;
-
 /// The outcome of a match once it resolves.
 enum MatchResult {
     Win { winner: i32, loser: i32 },
@@ -197,8 +192,11 @@ pub(crate) fn handle_countdown(world: &mut World, arena: usize, step: usize) {
             }
         }
         Fight => {
+            // `AltOlyBattle` — the match's own time limit.
+            let battle_ms = world.cfg.olympiad.battle_ms;
+            let now_tick = world.tick;
             if let Some(mm) = world.olympiad.matches.iter_mut().find(|x| x.arena == arena) {
-                mm.deadline_tick = world.tick + (BATTLE_MS / 100) as u64;
+                mm.deadline_tick = now_tick + (battle_ms / 100) as u64;
             }
             world.scheduler.schedule(
                 fire_at(world, MATCH_POLL_MS),
@@ -342,7 +340,10 @@ fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
 fn point_transfer(world: &World, winner: i32, loser: i32) -> i32 {
     let wp = world.olympiad.nobles.get(&winner).map_or(0, |n| n.points);
     let lp = world.olympiad.nobles.get(&loser).map_or(0, |n| n.points);
-    (wp.min(lp) / POINT_DIVIDER).clamp(1, MAX_TRANSFER_POINTS)
+    // Java picks the divider by queue kind; both are 5 on this dist, and the
+    // port runs only the non-class queue.
+    let o = &world.cfg.olympiad;
+    (wp.min(lp) / o.divider_nonclassed.max(1)).clamp(1, o.max_points)
 }
 
 fn update_noble(world: &mut World, object_id: i32, f: impl FnOnce(&mut NobleStats)) {

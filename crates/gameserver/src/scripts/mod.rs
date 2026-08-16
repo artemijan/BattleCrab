@@ -23,6 +23,7 @@ pub(crate) const VILLAGE_MASTERS: [i32; 60] = [
 ];
 pub mod alliance_master;
 pub mod antharas_heart;
+pub mod baby_pets;
 pub mod baium;
 pub mod castle_chamberlain;
 mod castle_services;
@@ -50,10 +51,12 @@ mod mammons;
 mod misc_npcs;
 mod mob_behaviours;
 pub mod monument_of_heroes;
+pub mod newbie_chain;
 pub mod newbie_guide;
 pub mod nobless_master;
 pub mod npc_location_info;
-pub mod oly_manager;
+pub mod oly_buffer;
+mod oly_manager;
 pub mod orc_amulet_hunt;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
@@ -225,6 +228,38 @@ pub mod q00642_a_powerful_primeval_creature;
 pub mod q00643_rise_and_fall_of_the_elroki_tribe;
 pub mod q00662_a_game_of_cards;
 pub mod q00688_defeat_the_elrokian_raiders;
+pub mod q10866_punitive_operation_on_the_devil_isle;
+pub mod q10993_future_dwarves;
+pub mod q10994_future_orcs;
+pub mod q10995_mutual_benefit;
+pub mod q10996_temples_decorations;
+pub mod q10997_loser_priest1;
+pub mod q10998_loser_priest2;
+pub mod q10999_loser_priest3;
+pub mod q11000_moon_knight;
+pub mod q11001_tombs_of_ancestors;
+pub mod q11002_help_with_temple_restoration;
+pub mod q11003_perfect_leather_armor1;
+pub mod q11004_perfect_leather_armor2;
+pub mod q11005_perfect_leather_armor3;
+pub mod q11006_future_people;
+pub mod q11007_noise_in_woods;
+pub mod q11008_preparation_for_dungeon;
+pub mod q11009_new_potion_development1;
+pub mod q11010_new_potion_development2;
+pub mod q11011_new_potion_development3;
+pub mod q11012_future_elves;
+pub mod q11013_shilens_hunt;
+pub mod q11014_surprise_gift;
+pub mod q11015_prepare_for_trade1;
+pub mod q11016_prepare_for_trade2;
+pub mod q11017_prepare_for_trade3;
+pub mod q11018_future_dark_elves;
+pub mod q11019_tribal_benefit;
+pub mod q11020_blacksmiths_request;
+pub mod q11021_red_gem_necklace1;
+pub mod q11022_red_gem_necklace2;
+pub mod q11023_red_gem_necklace3;
 pub mod quest_common;
 pub mod saga;
 pub mod sailren_altar;
@@ -363,6 +398,40 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q00355_family_honor::Q00355FamilyHonor),
         Arc::new(q00622_specialty_liquor_delivery::Q00622SpecialtyLiquorDelivery),
         Arc::new(q00688_defeat_the_elrokian_raiders::Q00688DefeatTheElrokianRaiders),
+        Arc::new(
+            q10866_punitive_operation_on_the_devil_isle::Q10866PunitiveOperationOnTheDevilIsle,
+        ),
+        Arc::new(q11000_moon_knight::Q11000MoonKnight),
+        Arc::new(q11001_tombs_of_ancestors::QUEST),
+        Arc::new(q10993_future_dwarves::QUEST),
+        Arc::new(q10994_future_orcs::QUEST),
+        Arc::new(q11006_future_people::QUEST),
+        Arc::new(q11012_future_elves::QUEST),
+        Arc::new(q11018_future_dark_elves::QUEST),
+        Arc::new(q10995_mutual_benefit::QUEST),
+        Arc::new(q10996_temples_decorations::QUEST),
+        Arc::new(q10997_loser_priest1::QUEST),
+        Arc::new(q10998_loser_priest2::QUEST),
+        Arc::new(q10999_loser_priest3::QUEST),
+        Arc::new(q11002_help_with_temple_restoration::QUEST),
+        Arc::new(q11003_perfect_leather_armor1::QUEST),
+        Arc::new(q11004_perfect_leather_armor2::QUEST),
+        Arc::new(q11005_perfect_leather_armor3::QUEST),
+        Arc::new(q11007_noise_in_woods::QUEST),
+        Arc::new(q11008_preparation_for_dungeon::QUEST),
+        Arc::new(q11009_new_potion_development1::QUEST),
+        Arc::new(q11010_new_potion_development2::QUEST),
+        Arc::new(q11011_new_potion_development3::QUEST),
+        Arc::new(q11013_shilens_hunt::QUEST),
+        Arc::new(q11014_surprise_gift::QUEST),
+        Arc::new(q11015_prepare_for_trade1::QUEST),
+        Arc::new(q11016_prepare_for_trade2::QUEST),
+        Arc::new(q11017_prepare_for_trade3::QUEST),
+        Arc::new(q11019_tribal_benefit::QUEST),
+        Arc::new(q11020_blacksmiths_request::QUEST),
+        Arc::new(q11021_red_gem_necklace1::QUEST),
+        Arc::new(q11022_red_gem_necklace2::QUEST),
+        Arc::new(q11023_red_gem_necklace3::QUEST),
         Arc::new(q00641_attack_sailren::Q00641AttackSailren),
         Arc::new(q00642_a_powerful_primeval_creature::Q00642APowerfulPrimevalCreature),
         Arc::new(q00110_to_the_primeval_isle::Q00110ToThePrimevalIsle),
@@ -450,6 +519,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(newbie_guide::NewbieGuide),
         Arc::new(tutorial::Tutorial),
         Arc::new(wyvern_manager::WyvernManager),
+        Arc::new(oly_buffer::OlyBuffer),
         Arc::new(oly_manager::OlyManager),
         Arc::new(monument_of_heroes::MonumentOfHeroes),
         Arc::new(nobless_master::NoblessMaster),

@@ -271,9 +271,10 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     // The owner's own client needs the InventoryUpdate; the GM gets the same
     // refreshed item list Java answers with.
     super::helpers::send_inventory_update(world, owner, vec![change]);
+    let limit = crate::game_loop::weight::inventory_limit(world, owner);
     if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
         let name = player_name_or_empty(world, owner);
-        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
+        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
         send_to_client(world, client_id, pkt);
     }
     crate::game_loop::player_info::broadcast_user_info(world, owner);
@@ -357,8 +358,9 @@ pub(super) fn admin_delete_quest_item(
         return;
     }
     super::helpers::send_inventory_update(world, target, changes);
+    let limit = crate::game_loop::weight::inventory_limit(world, target);
     if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
-        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
+        let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
         send_to_client(world, client_id, pkt);
     }
     crate::game_loop::player_info::broadcast_user_info(world, target);

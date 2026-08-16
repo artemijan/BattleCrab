@@ -755,6 +755,35 @@ fn whisper_relation_mask(world: &World, sender_oid: i32, receiver_oid: i32) -> u
     }
 }
 
+/// `SnoopQuit` (0xB4) — the GM closed a snoop window, so both halves of the
+/// link come apart (`target.removeSnooper(player)` +
+/// `player.removeSnooped(target)`).
+///
+/// Java takes the *snooped* player's object id off the wire and looks them up
+/// in the world; a target who has since logged out leaves the GM's own
+/// `snooped` entry behind, which is Java's behaviour and harmless — the entry
+/// is only ever read to find live listeners.
+pub(crate) fn handle_snoop_quit(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(gm) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = commons::network::PacketReader::new(body);
+    let Some(snooped) = r.read_i32() else {
+        return;
+    };
+    // `World.getPlayer(_snoopID) == null` → return, before either side is
+    // touched.
+    if !world.objects.has_component::<Player>(&snooped) {
+        return;
+    }
+    if let Some(target) = world.objects.get_component_mut::<Player>(&snooped) {
+        target.snoop_listeners.retain(|&oid| oid != gm);
+    }
+    if let Some(p) = world.objects.get_component_mut::<Player>(&gm) {
+        p.snooped.retain(|&oid| oid != snooped);
+    }
+}
+
 /// Java `Player.broadcastSnoop`: send a `Snoop` line to every GM currently
 /// eavesdropping on `speaker` (`//snoop`). Offline listeners are skipped.
 fn broadcast_snoop(

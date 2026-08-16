@@ -16,7 +16,7 @@ mod death;
 mod exp;
 mod feeding;
 mod lifetime;
-mod pet;
+pub(crate) mod pet;
 mod restore;
 mod shots;
 mod stats;
@@ -24,15 +24,15 @@ mod stats;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{force_attack_target, npc_name_or_empty};
 use crate::game_loop::helpers::{is_dead, restore_hp_mp};
 use crate::game_loop::helpers::{item_id_of, send_inventory_update};
-use crate::game_loop::helpers::{send_action_failed, send_sm_and_action_failed};
-use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_player};
 use crate::game_loop::items::item_skills;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
@@ -120,6 +120,7 @@ pub(crate) fn summon_servitor(
             life_time_secs: life_time,
             // Java: a fresh summon follows (`getFollowStatus()` defaults true).
             following: true,
+            defending: false,
             consume_item_id,
             consume_item_count,
             next_consume_tick: if consume_item_id > 0 {

@@ -186,3 +186,196 @@ fn an_npc_scoped_link_refuses_a_page_outside_the_whitelist() {
         .expect("a window is still sent");
     assert!(html.is_empty(), "off-whitelist page is not served: {html}");
 }
+
+// ---------------------------------------------------------------------------
+// `player_help` and `TerritoryStatus` (measured-gaps rows 7 and 8)
+// ---------------------------------------------------------------------------
+
+/// The text a `NpcHtmlMessage` carries: opcode, object id, then the string.
+fn html_body(pkt: &[u8]) -> String {
+    let mut r = commons::network::PacketReader::new(&pkt[1..]);
+    let _object_id = r.read_i32().unwrap();
+    r.read_string().unwrap()
+}
+
+fn html_packet(pkts: &[Vec<u8>]) -> Option<String> {
+    pkts.iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .map(|p| html_body(p))
+}
+
+/// `bypasshandlers/PlayerHelp` — the help book's pages link to each other
+/// through this bypass, and 92 files under `data/html/help/` use it. It was
+/// unhandled, so every "Next Page" button in the book was dead.
+#[test]
+fn player_help_opens_a_help_page() {
+    let (mut world, _db_rx, mut rx) = shop_world(FISHERMAN_ID);
+    world.data.root = DIST.to_string();
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("player_help 7100.htm"));
+
+    let html = html_packet(&drain(&mut rx)).expect("the page opens");
+    assert!(!html.is_empty(), "and carries the file's text");
+}
+
+/// The `#<itemId>` suffix — Java turns it into `NpcHtmlMessage(0, itemId)`, an
+/// item-bound dialog the client keeps open when a button inside is pressed.
+/// That is what lets the book page through its own links.
+#[test]
+fn player_help_marks_the_dialog_item_bound() {
+    let (mut world, _db_rx, mut rx) = shop_world(FISHERMAN_ID);
+    world.data.root = DIST.to_string();
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("player_help classchange/7096-2.htm#7096"),
+    );
+
+    let pkt = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .expect("the page opens");
+    // …objectId, html string, then the item id.
+    let mut r = commons::network::PacketReader::new(&pkt[1..]);
+    let _object_id = r.read_i32().unwrap();
+    let _html = r.read_string().unwrap();
+    assert_eq!(
+        r.read_i32().unwrap(),
+        7096,
+        "bound to the book that opened it"
+    );
+}
+
+/// Java's traversal guard: a path with `..` is refused outright.
+#[test]
+fn player_help_refuses_a_traversal_path() {
+    let (mut world, _db_rx, mut rx) = shop_world(FISHERMAN_ID);
+    world.data.root = DIST.to_string();
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("player_help ../../config/Server.ini"),
+    );
+
+    assert!(
+        html_packet(&drain(&mut rx)).is_none(),
+        "nothing is served for a traversal attempt"
+    );
+}
+
+/// `bypasshandlers/TerritoryStatus` — the "local lord and tax rate" button that
+/// 254 of the dist's folk htmls carry. Unowned castle → the no-clan page.
+#[test]
+fn territory_status_answers_for_an_unowned_castle() {
+    let (mut world, _db_rx, mut rx) = shop_world(FISHERMAN_ID);
+    world.data.root = DIST.to_string();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_TerritoryStatus")),
+    );
+
+    let html = html_packet(&drain(&mut rx)).expect("the page opens");
+    // `territorynoclan.htm` — Java's other branch, and it words itself
+    // differently from the owned page.
+    assert!(
+        html.contains("not currently under the rule of any clan"),
+        "the no-clan page, got: {html}"
+    );
+    // A literal `%` survives in the owned page's "Tax Rate : N %", so the
+    // check names the placeholders rather than banning the character.
+    for token in ["%castlename%", "%territory%", "%objectId%"] {
+        assert!(!html.contains(token), "{token} is still unfilled: {html}");
+    }
+}
+
+/// With an owner, the page names the clan and its leader, and fills the tax
+/// rate and kingdom in.
+#[test]
+fn territory_status_names_the_lord_of_an_owned_castle() {
+    let (mut world, _db_rx, mut rx) = shop_world(FISHERMAN_ID);
+    world.data.root = DIST.to_string();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
+    // The NPC sits at (0,0,0); `findNearestCastle` picks whichever that is.
+    let castle_id = world.data.zone_data.nearest_castle_at(0, 0, 0).unwrap();
+    world.castles = vec![crate::model::castle::Castle {
+        show_npc_crest: false,
+        id: castle_id,
+        name: "Giran".into(),
+        side: crate::model::castle::CastleSide::Neutral,
+        ticket_buy_count: 0,
+        first_mid_victory: false,
+        time_registration_over: true,
+        siege_time_registration_end: 0,
+        siege_date: 0,
+        treasury: 0,
+    }];
+    let mut clan = crate::model::clan::Clan {
+        id: 900,
+        name: "Holders".into(),
+        leader_id: 4242,
+        level: 5,
+        reputation_score: 0,
+        castle_id,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    };
+    clan.members.push(crate::model::clan::ClanMember {
+        char_id: 4242,
+        name: "Lordy".into(),
+        level: 80,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+        power_grade: 1,
+        pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
+        title: String::new(),
+    });
+    world.clans.insert(900, clan);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_TerritoryStatus")),
+    );
+
+    let html = html_packet(&drain(&mut rx)).expect("the page opens");
+    assert!(html.contains("Lordy"), "the lord is named: {html}");
+    assert!(html.contains("Holders"), "and their clan: {html}");
+    assert!(html.contains("Giran"), "and the castle: {html}");
+    for token in [
+        "%castlename%",
+        "%clanname%",
+        "%clanleadername%",
+        "%taxpercent%",
+        "%territory%",
+        "%objectId%",
+    ] {
+        assert!(!html.contains(token), "{token} is still unfilled: {html}");
+    }
+}

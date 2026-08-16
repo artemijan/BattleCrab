@@ -4298,6 +4298,10 @@ fn q404_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
 /// every quest with nothing to say here, leaving the plain no-quest html.
 #[test]
 fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
+    // Parina also carries `Q11006_FuturePeople` (its `addTalkId` lists her), so
+    // the window is not empty any more — the assertion is about Q404 alone.
+    // Q11006 shows Lector's *mage* page here because Java's `else if
+    // (getClassId() == MAGE)` arm carries no NPC check; see that quest's file.
     let (mut world, mut rx) = q404_world();
     {
         let quests = world
@@ -4316,12 +4320,8 @@ fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
         .find_map(|p| decode_npc_html(p))
         .unwrap_or_default();
     assert!(
-        !html.contains("<button") && !html.contains("fstring"),
-        "no quest button at all, got: {html}"
-    );
-    assert!(
-        html.contains("not on a quest"),
-        "plain noquest.htm, got: {html}"
+        !html.contains("Q00404") && !html.contains("40404"),
+        "the finished Q404 contributes no button and no chooser row, got: {html}"
     );
 }
 
@@ -20932,4 +20932,442 @@ fn quest_kill_credit_reaches_a_party_member() {
         1,
         "an out-of-range mate collects nothing"
     );
+}
+
+/// **Q10866 is a courier run: three talks, three conds, one payout.**
+///
+/// The reward branch re-checks `isStarted()`, so the test also fires the
+/// payout bypass from a fresh player who never took the quest — Java's guard
+/// against a forged `34020-02.html`.
+#[test]
+fn quest_q10866_punitive_operation_on_the_devil_isle() {
+    let (mut world, _db, _l) = quest_test_world();
+    let q = "Q10866_PunitiveOperationOnTheDevilIsle";
+    // Rodemai starts it; Ein / Fethin / Nikia are the three stops.
+    add_test_npc(&mut world, NPC_OID, 30756, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 34017, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 2, 34019, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 3, 34020, "Folk", 70, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 70;
+
+    let say = |world: &mut World, oid: i32, ev: &str| {
+        handle_request_bypass_to_server(
+            world,
+            1,
+            &bypass_body(&format!("npc_{oid}_Quest {q} {ev}")),
+        );
+    };
+
+    // Java's `onTalk` does `getQuestState(player, true)` — the first click is
+    // what creates the state the button then starts.
+    say(&mut world, NPC_OID, "");
+    say(&mut world, NPC_OID, "30756-02.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started at Rodemai");
+    say(&mut world, NPC_OID + 1, "34017-02.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "Ein sends you on");
+    say(&mut world, NPC_OID + 2, "34019-02.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3), "Fethin sends you on");
+
+    let adena = item_count(&world, 3001, 57);
+    say(&mut world, NPC_OID + 3, "34020-02.html");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena + 13_136,
+        "Nikia pays 13136 adena"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<model::components::Quests>(&3001)
+            .unwrap()
+            .0[q]
+            .is_completed(),
+        "and the quest is over"
+    );
+
+    // A player who *talked* to Rodemai but never accepted has a CREATED state,
+    // so `has_qs()` is true and only the inner `isStarted()` stands between
+    // them and a free 13 136 adena.
+    let _rx2 = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .level = 70;
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3002, q),
+        Some(0),
+        "state created by the talk, but not started"
+    );
+    let before = item_count(&world, 3002, 57);
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{}_Quest {q} 34020-02.html", NPC_OID + 3)),
+    );
+    assert_eq!(
+        item_count(&world, 3002, 57),
+        before,
+        "a forged payout bypass pays nothing"
+    );
+}
+
+/// **Q11001's cond 4 needs both drops, and the turn-in leaves the swords.**
+///
+/// The two halves of cond 4 are the part worth pinning: reaching ten Broken
+/// Swords alone must *not* advance, because Java's Orc Warrior branch also
+/// tests the Werewolf Fangs (and vice versa). A test that only fed one would
+/// pass against a port that dropped the second half and leave players stuck.
+#[test]
+fn quest_q11001_tombs_of_ancestors() {
+    let (mut world, _db, _l) = quest_test_world();
+    let q = "Q11001_TombsOfAncestors";
+    add_quest_items(
+        &mut world,
+        &[
+            (90199, "Hunter's Memo", false),
+            (90200, "Wolf Pelt", true),
+            (90201, "Orc Amulet", true),
+            (90202, "Werewolf's Fang", true),
+            (90203, "Broken Sword", true),
+            (49039, "Necklace of the Novice", true),
+            (49041, "Ring of the Novice", true),
+            (49043, "Sword of Solidarity", false),
+        ],
+    );
+    for id in [20093, 20132] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 10;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30598, "Folk", 20, 100, 0, 0); // Newbie Guide
+    add_test_npc(&mut world, NPC_OID + 1, 30283, "Folk", 20, 100, 0, 0); // Altran
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 10;
+        p.race = 0; // Human — the quest's `addCondRace`
+    }
+
+    // The first click creates the quest state (`getQuestState(player, true)`);
+    // the button then starts it.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30598-02.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    // Talking to Altran at cond 1 hands over the memo and moves to cond 2.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert_eq!(item_count(&world, 3001, 90199), 1, "Hunter's Memo given");
+
+    // Skip the two collection stages the test isn't about.
+    inject(&mut world, 3001, 0x1100_1000, 90200, 10);
+    inject(&mut world, 3001, 0x1100_1001, 90201, 10);
+    set_quest_cond(&mut world, 3001, q, 4);
+
+    // Ten Broken Swords with no Fangs must NOT advance.
+    inject(&mut world, 3001, 0x1100_1002, 90203, 9);
+    add_test_npc(&mut world, NPC_OID + 2, 20093, "Monster", 10, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll(100)=0 < 89 → drops
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 90203), 10, "tenth sword collected");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(4),
+        "still cond 4 — the fangs are missing"
+    );
+
+    // The tenth Fang closes the other half and now it advances.
+    inject(&mut world, 3001, 0x1100_1003, 90202, 9);
+    add_test_npc(&mut world, NPC_OID + 3, 20132, "Monster", 10, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 3, 3001);
+    assert_eq!(quest_cond(&world, 3001, q), Some(5), "both halves done");
+
+    // Turn in: the weapon branch, and the swords deliberately survive it.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} reward1", NPC_OID + 1)),
+    );
+    assert_eq!(item_count(&world, 3001, 49043), 1, "Sword of Solidarity");
+    assert_eq!(item_count(&world, 3001, 49041), 2, "two novice rings");
+    assert_eq!(item_count(&world, 3001, 49039), 1, "novice necklace");
+    assert_eq!(item_count(&world, 3001, 90200), 0, "pelts taken");
+    assert_eq!(item_count(&world, 3001, 90202), 0, "fangs taken");
+    assert!(
+        world
+            .objects
+            .get_component::<model::components::Quests>(&3001)
+            .unwrap()
+            .0[q]
+            .is_completed(),
+        "quest complete"
+    );
+}
+
+/// **The uncapped stage variant drops on every kill, with no roll.**
+///
+/// `Q11013` and its siblings omit both Java's `< need` guard and the
+/// `getRandom` roll. The *cap* half turns out to be unobservable here — the
+/// kill that reaches ten also advances the cond, so the stage stops being
+/// live before an extra drop can happen (see `newbie_chain`'s module note).
+/// What this test does pin is the **roll**: ten kills with no `forced_rolls`
+/// queued yield exactly ten tails, which a stage carrying a chance below 100
+/// could not manage.
+#[test]
+fn quest_q11013_uncapped_stage_collects_past_the_requirement() {
+    let (mut world, _db, _l) = quest_test_world();
+    let q = "Q11013_ShilensHunt";
+    add_quest_items(
+        &mut world,
+        &[(90237, "Elder's Note", false), (90238, "Wolf Tail", true)],
+    );
+    let mut t = crate::data::npc_data::default_template(20456); // Ashen Wolf
+    t.type_name = "Monster".into();
+    t.level = 5;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30600, "Folk", 20, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 30141, "Folk", 20, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 10;
+        p.race = 2; // Dark Elf
+    }
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30600-02.htm")),
+    );
+    // The second NPC's briefing is a talk, not a button.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "briefed");
+
+    // Ten kills, no forced rolls: every one drops, because this stage has no
+    // chance gate at all.
+    for i in 0..10 {
+        add_test_npc(&mut world, NPC_OID + 10 + i, 20456, "Monster", 5, 30, 0, 0);
+        death::npc_do_die(&mut world, NPC_OID + 10 + i, 3001);
+    }
+    assert_eq!(
+        item_count(&world, 3001, 90238),
+        10,
+        "ten kills, ten tails — no roll to fail"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(3), "advanced at ten");
+}
+
+/// **A capped stage stops at the requirement.** The other half of the pair
+/// above: `Q11001`'s wolf pelts carry Java's `< need` guard, so an extra kill
+/// after ten adds nothing.
+#[test]
+fn quest_q11001_capped_stage_stops_at_the_requirement() {
+    let (mut world, _db, _l) = quest_test_world();
+    let q = "Q11001_TombsOfAncestors";
+    add_quest_items(
+        &mut world,
+        &[(90199, "Hunter's Memo", false), (90200, "Wolf Pelt", true)],
+    );
+    let mut t = crate::data::npc_data::default_template(20120); // Wolf
+    t.type_name = "Monster".into();
+    t.level = 5;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30598, "Folk", 20, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 30283, "Folk", 20, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 10;
+        p.race = 0;
+    }
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30598-02.htm")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
+    );
+    inject(&mut world, 3001, 0x1100_1100, 90200, 10);
+    add_test_npc(&mut world, NPC_OID + 10, 20120, "Monster", 5, 30, 0, 0);
+    world.forced_rolls.push_back(0); // would drop if the cap were gone
+    death::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    assert_eq!(
+        item_count(&world, 3001, 90200),
+        10,
+        "capped at ten — the eleventh kill gives nothing"
+    );
+}
+
+/// **A capstone books the chosen class path and its trainer pays out.**
+///
+/// Also pins the Java bug this quest carries: `a_cleric.html` sets cond 5, the
+/// *wizard's* cond, while Zigaunt (the cleric trainer) answers only at cond 6.
+/// A cleric is therefore served by Parina. Both pay the same reward, so the
+/// quest completes either way — but the page you see is the wrong one.
+#[test]
+fn quest_q11006_future_people_class_paths() {
+    let (mut world, _db, _l) = quest_test_world();
+    let q = "Q11006_FuturePeople";
+    add_quest_items(&mut world, &[(49087, "Improved SoE", true)]);
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 20, 100, 0, 0); // Lector
+    add_test_npc(&mut world, NPC_OID + 1, 30010, "Folk", 20, 100, 0, 0); // Auron
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 19;
+        p.race = 0;
+        p.class_id = 0; // Fighter
+    }
+    // The prerequisite quest, marked complete.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Quests>(&3001)
+        .unwrap()
+        .0
+        .entry("Q11005_PerfectLeatherArmor3".to_string())
+        .or_default()
+        .state = crate::model::quest::state::COMPLETED;
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} a_warrior.html")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "warrior path booked");
+
+    // Auron pays out; `getCond() > 1` is what gates it.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 30010-02.html", NPC_OID + 1)),
+    );
+    assert_eq!(item_count(&world, 3001, 49087), 1, "Improved SoE paid");
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0[q]
+            .is_completed(),
+        "quest complete"
+    );
+}
+
+/// **Moon Knight stalls at cond 8, in Java too.**
+///
+/// Rolento's hand-over gives items 49559 and 49560, neither of which exists in
+/// this datapack, and Gudz then gates on holding both. The test walks to cond
+/// 8 and shows Gudz answering with the no-quest page rather than his cond-8
+/// html — reproducing the dead end rather than papering over it.
+#[test]
+fn quest_q11000_moon_knight_stalls_where_java_does() {
+    let (mut world, _db, _l) = quest_test_world();
+    let q = "Q11000_MoonKnight";
+    add_quest_items(
+        &mut world,
+        &[
+            (49557, "Armor Trade Contract", false),
+            (49558, "Turek Orc Order", false),
+        ],
+    );
+    add_test_npc(&mut world, NPC_OID, 30939, "Folk", 40, 100, 0, 0); // Jones
+    add_test_npc(&mut world, NPC_OID + 1, 30437, "Folk", 40, 100, 0, 0); // Rolento
+    add_test_npc(&mut world, NPC_OID + 2, 30941, "Folk", 40, 100, 0, 0); // Gudz
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 30;
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30939-02.htm")),
+    );
+    set_quest_cond(&mut world, 3001, q, 7);
+    inject(&mut world, 3001, 0x1100_0000, 49557, 1);
+    inject(&mut world, 3001, 0x1100_0001, 49558, 1);
+
+    // Rolento's hand-over: takes the contract, "gives" two items that do not
+    // exist.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 30437-03.html", NPC_OID + 1)),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(8), "at cond 8");
+    assert_eq!(item_count(&world, 3001, 49557), 0, "contract taken");
+    assert_eq!(
+        item_count(&world, 3001, 49559),
+        0,
+        "and the bag does not exist to be given"
+    );
+
+    // Gudz cannot see the items, so he has nothing to say — the dead end.
+    drain(&mut rx);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 2)),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .unwrap_or_default();
+    assert!(
+        html.contains("not on a quest"),
+        "Gudz has nothing to say, got: {html}"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(8), "and it stays at 8");
 }

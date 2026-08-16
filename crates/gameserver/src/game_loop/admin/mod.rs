@@ -209,6 +209,62 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
     }
 }
 
+/// `RequestGmList` (0x8B) → `AdminData.sendListToPlayer` — the `/gmlist` chat
+/// command, answered as plain system messages rather than a window.
+///
+/// `includeHidden` is `player.isGM()`, so **who is asking changes the answer**:
+/// a GM sees every GM with `" (invis)"` appended to the hidden ones, and a
+/// plain player sees only the unhidden. On this dist `GMStartupAutoList =
+/// False` makes every GM hidden (see [`flags::register_gm`]), so a player's
+/// `/gmlist` always lands on "there are no GMs currently visible" even with a
+/// GM standing next to them. That is Java's behaviour here, not a stub.
+pub(crate) fn handle_request_gm_list(world: &mut World, client_id: u32) {
+    let Some(asker) = world.player_oid(client_id) else {
+        return;
+    };
+    let include_hidden = world
+        .objects
+        .get_component::<Player>(&asker)
+        .is_some_and(|p| p.is_gm(&world.data));
+    // Java iterates a ConcurrentHashMap, so its order is unspecified; sorted
+    // by name here so the list reads the same twice running.
+    let mut names: Vec<String> = world
+        .in_game_player_oids()
+        .filter_map(|oid| world.objects.get_component::<Player>(&oid))
+        .filter(|p| p.is_gm(&world.data))
+        .filter(|p| include_hidden || !p.gm_hidden)
+        .map(|p| {
+            if p.gm_hidden {
+                format!("{} (invis)", p.name)
+            } else {
+                p.name.clone()
+            }
+        })
+        .collect();
+    names.sort();
+    if names.is_empty() {
+        crate::game_loop::helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            server_packets::sm_ids::THERE_ARE_NO_GMS_CURRENTLY_VISIBLE,
+        );
+        return;
+    }
+    crate::game_loop::helpers::send_sm_bare_to_client(
+        world,
+        client_id,
+        server_packets::sm_ids::GM_LIST,
+    );
+    for name in names {
+        crate::game_loop::helpers::send_sm_to_client(
+            world,
+            client_id,
+            server_packets::sm_ids::GM_C1,
+            &[server_packets::SmParam::Text(name)],
+        );
+    }
+}
+
 /// Port of `clientpackets/DlgAnswer` narrowed to the admin-confirm case (the
 /// only `ConfirmDlg` this server sends; door/summon/offline-play/olympiad
 /// dialogs are unported). On the echoed `S1_3` id, the pending command is
@@ -624,6 +680,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_openall" => admin_door(world, client_id, object_id, true, true, &args),
         "admin_closeall" => admin_door(world, client_id, object_id, false, true, &args),
         "admin_zones" | "admin_zone_check" => admin_zones(world, client_id, object_id),
+        "admin_zone_visual" => world_cmds::admin_zone_visual(world, client_id, object_id, &args),
+        "admin_zone_visual_clear" => world_cmds::admin_zone_visual_clear(world, client_id),
         "admin_buy" => admin_buy(world, client_id, object_id, &args),
         "admin_gmshop" => menu::show_admin_html(world, client_id, "gmshops.htm"),
         "admin_clan_info" => admin_clan_info(world, client_id, object_id),
@@ -1053,4 +1111,237 @@ pub(super) fn creatures_in_range(
         }
     }
     out
+}
+
+/// `RequestGMCommand` (0x7E) — the GM client's "view player" panes, reached
+/// from the shift-click menu rather than a `//command`.
+///
+/// Java gates it on `isGM() && getAccessLevel().allowAltG()`. On this dist the
+/// second half never decides anything: only levels 70 and 100 are `isGM`, and
+/// **both** also carry `allowAltg="true"` — the seven other `allowAltg` levels
+/// are not GMs and fail the first half. The conjunction is kept because it is
+/// Java's and because a datapack edit could separate them.
+///
+/// Command 6 (warehouse) is the only one that accepts a *clan* name as well as
+/// a player name — Java's null check reads
+/// `(player == null) && ((clan == null) || (_command != 6))`.
+pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(gm_oid) = world.player_oid(client_id) else {
+        return;
+    };
+    let Some(gm) = world.objects.get_component::<Player>(&gm_oid) else {
+        return;
+    };
+    if !gm.is_gm(&world.data) || !world.data.admin.access_level(gm.access_level).allow_alt_g {
+        return;
+    }
+    let mut r = commons::network::PacketReader::new(body);
+    let Some(target_name) = r.read_string() else {
+        return;
+    };
+    let Some(command) = r.read_i32() else { return };
+
+    let target = find_online_player(world, &target_name);
+    let clan_id = world
+        .clans
+        .values()
+        .find(|c| c.name.eq_ignore_ascii_case(&target_name))
+        .map(|c| c.id);
+    if target.is_none() && (clan_id.is_none() || command != 6) {
+        return;
+    }
+
+    match command {
+        // Player status — the character sheet, plus the dye panel beside it.
+        1 => {
+            let Some(t) = target else { return };
+            send_character_info(world, client_id, t);
+            send_henna_info(world, client_id, t);
+        }
+        // Player clan.
+        2 => {
+            let Some(t) = target else { return };
+            let Some(cid) = world
+                .objects
+                .get_component::<Player>(&t)
+                .map(|p| p.clan_id)
+                .filter(|&id| id != 0)
+            else {
+                return;
+            };
+            let Some(clan) = world.clans.get(&cid) else {
+                return;
+            };
+            let pkt = server_packets::gm_view_pledge_info(clan, &target_name, &world.objects);
+            send_to_client(world, client_id, pkt);
+        }
+        // Player skills.
+        3 => {
+            let Some(t) = target else { return };
+            send_skill_info(world, client_id, t, &target_name);
+        }
+        // Player quests.
+        4 => {
+            let Some(t) = target else { return };
+            send_quest_info(world, client_id, t, &target_name);
+        }
+        // Player inventory — reuses the `//show_pet_inv` packet, which is the
+        // same `GMViewItemList` Java sends here.
+        5 => {
+            let Some(t) = target else { return };
+            let limit = crate::game_loop::weight::inventory_limit(world, t);
+            let Some(inv) = world
+                .objects
+                .get_component::<crate::model::inventory::Inventory>(&t)
+            else {
+                return;
+            };
+            let pkt = crate::network::enter_world::gm_view_item_list(
+                &target_name,
+                inv,
+                &world.data,
+                limit,
+            );
+            send_to_client(world, client_id, pkt);
+            send_henna_info(world, client_id, t);
+        }
+        // Player (or clan) warehouse.
+        6 => send_warehouse(world, client_id, target, clan_id, &target_name),
+        _ => {}
+    }
+}
+
+fn send_character_info(world: &mut World, client_id: u32, target: i32) {
+    let Some(view) = crate::model::PlayerView::of_world(world, target) else {
+        return;
+    };
+    // Java's "High Five exp %": how far into the level the character is.
+    let level = view.p.level;
+    let (this_level, next_level) = (
+        world.data.experience.exp_for_level(level),
+        world.data.experience.exp_for_level(level + 1),
+    );
+    let span = next_level - this_level;
+    let exp_percent = if span > 0 {
+        (view.p.exp - this_level) as f64 / span as f64
+    } else {
+        0.0
+    };
+    let is_gm = view.p.is_gm(&world.data);
+    let load = (
+        crate::game_loop::weight::total_load(view.inventory, &world.data),
+        crate::game_loop::weight::max_load(world, target),
+    );
+    let pkt = server_packets::gm_view_character_info(&view, exp_percent, load, is_gm);
+    send_to_client(world, client_id, pkt);
+}
+
+fn send_henna_info(world: &mut World, client_id: u32, target: i32) {
+    let Some(slots) = world
+        .objects
+        .get_component::<crate::model::components::HennaSlots>(&target)
+        .cloned()
+    else {
+        return;
+    };
+    let sums = world.data.hennas.stat_sums(&slots.0);
+    let dyes: Vec<i32> = slots.dye_ids().collect();
+    let pkt = server_packets::gm_henna_info(
+        (
+            sums.int_ as i16,
+            sums.str_ as i16,
+            sums.con as i16,
+            sums.men as i16,
+            sums.dex as i16,
+            sums.wit as i16,
+        ),
+        &dyes,
+    );
+    send_to_client(world, client_id, pkt);
+}
+
+fn send_skill_info(world: &mut World, client_id: u32, target: i32, name: &str) {
+    use crate::model::components::{ClanSkills, SkillBook};
+    let Some(book) = world.objects.get_component::<SkillBook>(&target) else {
+        return;
+    };
+    let clan_ids: std::collections::HashSet<i32> = world
+        .objects
+        .get_component::<ClanSkills>(&target)
+        .map(|c| c.0.keys().copied().collect())
+        .unwrap_or_default();
+    let rows: Vec<(i32, i32, bool, bool)> =
+        book.0
+            .iter()
+            .map(|(&id, &level)| {
+                let passive =
+                    world.data.skill_data.get(id, level).is_some_and(|s| {
+                        s.operate_type == crate::model::skill::OperateType::Passive
+                    });
+                (id, level, passive, clan_ids.contains(&id))
+            })
+            .collect();
+    // `clan != null && clan.getReputationScore() < 0` — a clan in reputation
+    // debt has its granted skills greyed out in the GM's view.
+    let clan_disabled = world
+        .objects
+        .get_component::<Player>(&target)
+        .and_then(|p| world.clans.get(&p.clan_id))
+        .is_some_and(|c| c.reputation_score < 0);
+    let pkt = server_packets::gm_view_skill_info(name, &rows, clan_disabled);
+    send_to_client(world, client_id, pkt);
+}
+
+fn send_quest_info(world: &mut World, client_id: u32, target: i32, name: &str) {
+    let Some(quests) = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&target)
+        .cloned()
+    else {
+        return;
+    };
+    // Java lists `getAllQuests(false)` — the started ones — resolving each
+    // name to its script id.
+    let registry = world.quests.clone();
+    let mut rows: Vec<(i32, i32)> = quests
+        .0
+        .iter()
+        .filter_map(|(qname, state)| {
+            registry
+                .by_name(qname)
+                .map(|s| (s.id(), state.cond()))
+                .filter(|&(id, _)| id > 0)
+        })
+        .collect();
+    rows.sort_unstable();
+    let pkt = server_packets::gm_view_quest_info(name, &rows);
+    send_to_client(world, client_id, pkt);
+}
+
+fn send_warehouse(
+    world: &mut World,
+    client_id: u32,
+    target: Option<i32>,
+    clan_id: Option<i32>,
+    name: &str,
+) {
+    let (adena, items) = match target {
+        Some(t) => {
+            let Some(wh) = world
+                .objects
+                .get_component::<crate::model::inventory::Warehouse>(&t)
+            else {
+                return;
+            };
+            (wh.0.adena(), wh.0.items().to_vec())
+        }
+        None => {
+            let Some(clan) = clan_id.and_then(|id| world.clans.get(&id)) else {
+                return;
+            };
+            (clan.warehouse.0.adena(), clan.warehouse.0.items().to_vec())
+        }
+    };
+    let pkt = server_packets::gm_view_warehouse_withdraw_list(name, adena, &items, &world.data);
+    send_to_client(world, client_id, pkt);
 }

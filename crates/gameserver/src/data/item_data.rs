@@ -249,7 +249,9 @@ impl WeaponType {
 /// the expertise/grade-penalty check compares against `Player.getExpertiseLevel`
 /// (`Inventory`/`Player.refreshExpertisePenalty`). Parsed from
 /// `<set name="crystal_type" val="D"/>`; absent → `None` (level 0, no penalty).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, Default, serde::Serialize, serde::Deserialize,
+)]
 pub enum CrystalType {
     #[default]
     None,
@@ -381,6 +383,27 @@ pub enum ItemHandler {
     /// Shot). Charged during a cast (`rechargeShots(fish=true)`), it doubles the
     /// fishing win chance (`ShotType::FISH_SOULSHOTS`).
     FishShots,
+    /// `handlers/itemhandlers/SummonItems` — **every pet collar on this dist**,
+    /// the Wolf Collar included. `extends ItemSkillsTemplate`: it adds the
+    /// summon guards, parks the item as Java's `PetItemHolder`, then casts the
+    /// item's own skills like any other. Until this variant existed the name
+    /// fell through to [`ItemHandler::None`] and a collar was eaten in silence,
+    /// which left the whole pet system with no way in from the client.
+    SummonItems,
+    /// `handlers/itemhandlers/Book` — a readable book: opens
+    /// `data/html/help/<itemId>.htm` in a dialog. Not consumed.
+    Book,
+    /// `handlers/itemhandlers/RollingDice` — the party dice (4625–4628).
+    RollingDice,
+    /// `handlers/itemhandlers/MercTicket` — a mercenary posting ticket. 499
+    /// ship across the nine castles; using one inside your own castle's grounds
+    /// asks for confirmation and then posts a defender at that exact spot.
+    MercTicket,
+    /// `handlers/itemhandlers/PetFood` — food used from the **owner's** bag.
+    /// The pet eating out of its *own* inventory is a different packet
+    /// (`RequestPetUseItem`, already ported); this arm is Java's other branch,
+    /// where a mounted rider feeds the mount they are sitting on.
+    PetFood,
 }
 
 impl ItemHandler {
@@ -436,7 +459,7 @@ pub enum ActionType {
 }
 
 impl ActionType {
-    fn from_name(name: Option<&str>) -> Self {
+    pub fn from_name(name: Option<&str>) -> Self {
         match name {
             Some("CAPSULE") => ActionType::Capsule,
             Some("SKILL_REDUCE") => ActionType::SkillReduce,
@@ -456,6 +479,9 @@ pub enum EtcItemType {
     /// crystal grade (`findArrowForBow`) and auto-equipped into the left hand.
     Arrow,
     Bolt,
+    /// `CASTLE_GUARD` — the mercenary posting tickets. The only thing that
+    /// reads it is `Product.getPrice`'s `RateSiegeGuardsPrice` multiply.
+    CastleGuard,
     EnchtWp,
     EnchtAm,
     BlessEnchtWp,
@@ -484,6 +510,7 @@ impl EtcItemType {
         match name {
             Some("ARROW") => EtcItemType::Arrow,
             Some("BOLT") => EtcItemType::Bolt,
+            Some("CASTLE_GUARD") => EtcItemType::CastleGuard,
             Some("ENCHT_WP") => EtcItemType::EnchtWp,
             Some("ENCHT_AM") => EtcItemType::EnchtAm,
             Some("BLESS_ENCHT_WP") => EtcItemType::BlessEnchtWp,
@@ -1350,6 +1377,16 @@ fn make_template(
         Some("BeastSoulShot") => ItemHandler::BeastSoulShot,
         Some("BeastSpiritShot") => ItemHandler::BeastSpiritShot,
         Some("FishShots") => ItemHandler::FishShots,
+        Some("SummonItems") => ItemHandler::SummonItems,
+        Some("Book") => ItemHandler::Book,
+        Some("RollingDice") => ItemHandler::RollingDice,
+        Some("PetFood") => ItemHandler::PetFood,
+        Some("MercTicket") => ItemHandler::MercTicket,
+        // `Elixir extends ItemSkills` and adds one guard — "not a pet" — which
+        // the port gets for free: an etc-item use always arrives from a player's
+        // own inventory. So it collapses onto `ItemSkills`, the same way
+        // `ItemSkillsTemplate` does above.
+        Some("Elixir") => ItemHandler::ItemSkills,
         _ => ItemHandler::None,
     };
 

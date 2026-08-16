@@ -64,6 +64,15 @@ pub(crate) fn add_pet_exp(world: &mut World, owner_oid: i32, exp: f64, sp: f64) 
     if is_uncontrollable(world, pet_oid) {
         return;
     }
+    // `PetXpRate` / `SinEaterXpRate` — Java picks the Sin Eater's own rate for
+    // that pet and the general one for every other.
+    let rate = if crate::scripts::sin_eater::is_sin_eater(world, pet_oid) {
+        world.cfg.rates.sin_eater_xp_rate
+    } else {
+        world.cfg.rates.pet_xp_rate
+    };
+    let exp = exp * rate;
+    let sp = sp * rate;
     let gained = exp.round() as i64;
     if gained <= 0 && sp.round() as i64 <= 0 {
         return;

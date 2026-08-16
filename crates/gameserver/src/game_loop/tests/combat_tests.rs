@@ -1341,6 +1341,74 @@ fn siege_start_evicts_non_owners_to_town() {
     );
 }
 
+/// Castle 3 with clan 500 owning it and clan 700 registered as an attacker —
+/// the shape both the capture test and the reputation-settlement tests want.
+fn siege_world_for_capture() -> (
+    World,
+    tokio::sync::mpsc::UnboundedReceiver<db::DbCommand>,
+    (),
+) {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::{Siege, SiegeClanType};
+    let (mut world, _db_tx, db_rx, _link) = test_world();
+    world.castles = vec![Castle {
+        show_npc_crest: false,
+        id: 3,
+        name: "Giran".into(),
+        side: CastleSide::Neutral,
+        ticket_buy_count: 0,
+        first_mid_victory: false,
+        time_registration_over: true,
+        siege_time_registration_end: 0,
+        siege_date: 0,
+        treasury: 0,
+    }];
+    let mut siege = Siege::new(3);
+    siege.add_clan(500, SiegeClanType::Owner);
+    siege.add_clan(700, SiegeClanType::Attacker);
+    world.sieges.insert(3, siege);
+    let clan = |id: i32, name: &str, leader: i32, castle: i32| Clan {
+        id,
+        name: name.into(),
+        leader_id: leader,
+        level: 5,
+        reputation_score: 0,
+        castle_id: castle,
+        members: vec![ClanMember {
+            char_id: leader,
+            name: format!("P{leader}"),
+            level: 40,
+            class_id: 0,
+            sex: 0,
+            race: 0,
+            power_grade: 1,
+            title: String::new(),
+            pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
+        }],
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    };
+    world.clans.insert(500, clan(500, "Defenders", 8002, 3));
+    world.clans.insert(700, clan(700, "Attackers", 8003, 0));
+    (world, db_rx, ())
+}
+
 /// Mid-siege capture transfers castle ownership to the attacker and reshuffles
 /// siege roles; endSiege then declares the new owner victorious. Port of Java
 /// Siege capture (midVictory) + endSiege victory determination.
@@ -1458,6 +1526,10 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         "old owner cleared"
     );
 
+    // Give the former owner some reputation, so the settlement below has
+    // something to take and to cap against.
+    world.clans.get_mut(&500).unwrap().reputation_score = 2000;
+
     // endSiege → the captor (owner changed) is declared victorious.
     crate::game_loop::siege::end_siege(&mut world, 3);
     assert!(!world.sieges[&3].in_progress, "siege ended");
@@ -1465,6 +1537,54 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE),
         "victor announced"
+    );
+
+    // `Castle.updateClansReputation`: the former owner is docked
+    // `LooseCastlePoints` (3000) and the captor gains
+    // `min(TakeCastlePoints, what the loser had)` — 1500 vs 2000, so the full
+    // 1500. **Clan reputation goes negative**: Java's `setReputationScore`
+    // has an explicit arm for crossing below zero (it strips the clan skills),
+    // so 2000 - 3000 = -1000 rather than a floor at 0.
+    assert_eq!(
+        world.clans[&500].reputation_score, -1000,
+        "former owner docked LooseCastlePoints, into the negative"
+    );
+    assert_eq!(
+        world.clans[&700].reputation_score, 1500,
+        "captor gains TakeCastlePoints, capped by the loser's balance"
+    );
+}
+
+/// **Taking a castle off a bankrupt clan pays nothing.** Java caps the
+/// captor's gain at `maxreward` — the former owner's score *before* it is
+/// docked — so `min(TakeCastlePoints, 0)` is 0. Without the cap the captor
+/// would be paid 1500 out of thin air.
+#[test]
+fn castle_capture_reputation_is_capped_by_what_the_loser_had() {
+    let (mut world, _db_rx, _l) = siege_world_for_capture();
+    world.clans.get_mut(&500).unwrap().reputation_score = 0;
+    crate::game_loop::siege::start_siege(&mut world, 3);
+    crate::game_loop::siege::capture(&mut world, 3, 700);
+    crate::game_loop::siege::end_siege(&mut world, 3);
+    assert_eq!(
+        world.clans[&700].reputation_score, 0,
+        "nothing to take, so nothing paid"
+    );
+}
+
+/// **Holding your own castle pays `CastleDefendedPoints`.** The other arm of
+/// the settlement — Java's `else` when the owner has not changed.
+#[test]
+fn a_successful_defence_pays_castle_defended_points() {
+    let (mut world, _db_rx, _l) = siege_world_for_capture();
+    world.clans.get_mut(&500).unwrap().reputation_score = 100;
+    crate::game_loop::siege::start_siege(&mut world, 3);
+    // No capture: the defenders hold.
+    crate::game_loop::siege::end_siege(&mut world, 3);
+    assert_eq!(
+        world.clans[&500].reputation_score,
+        100 + 750,
+        "defenders paid CastleDefendedPoints"
     );
 }
 
@@ -3047,6 +3167,7 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     };
     world.data.zone_data.insert(tax_zone(3));
     insert_zone(&mut world, ZoneKind::Peace, -500, 500, -500, 500);

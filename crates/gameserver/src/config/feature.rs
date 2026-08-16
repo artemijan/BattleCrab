@@ -66,6 +66,37 @@ pub struct FeatureConfig {
     pub door_upgrade_price: [[i64; 3]; 3],
     /// `TrapUpgradePriceLvlN` — the flame-tower (damage-zone) upgrade prices.
     pub trap_upgrade_price: [i64; 4],
+
+    // --- the clan-reputation economy -------------------------------------
+    /// `SiegeHourList` — the hours a castle owner may pick for their siege.
+    pub siege_hour_list: Vec<u32>,
+    /// `TakeCastlePoints` — reputation the captor gains (`Castle
+    /// .updateClansReputation`). Capped by what the former owner *had* when
+    /// there was one, which is Java's `min(TAKE, maxreward)`.
+    pub take_castle_points: i32,
+    /// `CastleDefendedPoints` — reputation for holding your own castle.
+    pub castle_defended_points: i32,
+    /// `LooseCastlePoints` — reputation the former owner loses.
+    pub loose_castle_points: i32,
+    /// `LevelUp{20And25..81Plus}ReputationScore` — clan reputation granted per
+    /// level a member gains, by the level they reached. **Every band is 0 on
+    /// this dist**, so the whole grant is inert here; the bands are carried so
+    /// raising one works.
+    pub level_up_reputation: [i32; 13],
+    /// `LevelObtainedReputationScoreMultiplier` — applied to the band total,
+    /// rounded **up** (Java `Math.ceil`).
+    pub level_obtained_reputation_multiplier: f64,
+    /// `ReputationScorePerKill` — moved between clans on a mutual-war kill.
+    pub reputation_score_per_kill: i32,
+    /// `CreateRoyalGuardCost` / `CreateKnightUnitCost` /
+    /// `ReinforceKnightUnitCost` — sub-pledge reputation prices.
+    pub create_royal_guard_cost: i32,
+    pub create_knight_unit_cost: i32,
+    pub reinforce_knight_unit_cost: i32,
+    /// `FortressBloodOathCount` — Blood Oaths paid per fortress owned. Read by
+    /// `Clan` in Java, but forts do not exist on this dist, so nothing ever
+    /// asks.
+    pub fortress_blood_oath_count: i32,
 }
 
 impl Default for FeatureConfig {
@@ -100,7 +131,48 @@ impl Default for FeatureConfig {
                 [1_600_000, 1_800_000, 2_000_000],
             ],
             trap_upgrade_price: [3_000_000, 4_000_000, 5_000_000, 6_000_000],
+            siege_hour_list: vec![16, 20],
+            take_castle_points: 1500,
+            castle_defended_points: 750,
+            loose_castle_points: 3000,
+            level_up_reputation: [0; 13],
+            level_obtained_reputation_multiplier: 1.0,
+            reputation_score_per_kill: 1,
+            create_royal_guard_cost: 5000,
+            create_knight_unit_cost: 10_000,
+            reinforce_knight_unit_cost: 5000,
+            fortress_blood_oath_count: 1,
         }
+    }
+}
+
+/// The `LevelUp…ReputationScore` bands, as `(min_level, max_level)` in Java's
+/// order. `level_up_reputation[i]` is the score for band `i`.
+pub const REPUTATION_LEVEL_BANDS: [(i32, i32); 13] = [
+    (20, 25),
+    (26, 30),
+    (31, 35),
+    (36, 40),
+    (41, 45),
+    (46, 50),
+    (51, 55),
+    (56, 60),
+    (61, 65),
+    (66, 70),
+    (71, 75),
+    (76, 80),
+    (81, 120),
+];
+
+impl FeatureConfig {
+    /// The reputation one level *at* `level` is worth, before the multiplier.
+    /// 0 outside every band — including below 20, which is most of the newbie
+    /// game.
+    pub fn reputation_for_level(&self, level: i32) -> i32 {
+        REPUTATION_LEVEL_BANDS
+            .iter()
+            .position(|&(lo, hi)| (lo..=hi).contains(&level))
+            .map_or(0, |i| self.level_up_reputation[i])
     }
 }
 
@@ -184,6 +256,94 @@ impl FeatureConfig {
                 p.get_int("TrapUpgradePriceLvl3", 5_000_000) as i64,
                 p.get_int("TrapUpgradePriceLvl4", 6_000_000) as i64,
             ],
+            siege_hour_list: {
+                let raw = p.get_string("SiegeHourList", "");
+                let hrs: Vec<u32> = raw
+                    .split(',')
+                    .filter_map(|h| h.trim().parse().ok())
+                    .collect();
+                if hrs.is_empty() {
+                    d.siege_hour_list.clone()
+                } else {
+                    hrs
+                }
+            },
+            take_castle_points: p.get_int("TakeCastlePoints", d.take_castle_points),
+            castle_defended_points: p.get_int("CastleDefendedPoints", d.castle_defended_points),
+            loose_castle_points: p.get_int("LooseCastlePoints", d.loose_castle_points),
+            level_up_reputation: {
+                // The keys are named by band, not by index, so build the array
+                // from `REPUTATION_LEVEL_BANDS`' order.
+                let names = [
+                    "LevelUp20And25ReputationScore",
+                    "LevelUp26And30ReputationScore",
+                    "LevelUp31And35ReputationScore",
+                    "LevelUp36And40ReputationScore",
+                    "LevelUp41And45ReputationScore",
+                    "LevelUp46And50ReputationScore",
+                    "LevelUp51And55ReputationScore",
+                    "LevelUp56And60ReputationScore",
+                    "LevelUp61And65ReputationScore",
+                    "LevelUp66And70ReputationScore",
+                    "LevelUp71And75ReputationScore",
+                    "LevelUp76And80ReputationScore",
+                    "LevelUp81PlusReputationScore",
+                ];
+                let mut out = [0i32; 13];
+                for (slot, key) in out.iter_mut().zip(names) {
+                    *slot = p.get_int(key, 0);
+                }
+                out
+            },
+            level_obtained_reputation_multiplier: f64::from(p.get_float(
+                "LevelObtainedReputationScoreMultiplier",
+                d.level_obtained_reputation_multiplier as f32,
+            )),
+            reputation_score_per_kill: p
+                .get_int("ReputationScorePerKill", d.reputation_score_per_kill),
+            create_royal_guard_cost: p.get_int("CreateRoyalGuardCost", d.create_royal_guard_cost),
+            create_knight_unit_cost: p.get_int("CreateKnightUnitCost", d.create_knight_unit_cost),
+            reinforce_knight_unit_cost: p
+                .get_int("ReinforceKnightUnitCost", d.reinforce_knight_unit_cost),
+            fortress_blood_oath_count: p
+                .get_int("FortressBloodOathCount", d.fortress_blood_oath_count),
         }
+    }
+}
+
+#[cfg(test)]
+mod row14_tests {
+    use super::*;
+
+    /// The clan-reputation block added for row 14, held to the shipped file.
+    #[test]
+    fn the_reputation_block_matches_the_shipped_ini() {
+        let f = FeatureConfig::load_from(crate::data::DIST_GAME);
+        assert_eq!(f.siege_hour_list, vec![16, 20]);
+        assert_eq!(f.take_castle_points, 1500);
+        assert_eq!(f.castle_defended_points, 750);
+        assert_eq!(f.loose_castle_points, 3000);
+        assert_eq!(f.reputation_score_per_kill, 1);
+        assert_eq!(f.create_royal_guard_cost, 5000);
+        assert_eq!(f.create_knight_unit_cost, 10_000);
+        assert_eq!(f.reinforce_knight_unit_cost, 5000);
+        // **Every band is 0**, which is what makes the level-up grant inert.
+        assert_eq!(f.level_up_reputation, [0; 13], "no band pays anything");
+        assert_eq!(f.level_obtained_reputation_multiplier, 1.0);
+    }
+
+    /// The band lookup is by the level *reached*, and everything below 20 —
+    /// most of the newbie game — is worth nothing.
+    #[test]
+    fn reputation_bands_are_looked_up_by_level() {
+        let mut f = FeatureConfig::default();
+        f.level_up_reputation = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+        assert_eq!(f.reputation_for_level(19), 0, "below every band");
+        assert_eq!(f.reputation_for_level(20), 1, "first band starts at 20");
+        assert_eq!(f.reputation_for_level(25), 1, "…and ends at 25");
+        assert_eq!(f.reputation_for_level(26), 2, "next band");
+        assert_eq!(f.reputation_for_level(80), 12);
+        assert_eq!(f.reputation_for_level(81), 13, "the 81+ band");
+        assert_eq!(f.reputation_for_level(121), 0, "past 120, nothing");
     }
 }

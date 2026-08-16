@@ -49,6 +49,11 @@ pub(super) fn think(world: &mut World, npc_oid: i32) {
         .objects
         .has_component::<crate::model::components::ServitorOf>(&npc_oid)
     {
+        // A fetch errand outranks trailing the owner, so it thinks first and
+        // suppresses the follow while it is running.
+        if servitor::pet_pickup_think(world, npc_oid) {
+            return;
+        }
         servitor::servitor_follow_tick(world, npc_oid);
         if world
             .objects

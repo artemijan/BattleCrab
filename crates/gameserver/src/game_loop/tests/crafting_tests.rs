@@ -641,3 +641,66 @@ fn alt_game_creation_stages_the_craft() {
         "earned message"
     );
 }
+
+/// **`RequestRecipeShopManagePrev` (0xC0) re-opens the seller's list.** The
+/// browse window's back button — the customer already has the store open and
+/// asks for the list again.
+#[test]
+fn the_manufacture_browse_back_button_resends_the_list() {
+    let (mut world, ..) = cast_test_world();
+    install_fixtures(&mut world);
+    let _m_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut c_rx = ingame_caster(&mut world, 2, 3002, 20, 0);
+    learn_skill(&mut world, 3001, 172);
+    world
+        .objects
+        .get_component_mut::<RecipeBook>(&3001)
+        .unwrap()
+        .dwarven
+        .push(RECIPE_LIST);
+    crafting::handle_list_set(
+        &mut world,
+        1,
+        vec![cp::ManufactureLine {
+            recipe_id: RECIPE_LIST,
+            cost: 1000,
+        }],
+    );
+    // The customer is targeting the shop owner, which is what Java reads.
+    world
+        .objects
+        .add_components(&3002, crate::model::components::TargetRef(Some(3001)));
+    drain(&mut c_rx);
+
+    on_packet(&mut world, 2, vec![cop::REQUEST_RECIPE_SHOP_MANAGE_PREV]);
+
+    assert!(
+        has_opcode(
+            &drain(&mut c_rx),
+            server_packets::opcodes::RECIPE_SHOP_SELL_LIST
+        ),
+        "the sell list goes back out"
+    );
+}
+
+/// **With no target the back button is refused**, not answered with an empty
+/// window — Java's `getTarget() == null` arm sends `ActionFailed`.
+#[test]
+fn the_manufacture_back_button_needs_a_targeted_player() {
+    let (mut world, ..) = cast_test_world();
+    install_fixtures(&mut world);
+    let mut c_rx = ingame_caster(&mut world, 2, 3002, 20, 0);
+    drain(&mut c_rx);
+
+    on_packet(&mut world, 2, vec![cop::REQUEST_RECIPE_SHOP_MANAGE_PREV]);
+
+    let out = drain(&mut c_rx);
+    assert!(
+        !has_opcode(&out, server_packets::opcodes::RECIPE_SHOP_SELL_LIST),
+        "no list without a target"
+    );
+    assert!(
+        has_opcode(&out, server_packets::opcodes::ACTION_FAIL),
+        "the click is answered"
+    );
+}

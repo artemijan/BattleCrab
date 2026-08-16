@@ -15,6 +15,31 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
 
+/// `RequestMagicSkillList` (0x38) — the client asking for its own skill list
+/// again, which it does whenever the skills window is reopened.
+///
+/// Java verifies the packet's object id against the sender's and **logs and
+/// drops** a mismatch rather than serving another player's book; that check is
+/// the whole reason the packet carries an id it could have derived.
+pub(crate) fn handle_request_magic_skill_list(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    let mut r = commons::network::PacketReader::new(body);
+    let Some(object_id) = r.read_i32() else {
+        return;
+    };
+    if object_id != player {
+        tracing::warn!(
+            "Player {player} requested RequestMagicSkillList with different object id: {object_id}"
+        );
+        return;
+    }
+    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player) {
+        send_to_client(world, client_id, pkt);
+    }
+}
+
 /// Java `Player.removeSkill(id)` — take the skill out of the book **and** stop
 /// what it landed (`Creature.removeSkill` → `EffectList.stopSkillEffects`).
 ///

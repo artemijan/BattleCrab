@@ -988,6 +988,7 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
         "OpTargetPc" => Some(SkillCondition::TargetPc),
         "OpCallPc" => Some(SkillCondition::CallPc),
         "CanTransform" => Some(SkillCondition::CanTransform),
+        "CanUntransform" => Some(SkillCondition::CanUntransform),
         "CanSummon" => Some(SkillCondition::CanSummon),
         "CanSummonCubic" => Some(SkillCondition::CanSummonCubic),
         "CanSummonSiegeGolem" => Some(SkillCondition::CanSummonSiegeGolem),

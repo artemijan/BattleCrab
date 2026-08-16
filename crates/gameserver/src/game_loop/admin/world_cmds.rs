@@ -17,10 +17,14 @@ use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::ZoneFlags;
+
 use crate::model::door::Door;
 use crate::network::server_packets;
 use crate::network::trade;
 use crate::world::World;
+
+/// `Inventory.ADENA_ID` — Java's zone visualiser drops adena as its marker.
+use crate::data::item_data::ADENA_ID;
 
 use super::{send_message, send_sm};
 
@@ -102,6 +106,143 @@ pub(super) fn admin_zones(world: &mut World, client_id: u32, object_id: i32) {
     );
 }
 
+/// `AdminZone`'s `//zone_visual <id|all>` — drop a line of adena along each
+/// zone boundary so a GM can *see* where a zone actually is.
+///
+/// Java's `ZoneForm.visualizeZone(z)`, one implementation per shape, all
+/// stepping 10 units and dropping `ADENA_ID` ×1 at the GM's own Z. `all`
+/// visualises every zone covering the GM; a numeric argument visualises that
+/// zone by id.
+///
+/// SKIP(census): Java also walks `getSpawnTerritories(activeChar)` on `all` —
+/// the spawn-territory polygons out of `spawns.xml`. The port keeps those in
+/// `SpawnData` rather than in the zone list, and they are not what the command
+/// is for; the zones themselves are.
+pub(super) fn admin_zone_visual(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(pos) = maybe_position(world, object_id) else {
+        return;
+    };
+    let Some(arg) = args.first() else {
+        // Java's `st.nextToken()` throws here; the handler's caller catches
+        // nothing, so the command simply does not run.
+        return;
+    };
+
+    let mut points: Vec<(i32, i32)> = Vec::new();
+    if arg.eq_ignore_ascii_case("all") {
+        let forms: Vec<_> = world
+            .data
+            .zone_data
+            .zones_at(pos.x, pos.y, pos.z)
+            .map(|z| z.territory.form.clone())
+            .collect();
+        for form in &forms {
+            border_points(form, &mut points);
+        }
+    } else if let Ok(zone_id) = arg.parse::<i32>() {
+        let form = world
+            .data
+            .zone_data
+            .zones
+            .iter()
+            .find(|z| z.id == zone_id)
+            .map(|z| z.territory.form.clone());
+        let Some(form) = form else {
+            send_message(world, client_id, &format!("No zone with id {zone_id}."));
+            return;
+        };
+        border_points(&form, &mut points);
+    } else {
+        return;
+    }
+
+    for (x, y) in points {
+        let oid = crate::game_loop::ground_items::spawn_ground_item(
+            world,
+            ADENA_ID,
+            1,
+            0,
+            x,
+            y,
+            pos.z,
+            0,
+            crate::game_loop::ground_items::DropSource::Npc,
+        );
+        world.zone_debug_items.push(oid);
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("{} zone markers dropped.", world.zone_debug_items.len()),
+    );
+}
+
+/// `//zone_visual_clear` → `ZoneManager.clearDebugItems()`: every marker this
+/// GM session dropped decays.
+pub(super) fn admin_zone_visual_clear(world: &mut World, client_id: u32) {
+    let markers = std::mem::take(&mut world.zone_debug_items);
+    let count = markers.len();
+    for oid in markers {
+        if let Some(region) = crate::game_loop::helpers::region_cell_of(world, oid) {
+            crate::game_loop::ground_items::despawn_ground_item(world, oid, region);
+        }
+    }
+    send_message(world, client_id, &format!("{count} zone markers cleared."));
+}
+
+/// `ZoneForm.visualizeZone`, one arm per shape. `STEP` is Java's 10.
+fn border_points(form: &crate::data::spawn_data::ZoneForm, out: &mut Vec<(i32, i32)>) {
+    use crate::data::spawn_data::ZoneForm;
+    const STEP: i32 = 10;
+    match form {
+        ZoneForm::NPoly { xs, ys } => {
+            for i in 0..xs.len() {
+                let next = (i + 1) % xs.len();
+                let (vx, vy) = (xs[next] - xs[i], ys[next] - ys[i]);
+                let length = ((vx * vx + vy * vy) as f64).sqrt() / f64::from(STEP);
+                if length <= 0.0 {
+                    continue;
+                }
+                let mut o = 1.0;
+                while o <= length {
+                    out.push((
+                        xs[i] + (o / length * f64::from(vx)) as i32,
+                        ys[i] + (o / length * f64::from(vy)) as i32,
+                    ));
+                    o += 1.0;
+                }
+            }
+        }
+        ZoneForm::Cuboid { x1, x2, y1, y2 } => {
+            let mut x = *x1;
+            while x < *x2 {
+                out.push((x, *y1));
+                out.push((x, *y2));
+                x += STEP;
+            }
+            let mut y = *y1;
+            while y < *y2 {
+                out.push((*x1, y));
+                out.push((*x2, y));
+                y += STEP;
+            }
+        }
+        ZoneForm::Cylinder { x, y, rad } => {
+            let count = ((2.0 * std::f64::consts::PI * f64::from(*rad)) / f64::from(STEP)) as i32;
+            if count <= 0 {
+                return;
+            }
+            let angle = (2.0 * std::f64::consts::PI) / f64::from(count);
+            for i in 0..count {
+                out.push((
+                    x + ((angle * f64::from(i)).cos() * f64::from(*rad)) as i32,
+                    y + ((angle * f64::from(i)).sin() * f64::from(*rad)) as i32,
+                ));
+            }
+        }
+    }
+}
+
 /// `AdminShop`'s `//buy <buyListId>` — open a buy window for a merchant buy-list
 /// (admin path skips the npc-allowed check Java also bypasses).
 pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
@@ -124,7 +265,14 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
     send_to_client(
         world,
         client_id,
-        trade::buy_list(list, inventory, &world.data, 0.0),
+        trade::buy_list(
+            list,
+            inventory,
+            &world.data,
+            0.0,
+            world.cfg.rates.rate_siege_guards_price,
+            |p| crate::game_loop::shop::stock_left(world, list_id, p),
+        ),
     );
     send_to_client(
         world,

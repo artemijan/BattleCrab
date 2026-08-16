@@ -1011,5 +1011,6 @@ fn insert_zone(world: &mut World) {
         damage: None,
         swamp: None,
         condition: None,
+        mother_tree: None,
     });
 }
