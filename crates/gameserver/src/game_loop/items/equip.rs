@@ -251,6 +251,37 @@ pub(crate) fn destroy_item_by_id(
     changes
 }
 
+/// [`destroy_item_by_id`] keyed on a single **instance** instead of an item id.
+///
+/// The distinction matters wherever the rule is about one item rather than a
+/// kind of item: destroying by id takes every stack and every duplicate of that
+/// id, so a player holding a `+30` ring and a plain one of the same id would
+/// lose both. Java's own over-enchant sweep passes the `Item` instance for
+/// exactly this reason.
+pub(crate) fn destroy_item_by_object_id(
+    world: &mut World,
+    owner_oid: i32,
+    object_id: i32,
+    count: i64,
+) -> Option<crate::model::inventory::ItemChange> {
+    use crate::model::inventory::Inventory;
+    let before = world
+        .objects
+        .get_component::<Inventory>(&owner_oid)
+        .map(|inv| inv.equipped_object_ids())
+        .unwrap_or_default();
+    let change = world
+        .objects
+        .get_component_mut::<Inventory>(&owner_oid)
+        .and_then(|inv| inv.remove_by_object_id(object_id, count))?;
+    let unequipped = unequipped_by_removal(&before, std::slice::from_ref(&change));
+    if !unequipped.is_empty() {
+        let client_id = crate::game_loop::helpers::client_for_player(world, owner_oid).unwrap_or(0);
+        finish_equipped_item_destroyed(world, client_id, owner_oid, &unequipped);
+    }
+    Some(change)
+}
+
 /// The tail of [`finish_equip_change`]: the owner-wide penalties and passives
 /// a paperdoll change can flip. Each sends its own packets, and only when the
 /// value it owns actually moved.

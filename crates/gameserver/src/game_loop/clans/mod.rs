@@ -41,7 +41,7 @@ use crate::world::World;
 use super::helpers::client_for_player;
 
 pub(crate) mod academy;
-mod alliance;
+pub(crate) mod alliance;
 mod crests;
 pub(crate) mod hall_auction;
 pub(crate) mod hall_function;
@@ -98,8 +98,20 @@ pub(crate) fn name_taken(world: &World, name: &str) -> bool {
     by_name(world, name).is_some()
 }
 
-/// `DaysBeforeCreateAClan = 10` on this dist → the recreate cooldown in millis.
-pub(crate) const CLAN_CREATE_COOLDOWN_MS: i64 = 10 * 86_400_000;
+/// `DaysBeforeCreateAClan` → the recreate cooldown in millis.
+pub(crate) fn clan_create_cooldown_ms(world: &World) -> i64 {
+    i64::from(world.cfg.character.alt_clan_create_days) * super::time::MILLIS_PER_DAY
+}
+
+/// `DaysBeforeJoinAClan` → the rejoin penalty in millis.
+pub(crate) fn clan_join_penalty_ms(world: &World) -> i64 {
+    i64::from(world.cfg.character.alt_clan_join_days) * super::time::MILLIS_PER_DAY
+}
+
+/// `DaysToPassToDissolveAClan` → the dissolution delay in millis.
+pub(crate) fn clan_dissolve_delay_ms(world: &World) -> i64 {
+    i64::from(world.cfg.character.alt_clan_dissolve_days) * super::time::MILLIS_PER_DAY
+}
 
 /// `CommonSkill.CLAN_ADVENT` (skill 19009 lv.1): the clan-leader-online aura —
 /// PAtk/PDef/MDef +5%, MAtk +6%, HP/MP regen +5 on every clan member while the
@@ -373,7 +385,7 @@ pub(crate) fn destroy_clan(world: &mut World, clan_id: i32) {
     );
 
     // Java stamps the recreate cooldown on the (online) leader in removeClanMember.
-    let leader_expiry = now_millis() + CLAN_CREATE_COOLDOWN_MS;
+    let leader_expiry = now_millis() + clan_create_cooldown_ms(world);
     let delete_all = server_packets::pledge_show_member_list_delete_all();
     for oid in &member_ids {
         let online = {
@@ -595,13 +607,6 @@ pub(crate) fn broadcast_to_clan(world: &World, clan_id: i32, pkt: &[u8]) {
 }
 
 // --- G18 slice 1: membership lifecycle -------------------------------------
-
-/// `DaysBeforeJoinAClan = 1` on this dist → the rejoin penalty in millis
-/// (stamped on a leaver/oustee and on the ousting clan).
-pub(crate) const CLAN_JOIN_PENALTY_MS: i64 = 86_400_000;
-
-/// `DaysToPassToDissolveAClan = 7` on this dist → the dissolution delay.
-pub(crate) const CLAN_DISSOLVE_DELAY_MS: i64 = 7 * 86_400_000;
 
 /// The game loop runs at 10 ticks/s — wall-clock millis to scheduler ticks.
 pub(crate) const MS_PER_TICK: i64 = 100;

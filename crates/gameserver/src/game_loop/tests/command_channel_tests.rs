@@ -628,3 +628,42 @@ fn ordinary_drop_is_killer_protected_for_15s() {
     ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
     assert_eq!(count_of_item(&world, 3002, 9551), 1);
 }
+
+/// `AltCommandChannelFriends` — "Same Command Channel are friends". Java places
+/// the check immediately after the peace-zone arm of `Player.isAutoAttackable`,
+/// *ahead* of the flag/PK arms, so two parties raiding together cannot hit each
+/// other even when one of them is a criminal.
+///
+/// The port had no such check at all: the key is `True` on this dist, so the
+/// omission was live.
+#[test]
+fn same_command_channel_members_cannot_attack_each_other() {
+    use crate::game_loop::pvp::is_player_auto_attackable;
+
+    let (mut world, ..) = test_world();
+    let _rxs = two_parties(&mut world);
+
+    // Make 3003 a PK so the baseline answer is "attackable" for a reason that
+    // has nothing to do with zones or parties.
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3003)
+        .unwrap()
+        .reputation = -100;
+    assert!(
+        is_player_auto_attackable(&world, 3001, 3003),
+        "a PK in another party is attackable before the channel forms"
+    );
+
+    form_channel(&mut world);
+    assert!(
+        !is_player_auto_attackable(&world, 3001, 3003),
+        "two parties in the same command channel are friends"
+    );
+    // …and it really is the *channel*, not the PK flag going away.
+    world.cfg.character.alt_command_channel_friends = false;
+    assert!(
+        is_player_auto_attackable(&world, 3001, 3003),
+        "turning the key off restores the attack"
+    );
+}

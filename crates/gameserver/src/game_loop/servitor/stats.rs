@@ -67,7 +67,7 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
         .get_component::<crate::model::components::Buffs>(&pet_oid)
         .cloned()
         .unwrap_or_default();
-    let (mut combat, speeds, max_hp, max_mp) =
+    let (mut combat, mut speeds, max_hp, max_mp) =
         // A pet is a `Summon`, not an `Attackable`, so it can never be a
         // champion — neutral mods.
         crate::model::npc_finalized_stats(
@@ -126,5 +126,13 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
         v.cur_mp = (v.max_mp as f64 * mp_frac).min(v.max_mp as f64);
     }
     world.objects.add_components(&pet_oid, combat);
+    // `SummonStat.getRunSpeed`/`getWalkSpeed`: a summon clamps to
+    // `MaxRunSpeedSummon` (350), not the player's `MaxRunSpeed` (300) — Java's
+    // comment at the site is *"In retail maximum run speed is 350 for summons
+    // and 300 for players"*. The shared NPC finalizer applies no cap at all,
+    // because a plain NPC has none.
+    let summon_cap = world.data.combat_caps.max_run_speed_summon;
+    speeds.run_spd = speeds.run_spd.min(summon_cap);
+    speeds.walk_spd = speeds.walk_spd.min(summon_cap);
     world.objects.add_components(&pet_oid, speeds);
 }

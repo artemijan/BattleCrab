@@ -347,6 +347,27 @@ pub(crate) fn teleport_to_town(world: &mut World, player_oid: i32, pick: usize) 
 /// `Creature.teleToLocation`: stop moving, vanish from the old neighborhood
 /// (`decayMe` → `DeleteObject`), push the new position, and wait for the
 /// client's `Appearing` before becoming visible again.
+/// `teleToLocation(x, y, z, heading, randomOffset = true)` — the scattering
+/// flavour, for the handful of callers that ask not to stack arrivals on one
+/// tile. Java's offset is `Rnd.get(-o, o)` on x and y, inclusive at both ends.
+/// Everything else must use [`teleport_player`], which lands exactly.
+pub(crate) fn teleport_player_scattered(
+    world: &mut World,
+    player_oid: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+) {
+    let offset = world.cfg.character.teleport_offset();
+    let (x, y) = if offset > 0 {
+        let span = offset * 2 + 1;
+        (x - offset + world.roll(span), y - offset + world.roll(span))
+    } else {
+        (x, y)
+    };
+    teleport_player(world, player_oid, x, y, z);
+}
+
 pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32, z: i32) {
     if world
         .objects

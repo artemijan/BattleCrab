@@ -199,7 +199,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **194** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini's live keys are wired**; what remains is Character 76, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **162** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and four of Character.ini's clusters with them**; what remains is Character 44, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
@@ -378,10 +378,135 @@ one and was right). And the first cut of the old-corpse gate read a "no decay
 scheduled" corpse as "0 ms left"; Java's `getRemainingTime` answers
 `Long.MAX_VALUE` there, which an existing spoil test caught.
 
-What is left is General (71 — mostly dev tooling and persistence-model choices
-the port made differently: memory-first saves, no `HtmCache`, no grid on/off),
-Character (76), which is real gameplay knobs, and Server (7), which is
-infrastructure. Those want a row each rather than a single sweep.
+**Character.ini is the largest remaining file, and the first cluster is done.**
+Re-deriving it gave **82** unread keys, not the 76 on record. Applying the
+usual hypothesis check: **8 are dead in Java too** — the ability-point pair,
+the three `FeeDelete*Skills`, `MaxNewbieBuffLevel`, and the two mentor
+penalties, which are dead twice over since `MentorPenaltyForMenteeLeave`
+assigns to the *same field* as `MentorPenaltyForMenteeComplete` (a bug in
+Java, not a porting choice). Four more are list-shaped (`SkillReuseList`,
+`EnchantBlackList`, `AugmentationBlackList`, `AutoLootItemIds`) and are
+counted but not yet triaged. That leaves **70 live**.
+
+Ten of those are now wired — the *caps and clamps*, chosen first because they
+are precisely the shape this row's "Effect in game" column describes: a value
+hardcoded to this dist's number, several of them inside a comment quoting the
+very key that was being ignored.
+
+| key | was | now reads |
+|---|---|---|
+| `MaxEquipableItemGrade` | `const MAX_EQUIPABLE_ITEM_GRADE = S` | the buy-list loader, and `//reload buylist` re-applies it live |
+| `MinAbnormalStateSuccessRate` / `Max…` | `.clamp(10.0, 90.0)` | `LandRateBounds`, threaded into `calcEffectLandRate` |
+| `MaximumWarehouseSlotsForDwarf` / `…NoDwarf` | literal `120` / `100` | `warehouse_limit`'s private-warehouse base |
+| `AltMaxNumOfClansInAlly` | `const MAX_CLANS_IN_ALLY = 3` | the alliance join gate |
+| `AltClanMembersForWar` | `const CLAN_MEMBERS_FOR_WAR = 15` | both clan-war declaration gates |
+| `MaxHP` | no cap at all | `calc_max_hp`, with Java's cursed-weapon exemption |
+| `MaxSp` | no ceiling at all | `add_exp_and_sp` |
+| `MaxRunSpeedSummon` | no cap at all | the summon stat path only — a plain NPC stays uncapped, as in Java |
+
+Three of those were missing behaviour rather than a frozen number: nothing
+capped a player's HP, nothing capped SP, and summon speed was unclamped.
+`MaxSp` carries a trap worth naming — Java stores
+`getLong(...) >= 0 ? value : Long.MAX_VALUE`, so a **negative** value means
+*unlimited*; reading it literally would have frozen every character's SP at
+zero.
+
+**Cluster 2 — the karma gates and the arrival/teleport protection window (8
+keys)** — landed next, and it was mostly *missing behaviour* rather than frozen
+numbers. `PlayerSpawnProtection` (600 s) had no counterpart at all: a character
+entering the world is meant to be **ignored by aggressive monsters** until their
+first deliberate action. That is not invulnerability — Java's `isSpawnProtected`
+has four readers, and the two that matter are `Attackable.getHating` (drops the
+player from the aggro list) and `Summon.isInvul` (which *does* make the pet
+invulnerable meanwhile, an asymmetry with the owner). The window is ended by
+`Player.onActionRequest`, which Java calls from exactly five client packets, so
+600 is a ceiling on an AFK login rather than ten minutes of safety. Ported as
+`game_loop::spawn_protection` with the five packets hooked in one place in
+`dispatch`.
+
+`OffsetOnTeleportEnabled`/`MaxOffsetOnTeleport` needed the opposite of the
+obvious change. The scatter looks global but Java applies it only where the
+*caller* asks (`randomOffset = true`), which on this dist is four places: the
+jail zone, a residence-hall teleport zone, the Olympiad observer's return to
+`_lastLoc`, and summons following their owner. Folding it into the port's shared
+`teleport_player` — 49 call sites — would have scattered every gatekeeper, quest
+and `//tp` teleport. It is a separate `teleport_player_scattered`, wired at the
+two of the four sites the port has.
+
+Four of the eight are inert *at their shipped values*, and the reason is the
+value rather than the port: `AltKarmaPlayerCanTeleport` and
+`AltKarmaPlayerCanTrade` are **True** (their guards read `if (!config && …)`,
+so they never fire), `AltKarmaPlayerCanBeKilledInPeaceZone` is **False** (the
+peace-zone refusal stands, which is what the port already did), and
+`PlayerTeleportProtection` is **0**. That last one is worth its own note: it is
+a *different rule* from the spawn window despite the matching name — it is real
+invulnerability (`Player.isInvul()` ORs it in) — and it is parsed without wiring
+the invulnerability, because at 0 the branch cannot fire.
+
+**Cluster 3 — what may be enchanted, and what may be augmented (8 keys)** —
+closed two of the four list-shaped keys that had been counted but not triaged.
+`EnchantBlackList` is a veto *on top of* the template flag
+(`binarySearch(...) < 0 && _enchantable`), not a substitute, and
+`AugmentationBlackList` is the last gate in `AbstractRefinePacket.isValid`;
+both are now honoured. `DisableOverEnchanting` was already enforced
+unconditionally inside the port's `accepts_target` and is now gated on the key.
+Three of the eight are inert or unreachable: `AltAllowAugmentTrade` and
+`AltAllowAugmentDestroy` both ship **True**, which is the behaviour the port
+already had, and `AltAllowAugmentPvPItems` is **unreachable** — its gate is
+`item.isPvp() && !config`, and no item in `data/stats/items` declares `is_pvp`
+at all.
+
+**`OverEnchantProtection` turned up a live footgun in the dist's own
+configuration, and is deliberately not ported literally.** Java infers the
+three enchant ceilings from `<enchantRateGroup>` *names*; this dist ships
+`ARMOR_GROUP`, `FULL_ARMOR_GROUP`, `FIGHTER_WEAPON_GROUP` and
+`MAGE_WEAPON_GROUP`, none of which matches its accessory patterns, so
+`_maxAccessoryEnchant` stays at its initial **0** while weapons and armour both
+derive 29. With the shipped `OverEnchantProtection = True` and
+`OverEnchantPunishment = JAIL`, retail therefore destroys every enchanted ring,
+earring and necklace a character owns on login and jails them for it — an
+absence of group data read as a configured limit of zero. The sweep is ported;
+`max_enchant_for_type2` returns `Option` and answers `None` for a category with
+no group data, so those items are left alone. Recorded in
+`docs/CUSTOM_DIST_DEVIATIONS.md` with its own guard test.
+
+**Cluster 4 — clan and alliance timers (12 keys)** — was the one that found
+real bugs rather than frozen numbers, because two of the port's hardcoded
+constants did not match the dist they claimed to quote.
+
+- **Clan dissolution took seven times as long as configured.** The port's
+  `CLAN_DISSOLVE_DELAY_MS` was `7 * 86_400_000` and its doc read
+  *"`DaysToPassToDissolveAClan` = 7 on this dist"*. The dist ships **1**.
+- **Any privileged member could empty the clan warehouse.** Java's two branches
+  for `AltMembersCanWithdrawFromClanWH` are not "privilege vs. nothing": with
+  the key **on** the gate is `CL_VIEW_WAREHOUSE`, with it **off** — which is
+  what ships — only the **clan leader** may withdraw at all. The port
+  implemented the *on* branch unconditionally.
+- **Command-channel allies could attack each other.** `AltCommandChannelFriends`
+  is **True**, and Java checks it immediately after the peace-zone arm of
+  `isAutoAttackable`, ahead of the flag/PK arms. The port had no such check, so
+  two parties raiding together could hit each other — including inside a PvP
+  zone, where Java's ordering makes the channel win.
+
+The four alliance penalties turned out to be four *different* keys distinguished
+by the `ally_penalty_type` Java stamps alongside each — `CLAN_LEAVED`,
+`CLAN_DISMISSED`, `DISMISS_CLAN`, `DISSOLVE_ALLY`. All four ship as 1 day, which
+is precisely why one shared `ALLY_PENALTY_MS` constant went unnoticed; the test
+moves each key independently.
+
+Three of the twelve are carried without a consumer, each for a stated reason:
+`AltClanLeaderInstantActivation` is **False** and the port already does the
+two-step nomination it implies; `LifeCrystalNeeded` is **True** but no entry in
+this dist's pledge tree declares required items; and
+`AltClanMembersTimeForBonus` (`30mins`, parsed as a duration) feeds
+`ClanMember.getOnlineStatus`, and the port does not track per-member online
+time.
+
+What is left is Character (34 live keys past these four clusters — enchant/augment
+gates, the karma trio, the clan/ally day penalties, character creation and
+auto-loot), General (71 — mostly dev tooling and persistence-model choices the
+port made differently: memory-first saves, no `HtmCache`, no grid on/off), and
+Server (7), which is infrastructure.
 
 **Row 12 closed, and porting it found a live inventory divergence.** The
 recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus

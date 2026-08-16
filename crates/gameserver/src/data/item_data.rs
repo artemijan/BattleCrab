@@ -320,6 +320,35 @@ impl CrystalType {
 
     /// `<set name="crystal_type" val="..."/>` → variant (Java
     /// `CrystalType.valueOf(name.toUpperCase())`). Unknown/absent → `None`.
+    /// `Enum.valueOf(CrystalType.class, …)` for `Character.ini`'s
+    /// `MaxEquipableItemGrade`. Separate from [`Self::from_name`] because that
+    /// one reads a datapack attribute and answers `None` for anything it does
+    /// not know; an unreadable *config* value must not silently become "no
+    /// grade", which would filter the entire shop catalogue away. Java throws
+    /// here, so the port keeps the permissive end of the enum and says so.
+    pub fn from_config_name(name: &str) -> Self {
+        match name.trim().to_ascii_uppercase().as_str() {
+            "NONE" => CrystalType::None,
+            "D" => CrystalType::D,
+            "C" => CrystalType::C,
+            "B" => CrystalType::B,
+            "A" => CrystalType::A,
+            "S" => CrystalType::S,
+            "S80" => CrystalType::S80,
+            "S84" => CrystalType::S84,
+            "R" => CrystalType::R,
+            "R95" => CrystalType::R95,
+            "R99" => CrystalType::R99,
+            "EVENT" => CrystalType::Event,
+            other => {
+                tracing::warn!(
+                    "MaxEquipableItemGrade: unknown crystal type {other:?}; using EVENT (no filter)"
+                );
+                CrystalType::Event
+            }
+        }
+    }
+
     pub(crate) fn from_name(name: Option<&str>) -> Self {
         match name.map(|s| s.to_ascii_uppercase()).as_deref() {
             Some("D") => CrystalType::D,

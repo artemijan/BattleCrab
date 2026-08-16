@@ -7,11 +7,31 @@ use crate::model::clan::{
     ALLY_PENALTY_TYPE_DISMISS_CLAN, ALLY_PENALTY_TYPE_DISSOLVE_ALLY,
 };
 
-/// `AltMaxNumOfClansInAlly = 3` on this dist.
-const MAX_CLANS_IN_ALLY: usize = 3;
-
-/// The ally penalties all run `DaysBefore… = 1` day on this dist.
-const ALLY_PENALTY_MS: i64 = 86_400_000;
+/// The alliance penalty window for one `ally_penalty_type`, in millis.
+///
+/// Java sets these at four separate sites, each with its own key, and the
+/// penalty *type* it stamps alongside identifies which:
+///
+/// | type | key |
+/// |---|---|
+/// | `CLAN_LEAVED` | `DaysBeforeJoinAllyWhenLeaved` (`AllyLeave`) |
+/// | `CLAN_DISMISSED` | `DaysBeforeJoinAllyWhenDismissed` (`AllyDismiss`) |
+/// | `DISMISS_CLAN` | `DaysBeforeAcceptNewClanWhenDismissed` (`AllyDismiss`, the leader clan) |
+/// | `DISSOLVE_ALLY` | `DaysBeforeCreateNewAllyWhenDissolved` (`Clan.dissolveAlly`) |
+///
+/// All four ship as **1** here, which is exactly why a single shared constant
+/// went unnoticed.
+pub(crate) fn ally_penalty_ms(world: &World, penalty_type: i32) -> i64 {
+    let c = &world.cfg.character;
+    let days = match penalty_type {
+        ALLY_PENALTY_TYPE_CLAN_LEAVED => c.alt_ally_join_days_when_leaved,
+        ALLY_PENALTY_TYPE_CLAN_DISMISSED => c.alt_ally_join_days_when_dismissed,
+        ALLY_PENALTY_TYPE_DISMISS_CLAN => c.alt_accept_clan_days_when_dismissed,
+        ALLY_PENALTY_TYPE_DISSOLVE_ALLY => c.alt_create_ally_days_when_dissolved,
+        _ => 0,
+    };
+    i64::from(days) * crate::game_loop::time::MILLIS_PER_DAY
+}
 
 /// Persist a clan's ally membership + penalty stamps (the ally half of
 /// `Clan.updateClanInDB`).
@@ -232,11 +252,12 @@ pub(crate) fn handle_dissolve_ally(world: &mut World, client_id: u32, player_oid
 /// clans: those carry no penalty and keep their cached ally crest, which is a
 /// difference preserved from the ported code rather than chosen.
 fn leave_alliance(world: &mut World, clan_id: i32, at: i64, penalty_type: i32) {
+    let penalty_ms = ally_penalty_ms(world, penalty_type);
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.ally_id = 0;
         c.ally_name.clear();
         c.ally_crest_id = 0;
-        c.ally_penalty_expiry_time = at + ALLY_PENALTY_MS;
+        c.ally_penalty_expiry_time = at + penalty_ms;
         c.ally_penalty_type = penalty_type;
     }
     store_clan_ally(world, clan_id);
@@ -379,7 +400,9 @@ fn check_ally_join_condition(world: &World, requestor_oid: i32, target_oid: i32)
         );
         return false;
     }
-    if ally_clan_ids(world, leader_clan.ally_id).len() >= MAX_CLANS_IN_ALLY {
+    if ally_clan_ids(world, leader_clan.ally_id).len()
+        >= world.cfg.character.max_num_of_clans_in_ally
+    {
         send_sm_with(
             world,
             requestor_oid,
@@ -625,8 +648,9 @@ pub(crate) fn handle_ally_dismiss(world: &mut World, client_id: u32, body: &[u8]
     }
 
     let now = now_millis();
+    let dismisser_penalty = ally_penalty_ms(world, ALLY_PENALTY_TYPE_DISMISS_CLAN);
     if let Some(c) = world.clans.get_mut(&clan_id) {
-        c.ally_penalty_expiry_time = now + ALLY_PENALTY_MS;
+        c.ally_penalty_expiry_time = now + dismisser_penalty;
         c.ally_penalty_type = ALLY_PENALTY_TYPE_DISMISS_CLAN;
     }
     store_clan_ally(world, clan_id);

@@ -84,10 +84,17 @@ pub(crate) fn set_active(world: &mut World, player_oid: i32, active: ActiveWareh
 }
 
 /// `ClanWarehouse` bypass (`depositc`/`withdrawc`): gate on clan membership,
-/// clan level ≥ 1, and — for withdraw — the `CL_VIEW_WAREHOUSE` privilege
-/// (Java `ClanWarehouse.useBypass`), then set the active warehouse to the clan
-/// one and open the window. `player_oid` doubles as the char id (persistent
-/// object ids).
+/// clan level ≥ 1, and — for withdraw — on
+/// `AltMembersCanWithdrawFromClanWH`, then set the active warehouse to the
+/// clan one and open the window. `player_oid` doubles as the char id
+/// (persistent object ids).
+///
+/// The withdraw gate is **not** "privilege, or nothing". Java's two branches
+/// are: with the key **on**, the `CL_VIEW_WAREHOUSE` privilege; with it
+/// **off** — which is what this dist ships — only the **clan leader** may
+/// withdraw at all, privilege or not. The port used to implement the *on*
+/// branch unconditionally, so any member holding the privilege could empty the
+/// clan warehouse on a server configured to forbid exactly that.
 pub(crate) fn open_clan(world: &mut World, client_id: u32, player_oid: i32, withdraw: bool) {
     let Some(player) = world.objects.get_component::<Player>(&player_oid) else {
         return;
@@ -103,8 +110,15 @@ pub(crate) fn open_clan(world: &mut World, client_id: u32, player_oid: i32, with
     if clan.level == 0 {
         return; // "only clans of level 1+ can use a clan warehouse"
     }
-    if withdraw && !clan.has_privilege(player_oid, privs, crate::model::clan::CL_VIEW_WAREHOUSE) {
-        return; // no CL_VIEW_WAREHOUSE right
+    if withdraw {
+        let allowed = if world.cfg.character.alt_members_can_withdraw_from_clan_wh {
+            clan.has_privilege(player_oid, privs, crate::model::clan::CL_VIEW_WAREHOUSE)
+        } else {
+            clan.leader_id == player_oid
+        };
+        if !allowed {
+            return;
+        }
     }
     set_active(world, player_oid, ActiveWarehouse::Clan);
     if withdraw {
@@ -279,9 +293,9 @@ fn warehouse_limit(world: &World, player_oid: i32, tgt: WhTarget) -> i32 {
                     .get_component::<crate::model::components::StatModifiers>(&player_oid),
             );
             let base = if race == crate::enums::Race::Dwarf as i32 {
-                120
+                world.cfg.character.warehouse_slots_dwarf
             } else {
-                100
+                world.cfg.character.warehouse_slots_no_dwarf
             };
             mods.map_or(base, |m| {
                 crate::model::finalize(

@@ -157,6 +157,19 @@ pub struct EnchantData {
     scroll_groups: HashMap<i32, EnchantScrollGroup>,
     scrolls: HashMap<i32, EnchantScroll>,
     supports: HashMap<i32, EnchantSupport>,
+    /// `EnchantItemGroupsData._maxWeaponEnchant` / `_maxArmorEnchant` /
+    /// `_maxAccessoryEnchant` — the ceilings `OverEnchantProtection` measures
+    /// against. Java does not read them from a field in the XML: it *infers*
+    /// them from each `<enchantRateGroup>`'s **name**, taking the highest
+    /// `enchant` range with a non-zero chance from every group whose name
+    /// contains `WEAPON`, or one of `ACCESSORIES`/`RING`/`EARRING`/`NECK`,
+    /// or neither (armour).
+    ///
+    /// That inference is why the accessory ceiling is **0** on this dist —
+    /// see [`Self::max_enchant_for_type2`].
+    pub max_weapon_enchant: i32,
+    pub max_armor_enchant: i32,
+    pub max_accessory_enchant: i32,
 }
 
 impl EnchantData {
@@ -266,12 +279,38 @@ impl EnchantData {
     /// - the scroll's `targetGrade` must equal the target's `crystalTypePlus`.
     ///
     /// `scroll_is_weapon` is the scroll template's `EtcItemType::is_enchant_weapon`.
+    /// The `OverEnchantProtection` ceiling for an item, by `type2`. `None`
+    /// means **no ceiling is configured**, which is not the same as a ceiling
+    /// of zero.
+    ///
+    /// That distinction is a deliberate deviation from Java and it matters
+    /// here. Java infers the ceilings from enchant-group *names*, and this
+    /// dist's four groups are `ARMOR_GROUP`, `FULL_ARMOR_GROUP`,
+    /// `FIGHTER_WEAPON_GROUP` and `MAGE_WEAPON_GROUP` — none of which matches
+    /// its accessory patterns. Java therefore leaves `_maxAccessoryEnchant` at
+    /// its initial **0** and, with `OverEnchantProtection = True`, destroys
+    /// every enchanted ring, earring and necklace in the inventory on login
+    /// and jails the owner. That is data absence being read as a limit of
+    /// zero. The port treats a derived `0` as "this category has no group
+    /// data, so there is nothing to measure against" and leaves such items
+    /// alone. See `docs/CUSTOM_DIST_DEVIATIONS.md`.
+    pub fn max_enchant_for_type2(&self, type2: i32) -> Option<i32> {
+        let ceiling = match type2 {
+            crate::data::item_data::TYPE2_WEAPON => self.max_weapon_enchant,
+            crate::data::item_data::TYPE2_ACCESSORY => self.max_accessory_enchant,
+            crate::data::item_data::TYPE2_SHIELD_ARMOR => self.max_armor_enchant,
+            _ => return None,
+        };
+        (ceiling > 0).then_some(ceiling)
+    }
+
     pub fn is_target_valid(
         &self,
         scroll: &EnchantScroll,
         scroll_is_weapon: bool,
         target: &ItemTemplate,
         target_enchant: i32,
+        gates: TargetGates,
     ) -> bool {
         if !scroll.item_ids.is_empty() {
             if !scroll.item_ids.contains(&target.item_id) {
@@ -292,6 +331,7 @@ impl EnchantData {
             scroll.min_enchant,
             scroll.max_enchant,
             scroll.target_grade,
+            gates,
         )
     }
 
@@ -308,6 +348,7 @@ impl EnchantData {
         support_flags: (bool, bool, bool), // (is_weapon, is_blessed, is_giant)
         target: &ItemTemplate,
         target_enchant: i32,
+        gates: TargetGates,
     ) -> bool {
         let (scroll_weapon, scroll_blessed, scroll_blessed_down, scroll_giant) = scroll_flags;
         let (support_weapon, support_blessed, support_giant) = support_flags;
@@ -322,7 +363,11 @@ impl EnchantData {
         if support_weapon != scroll_weapon {
             return false;
         }
-        // AbstractEnchantItem.isValid(item) for the support itself.
+        // `AbstractEnchantItem.isValid(item)` for the support itself. It
+        // re-runs the target checks, so it takes the same gates — the
+        // blacklist half is Java's here too, and the `DisableOverEnchanting`
+        // half is idempotent, since the caller has already run
+        // `is_target_valid` on this same item with these same gates.
         accepts_target(
             target,
             target_enchant,
@@ -330,6 +375,7 @@ impl EnchantData {
             support.min_enchant,
             support.max_enchant,
             support.target_grade,
+            gates,
         )
     }
 
@@ -386,6 +432,29 @@ impl EnchantData {
                 Event::End(e) => match e.name().as_ref() {
                     b"enchantRateGroup" => {
                         if let Some(name) = cur_group_name.take() {
+                            // Java's "Try to get a generic max value" block,
+                            // which runs per `<current>` row; folded to the
+                            // group's own maximum here, which is the same
+                            // number.
+                            let group_max = cur_group
+                                .chances
+                                .iter()
+                                .filter(|c| c.chance > 0.0)
+                                .map(|c| c.max)
+                                .max()
+                                .unwrap_or(0);
+                            let upper = name.to_ascii_uppercase();
+                            let slot = if upper.contains("WEAPON") {
+                                &mut self.max_weapon_enchant
+                            } else if ["ACCESSORIES", "RING", "EARRING", "NECK"]
+                                .iter()
+                                .any(|k| upper.contains(k))
+                            {
+                                &mut self.max_accessory_enchant
+                            } else {
+                                &mut self.max_armor_enchant
+                            };
+                            *slot = (*slot).max(group_max);
                             self.item_groups
                                 .insert(name, std::mem::take(&mut cur_group));
                         }
@@ -453,6 +522,30 @@ impl EnchantData {
 /// supplies `is_weapon` and the bounds: the target must be enchantable, below
 /// its enchant limit, of the matching weapon/armor `type2`, inside
 /// `[min_enchant, max_enchant)`, and of the enchant item's own grade.
+/// The two `Character.ini` gates the enchant target check needs but the data
+/// layer cannot reach: the blacklist half of `ItemTemplate.isEnchantable()` and
+/// `DisableOverEnchanting`. Passed in rather than read here so `EnchantData`
+/// stays a pure view of the datapack.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TargetGates {
+    /// `binarySearch(ENCHANT_BLACKLIST, id) < 0` — already resolved for this
+    /// item by the caller.
+    pub blacklisted: bool,
+    /// `Config.DISABLE_OVER_ENCHANTING`.
+    pub disable_over_enchanting: bool,
+}
+
+impl Default for TargetGates {
+    /// Not blacklisted, and over-enchanting disabled — this dist's shipped
+    /// answer for an item that is not on the list.
+    fn default() -> Self {
+        Self {
+            blacklisted: false,
+            disable_over_enchanting: true,
+        }
+    }
+}
+
 fn accepts_target(
     target: &ItemTemplate,
     target_enchant: i32,
@@ -460,11 +553,20 @@ fn accepts_target(
     min_enchant: i32,
     max_enchant: i32,
     target_grade: CrystalType,
+    gates: TargetGates,
 ) -> bool {
-    if !target.is_enchantable() {
+    // `ItemTemplate.isEnchantable()` is
+    // `(binarySearch(ENCHANT_BLACKLIST, _itemId) < 0) && _enchantable` — the
+    // blacklist is a veto *on top of* the template flag, not a substitute.
+    if gates.blacklisted || !target.is_enchantable() {
         return false;
     }
-    if target.enchant_limit != 0 && target_enchant == target.enchant_limit {
+    // `RequestEnchantItem`'s over-enchant clause, which Java gates on
+    // `DISABLE_OVER_ENCHANTING`. The port used to apply it unconditionally.
+    if gates.disable_over_enchanting
+        && target.enchant_limit != 0
+        && target_enchant == target.enchant_limit
+    {
         return false;
     }
     // isValidItemType(type2): a weapon item ↔ weapon; an armor item ↔

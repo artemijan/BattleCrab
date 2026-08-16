@@ -119,23 +119,33 @@ fn the_two_basic_property_terms_enter_the_formula_at_different_points() {
     // baseMod = (magicLevel − targetLevel + 3) × lvlBonusRate + activateRate + 30.
     // With lvlBonusRate 0 the level gap drops out: 0 + 50 + 30 = 80, inside the
     // 10–90 clamp so it passes through untouched.
-    let base = calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 1.0);
+    let base = calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default());
     assert!((base - 80.0).abs() < 1e-9, "un-clamped baseMod: {base}");
 
     // The stat term is subtracted *inside* baseMod, so it moves the pre-clamp
     // value one-for-one.
-    let stat_20 = calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 20.0, 1.0);
+    let stat_20 =
+        calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 20.0, 1.0, Default::default());
     assert!((stat_20 - 60.0).abs() < 1e-9, "80 − 20: {stat_20}");
     // …and it is subject to the clamp, unlike the chain term below: 80 − 75 = 5
     // is floored back up to 10.
-    let stat_75 = calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 75.0, 1.0);
+    let stat_75 =
+        calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 75.0, 1.0, Default::default());
     assert!((stat_75 - 10.0).abs() < 1e-9, "floored at 10: {stat_75}");
 
     // The chain term multiplies *after* the clamp.
-    assert!((calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 0.6) - 48.0).abs() < 1e-9);
-    assert!((calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 0.3) - 24.0).abs() < 1e-9);
+    assert!(
+        (calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 0.6, Default::default()) - 48.0)
+            .abs()
+            < 1e-9
+    );
+    assert!(
+        (calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 0.3, Default::default()) - 24.0)
+            .abs()
+            < 1e-9
+    );
     assert_eq!(
-        calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 0.0),
+        calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0, 0.0, 0.0, Default::default()),
         0.0,
         "a level-3 chain is a hard 0"
     );
@@ -145,10 +155,10 @@ fn the_two_basic_property_terms_enter_the_formula_at_different_points() {
     // (40 − 90 + 3) × 2 + 80 = −14, clamped up to 10 — and the chain still
     // takes it to 0. Multiply before the clamp instead and a level-3 chain
     // would leave a 10 % stun landing forever.
-    let floored = calc_effect_land_rate(40, 50, 2, 90, 1.0, 1.0, 1.0, 0.0, 1.0);
+    let floored = calc_effect_land_rate(40, 50, 2, 90, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default());
     assert!((floored - 10.0).abs() < 1e-9, "floored at 10: {floored}");
     assert_eq!(
-        calc_effect_land_rate(40, 50, 2, 90, 1.0, 1.0, 1.0, 0.0, 0.0),
+        calc_effect_land_rate(40, 50, 2, 90, 1.0, 1.0, 1.0, 0.0, 0.0, Default::default()),
         0.0,
         "…and the chain still takes it to 0"
     );

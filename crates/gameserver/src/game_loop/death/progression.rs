@@ -116,6 +116,7 @@ pub(crate) fn add_exp_and_sp(
 
     let max_level = world.data.experience.max_level as i32;
     let cap = world.data.experience.exp_for_level(max_level) - 1;
+    let sp_ceiling = world.cfg.character.sp_ceiling();
     let (old_level, new_exp) = {
         let Some(p) = world
             .objects
@@ -124,7 +125,11 @@ pub(crate) fn add_exp_and_sp(
             return;
         };
         p.exp = (p.exp + exp.max(0)).min(cap);
-        p.sp = p.sp.saturating_add(sp.max(0));
+        // `PlayableStat.addExpAndSp`'s SP ceiling: at `MAX_SP` the gain is
+        // dropped, and a gain that would cross it is trimmed to land exactly
+        // on it. A negative `MaxSp` is Java's "unlimited" sentinel, which
+        // `sp_ceiling` has already turned into `i64::MAX`.
+        p.sp = p.sp.saturating_add(sp.max(0)).min(sp_ceiling);
         (p.level, p.exp)
     };
     if exp > 0 || sp > 0 {

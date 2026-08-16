@@ -1032,7 +1032,8 @@ fn only_listed_buffs_are_castable() {
 #[test]
 fn the_item_functions_map_to_the_managers_buylists() {
     let items = dist::items();
-    let buy_lists = crate::data::BuyListData::load_from(DIST, items);
+    let buy_lists =
+        crate::data::BuyListData::load_from(DIST, items, crate::data::item_data::CrystalType::S);
     let npc_id = 35447; // Korgen (Aden)
 
     for level in 1..=3 {

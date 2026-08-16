@@ -683,6 +683,13 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     world
         .clients
         .insert(client_id, ClientSession::InGame(session));
+    // `EnterWorld`'s over-enchant sweep, before the protection window so a
+    // punished login is still punished.
+    super::enchant::over_enchant_sweep(world, object_id);
+    // `EnterWorld`: `if (PLAYER_SPAWN_PROTECTION > 0) setSpawnProtection(true)`
+    // — the grace period against aggressive monsters, ended by the first
+    // deliberate action (`game_loop::spawn_protection`).
+    super::spawn_protection::arm(world, object_id);
     // Java `EnterWorld` calls `refreshExpertisePenalty` (via `restoreCharData`
     // → equip listeners): a character wearing over-grade gear logs in already
     // penalized. Runs now that the player is registered; resends

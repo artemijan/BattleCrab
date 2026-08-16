@@ -324,6 +324,19 @@ pub(crate) fn npc_receive_damage(
     if is_dead(world, npc_oid) {
         return;
     }
+    // `Summon.isInvul() = super.isInvul() || _owner.isSpawnProtected()`: while
+    // a character is inside their entry grace period their *servitor* is
+    // genuinely invulnerable — an asymmetry with the owner, who is only
+    // ignored by monsters. Nothing else in the port makes an NPC invulnerable
+    // through its owner, so the check lives here rather than in a shared
+    // predicate.
+    if world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&npc_oid)
+        .is_some_and(|s| crate::game_loop::spawn_protection::is_protected(world, s.owner_object_id))
+    {
+        return;
+    }
     // `ai/others/Servitors/SinEater`'s `ON_CREATURE_ATTACKED` bark (a no-op for
     // every other NPC).
     crate::scripts::sin_eater::on_attacked(world, npc_oid);

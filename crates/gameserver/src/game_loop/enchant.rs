@@ -264,6 +264,7 @@ fn support_valid(
         ),
         target,
         enchant,
+        target_gates(world, item_id),
     )
 }
 
@@ -290,7 +291,22 @@ fn validity(world: &World, player: i32, scroll_oid: i32, item_oid: i32) -> bool 
         scroll_tpl.etc_item_type.is_enchant_weapon(),
         target,
         enchant,
+        target_gates(world, item_id),
     )
+}
+
+/// The two `Character.ini` gates the data layer cannot reach, resolved for one
+/// item: `EnchantBlackList` membership and `DisableOverEnchanting`.
+fn target_gates(world: &World, item_id: i32) -> crate::data::enchant_data::TargetGates {
+    crate::data::enchant_data::TargetGates {
+        blacklisted: world
+            .cfg
+            .character
+            .enchant_black_list
+            .binary_search(&item_id)
+            .is_ok(),
+        disable_over_enchanting: world.cfg.character.disable_over_enchanting,
+    }
 }
 
 /// `RequestEnchantItem` (0x5F): consume the scroll, roll, and apply the result.
@@ -350,11 +366,13 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     };
     let etc = scroll_tpl.etc_item_type;
 
-    if !world
-        .data
-        .enchant
-        .is_target_valid(&scroll, etc.is_enchant_weapon(), &target_tpl, current)
-    {
+    if !world.data.enchant.is_target_valid(
+        &scroll,
+        etc.is_enchant_weapon(),
+        &target_tpl,
+        current,
+        target_gates(world, target_tpl.item_id),
+    ) {
         err(world);
         return;
     }
@@ -400,6 +418,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
                 support_flags,
                 &target_tpl,
                 current,
+                target_gates(world, target_tpl.item_id),
             ) {
                 err(world);
                 return;
@@ -690,5 +709,78 @@ fn apply_failure(
             client_id,
             enchant_result(sp::enchant_result::NO_CRYSTAL, 0, 0, 0),
         ),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Over-enchant protection (`Character.ini`'s `OverEnchantProtection` /
+// `OverEnchantPunishment`)
+// ---------------------------------------------------------------------------
+
+/// `EnterWorld`'s over-enchant sweep: destroy every equipable item enchanted
+/// past its category's ceiling, then punish the owner once if anything went.
+///
+/// Java runs the same sweep from `UseItem` as well; the port hooks only the
+/// login path, because the only way an item's enchant level changes in between
+/// is this module — which cannot exceed the ceiling it just checked. An item
+/// that arrives over the line got there out-of-band (a restored row, a GM
+/// `//enchant`), and login is where that shows up.
+///
+/// GMs are exempt (`&& !player.isGM()`), which is what makes `//enchant`
+/// testable at all.
+pub(crate) fn over_enchant_sweep(world: &mut World, player: i32) {
+    if !world.cfg.character.over_enchant_protection {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&player)
+        .is_some_and(|p| p.is_gm(&world.data))
+    {
+        return;
+    }
+    // Collect first: the destroy path takes `&mut world`. Keyed on the
+    // **object id**, because the rule is about one over-enchanted instance —
+    // destroying by item id would also take a plain duplicate of the same id,
+    // which is why Java passes the `Item` rather than its template id.
+    let offenders: Vec<(i32, i32, i32, i32, i64)> = {
+        let Some(inv) = world.objects.get_component::<Inventory>(&player) else {
+            return;
+        };
+        inv.items()
+            .iter()
+            .filter_map(|it| {
+                let t = world.data.item_data.get(it.item_id)?;
+                if !t.is_equipable() {
+                    return None;
+                }
+                let ceiling = world.data.enchant.max_enchant_for_type2(t.type2)?;
+                (it.enchant_level > ceiling).then_some((
+                    it.object_id,
+                    it.item_id,
+                    it.enchant_level,
+                    ceiling,
+                    it.count,
+                ))
+            })
+            .collect()
+    };
+    if offenders.is_empty() {
+        return;
+    }
+    for (object_id, item_id, enchant, ceiling, count) in &offenders {
+        tracing::info!(
+            "Over-enchanted (+{enchant}) item {item_id} (ceiling {ceiling}) removed from player {player}"
+        );
+        crate::game_loop::items::destroy_item_by_object_id(world, player, *object_id, *count);
+    }
+    let punishment = world.cfg.character.over_enchant_punishment;
+    if punishment != crate::model::punishment::IllegalActionPunishment::None {
+        crate::game_loop::punishment::handle_illegal_player_action(
+            world,
+            player,
+            "has over-enchanted items.",
+            punishment,
+        );
     }
 }

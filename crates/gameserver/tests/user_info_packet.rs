@@ -120,6 +120,7 @@ async fn user_info_test() {
         transform_id: 0,
         transform_display_id: 0,
         store_type: 0,
+        spawn_protect_end_tick: 0,
         lost_exp_on_death: 0,
         revive_request: None,
         summon_request: None,

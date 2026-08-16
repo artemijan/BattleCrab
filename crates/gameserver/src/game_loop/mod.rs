@@ -109,6 +109,7 @@ mod shortcuts;
 pub(crate) mod siege;
 mod sit_stand;
 pub(crate) mod skills;
+pub(crate) mod spawn_protection;
 pub(crate) mod spawn_scripts;
 pub(crate) mod stat_ctx;
 pub(crate) mod subclass;

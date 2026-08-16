@@ -6337,3 +6337,269 @@ it on the full run; the fixed version has its own case.
 falsified by disabling them one at a time — six tests failed, and the one that
 correctly stayed green (ordinary spawns are unaffected by the raid multipliers)
 cannot fail when the scaling is removed.
+
+---
+
+## Character.ini, cluster 1 (row 14) — the caps and clamps
+
+Character.ini is the largest file left in row 14. Re-deriving it gave **82**
+unread keys rather than the 76 on record — the fourth time this row's own
+numbers have moved under re-derivation, and the second time upward.
+
+The hypothesis check took 12 off before any porting. **Eight are dead in Java
+too**: the ability-point pair, the three `FeeDelete*Skills`, `MaxNewbieBuffLevel`,
+and the two mentor penalties — those last two dead twice over, because
+`MentorPenaltyForMenteeLeave` assigns to the *same field* as
+`MentorPenaltyForMenteeComplete`. That is a bug in Java, not a porting
+decision, and it means the "leave" penalty has never done anything in any
+Mobius build. Four more are list-shaped and left for their own pass.
+
+Ten of the remaining 70 are now wired: the caps and clamps, taken first
+because they are exactly what this row's "effect in game" claim is about — a
+number hardcoded to this dist's value, in several cases inside a comment
+quoting the very key being ignored. `MAX_EQUIPABLE_ITEM_GRADE` was a `const`
+I had introduced myself during row 17, whose doc read *"Held as a constant
+rather than read from config because `GameData::load_from` takes none"*. It
+takes one now.
+
+**Three of the ten were missing behaviour, not a frozen number.** Nothing
+capped a player's max HP (`MaxHpFinalizer`'s HP_LIMIT arm), nothing capped SP
+(`PlayableStat.addExpAndSp`), and summon run speed was unclamped. The last one
+needed care about *where*: Java caps summons at 350 through `SummonStat`'s
+override while leaving plain NPCs uncapped, so the clamp belongs on the
+servitor path and not in the shared NPC finalizer.
+
+`MaxSp` carries a trap. Java stores `getLong(...) >= 0 ? value : Long.MAX_VALUE`
+— a **negative** value means *unlimited*, not "no SP". Reading it literally
+would have frozen every character's SP at zero. `sp_ceiling()` applies the
+sentinel and has its own test.
+
+`MaxHP`'s cap is lifted for a cursed-weapon wielder. That branch is live here:
+Zariche and Akamanah are Interlude weapons, unlike the dragon-weapon arm beside
+it. The exemption reads the equipped paperdoll against `data.cursed_weapons`,
+so it needed no signature change on `calc_max_hp`'s nine call sites.
+
+### Two process notes
+
+**A passing falsification is a finding.** Disabling the grade filter at the
+`GameData` layer left `the_grade_filter_follows_the_config_key` green — the
+test calls `BuyListData::load_from` directly, so it covers the loader but not
+the config plumbing above it. Re-falsifying at the loader layer made it fail as
+it should. The test now says in its own doc which boundary it covers and why
+(going through `GameData::load_from_with` would re-parse the whole datapack
+twice).
+
+**A backup-name collision clobbered a file mid-session.** Backing up
+`data/mod.rs` and `model/mod.rs` to `/tmp/$(basename …)` gave both the same
+path, and restoring wrote the wrong one over `data/mod.rs`. Caught immediately
+by reading the file header back; repaired from the commit and the three edits
+re-applied. Worth recording because the failure was silent — the build would
+have been the next thing to catch it, but only after a confusing error.
+
+`MaxEquipableItemGrade` also had to keep the test fixtures working:
+`data::dist`'s snapshot macro requires a one-argument `load_from`, so
+`GameData::load_from` stays that and pins the shipped **S**, while the server
+calls the new `load_from_with`. Tests therefore always snapshot the shipped
+filter, which is what keeps the binary cache valid.
+
+3420 green, clippy clean, fmt clean. Seven new tests; all five behavioural
+wirings falsified by reverting them to their constants, one of them twice
+after the first attempt proved the wrong layer.
+
+---
+
+## Character.ini, cluster 2 (row 14) — the karma gates and the protection window
+
+Eight keys, and unlike cluster 1 this one was mostly **missing behaviour**
+rather than frozen numbers.
+
+`PlayerSpawnProtection` (600 s) had no counterpart at all. The name invites a
+wrong reading: it is not ten minutes of invulnerability. Java's
+`isSpawnProtected()` has four readers, and the two that decide the behaviour
+are `Attackable.getHating`, which drops a protected player out of the aggro
+list, and `Summon.isInvul()`, which is
+`super.isInvul() || _owner.isSpawnProtected()` — so the **pet** really is
+invulnerable while the owner is protected, an asymmetry with the owner, who is
+merely ignored. The window ends at `Player.onActionRequest`, which Java calls
+from exactly five client packets (`Action`, `AttackRequest`,
+`MoveBackwardToLocation`, `RequestMagicSkillUse`, `UseItem`), so 600 is a
+ceiling on an AFK login. Ported as `game_loop::spawn_protection`, with the five
+packets hooked at one place in `dispatch` rather than scattered, and the aggro
+skip sitting in `notices_target` beside the invis/fake-death/silent-move arms
+that were already there.
+
+**`OffsetOnTeleportEnabled` needed the opposite of the obvious change.** The
+scatter reads like a global setting, but Java applies it only where the caller
+passes `randomOffset = true`, and on this dist that is four places: the jail
+zone, a residence-hall teleport zone, the Olympiad observer's return to
+`_lastLoc`, and summons following their owner. The port's `teleport_player` has
+**49 callers** — folding the offset in there would have scattered every
+gatekeeper, quest and `//tp` teleport, which is a behaviour change Java never
+makes. It is a separate `teleport_player_scattered`, wired at the two of the
+four sites that exist here (jail, Olympiad return).
+
+That change made two existing tests fail, correctly: `punishment_tests`'
+jail assertions and `olympiad_observer_round_trip` both asserted an exact
+arrival tile. Asserting the exact tile *is* asserting the missing scatter, so
+both now assert arrival within `MaxOffsetOnTeleport`.
+
+Four of the eight are inert at their shipped values, each for a reason in the
+value rather than in the port: `AltKarmaPlayerCanTeleport` and
+`AltKarmaPlayerCanTrade` are **True** and their guards all read
+`if (!config && reputation < 0)`, so they never fire;
+`AltKarmaPlayerCanBeKilledInPeaceZone` is **False**, leaving the peace-zone
+refusal standing, which is what the port already did; and
+`PlayerTeleportProtection` is **0**.
+
+That last key deserves its own line, because the matching name hides a
+different rule: teleport protection **is** real invulnerability
+(`Player.isInvul() = super.isInvul() || isTeleportProtected()`), where spawn
+protection is not. It is parsed and the invulnerability deliberately not wired,
+since at 0 the branch cannot fire — the same treatment PVP.ini's anti-feed
+block got.
+
+### A masked falsification
+
+Disabling all three wirings at once showed only two failures: removing the
+aggro skip made `spawn_protection_hides_a_new_arrival_until_they_act` fail at
+its *first* assertion, which masked the separate "first action clears the
+window" assertion further down. Re-run with only the clear disabled, it failed
+at line 248 as it should. Falsifying in a batch can hide a test that would not
+have caught its own regression.
+
+3425 green, clippy clean, fmt clean. Five new tests; all three behavioural
+wirings falsified independently.
+
+Character.ini stands at **64** unread keys (82 → 72 → 64 across the two
+clusters), and row 14 at **182**.
+
+---
+
+## Character.ini, cluster 3 (row 14) — enchanting and augmentation
+
+Eight keys, including two of the four list-shaped ones that had been counted
+but never triaged.
+
+`EnchantBlackList` and `AugmentationBlackList` are now honoured. The enchant one
+is worth stating precisely: Java's `ItemTemplate.isEnchantable()` is
+`(binarySearch(ENCHANT_BLACKLIST, _itemId) < 0) && _enchantable` — a **veto on
+top of** the template's own flag, not a substitute for it. The port had only
+the flag half. `AugmentationBlackList` is the last line of
+`AbstractRefinePacket.isValid`, after every type test. Both lists are sorted at
+parse, because Java looks ids up with `binarySearch` and an operator-edited
+unsorted list would otherwise silently miss entries.
+
+`DisableOverEnchanting` was already enforced — unconditionally — inside the
+port's `accepts_target`. It is now gated on the key, which also moved the check
+closer to where Java actually has it (`RequestEnchantItem`, not
+`EnchantScroll.isValid`).
+
+Three are inert or unreachable, each for a reason in the data rather than the
+port: `AltAllowAugmentTrade` and `AltAllowAugmentDestroy` ship **True**, which
+is the behaviour the port already had on those paths, and
+`AltAllowAugmentPvPItems` is **unreachable** — the gate is
+`item.isPvp() && !config`, and **no item in `data/stats/items` declares
+`is_pvp` at all**. That last one is asserted against the datapack rather than
+the port's template, because the port does not parse the attribute — which is
+only correct while the claim holds, so the test guards the claim.
+
+### The one that is deliberately not ported literally
+
+`OverEnchantProtection` exposed a live footgun in this dist's own configuration.
+
+Java does not read the three enchant ceilings from any field. It **infers**
+them from each `<enchantRateGroup>`'s *name*: `WEAPON` in the name feeds
+`_maxWeaponEnchant`, one of `ACCESSORIES`/`RING`/`EARRING`/`NECK` feeds
+`_maxAccessoryEnchant`, anything else feeds `_maxArmorEnchant`. All three start
+at 0. This dist ships exactly four groups — `ARMOR_GROUP`, `FULL_ARMOR_GROUP`,
+`FIGHTER_WEAPON_GROUP`, `MAGE_WEAPON_GROUP` — and **none matches an accessory
+pattern**. Measured: weapons 29, armour 29, accessories **0**.
+
+With the shipped `OverEnchantProtection = True` and
+`OverEnchantPunishment = JAIL`, retail therefore destroys every enchanted ring,
+earring and necklace a character owns the moment they log in, and jails them
+for it. That is not a rule anyone configured; it is a naming convention
+silently failing to match.
+
+The sweep is ported — same items destroyed, same `handle_illegal_player_action`
+punishment, same GM exemption — but `max_enchant_for_type2` returns
+`Option<i32>` and answers `None` for a category whose derived ceiling is 0,
+meaning "no group data to measure against". Weapons and armour are checked
+normally. Written up in `docs/CUSTOM_DIST_DEVIATIONS.md`, with a test that pins
+all three derived values against the real `EnchantItemGroups.xml`.
+
+### A falsification that did not bite
+
+Removing the blacklist sort broke nothing: the dist's two lists already ship in
+ascending order, so `sort_unstable` is a no-op on the real data and the
+"is it sorted" assertion passed either way. The property only matters for an
+operator-edited list, so it is now pinned by a unit test on `parse_id_list`
+with deliberately unsorted input — which does fail when the sort is removed.
+
+3430 green, clippy clean, fmt clean. Six new tests.
+
+Character.ini stands at **56** unread keys (82 → 72 → 64 → 56), and row 14 at
+**174**.
+
+---
+
+## Character.ini, cluster 4 (row 14) — clan and alliance timers
+
+Twelve keys, and this is the cluster where the audit's premise paid off
+literally: two of the port's hardcoded constants did not match the dist they
+claimed to quote, so wiring them to config *fixed* behaviour rather than merely
+making it configurable.
+
+**Clan dissolution took seven times as long as configured.** The constant read
+
+```rust
+/// `DaysToPassToDissolveAClan = 7` on this dist → the dissolution delay.
+pub(crate) const CLAN_DISSOLVE_DELAY_MS: i64 = 7 * 86_400_000;
+```
+
+The dist ships **1**. The doc comment asserted a value nobody had checked
+against the file, and the code faithfully implemented the wrong assertion.
+
+**Any privileged member could empty the clan warehouse.** Java's two branches
+for `AltMembersCanWithdrawFromClanWH` are not "privilege vs. no check":
+
+```java
+if (Config.ALT_MEMBERS_CAN_WITHDRAW_FROM_CLANWH) {
+    if (!player.hasClanPrivilege(CL_VIEW_WAREHOUSE)) return;
+} else if (!player.isClanLeader()) { … return; }
+```
+
+With the key **off** — what ships — only the clan **leader** may withdraw, no
+matter what privileges they hold. The port implemented the *on* branch
+unconditionally, so on a server configured to forbid exactly that, any member
+with the view-warehouse right could clear the vault.
+
+**Command-channel allies could attack each other.** `AltCommandChannelFriends`
+is **True** and Java checks it immediately after the peace-zone arm of
+`Player.isAutoAttackable` — *ahead* of the flag and PK arms, so the channel wins
+even inside a PvP zone. The port had no such check at all.
+
+### The four ally penalties are four keys, not one
+
+`alliance.rs` carried a single `ALLY_PENALTY_MS = 86_400_000` with the comment
+*"The ally penalties all run `DaysBefore… = 1` day on this dist."* That is true
+today, and it is exactly why the conflation survived: Java sets these at four
+separate sites with four separate keys, and the `ally_penalty_type` stamped
+alongside is what identifies which. The mapping is now explicit, and the test
+moves each of the four keys to a distinct value so a future collapse back to one
+constant fails.
+
+Three of the twelve are carried without a consumer, each for a reason:
+`AltClanLeaderInstantActivation` is **False** and the port already performs the
+two-step nomination that implies; `LifeCrystalNeeded` is **True** but no entry
+in this dist's pledge tree declares required items, so its consume loop has
+nothing to consume; and `AltClanMembersTimeForBonus` (`30mins` — a duration
+string, parsed with `get_duration_secs`) feeds `ClanMember.getOnlineStatus`,
+and the port does not track per-member online time.
+
+3436 green, clippy clean, fmt clean. Six new tests; all four wirings falsified
+independently — including the ally mapping, by collapsing the four keys back to
+one.
+
+Character.ini stands at **44** unread keys (82 → 72 → 64 → 56 → 44), and row 14
+at **162**.

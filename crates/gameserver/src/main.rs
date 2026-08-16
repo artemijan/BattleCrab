@@ -66,11 +66,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::load_from(&datapack_root);
 
     print_section("Data");
-    let mut data = GameData::load_from(&datapack_root);
+    let mut data =
+        GameData::load_from_with(&datapack_root, config.character.max_equipable_item_grade);
     // Stat ceilings + run-speed boost live in Character.ini; fold them into the
     // read-only data bundle the stat finalizers read (`GameData::combat_caps`).
     data.combat_caps = gameserver::data::CombatCaps {
         run_spd_boost: config.character.run_spd_boost,
+        max_run_speed_summon: config.character.max_run_speed_summon,
+        max_hp: config.character.max_hp,
         max_p_atk: config.character.max_p_atk,
         max_m_atk: config.character.max_m_atk,
         max_p_crit_rate: config.character.max_p_crit_rate,

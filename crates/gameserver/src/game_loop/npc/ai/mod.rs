@@ -250,7 +250,7 @@ mod faction;
 mod hate;
 mod intentions;
 mod movement;
-mod perception;
+pub(crate) mod perception;
 mod tactics;
 mod think;
 

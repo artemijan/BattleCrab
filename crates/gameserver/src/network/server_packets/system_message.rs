@@ -329,6 +329,8 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING: i16 = 654;
     pub const THERE_ARE_NO_PRIORITY_RIGHTS_ON_A_SWEEPER: i16 = 683;
     pub const THE_CORPSE_IS_TOO_OLD_THE_SKILL_CANNOT_BE_USED: i16 = 1247;
+    /// `Player.onActionRequest` — the spawn-protection window ending.
+    pub const YOU_ARE_NO_LONGER_PROTECTED_FROM_AGGRESSIVE_MONSTERS: i16 = 3108;
     /// "Your shield defense has succeeded." (Interlude has no separate perfect-
     /// block message; the perfect block reuses this.)
     pub const SHIELD_DEFENSE_SUCCEEDED: i16 = 111;

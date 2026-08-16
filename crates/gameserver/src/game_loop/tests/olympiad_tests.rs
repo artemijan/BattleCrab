@@ -1232,8 +1232,17 @@ fn olympiad_observer_round_trip() {
         world.objects.get_component::<InstanceId>(&300).is_none(),
         "back on the overworld"
     );
+    // `exitOlympiadObserverMode` → `teleToLocation(_lastLoc, true)`: the return
+    // is one of Java's four *scattering* teleports, so it lands within
+    // `MaxOffsetOnTeleport` of where the spectator left rather than on it.
+    let offset = world.cfg.character.teleport_offset();
     let pos = world.objects.get_component::<Position>(&300).unwrap();
-    assert_eq!((pos.x, pos.y), (1000, 1000), "teleported back");
+    assert!(
+        (pos.x - 1000).abs() <= offset && (pos.y - 1000).abs() <= offset,
+        "teleported back within {offset} of (1000, 1000), got ({}, {})",
+        pos.x,
+        pos.y
+    );
     assert!(
         drain(&mut rx)
             .iter()

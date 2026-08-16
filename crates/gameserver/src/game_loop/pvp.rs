@@ -138,6 +138,21 @@ pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> boo
 /// already flagged; monsters attack anyone; a target in a peace zone can't be
 /// attacked. Party/clan/duel/oly/siege/faction and the PVP-zone (arena)
 /// exemption are not modeled yet.
+/// Both in a party, both parties in a command channel, and the *same* one —
+/// Java's `getParty().getCommandChannel() == attacker.getParty().getCommandChannel()`
+/// with all four null-guards. Two soloists are not friends; two parties with no
+/// channel are not friends.
+fn same_command_channel(world: &World, a_oid: i32, b_oid: i32) -> bool {
+    let cc = |oid: i32| {
+        super::command_channel::party_id_of(world, oid)
+            .and_then(|pid| super::command_channel::cc_id_of_party(world, pid))
+    };
+    match (cc(a_oid), cc(b_oid)) {
+        (Some(x), Some(y)) => x == y,
+        _ => false,
+    }
+}
+
 pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target_oid: i32) -> bool {
     if attacker_oid == target_oid {
         return false;
@@ -148,6 +163,15 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     }
     // A target standing in a peace zone is never auto-attackable.
     if in_peace(world, target_oid) {
+        return false;
+    }
+    // `AltCommandChannelFriends` — "Same Command Channel are friends". Java
+    // puts this immediately after the peace-zone check, *ahead* of the arena
+    // and siege arms, so two parties raiding together cannot hit each other
+    // even inside a PvP zone.
+    if world.cfg.character.alt_command_channel_friends
+        && same_command_channel(world, attacker_oid, target_oid)
+    {
         return false;
     }
     // Arena: both in a PVP zone → freely attackable (Java's `isInsideZone(PVP)`

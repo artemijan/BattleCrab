@@ -37,13 +37,6 @@ use crate::data::xml::attr_str;
 
 pub const BUYLISTS_DIR: &str = "data/buylists";
 
-/// `Config.MAX_EQUIPABLE_ITEM_GRADE` (`Character.ini`, **S** on this dist).
-/// Products above it — but below `EVENT`, which is the escape hatch for event
-/// gear that carries no real grade — never reach the list. Held as a constant
-/// rather than read from config because `GameData::load_from` takes none;
-/// `recipe_data` states the same value for the same filter.
-const MAX_EQUIPABLE_ITEM_GRADE: CrystalType = CrystalType::S;
-
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Product {
     pub item_id: i32,
@@ -128,16 +121,16 @@ pub struct BuyListData {
 
 impl BuyListData {
     pub fn load(items: &ItemData) -> Self {
-        Self::load_from("", items)
+        Self::load_from("", items, CrystalType::S)
     }
 
-    pub fn load_from(file_path: &str, items: &ItemData) -> Self {
+    pub fn load_from(file_path: &str, items: &ItemData, max_grade: CrystalType) -> Self {
         let mut by_id = HashMap::new();
         // Java parses "data/buylists" then "data/buylists/custom"; on an id
         // collision the later (custom) file wins.
         let dir = format!("{file_path}{BUYLISTS_DIR}");
-        load_dir(&dir, items, &mut by_id);
-        load_dir(&format!("{dir}/custom"), items, &mut by_id);
+        load_dir(&dir, items, max_grade, &mut by_id);
+        load_dir(&format!("{dir}/custom"), items, max_grade, &mut by_id);
         info!("BuyListData: Loaded {} buy lists.", by_id.len());
         Self { by_id }
     }
@@ -150,6 +143,12 @@ impl BuyListData {
     /// Test hook.
     pub fn insert_for_test(&mut self, list: BuyList) {
         self.by_id.insert(list.list_id, list);
+    }
+
+    /// Every list, in unspecified order — for whole-catalogue assertions
+    /// (e.g. that the max-grade filter dropped what it should).
+    pub fn lists(&self) -> impl Iterator<Item = &BuyList> {
+        self.by_id.values()
     }
 
     pub fn get(&self, list_id: i32) -> Option<&BuyList> {
@@ -165,7 +164,12 @@ impl BuyListData {
     }
 }
 
-fn load_dir(dir: &str, items: &ItemData, by_id: &mut HashMap<i32, BuyList>) {
+fn load_dir(
+    dir: &str,
+    items: &ItemData,
+    max_grade: CrystalType,
+    by_id: &mut HashMap<i32, BuyList>,
+) {
     let Ok(entries) = std::fs::read_dir(dir) else {
         return;
     };
@@ -182,13 +186,18 @@ fn load_dir(dir: &str, items: &ItemData, by_id: &mut HashMap<i32, BuyList>) {
             warn!("BuyListData: non-numeric buylist file {}", path.display());
             continue;
         };
-        if let Some(list) = parse_file(&path, list_id, items) {
+        if let Some(list) = parse_file(&path, list_id, items, max_grade) {
             by_id.insert(list_id, list);
         }
     }
 }
 
-fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<BuyList> {
+fn parse_file(
+    path: &std::path::Path,
+    list_id: i32,
+    items: &ItemData,
+    max_grade: CrystalType,
+) -> Option<BuyList> {
     let content = std::fs::read_to_string(path).ok()?;
     let mut list = BuyList {
         list_id,
@@ -220,9 +229,7 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                         // `Config.MAX_EQUIPABLE_ITEM_GRADE` — Java `break`s out
                         // of the item node, dropping the line entirely.
                         let grade = template.crystal_type.level();
-                        if grade > MAX_EQUIPABLE_ITEM_GRADE.level()
-                            && grade < CrystalType::Event.level()
-                        {
+                        if grade > max_grade.level() && grade < CrystalType::Event.level() {
                             continue;
                         }
                         let declared: i64 =
@@ -293,7 +300,7 @@ mod tests {
     fn loads_real_dist_files() {
         let root = crate::data::DIST_GAME;
         let items = dist::items();
-        let data = BuyListData::load_from(root, items);
+        let data = BuyListData::load_from(root, items, CrystalType::S);
         // 338 regular merchant lists + 143 custom (GM shop) lists.
         assert_eq!(data.len(), 481);
 

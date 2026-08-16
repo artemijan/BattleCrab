@@ -78,10 +78,30 @@ fn attribute_bonus_curve_and_caps() {
 
     // The land-rate element factor: a fire debuff vs a fire-weak target
     // (element_mod > 1) lands more often than vs a resistant one.
-    let weak =
-        crate::model::formulas::calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.2, 1.0, 0.0, 1.0);
-    let strong =
-        crate::model::formulas::calc_effect_land_rate(40, 50, 0, 40, 1.0, 0.8, 1.0, 0.0, 1.0);
+    let weak = crate::model::formulas::calc_effect_land_rate(
+        40,
+        50,
+        0,
+        40,
+        1.0,
+        1.2,
+        1.0,
+        0.0,
+        1.0,
+        Default::default(),
+    );
+    let strong = crate::model::formulas::calc_effect_land_rate(
+        40,
+        50,
+        0,
+        40,
+        1.0,
+        0.8,
+        1.0,
+        0.0,
+        1.0,
+        Default::default(),
+    );
     assert!(weak > strong);
 }
 

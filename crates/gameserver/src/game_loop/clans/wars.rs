@@ -4,9 +4,6 @@ use crate::game_loop::helpers::send_to_client;
 
 use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 
-/// `AltClanMembersForWar = 15` on this dist.
-const CLAN_MEMBERS_FOR_WAR: usize = 15;
-
 /// The war between two clans, either direction (Java `Clan.getWarWith`).
 pub(crate) fn war_between(world: &World, a: i32, b: i32) -> Option<&ClanWar> {
     world.clan_wars.iter().find(|w| {
@@ -146,7 +143,7 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    if clan.level < 3 || clan.members.len() < CLAN_MEMBERS_FOR_WAR {
+    if clan.level < 3 || clan.members.len() < world.cfg.character.clan_members_for_war {
         send_sm_with(
             world,
             player,
@@ -206,7 +203,7 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
         );
         return;
     }
-    if target.level < 3 || target.members.len() < CLAN_MEMBERS_FOR_WAR {
+    if target.level < 3 || target.members.len() < world.cfg.character.clan_members_for_war {
         send_sm_with(
             world,
             player,

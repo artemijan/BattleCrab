@@ -265,7 +265,9 @@ fn apply_jail_to_player(world: &mut World, player_oid: i32, expiration: i64) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.jailed = true;
     }
-    super::death::teleport_player(
+    // `JailZone`'s `new TeleportTask(player, JAIL_IN_LOC)` scatters, so a
+    // mass jailing does not stack everyone on one tile.
+    super::death::teleport_player_scattered(
         world,
         player_oid,
         JAIL_IN_LOC.0,

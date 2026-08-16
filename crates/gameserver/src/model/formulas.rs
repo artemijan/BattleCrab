@@ -298,6 +298,38 @@ fn java_round_float(v: f64) -> i32 {
 /// [`calc_general_trait_bonus`]). `ABNORMAL_RESIST_*` and `BasicPropertyResist`
 /// stay at their identity values — **no skill on this dist grants either**, so
 /// nothing could move them.
+/// `Character.ini`'s `MinAbnormalStateSuccessRate` / `MaxAbnormalStateSuccessRate`
+/// — the `constrain(rate, minChance, maxChance)` bounds in
+/// `Formulas.calcEffectLandRate`. Carried as a struct for the same reason
+/// [`crate::model::NpcStatMods`] is: the formula stays a pure function of its
+/// inputs, and `World` (which owns the config) is not reachable from here.
+///
+/// `Default` is this dist's 10/90, so a test that is not about the clamp does
+/// not have to name it.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LandRateBounds {
+    pub min: f64,
+    pub max: f64,
+}
+
+impl Default for LandRateBounds {
+    fn default() -> Self {
+        Self {
+            min: 10.0,
+            max: 90.0,
+        }
+    }
+}
+
+impl LandRateBounds {
+    pub fn of(cfg: &crate::config::CharacterConfig) -> Self {
+        Self {
+            min: cfg.min_abnormal_state_success_rate,
+            max: cfg.max_abnormal_state_success_rate,
+        }
+    }
+}
+
 pub fn calc_effect_land_rate(
     magic_level: i32,
     activate_rate: i32,
@@ -325,6 +357,8 @@ pub fn calc_effect_land_rate(
     // **after** the clamp, which is why level 3 is a hard immunity rather than
     // a rate the 10 floor rescues. See `game_loop::basic_property`.
     basic_property_resist: f64,
+    // `Config.MIN_/MAX_ABNORMAL_STATE_SUCCESS_RATE`, the `constrain` bounds.
+    bounds: LandRateBounds,
 ) -> f64 {
     if activate_rate == -1 {
         return 100.0;
@@ -349,7 +383,7 @@ pub fn calc_effect_land_rate(
     // below the 90 ceiling but never under the 10 floor — **except** through
     // `basicPropertyResist`, which Java multiplies in after the clamp and which
     // therefore *can* reach 0.
-    (base_mod * element_mod * debuff_resist_mod * trait_mod).clamp(10.0, 90.0)
+    (base_mod * element_mod * debuff_resist_mod * trait_mod).clamp(bounds.min, bounds.max)
         * basic_property_resist
 }
 
@@ -1103,20 +1137,32 @@ mod tests {
     fn effect_land_rate_clamps_and_special_cases() {
         // (35 - 5 + 3)·30 + 80 + 30 = 1100 → clamp to 90.
         assert!(
-            (calc_effect_land_rate(35, 80, 30, 5, 1.0, 1.0, 1.0, 0.0, 1.0) - 90.0).abs() < 1e-9
+            (calc_effect_land_rate(35, 80, 30, 5, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default())
+                - 90.0)
+                .abs()
+                < 1e-9
         );
         // (35 - 80 + 3)·30 + 80 + 30 = -1150 → clamp to 10.
         assert!(
-            (calc_effect_land_rate(35, 80, 30, 80, 1.0, 1.0, 1.0, 0.0, 1.0) - 10.0).abs() < 1e-9
+            (calc_effect_land_rate(35, 80, 30, 80, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default())
+                - 10.0)
+                .abs()
+                < 1e-9
         );
         // activateRate -1 → guaranteed.
         assert!(
-            (calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0, 1.0, 0.0, 1.0) - 100.0).abs() < 1e-9
+            (calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default())
+                - 100.0)
+                .abs()
+                < 1e-9
         );
         // magicLevel <= -1 falls back to targetLevel + 3, so the level term is
         // (23 - 20 + 3) = 6: 6·5 + 10 + 30 = 70.
         assert!(
-            (calc_effect_land_rate(-1, 10, 5, 20, 1.0, 1.0, 1.0, 0.0, 1.0) - 70.0).abs() < 1e-9
+            (calc_effect_land_rate(-1, 10, 5, 20, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default())
+                - 70.0)
+                .abs()
+                < 1e-9
         );
     }
 
@@ -1130,29 +1176,43 @@ mod tests {
     #[test]
     fn effect_land_rate_folds_the_trait_bonus_in_before_clamping() {
         // (20 - 20 + 3)·5 + 5 + 30 = 50 unresisted.
-        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.0, 0.0, 1.0) - 50.0).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default())
+                - 50.0)
+                .abs()
+                < 1e-9
+        );
         // 30 % trait resistance → 0.70 → 35.
         assert!(
-            (calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.70, 0.0, 1.0) - 35.0).abs() < 1e-9
+            (calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.70, 0.0, 1.0, Default::default())
+                - 35.0)
+                .abs()
+                < 1e-9
         );
         // Invulnerable → 0, not the 10 floor.
         assert_eq!(
-            calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.0, 0.0, 1.0),
+            calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.0, 0.0, 1.0, Default::default()),
             0.0
         );
         // A vulnerability (defence -15 → 1.15) raises it: 50 · 1.15 = 57.5.
         assert!(
-            (calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.15, 0.0, 1.0) - 57.5).abs() < 1e-9
+            (calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.15, 0.0, 1.0, Default::default())
+                - 57.5)
+                .abs()
+                < 1e-9
         );
         // It composes with the other two mods rather than replacing them.
         assert!(
-            (calc_effect_land_rate(20, 5, 5, 20, 0.8, 1.25, 0.70, 0.0, 1.0) - 35.0).abs() < 1e-9
+            (calc_effect_land_rate(20, 5, 5, 20, 0.8, 1.25, 0.70, 0.0, 1.0, Default::default())
+                - 35.0)
+                .abs()
+                < 1e-9
         );
         // The always-lands escape hatch is checked first, so even immunity
         // cannot stop an `activateRate == -1` debuff (Java returns true before
         // computing any mod).
         assert_eq!(
-            calc_effect_land_rate(20, -1, 5, 20, 1.0, 1.0, 0.0, 0.0, 1.0),
+            calc_effect_land_rate(20, -1, 5, 20, 1.0, 1.0, 0.0, 0.0, 1.0, Default::default()),
             100.0
         );
     }

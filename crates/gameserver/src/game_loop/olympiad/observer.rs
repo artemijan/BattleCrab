@@ -112,7 +112,9 @@ pub(crate) fn leave_observer(world: &mut World, client_id: u32, player_oid: i32)
     set_observer_flags(world, player_oid, false);
     send_to_client(world, client_id, sp::ex_olympiad_mode(0));
     let (x, y, z) = observer.return_pos;
-    crate::game_loop::death::teleport_player(world, player_oid, x, y, z);
+    // `exitOlympiadObserverMode` → `teleToLocation(_lastLoc, true)`: the
+    // return is one of Java's four scattering teleports.
+    crate::game_loop::death::teleport_player_scattered(world, player_oid, x, y, z);
 }
 
 /// Whether the player is currently spectating a match.

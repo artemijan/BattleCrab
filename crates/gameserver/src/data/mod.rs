@@ -139,6 +139,12 @@ pub struct CombatCaps {
     pub max_m_atk_speed: f64,
     pub max_evasion: f64,
     pub max_run_speed: f64,
+    /// `MaxRunSpeedSummon` (350) — `SummonStat`'s own ceiling. Separate from
+    /// `max_run_speed` because Java overrides the finalizer for summons only:
+    /// a plain NPC is uncapped.
+    pub max_run_speed_summon: f64,
+    /// `MaxHP` (150 000) — `MaxHpFinalizer`'s player ceiling.
+    pub max_hp: f64,
     /// `MaxBuffAmount` (24) — good-buff slot cap, see [`crate::config::character::CharacterConfig::max_buff_count`].
     pub max_buff_count: i32,
     /// `MaxDanceAmount` (12) — dance/song slot cap.
@@ -157,6 +163,8 @@ impl Default for CombatCaps {
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,
             max_run_speed: 300.0,
+            max_run_speed_summon: 350.0,
+            max_hp: 150_000.0,
             max_buff_count: 24,
             max_dance_count: 12,
         }
@@ -284,11 +292,22 @@ pub struct GameData {
 }
 
 impl GameData {
+    /// The datapack, with `MaxEquipableItemGrade` at this dist's shipped **S**.
+    /// The test fixtures go through here (`data::dist`'s snapshot macro needs a
+    /// one-argument `load_from`), so the cached snapshot is always the shipped
+    /// filter; the server calls [`Self::load_from_with`] and honours the config.
     pub fn load_from(file_path: &str) -> Self {
+        Self::load_from_with(file_path, crate::data::item_data::CrystalType::S)
+    }
+
+    pub fn load_from_with(
+        file_path: &str,
+        max_equipable_item_grade: crate::data::item_data::CrystalType,
+    ) -> Self {
         // Buy lists read item reference prices (`CorrectPrices`), so items
         // load first.
         let item_data = ItemData::load_from(file_path);
-        let buy_lists = BuyListData::load_from(file_path, &item_data);
+        let buy_lists = BuyListData::load_from(file_path, &item_data, max_equipable_item_grade);
         let multisells = MultisellData::load_from(file_path, &item_data);
         let instance_templates = instance_data::InstanceData::load_from(file_path);
         let item_auctions = item_auction_data::ItemAuctionData::load_from(file_path);

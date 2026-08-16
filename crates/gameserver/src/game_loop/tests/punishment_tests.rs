@@ -16,6 +16,19 @@ use crate::scheduler::ScheduledTask;
 const JAIL_IN: (i32, i32) = (-114356, -249645);
 const JAIL_OUT: (i32, i32) = (17836, 170178);
 
+/// `JailZone` teleports through Java's *scattering* flavour
+/// (`new TeleportTask(player, JAIL_IN_LOC)` → `randomOffset = true`), so the
+/// arrival lands within `MaxOffsetOnTeleport` of the cell rather than on it.
+/// Asserting the exact tile would be asserting the bug.
+fn assert_near_jail(world: &World, oid: i32) {
+    let (x, y) = pos_xy(world, oid);
+    let offset = world.cfg.character.teleport_offset();
+    assert!(
+        (x - JAIL_IN.0).abs() <= offset && (y - JAIL_IN.1).abs() <= offset,
+        "expected to land within {offset} of {JAIL_IN:?}, got ({x}, {y})"
+    );
+}
+
 /// Register a jail zone around the jail-in point so `in_jail_zone` is meaningful
 /// (the test `GameData` ships no zones).
 fn add_jail_zone(world: &mut World) {
@@ -64,7 +77,7 @@ fn jail_teleports_marks_and_persists() {
 
     // Flag set, teleported into the prison.
     assert!(world.objects.get_component::<Player>(&3001).unwrap().jailed);
-    assert_eq!(pos_xy(&world, 3001), JAIL_IN);
+    assert_near_jail(&world, 3001);
 
     // Registered and persisted.
     assert!(world.punishments.has_punishment(
@@ -170,7 +183,7 @@ fn keep_in_teleports_a_wanderer_back_but_leaves_an_inmate() {
 
     // Standing inside the jail zone: keep-in leaves them put.
     punishment::enforce_jail_keep_in(&mut world, 3001);
-    assert_eq!(pos_xy(&world, 3001), JAIL_IN);
+    assert_near_jail(&world, 3001);
 
     // Wander far outside the zone, then re-check: teleported straight back.
     {
@@ -179,7 +192,7 @@ fn keep_in_teleports_a_wanderer_back_but_leaves_an_inmate() {
         p.y = 50_000;
     }
     punishment::enforce_jail_keep_in(&mut world, 3001);
-    assert_eq!(pos_xy(&world, 3001), JAIL_IN);
+    assert_near_jail(&world, 3001);
 }
 
 #[test]
@@ -246,7 +259,7 @@ fn on_enter_world_reapplies_jail_to_a_returning_inmate() {
 
     punishment::on_enter_world(&mut world, 1, 3001);
     assert!(world.objects.get_component::<Player>(&3001).unwrap().jailed);
-    assert_eq!(pos_xy(&world, 3001), JAIL_IN);
+    assert_near_jail(&world, 3001);
 }
 
 // --- Slice 2: ban / chat-ban / party-ban -----------------------------------
@@ -497,7 +510,7 @@ fn illegal_action_jail_books_a_timed_jail_punishment() {
     );
     advance_ticks(&mut world, 51);
     assert!(world.objects.get_component::<Player>(&3001).unwrap().jailed);
-    assert_eq!(pos_xy(&world, 3001), JAIL_IN);
+    assert_near_jail(&world, 3001);
     assert!(world.punishments.has_punishment(
         "3001",
         PunishmentAffect::Character,

@@ -145,6 +145,12 @@ pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bo
     {
         return false;
     }
+    // `Attackable.getHating`'s `act.isSpawnProtected()` arm: a character
+    // inside their entry grace period is dropped from the aggro list, so a
+    // monster neither takes an interest nor keeps one.
+    if crate::game_loop::spawn_protection::is_protected(world, target_oid) {
+        return false;
+    }
     let flags = abnormal::flags_of(world, target_oid);
     // `isAlikeDead()` — a fake-dead player is, for aggro purposes, a corpse.
     if flags & effect_flag::FAKE_DEATH != 0 {

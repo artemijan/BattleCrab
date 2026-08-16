@@ -61,6 +61,17 @@ fn resolve_fee(
     if template.kind != crate::data::item_data::ItemKind::Weapon {
         return None;
     }
+    // `AbstractRefinePacket.isValid`'s last line — the blacklist check, after
+    // every type test has passed.
+    if world
+        .cfg
+        .character
+        .augmentation_black_list
+        .binary_search(&target.item_id)
+        .is_ok()
+    {
+        return None;
+    }
     if !world.data.variations.has_variation(mineral_id) {
         return None;
     }

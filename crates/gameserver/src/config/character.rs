@@ -236,6 +236,41 @@ pub struct CharacterConfig {
     /// `MaxRunSpeed`: `SpeedFinalizer`'s player move-speed ceiling (300 on
     /// this dist); GMs bypass it via the MAX_STATS_VALUE cond override.
     pub max_run_speed: f64,
+    /// `MaxRunSpeedSummon`: `SummonStat`'s own ceiling, separate from the
+    /// player's — Java's comment at the site: *"In retail maximum run speed is
+    /// 350 for summons and 300 for players"*.
+    pub max_run_speed_summon: f64,
+    /// `MaxHP`: `MaxHpFinalizer`'s player HP ceiling (`min(maxHp,
+    /// MAX_HP * mul + add)`). NPCs are uncapped — that branch is player-only.
+    pub max_hp: f64,
+    /// `MaxSp`: `PlayableStat.addExpAndSp`'s SP ceiling. Java reads it as
+    /// `getLong(...) >= 0 ? value : Long.MAX_VALUE`, so a **negative value
+    /// means unlimited** rather than "no SP allowed"; [`Self::sp_ceiling`]
+    /// applies that.
+    pub max_sp: i64,
+    /// `MinAbnormalStateSuccessRate` / `MaxAbnormalStateSuccessRate` — the
+    /// `constrain(rate, minChance, maxChance)` bounds every debuff's land rate
+    /// passes through in `Formulas.calcEffectLandRate`. 10/90 here, which is
+    /// why nothing on this dist is ever a guaranteed or impossible debuff
+    /// (bar the two paths that bypass the clamp — see the formula's notes).
+    pub min_abnormal_state_success_rate: f64,
+    pub max_abnormal_state_success_rate: f64,
+    /// `MaximumWarehouseSlotsForDwarf` / `...ForNoDwarf` — the private
+    /// warehouse's base slot count before `Stat::StoragePrivate` (Expand
+    /// Warehouse) is finalized on top. The clan and freight ceilings already
+    /// live above as `warehouse_slots_clan` / `freight_slots`.
+    pub warehouse_slots_dwarf: i32,
+    pub warehouse_slots_no_dwarf: i32,
+    /// `AltMaxNumOfClansInAlly` — how many clans one alliance may hold.
+    pub max_num_of_clans_in_ally: usize,
+    /// `AltClanMembersForWar` — the member count both sides need before a clan
+    /// war may be declared (alongside clan level 3).
+    pub clan_members_for_war: usize,
+    /// `MaxEquipableItemGrade` — the highest crystal grade a shop, multisell
+    /// or recipe list will offer. Java parses it as a `CrystalType` name and
+    /// defaults to `EVENT` (i.e. no filtering); this dist ships **S**, which
+    /// is what makes the filter bite at all.
+    pub max_equipable_item_grade: crate::data::item_data::CrystalType,
     /// `MaxBuffAmount`: the good-buff slot cap (Java `Config.BUFFS_MAX_AMOUNT` →
     /// `getMaxBuffCount`; 24 on this dist). When exceeded the oldest buff is
     /// dropped (`EffectList.addActive`).
@@ -299,6 +334,134 @@ pub struct CharacterConfig {
     /// so it only bites where that file exists: 92 merchants and one fisherman
     /// on this dist.
     pub alt_karma_player_can_shop: bool,
+
+    // --- The karma gates and the arrival/teleport protection window ---------
+    /// `AltKarmaPlayerCanBeKilledInPeaceZone` — **False**. Java's use is
+    /// `if (ALT_GAME_KARMA_PLAYER_CAN_BE_KILLED_IN_PEACEZONE) { … }` inside
+    /// `Creature.onForcedAttack`'s peace-zone refusal, so with it off the
+    /// refusal stands for everyone and a PK is as safe in town as anyone else.
+    /// The port's peace-zone gate is already unconditional, which is the same
+    /// behaviour.
+    pub alt_karma_player_can_be_killed_in_peace_zone: bool,
+    /// `AltKarmaPlayerCanTeleport` — **True**, and Java's guards are all
+    /// `if (!ALT_GAME_KARMA_PLAYER_CAN_TELEPORT && reputation < 0)`, so with it
+    /// on a criminal teleports freely. Inert at this value; carried beside its
+    /// two siblings so the trio reads as one rule.
+    pub alt_karma_player_can_teleport: bool,
+    /// `AltKarmaPlayerCanTrade` — **True**, same shape: the `TradeRequest` and
+    /// `RequestGiveItemToPet` refusals never fire.
+    pub alt_karma_player_can_trade: bool,
+    /// `PlayerSpawnProtection` (seconds) — how long after entering the world a
+    /// character is **protected from aggressive monsters**. Not
+    /// invulnerability: Java's only real consumer is `Attackable.getHating`,
+    /// which drops a protected player from the aggro list, plus
+    /// `Summon.isInvul`, which does make the *pet* invulnerable meanwhile. The
+    /// window ends at the player's first deliberate action
+    /// (`Player.onActionRequest`), so the 600 here is a ceiling and not ten
+    /// minutes of safety.
+    pub player_spawn_protection: i32,
+    /// `PlayerTeleportProtection` (seconds) — the same idea after a teleport,
+    /// except that this one *is* real invulnerability
+    /// (`Player.isInvul() = super.isInvul() || isTeleportProtected()`).
+    /// **0 on this dist**, so it never arms; the port parses it and does not
+    /// wire the invulnerability, because that branch cannot fire here.
+    pub player_teleport_protection: i32,
+    /// `OffsetOnTeleportEnabled` / `MaxOffsetOnTeleport` — scatter a teleport
+    /// arrival inside a radius instead of stacking everyone on the exact point
+    /// (`Creature.teleToLocation`'s `randomOffset`).
+    pub offset_on_teleport_enabled: bool,
+    pub max_offset_on_teleport: i32,
+    /// `DisconnectAfterDeath` — **False**. Java would kick the player when the
+    /// "to village" window is dismissed and shorten the corpse decay to an
+    /// hour; neither fires at this value.
+    pub disconnect_after_death: bool,
+
+    // --- What may be enchanted, and what may be augmented ------------------
+    /// `EnchantBlackList` — item ids that refuse enchanting outright. Java
+    /// ANDs it into `ItemTemplate.isEnchantable()`
+    /// (`binarySearch(ENCHANT_BLACKLIST, id) < 0 && _enchantable`), so it is a
+    /// veto on top of the template's own flag.
+    pub enchant_black_list: Vec<i32>,
+    /// `AugmentationBlackList` — the same idea for `AbstractRefinePacket`'s
+    /// target check, which is its last gate.
+    pub augmentation_black_list: Vec<i32>,
+    /// `DisableOverEnchanting` — **True**. Refuses a scroll whose target is
+    /// already at the scroll's own ceiling or at the item's `enchantLimit`.
+    /// The port already enforced that unconditionally inside `accepts_target`;
+    /// the key now gates it.
+    pub disable_over_enchanting: bool,
+    /// `OverEnchantProtection` — **True**: scan the inventory on login,
+    /// destroy anything enchanted past the ceilings derived from
+    /// `EnchantItemGroups.xml`, and punish the owner.
+    ///
+    /// **Read the deviation note before changing this.** On this dist the
+    /// derived accessory ceiling is **0**, because Java infers the three
+    /// ceilings from enchant-group *names* and none of this dist's four groups
+    /// matches its accessory patterns. Taken literally that destroys every
+    /// enchanted ring, earring and necklace on the server and jails the owner.
+    /// See `docs/CUSTOM_DIST_DEVIATIONS.md`.
+    pub over_enchant_protection: bool,
+    /// `OverEnchantPunishment` — what the scan above does to the owner.
+    /// `JAIL` here; shares the `Util.handleIllegalPlayerAction` plumbing with
+    /// `General.ini`'s `DefaultPunish`.
+    pub over_enchant_punishment: crate::model::punishment::IllegalActionPunishment,
+    /// `AltAllowAugmentPvPItems` — **False**, and **unreachable on this dist**:
+    /// the gate is `item.isPvp() && !config`, and no item in
+    /// `data/stats/items` declares `is_pvp` at all.
+    pub alt_allow_augment_pvp_items: bool,
+    /// `AltAllowAugmentTrade` — **True**. Java's `Item.isTradeable`,
+    /// `isSellable` and `isDropable` each open with
+    /// `if (config && isAugmented()) return true`, so at this value an
+    /// augmented item trades *regardless of its template's own flag*. The port
+    /// applies no augmentation gate on those paths, which is the same answer;
+    /// turning it off would need one added at each.
+    pub alt_allow_augment_trade: bool,
+    /// `AltAllowAugmentDestroy` — **True**, so `Item.isDestroyable`'s
+    /// `if (!config && isAugmented()) return false` never fires.
+    pub alt_allow_augment_destroy: bool,
+
+    // --- Clan and alliance timers -----------------------------------------
+    /// `DaysBeforeJoinAClan` — the rejoin penalty stamped on a member who
+    /// leaves or is ousted, and on the ousting clan.
+    pub alt_clan_join_days: i32,
+    /// `DaysBeforeCreateAClan` — how long a dissolved clan's leader waits
+    /// before founding another. **10** here, the one day-key that is not 1.
+    pub alt_clan_create_days: i32,
+    /// `DaysToPassToDissolveAClan` — the delay between requesting dissolution
+    /// and it taking effect.
+    pub alt_clan_dissolve_days: i32,
+    /// The four alliance penalties, one per `ally_penalty_type`:
+    /// `DaysBeforeJoinAllyWhenLeaved` (the clan that left),
+    /// `DaysBeforeJoinAllyWhenDismissed` (the clan that was dismissed),
+    /// `DaysBeforeAcceptNewClanWhenDismissed` (the leader clan that did the
+    /// dismissing) and `DaysBeforeCreateNewAllyWhenDissolved` (the leader clan
+    /// after dissolving). All 1 here, which is why one shared constant passed
+    /// unnoticed.
+    pub alt_ally_join_days_when_leaved: i32,
+    pub alt_ally_join_days_when_dismissed: i32,
+    pub alt_accept_clan_days_when_dismissed: i32,
+    pub alt_create_ally_days_when_dissolved: i32,
+    /// `AltMembersCanWithdrawFromClanWH` — **False**, and the two branches are
+    /// not "privilege vs. no check": with it **on** the gate is the
+    /// `CL_VIEW_WAREHOUSE` privilege, with it **off** only the *clan leader*
+    /// may withdraw at all.
+    pub alt_members_can_withdraw_from_clan_wh: bool,
+    /// `AltClanLeaderInstantActivation` — **False**, so nominating a successor
+    /// only records `new_leader_id` and the handover happens on the daily
+    /// task. With it on, `Clan.setNewLeader` runs immediately.
+    pub alt_clan_leader_instant_activation: bool,
+    /// `AltClanMembersTimeForBonus` (millis; the ini writes `30mins`) — how
+    /// long a member must have been online before `ClanMember.getOnlineStatus`
+    /// reports `2` rather than `1`. The port does not track per-member online
+    /// time, so nothing reads this yet; parsed so the value is visible.
+    pub alt_clan_members_time_for_bonus_ms: i64,
+    /// `AltCommandChannelFriends` — **True**: two parties in the same command
+    /// channel cannot attack each other.
+    pub alt_command_channel_friends: bool,
+    /// `LifeCrystalNeeded` — **True**, and inert: it gates whether a pledge
+    /// skill's required items are consumed and shown, and no entry in this
+    /// dist's pledge tree declares any.
+    pub life_crystal_needed: bool,
     /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
     /// a castle town whose siege is running? **False** on this dist (Java's
     /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
@@ -427,6 +590,16 @@ impl Default for CharacterConfig {
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,
             max_run_speed: 300.0,
+            max_run_speed_summon: 350.0,
+            max_hp: 150_000.0,
+            max_sp: 50_000_000_000,
+            min_abnormal_state_success_rate: 10.0,
+            max_abnormal_state_success_rate: 90.0,
+            warehouse_slots_dwarf: 120,
+            warehouse_slots_no_dwarf: 100,
+            max_num_of_clans_in_ally: 3,
+            clan_members_for_war: 15,
+            max_equipable_item_grade: crate::data::item_data::CrystalType::S,
             max_buff_count: 24,
             max_subclass: 5,
             max_dance_count: 12,
@@ -443,6 +616,34 @@ impl Default for CharacterConfig {
             max_free_teleport_level: 99,
             alt_karma_player_can_use_gk: false,
             alt_karma_player_can_shop: false,
+            alt_karma_player_can_be_killed_in_peace_zone: false,
+            alt_karma_player_can_teleport: true,
+            alt_karma_player_can_trade: true,
+            player_spawn_protection: 600,
+            player_teleport_protection: 0,
+            offset_on_teleport_enabled: true,
+            max_offset_on_teleport: 50,
+            disconnect_after_death: false,
+            enchant_black_list: Vec::new(),
+            augmentation_black_list: Vec::new(),
+            disable_over_enchanting: true,
+            over_enchant_protection: true,
+            over_enchant_punishment: crate::model::punishment::IllegalActionPunishment::Jail,
+            alt_allow_augment_pvp_items: false,
+            alt_allow_augment_trade: true,
+            alt_allow_augment_destroy: true,
+            alt_clan_join_days: 1,
+            alt_clan_create_days: 10,
+            alt_clan_dissolve_days: 1,
+            alt_ally_join_days_when_leaved: 1,
+            alt_ally_join_days_when_dismissed: 1,
+            alt_accept_clan_days_when_dismissed: 1,
+            alt_create_ally_days_when_dissolved: 1,
+            alt_members_can_withdraw_from_clan_wh: false,
+            alt_clan_leader_instant_activation: false,
+            alt_clan_members_time_for_bonus_ms: 30 * 60 * 1000,
+            alt_command_channel_friends: true,
+            life_crystal_needed: true,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             teleport_watchdog_timeout_ticks: 0,
@@ -454,7 +655,50 @@ impl Default for CharacterConfig {
     }
 }
 
+/// Java's `getString(...).split(",")` → `int[]` → `Arrays.sort`. Sorted because
+/// Java looks the id up with `binarySearch`, so a duplicate or out-of-order
+/// entry behaves the same on both sides.
+fn parse_id_list(raw: &str) -> Vec<i32> {
+    let mut ids: Vec<i32> = raw
+        .split(',')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .filter_map(|s| s.parse().ok())
+        .collect();
+    ids.sort_unstable();
+    ids.dedup();
+    ids
+}
+
 impl CharacterConfig {
+    /// `(randomOffset) ? Config.MAX_OFFSET_ON_TELEPORT : 0`, with
+    /// `OFFSET_ON_TELEPORT_ENABLED` folded in — the radius a *scattering*
+    /// teleport lands within, or `0` when it should land on the exact point.
+    ///
+    /// Java applies this only where the caller asks for it, which on this dist
+    /// is four places: the jail zone, a residence-hall teleport zone, the
+    /// Olympiad observer's return to `_lastLoc`, and summons following their
+    /// owner. Every other teleport — gatekeepers, quests, `//tp` — is exact,
+    /// so this must never be folded into the shared teleport path.
+    pub fn teleport_offset(&self) -> i32 {
+        if self.offset_on_teleport_enabled {
+            self.max_offset_on_teleport.max(0)
+        } else {
+            0
+        }
+    }
+
+    /// `MAX_SP` as `PlayableStat` uses it: Java stores
+    /// `getLong("MaxSp", …) >= 0 ? value : Long.MAX_VALUE`, so a **negative**
+    /// configured value means "no ceiling" rather than "no SP".
+    pub fn sp_ceiling(&self) -> i64 {
+        if self.max_sp >= 0 {
+            self.max_sp
+        } else {
+            i64::MAX
+        }
+    }
+
     /// `Player.getInventoryLimit()`, narrowed to the race-based base (dwarves
     /// get a bigger bag).
     pub fn inventory_limit(&self, race: i32) -> i32 {
@@ -617,6 +861,24 @@ impl CharacterConfig {
             max_m_atk_speed: p.get_float("MaxMAtkSpeed", 1999.0) as f64,
             max_evasion: p.get_float("MaxEvasion", 250.0) as f64,
             max_run_speed: p.get_float("MaxRunSpeed", 300.0) as f64,
+            max_run_speed_summon: p.get_float("MaxRunSpeedSummon", 350.0) as f64,
+            max_hp: f64::from(p.get_int("MaxHP", 150_000)),
+            // Java: `getLong(..) >= 0 ? value : Long.MAX_VALUE`.
+            max_sp: p.get_long("MaxSp", 50_000_000_000),
+            min_abnormal_state_success_rate: f64::from(
+                p.get_int("MinAbnormalStateSuccessRate", 10),
+            ),
+            max_abnormal_state_success_rate: f64::from(
+                p.get_int("MaxAbnormalStateSuccessRate", 90),
+            ),
+            warehouse_slots_dwarf: p.get_int("MaximumWarehouseSlotsForDwarf", 120),
+            warehouse_slots_no_dwarf: p.get_int("MaximumWarehouseSlotsForNoDwarf", 100),
+            max_num_of_clans_in_ally: p.get_int("AltMaxNumOfClansInAlly", 3).max(0) as usize,
+            clan_members_for_war: p.get_int("AltClanMembersForWar", 15).max(0) as usize,
+            // Java's default is `EVENT` — the top of the enum, i.e. no filter.
+            max_equipable_item_grade: crate::data::item_data::CrystalType::from_config_name(
+                p.get_string("MaxEquipableItemGrade", "EVENT").as_str(),
+            ),
             max_buff_count: p.get_int("MaxBuffAmount", 24),
             max_subclass: p.get_int("MaxSubclass", 5),
             max_dance_count: p.get_int("MaxDanceAmount", 12),
@@ -655,6 +917,69 @@ impl CharacterConfig {
                 .get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
             alt_karma_player_can_shop: p
                 .get_bool("AltKarmaPlayerCanShop", d.alt_karma_player_can_shop),
+            alt_karma_player_can_be_killed_in_peace_zone: p.get_bool(
+                "AltKarmaPlayerCanBeKilledInPeaceZone",
+                d.alt_karma_player_can_be_killed_in_peace_zone,
+            ),
+            alt_karma_player_can_teleport: p
+                .get_bool("AltKarmaPlayerCanTeleport", d.alt_karma_player_can_teleport),
+            alt_karma_player_can_trade: p
+                .get_bool("AltKarmaPlayerCanTrade", d.alt_karma_player_can_trade),
+            player_spawn_protection: p.get_int("PlayerSpawnProtection", d.player_spawn_protection),
+            player_teleport_protection: p
+                .get_int("PlayerTeleportProtection", d.player_teleport_protection),
+            offset_on_teleport_enabled: p
+                .get_bool("OffsetOnTeleportEnabled", d.offset_on_teleport_enabled),
+            max_offset_on_teleport: p.get_int("MaxOffsetOnTeleport", d.max_offset_on_teleport),
+            disconnect_after_death: p.get_bool("DisconnectAfterDeath", d.disconnect_after_death),
+            enchant_black_list: parse_id_list(&p.get_string("EnchantBlackList", "")),
+            augmentation_black_list: parse_id_list(&p.get_string("AugmentationBlackList", "")),
+            disable_over_enchanting: p.get_bool("DisableOverEnchanting", d.disable_over_enchanting),
+            over_enchant_protection: p.get_bool("OverEnchantProtection", d.over_enchant_protection),
+            over_enchant_punishment:
+                crate::model::punishment::IllegalActionPunishment::find_by_name(
+                    &p.get_string("OverEnchantPunishment", "JAIL"),
+                ),
+            alt_allow_augment_pvp_items: p
+                .get_bool("AltAllowAugmentPvPItems", d.alt_allow_augment_pvp_items),
+            alt_allow_augment_trade: p.get_bool("AltAllowAugmentTrade", d.alt_allow_augment_trade),
+            alt_allow_augment_destroy: p
+                .get_bool("AltAllowAugmentDestroy", d.alt_allow_augment_destroy),
+            alt_clan_join_days: p.get_int("DaysBeforeJoinAClan", d.alt_clan_join_days),
+            alt_clan_create_days: p.get_int("DaysBeforeCreateAClan", d.alt_clan_create_days),
+            alt_clan_dissolve_days: p
+                .get_int("DaysToPassToDissolveAClan", d.alt_clan_dissolve_days),
+            alt_ally_join_days_when_leaved: p.get_int(
+                "DaysBeforeJoinAllyWhenLeaved",
+                d.alt_ally_join_days_when_leaved,
+            ),
+            alt_ally_join_days_when_dismissed: p.get_int(
+                "DaysBeforeJoinAllyWhenDismissed",
+                d.alt_ally_join_days_when_dismissed,
+            ),
+            alt_accept_clan_days_when_dismissed: p.get_int(
+                "DaysBeforeAcceptNewClanWhenDismissed",
+                d.alt_accept_clan_days_when_dismissed,
+            ),
+            alt_create_ally_days_when_dissolved: p.get_int(
+                "DaysBeforeCreateNewAllyWhenDissolved",
+                d.alt_create_ally_days_when_dissolved,
+            ),
+            alt_members_can_withdraw_from_clan_wh: p.get_bool(
+                "AltMembersCanWithdrawFromClanWH",
+                d.alt_members_can_withdraw_from_clan_wh,
+            ),
+            alt_clan_leader_instant_activation: p.get_bool(
+                "AltClanLeaderInstantActivation",
+                d.alt_clan_leader_instant_activation,
+            ),
+            // Java `getDuration(...).toMillis()`; the ini writes `30mins`.
+            alt_clan_members_time_for_bonus_ms: p
+                .get_duration_secs("AltClanMembersTimeForBonus", 30 * 60)
+                * 1000,
+            alt_command_channel_friends: p
+                .get_bool("AltCommandChannelFriends", d.alt_command_channel_friends),
+            life_crystal_needed: p.get_bool("LifeCrystalNeeded", d.life_crystal_needed),
             teleport_while_siege_in_progress: p.get_bool(
                 "TeleportWhileSiegeInProgress",
                 d.teleport_while_siege_in_progress,
@@ -686,6 +1011,25 @@ impl CharacterConfig {
 
 #[cfg(test)]
 mod tests {
+
+    /// Java parses both blacklists with `split(",")` → `int[]` → `Arrays.sort`,
+    /// and then looks ids up with `binarySearch`. The dist's own lists happen
+    /// to ship in order, so only a deliberately unsorted input can show that
+    /// the port sorts too — without it, `binary_search` would silently miss
+    /// entries on an operator-edited list.
+    #[test]
+    fn id_lists_are_sorted_and_deduped_like_javas() {
+        assert_eq!(parse_id_list("3,1,2"), vec![1, 2, 3]);
+        assert_eq!(parse_id_list("5, 5 ,4"), vec![4, 5], "trimmed and deduped");
+        assert_eq!(parse_id_list(""), Vec::<i32>::new());
+        assert_eq!(parse_id_list("7,,8"), vec![7, 8], "empty entries skipped");
+        assert_eq!(parse_id_list("9,oops,10"), vec![9, 10], "junk skipped");
+        // The property the lookup depends on.
+        let ids = parse_id_list("7827,7816,7820");
+        assert!(ids.binary_search(&7816).is_ok());
+        assert!(ids.binary_search(&7817).is_err());
+    }
+
     use super::*;
 
     #[test]

@@ -166,3 +166,41 @@ is inert rather than assume it is load-bearing.
   at level 1 where strict strips it — and
   `the_delevel_grace_is_what_ships_and_what_defaults` pins which of the two
   actually ships, against the real ini *and* the code default.
+
+## Over-enchant protection reads a *missing* accessory ceiling as "no limit", not as zero
+
+- **Keys:** `OverEnchantProtection`, `OverEnchantPunishment`
+- **Files:** `dist/game/config/Character.ini`, `dist/game/data/EnchantItemGroups.xml`
+- **Retail:** `EnchantItemGroupsData` does not read the three enchant ceilings
+  from any field. It **infers** them from each `<enchantRateGroup>`'s *name*:
+  the highest `enchant` range with a non-zero chance goes to
+  `_maxWeaponEnchant` if the name contains `WEAPON`, to `_maxAccessoryEnchant`
+  if it contains `ACCESSORIES`/`RING`/`EARRING`/`NECK`, and to
+  `_maxArmorEnchant` otherwise. All three start at `0`. `EnterWorld` and
+  `UseItem` then destroy any equipable item enchanted past its category's
+  ceiling and punish the owner with `OverEnchantPunishment`.
+- **The problem:** this dist ships exactly four groups — `ARMOR_GROUP`,
+  `FULL_ARMOR_GROUP`, `FIGHTER_WEAPON_GROUP`, `MAGE_WEAPON_GROUP`. None matches
+  an accessory pattern, so `_maxAccessoryEnchant` stays at its initial **0**
+  while weapons and armour both derive **29**. With the shipped
+  `OverEnchantProtection = True` and `OverEnchantPunishment = JAIL`, retail
+  therefore **destroys every enchanted ring, earring and necklace a character
+  owns the moment they log in, and jails them for it**. That is an absence of
+  group data being read as a configured limit of zero.
+- **Here:** `EnchantData::max_enchant_for_type2` returns `Option<i32>` and
+  answers `None` for a category whose derived ceiling is `0` — "nothing to
+  measure against" — so such items are left alone. Weapons and armour are
+  checked normally against their 29. Nothing else about the sweep differs: the
+  same items are destroyed, the same `handle_illegal_player_action` punishment
+  fires, and GMs are exempt exactly as in retail.
+- **Why not port it faithfully:** the faithful behaviour is not a rule anyone
+  configured; it is a naming convention silently failing to match. Shipping it
+  would delete player property and jail the owner on their next login, on a
+  server whose operator never asked for either. If an operator does want an
+  accessory ceiling, the fix is to name a group so Java's own inference finds
+  it — at which point the port honours it like any other.
+- **Guarded by:** `game_loop::tests::character_config_tests::
+  the_accessory_ceiling_is_absent_on_this_dist_and_is_not_read_as_zero`, which
+  pins the three derived values against the real `EnchantItemGroups.xml` and
+  asserts an enchanted accessory survives the sweep while an over-enchanted
+  weapon does not.

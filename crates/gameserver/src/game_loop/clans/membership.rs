@@ -420,12 +420,14 @@ pub(crate) fn remove_clan_member(
             leader_id: 0,
         });
     }
+    // Read before the mutable borrow below.
+    let create_cooldown_ms = super::clan_create_cooldown_ms(world);
     let Some(clan) = world.clans.get_mut(&clan_id) else {
         return;
     };
     let was_leader = clan.leader_id == member_oid;
     let leader_expiry = if was_leader {
-        now_millis() + CLAN_CREATE_COOLDOWN_MS
+        now_millis() + create_cooldown_ms
     } else {
         0
     };
@@ -517,7 +519,8 @@ pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32
     }
 
     let name = player_name_or_empty(world, player);
-    remove_clan_member(world, clan_id, player, now_millis() + CLAN_JOIN_PENALTY_MS);
+    let penalty = now_millis() + super::clan_join_penalty_ms(world);
+    remove_clan_member(world, clan_id, player, penalty);
 
     let withdrew = server_packets::system_message_with(
         sm_ids::S1_HAS_WITHDRAWN_FROM_THE_CLAN,
@@ -593,7 +596,7 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
         return;
     }
 
-    let penalty_until = now_millis() + CLAN_JOIN_PENALTY_MS;
+    let penalty_until = now_millis() + super::clan_join_penalty_ms(world);
     remove_clan_member(world, clan_id, member.char_id, penalty_until);
     let dissolving = world
         .clans
@@ -710,7 +713,7 @@ pub(crate) fn handle_dissolve_clan(world: &mut World, client_id: u32, player_oid
         return;
     }
 
-    let due = now_millis() + CLAN_DISSOLVE_DELAY_MS;
+    let due = now_millis() + super::clan_dissolve_delay_ms(world);
     let char_penalty = clan.char_penalty_expiry_time;
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.dissolving_expiry_time = due;

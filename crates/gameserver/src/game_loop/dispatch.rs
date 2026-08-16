@@ -85,6 +85,22 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         return;
     }
+    // `Player.onActionRequest()` — Java calls it from exactly these five
+    // packets (its sixth caller, `AutoPlayTaskManager`, is post-Interlude).
+    // Kept as one hook rather than five scattered calls so the set stays
+    // greppable; see `game_loop::spawn_protection`.
+    if matches!(
+        opcode,
+        cop::ACTION
+            | cop::ATTACK
+            | cop::ATTACK_REQUEST
+            | cop::MOVE_BACKWARD_TO_LOCATION
+            | cop::REQUEST_MAGIC_SKILL_USE
+            | cop::USE_ITEM
+    ) && let Some(player) = world.player_oid(client_id)
+    {
+        super::spawn_protection::on_action_request(world, client_id, player);
+    }
     match opcode {
         cop::AUTH_LOGIN => handle_auth_login(world, client_id, body),
         cop::NEW_CHARACTER => handle_new_character(world, client_id),

@@ -33,7 +33,11 @@ const RESTOCK_TICKS: u64 = 36_000;
 fn dist_shop_world(npc_id: i32) -> (World, db::CmdRx, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     let items = dist::items_owned();
-    let lists = BuyListData::load_from(crate::data::DIST_GAME, &items);
+    let lists = BuyListData::load_from(
+        crate::data::DIST_GAME,
+        &items,
+        crate::data::item_data::CrystalType::S,
+    );
     world.data.item_data = items;
     world.data.buy_lists = lists;
     add_test_npc(&mut world, NPC_OID, npc_id, "Merchant", 5, 100, 0, 0);

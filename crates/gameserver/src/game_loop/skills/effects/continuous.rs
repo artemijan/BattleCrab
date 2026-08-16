@@ -195,6 +195,7 @@ pub(crate) fn apply_continuous_effects(
                 skill.basic_property,
             ),
             crate::game_loop::basic_property::resist_bonus(world, target_oid, skill.basic_property),
+            formulas::LandRateBounds::of(&world.cfg.character),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.

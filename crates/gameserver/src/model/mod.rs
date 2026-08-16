@@ -549,6 +549,14 @@ pub struct Player {
     /// client sit the character with the store title above it. The sell list
     /// itself lives in the `PrivateStore` component.
     pub store_type: u8,
+
+    /// Java `Player._spawnProtectEndTime`, as an absolute world tick (0 = not
+    /// protected). While it is in the future the character is **ignored by
+    /// aggressive monsters** — not invulnerable; see
+    /// [`crate::config::character::CharacterConfig::player_spawn_protection`].
+    /// Cleared by the first deliberate action, which is Java's
+    /// `Player.onActionRequest`.
+    pub spawn_protect_end_tick: u64,
 }
 
 /// Port of `enums/ShotType`, narrowed to the kinds this slice charges. The
@@ -1259,6 +1267,7 @@ impl Player {
             transform_id: 0,
             transform_display_id: 0,
             store_type: 0,
+            spawn_protect_end_tick: 0,
         };
         // Filled in by `recalculate_stats` (incl. atk_range/random_dmg, which it
         // sets from the equipped weapon or the class template).
@@ -2408,7 +2417,25 @@ pub fn calc_max_hp(
     let enchant = inventory
         .map(|inv| enchanted_armour_hp(inv, data))
         .unwrap_or(0.0);
-    mul * base + add + item + enchant
+    let total = mul * base + add + item + enchant;
+    // `MaxHpFinalizer`'s HP_LIMIT arm: `min(maxHp, MAX_HP * mul + add)`. No
+    // skill on this dist grants `hpLimit`, so the mul/add stay at 1/0 and the
+    // ceiling is the flat config figure. Java lifts it outright for a
+    // cursed-weapon wielder — Zariche and Akamanah, both Interlude weapons —
+    // and for a dragon weapon, which is post-Interlude and unequippable here.
+    let cursed = inventory.is_some_and(|inv| {
+        inv.equipped_items().iter().any(|it| {
+            data.cursed_weapons
+                .weapons
+                .iter()
+                .any(|cw| cw.item_id == it.item_id)
+        })
+    });
+    if cursed {
+        total
+    } else {
+        total.min(data.combat_caps.max_hp)
+    }
 }
 
 /// `MaxHpFinalizer`'s "Apply enchanted item bonus HP" arm: every equipped

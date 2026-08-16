@@ -317,6 +317,96 @@ fn clan_roster_notifications_and_chat() {
 /// Clan warehouse: a shared container. The leader deposits (persisted), an
 /// unprivileged member is denied the withdraw window, and the leader withdraws.
 #[test]
+fn clan_warehouse_withdrawal_is_leader_only_at_the_shipped_setting() {
+    use crate::game_loop::warehouse;
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::components::ActiveWarehouse;
+    let (mut world, _tx, _db_rx, _lrx) = admin_world();
+    let _leader_rx = ingame_player_access(&mut world, 1, 3001, 0);
+    let _member_rx = ingame_player_access(&mut world, 2, 3002, 0);
+
+    let clan_id = 0x7000_0009;
+    let cm = |id: i32| ClanMember {
+        char_id: id,
+        name: format!("P{id}"),
+        level: 1,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+        power_grade: 5,
+        title: String::new(),
+        pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
+    };
+    world.clans.insert(
+        clan_id,
+        Clan {
+            id: clan_id,
+            name: "WhGate".into(),
+            leader_id: 3001,
+            level: 1,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![cm(3001), cm(3002)],
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        },
+    );
+    for oid in [3001, 3002] {
+        world
+            .objects
+            .get_component_mut::<Player>(&oid)
+            .unwrap()
+            .clan_id = clan_id;
+    }
+    // **3002 holds the view-warehouse privilege.** That is the whole point:
+    // under the port's old unconditional privilege gate this member could
+    // withdraw, and on this dist they must not be able to.
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .clan_privs = crate::model::clan::ALL_CLAN_PRIVILEGES;
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .clan_privs = crate::model::clan::CL_VIEW_WAREHOUSE;
+
+    let opened = |world: &mut World, client: u32, oid: i32| {
+        world.objects.remove_component::<ActiveWarehouse>(&oid);
+        warehouse::open_clan(world, client, oid, true);
+        world.objects.has_component::<ActiveWarehouse>(&oid)
+    };
+
+    // Shipped: `AltMembersCanWithdrawFromClanWH = False` → leader only.
+    assert!(!world.cfg.character.alt_members_can_withdraw_from_clan_wh);
+    assert!(opened(&mut world, 1, 3001), "the leader may withdraw");
+    assert!(
+        !opened(&mut world, 2, 3002),
+        "a privileged member must NOT withdraw while the key is off"
+    );
+
+    // Turned on: the privilege becomes the gate instead.
+    world.cfg.character.alt_members_can_withdraw_from_clan_wh = true;
+    assert!(opened(&mut world, 2, 3002), "…and may once the key is on");
+}
+
+#[test]
 fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::inventory::Inventory;
