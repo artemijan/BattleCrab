@@ -9,11 +9,7 @@ const BOSS_ID: i32 = 25999;
 
 /// Register a raid-boss template plus a `dbSave` spawn line for it, exactly as
 /// `RaidbossSpawns.xml` declares one (24 h respawn).
-fn boss_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn boss_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(BOSS_ID);
     t.type_name = "RaidBoss".into();
@@ -62,7 +58,7 @@ fn live_boss(world: &mut World) -> Option<i32> {
     let mut found = None;
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+        .for_each_mut::<(&model::npc::Npc, &Vitals)>(|(n, v)| {
             if n.npc_id == BOSS_ID && !v.dead {
                 found = Some(n.object_id);
             }
@@ -92,7 +88,17 @@ fn row(respawn_time: i64, cur_hp: f64, cur_mp: f64) -> NpcRespawnRow {
 }
 
 // ---------------------------------------------------------------------------
-
+fn npc_respawn_delay(world: &World) -> u64 {
+    world
+        .scheduler
+        .pending_for_test()
+        .into_iter()
+        .find_map(|(tick, task)| {
+            matches!(task, crate::scheduler::ScheduledTask::NpcRespawn { .. })
+                .then_some(tick - world.tick)
+        })
+        .expect("a respawn was scheduled")
+}
 /// `DBSpawnManager.updateStatus`: `respawnMinDelay = getRespawnMinDelay() *
 /// RAID_MIN_RESPAWN_MULTIPLIER` (and the same for max) *before* the window is
 /// rolled — so halving the multipliers halves the wait. Only the DB-backed
@@ -103,21 +109,13 @@ fn raid_respawn_multipliers_scale_a_boss_window_before_it_is_rolled() {
         let (mut world, _db, _l) = boss_world();
         world.cfg.npc.raid_min_respawn_multiplier = mult;
         world.cfg.npc.raid_max_respawn_multiplier = mult;
-        crate::model::npc::spawn_all(&mut world);
+        model::npc::spawn_all(&mut world);
         crate::game_loop::boss_respawn::resolve_boot(&mut world, Vec::new());
         let oid = live_boss(&mut world).expect("boss placed");
         crate::game_loop::death::npc_do_die(&mut world, oid, 0);
         // The corpse has to decay before `decreaseCount` schedules the respawn.
         crate::game_loop::death::handle_npc_decay(&mut world, oid);
-        world
-            .scheduler
-            .pending_for_test()
-            .into_iter()
-            .find_map(|(tick, task)| {
-                matches!(task, crate::scheduler::ScheduledTask::NpcRespawn { .. })
-                    .then_some(tick - world.tick)
-            })
-            .expect("a respawn was scheduled")
+        npc_respawn_delay(&world)
     };
 
     // The spawn line says 86 400 s with no random spread, so the roll is exact
@@ -145,19 +143,11 @@ fn the_raid_respawn_multipliers_leave_ordinary_spawns_alone() {
     world.cfg.npc.raid_max_respawn_multiplier = 0.5;
     // Same line, but not DB-backed.
     world.data.spawn_data.spawns[0].groups[0].npcs[0].db_save = false;
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
     let oid = live_boss(&mut world).expect("a non-dbSave line spawns statically");
     crate::game_loop::death::npc_do_die(&mut world, oid, 0);
     crate::game_loop::death::handle_npc_decay(&mut world, oid);
-    let delay = world
-        .scheduler
-        .pending_for_test()
-        .into_iter()
-        .find_map(|(tick, task)| {
-            matches!(task, crate::scheduler::ScheduledTask::NpcRespawn { .. })
-                .then_some(tick - world.tick)
-        })
-        .expect("a respawn was scheduled");
+    let delay = npc_respawn_delay(&world);
     assert_eq!(
         delay,
         86_400 * 10,
@@ -171,7 +161,7 @@ fn static_pass_defers_db_save_spawns_instead_of_placing_them() {
     // the DB restore below would double-spawn it.
     let (mut world, _db, _l) = boss_world();
 
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     assert!(
         live_boss(&mut world).is_none(),
@@ -187,7 +177,7 @@ fn static_pass_defers_db_save_spawns_instead_of_placing_them() {
 #[test]
 fn boss_with_no_stored_row_spawns_at_full_hp_and_is_persisted() {
     let (mut world, mut db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     crate::game_loop::boss_respawn::resolve_boot(&mut world, Vec::new());
 
@@ -212,7 +202,7 @@ fn boss_with_no_stored_row_spawns_at_full_hp_and_is_persisted() {
 fn stored_hp_is_restored_across_a_restart() {
     // The gate: a boss left at 1200/10000 comes back at 1200, not full.
     let (mut world, _db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     crate::game_loop::boss_respawn::resolve_boot(&mut world, vec![row(0, 1200.0, 300.0)]);
 
@@ -225,7 +215,7 @@ fn stored_hp_is_restored_across_a_restart() {
 #[test]
 fn a_boss_still_on_its_respawn_timer_does_not_spawn() {
     let (mut world, _db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     // Due in an hour.
     crate::game_loop::boss_respawn::resolve_boot(
@@ -246,7 +236,7 @@ fn a_boss_still_on_its_respawn_timer_does_not_spawn() {
 #[test]
 fn an_elapsed_respawn_time_spawns_the_boss_immediately() {
     let (mut world, _db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     // Due an hour ago — the server was down past the window.
     crate::game_loop::boss_respawn::resolve_boot(
@@ -267,7 +257,7 @@ fn a_dead_rows_zero_hp_is_not_restored_onto_a_respawned_boss() {
     // Guard against the obvious bug: a row written at death holds currentHp 0,
     // and restoring that literally would spawn a corpse.
     let (mut world, _db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     crate::game_loop::boss_respawn::resolve_boot(&mut world, vec![row(now_ms() - 1000, 0.0, 0.0)]);
 
@@ -280,7 +270,7 @@ fn a_dead_rows_zero_hp_is_not_restored_onto_a_respawned_boss() {
 #[test]
 fn stored_hp_above_the_template_max_is_clamped() {
     let (mut world, _db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     crate::game_loop::boss_respawn::resolve_boot(&mut world, vec![row(0, 999_999.0, 999_999.0)]);
 
@@ -295,7 +285,7 @@ fn stored_hp_above_the_template_max_is_clamped() {
 #[test]
 fn killing_a_boss_banks_its_absolute_respawn_time() {
     let (mut world, mut db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
     crate::game_loop::boss_respawn::resolve_boot(&mut world, Vec::new());
     let oid = live_boss(&mut world).expect("spawned");
     let _ = drain_db(&mut db); // discard the spawn-time insert
@@ -353,7 +343,7 @@ fn an_ordinary_monster_death_writes_no_respawn_row() {
 #[test]
 fn shutdown_flushes_living_boss_hp() {
     let (mut world, mut db, _l) = boss_world();
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
     crate::game_loop::boss_respawn::resolve_boot(&mut world, Vec::new());
     let oid = live_boss(&mut world).expect("spawned");
     world

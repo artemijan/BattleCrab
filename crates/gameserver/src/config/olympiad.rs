@@ -19,6 +19,7 @@
 //! They are carried so the values are visible and so honouring them later is a
 //! change at the use site, not a hunt through the ini.
 
+use crate::config::common::parse_tuples_separated_by_semicolon;
 use commons::config::PropertiesParser;
 
 pub const OLYMPIAD_CONFIG_FILE: &str = "config/Olympiad.ini";
@@ -165,12 +166,7 @@ impl OlympiadConfig {
             if raw.trim().eq_ignore_ascii_case("none") {
                 return Vec::new();
             }
-            raw.split(';')
-                .filter_map(|entry| {
-                    let (id, count) = entry.split_once(',')?;
-                    Some((id.trim().parse().ok()?, count.trim().parse().ok()?))
-                })
-                .collect()
+            parse_tuples_separated_by_semicolon(&raw)
         };
         let restricted_items = p
             .get_string("AltOlyRestrictedItems", "")
