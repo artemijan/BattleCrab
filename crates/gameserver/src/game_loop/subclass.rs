@@ -28,9 +28,6 @@ use crate::model::components::SkillBook;
 use crate::model::{Player, SubClass};
 use crate::world::World;
 
-/// Java `Config.BASE_SUBCLASS_LEVEL` — a new subclass starts here.
-pub(crate) const BASE_SUBCLASS_LEVEL: i32 = 40;
-
 /// Why an add was refused, so callers can report it (Java returns a bare
 /// `false` and the village master prints its own message).
 #[derive(Debug, PartialEq, Eq)]
@@ -84,11 +81,14 @@ pub(crate) fn add_subclass(
         return Err(AddError::SlotsFull);
     };
 
-    let exp = world.data.experience.exp_for_level(BASE_SUBCLASS_LEVEL);
+    let exp = world
+        .data
+        .experience
+        .exp_for_level(world.cfg.character.base_subclass_level);
     let slot = SubClass {
         class_id,
         class_index: index,
-        level: BASE_SUBCLASS_LEVEL,
+        level: world.cfg.character.base_subclass_level,
         exp,
         sp: 0,
     };

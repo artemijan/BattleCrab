@@ -6822,3 +6822,48 @@ rule and not the plumbing.
 
 Character.ini stands at **22** unread keys (82 → 72 → 64 → 56 → 44 → 37 → 29 →
 22), and row 14 at **140**.
+
+---
+
+## Character.ini, cluster 8 (row 14) — subclasses and skill acquisition
+
+Six keys, and the subclass half found a missing ceiling.
+
+**A subclass had no level cap.** `SubClassHolder.MAX_LEVEL` is
+`min(MaxSubclassLevel, experienceTable.maxLevel - 1)` — a ceiling the *subclass*
+has and the base class does not. The port applied only the table's own cap, so
+a subclass levelled as far as the base class could. `BaseSubclassLevel` sat
+beside it as a `const 40` whose doc quoted the key.
+
+The cap goes in as an exp ceiling, reusing the shape already there — and that
+shape is off by one on purpose. `exp_for_level(N) - 1` leaves you one point
+short of level `N`, so it stops you at `N - 1`; *reaching* level 80 means
+capping at `exp_for_level(81) - 1`. My first cut used `exp_for_level(80) - 1`
+and would have capped subclasses at **79**. The test pins the exact level for
+both a subclass and a base class, and fails against the missing cap *and*
+against the off-by-one — the second falsification is the one worth having.
+
+### The four with no consumer
+
+- `AltSubclassEverywhere` is **True**, so `VillageMaster.checkVillageMaster`
+  returns `true` outright and any master will add a subclass rather than only
+  one matching the class's race and teach type. The port has no such gate,
+  which is that same behaviour.
+- `BaseDualclassLevel` belongs to Ertheia's dual class — no Interlude
+  counterpart.
+- `AutoLearnForgottenScrollSkills` is genuinely *reachable* here, since Java
+  only consults it inside `if (Config.AUTO_LEARN_SKILLS)` and this dist ships
+  `AutoLearnSkills = True`. It is still empty-handed: the port's own skill-tree
+  doc records that this dist's base-class trees carry no forgotten-scroll
+  entries, so there is nothing for it to include.
+- `AltTransformationWithoutQuest` gates learning a transformation skill behind
+  `Q00136_MoreThanMeetsTheEye`. `transformSkillTree.xml` ships, but the port
+  parses only the class, hero, noble and GM trees, so no transformation skill is
+  learnable and the gate has nothing to guard.
+
+3456 green, clippy clean, fmt clean. Three new tests.
+
+Character.ini stands at **16** unread keys (82 → … → 22 → 16), and row 14 at
+**134**. Of those 16, **eight are the ones already classified dead in Java** and
+`MaximumPlayerLevel` is row 19's decision, leaving seven: the fortress fame
+trio, `MaxExpBonus`/`MaxSpBonus`, `NpcTalkBlockingTime` and `SilenceModeExclude`.

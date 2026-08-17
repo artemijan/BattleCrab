@@ -903,3 +903,66 @@ fn character_create_refuses_a_forbidden_name() {
         "a forbidden substring is REASON_INCORRECT_NAME, not a length error"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Cluster 8 — subclasses, and what may be learned
+// ---------------------------------------------------------------------------
+
+#[test]
+fn the_subclass_keys_parse_to_the_shipped_values() {
+    let c = CharacterConfig::load_from(crate::data::DIST_GAME);
+    assert_eq!(c.base_subclass_level, 40);
+    assert_eq!(c.max_subclass_level, 80);
+    assert_eq!(c.base_dualclass_level, 80, "Ertheia, unreachable here");
+    assert!(c.alt_game_subclass_everywhere);
+    assert!(c.auto_learn_fs_skills);
+    assert!(!c.allow_transform_without_quest);
+}
+
+/// `SubClassHolder.MAX_LEVEL` — a subclass has its own ceiling,
+/// `min(MaxSubclassLevel, table.maxLevel - 1)`, below the base class's. The
+/// port had none, so a subclass levelled to the experience table's maximum.
+///
+/// The exp cap is what enforces it, and the idiom is off by one on purpose:
+/// `exp_for_level(N) - 1` stops you at `N - 1`, so reaching level 80 means
+/// capping at `exp_for_level(81) - 1`.
+#[test]
+fn a_subclass_stops_at_its_own_ceiling_and_the_base_class_does_not() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let table_max = world.data.experience.max_level as i32;
+    assert!(table_max >= 5, "the fixture table needs room for both caps");
+
+    // Cap the subclass two levels under the table so the two cases differ.
+    let sub_cap = table_max - 3;
+    world.cfg.character.max_subclass_level = sub_cap;
+
+    let level_after_flood = |world: &mut World, class_index: i32| {
+        {
+            let p = world
+                .objects
+                .get_component_mut::<crate::model::Player>(&3001)
+                .expect("player");
+            p.class_index = class_index;
+            p.level = 1;
+            p.exp = 0;
+        }
+        crate::game_loop::death::add_exp_and_sp(world, 3001, 1e18, 0.0, false);
+        world
+            .objects
+            .get_component::<crate::model::Player>(&3001)
+            .expect("player")
+            .level
+    };
+
+    assert_eq!(
+        level_after_flood(&mut world, 1),
+        sub_cap,
+        "a subclass stops on MaxSubclassLevel — not one short of it"
+    );
+    assert_eq!(
+        level_after_flood(&mut world, 0),
+        table_max - 1,
+        "the base class is unaffected and still reaches the table's own cap"
+    );
+}

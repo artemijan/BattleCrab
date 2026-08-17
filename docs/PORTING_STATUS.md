@@ -199,7 +199,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **140** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and seven of Character.ini's clusters with them**; what remains is Character 22, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **134** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and eight of Character.ini's clusters with them**; what remains is Character 16, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
@@ -584,7 +584,31 @@ so add nothing, and `AutoLootSlotLimit` (**True**) reduces
 `validateCapacity` to "quest items against the quest limit, everything else
 against the normal one" — already the port's behaviour.
 
-What is left is Character (12 live keys past these seven clusters — enchant/augment
+**Cluster 8 — subclasses and skill acquisition (6 keys)** — found a missing
+ceiling. `SubClassHolder.MAX_LEVEL` is
+`min(MaxSubclassLevel, experienceTable.maxLevel - 1)`, a ceiling a *subclass*
+has and the base class does not; the port had none, so a subclass levelled all
+the way to the experience table's maximum. `BaseSubclassLevel` was a `const 40`
+beside it.
+
+The cap is applied as an exp ceiling, matching the existing idiom — and that
+idiom is off by one on purpose: `exp_for_level(N) - 1` stops you at `N - 1`, so
+*reaching* 80 means capping at `exp_for_level(81) - 1`. The first cut got that
+wrong and capped subclasses at 79; the test pins the exact level and fails
+against both that and the missing cap.
+
+The other four are carried with the reason each has no consumer.
+`AltSubclassEverywhere` is **True**, so `VillageMaster.checkVillageMaster`
+returns `true` outright and any master adds a subclass — the port has no
+race/teach-type gate, which is the same behaviour. `BaseDualclassLevel` belongs
+to Ertheia's dual class, which has no Interlude counterpart.
+`AutoLearnForgottenScrollSkills` is reachable (`AutoLearnSkills` is **True**)
+but empty-handed: this dist's base-class trees carry no forgotten-scroll
+entries. And `AltTransformationWithoutQuest` guards learning a transformation
+skill behind `Q00136_MoreThanMeetsTheEye`, but the port parses no
+`transformSkillTree.xml`, so none is learnable.
+
+What is left is Character (6 live keys past these eight clusters — enchant/augment
 gates, the karma trio, the clan/ally day penalties, character creation and
 auto-loot), General (71 — mostly dev tooling and persistence-model choices the
 port made differently: memory-first saves, no `HtmCache`, no grid on/off), and

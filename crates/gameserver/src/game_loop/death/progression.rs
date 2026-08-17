@@ -115,7 +115,30 @@ pub(crate) fn add_exp_and_sp(
     let (exp, sp) = (add_exp.round() as i64, add_sp.round() as i64);
 
     let max_level = world.data.experience.max_level as i32;
-    let cap = world.data.experience.exp_for_level(max_level) - 1;
+    // `SubClassHolder.MAX_LEVEL` — a subclass has its own ceiling,
+    // `min(MaxSubclassLevel, experienceTable.maxLevel - 1)`, below the base
+    // class's. The port had none, so a subclass levelled all the way to the
+    // table maximum. Applied as an exp cap, the same way the table cap is:
+    // stop the bar one point short of the next level and the level never
+    // follows.
+    //
+    // The bound below is the level the character may *reach*; the cap is the
+    // exp one point short of the level above it, because `exp_for_level(N) - 1`
+    // stops you at `N - 1`.
+    let reachable = if world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_some_and(|p| p.class_index != 0)
+    {
+        world
+            .cfg
+            .character
+            .max_subclass_level
+            .clamp(1, max_level - 1)
+    } else {
+        max_level - 1
+    };
+    let cap = world.data.experience.exp_for_level(reachable + 1) - 1;
     let sp_ceiling = world.cfg.character.sp_ceiling();
     let (old_level, new_exp) = {
         let Some(p) = world

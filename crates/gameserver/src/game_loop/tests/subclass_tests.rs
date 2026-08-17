@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::subclass::{AddError, BASE_SUBCLASS_LEVEL, add_subclass, set_active_class};
+use crate::game_loop::subclass::{AddError, add_subclass, set_active_class};
 use crate::model::Player;
 
 const PLAYER: i32 = 2001;
@@ -51,7 +51,10 @@ fn adding_a_subclass_takes_the_first_slot_at_the_base_level() {
     assert_eq!(index, 1, "slots are dense, starting at 1");
     let sub = p(&world).subclasses[0];
     assert_eq!(sub.class_id, 3);
-    assert_eq!(sub.level, BASE_SUBCLASS_LEVEL, "a subclass starts at 40");
+    assert_eq!(
+        sub.level, world.cfg.character.base_subclass_level,
+        "a subclass starts at 40"
+    );
     assert_eq!(p(&world).class_index, 0, "adding does not switch to it");
 }
 
@@ -114,7 +117,7 @@ fn switching_to_a_subclass_swaps_class_and_level() {
 
     assert_eq!(p(&world).class_index, 1);
     assert_eq!(p(&world).class_id, 3, "now playing the subclass");
-    assert_eq!(p(&world).level, BASE_SUBCLASS_LEVEL);
+    assert_eq!(p(&world).level, world.cfg.character.base_subclass_level);
 }
 
 #[test]
@@ -130,7 +133,7 @@ fn switching_back_restores_the_base_class_progress() {
     add_subclass(&mut world, PLAYER, 3).unwrap();
 
     set_active_class(&mut world, PLAYER, 1);
-    assert_eq!(p(&world).level, BASE_SUBCLASS_LEVEL);
+    assert_eq!(p(&world).level, world.cfg.character.base_subclass_level);
     set_active_class(&mut world, PLAYER, 0);
 
     assert_eq!(p(&world).class_index, 0);
@@ -188,7 +191,7 @@ fn adding_a_subclass_is_persisted() {
         cmds.iter().any(|c| matches!(
             c,
             db::DbCommand::StoreSubClass { class_id: 3, class_index: 1, level, .. }
-                if *level == BASE_SUBCLASS_LEVEL
+                if *level == world.cfg.character.base_subclass_level
         )),
         "the new slot must reach the DB"
     );

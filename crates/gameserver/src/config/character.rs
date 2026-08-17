@@ -570,6 +570,34 @@ pub struct CharacterConfig {
     /// does. The `False` branch is Java's quirk of checking a zero-slot add
     /// against the *quest* limit.
     pub auto_loot_slot_limit: bool,
+
+    // --- Subclasses, and what may be learned ------------------------------
+    /// `BaseSubclassLevel` — the level (and matching exp) a newly added
+    /// subclass starts on.
+    pub base_subclass_level: i32,
+    /// `MaxSubclassLevel` — a subclass's own ceiling, which Java takes as
+    /// `min(MaxSubclassLevel, experienceTable.maxLevel - 1)`. Separate from the
+    /// main class's cap: a subclass stops at 80 here while the base class does
+    /// not.
+    pub max_subclass_level: i32,
+    /// `BaseDualclassLevel` — the dual-class starting level. Dual class is an
+    /// Ertheia system with no Interlude counterpart, so nothing reaches this.
+    pub base_dualclass_level: i32,
+    /// `AltSubclassEverywhere` — **True**, so `VillageMaster.checkVillageMaster`
+    /// returns `true` outright and *any* master will add a subclass, rather
+    /// than only one matching the class's race and teach type. The port has no
+    /// such gate, which is the same behaviour.
+    pub alt_game_subclass_everywhere: bool,
+    /// `AutoLearnForgottenScrollSkills` — whether the `AutoLearnSkills` grant
+    /// also hands out Forgotten Scroll skills. Reachable here (`AutoLearnSkills`
+    /// is **True**) but empty-handed: this dist's base-class trees carry no
+    /// forgotten-scroll entries for it to include.
+    pub auto_learn_fs_skills: bool,
+    /// `AltTransformationWithoutQuest` — **False**, so Java requires
+    /// `Q00136_MoreThanMeetsTheEye` completed before a transformation skill can
+    /// be learned. The port parses no `transformSkillTree.xml`, so no
+    /// transformation skill is learnable and the gate has nothing to guard.
+    pub allow_transform_without_quest: bool,
     /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
     /// a castle town whose siege is running? **False** on this dist (Java's
     /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
@@ -775,6 +803,12 @@ impl Default for CharacterConfig {
             auto_loot_herbs: false,
             auto_loot_item_ids: std::collections::HashSet::new(),
             auto_loot_slot_limit: true,
+            base_subclass_level: 40,
+            max_subclass_level: 80,
+            base_dualclass_level: 80,
+            alt_game_subclass_everywhere: true,
+            auto_learn_fs_skills: true,
+            allow_transform_without_quest: false,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             teleport_watchdog_timeout_ticks: 0,
@@ -1176,6 +1210,17 @@ impl CharacterConfig {
                 .filter_map(|id| id.trim().parse().ok())
                 .collect(),
             auto_loot_slot_limit: p.get_bool("AutoLootSlotLimit", d.auto_loot_slot_limit),
+            base_subclass_level: p.get_int("BaseSubclassLevel", d.base_subclass_level),
+            max_subclass_level: p.get_int("MaxSubclassLevel", d.max_subclass_level),
+            base_dualclass_level: p.get_int("BaseDualclassLevel", d.base_dualclass_level),
+            alt_game_subclass_everywhere: p
+                .get_bool("AltSubclassEverywhere", d.alt_game_subclass_everywhere),
+            auto_learn_fs_skills: p
+                .get_bool("AutoLearnForgottenScrollSkills", d.auto_learn_fs_skills),
+            allow_transform_without_quest: p.get_bool(
+                "AltTransformationWithoutQuest",
+                d.allow_transform_without_quest,
+            ),
             teleport_while_siege_in_progress: p.get_bool(
                 "TeleportWhileSiegeInProgress",
                 d.teleport_while_siege_in_progress,
