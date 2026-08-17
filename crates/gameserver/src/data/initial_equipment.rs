@@ -9,6 +9,11 @@ use quick_xml::events::Event;
 use tracing::info;
 
 pub const INITIAL_EQUIPMENT_FILE: &str = "data/stats/initialEquipment.xml";
+/// `InitialEquipmentData.EVENT` — the alternative table
+/// `Config.INITIAL_EQUIPMENT_EVENT` selects. Byte-identical to the normal one
+/// on this dist, so the choice is currently invisible; an operator editing it
+/// is the reason to honour the key at all.
+pub const INITIAL_EQUIPMENT_EVENT_FILE: &str = "data/stats/initialEquipmentEvent.xml";
 
 #[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct InitialEquipmentItem {
@@ -28,8 +33,18 @@ impl InitialEquipmentData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
+        Self::load_from_with(file_path, true)
+    }
+
+    /// `parseDatapackFile(Config.INITIAL_EQUIPMENT_EVENT ? EVENT : NORMAL)`.
+    pub fn load_from_with(file_path: &str, event: bool) -> Self {
         let mut by_class: HashMap<i32, Vec<InitialEquipmentItem>> = HashMap::new();
-        let full_path = format!("{file_path}{INITIAL_EQUIPMENT_FILE}");
+        let table = if event {
+            INITIAL_EQUIPMENT_EVENT_FILE
+        } else {
+            INITIAL_EQUIPMENT_FILE
+        };
+        let full_path = format!("{file_path}{table}");
         if let Ok(content) = std::fs::read_to_string(&full_path) {
             let mut cur_class: Option<i32> = None;
             for event in xml::events(&content) {

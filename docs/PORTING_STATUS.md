@@ -199,7 +199,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **147** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and six of Character.ini's clusters with them**; what remains is Character 29, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **140** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and seven of Character.ini's clusters with them**; what remains is Character 22, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
@@ -557,7 +557,34 @@ cooldowns with `store(...)` just before `resetTimeStamps()` wipes them, while
 the port saves memory-first on its own interval and clears `Reuses` at the
 switch — same end state, no distinct moment for the flag to gate.
 
-What is left is Character (19 live keys past these six clusters — enchant/augment
+**Cluster 7 — character creation and auto-loot (7 keys)** — found a live
+divergence in the drop path. Java's ordinary auto-loot arm reads
+`!item.hasExImmediateEffect()`, so **herbs are excluded from plain `AutoLoot`**
+and only `AutoLootHerbs` can pick one up. The port applied `AutoLoot` to every
+drop, so on this dist — `AutoLoot = True`, `AutoLootHerbs = False` — herbs were
+vacuumed into the inventory instead of falling to the ground for the walk-over
+pickup the port already implements. The whole predicate is now Java's, including
+`AutoLootItemIds`, which it tests *first* so a listed id is looted whatever the
+other flags say.
+
+`ForbiddenNames` was missing: character creation checked length and
+alphanumerics but not the substring list, so a player could name themselves
+something that reads as a server announcement in chat. Java matches
+case-insensitively on *containment*, and answers `REASON_INCORRECT_NAME`.
+
+`InitialEquipmentEvent` selects `initialEquipmentEvent.xml` over
+`initialEquipment.xml`; the port hardcoded the normal one. The two files are
+**byte-identical on this dist**, so nothing changes today — it is wired because
+editing the event table is the only reason to have it. The datapack loaders'
+config now travels as a `DataOptions` struct rather than a growing positional
+argument list.
+
+`StartingLevel` (1) and `StartingSP` (0) sit on Java's `> 1` / `> 0` guards and
+so add nothing, and `AutoLootSlotLimit` (**True**) reduces
+`validateCapacity` to "quest items against the quest limit, everything else
+against the normal one" — already the port's behaviour.
+
+What is left is Character (12 live keys past these seven clusters — enchant/augment
 gates, the karma trio, the clan/ally day penalties, character creation and
 auto-loot), General (71 — mostly dev tooling and persistence-model choices the
 port made differently: memory-first saves, no `HtmCache`, no grid on/off), and

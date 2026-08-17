@@ -762,3 +762,144 @@ fn a_zero_armour_set_reuse_stamps_nothing() {
         "the > 0 guard means no stamp at all"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Cluster 7 — character creation, and what a kill drops in your lap
+// ---------------------------------------------------------------------------
+
+#[test]
+fn the_creation_and_loot_keys_parse_to_the_shipped_values() {
+    let c = CharacterConfig::load_from(crate::data::DIST_GAME);
+    assert_eq!(c.starting_level, 1, "Java's `> 1` guard never fires");
+    assert_eq!(c.starting_sp, 0, "…nor its `> 0`");
+    assert!(c.initial_equipment_event);
+    assert!(
+        c.forbidden_names.contains(&"annou".to_string()),
+        "the announcement lookalikes ship: {:?}",
+        c.forbidden_names
+    );
+    assert!(!c.auto_loot_herbs, "herbs fall to the ground here");
+    assert!(c.auto_loot_slot_limit);
+    assert!(
+        !c.auto_loot_item_ids.contains(&57),
+        "the list ships as `0`, which is not an item id"
+    );
+}
+
+/// **The divergence.** Java's ordinary auto-loot arm carries
+/// `!item.hasExImmediateEffect()`, so a herb is *excluded* from plain
+/// `AutoLoot` and only `AutoLootHerbs` can pick one up. The port applied
+/// `AutoLoot` to everything, so on this dist — `AutoLoot = True`,
+/// `AutoLootHerbs = False` — herbs were vacuumed into the inventory instead of
+/// dropping for the walk-over pickup that is the point of a herb.
+#[test]
+fn herbs_are_excluded_from_ordinary_auto_loot() {
+    use crate::game_loop::death::auto_loots_for_test as auto_loots;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    const HERB: i32 = 8_600;
+    const PLAIN: i32 = 8_601;
+    for (id, herb) in [(HERB, true), (PLAIN, false)] {
+        let mut t = crate::data::item_data::ItemTemplate::default();
+        t.item_id = id;
+        t.ex_immediate_effect = herb;
+        world.data.item_data.insert_for_test(t);
+    }
+
+    // The shipped pair: auto-loot on, herbs off.
+    world.cfg.character.auto_loot = true;
+    world.cfg.character.auto_loot_herbs = false;
+    assert!(
+        auto_loots(&world, PLAIN, false),
+        "an ordinary drop is looted"
+    );
+    assert!(
+        !auto_loots(&world, HERB, false),
+        "a herb is not — AutoLoot does not reach it"
+    );
+
+    // Only its own key can.
+    world.cfg.character.auto_loot_herbs = true;
+    assert!(auto_loots(&world, HERB, false), "AutoLootHerbs picks it up");
+
+    // …and with ordinary auto-loot off, the herb key still governs herbs.
+    world.cfg.character.auto_loot = false;
+    assert!(auto_loots(&world, HERB, false));
+    assert!(!auto_loots(&world, PLAIN, false));
+}
+
+/// `AutoLootItemIds` overrides every other flag, which is why Java tests it
+/// first.
+#[test]
+fn the_auto_loot_id_list_overrides_every_other_flag() {
+    use crate::game_loop::death::auto_loots_for_test as auto_loots;
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    const HERB: i32 = 8_602;
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = HERB;
+    t.ex_immediate_effect = true;
+    world.data.item_data.insert_for_test(t);
+
+    world.cfg.character.auto_loot = false;
+    world.cfg.character.auto_loot_raids = false;
+    world.cfg.character.auto_loot_herbs = false;
+    assert!(!auto_loots(&world, HERB, false), "everything off");
+    world.cfg.character.auto_loot_item_ids.insert(HERB);
+    assert!(
+        auto_loots(&world, HERB, true),
+        "the id list wins even for a herb on a raid"
+    );
+}
+
+/// `ForbiddenNames` rejects a name *containing* a listed substring, not one
+/// equal to it — the list is announcement lookalikes, so it is about what the
+/// name reads as in chat.
+#[test]
+fn forbidden_names_are_matched_as_substrings() {
+    let c = CharacterConfig::load_from(crate::data::DIST_GAME);
+    let rejected = |name: &str| {
+        let lowered = name.to_ascii_lowercase();
+        c.forbidden_names
+            .iter()
+            .any(|b| lowered.contains(b.as_str()))
+    };
+    assert!(rejected("annou"), "the bare word");
+    assert!(rejected("xxAnnouncexx"), "embedded, and case-insensitive");
+    assert!(!rejected("Legolas"), "an ordinary name is fine");
+    assert!(
+        !rejected("anno"),
+        "a prefix of a listed word is not a match"
+    );
+}
+
+/// The wiring, not just the predicate: a forbidden name must be refused by
+/// `handle_character_create` itself, with Java's `REASON_INCORRECT_NAME` (4).
+#[test]
+fn character_create_refuses_a_forbidden_name() {
+    use crate::game_loop::lobby::handle_character_create;
+    use crate::network::server_packets::opcodes;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel();
+    let s = crate::session::Session::new(9, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("acct".into(), crate::session::SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![]);
+    world
+        .clients
+        .insert(9, crate::session::ClientSession::InLobby(s));
+    world.cfg.character.forbidden_names = vec!["annou".to_string()];
+
+    // `CharCreateFail` is the only thing this path can answer with.
+    handle_character_create(&mut world, 9, &character_create_body("xxAnnouxx", 0));
+    let refusal = drain(&mut out_rx);
+    let fails: Vec<u8> = refusal
+        .iter()
+        .filter(|p| p[0] == opcodes::CHAR_CREATE_FAIL)
+        .map(|p| p[1])
+        .collect();
+    assert_eq!(
+        fails,
+        vec![4],
+        "a forbidden substring is REASON_INCORRECT_NAME, not a length error"
+    );
+}

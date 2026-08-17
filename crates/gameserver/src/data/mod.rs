@@ -291,19 +291,43 @@ pub struct GameData {
     pub root: String,
 }
 
+/// The handful of `Character.ini` values the *datapack loaders* need, so they
+/// travel as one named argument rather than a growing positional list.
+///
+/// `Default` is this dist's shipped pair, which is what the test fixtures use —
+/// `data::dist`'s snapshot macro needs a one-argument `load_from`, so the
+/// cached snapshot is always the shipped configuration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DataOptions {
+    /// `MaxEquipableItemGrade` — the buy-list / multisell grade filter.
+    pub max_equipable_item_grade: crate::data::item_data::CrystalType,
+    /// `InitialEquipmentEvent` — which starting-gear table to read.
+    pub initial_equipment_event: bool,
+}
+
+impl Default for DataOptions {
+    fn default() -> Self {
+        Self {
+            max_equipable_item_grade: crate::data::item_data::CrystalType::S,
+            initial_equipment_event: true,
+        }
+    }
+}
+
 impl GameData {
     /// The datapack, with `MaxEquipableItemGrade` at this dist's shipped **S**.
     /// The test fixtures go through here (`data::dist`'s snapshot macro needs a
     /// one-argument `load_from`), so the cached snapshot is always the shipped
     /// filter; the server calls [`Self::load_from_with`] and honours the config.
     pub fn load_from(file_path: &str) -> Self {
-        Self::load_from_with(file_path, crate::data::item_data::CrystalType::S)
+        Self::load_from_with(file_path, DataOptions::default())
     }
 
-    pub fn load_from_with(
-        file_path: &str,
-        max_equipable_item_grade: crate::data::item_data::CrystalType,
-    ) -> Self {
+    pub fn load_from_with(file_path: &str, opts: DataOptions) -> Self {
+        let DataOptions {
+            max_equipable_item_grade,
+            initial_equipment_event,
+        } = opts;
         // Buy lists read item reference prices (`CorrectPrices`), so items
         // load first.
         let item_data = ItemData::load_from(file_path);
@@ -331,7 +355,10 @@ impl GameData {
             stat_bonus: StatBonus::load_from(file_path),
             action_data: ActionData::load_from(file_path),
             item_data,
-            initial_equipment: InitialEquipmentData::load_from(file_path),
+            initial_equipment: InitialEquipmentData::load_from_with(
+                file_path,
+                initial_equipment_event,
+            ),
             initial_shortcuts: InitialShortcutData::load_from(file_path),
             skill_data,
             npc_data,

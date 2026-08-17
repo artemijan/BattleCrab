@@ -536,6 +536,40 @@ pub struct CharacterConfig {
     /// logout. **False**, which is exactly the port's behaviour: manufacture
     /// stores are transient. Turning it on would need the persistence added.
     pub store_recipe_shop_list: bool,
+
+    // --- Character creation, and what a kill drops in your lap ------------
+    /// `StartingLevel` / `StartingSP` — what a freshly created character
+    /// starts on. Java guards both (`> 1`, `> 0`), and this dist ships the
+    /// neutral 1 and 0, so neither add fires.
+    pub starting_level: i32,
+    pub starting_sp: i64,
+    /// `InitialEquipmentEvent` — picks `initialEquipmentEvent.xml` over
+    /// `initialEquipment.xml` for a new character's gear. **True** here, and
+    /// the two files are byte-identical on this dist, so it changes nothing
+    /// today; wired anyway, because editing the event file is the whole point
+    /// of having it.
+    pub initial_equipment_event: bool,
+    /// `ForbiddenNames` — substrings a character name may not contain, matched
+    /// case-insensitively. The shipped list is announcement lookalikes
+    /// (`annou`, `ammou`, …), which stop a player naming themselves something
+    /// that reads as a server message in chat.
+    pub forbidden_names: Vec<String>,
+    /// `AutoLootHerbs` — **False**. Herbs are the `ex_immediate_effect` items
+    /// that fire on contact, and Java deliberately excludes them from ordinary
+    /// `AutoLoot`: that arm is gated on `!hasExImmediateEffect()`, so only this
+    /// key can auto-loot one. With it off they fall to the ground to be walked
+    /// over, which is the mechanic that makes a herb a herb.
+    pub auto_loot_herbs: bool,
+    /// `AutoLootItemIds` — item ids always auto-looted, whatever the other
+    /// flags say. Ships as `0`, which is not an item id, so the set is
+    /// effectively empty.
+    pub auto_loot_item_ids: std::collections::HashSet<i32>,
+    /// `AutoLootSlotLimit` — **True**, which reduces
+    /// `PlayerInventory.validateCapacity` to "quest items against the quest
+    /// limit, everything else against the normal one" — what the port already
+    /// does. The `False` branch is Java's quirk of checking a zero-slot add
+    /// against the *quest* limit.
+    pub auto_loot_slot_limit: bool,
     /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
     /// a castle town whose siege is running? **False** on this dist (Java's
     /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
@@ -734,6 +768,13 @@ impl Default for CharacterConfig {
             subclass_store_skill_cooltime: true,
             summon_store_skill_cooltime: true,
             store_recipe_shop_list: false,
+            starting_level: 1,
+            starting_sp: 0,
+            initial_equipment_event: true,
+            forbidden_names: Vec::new(),
+            auto_loot_herbs: false,
+            auto_loot_item_ids: std::collections::HashSet::new(),
+            auto_loot_slot_limit: true,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             teleport_watchdog_timeout_ticks: 0,
@@ -1119,6 +1160,22 @@ impl CharacterConfig {
             summon_store_skill_cooltime: p
                 .get_bool("SummonStoreSkillCooltime", d.summon_store_skill_cooltime),
             store_recipe_shop_list: p.get_bool("StoreRecipeShopList", d.store_recipe_shop_list),
+            starting_level: p.get_int("StartingLevel", d.starting_level),
+            starting_sp: p.get_long("StartingSP", d.starting_sp),
+            initial_equipment_event: p.get_bool("InitialEquipmentEvent", d.initial_equipment_event),
+            forbidden_names: p
+                .get_string("ForbiddenNames", "")
+                .split(',')
+                .map(|n| n.trim().to_ascii_lowercase())
+                .filter(|n| !n.is_empty())
+                .collect(),
+            auto_loot_herbs: p.get_bool("AutoLootHerbs", d.auto_loot_herbs),
+            auto_loot_item_ids: p
+                .get_string("AutoLootItemIds", "")
+                .split(',')
+                .filter_map(|id| id.trim().parse().ok())
+                .collect(),
+            auto_loot_slot_limit: p.get_bool("AutoLootSlotLimit", d.auto_loot_slot_limit),
             teleport_while_siege_in_progress: p.get_bool(
                 "TeleportWhileSiegeInProgress",
                 d.teleport_while_siege_in_progress,

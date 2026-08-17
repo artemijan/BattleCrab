@@ -86,9 +86,20 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     use crate::network::server_packets::char_create_fail as fail;
     // Fail reasons: 16-chars=3, incorrect-name=4, creation-failed=0.
     // Java `Util.isAlphaNumeric` uses `Character.isLetterOrDigit` (Unicode).
+    // `ForbiddenNames`: Java rejects a name *containing* any listed substring,
+    // case-insensitively — the shipped list is announcement lookalikes, so the
+    // rule is about what the name reads as in chat, not what it equals.
+    let lowered = pkt.name.to_ascii_lowercase();
+    let forbidden = world
+        .cfg
+        .character
+        .forbidden_names
+        .iter()
+        .any(|bad| lowered.contains(bad.as_str()));
     let name_ok = (1..=16).contains(&pkt.name.chars().count())
         && !pkt.name.is_empty()
-        && pkt.name.chars().all(|c| c.is_alphanumeric());
+        && pkt.name.chars().all(|c| c.is_alphanumeric())
+        && !forbidden;
     let send = |world: &World, body: Vec<u8>| {
         send_to_client(world, client_id, body);
     };

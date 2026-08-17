@@ -6762,3 +6762,63 @@ guard by removing it.
 
 Character.ini stands at **29** unread keys (82 → 72 → 64 → 56 → 44 → 37 → 29),
 and row 14 at **147**.
+
+---
+
+## Character.ini, cluster 7 (row 14) — character creation and auto-loot
+
+Seven keys, and the loot half found a live divergence.
+
+**Herbs were being auto-looted.** Java's drop test is
+
+```java
+AUTO_LOOT_ITEM_IDS.contains(id) || isFlying()
+  || (!hasExImmediateEffect() && ((!isRaid && AUTO_LOOT) || (isRaid && AUTO_LOOT_RAIDS)))
+  || (hasExImmediateEffect() && AUTO_LOOT_HERBS)
+```
+
+The load-bearing clause is `!hasExImmediateEffect()` on the ordinary arm:
+**herbs are excluded from plain `AutoLoot`**, and only `AutoLootHerbs` can pick
+one up. The port collapsed the whole test to `is_raid ? AutoLootRaids :
+AutoLoot`, so with this dist's `AutoLoot = True` and `AutoLootHerbs = False`
+every herb went straight to the inventory instead of falling to the ground —
+bypassing the walk-over pickup that `ground_items` already implements and that
+is the entire point of a herb.
+
+The predicate is now Java's, `AutoLootItemIds` included. That one is tested
+*first* in Java, so a listed id is looted whatever the other flags say; the test
+pins it by turning everything else off and putting a herb on a raid in the list.
+
+**`ForbiddenNames` was missing.** Character creation checked length and
+alphanumerics only. The shipped list is announcement lookalikes (`annou`,
+`ammou`, …) and Java matches on **containment**, case-insensitively — the rule
+is about what the name reads as in chat, not what it equals. Answers
+`REASON_INCORRECT_NAME` (4), the same code the port already used for a bad name.
+
+**`InitialEquipmentEvent`** picks `initialEquipmentEvent.xml` over
+`initialEquipment.xml`, and the port hardcoded the normal one. The two files are
+**byte-identical on this dist**, so this changes nothing today — wired anyway,
+because editing the event table is the only reason for it to exist. The
+datapack loaders' configuration now travels as a `DataOptions` struct instead of
+the positional argument `MaxEquipableItemGrade` started; a second bool would
+have made the call site unreadable.
+
+Two are inert by their values: `StartingLevel` (1) and `StartingSP` (0) sit
+behind Java's `> 1` / `> 0` guards. `AutoLootSlotLimit` (**True**) reduces
+`validateCapacity` to "quest items against the quest limit, everything else
+against the normal one", which is what the port already does — the `False`
+branch is Java's quirk of checking a zero-slot add against the *quest* limit.
+
+### A falsification that pointed at the wrong layer
+
+Reverting the forbidden-name check left `forbidden_names_are_matched_as_substrings`
+green: that test exercises the *config predicate*, not the lobby wiring. Added
+`character_create_refuses_a_forbidden_name`, which drives
+`handle_character_create` and asserts the `CharCreateFail(4)` packet — and does
+fail when the check is removed. Second time this session that a test proved the
+rule and not the plumbing.
+
+3454 green, clippy clean, fmt clean. Five new tests; all three wirings falsified.
+
+Character.ini stands at **22** unread keys (82 → 72 → 64 → 56 → 44 → 37 → 29 →
+22), and row 14 at **140**.

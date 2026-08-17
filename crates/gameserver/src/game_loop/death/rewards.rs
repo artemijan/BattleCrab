@@ -163,11 +163,6 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         // the ground even though `AutoLoot` is on), everything else `AutoLoot`
         // (Java `Attackable.doItemDrop`).
         let is_raid = crate::game_loop::raid_curse::gives_raid_curse(world, npc_oid);
-        let auto_loot = if is_raid {
-            world.cfg.character.auto_loot_raids
-        } else {
-            world.cfg.character.auto_loot
-        };
         // Loot protection (`ItemData.createItem("loot")`): a raid drop is
         // owned by the privileged command channel's *leader* for
         // `RaidLootRightsInterval`; an ordinary ground drop by the killer for
@@ -186,7 +181,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
             (looter, 150)
         };
         for (item_id, count) in drops {
-            if !auto_loot {
+            if !auto_loots(world, item_id, is_raid) {
                 let ground_oid = crate::game_loop::ground_items::spawn_ground_item(
                     world,
                     item_id,
@@ -643,6 +638,50 @@ pub(crate) fn premium_drop_mult(
     match which {
         PremiumDropRate::Chance => cfg.rate_drop_chance,
         PremiumDropRate::Amount => cfg.rate_drop_amount,
+    }
+}
+
+/// Test hook for [`auto_loots`] — the drop path needs a full kill to reach it,
+/// which is a lot of fixture for a rule about one predicate.
+#[cfg(test)]
+pub(crate) fn auto_loots_for_test(world: &World, item_id: i32, is_raid: bool) -> bool {
+    auto_loots(world, item_id, is_raid)
+}
+
+/// `Attackable.doItemDrop`'s auto-loot test, in Java's own order:
+///
+/// ```text
+/// AUTO_LOOT_ITEM_IDS.contains(id) || isFlying()
+///   || (!hasExImmediateEffect() && ((!isRaid && AUTO_LOOT) || (isRaid && AUTO_LOOT_RAIDS)))
+///   || (hasExImmediateEffect() && AUTO_LOOT_HERBS)
+/// ```
+///
+/// The load-bearing clause is `!hasExImmediateEffect()` on the ordinary arm:
+/// **herbs are excluded from plain `AutoLoot`** and can only be auto-looted by
+/// `AutoLootHerbs`. The port used to apply `AutoLoot` to everything, so with
+/// `AutoLoot = True` and `AutoLootHerbs = False` — this dist — herbs were
+/// vacuumed straight into the inventory instead of falling to the ground for
+/// the walk-over pickup that is the entire point of a herb.
+///
+/// `isFlying()` is a wyvern-rider test with no counterpart here: the port has
+/// no flying *NPC* drop path, and this is the NPC's own flag, not the killer's.
+fn auto_loots(world: &World, item_id: i32, is_raid: bool) -> bool {
+    let cfg = &world.cfg.character;
+    if cfg.auto_loot_item_ids.contains(&item_id) {
+        return true;
+    }
+    let is_herb = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.ex_immediate_effect);
+    if is_herb {
+        return cfg.auto_loot_herbs;
+    }
+    if is_raid {
+        cfg.auto_loot_raids
+    } else {
+        cfg.auto_loot
     }
 }
 
