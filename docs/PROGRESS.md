@@ -6867,3 +6867,53 @@ Character.ini stands at **16** unread keys (82 → … → 22 → 16), and row 1
 **134**. Of those 16, **eight are the ones already classified dead in Java** and
 `MaximumPlayerLevel` is row 19's decision, leaving seven: the fortress fame
 trio, `MaxExpBonus`/`MaxSpBonus`, `NpcTalkBlockingTime` and `SilenceModeExclude`.
+
+---
+
+## Character.ini, cluster 9 — the last seven, and the file is finished
+
+**Fame was being paid on a server that disables it.** `Player.setFame` clamps
+every write to `[0, MaxPersonalFamePoints]`, and this dist ships **0** against
+Java's own default of **100000** — an explicit override that turns fame off,
+because each award is clamped straight back to zero. The port added the
+castle-zone award (125 per 300 s in a siege zone) with no clamp, so players
+banked fame Java would have zeroed on the spot — and again on the next login,
+since even the DB restore goes through `setFame`.
+
+The combination looks contradictory in the ini (`CastleZoneFameAcquirePoints`
+defaults to 125 while the ceiling is 0), which is exactly why it was worth
+checking Java's default before "fixing" the config instead of the code. Every
+fame write now goes through one clamped helper, `//setfame` included.
+
+Two existing tests asserted the divergence — the siege fame task and the admin
+setter. Both now raise the ceiling explicitly so they measure the mechanism
+they are about, with the clamp itself pinned separately at the shipped 0.
+
+The other six are carried with reasons: the fortress fame pair is off-chronicle
+*and* pays 0; `MaxExpBonus`/`MaxSpBonus` are 0 behind Java's `> 0` guard;
+`NpcTalkBlockingTime` is 0 with every use site guarded the same way; and
+`SilenceModeExclude` has no player-facing silence mode to exclude from — the
+port models only `General.ini`'s GM startup flag.
+
+### What "finished" means here
+
+Character.ini started this row at **82** unread keys — the record said 76 — and
+ends at **9**. Those nine are not remaining work:
+
+* **eight are dead in Java**, assigned to a `Config` field that nothing outside
+  `Config.java` reads. They are named in `config/character.rs`'s module header
+  instead of being given fields, because a field would imply something consults
+  them. Two of the eight are dead twice over: `MentorPenaltyForMenteeComplete`
+  and `MentorPenaltyForMenteeLeave` **assign to the same field**, so the "leave"
+  penalty has never worked in any Mobius build.
+* **`MaximumPlayerLevel`** is row 19's open decision.
+
+The measure counts *string literals*, so documenting the dead eight in prose
+deliberately leaves the number at 9. Widening the metric to count comments would
+have shown "1 remaining" and meant nothing — the count is only useful while it
+measures the same thing it did in the first row.
+
+Row 14 stands at **127**, with General (71) and Server (7) the only files left.
+
+3458 green, clippy clean, fmt clean. Two new tests; the clamp falsified at both
+bounds.

@@ -54,6 +54,20 @@ const SIEGE_LENGTH_MIN: i32 = 120;
 
 /// `Siege.startSiege` (lifecycle slice). Called only with a registered attacker
 /// (the admin path guards that).
+/// `Player.setFame`: every fame write is clamped to
+/// `[0, MaxPersonalFamePoints]`.
+///
+/// The ceiling is **0** on this dist, which does not read as "no limit" — it
+/// disables fame, because each award is clamped straight back to zero. The
+/// port used to add the castle-zone award unclamped, so players banked fame
+/// that Java would never have let them keep.
+pub(crate) fn set_fame_clamped(world: &mut World, player_oid: i32, f: impl Fn(i32) -> i32) {
+    let ceiling = world.cfg.character.max_personal_fame_points;
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
+        p.fame = f(p.fame).clamp(0, ceiling.max(0));
+    }
+}
+
 pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
     // The castle owner at start — `endSiege` compares against it (Java
     // `_firstOwnerClanId = _castle.getOwnerId()`).
@@ -176,9 +190,7 @@ pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
         && !(detached && !world.cfg.offline_trade.fame);
     if paid {
         let amount = world.cfg.character.castle_zone_fame_acquire_points;
-        if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
-            p.fame += amount;
-        }
+        set_fame_clamped(world, player_oid, |cur| cur + amount);
         crate::game_loop::clans::send_sm_with(
             world,
             player_oid,

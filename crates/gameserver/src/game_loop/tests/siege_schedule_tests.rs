@@ -411,6 +411,12 @@ fn a_participant_standing_in_the_siege_zone_earns_fame_until_they_leave() {
         world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
         world.cfg.character.castle_zone_fame_task_frequency = 300;
         world.cfg.character.castle_zone_fame_acquire_points = 125;
+        // `Player.setFame` clamps to `[0, MaxPersonalFamePoints]`, and this
+        // dist ships **0** — fame is disabled there, so the award below would
+        // be clamped straight back. Raised here so the *task* is what this
+        // test measures; the clamp itself is pinned in
+        // `character_config_tests::fame_is_clamped_to_max_personal_fame_points`.
+        world.cfg.character.max_personal_fame_points = 1_000_000;
         world.cfg.character.fame_for_dead_players = false;
         let rx = ingame_caster(&mut world, CID, PLAYER, POS.0, POS.1);
         world

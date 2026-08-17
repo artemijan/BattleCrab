@@ -208,10 +208,15 @@ pub(super) fn set_field_value(
     value: i32,
 ) {
     let target = target_player(world, object_id);
+    let fame_ceiling = world.cfg.character.max_personal_fame_points.max(0);
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         match field {
             IntField::Reputation => p.reputation = value,
-            IntField::Fame => p.fame = value,
+            // Clamped like every other fame write (`Player.setFame`);
+            // `//set fame` cannot exceed `MaxPersonalFamePoints` either.
+            IntField::Fame => {
+                p.fame = value.clamp(0, fame_ceiling);
+            }
             IntField::Pk => p.pk_kills = value,
             IntField::Pvp => p.pvp_kills = value,
         }

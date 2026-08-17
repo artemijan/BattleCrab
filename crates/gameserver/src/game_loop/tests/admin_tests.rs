@@ -2449,6 +2449,10 @@ fn admin_editchar_field_setters() {
     assert_eq!(p(&world).pk_kills, 7);
     on_packet(&mut world, 1, build_admin("setpvp 9"));
     assert_eq!(p(&world).pvp_kills, 9);
+    // `//setfame` goes through `Player.setFame`'s clamp like every other fame
+    // write, and this dist caps it at 0 — so the ceiling is raised here to test
+    // the setter rather than the clamp.
+    world.cfg.character.max_personal_fame_points = 1_000_000;
     on_packet(&mut world, 1, build_admin("setfame 42"));
     assert_eq!(p(&world).fame, 42);
     on_packet(&mut world, 1, build_admin("settitle Hello World"));

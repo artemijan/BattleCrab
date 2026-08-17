@@ -1,5 +1,26 @@
 //! `Character.ini` — port of the `CHARACTER_CONFIG_FILE` block of `Config.java`.
-//! Only the keys needed so far are loaded (grown per milestone).
+//!
+//! **Every key this file ships is now accounted for**, one of three ways: read
+//! into a field below, listed as dead in Java just under this note, or —
+//! `MaximumPlayerLevel` alone — left open pending the level-cap decision
+//! (`docs/PORTING_STATUS.md` row 19).
+//!
+//! # Parsed by Java and read by nothing
+//!
+//! These eight are assigned to a `Config` field and then consulted by no code
+//! outside `Config.java`, in Java as much as here. They are named here rather
+//! than in a field, because a field would imply something reads it:
+//!
+//! * `AbilityMaxPoints`, `AbilityPointsResetAdena` — the ability-point system
+//!   (Ertheia), whose fields nothing references.
+//! * `FeeDeleteSubClassSkills`, `FeeDeleteDualClassSkills`,
+//!   `FeeDeleteTransferSkills` — skill-reset fees with no reader.
+//! * `MaxNewbieBuffLevel` — the newbie-buffer ceiling; `newbie_guide` enforces
+//!   its own, and Java's field is unused.
+//! * `MentorPenaltyForMenteeComplete`, `MentorPenaltyForMenteeLeave` — the
+//!   mentor system, and dead twice over: **both keys assign to the same
+//!   field** (`MENTOR_PENALTY_FOR_MENTEE_COMPLETE`), so the "leave" penalty has
+//!   never done anything in any Mobius build.
 
 use std::collections::HashMap;
 
@@ -598,6 +619,35 @@ pub struct CharacterConfig {
     /// be learned. The port parses no `transformSkillTree.xml`, so no
     /// transformation skill is learnable and the gate has nothing to guard.
     pub allow_transform_without_quest: bool,
+
+    // --- The last of Character.ini ----------------------------------------
+    /// `MaxPersonalFamePoints` — the ceiling `Player.setFame` clamps to
+    /// (`[0, max]`). **0 on this dist**, which does not mean "no limit": it
+    /// means fame is *disabled*, because every award is clamped straight back
+    /// to zero. The port paid castle-zone fame with no clamp at all, so players
+    /// accumulated fame Java would have zeroed.
+    pub max_personal_fame_points: i32,
+    /// `FortressZoneFameTaskFrequency` / `FortressZoneFameAquirePoints` — the
+    /// castle-zone fame pair's fortress twin (`FortSiege.startFameTask`).
+    /// Fortresses are off-chronicle here, and the award is **0** besides.
+    pub fortress_zone_fame_task_frequency: i32,
+    /// See [`Self::fortress_zone_fame_task_frequency`].
+    pub fortress_zone_fame_acquire_points: i32,
+    /// `MaxExpBonus` / `MaxSpBonus` — ceilings on the *bonus* multiplier
+    /// `PlayerStat` applies (vitality, premium, …). Both **0**, and Java's
+    /// guard is `if (MAX_BONUS_EXP > 0)`, so neither clamp runs.
+    pub max_bonus_exp: f64,
+    /// See [`Self::max_bonus_exp`].
+    pub max_bonus_sp: f64,
+    /// `NpcTalkBlockingTime`, in **milliseconds** (Java multiplies the key by
+    /// 1000 at parse) — how long a player is pinned in place after opening an
+    /// NPC dialog. **0**, and every use site is guarded on `> 0`.
+    pub player_movement_block_time_ms: i32,
+    /// `SilenceModeExclude` — whether silence mode keeps a per-player
+    /// exclusion list (friends still get through). **False**, and the port
+    /// models no player-facing silence mode at all — only the GM startup flag
+    /// in `General.ini` — so there is no list to exclude from.
+    pub silence_mode_exclude: bool,
     /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
     /// a castle town whose siege is running? **False** on this dist (Java's
     /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
@@ -809,6 +859,13 @@ impl Default for CharacterConfig {
             alt_game_subclass_everywhere: true,
             auto_learn_fs_skills: true,
             allow_transform_without_quest: false,
+            max_personal_fame_points: 0,
+            fortress_zone_fame_task_frequency: 300,
+            fortress_zone_fame_acquire_points: 0,
+            max_bonus_exp: 0.0,
+            max_bonus_sp: 0.0,
+            player_movement_block_time_ms: 0,
+            silence_mode_exclude: false,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             teleport_watchdog_timeout_ticks: 0,
@@ -1221,6 +1278,21 @@ impl CharacterConfig {
                 "AltTransformationWithoutQuest",
                 d.allow_transform_without_quest,
             ),
+            max_personal_fame_points: p
+                .get_int("MaxPersonalFamePoints", d.max_personal_fame_points),
+            fortress_zone_fame_task_frequency: p.get_int(
+                "FortressZoneFameTaskFrequency",
+                d.fortress_zone_fame_task_frequency,
+            ),
+            fortress_zone_fame_acquire_points: p.get_int(
+                "FortressZoneFameAquirePoints",
+                d.fortress_zone_fame_acquire_points,
+            ),
+            max_bonus_exp: f64::from(p.get_float("MaxExpBonus", 0.0)),
+            max_bonus_sp: f64::from(p.get_float("MaxSpBonus", 0.0)),
+            // Java stores this one already in millis (`getInt(...) * 1000`).
+            player_movement_block_time_ms: p.get_int("NpcTalkBlockingTime", 0) * 1000,
+            silence_mode_exclude: p.get_bool("SilenceModeExclude", d.silence_mode_exclude),
             teleport_while_siege_in_progress: p.get_bool(
                 "TeleportWhileSiegeInProgress",
                 d.teleport_while_siege_in_progress,

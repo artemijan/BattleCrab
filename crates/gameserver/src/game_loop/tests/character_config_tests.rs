@@ -966,3 +966,58 @@ fn a_subclass_stops_at_its_own_ceiling_and_the_base_class_does_not() {
         "the base class is unaffected and still reaches the table's own cap"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Cluster 9 — the last of Character.ini
+// ---------------------------------------------------------------------------
+
+#[test]
+fn the_last_character_keys_parse_to_the_shipped_values() {
+    let c = CharacterConfig::load_from(crate::data::DIST_GAME);
+    assert_eq!(
+        c.max_personal_fame_points, 0,
+        "0 disables fame — it is not a 'no limit' sentinel"
+    );
+    assert_eq!(c.fortress_zone_fame_task_frequency, 300);
+    assert_eq!(c.fortress_zone_fame_acquire_points, 0);
+    assert_eq!(c.max_bonus_exp, 0.0, "Java's `> 0` guard never fires");
+    assert_eq!(c.max_bonus_sp, 0.0);
+    assert_eq!(c.player_movement_block_time_ms, 0, "seconds x 1000");
+    assert!(!c.silence_mode_exclude);
+}
+
+/// `Player.setFame` clamps every write to `[0, MaxPersonalFamePoints]`, and
+/// this dist ships **0** — Java's own default is 100000, so the 0 is a
+/// deliberate override that disables fame. The port added the castle-zone
+/// award unclamped, so players banked fame Java would have zeroed on the spot
+/// (and again on the next login, since even the DB restore goes through
+/// `setFame`).
+#[test]
+fn fame_is_clamped_to_max_personal_fame_points() {
+    use crate::game_loop::siege::set_fame_clamped;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let fame = |w: &World| {
+        w.objects
+            .get_component::<crate::model::Player>(&3001)
+            .expect("player")
+            .fame
+    };
+
+    // Shipped: the award is clamped straight back to zero.
+    assert_eq!(world.cfg.character.max_personal_fame_points, 0);
+    set_fame_clamped(&mut world, 3001, |cur| cur + 125);
+    assert_eq!(fame(&world), 0, "a 0 ceiling disables fame entirely");
+
+    // Raise it and the same award lands, still bounded.
+    world.cfg.character.max_personal_fame_points = 200;
+    set_fame_clamped(&mut world, 3001, |cur| cur + 125);
+    assert_eq!(fame(&world), 125);
+    set_fame_clamped(&mut world, 3001, |cur| cur + 125);
+    assert_eq!(fame(&world), 200, "and stops on the ceiling, not past it");
+
+    // The lower bound is Java's too (`else if (fame < 0) newFame = 0`).
+    set_fame_clamped(&mut world, 3001, |_| -50);
+    assert_eq!(fame(&world), 0, "never negative");
+}
