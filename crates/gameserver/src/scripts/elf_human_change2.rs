@@ -285,17 +285,6 @@ impl QuestScript for ElfHumanChange2 {
         self.spec().npcs
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if let Ok(class_id) = event.parse::<i32>() {
-            if self.spec().rows.iter().any(|(to, ..)| *to == class_id) {
-                return self.class_change(ctx, class_id);
-            }
-            return None;
-        }
-        // The dialog pages echo straight back.
-        echoed_page(event, &[self.spec().page_npc])
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let spec = self.spec();
         let in_group = ctx.is_in_category(spec.group);
@@ -313,5 +302,16 @@ impl QuestScript for ElfHumanChange2 {
             .find(|(classes, _)| classes.contains(&class_id))
             .map_or(spec.first_class_page, |(_, page)| *page);
         Some(self.page(page))
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if let Ok(class_id) = event.parse::<i32>() {
+            if self.spec().rows.iter().any(|(to, ..)| *to == class_id) {
+                return self.class_change(ctx, class_id);
+            }
+            return None;
+        }
+        // The dialog pages echo straight back.
+        echoed_page(event, &[self.spec().page_npc])
     }
 }

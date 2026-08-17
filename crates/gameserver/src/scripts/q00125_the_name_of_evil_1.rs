@@ -83,6 +83,20 @@ impl QuestScript for Q00125TheNameOfEvil1 {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let cond = ctx.cond();
+        let html = match ctx.npc_id {
+            MUSHIKA => mushika_talk(ctx, cond),
+            KARAKAWEI if ctx.is_started() => karakawei_talk(ctx, cond),
+            ULU_KAIMU if ctx.is_started() => ulu_talk(ctx, cond),
+            BALU_KAIMU if ctx.is_started() => balu_talk(ctx, cond),
+            CHUTA_KAIMU if ctx.is_started() => chuta_talk(ctx, cond),
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -283,20 +297,6 @@ impl QuestScript for Q00125TheNameOfEvil1 {
         {
             ctx.set_cond(4, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let cond = ctx.cond();
-        let html = match ctx.npc_id {
-            MUSHIKA => mushika_talk(ctx, cond),
-            KARAKAWEI if ctx.is_started() => karakawei_talk(ctx, cond),
-            ULU_KAIMU if ctx.is_started() => ulu_talk(ctx, cond),
-            BALU_KAIMU if ctx.is_started() => balu_talk(ctx, cond),
-            CHUTA_KAIMU if ctx.is_started() => chuta_talk(ctx, cond),
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }
 

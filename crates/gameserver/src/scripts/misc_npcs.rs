@@ -65,13 +65,13 @@ impl QuestScript for ArenaManager {
         ARENA_MANAGERS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     /// `AbstractNpcAI.onFirstTalk` — `<npcId>.html`.
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         Some(format!("{}.html", ctx.npc_id))
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
@@ -282,12 +282,12 @@ impl QuestScript for SymbolMaker {
         SYMBOL_MAKERS
     }
 
-    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        Some("symbol_maker.htm".to_string())
-    }
-
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        Some("symbol_maker.htm".to_string())
     }
 
     fn on_event(&self, _ctx: &mut QuestCtx, event: &str) -> Option<String> {

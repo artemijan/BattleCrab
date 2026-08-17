@@ -35,16 +35,16 @@ impl QuestScript for SailrenAltar {
         &[STATUE, CUBIC]
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         if ctx.npc_id == STATUE {
             return Some("32109.html".to_string());
         }
         // The teleport cube: talking to it sends you home.
         ctx.teleport_to(TOWN_EXIT.0, TOWN_EXIT.1, TOWN_EXIT.2);
-        None
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
     }
 

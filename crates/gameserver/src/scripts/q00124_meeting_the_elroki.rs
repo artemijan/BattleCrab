@@ -34,33 +34,6 @@ impl QuestScript for Q00124MeetingTheElroki {
         &[MANTARASA_EGG]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return Some(ctx.no_quest_html());
-        }
-        match event {
-            "32113-03.html" => ctx.start_quest(),
-            "32113-04.html" if ctx.is_cond(1) => {
-                ctx.set_cond(2, true);
-            }
-            "32114-04.html" if ctx.is_cond(2) => {
-                ctx.set_cond(3, true);
-            }
-            "32115-06.html" if ctx.is_cond(3) => {
-                ctx.set_cond(4, true);
-            }
-            "32117-05.html" if ctx.is_cond(4) => {
-                ctx.set_cond(5, true);
-            }
-            "32118-04.html" if ctx.is_cond(5) => {
-                ctx.give_items(MANTARASA_EGG, 1);
-                ctx.set_cond(6, true);
-            }
-            _ => {}
-        }
-        Some(event.to_string())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         match ctx.npc_id {
@@ -83,7 +56,7 @@ impl QuestScript for Q00124MeetingTheElroki {
                         match ctx.cond() {
                             1 => "32113-05.html",
                             2 => "32113-06.html",
-                            3 | 4 | 5 => "32113-07.html",
+                            3..=5 => "32113-07.html",
                             _ => return Some(ctx.no_quest_html()),
                         }
                         .to_string(),
@@ -126,7 +99,7 @@ impl QuestScript for Q00124MeetingTheElroki {
                 if ctx.is_started() {
                     return Some(
                         match ctx.cond() {
-                            1 | 2 | 3 => "32117-01.html",
+                            1..=3 => "32117-01.html",
                             4 => "32117-02.html",
                             5 => "32117-07.html",
                             6 => "32117-06.html",
@@ -141,7 +114,7 @@ impl QuestScript for Q00124MeetingTheElroki {
                 if ctx.is_started() {
                     return Some(
                         match ctx.cond() {
-                            1 | 2 | 3 | 4 => "32118-01.html",
+                            1..=4 => "32118-01.html",
                             5 => "32118-03.html",
                             6 => "32118-02.html",
                             _ => return Some(ctx.no_quest_html()),
@@ -153,5 +126,32 @@ impl QuestScript for Q00124MeetingTheElroki {
             }
             _ => Some(ctx.no_quest_html()),
         }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return Some(ctx.no_quest_html());
+        }
+        match event {
+            "32113-03.html" => ctx.start_quest(),
+            "32113-04.html" if ctx.is_cond(1) => {
+                ctx.set_cond(2, true);
+            }
+            "32114-04.html" if ctx.is_cond(2) => {
+                ctx.set_cond(3, true);
+            }
+            "32115-06.html" if ctx.is_cond(3) => {
+                ctx.set_cond(4, true);
+            }
+            "32117-05.html" if ctx.is_cond(4) => {
+                ctx.set_cond(5, true);
+            }
+            "32118-04.html" if ctx.is_cond(5) => {
+                ctx.give_items(MANTARASA_EGG, 1);
+                ctx.set_cond(6, true);
+            }
+            _ => {}
+        }
+        Some(event.to_string())
     }
 }

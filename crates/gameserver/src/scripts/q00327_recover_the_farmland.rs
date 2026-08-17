@@ -141,68 +141,6 @@ impl QuestScript for Q00327RecoverTheFarmland {
         (ctx.player_level() > MAX_LEVEL).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            // Informational pages, echoed straight back.
-            "30034-01.html" | "30313-01.html" | "30314-02.html" | "30314-08.html"
-            | "30314-09.html" | "30382-05a.html" | "30382-05b.html" | "30597-03.html"
-            | "30597-07.html" => Some(event.to_string()),
-            "30382-03.htm" => {
-                ctx.start_quest();
-                ctx.give_items(LEIKANS_LETTER, 1);
-                ctx.set_cond(2, false);
-                Some(event.to_string())
-            }
-            "30597-03.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30597-06.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30034-07.html" => {
-                // Iris's relic buy-back: cash every relic held, for XP.
-                let mut rewarded = false;
-                for (relic, xp) in RELIC_XP {
-                    let count = ctx.quest_items_count(relic);
-                    if count > 0 {
-                        ctx.add_exp_and_sp(count * xp, 0);
-                        ctx.take_items(relic, -1);
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                        rewarded = true;
-                    }
-                }
-                Some(if rewarded { event } else { "30034-02.html" }.to_string())
-            }
-            _ => self
-                .iris_fragment_xp(ctx, event)
-                .or_else(|| self.asha_gamble(ctx, event))
-                .or_else(|| self.nestle_trade(ctx, event)),
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let npc_id = ctx.npc_id;
-        // Shamans and Warlords carry medallions; everyone else a dog tag.
-        if npc_id == TUREK_ORK_SHAMAN || npc_id == TUREK_ORK_WARLORD {
-            ctx.give_items(TUREK_MEDALLION, 1);
-        } else {
-            ctx.give_items(TUREK_DOG_TAG, 1);
-        }
-        // A chance to also drop one of the four relic fragments.
-        if ctx.roll(100) < fragment_drop_prob(npc_id) {
-            let fragment = CLAY_URN_FRAGMENT + ctx.roll(4); // getRandom(1848, 1851)
-            ctx.give_items(fragment, 1);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let created = ctx.is_created();
@@ -263,6 +201,68 @@ impl QuestScript for Q00327RecoverTheFarmland {
             _ => {}
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            // Informational pages, echoed straight back.
+            "30034-01.html" | "30313-01.html" | "30314-02.html" | "30314-08.html"
+            | "30314-09.html" | "30382-05a.html" | "30382-05b.html" | "30597-03.html"
+            | "30597-07.html" => Some(event.to_string()),
+            "30382-03.htm" => {
+                ctx.start_quest();
+                ctx.give_items(LEIKANS_LETTER, 1);
+                ctx.set_cond(2, false);
+                Some(event.to_string())
+            }
+            "30597-03.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30597-06.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30034-07.html" => {
+                // Iris's relic buy-back: cash every relic held, for XP.
+                let mut rewarded = false;
+                for (relic, xp) in RELIC_XP {
+                    let count = ctx.quest_items_count(relic);
+                    if count > 0 {
+                        ctx.add_exp_and_sp(count * xp, 0);
+                        ctx.take_items(relic, -1);
+                        ctx.play_sound(quest_sounds::ITEMGET);
+                        rewarded = true;
+                    }
+                }
+                Some(if rewarded { event } else { "30034-02.html" }.to_string())
+            }
+            _ => self
+                .iris_fragment_xp(ctx, event)
+                .or_else(|| self.asha_gamble(ctx, event))
+                .or_else(|| self.nestle_trade(ctx, event)),
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        let npc_id = ctx.npc_id;
+        // Shamans and Warlords carry medallions; everyone else a dog tag.
+        if npc_id == TUREK_ORK_SHAMAN || npc_id == TUREK_ORK_WARLORD {
+            ctx.give_items(TUREK_MEDALLION, 1);
+        } else {
+            ctx.give_items(TUREK_DOG_TAG, 1);
+        }
+        // A chance to also drop one of the four relic fragments.
+        if ctx.roll(100) < fragment_drop_prob(npc_id) {
+            let fragment = CLAY_URN_FRAGMENT + ctx.roll(4); // getRandom(1848, 1851)
+            ctx.give_items(fragment, 1);
+        }
     }
 }
 

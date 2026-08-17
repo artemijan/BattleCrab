@@ -59,6 +59,44 @@ impl QuestScript for Q00259RequestFromTheFarmOwner {
         (ctx.player_level() > 21).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        match ctx.npc_id {
+            EDMOND => {
+                if ctx.is_created() {
+                    return Some(
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "30497-02.htm"
+                        } else {
+                            "30497-01.html"
+                        }
+                        .to_string(),
+                    );
+                }
+                if ctx.is_started() {
+                    let skins = ctx.quest_items_count(SPIDER_SKIN);
+                    if skins > 0 {
+                        let bonus = if skins >= SKIN_COUNT { SKIN_BONUS } else { 0 };
+                        ctx.give_adena(skins * SKIN_REWARD + bonus, true);
+                        ctx.take_items(SPIDER_SKIN, -1);
+                        return Some("30497-05.html".to_string());
+                    }
+                    return Some("30497-04.html".to_string());
+                }
+                Some(ctx.no_quest_html())
+            }
+            MARIUS => Some(
+                if ctx.quest_items_count(SPIDER_SKIN) >= SKIN_COUNT {
+                    "30405-02.html"
+                } else {
+                    "30405-01.html"
+                }
+                .to_string(),
+            ),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -104,44 +142,6 @@ impl QuestScript for Q00259RequestFromTheFarmOwner {
         if ctx.has_qs() {
             ctx.give_items(SPIDER_SKIN, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        match ctx.npc_id {
-            EDMOND => {
-                if ctx.is_created() {
-                    return Some(
-                        if ctx.player_level() >= MIN_LEVEL {
-                            "30497-02.htm"
-                        } else {
-                            "30497-01.html"
-                        }
-                        .to_string(),
-                    );
-                }
-                if ctx.is_started() {
-                    let skins = ctx.quest_items_count(SPIDER_SKIN);
-                    if skins > 0 {
-                        let bonus = if skins >= SKIN_COUNT { SKIN_BONUS } else { 0 };
-                        ctx.give_adena(skins * SKIN_REWARD + bonus, true);
-                        ctx.take_items(SPIDER_SKIN, -1);
-                        return Some("30497-05.html".to_string());
-                    }
-                    return Some("30497-04.html".to_string());
-                }
-                Some(ctx.no_quest_html())
-            }
-            MARIUS => Some(
-                if ctx.quest_items_count(SPIDER_SKIN) >= SKIN_COUNT {
-                    "30405-02.html"
-                } else {
-                    "30405-01.html"
-                }
-                .to_string(),
-            ),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

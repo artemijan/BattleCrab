@@ -67,6 +67,34 @@ impl QuestScript for Q00375WhisperOfDreamsPart2 {
         ctx.cond_level(MIN_LEVEL, MAX_LEVEL, "30938-02.html")
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            // The Mysterious Stone from Part 1 is the ticket in — consumed here.
+            if ctx.quest_items_count(MYSTERIOUS_STONE) >= 1 {
+                ctx.take_items(MYSTERIOUS_STONE, 1);
+                return Some("30938-01.htm".to_string());
+            }
+            return Some("30938-05.html".to_string());
+        }
+        if ctx.is_started() {
+            return Some(match ctx.cond() {
+                1 => "30938-04.html".to_string(),
+                2 => {
+                    if ctx.quest_items_count(KARIK_HORN) >= REQUIRED
+                        && ctx.quest_items_count(LIMAL_KARINESS_BLOOD) >= REQUIRED
+                    {
+                        "30938-05.html".to_string()
+                    } else {
+                        "30938-06.html".to_string()
+                    }
+                }
+                _ => ctx.no_quest_html(),
+            });
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -115,33 +143,5 @@ impl QuestScript for Q00375WhisperOfDreamsPart2 {
         {
             ctx.set_cond(2, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            // The Mysterious Stone from Part 1 is the ticket in — consumed here.
-            if ctx.quest_items_count(MYSTERIOUS_STONE) >= 1 {
-                ctx.take_items(MYSTERIOUS_STONE, 1);
-                return Some("30938-01.htm".to_string());
-            }
-            return Some("30938-05.html".to_string());
-        }
-        if ctx.is_started() {
-            return Some(match ctx.cond() {
-                1 => "30938-04.html".to_string(),
-                2 => {
-                    if ctx.quest_items_count(KARIK_HORN) >= REQUIRED
-                        && ctx.quest_items_count(LIMAL_KARINESS_BLOOD) >= REQUIRED
-                    {
-                        "30938-05.html".to_string()
-                    } else {
-                        "30938-06.html".to_string()
-                    }
-                }
-                _ => ctx.no_quest_html(),
-            });
-        }
-        Some(ctx.no_quest_html())
     }
 }

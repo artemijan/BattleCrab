@@ -140,6 +140,46 @@ impl QuestScript for Q00225TestOfTheSearcher {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == MASTER_LUTHER {
+                let class = ctx.player_class_id();
+                if class == ROGUE || class == ELVEN_SCOUT || class == ASSASSIN || class == SCAVENGER
+                {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        return Some(if class == SCAVENGER {
+                            "30690-04.htm".to_string()
+                        } else {
+                            "30690-03.htm".to_string()
+                        });
+                    }
+                    return Some("30690-02.html".to_string());
+                }
+                return Some("30690-01.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == MASTER_LUTHER {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        // Started.
+        match ctx.npc_id {
+            MASTER_LUTHER => Some(luther_talk(ctx)),
+            CAPTAIN_ALEX => Some(alex_talk(ctx)),
+            TYRA => Some(tyra_talk(ctx)),
+            TREE => Some(tree_talk(ctx)),
+            STRONG_WOODEN_CHEST => Some(chest_talk(ctx)),
+            MILITIAMAN_LEIRYNN => Some(leirynn_talk(ctx)),
+            DRUNKARD_BORYS => Some(borys_talk(ctx)),
+            BODYGUARD_JAX => Some(jax_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -208,17 +248,6 @@ impl QuestScript for Q00225TestOfTheSearcher {
                 None
             }
             _ => None,
-        }
-    }
-
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs()
-            && ctx.is_started()
-            && ctx.npc_script_value() == 0
-            && ctx.quest_items_count(LEIRYNNS_1ST_ORDER) > 0
-        {
-            ctx.set_npc_script_value(1);
-            ctx.spawn_attacker(NEER_BODYGUARD, true);
         }
     }
 
@@ -307,43 +336,14 @@ impl QuestScript for Q00225TestOfTheSearcher {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == MASTER_LUTHER {
-                let class = ctx.player_class_id();
-                if class == ROGUE || class == ELVEN_SCOUT || class == ASSASSIN || class == SCAVENGER
-                {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        return Some(if class == SCAVENGER {
-                            "30690-04.htm".to_string()
-                        } else {
-                            "30690-03.htm".to_string()
-                        });
-                    }
-                    return Some("30690-02.html".to_string());
-                }
-                return Some("30690-01.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == MASTER_LUTHER {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        // Started.
-        match ctx.npc_id {
-            MASTER_LUTHER => Some(luther_talk(ctx)),
-            CAPTAIN_ALEX => Some(alex_talk(ctx)),
-            TYRA => Some(tyra_talk(ctx)),
-            TREE => Some(tree_talk(ctx)),
-            STRONG_WOODEN_CHEST => Some(chest_talk(ctx)),
-            MILITIAMAN_LEIRYNN => Some(leirynn_talk(ctx)),
-            DRUNKARD_BORYS => Some(borys_talk(ctx)),
-            BODYGUARD_JAX => Some(jax_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs()
+            && ctx.is_started()
+            && ctx.npc_script_value() == 0
+            && ctx.quest_items_count(LEIRYNNS_1ST_ORDER) > 0
+        {
+            ctx.set_npc_script_value(1);
+            ctx.spawn_attacker(NEER_BODYGUARD, true);
         }
     }
 }

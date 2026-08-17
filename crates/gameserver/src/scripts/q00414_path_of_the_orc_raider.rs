@@ -126,6 +126,25 @@ impl QuestScript for Q00414PathOfTheOrcRaider {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == PREFECT_KARUKIA {
+                return Some("30570-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            PREFECT_KARUKIA => self.talk_karukia(ctx),
+            PREFECT_KASMAN => self.talk_kasman(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -247,25 +266,6 @@ impl QuestScript for Q00414PathOfTheOrcRaider {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == PREFECT_KARUKIA {
-                return Some("30570-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            PREFECT_KARUKIA => self.talk_karukia(ctx),
-            PREFECT_KASMAN => self.talk_kasman(ctx),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

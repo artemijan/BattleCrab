@@ -332,6 +332,98 @@ impl QuestScript for Q00333HuntOfTheBlackLion {
         &self.kill_ids
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc_id = ctx.npc_id;
+        if ctx.is_created() {
+            if npc_id == SOPHYA {
+                return Some(
+                    if ctx.player_level() < MIN_LEVEL {
+                        "30735-01.htm"
+                    } else if !self.has(ctx, BLACK_LION_MARK) {
+                        "30735-02.htm"
+                    } else {
+                        "30735-03.htm"
+                    }
+                    .to_string(),
+                );
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        let (orders, materials, cargo) = (
+            self.orders_held(ctx),
+            self.materials_held(ctx),
+            self.cargo_held(ctx),
+        );
+        match npc_id {
+            SOPHYA => Some(if orders == 0 {
+                "30735-14.html".to_string()
+            } else if orders == 1 && materials < 1 && cargo < 1 {
+                "30735-15.html".to_string()
+            } else if orders == 1 && materials < 1 && cargo >= 1 {
+                "30735-15a.html".to_string()
+            } else if orders == 1 && materials >= 1 && cargo == 0 {
+                self.sophya_material_turnin(ctx, false);
+                "30735-22.html".to_string()
+            } else if orders == 1 && materials >= 1 && cargo >= 1 {
+                self.sophya_material_turnin(ctx, true);
+                "30735-23.html".to_string()
+            } else {
+                ctx.no_quest_html()
+            }),
+            UNDRIAS => Some(
+                if self.has(ctx, COMPLETE_STATUE) {
+                    "30130-03.html"
+                } else if (0..4).any(|i| self.has(ctx, STATUE_HEAD + i)) {
+                    "30130-02.html"
+                } else {
+                    "30130-01.html"
+                }
+                .to_string(),
+            ),
+            RUPIO => Some(
+                if (0..4).any(|i| self.has(ctx, STATUE_HEAD + i))
+                    || (0..4).any(|i| self.has(ctx, TABLET_1ST + i))
+                {
+                    "30471-02.html"
+                } else {
+                    "30471-01.html"
+                }
+                .to_string(),
+            ),
+            LOCKIRIN => Some(
+                if self.has(ctx, COMPLETE_TABLET) {
+                    "30531-03.html"
+                } else if (0..4).any(|i| self.has(ctx, TABLET_1ST + i)) {
+                    "30531-02.html"
+                } else {
+                    "30531-01.html"
+                }
+                .to_string(),
+            ),
+            REEDFOOT => Some(
+                if cargo >= 1 {
+                    "30736-02.html"
+                } else {
+                    "30736-01.html"
+                }
+                .to_string(),
+            ),
+            MORGON => Some(
+                if cargo >= 1 {
+                    "30737-02.html"
+                } else {
+                    "30737-01.html"
+                }
+                .to_string(),
+            ),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -493,98 +585,6 @@ impl QuestScript for Q00333HuntOfTheBlackLion {
             ctx.spawn_attacker(DELU_HEADHUNTER, true);
         } else if order == 4 && ctx.roll(100) < 2 {
             ctx.spawn_attacker(MARSH_STAKATO_MARQUESS, true);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc_id = ctx.npc_id;
-        if ctx.is_created() {
-            if npc_id == SOPHYA {
-                return Some(
-                    if ctx.player_level() < MIN_LEVEL {
-                        "30735-01.htm"
-                    } else if !self.has(ctx, BLACK_LION_MARK) {
-                        "30735-02.htm"
-                    } else {
-                        "30735-03.htm"
-                    }
-                    .to_string(),
-                );
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        let (orders, materials, cargo) = (
-            self.orders_held(ctx),
-            self.materials_held(ctx),
-            self.cargo_held(ctx),
-        );
-        match npc_id {
-            SOPHYA => Some(if orders == 0 {
-                "30735-14.html".to_string()
-            } else if orders == 1 && materials < 1 && cargo < 1 {
-                "30735-15.html".to_string()
-            } else if orders == 1 && materials < 1 && cargo >= 1 {
-                "30735-15a.html".to_string()
-            } else if orders == 1 && materials >= 1 && cargo == 0 {
-                self.sophya_material_turnin(ctx, false);
-                "30735-22.html".to_string()
-            } else if orders == 1 && materials >= 1 && cargo >= 1 {
-                self.sophya_material_turnin(ctx, true);
-                "30735-23.html".to_string()
-            } else {
-                ctx.no_quest_html()
-            }),
-            UNDRIAS => Some(
-                if self.has(ctx, COMPLETE_STATUE) {
-                    "30130-03.html"
-                } else if (0..4).any(|i| self.has(ctx, STATUE_HEAD + i)) {
-                    "30130-02.html"
-                } else {
-                    "30130-01.html"
-                }
-                .to_string(),
-            ),
-            RUPIO => Some(
-                if (0..4).any(|i| self.has(ctx, STATUE_HEAD + i))
-                    || (0..4).any(|i| self.has(ctx, TABLET_1ST + i))
-                {
-                    "30471-02.html"
-                } else {
-                    "30471-01.html"
-                }
-                .to_string(),
-            ),
-            LOCKIRIN => Some(
-                if self.has(ctx, COMPLETE_TABLET) {
-                    "30531-03.html"
-                } else if (0..4).any(|i| self.has(ctx, TABLET_1ST + i)) {
-                    "30531-02.html"
-                } else {
-                    "30531-01.html"
-                }
-                .to_string(),
-            ),
-            REEDFOOT => Some(
-                if cargo >= 1 {
-                    "30736-02.html"
-                } else {
-                    "30736-01.html"
-                }
-                .to_string(),
-            ),
-            MORGON => Some(
-                if cargo >= 1 {
-                    "30737-02.html"
-                } else {
-                    "30737-01.html"
-                }
-                .to_string(),
-            ),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

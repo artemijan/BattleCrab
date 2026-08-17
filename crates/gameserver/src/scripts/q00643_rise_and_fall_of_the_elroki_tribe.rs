@@ -85,6 +85,45 @@ impl QuestScript for Q00643RiseAndFallOfTheElrokiTribe {
         &[BONES]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "32106-01.htm"
+                } else {
+                    "32106-06.html"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            if ctx.npc_id == SINGSING {
+                return Some(
+                    if ctx.quest_items_count(BONES) > 0 {
+                        "32106-08.html"
+                    } else {
+                        "32106-14.html"
+                    }
+                    .to_string(),
+                );
+            }
+            if ctx.npc_id == KARAKAWEI {
+                // Global first-talk flag (see the struct docs) — swap returns the
+                // prior value.
+                return Some(
+                    if self.first_talk.swap(false, Ordering::Relaxed) {
+                        "32117-01.html"
+                    } else {
+                        "32117-03.html"
+                    }
+                    .to_string(),
+                );
+            }
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -159,44 +198,5 @@ impl QuestScript for Q00643RiseAndFallOfTheElrokiTribe {
             ctx.reward_items(BONES, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "32106-01.htm"
-                } else {
-                    "32106-06.html"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            if ctx.npc_id == SINGSING {
-                return Some(
-                    if ctx.quest_items_count(BONES) > 0 {
-                        "32106-08.html"
-                    } else {
-                        "32106-14.html"
-                    }
-                    .to_string(),
-                );
-            }
-            if ctx.npc_id == KARAKAWEI {
-                // Global first-talk flag (see the struct docs) — swap returns the
-                // prior value.
-                return Some(
-                    if self.first_talk.swap(false, Ordering::Relaxed) {
-                        "32117-01.html"
-                    } else {
-                        "32117-03.html"
-                    }
-                    .to_string(),
-                );
-            }
-        }
-        Some(ctx.no_quest_html())
     }
 }

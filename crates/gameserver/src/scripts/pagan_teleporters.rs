@@ -57,16 +57,6 @@ impl QuestScript for PaganTeleporters {
         &[TRIOLS_MIRROR_1, TRIOLS_MIRROR_2]
     }
 
-    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        // The mirrors teleport on the first click — no chat window at all.
-        match ctx.npc_id {
-            TRIOLS_MIRROR_1 => ctx.teleport_to(-12766, -35840, -10856),
-            TRIOLS_MIRROR_2 => ctx.teleport_to(36640, -51218, 718),
-            _ => {}
-        }
-        None
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         match ctx.npc_id {
             GATEKEEPER_OUTER_IN => {
@@ -100,5 +90,15 @@ impl QuestScript for PaganTeleporters {
             }
             _ => None,
         }
+    }
+
+    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        // The mirrors teleport on the first click — no chat window at all.
+        match ctx.npc_id {
+            TRIOLS_MIRROR_1 => ctx.teleport_to(-12766, -35840, -10856),
+            TRIOLS_MIRROR_2 => ctx.teleport_to(36640, -51218, 718),
+            _ => {}
+        }
+        None
     }
 }

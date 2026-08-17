@@ -156,6 +156,90 @@ impl QuestScript for AllianceQuest {
         &self.badges_reg
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(if ctx.player_level() >= MIN_LEVEL {
+                self.html("01.htm")
+            } else {
+                self.html("02.htm")
+            });
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        let m = &self.data.own_marks;
+        let soldier = self.badge_soldier();
+        let officer = self.badge_officer();
+        let captain = self.badge_captain();
+        match ctx.cond() {
+            1 => Some(if self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[0] {
+                self.html("11.html")
+            } else {
+                self.html("10.html")
+            }),
+            2 => Some(
+                if self.has(ctx, m[0])
+                    && self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[1]
+                    && self.count(ctx, officer) >= OFFICER_BADGE_COUNT[1]
+                {
+                    self.html("14.html")
+                } else {
+                    self.html("13.html")
+                },
+            ),
+            3 => Some(
+                if self.has(ctx, m[1])
+                    && self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[2]
+                    && self.count(ctx, officer) >= OFFICER_BADGE_COUNT[2]
+                    && self.count(ctx, captain) >= CAPTAIN_BADGE_COUNT[2]
+                {
+                    self.html("17.html")
+                } else {
+                    self.html("16.html")
+                },
+            ),
+            4 => Some(
+                if self.has(ctx, m[2])
+                    && self.has(ctx, self.data.valor_totem)
+                    && self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[3]
+                    && self.count(ctx, officer) >= OFFICER_BADGE_COUNT[3]
+                    && self.count(ctx, captain) >= CAPTAIN_BADGE_COUNT[3]
+                {
+                    self.html("20.html")
+                } else {
+                    self.html("19.html")
+                },
+            ),
+            5 => {
+                if !self.has(ctx, m[3])
+                    || !self.has(ctx, self.data.wisdom_totem)
+                    || self.count(ctx, soldier) < SOLDIER_BADGE_COUNT[4]
+                    || self.count(ctx, officer) < OFFICER_BADGE_COUNT[4]
+                    || self.count(ctx, captain) < CAPTAIN_BADGE_COUNT[4]
+                {
+                    return Some(self.html("22.html"));
+                }
+                ctx.set_cond(6, true);
+                ctx.take_items(soldier, -1);
+                ctx.take_items(officer, -1);
+                ctx.take_items(captain, -1);
+                ctx.take_items(self.data.wisdom_totem, -1);
+                ctx.take_items(m[3], -1);
+                ctx.give_items(m[4], 1);
+                Some(self.html("23.html"))
+            }
+            6 => {
+                if self.has(ctx, m[4]) {
+                    Some(self.html("24.html"))
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -263,90 +347,6 @@ impl QuestScript for AllianceQuest {
         if cond >= min_cond && cond < 6 && self.can_get_item(ctx, badge) && ctx.roll(1000) < chance
         {
             ctx.give_items(badge, 1);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL {
-                self.html("01.htm")
-            } else {
-                self.html("02.htm")
-            });
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        let m = &self.data.own_marks;
-        let soldier = self.badge_soldier();
-        let officer = self.badge_officer();
-        let captain = self.badge_captain();
-        match ctx.cond() {
-            1 => Some(if self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[0] {
-                self.html("11.html")
-            } else {
-                self.html("10.html")
-            }),
-            2 => Some(
-                if self.has(ctx, m[0])
-                    && self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[1]
-                    && self.count(ctx, officer) >= OFFICER_BADGE_COUNT[1]
-                {
-                    self.html("14.html")
-                } else {
-                    self.html("13.html")
-                },
-            ),
-            3 => Some(
-                if self.has(ctx, m[1])
-                    && self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[2]
-                    && self.count(ctx, officer) >= OFFICER_BADGE_COUNT[2]
-                    && self.count(ctx, captain) >= CAPTAIN_BADGE_COUNT[2]
-                {
-                    self.html("17.html")
-                } else {
-                    self.html("16.html")
-                },
-            ),
-            4 => Some(
-                if self.has(ctx, m[2])
-                    && self.has(ctx, self.data.valor_totem)
-                    && self.count(ctx, soldier) >= SOLDIER_BADGE_COUNT[3]
-                    && self.count(ctx, officer) >= OFFICER_BADGE_COUNT[3]
-                    && self.count(ctx, captain) >= CAPTAIN_BADGE_COUNT[3]
-                {
-                    self.html("20.html")
-                } else {
-                    self.html("19.html")
-                },
-            ),
-            5 => {
-                if !self.has(ctx, m[3])
-                    || !self.has(ctx, self.data.wisdom_totem)
-                    || self.count(ctx, soldier) < SOLDIER_BADGE_COUNT[4]
-                    || self.count(ctx, officer) < OFFICER_BADGE_COUNT[4]
-                    || self.count(ctx, captain) < CAPTAIN_BADGE_COUNT[4]
-                {
-                    return Some(self.html("22.html"));
-                }
-                ctx.set_cond(6, true);
-                ctx.take_items(soldier, -1);
-                ctx.take_items(officer, -1);
-                ctx.take_items(captain, -1);
-                ctx.take_items(self.data.wisdom_totem, -1);
-                ctx.take_items(m[3], -1);
-                ctx.give_items(m[4], 1);
-                Some(self.html("23.html"))
-            }
-            6 => {
-                if self.has(ctx, m[4]) {
-                    Some(self.html("24.html"))
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

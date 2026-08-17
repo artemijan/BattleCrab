@@ -69,38 +69,6 @@ impl QuestScript for Q00257TheGuardIsBusy {
         (ctx.player_level() > 16).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30039-03.htm" => {
-                ctx.start_quest();
-                ctx.give_items(GLUDIO_LORDS_MARK, 1);
-                Some(event.to_string())
-            }
-            "30039-05.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30039-06.html" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        for &(random, chance, item, count) in drops(ctx.npc_id) {
-            if ctx.roll(random) < chance {
-                ctx.give_items(item, count);
-                ctx.play_sound(quest_sounds::ITEMGET);
-                break;
-            }
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -133,5 +101,37 @@ impl QuestScript for Q00257TheGuardIsBusy {
             return Some("30039-04.html".to_string());
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30039-03.htm" => {
+                ctx.start_quest();
+                ctx.give_items(GLUDIO_LORDS_MARK, 1);
+                Some(event.to_string())
+            }
+            "30039-05.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30039-06.html" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        for &(random, chance, item, count) in drops(ctx.npc_id) {
+            if ctx.roll(random) < chance {
+                ctx.give_items(item, count);
+                ctx.play_sound(quest_sounds::ITEMGET);
+                break;
+            }
+        }
     }
 }

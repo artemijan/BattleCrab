@@ -43,33 +43,6 @@ impl QuestScript for Q00267WrathOfVerdure {
         (ctx.player_level() > 9).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "31853-04.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "31853-07.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "31853-08.html" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-
-    /// A flat 50% club drop (`getRandom(10) < 5`, hand-rolled + plain give — not
-    /// rate-multiplied).
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.roll(10) < 5 {
-            ctx.give_items(GOBLIN_CLUB, 1);
-            ctx.play_sound(quest_sounds::ITEMGET);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -95,5 +68,32 @@ impl QuestScript for Q00267WrathOfVerdure {
             return Some("31853-05.html".to_string());
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "31853-04.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "31853-07.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "31853-08.html" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+
+    /// A flat 50% club drop (`getRandom(10) < 5`, hand-rolled + plain give — not
+    /// rate-multiplied).
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.roll(10) < 5 {
+            ctx.give_items(GOBLIN_CLUB, 1);
+            ctx.play_sound(quest_sounds::ITEMGET);
+        }
     }
 }

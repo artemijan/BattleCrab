@@ -62,6 +62,34 @@ impl QuestScript for Q00623TheFinestFood {
         &[LEAF_OF_FLAVA, BUFFALO_MEAT, HORN_OF_ANTELOPE]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "31521-01.htm"
+                } else {
+                    "31521-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some(
+                match ctx.cond() {
+                    1 => "31521-04.html",
+                    2 => "31521-05.html",
+                    _ => return Some(ctx.no_quest_html()),
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_completed() {
+            return Some(ctx.already_completed_html());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -117,33 +145,5 @@ impl QuestScript for Q00623TheFinestFood {
         if ctx.give_item_randomly(item, 1, REQUIRED_EACH, 1.0, true) && has_all(ctx) {
             ctx.set_cond(2, false);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "31521-01.htm"
-                } else {
-                    "31521-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some(
-                match ctx.cond() {
-                    1 => "31521-04.html",
-                    2 => "31521-05.html",
-                    _ => return Some(ctx.no_quest_html()),
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_completed() {
-            return Some(ctx.already_completed_html());
-        }
-        Some(ctx.no_quest_html())
     }
 }

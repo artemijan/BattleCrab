@@ -48,6 +48,38 @@ impl QuestScript for Q00328SenseForBusiness {
     fn quest_items(&self) -> &[i32] {
         &[CARCASS, LENS, GIZZARD]
     }
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() < MIN_LEVEL {
+                    "30436-01.htm"
+                } else {
+                    "30436-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            let carcass = ctx.quest_items_count(CARCASS);
+            let lens = ctx.quest_items_count(LENS);
+            let gizzards = ctx.quest_items_count(GIZZARD);
+            if carcass + lens + gizzards > 0 {
+                let bonus = if carcass + lens + gizzards >= 10 {
+                    100
+                } else {
+                    0
+                };
+                ctx.give_adena(carcass * 2 + lens * 10 + gizzards * 2 + bonus, true);
+                ctx.take_items(CARCASS, -1);
+                ctx.take_items(LENS, -1);
+                ctx.take_items(GIZZARD, -1);
+                return Some("30436-05.html".to_string());
+            }
+            return Some("30436-04.html".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -80,37 +112,5 @@ impl QuestScript for Q00328SenseForBusiness {
         {
             ctx.give_items(GIZZARD, 1);
         }
-    }
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() < MIN_LEVEL {
-                    "30436-01.htm"
-                } else {
-                    "30436-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            let carcass = ctx.quest_items_count(CARCASS);
-            let lens = ctx.quest_items_count(LENS);
-            let gizzards = ctx.quest_items_count(GIZZARD);
-            if carcass + lens + gizzards > 0 {
-                let bonus = if carcass + lens + gizzards >= 10 {
-                    100
-                } else {
-                    0
-                };
-                ctx.give_adena(carcass * 2 + lens * 10 + gizzards * 2 + bonus, true);
-                ctx.take_items(CARCASS, -1);
-                ctx.take_items(LENS, -1);
-                ctx.take_items(GIZZARD, -1);
-                return Some("30436-05.html".to_string());
-            }
-            return Some("30436-04.html".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

@@ -77,6 +77,21 @@ impl QuestScript for Q00370AnElderSowsSeeds {
         (ctx.player_level() > MAX_LEVEL).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(if ctx.player_level() >= MIN_LEVEL {
+                "30612-01.htm".to_string()
+            } else {
+                "30612-05.html".to_string()
+            });
+        }
+        if ctx.is_started() {
+            return Some("30612-06.html".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -122,20 +137,5 @@ impl QuestScript for Q00370AnElderSowsSeeds {
         } else if let Some(&(_, chance)) = MOBS_CHANCE.iter().find(|(id, _)| *id == npc_id) {
             ctx.give_item_randomly(SPELLBOOK_PAGE, 1, 0, chance, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL {
-                "30612-01.htm".to_string()
-            } else {
-                "30612-05.html".to_string()
-            });
-        }
-        if ctx.is_started() {
-            return Some("30612-06.html".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

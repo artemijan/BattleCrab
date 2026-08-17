@@ -144,6 +144,28 @@ impl QuestScript for Q00418PathOfTheArtisan {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == BLACKSMITH_SILVERA {
+                return Some("30527-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            BLACKSMITH_SILVERA => self.talk_silvera(ctx),
+            BLACKSMITH_PINTER => self.talk_pinter(ctx),
+            BLACKSMITH_KLUTO => self.talk_kluto(ctx),
+            // Only reachable through the dead `memoState == 101` route.
+            IRON_GATES_LOCKIRIN => Some(ctx.no_quest_html()),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -270,28 +292,6 @@ impl QuestScript for Q00418PathOfTheArtisan {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == BLACKSMITH_SILVERA {
-                return Some("30527-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            BLACKSMITH_SILVERA => self.talk_silvera(ctx),
-            BLACKSMITH_PINTER => self.talk_pinter(ctx),
-            BLACKSMITH_KLUTO => self.talk_kluto(ctx),
-            // Only reachable through the dead `memoState == 101` route.
-            IRON_GATES_LOCKIRIN => Some(ctx.no_quest_html()),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

@@ -491,14 +491,6 @@ impl QuestScript for FairyTrees {
         None
     }
 
-    /// `onSpawn`: a tree is rooted to its spot. Java calls
-    /// `setRandomWalking(false)` **and** `setImmobilized(true)`; here the
-    /// second covers both, since `is_movement_disabled` (which the idle
-    /// random-walk branch goes through) already reads `Immobilized`.
-    fn on_spawn(&self, ctx: &mut QuestCtx) {
-        ctx.world.objects.add_components(&ctx.npc, Immobilized);
-    }
-
     /// `onKill`: 20 guardians boil out of the stump, each set on the killer and
     /// each with an even chance of opening with Venomous Poison. They vanish
     /// after 30 s.
@@ -520,6 +512,14 @@ impl QuestScript for FairyTrees {
                 crate::game_loop::npc::cast::start_cast(ctx.world, guardian, killer, &skill);
             }
         }
+    }
+
+    /// `onSpawn`: a tree is rooted to its spot. Java calls
+    /// `setRandomWalking(false)` **and** `setImmobilized(true)`; here the
+    /// second covers both, since `is_movement_disabled` (which the idle
+    /// random-walk branch goes through) already reads `Immobilized`.
+    fn on_spawn(&self, ctx: &mut QuestCtx) {
+        ctx.world.objects.add_components(&ctx.npc, Immobilized);
     }
 }
 

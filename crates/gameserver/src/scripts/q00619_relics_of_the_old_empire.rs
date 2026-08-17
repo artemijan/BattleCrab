@@ -53,6 +53,29 @@ impl QuestScript for Q00619RelicsOfTheOldEmpire {
         &[RELICS]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() < 74 {
+                    "31538-02.htm"
+                } else {
+                    "31538-01.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            if ctx.quest_items_count(RELICS) >= REQUIRED {
+                return Some("31538-04.htm".to_string());
+            } else if ctx.quest_items_count(ENTRANCE) > 0 {
+                return Some("31538-06.htm".to_string());
+            }
+            return Some("31538-07.htm".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -93,28 +116,5 @@ impl QuestScript for Q00619RelicsOfTheOldEmpire {
         if ctx.roll(100) <= 10 {
             ctx.give_items(ENTRANCE, 1);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() < 74 {
-                    "31538-02.htm"
-                } else {
-                    "31538-01.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            if ctx.quest_items_count(RELICS) >= REQUIRED {
-                return Some("31538-04.htm".to_string());
-            } else if ctx.quest_items_count(ENTRANCE) > 0 {
-                return Some("31538-06.htm".to_string());
-            }
-            return Some("31538-07.htm".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

@@ -53,6 +53,37 @@ impl QuestScript for Q00036MakeASewingKit {
         &[REINFORCED_STEEL]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let html = if ctx.is_created() {
+            // Authentic Interlude: only offered while Make Formal Wear is at the
+            // "gather the components" stage (cond 6).
+            if ctx.other_quest_cond(PARENT) < 6 {
+                ctx.no_quest_html()
+            } else if ctx.player_level() >= MIN_LEVEL {
+                "30847-01.htm".to_string()
+            } else {
+                "30847-02.html".to_string()
+            }
+        } else if ctx.is_completed() {
+            ctx.already_completed_html()
+        } else {
+            match ctx.cond() {
+                1 => "30847-04.html".to_string(),
+                2 => "30847-05.html".to_string(),
+                3 => {
+                    if has_mats(ctx) {
+                        "30847-07.html".to_string()
+                    } else {
+                        "30847-08.html".to_string()
+                    }
+                }
+                _ => ctx.no_quest_html(),
+            }
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -96,36 +127,5 @@ impl QuestScript for Q00036MakeASewingKit {
         } else {
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let html = if ctx.is_created() {
-            // Authentic Interlude: only offered while Make Formal Wear is at the
-            // "gather the components" stage (cond 6).
-            if ctx.other_quest_cond(PARENT) < 6 {
-                ctx.no_quest_html()
-            } else if ctx.player_level() >= MIN_LEVEL {
-                "30847-01.htm".to_string()
-            } else {
-                "30847-02.html".to_string()
-            }
-        } else if ctx.is_completed() {
-            ctx.already_completed_html()
-        } else {
-            match ctx.cond() {
-                1 => "30847-04.html".to_string(),
-                2 => "30847-05.html".to_string(),
-                3 => {
-                    if has_mats(ctx) {
-                        "30847-07.html".to_string()
-                    } else {
-                        "30847-08.html".to_string()
-                    }
-                }
-                _ => ctx.no_quest_html(),
-            }
-        };
-        Some(html)
     }
 }

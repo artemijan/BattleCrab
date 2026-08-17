@@ -34,14 +34,14 @@ impl QuestScript for Baium {
         &[ANG_VORTEX]
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         if ctx.npc_id == ANG_VORTEX {
             return Some("31862.html".to_string());
         }
-        None
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
     }
 

@@ -54,6 +54,31 @@ impl QuestScript for DarkElfChange1 {
         &NPCS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        // `if (player.isSubClassActive()) return getNoQuestMsg(player);` — a
+        // character on a subclass can't take a first occupation at all.
+        if ctx.is_subclass_active() {
+            return Some(ctx.no_quest_html());
+        }
+        let npc = ctx.npc_id;
+        if ctx.player_race() != RACE_DARK_ELF {
+            return Some(format!("{npc}-33.html"));
+        }
+        match ctx.player_class_id() {
+            DARK_FIGHTER => Some(format!("{npc}-01.html")),
+            DARK_MAGE => Some(format!("{npc}-08.html")),
+            // Java switches on `cid.level()`: 1 = first occupation already
+            // taken, ≥2 = second or third.
+            _ if ctx.is_in_category("FIRST_CLASS_GROUP") => Some(format!("{npc}-32.html")),
+            _ if ctx.is_in_category("SECOND_CLASS_GROUP")
+                || ctx.is_in_category("THIRD_CLASS_GROUP") =>
+            {
+                Some(format!("{npc}-31.html"))
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         let npc = ctx.npc_id;
         // The event is the CLASSES row index, not a class id.
@@ -79,30 +104,5 @@ impl QuestScript for DarkElfChange1 {
         // Java's `onEvent` returns the event unchanged for anything else, so a
         // page link echoes back.
         Some(event.to_string())
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        // `if (player.isSubClassActive()) return getNoQuestMsg(player);` — a
-        // character on a subclass can't take a first occupation at all.
-        if ctx.is_subclass_active() {
-            return Some(ctx.no_quest_html());
-        }
-        let npc = ctx.npc_id;
-        if ctx.player_race() != RACE_DARK_ELF {
-            return Some(format!("{npc}-33.html"));
-        }
-        match ctx.player_class_id() {
-            DARK_FIGHTER => Some(format!("{npc}-01.html")),
-            DARK_MAGE => Some(format!("{npc}-08.html")),
-            // Java switches on `cid.level()`: 1 = first occupation already
-            // taken, ≥2 = second or third.
-            _ if ctx.is_in_category("FIRST_CLASS_GROUP") => Some(format!("{npc}-32.html")),
-            _ if ctx.is_in_category("SECOND_CLASS_GROUP")
-                || ctx.is_in_category("THIRD_CLASS_GROUP") =>
-            {
-                Some(format!("{npc}-31.html"))
-            }
-            _ => Some(ctx.no_quest_html()),
-        }
     }
 }

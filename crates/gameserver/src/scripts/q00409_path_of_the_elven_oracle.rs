@@ -116,6 +116,36 @@ impl QuestScript for Q00409PathOfTheElvenOracle {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == PRIEST_MANUEL {
+                return Some(
+                    if self.has(ctx, LEAF_OF_ORACLE) {
+                        "30293-04.htm"
+                    } else {
+                        "30293-01.htm"
+                    }
+                    .to_string(),
+                );
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        if !self.has(ctx, CRYSTAL_MEDALLION) {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            PRIEST_MANUEL => self.talk_manuel(ctx),
+            ALLANA => self.talk_allana(ctx),
+            PERRIN => self.talk_perrin(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -156,31 +186,6 @@ impl QuestScript for Q00409PathOfTheElvenOracle {
         }
     }
 
-    /// Java's ambush tag: **one attacker, no weapon requirement**. State 0
-    /// shouts and claims the mob; state 1 drops to 2 if anyone else joins in.
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        match ctx.npc_script_value() {
-            0 => {
-                let line = if ctx.npc_id == TAMIL {
-                    NS_AS_YOU_WISH
-                } else {
-                    NS_SACRED_FLAME
-                };
-                ctx.npc_say(line);
-                ctx.set_npc_script_value(1);
-                let attacker = ctx.player;
-                ctx.set_npc_var_int(FIRST_ATTACKER, attacker);
-            }
-            1 if ctx.npc_var_int(FIRST_ATTACKER) != ctx.player => {
-                ctx.set_npc_script_value(2);
-            }
-            _ => {}
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || !ctx.is_started() || ctx.npc_script_value() != 1 {
             return;
@@ -205,33 +210,28 @@ impl QuestScript for Q00409PathOfTheElvenOracle {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == PRIEST_MANUEL {
-                return Some(
-                    if self.has(ctx, LEAF_OF_ORACLE) {
-                        "30293-04.htm"
-                    } else {
-                        "30293-01.htm"
-                    }
-                    .to_string(),
-                );
+    /// Java's ambush tag: **one attacker, no weapon requirement**. State 0
+    /// shouts and claims the mob; state 1 drops to 2 if anyone else joins in.
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        match ctx.npc_script_value() {
+            0 => {
+                let line = if ctx.npc_id == TAMIL {
+                    NS_AS_YOU_WISH
+                } else {
+                    NS_SACRED_FLAME
+                };
+                ctx.npc_say(line);
+                ctx.set_npc_script_value(1);
+                let attacker = ctx.player;
+                ctx.set_npc_var_int(FIRST_ATTACKER, attacker);
             }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        if !self.has(ctx, CRYSTAL_MEDALLION) {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            PRIEST_MANUEL => self.talk_manuel(ctx),
-            ALLANA => self.talk_allana(ctx),
-            PERRIN => self.talk_perrin(ctx),
-            _ => Some(ctx.no_quest_html()),
+            1 if ctx.npc_var_int(FIRST_ATTACKER) != ctx.player => {
+                ctx.set_npc_script_value(2);
+            }
+            _ => {}
         }
     }
 }

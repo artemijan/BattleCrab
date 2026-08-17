@@ -43,24 +43,6 @@ impl QuestScript for Q00264KeenClaws {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 9).then(|| ctx.no_quest_html())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event == "30136-03.htm" {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_cond(1) {
-            return;
-        }
-        let table = drops(ctx.npc_id);
-        if let Some(amount) = super::quest_common::roll_drop_table(ctx, table)
-            && ctx.give_item_randomly(WOLF_CLAW, amount, REQUIRED, 1.0, true)
-        {
-            ctx.set_cond(2, false);
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -96,5 +78,23 @@ impl QuestScript for Q00264KeenClaws {
             }
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event == "30136-03.htm" {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_cond(1) {
+            return;
+        }
+        let table = drops(ctx.npc_id);
+        if let Some(amount) = super::quest_common::roll_drop_table(ctx, table)
+            && ctx.give_item_randomly(WOLF_CLAW, amount, REQUIRED, 1.0, true)
+        {
+            ctx.set_cond(2, false);
+        }
     }
 }

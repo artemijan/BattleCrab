@@ -50,6 +50,37 @@ impl QuestScript for Q00275DarkWingedSpies {
         (ctx.player_level() > MAX_LEVEL).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_race() != RACE_ORC {
+                    "30567-00.htm"
+                } else if ctx.player_level() >= MIN_LEVEL {
+                    "30567-02.htm"
+                } else {
+                    "30567-01.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            match ctx.cond() {
+                1 => return Some("30567-05.html".to_string()),
+                2 => {
+                    let count = ctx.quest_items_count(DARKWING_BAT_FANG);
+                    if count >= MAX_BAT_FANG_COUNT {
+                        ctx.give_adena(count * FANG_PRICE, true);
+                        ctx.exit_quest(true, true);
+                        return Some("30567-05.html".to_string());
+                    }
+                }
+                _ => {}
+            }
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if ctx.has_qs() && event == "30567-03.htm" {
             ctx.start_quest();
@@ -82,36 +113,5 @@ impl QuestScript for Q00275DarkWingedSpies {
             }
             _ => {}
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_race() != RACE_ORC {
-                    "30567-00.htm"
-                } else if ctx.player_level() >= MIN_LEVEL {
-                    "30567-02.htm"
-                } else {
-                    "30567-01.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            match ctx.cond() {
-                1 => return Some("30567-05.html".to_string()),
-                2 => {
-                    let count = ctx.quest_items_count(DARKWING_BAT_FANG);
-                    if count >= MAX_BAT_FANG_COUNT {
-                        ctx.give_adena(count * FANG_PRICE, true);
-                        ctx.exit_quest(true, true);
-                        return Some("30567-05.html".to_string());
-                    }
-                }
-                _ => {}
-            }
-        }
-        Some(ctx.no_quest_html())
     }
 }

@@ -47,14 +47,14 @@ impl QuestScript for LastImperialTomb {
     fn talk_npcs(&self) -> &[i32] {
         &[GUIDE, CUBE]
     }
-    fn first_talk_npcs(&self) -> &[i32] {
-        &[GUIDE, CUBE]
-    }
     fn kill_npcs(&self) -> &[i32] {
         KILL_NPCS
     }
     fn attack_npcs(&self) -> &[i32] {
         ATTACK_NPCS
+    }
+    fn first_talk_npcs(&self) -> &[i32] {
+        &[GUIDE, CUBE]
     }
 
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
@@ -85,16 +85,6 @@ impl QuestScript for LastImperialTomb {
         None
     }
 
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        let (npc, npc_id) = (ctx.npc, ctx.npc_id);
-        if npc_id == SCARLET1 || npc_id == SCARLET2 {
-            frintezza::on_scarlet_attack(ctx.world, npc, npc_id);
-        } else if PORTRAITS.contains(&npc_id) {
-            let (attacker, skill) = (ctx.player, ctx.attack_skill_id());
-            frintezza::on_portrait_attacked(ctx.world, npc, attacker, skill);
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         let (killer, npc, npc_id) = (ctx.player, ctx.npc, ctx.npc_id);
         if npc_id == SCARLET2 {
@@ -105,6 +95,16 @@ impl QuestScript for LastImperialTomb {
             frintezza::on_portrait_killed(ctx.world, killer, npc);
         } else {
             frintezza::on_monster_killed(ctx.world, killer, npc, npc_id);
+        }
+    }
+
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        let (npc, npc_id) = (ctx.npc, ctx.npc_id);
+        if npc_id == SCARLET1 || npc_id == SCARLET2 {
+            frintezza::on_scarlet_attack(ctx.world, npc, npc_id);
+        } else if PORTRAITS.contains(&npc_id) {
+            let (attacker, skill) = (ctx.player, ctx.attack_skill_id());
+            frintezza::on_portrait_attacked(ctx.world, npc, attacker, skill);
         }
     }
 }

@@ -50,32 +50,6 @@ impl QuestScript for Q00326VanquishRemnants {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 30).then(|| ctx.no_quest_html())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30435-03.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30435-07.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30435-08.html" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs()
-            && ctx.is_started()
-            && let Some((chance, badge)) = drop(ctx.npc_id)
-            && ctx.roll(100) < chance
-        {
-            ctx.give_items(badge, 1);
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -116,5 +90,31 @@ impl QuestScript for Q00326VanquishRemnants {
             return Some("30435-04.html".to_string());
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30435-03.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30435-07.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30435-08.html" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs()
+            && ctx.is_started()
+            && let Some((chance, badge)) = drop(ctx.npc_id)
+            && ctx.roll(100) < chance
+        {
+            ctx.give_items(badge, 1);
+        }
     }
 }

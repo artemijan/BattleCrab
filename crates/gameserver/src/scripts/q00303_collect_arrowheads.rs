@@ -41,24 +41,6 @@ impl QuestScript for Q00303CollectArrowheads {
         (ctx.player_level() > 14).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event == "30029-04.htm" {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    /// `getRandomPartyMember(player, 1)` — a random cond-1 party member in
-    /// range collects the arrowhead (`retarget_random_party_member`).
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.retarget_random_party_member(1, 1)
-            && ctx.give_item_randomly(ORCISH_ARROWHEAD, 1, REQUIRED_ITEM_COUNT, 0.4, true)
-        {
-            ctx.set_cond(2, false);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -85,5 +67,23 @@ impl QuestScript for Q00303CollectArrowheads {
             }
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event == "30029-04.htm" {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    /// `getRandomPartyMember(player, 1)` — a random cond-1 party member in
+    /// range collects the arrowhead (`retarget_random_party_member`).
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.retarget_random_party_member(1, 1)
+            && ctx.give_item_randomly(ORCISH_ARROWHEAD, 1, REQUIRED_ITEM_COUNT, 0.4, true)
+        {
+            ctx.set_cond(2, false);
+        }
     }
 }

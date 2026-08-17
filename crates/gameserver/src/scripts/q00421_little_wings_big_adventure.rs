@@ -139,64 +139,14 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
     fn talk_npcs(&self) -> &[i32] {
         &[CRONOS, MIMYU]
     }
-    fn attack_npcs(&self) -> &[i32] {
+    fn kill_npcs(&self) -> &[i32] {
         &TREES
     }
-    fn kill_npcs(&self) -> &[i32] {
+    fn attack_npcs(&self) -> &[i32] {
         &TREES
     }
     fn quest_items(&self) -> &[i32] {
         &[FAIRY_LEAF]
-    }
-
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30610-05.htm" => {
-                if !ctx.is_created() {
-                    return None;
-                }
-                if self.flute_count(ctx) != 1 {
-                    return Some("30610-06.html".to_string());
-                }
-                let flute_id = self.flute_item_id(ctx)?;
-                if ctx.item_enchant_level(flute_id).unwrap_or(0) < MIN_HATCHLING_LEVEL {
-                    return Some("30610-06.html".to_string());
-                }
-                ctx.start_quest();
-                ctx.set_memo_state(100);
-                // Bind the rite to *this* flute's object id — a second flute of
-                // the same kind is a different hatchling.
-                let flute_oid = ctx.item_object_id(flute_id).unwrap_or(0);
-                ctx.set_var("fluteObjectId", flute_oid.to_string());
-                Some(event.to_string())
-            }
-            "30747-04.html" => {
-                if ctx.pet_control_object_id().is_none() {
-                    Some("30747-02.html".to_string())
-                } else if !self.pet_matches_flute(ctx) {
-                    Some("30747-03.html".to_string())
-                } else {
-                    Some(event.to_string())
-                }
-            }
-            "30747-05.html" => {
-                if ctx.pet_control_object_id().is_none() || !self.pet_matches_flute(ctx) {
-                    Some("30747-06.html".to_string())
-                } else {
-                    ctx.give_items(FAIRY_LEAF, 4);
-                    ctx.set_cond(2, true);
-                    ctx.set_memo_state(0);
-                    Some(event.to_string())
-                }
-            }
-            "30747-07.html" | "30747-08.html" | "30747-09.html" | "30747-10.html" => {
-                Some(event.to_string())
-            }
-            _ => None,
-        }
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
@@ -298,6 +248,87 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
         }
     }
 
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30610-05.htm" => {
+                if !ctx.is_created() {
+                    return None;
+                }
+                if self.flute_count(ctx) != 1 {
+                    return Some("30610-06.html".to_string());
+                }
+                let flute_id = self.flute_item_id(ctx)?;
+                if ctx.item_enchant_level(flute_id).unwrap_or(0) < MIN_HATCHLING_LEVEL {
+                    return Some("30610-06.html".to_string());
+                }
+                ctx.start_quest();
+                ctx.set_memo_state(100);
+                // Bind the rite to *this* flute's object id — a second flute of
+                // the same kind is a different hatchling.
+                let flute_oid = ctx.item_object_id(flute_id).unwrap_or(0);
+                ctx.set_var("fluteObjectId", flute_oid.to_string());
+                Some(event.to_string())
+            }
+            "30747-04.html" => {
+                if ctx.pet_control_object_id().is_none() {
+                    Some("30747-02.html".to_string())
+                } else if !self.pet_matches_flute(ctx) {
+                    Some("30747-03.html".to_string())
+                } else {
+                    Some(event.to_string())
+                }
+            }
+            "30747-05.html" => {
+                if ctx.pet_control_object_id().is_none() || !self.pet_matches_flute(ctx) {
+                    Some("30747-06.html".to_string())
+                } else {
+                    ctx.give_items(FAIRY_LEAF, 4);
+                    ctx.set_cond(2, true);
+                    ctx.set_memo_state(0);
+                    Some(event.to_string())
+                }
+            }
+            "30747-07.html" | "30747-08.html" | "30747-09.html" | "30747-10.html" => {
+                Some(event.to_string())
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        // Kill a Tree of Vision (rather than merely drinking from it) and its
+        // Guardian Ghosts swarm the killer — 20 of them, each despawning after
+        // five minutes.
+        //
+        // Java gates this on `checkIfInRange(ALT_PARTY_RANGE, killer, npc,
+        // true)`. That check was omitted here on the grounds that the killer is
+        // "in range by construction" — which a ranged or magic kill disproves,
+        // and dodging the ambush that way is the point (the `ai/others/
+        // FairyTrees` swarm on the same trees has the same 1500-unit gate).
+        if tree_data(ctx.npc_id).is_none() {
+            return;
+        }
+        let range = ctx.world.cfg.character.alt_party_range as f64;
+        if !crate::geo::distance::within_3d(ctx.world, ctx.npc, ctx.player, range) {
+            return;
+        }
+        for i in 0..20 {
+            if let Some(guardian) = ctx.spawn_attacker(SOUL_OF_TREE_GUARDIAN, true) {
+                ctx.schedule_despawn(guardian, GUARDIAN_DESPAWN_MS);
+            }
+            // Java casts inside the loop on the *first* pass — as the first
+            // guardian appears, not after all twenty. The dying tree gets one
+            // parting shot at its killer.
+            if i == 0 {
+                let (npc, player) = (ctx.npc, ctx.player);
+                ctx.npc_cast(npc, player, VICIOUS_POISON, 1);
+            }
+        }
+    }
+
     fn on_attack(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || ctx.cond() != 2 {
             // Below two-thirds HP a tree spits poison at any attacker, quest or
@@ -360,37 +391,6 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
             ctx.play_sound(quest_sounds::MIDDLE);
             if ctx.memo_state() == 15 {
                 ctx.set_cond(3, false);
-            }
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        // Kill a Tree of Vision (rather than merely drinking from it) and its
-        // Guardian Ghosts swarm the killer — 20 of them, each despawning after
-        // five minutes.
-        //
-        // Java gates this on `checkIfInRange(ALT_PARTY_RANGE, killer, npc,
-        // true)`. That check was omitted here on the grounds that the killer is
-        // "in range by construction" — which a ranged or magic kill disproves,
-        // and dodging the ambush that way is the point (the `ai/others/
-        // FairyTrees` swarm on the same trees has the same 1500-unit gate).
-        if tree_data(ctx.npc_id).is_none() {
-            return;
-        }
-        let range = ctx.world.cfg.character.alt_party_range as f64;
-        if !crate::geo::distance::within_3d(ctx.world, ctx.npc, ctx.player, range) {
-            return;
-        }
-        for i in 0..20 {
-            if let Some(guardian) = ctx.spawn_attacker(SOUL_OF_TREE_GUARDIAN, true) {
-                ctx.schedule_despawn(guardian, GUARDIAN_DESPAWN_MS);
-            }
-            // Java casts inside the loop on the *first* pass — as the first
-            // guardian appears, not after all twenty. The dying tree gets one
-            // parting shot at its killer.
-            if i == 0 {
-                let (npc, player) = (ctx.npc, ctx.player);
-                ctx.npc_cast(npc, player, VICIOUS_POISON, 1);
             }
         }
     }

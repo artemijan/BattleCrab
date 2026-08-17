@@ -111,80 +111,6 @@ impl QuestScript for Q00407PathOfTheElvenScout {
         &QUEST_ITEMS
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "ACCEPT" => Some(match ctx.player_class_id() {
-                ELVEN_FIGHTER => {
-                    if ctx.player_level() < MIN_LEVEL {
-                        "30328-03.htm".to_string()
-                    } else if ctx.quest_items_count(REISAS_RECOMMENDATION) > 0 {
-                        "30328-04.htm".to_string()
-                    } else {
-                        ctx.start_quest();
-                        ctx.unset(VARIABLE);
-                        ctx.give_items(REISAS_LETTER, 1);
-                        "30328-05.htm".to_string()
-                    }
-                }
-                ELVEN_SCOUT => "30328-02a.htm".to_string(),
-                _ => "30328-02.htm".to_string(),
-            }),
-            "30337-02.html" => Some(event.to_string()),
-            "30337-03.html" => {
-                // Only advances if Reisa's letter is still in hand.
-                if ctx.quest_items_count(REISAS_LETTER) > 0 {
-                    ctx.take_items(REISAS_LETTER, -1);
-                    ctx.set_var(VARIABLE, "1");
-                    ctx.set_cond(2, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            _ => None,
-        }
-    }
-
-    /// `npc.setScriptValue(attacker.getObjectId())` — claim the mob.
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_started() {
-            let player = ctx.player;
-            ctx.set_npc_script_value(player);
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        // Only the player who tagged it in `on_attack` is paid.
-        if ctx.npc_script_value() != ctx.player || !ctx.has_qs() {
-            return;
-        }
-        if ctx.npc_id == OL_MAHUM_SENTRY {
-            // 60% for the key, and only while carrying Moretti's herb+letter.
-            if ctx.is_cond(5)
-                && ctx.roll(10) < 6
-                && ctx.quest_items_count(MORETTIES_HERB) > 0
-                && ctx.quest_items_count(MORETTIS_LETTER) > 0
-                && ctx.quest_items_count(RUSTED_KEY) == 0
-            {
-                ctx.give_items(RUSTED_KEY, 1);
-                ctx.set_cond(6, true);
-            }
-            return;
-        }
-        if !ctx.is_cond(2) {
-            return;
-        }
-        // The four torn letters drop in a fixed order, one per kill.
-        if let Some(&next) = TORN_LETTERS
-            .iter()
-            .find(|id| ctx.quest_items_count(**id) == 0)
-        {
-            self.give_letter(ctx, next);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let npc = ctx.npc_id;
@@ -231,6 +157,80 @@ impl QuestScript for Q00407PathOfTheElvenScout {
             GUARD_MORETTI => self.talk_moretti(ctx, variable),
             PRIAS => self.talk_prias(ctx),
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "ACCEPT" => Some(match ctx.player_class_id() {
+                ELVEN_FIGHTER => {
+                    if ctx.player_level() < MIN_LEVEL {
+                        "30328-03.htm".to_string()
+                    } else if ctx.quest_items_count(REISAS_RECOMMENDATION) > 0 {
+                        "30328-04.htm".to_string()
+                    } else {
+                        ctx.start_quest();
+                        ctx.unset(VARIABLE);
+                        ctx.give_items(REISAS_LETTER, 1);
+                        "30328-05.htm".to_string()
+                    }
+                }
+                ELVEN_SCOUT => "30328-02a.htm".to_string(),
+                _ => "30328-02.htm".to_string(),
+            }),
+            "30337-02.html" => Some(event.to_string()),
+            "30337-03.html" => {
+                // Only advances if Reisa's letter is still in hand.
+                if ctx.quest_items_count(REISAS_LETTER) > 0 {
+                    ctx.take_items(REISAS_LETTER, -1);
+                    ctx.set_var(VARIABLE, "1");
+                    ctx.set_cond(2, true);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        // Only the player who tagged it in `on_attack` is paid.
+        if ctx.npc_script_value() != ctx.player || !ctx.has_qs() {
+            return;
+        }
+        if ctx.npc_id == OL_MAHUM_SENTRY {
+            // 60% for the key, and only while carrying Moretti's herb+letter.
+            if ctx.is_cond(5)
+                && ctx.roll(10) < 6
+                && ctx.quest_items_count(MORETTIES_HERB) > 0
+                && ctx.quest_items_count(MORETTIS_LETTER) > 0
+                && ctx.quest_items_count(RUSTED_KEY) == 0
+            {
+                ctx.give_items(RUSTED_KEY, 1);
+                ctx.set_cond(6, true);
+            }
+            return;
+        }
+        if !ctx.is_cond(2) {
+            return;
+        }
+        // The four torn letters drop in a fixed order, one per kill.
+        if let Some(&next) = TORN_LETTERS
+            .iter()
+            .find(|id| ctx.quest_items_count(**id) == 0)
+        {
+            self.give_letter(ctx, next);
+        }
+    }
+
+    /// `npc.setScriptValue(attacker.getObjectId())` — claim the mob.
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.is_started() {
+            let player = ctx.player;
+            ctx.set_npc_script_value(player);
         }
     }
 }

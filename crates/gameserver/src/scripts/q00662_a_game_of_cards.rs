@@ -317,6 +317,38 @@ impl QuestScript for Q00662AGameOfCards {
         &MOB_IDS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() < MIN_LEVEL {
+                    "30845-02.html"
+                } else {
+                    "30845-01.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_completed() {
+            return Some(ctx.already_completed_html());
+        }
+        // A game in progress (ExMemoState set) resumes its board; otherwise the
+        // chip-count prompt.
+        if ctx.get_int("ExMemoState") != 0 {
+            let (i1, i2, i3, i4, i5, i9) = self.hand(ctx);
+            let html = ctx.get_htm("30845-11a.html");
+            return Some(self.render_cards(html, [i1, i2, i3, i4, i5], i9));
+        }
+        Some(
+            if self.chips(ctx) < REQUIRED_CHIP_COUNT {
+                "30845-04.html"
+            } else {
+                "30845-05.html"
+            }
+            .to_string(),
+        )
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -397,38 +429,6 @@ impl QuestScript for Q00662AGameOfCards {
         if value < ctx.roll(1000) {
             ctx.give_item_randomly(RED_GEM, 1, 0, value as f64, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() < MIN_LEVEL {
-                    "30845-02.html"
-                } else {
-                    "30845-01.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_completed() {
-            return Some(ctx.already_completed_html());
-        }
-        // A game in progress (ExMemoState set) resumes its board; otherwise the
-        // chip-count prompt.
-        if ctx.get_int("ExMemoState") != 0 {
-            let (i1, i2, i3, i4, i5, i9) = self.hand(ctx);
-            let html = ctx.get_htm("30845-11a.html");
-            return Some(self.render_cards(html, [i1, i2, i3, i4, i5], i9));
-        }
-        Some(
-            if self.chips(ctx) < REQUIRED_CHIP_COUNT {
-                "30845-04.html"
-            } else {
-                "30845-05.html"
-            }
-            .to_string(),
-        )
     }
 }
 

@@ -188,6 +188,48 @@ impl QuestScript for Q00219TestimonyOfFate {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == MAGISTER_KAIRA {
+                if ctx.player_race() != RACE_DARK_ELF {
+                    return Some("30476-01.html".to_string());
+                } else if ctx.player_level() < MIN_LEVEL {
+                    return Some("30476-02.html".to_string());
+                } else if ctx.is_in_category("DELF_2ND_GROUP") {
+                    return Some("30476-03.htm".to_string());
+                }
+                return Some("30476-01a.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == MAGISTER_KAIRA {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            MAGISTER_KAIRA => Some(kaira_talk(ctx)),
+            BROTHER_METHEUS => Some(metheus_talk(ctx)),
+            MASTER_IXIA => Some(ixia_talk(ctx)),
+            MAGISTER_ROA => Some(roa_talk(ctx)),
+            WAREHOUSE_KEEPER_NORMAN => Some(norman_talk(ctx)),
+            TETRARCH_THIFIELL => Some(thifiell_talk(ctx)),
+            ARKENIA => Some(arkenia_talk(ctx)),
+            ALDERS_SPIRIT => {
+                if has(ctx, ALDERS_SKULL1) || has(ctx, ALDERS_SKULL2) {
+                    Some("30613-01.html".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            BLOODY_PIXY => Some(pixy_talk(ctx)),
+            BLIGHT_TREANT => Some(treant_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -315,48 +357,6 @@ impl QuestScript for Q00219TestimonyOfFate {
                 ctx.award_once(BLACK_WILLOW_LEAF);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == MAGISTER_KAIRA {
-                if ctx.player_race() != RACE_DARK_ELF {
-                    return Some("30476-01.html".to_string());
-                } else if ctx.player_level() < MIN_LEVEL {
-                    return Some("30476-02.html".to_string());
-                } else if ctx.is_in_category("DELF_2ND_GROUP") {
-                    return Some("30476-03.htm".to_string());
-                }
-                return Some("30476-01a.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == MAGISTER_KAIRA {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            MAGISTER_KAIRA => Some(kaira_talk(ctx)),
-            BROTHER_METHEUS => Some(metheus_talk(ctx)),
-            MASTER_IXIA => Some(ixia_talk(ctx)),
-            MAGISTER_ROA => Some(roa_talk(ctx)),
-            WAREHOUSE_KEEPER_NORMAN => Some(norman_talk(ctx)),
-            TETRARCH_THIFIELL => Some(thifiell_talk(ctx)),
-            ARKENIA => Some(arkenia_talk(ctx)),
-            ALDERS_SPIRIT => {
-                if has(ctx, ALDERS_SKULL1) || has(ctx, ALDERS_SKULL2) {
-                    Some("30613-01.html".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            BLOODY_PIXY => Some(pixy_talk(ctx)),
-            BLIGHT_TREANT => Some(treant_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

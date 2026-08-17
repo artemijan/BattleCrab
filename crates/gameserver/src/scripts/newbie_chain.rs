@@ -249,6 +249,26 @@ impl QuestScript for Chain {
         }
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        // The second NPC's briefing is a *talk*, not a button: reaching them at
+        // the right cond hands over the notes and advances the quest.
+        if let Some((npc, cond, html, next, notes, msg)) = self.brief {
+            ctx.ensure_qs();
+            if ctx.is_started() && ctx.npc_id == npc && ctx.is_cond(cond) {
+                ctx.set_cond(next, true);
+                ctx.send_screen_message_npc_string(msg, MSG_POSITION, MSG_TIME);
+                ctx.give_items(notes, 1);
+                return Some(html.to_string());
+            }
+        }
+        talk(
+            ctx,
+            self.start_npcs[0],
+            self.created_html,
+            self.started_html,
+        )
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -271,26 +291,6 @@ impl QuestScript for Chain {
             .iter()
             .find(|r| r.event == event)
             .and_then(|r| pay(ctx, r))
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        // The second NPC's briefing is a *talk*, not a button: reaching them at
-        // the right cond hands over the notes and advances the quest.
-        if let Some((npc, cond, html, next, notes, msg)) = self.brief {
-            ctx.ensure_qs();
-            if ctx.is_started() && ctx.npc_id == npc && ctx.is_cond(cond) {
-                ctx.set_cond(next, true);
-                ctx.send_screen_message_npc_string(msg, MSG_POSITION, MSG_TIME);
-                ctx.give_items(notes, 1);
-                return Some(html.to_string());
-            }
-        }
-        talk(
-            ctx,
-            self.start_npcs[0],
-            self.created_html,
-            self.started_html,
-        )
     }
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
@@ -361,32 +361,6 @@ impl QuestScript for Capstone {
         (!ctx.other_quest_completed(quest)).then(|| html.to_string())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        if let Some(&(_, cond)) = self.accepts.iter().find(|(e, _)| *e == event) {
-            ctx.start_quest();
-            ctx.set_cond(cond, true);
-            return Some(event.to_string());
-        }
-        if self.finish_events.contains(&event) {
-            // `if (qs.getCond() > 1)` — cond 1 is "started but no path picked",
-            // which no accept leaves you in, so this is really "has a path".
-            if ctx.cond() <= 1 {
-                return None;
-            }
-            for &(item, count) in self.finish_give {
-                ctx.give_items(item, count);
-            }
-            ctx.exit_quest(false, true);
-            return Some(event.to_string());
-        }
-        self.plain_events
-            .contains(&event)
-            .then(|| event.to_string())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -425,5 +399,31 @@ impl QuestScript for Capstone {
             }
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        if let Some(&(_, cond)) = self.accepts.iter().find(|(e, _)| *e == event) {
+            ctx.start_quest();
+            ctx.set_cond(cond, true);
+            return Some(event.to_string());
+        }
+        if self.finish_events.contains(&event) {
+            // `if (qs.getCond() > 1)` — cond 1 is "started but no path picked",
+            // which no accept leaves you in, so this is really "has a path".
+            if ctx.cond() <= 1 {
+                return None;
+            }
+            for &(item, count) in self.finish_give {
+                ctx.give_items(item, count);
+            }
+            ctx.exit_quest(false, true);
+            return Some(event.to_string());
+        }
+        self.plain_events
+            .contains(&event)
+            .then(|| event.to_string())
     }
 }

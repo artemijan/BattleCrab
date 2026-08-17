@@ -178,6 +178,60 @@ impl QuestScript for Q00412PathOfTheDarkWizard {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == VARIKA {
+                return Some(
+                    if self.has(ctx, JEWEL_OF_DARKNESS) {
+                        "30421-04.htm"
+                    } else {
+                        "30421-01.htm"
+                    }
+                    .to_string(),
+                );
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        if npc == VARIKA {
+            return self.talk_varika(ctx);
+        }
+        let Some(e) = ERRANDS.iter().find(|e| e.npc == npc) else {
+            return Some(ctx.no_quest_html());
+        };
+        // Charkeren and Annika additionally require the Seed of Despair;
+        // Arkenia does not (Java omits the guard on her branch alone).
+        let gated = e.npc != ARKENIA;
+        if self.has(ctx, e.seed) || (gated && !self.has(ctx, SEEDS_OF_DESPAIR)) {
+            // Charkeren alone has a "nothing more for you" page.
+            return Some(if e.npc == CHARKEREN {
+                "30415-06.html".to_string()
+            } else {
+                ctx.no_quest_html()
+            });
+        }
+        let has_tool = self.has(ctx, e.tool);
+        let material = ctx.quest_items_count(e.material);
+        if !has_tool && material == 0 {
+            // Arkenia hands her tool over right here; the others use an event.
+            if e.tool_event.is_none() {
+                ctx.give_items(e.tool, 1);
+            }
+            return Some(e.offer.to_string());
+        }
+        if has_tool && material < e.need {
+            return Some(e.collecting.to_string());
+        }
+        ctx.give_items(e.seed, 1);
+        ctx.take_items(e.material, -1);
+        ctx.take_items(e.tool, 1);
+        Some(e.trade.to_string())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -253,60 +307,6 @@ impl QuestScript for Q00412PathOfTheDarkWizard {
         } else {
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == VARIKA {
-                return Some(
-                    if self.has(ctx, JEWEL_OF_DARKNESS) {
-                        "30421-04.htm"
-                    } else {
-                        "30421-01.htm"
-                    }
-                    .to_string(),
-                );
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        if npc == VARIKA {
-            return self.talk_varika(ctx);
-        }
-        let Some(e) = ERRANDS.iter().find(|e| e.npc == npc) else {
-            return Some(ctx.no_quest_html());
-        };
-        // Charkeren and Annika additionally require the Seed of Despair;
-        // Arkenia does not (Java omits the guard on her branch alone).
-        let gated = e.npc != ARKENIA;
-        if self.has(ctx, e.seed) || (gated && !self.has(ctx, SEEDS_OF_DESPAIR)) {
-            // Charkeren alone has a "nothing more for you" page.
-            return Some(if e.npc == CHARKEREN {
-                "30415-06.html".to_string()
-            } else {
-                ctx.no_quest_html()
-            });
-        }
-        let has_tool = self.has(ctx, e.tool);
-        let material = ctx.quest_items_count(e.material);
-        if !has_tool && material == 0 {
-            // Arkenia hands her tool over right here; the others use an event.
-            if e.tool_event.is_none() {
-                ctx.give_items(e.tool, 1);
-            }
-            return Some(e.offer.to_string());
-        }
-        if has_tool && material < e.need {
-            return Some(e.collecting.to_string());
-        }
-        ctx.give_items(e.seed, 1);
-        ctx.take_items(e.material, -1);
-        ctx.take_items(e.tool, 1);
-        Some(e.trade.to_string())
     }
 }
 

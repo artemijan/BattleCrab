@@ -125,97 +125,6 @@ impl QuestScript for Q00234FatesWhisper {
         &[PIPETTE_KNIFE, RED_PIPETTE_KNIFE]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "31002-03.htm" => {
-                ctx.start_quest();
-                return Some(event.to_string());
-            }
-            "30182-01c.htm" => {
-                ctx.play_sound(quest_sounds::ITEMGET);
-                ctx.give_items(INFERNIUM_VARNISH, 1);
-                return Some(event.to_string());
-            }
-            "30178-01a.htm" => {
-                ctx.set_cond(6, true);
-                return Some(event.to_string());
-            }
-            "30833-01b.htm" => {
-                ctx.set_cond(7, true);
-                ctx.give_items(PIPETTE_KNIFE, 1);
-                return Some(event.to_string());
-            }
-            _ => {}
-        }
-
-        // Reorin's weapon UI.
-        if let Some(id) = event.strip_prefix("selectBGrade_") {
-            if ctx.get_int("bypass") == 1 {
-                return None;
-            }
-            ctx.set_var("weaponId", id);
-            let name = weapon_name(id.parse().unwrap_or(0));
-            return Some(ctx.get_htm("31002-13.htm").replace("%weaponname%", name));
-        }
-        if event.starts_with("confirmWeapon") {
-            ctx.set_var("bypass", "1");
-            let name = weapon_name(ctx.get_int("weaponId"));
-            return Some(ctx.get_htm("31002-14.htm").replace("%weaponname%", name));
-        }
-        if let Some(a_grade) = event.strip_prefix("selectAGrade_") {
-            if ctx.get_int("bypass") != 1 {
-                return Some("31002-16.htm".to_string());
-            }
-            let b_grade = ctx.get_int("weaponId");
-            if has(ctx, b_grade) {
-                let a_id: i32 = a_grade.parse().unwrap_or(0);
-                let a_name = ctx.item_name(a_id);
-                ctx.take_items(b_grade, 1);
-                ctx.give_items(a_id, 1);
-                ctx.give_items(STAR_OF_DESTINY, 1);
-                ctx.social_action(3);
-                ctx.exit_quest(false, true);
-                return Some(ctx.get_htm("31002-12.htm").replace("%weaponname%", &a_name));
-            }
-            let name = weapon_name(b_grade);
-            return Some(ctx.get_htm("31002-15.htm").replace("%weaponname%", name));
-        }
-
-        // Any other `.htm`/`.html` bypass is a navigation link — return it so the
-        // page loads, mirroring Java's `htmltext = event` default.
-        if event.ends_with(".htm") || event.ends_with(".html") {
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        // Baium: dipping the Pipette Knife in its blood fills it (cond 7).
-        if ctx.npc_id != BAIUM || !ctx.has_qs() || ctx.cond() != 7 {
-            return;
-        }
-        if ctx.equipped_weapon_id() == PIPETTE_KNIFE && !has(ctx, RED_PIPETTE_KNIFE) {
-            ctx.play_sound(quest_sounds::ITEMGET);
-            ctx.take_items(PIPETTE_KNIFE, 1);
-            ctx.give_items(RED_PIPETTE_KNIFE, 1);
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        // Each boss drops a chest beside its corpse, which Java despawns after
-        // two minutes (`addSpawn(…, true, 120000)`) whether or not anyone
-        // opened it. Without that the chest lingered until talked-to or
-        // restart, so a missed drop stayed on the field indefinitely.
-        if let Some(chest) = chest_for_boss(ctx.npc_id)
-            && let Some(oid) = ctx.spawn_near_npc(chest, true)
-        {
-            ctx.schedule_despawn(oid, CHEST_DESPAWN_MS);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -287,6 +196,97 @@ impl QuestScript for Q00234FatesWhisper {
             _ => ctx.no_quest_html(),
         };
         Some(html)
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "31002-03.htm" => {
+                ctx.start_quest();
+                return Some(event.to_string());
+            }
+            "30182-01c.htm" => {
+                ctx.play_sound(quest_sounds::ITEMGET);
+                ctx.give_items(INFERNIUM_VARNISH, 1);
+                return Some(event.to_string());
+            }
+            "30178-01a.htm" => {
+                ctx.set_cond(6, true);
+                return Some(event.to_string());
+            }
+            "30833-01b.htm" => {
+                ctx.set_cond(7, true);
+                ctx.give_items(PIPETTE_KNIFE, 1);
+                return Some(event.to_string());
+            }
+            _ => {}
+        }
+
+        // Reorin's weapon UI.
+        if let Some(id) = event.strip_prefix("selectBGrade_") {
+            if ctx.get_int("bypass") == 1 {
+                return None;
+            }
+            ctx.set_var("weaponId", id);
+            let name = weapon_name(id.parse().unwrap_or(0));
+            return Some(ctx.get_htm("31002-13.htm").replace("%weaponname%", name));
+        }
+        if event.starts_with("confirmWeapon") {
+            ctx.set_var("bypass", "1");
+            let name = weapon_name(ctx.get_int("weaponId"));
+            return Some(ctx.get_htm("31002-14.htm").replace("%weaponname%", name));
+        }
+        if let Some(a_grade) = event.strip_prefix("selectAGrade_") {
+            if ctx.get_int("bypass") != 1 {
+                return Some("31002-16.htm".to_string());
+            }
+            let b_grade = ctx.get_int("weaponId");
+            if has(ctx, b_grade) {
+                let a_id: i32 = a_grade.parse().unwrap_or(0);
+                let a_name = ctx.item_name(a_id);
+                ctx.take_items(b_grade, 1);
+                ctx.give_items(a_id, 1);
+                ctx.give_items(STAR_OF_DESTINY, 1);
+                ctx.social_action(3);
+                ctx.exit_quest(false, true);
+                return Some(ctx.get_htm("31002-12.htm").replace("%weaponname%", &a_name));
+            }
+            let name = weapon_name(b_grade);
+            return Some(ctx.get_htm("31002-15.htm").replace("%weaponname%", name));
+        }
+
+        // Any other `.htm`/`.html` bypass is a navigation link — return it so the
+        // page loads, mirroring Java's `htmltext = event` default.
+        if event.ends_with(".htm") || event.ends_with(".html") {
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        // Each boss drops a chest beside its corpse, which Java despawns after
+        // two minutes (`addSpawn(…, true, 120000)`) whether or not anyone
+        // opened it. Without that the chest lingered until talked-to or
+        // restart, so a missed drop stayed on the field indefinitely.
+        if let Some(chest) = chest_for_boss(ctx.npc_id)
+            && let Some(oid) = ctx.spawn_near_npc(chest, true)
+        {
+            ctx.schedule_despawn(oid, CHEST_DESPAWN_MS);
+        }
+    }
+
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        // Baium: dipping the Pipette Knife in its blood fills it (cond 7).
+        if ctx.npc_id != BAIUM || !ctx.has_qs() || ctx.cond() != 7 {
+            return;
+        }
+        if ctx.equipped_weapon_id() == PIPETTE_KNIFE && !has(ctx, RED_PIPETTE_KNIFE) {
+            ctx.play_sound(quest_sounds::ITEMGET);
+            ctx.take_items(PIPETTE_KNIFE, 1);
+            ctx.give_items(RED_PIPETTE_KNIFE, 1);
+        }
     }
 }
 

@@ -193,6 +193,28 @@ impl QuestScript for Q00416PathOfTheOrcShaman {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == TATARU_ZU_HESTUI {
+                return Some("30585-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() || ctx.memo_state() != 1 {
+            // `memoState == 100` would open the dead branch; it is unreachable.
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            TATARU_ZU_HESTUI => self.talk_tataru(ctx),
+            UMOS => self.talk_umos(ctx),
+            DUDA_MARA_TOTEM_SPIRIT => self.talk_duda_mara(ctx),
+            HESTUI_TOTEM_SPIRIT => self.talk_hestui(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -325,28 +347,6 @@ impl QuestScript for Q00416PathOfTheOrcShaman {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == TATARU_ZU_HESTUI {
-                return Some("30585-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() || ctx.memo_state() != 1 {
-            // `memoState == 100` would open the dead branch; it is unreachable.
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            TATARU_ZU_HESTUI => self.talk_tataru(ctx),
-            UMOS => self.talk_umos(ctx),
-            DUDA_MARA_TOTEM_SPIRIT => self.talk_duda_mara(ctx),
-            HESTUI_TOTEM_SPIRIT => self.talk_hestui(ctx),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

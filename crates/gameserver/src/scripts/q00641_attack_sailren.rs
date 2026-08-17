@@ -43,6 +43,28 @@ impl QuestScript for Q00641AttackSailren {
         &[GAZKH_FRAGMENT]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let html = if ctx.is_created() {
+            if ctx.player_level() < MIN_LEVEL {
+                "32109-0.htm".to_string()
+            } else if ctx.other_quest_completed(NAME_OF_EVIL_2) {
+                "32109-0a.htm".to_string()
+            } else {
+                // Prereq unmet: the page carries no accept button. Java picks
+                // between 0a and 0b off the same `Q00126_TheNameOfEvil2` quest
+                // state, and that quest is ported and registered, so both
+                // branches are reachable (both are covered by the test).
+                "32109-0b.htm".to_string()
+            }
+        } else if ctx.is_cond(1) {
+            "32109-1a.html".to_string()
+        } else {
+            "32109-2.html".to_string()
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -73,27 +95,5 @@ impl QuestScript for Q00641AttackSailren {
         } else {
             ctx.set_cond(2, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let html = if ctx.is_created() {
-            if ctx.player_level() < MIN_LEVEL {
-                "32109-0.htm".to_string()
-            } else if ctx.other_quest_completed(NAME_OF_EVIL_2) {
-                "32109-0a.htm".to_string()
-            } else {
-                // Prereq unmet: the page carries no accept button. Java picks
-                // between 0a and 0b off the same `Q00126_TheNameOfEvil2` quest
-                // state, and that quest is ported and registered, so both
-                // branches are reachable (both are covered by the test).
-                "32109-0b.htm".to_string()
-            }
-        } else if ctx.is_cond(1) {
-            "32109-1a.html".to_string()
-        } else {
-            "32109-2.html".to_string()
-        };
-        Some(html)
     }
 }

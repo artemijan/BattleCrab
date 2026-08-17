@@ -56,29 +56,6 @@ impl QuestScript for Q00262TradeWithTheIvoryTower {
         (ctx.player_level() > 16).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event.eq_ignore_ascii_case("30137-03.htm") {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_cond(1) {
-            return;
-        }
-        let threshold = base_chance(ctx.npc_id) as f64 * ctx.rate_quest_drop();
-        if (ctx.roll(10) as f64) < threshold {
-            ctx.reward_items(SPORE_SAC, 1);
-            if ctx.quest_items_count(SPORE_SAC) >= REQUIRED_ITEM_COUNT {
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -105,5 +82,28 @@ impl QuestScript for Q00262TradeWithTheIvoryTower {
             }
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event.eq_ignore_ascii_case("30137-03.htm") {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_cond(1) {
+            return;
+        }
+        let threshold = base_chance(ctx.npc_id) as f64 * ctx.rate_quest_drop();
+        if (ctx.roll(10) as f64) < threshold {
+            ctx.reward_items(SPORE_SAC, 1);
+            if ctx.quest_items_count(SPORE_SAC) >= REQUIRED_ITEM_COUNT {
+                ctx.set_cond(2, true);
+            } else {
+                ctx.play_sound(quest_sounds::ITEMGET);
+            }
+        }
     }
 }

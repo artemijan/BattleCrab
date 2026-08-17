@@ -210,6 +210,56 @@ impl QuestScript for Q00217TestimonyOfTrust {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let memo = ctx.memo_state();
+        if ctx.is_created() {
+            if ctx.npc_id == HIGH_PRIEST_HOLLINT {
+                if ctx.player_race() != RACE_HUMAN {
+                    return Some("30191-02.html".to_string());
+                } else if ctx.player_level() < MIN_LEVEL {
+                    return Some("30191-01.html".to_string());
+                } else if ctx.is_in_category("HUMAN_2ND_GROUP") {
+                    return Some("30191-03.htm".to_string());
+                } else if ctx.is_in_category("FIRST_CLASS_GROUP") {
+                    return Some("30191-01a.html".to_string());
+                }
+                return Some("30191-01b.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == HIGH_PRIEST_HOLLINT {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            HIGH_PRIEST_HOLLINT => Some(hollint_talk(ctx, memo)),
+            HIGH_PRIEST_BIOTIN => {
+                if memo == 19 && has(ctx, RECOMMENDATION_OF_HOLLIN) {
+                    ctx.give_adena(252212, true);
+                    ctx.give_items(MARK_OF_TRUST, 1);
+                    ctx.add_exp_and_sp(1390298, 92782);
+                    ctx.exit_quest(false, true);
+                    ctx.social_action(3);
+                    Some("30031-01.html".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            HIERARCH_ASTERIOS => Some(asterios_talk(ctx, memo)),
+            TETRARCH_THIFIELL => Some(thifiell_talk(ctx, memo)),
+            MAGISTER_CLAYTON => Some(clayton_talk(ctx, memo)),
+            SEER_MANAKIA => Some(manakia_talk(ctx, memo)),
+            IRON_GATES_LOCKIRIN => Some(lockirin_talk(ctx, memo)),
+            FLAME_LORD_KAKAI => Some(kakai_talk(ctx, memo)),
+            MAESTRO_NIKOLA => Some(nikola_talk(ctx, memo)),
+            CARDINAL_SERESIN => Some(seresin_talk(ctx, memo)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -392,56 +442,6 @@ impl QuestScript for Q00217TestimonyOfTrust {
                 ctx.set_cond(20, true);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let memo = ctx.memo_state();
-        if ctx.is_created() {
-            if ctx.npc_id == HIGH_PRIEST_HOLLINT {
-                if ctx.player_race() != RACE_HUMAN {
-                    return Some("30191-02.html".to_string());
-                } else if ctx.player_level() < MIN_LEVEL {
-                    return Some("30191-01.html".to_string());
-                } else if ctx.is_in_category("HUMAN_2ND_GROUP") {
-                    return Some("30191-03.htm".to_string());
-                } else if ctx.is_in_category("FIRST_CLASS_GROUP") {
-                    return Some("30191-01a.html".to_string());
-                }
-                return Some("30191-01b.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == HIGH_PRIEST_HOLLINT {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            HIGH_PRIEST_HOLLINT => Some(hollint_talk(ctx, memo)),
-            HIGH_PRIEST_BIOTIN => {
-                if memo == 19 && has(ctx, RECOMMENDATION_OF_HOLLIN) {
-                    ctx.give_adena(252212, true);
-                    ctx.give_items(MARK_OF_TRUST, 1);
-                    ctx.add_exp_and_sp(1390298, 92782);
-                    ctx.exit_quest(false, true);
-                    ctx.social_action(3);
-                    Some("30031-01.html".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            HIERARCH_ASTERIOS => Some(asterios_talk(ctx, memo)),
-            TETRARCH_THIFIELL => Some(thifiell_talk(ctx, memo)),
-            MAGISTER_CLAYTON => Some(clayton_talk(ctx, memo)),
-            SEER_MANAKIA => Some(manakia_talk(ctx, memo)),
-            IRON_GATES_LOCKIRIN => Some(lockirin_talk(ctx, memo)),
-            FLAME_LORD_KAKAI => Some(kakai_talk(ctx, memo)),
-            MAESTRO_NIKOLA => Some(nikola_talk(ctx, memo)),
-            CARDINAL_SERESIN => Some(seresin_talk(ctx, memo)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

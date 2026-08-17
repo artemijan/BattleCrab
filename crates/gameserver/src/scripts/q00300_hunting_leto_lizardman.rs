@@ -56,6 +56,30 @@ impl QuestScript for Q00300HuntingLetoLizardman {
         (ctx.player_level() > 39).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= 34 {
+                    "30126-01.htm"
+                } else {
+                    "30126-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            match ctx.cond() {
+                1 => return Some("30126-04.html".to_string()),
+                2 if ctx.quest_items_count(BRACELET_OF_LIZARDMAN) >= REQUIRED_BRACELET_COUNT => {
+                    return Some("30126-05.html".to_string());
+                }
+                _ => {}
+            }
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -94,29 +118,5 @@ impl QuestScript for Q00300HuntingLetoLizardman {
         if ctx.has_qs() && ctx.is_cond(1) && ctx.roll(1000) < drop_chance(ctx.npc_id) {
             ctx.collect_toward(BRACELET_OF_LIZARDMAN, REQUIRED_BRACELET_COUNT, 2);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= 34 {
-                    "30126-01.htm"
-                } else {
-                    "30126-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            match ctx.cond() {
-                1 => return Some("30126-04.html".to_string()),
-                2 if ctx.quest_items_count(BRACELET_OF_LIZARDMAN) >= REQUIRED_BRACELET_COUNT => {
-                    return Some("30126-05.html".to_string());
-                }
-                _ => {}
-            }
-        }
-        Some(ctx.no_quest_html())
     }
 }

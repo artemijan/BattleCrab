@@ -42,32 +42,6 @@ impl QuestScript for Q00329CuriosityOfADwarf {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 38).then(|| ctx.no_quest_html())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30437-03.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30437-06.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30437-07.html" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        let table = drops(ctx.npc_id);
-        if let Some(item) = super::quest_common::roll_drop_table(ctx, table) {
-            ctx.give_item_randomly(item, 1, 0, 1.0, true);
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -93,5 +67,31 @@ impl QuestScript for Q00329CuriosityOfADwarf {
             return Some("30437-04.html".to_string());
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30437-03.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30437-06.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30437-07.html" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        let table = drops(ctx.npc_id);
+        if let Some(item) = super::quest_common::roll_drop_table(ctx, table) {
+            ctx.give_item_randomly(item, 1, 0, 1.0, true);
+        }
     }
 }

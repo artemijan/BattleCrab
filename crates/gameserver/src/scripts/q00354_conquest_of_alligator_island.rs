@@ -52,6 +52,24 @@ impl QuestScript for Q00354ConquestOfAlligatorIsland {
         (ctx.player_level() > 49).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30895-01.htm"
+                } else {
+                    "30895-03.html"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some("30895-04.html".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -91,23 +109,5 @@ impl QuestScript for Q00354ConquestOfAlligatorIsland {
             let count = if ctx.roll(100) < 14 { 2 } else { 1 };
             ctx.give_item_randomly(ALLIGATOR_TOOTH, count, 0, 1.0, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30895-01.htm"
-                } else {
-                    "30895-03.html"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some("30895-04.html".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

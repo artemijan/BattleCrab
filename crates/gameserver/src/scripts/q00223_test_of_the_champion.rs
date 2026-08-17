@@ -120,6 +120,41 @@ impl QuestScript for Q00223TestOfTheChampion {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == VETERAN_ASCALON {
+                let class = ctx.player_class_id();
+                if class == WARRIOR || class == ORC_RAIDER {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        return Some(if class == WARRIOR {
+                            "30624-03.htm".to_string()
+                        } else {
+                            "30624-04.html".to_string()
+                        });
+                    }
+                    return Some("30624-01.html".to_string());
+                }
+                return Some("30624-02.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == VETERAN_ASCALON {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        // Started.
+        match ctx.npc_id {
+            VETERAN_ASCALON => Some(ascalon_talk(ctx)),
+            TRADER_GROOT => Some(groot_talk(ctx)),
+            CAPTAIN_MOUEN => Some(mouen_talk(ctx)),
+            MASON => Some(mason_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -153,6 +188,30 @@ impl QuestScript for Q00223TestOfTheChampion {
         }
     }
 
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        match ctx.npc_id {
+            HARPY | HARPY_MATRIARCH => insignia_kill(ctx, HARPYS_EGG, 2),
+            MEDUSA => insignia_kill(ctx, MEDUSA_VENOM, 3),
+            WINDSUS => insignia_kill(ctx, WINDSUS_BILE, 3),
+            ROAD_SCAVENGER | ROAD_COLLECTOR => {
+                order_kill(ctx, MOUENS_1ST_ORDER, ROAD_RATMAN_HEAD, 10, 11)
+            }
+            LETO_LIZARDMAN
+            | LETO_LIZARDMAN_ARCHER
+            | LETO_LIZARDMAN_SOLDIER
+            | LETO_LIZARDMAN_WARRIOR
+            | LETO_LIZARDMAN_SHAMAN
+            | LETO_LIZARDMAN_OCERLORD => {
+                order_kill(ctx, MOUENS_2ND_ORDER, LETO_LIZARDMAN_FANG, 10, 13)
+            }
+            BLOODY_AXE_ELITE => order_kill(ctx, IRON_ROSE_RING, BLOODY_AXE_HEAD, 10, 3),
+            _ => {}
+        }
+    }
+
     fn on_attack(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || !ctx.is_started() {
             return;
@@ -183,65 +242,6 @@ impl QuestScript for Q00223TestOfTheChampion {
                 false,
             ),
             _ => {}
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        match ctx.npc_id {
-            HARPY | HARPY_MATRIARCH => insignia_kill(ctx, HARPYS_EGG, 2),
-            MEDUSA => insignia_kill(ctx, MEDUSA_VENOM, 3),
-            WINDSUS => insignia_kill(ctx, WINDSUS_BILE, 3),
-            ROAD_SCAVENGER | ROAD_COLLECTOR => {
-                order_kill(ctx, MOUENS_1ST_ORDER, ROAD_RATMAN_HEAD, 10, 11)
-            }
-            LETO_LIZARDMAN
-            | LETO_LIZARDMAN_ARCHER
-            | LETO_LIZARDMAN_SOLDIER
-            | LETO_LIZARDMAN_WARRIOR
-            | LETO_LIZARDMAN_SHAMAN
-            | LETO_LIZARDMAN_OCERLORD => {
-                order_kill(ctx, MOUENS_2ND_ORDER, LETO_LIZARDMAN_FANG, 10, 13)
-            }
-            BLOODY_AXE_ELITE => order_kill(ctx, IRON_ROSE_RING, BLOODY_AXE_HEAD, 10, 3),
-            _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == VETERAN_ASCALON {
-                let class = ctx.player_class_id();
-                if class == WARRIOR || class == ORC_RAIDER {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        return Some(if class == WARRIOR {
-                            "30624-03.htm".to_string()
-                        } else {
-                            "30624-04.html".to_string()
-                        });
-                    }
-                    return Some("30624-01.html".to_string());
-                }
-                return Some("30624-02.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == VETERAN_ASCALON {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        // Started.
-        match ctx.npc_id {
-            VETERAN_ASCALON => Some(ascalon_talk(ctx)),
-            TRADER_GROOT => Some(groot_talk(ctx)),
-            CAPTAIN_MOUEN => Some(mouen_talk(ctx)),
-            MASON => Some(mason_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

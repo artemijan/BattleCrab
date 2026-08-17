@@ -118,9 +118,6 @@ impl QuestScript for FourSepulchers {
     fn talk_npcs(&self) -> &[i32] {
         &ALL_TALK
     }
-    fn first_talk_npcs(&self) -> &[i32] {
-        &ALL_TALK
-    }
     fn kill_npcs(&self) -> &[i32] {
         // The bosses route through their own registration below (they are
         // raid bosses, so the kill notification arrives the same way).
@@ -128,6 +125,9 @@ impl QuestScript for FourSepulchers {
     }
     fn spawn_npcs(&self) -> &[i32] {
         &SPAWN_NPCS
+    }
+    fn first_talk_npcs(&self) -> &[i32] {
+        &ALL_TALK
     }
 
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
@@ -216,38 +216,6 @@ impl QuestScript for FourSepulchers {
         }
     }
 
-    fn on_spawn(&self, ctx: &mut QuestCtx) {
-        let npc = ctx.npc;
-        match ctx.npc_id {
-            ROOM_3_VICTIM => {
-                ctx.world.scheduler.schedule(
-                    ctx.world.tick + 10,
-                    crate::scheduler::ScheduledTask::FsVictimFlee { npc_oid: npc },
-                );
-            }
-            ROOM_5_STATUE_GUARD => {
-                // Petrified for the first five minutes: untouchable and, for
-                // the look of it, wearing Petrification.
-                ctx.world.objects.add_components(
-                    &npc,
-                    AdminFlags {
-                        invul: true,
-                        untargetable: true,
-                        ..Default::default()
-                    },
-                );
-                if let Some(skill) = skill_by_id(ctx.world, PETRIFY, 1) {
-                    crate::game_loop::npc::cast::start_cast(ctx.world, npc, npc, &skill);
-                }
-                ctx.world.scheduler.schedule(
-                    ctx.world.tick + 5 * 60 * 10,
-                    crate::scheduler::ScheduledTask::FsRemovePetrify { npc_oid: npc },
-                );
-            }
-            _ => {}
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         let npc_id = ctx.npc_id;
         match npc_id {
@@ -277,6 +245,38 @@ impl QuestScript for FourSepulchers {
                     crate::model::npc::spawn_npc_at(ctx.world, fs::KEY_CHEST, p.x, p.y, p.z, 0);
                 }
             }
+        }
+    }
+
+    fn on_spawn(&self, ctx: &mut QuestCtx) {
+        let npc = ctx.npc;
+        match ctx.npc_id {
+            ROOM_3_VICTIM => {
+                ctx.world.scheduler.schedule(
+                    ctx.world.tick + 10,
+                    crate::scheduler::ScheduledTask::FsVictimFlee { npc_oid: npc },
+                );
+            }
+            ROOM_5_STATUE_GUARD => {
+                // Petrified for the first five minutes: untouchable and, for
+                // the look of it, wearing Petrification.
+                ctx.world.objects.add_components(
+                    &npc,
+                    AdminFlags {
+                        invul: true,
+                        untargetable: true,
+                        ..Default::default()
+                    },
+                );
+                if let Some(skill) = skill_by_id(ctx.world, PETRIFY, 1) {
+                    crate::game_loop::npc::cast::start_cast(ctx.world, npc, npc, &skill);
+                }
+                ctx.world.scheduler.schedule(
+                    ctx.world.tick + 5 * 60 * 10,
+                    crate::scheduler::ScheduledTask::FsRemovePetrify { npc_oid: npc },
+                );
+            }
+            _ => {}
         }
     }
 }

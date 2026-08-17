@@ -109,6 +109,25 @@ impl QuestScript for Q00403PathOfTheRogue {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == CAPTAIN_BEZIQUE {
+                return Some("30379-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            CAPTAIN_BEZIQUE => self.talk_bezique(ctx),
+            NETI => self.talk_neti(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -146,15 +165,6 @@ impl QuestScript for Q00403PathOfTheRogue {
                 Some(event.to_string())
             }
             _ => None,
-        }
-    }
-
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        let first_qualifying =
-            quest_common::tag_attacker_with_weapon(ctx, &[NETIS_BOW, NETIS_DAGGER]);
-        if first_qualifying && ctx.npc_id == CATS_EYE_BANDIT {
-            // Attacker only — not a broadcast.
-            ctx.npc_say_to_player(NS_TAUNT);
         }
     }
 
@@ -197,22 +207,12 @@ impl QuestScript for Q00403PathOfTheRogue {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == CAPTAIN_BEZIQUE {
-                return Some("30379-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            CAPTAIN_BEZIQUE => self.talk_bezique(ctx),
-            NETI => self.talk_neti(ctx),
-            _ => Some(ctx.no_quest_html()),
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        let first_qualifying =
+            quest_common::tag_attacker_with_weapon(ctx, &[NETIS_BOW, NETIS_DAGGER]);
+        if first_qualifying && ctx.npc_id == CATS_EYE_BANDIT {
+            // Attacker only — not a broadcast.
+            ctx.npc_say_to_player(NS_TAUNT);
         }
     }
 }

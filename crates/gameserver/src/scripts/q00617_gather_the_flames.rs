@@ -65,6 +65,59 @@ impl QuestScript for Q00617GatherTheFlames {
         &[TORCH]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        match ctx.npc_id {
+            ROONEY => {
+                if ctx.is_started() {
+                    return Some(
+                        if ctx.quest_items_count(TORCH) >= 1200 {
+                            "32049-02.html"
+                        } else {
+                            "32049-01.html"
+                        }
+                        .to_string(),
+                    );
+                }
+                Some(ctx.no_quest_html())
+            }
+            VULCAN => {
+                if ctx.is_created() {
+                    return Some(
+                        if ctx.player_level() >= 74 {
+                            "31539-01.htm"
+                        } else {
+                            "31539-02.htm"
+                        }
+                        .to_string(),
+                    );
+                }
+                Some(
+                    if ctx.quest_items_count(TORCH) >= 1000 {
+                        "31539-04.html"
+                    } else {
+                        "31539-05.html"
+                    }
+                    .to_string(),
+                )
+            }
+            HILDA => {
+                if ctx.is_created() {
+                    return Some(
+                        if ctx.player_level() >= 74 {
+                            "31271-01.htm"
+                        } else {
+                            "31271-02.htm"
+                        }
+                        .to_string(),
+                    );
+                }
+                Some("31271-04.html".to_string())
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -122,58 +175,5 @@ impl QuestScript for Q00617GatherTheFlames {
         let count = if ctx.roll(1000) < threshold { 2 } else { 1 };
         ctx.give_items(TORCH, count);
         ctx.play_sound(quest_sounds::ITEMGET);
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        match ctx.npc_id {
-            ROONEY => {
-                if ctx.is_started() {
-                    return Some(
-                        if ctx.quest_items_count(TORCH) >= 1200 {
-                            "32049-02.html"
-                        } else {
-                            "32049-01.html"
-                        }
-                        .to_string(),
-                    );
-                }
-                Some(ctx.no_quest_html())
-            }
-            VULCAN => {
-                if ctx.is_created() {
-                    return Some(
-                        if ctx.player_level() >= 74 {
-                            "31539-01.htm"
-                        } else {
-                            "31539-02.htm"
-                        }
-                        .to_string(),
-                    );
-                }
-                Some(
-                    if ctx.quest_items_count(TORCH) >= 1000 {
-                        "31539-04.html"
-                    } else {
-                        "31539-05.html"
-                    }
-                    .to_string(),
-                )
-            }
-            HILDA => {
-                if ctx.is_created() {
-                    return Some(
-                        if ctx.player_level() >= 74 {
-                            "31271-01.htm"
-                        } else {
-                            "31271-02.htm"
-                        }
-                        .to_string(),
-                    );
-                }
-                Some("31271-04.html".to_string())
-            }
-            _ => Some(ctx.no_quest_html()),
-        }
     }
 }

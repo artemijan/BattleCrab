@@ -146,6 +146,182 @@ impl QuestScript for SagaQuest {
         std::slice::from_ref(&self.data.mob[2])
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc_id = ctx.npc_id;
+        if ctx.is_completed() {
+            if npc_id == self.npc(0) {
+                return Some(
+                    "<html><body>You have already completed this quest!</body></html>".to_string(),
+                );
+            }
+            return Some(ctx.no_quest_html());
+        }
+        // The whole ladder is gated on the player still being the 2nd class.
+        if ctx.player_class_id() != self.data.prev_class {
+            return Some(ctx.no_quest_html());
+        }
+        let cond = ctx.cond();
+        let n = |i: usize| self.npc(i);
+        let html: Option<&str> = match cond {
+            0 => (npc_id == n(0)).then_some("0-01.htm"),
+            1 => {
+                if npc_id == n(0) {
+                    Some("0-04.htm")
+                } else if npc_id == n(2) {
+                    Some("2-01.htm")
+                } else {
+                    None
+                }
+            }
+            2 => {
+                if npc_id == n(2) {
+                    Some("2-02.htm")
+                } else if npc_id == n(1) {
+                    Some("1-01.htm")
+                } else {
+                    None
+                }
+            }
+            3 => {
+                if npc_id == n(1) && ctx.quest_items_count(self.item(0)) != 0 {
+                    if self.item(11) == 0 || ctx.quest_items_count(self.item(11)) != 0 {
+                        Some("1-03.htm")
+                    } else {
+                        Some("1-02.htm")
+                    }
+                } else {
+                    None
+                }
+            }
+            4 => {
+                if npc_id == n(1) {
+                    Some("1-04.htm")
+                } else if npc_id == n(2) {
+                    Some("2-03.htm")
+                } else {
+                    None
+                }
+            }
+            5 => {
+                if npc_id == n(2) {
+                    Some("2-04.htm")
+                } else if npc_id == n(5) {
+                    Some("5-01.htm")
+                } else {
+                    None
+                }
+            }
+            6 => {
+                if npc_id == n(5) {
+                    Some("5-03.htm")
+                } else if npc_id == n(6) {
+                    Some("6-01.htm")
+                } else {
+                    None
+                }
+            }
+            7 => (npc_id == n(6)).then_some("6-02.htm"),
+            8 => {
+                if npc_id == n(6) {
+                    Some("6-04.htm")
+                } else if npc_id == n(7) {
+                    Some("7-01.htm")
+                } else {
+                    None
+                }
+            }
+            9 => (npc_id == n(7)).then_some("7-05.htm"),
+            10 => {
+                if npc_id == n(7) {
+                    Some("7-07.htm")
+                } else if npc_id == n(3) {
+                    Some("3-01.htm")
+                } else {
+                    None
+                }
+            }
+            11 | 12 => (npc_id == n(3)).then_some(if ctx.quest_items_count(self.item(2)) > 0 {
+                "3-05.htm"
+            } else {
+                "3-04.htm"
+            }),
+            13 => {
+                if npc_id == n(3) {
+                    Some("3-06.htm")
+                } else if npc_id == n(8) {
+                    Some("8-01.htm")
+                } else {
+                    None
+                }
+            }
+            14 => {
+                if npc_id == n(8) {
+                    Some("8-03.htm")
+                } else if npc_id == n(11) {
+                    Some("11-01.htm")
+                } else {
+                    None
+                }
+            }
+            15 => {
+                if npc_id == n(11) {
+                    Some("11-02.htm")
+                } else if npc_id == n(9) {
+                    Some("9-01.htm")
+                } else {
+                    None
+                }
+            }
+            16 => (npc_id == n(9)).then_some("9-02.htm"),
+            17 => {
+                if npc_id == n(9) {
+                    Some("9-04.htm")
+                } else if npc_id == n(10) {
+                    Some("10-01.htm")
+                } else if npc_id == n(4) {
+                    // The companion offers the reward only once the boss has
+                    // been driven off (Tab set by `on_attack`); otherwise it
+                    // urges the player back into the fight.
+                    if ctx.get_int("Tab") == 1 {
+                        Some("4-010.htm")
+                    } else {
+                        Some("10-02.htm")
+                    }
+                } else {
+                    None
+                }
+            }
+            18 => (npc_id == n(10)).then_some("10-05.htm"),
+            19 => {
+                if npc_id == n(10) {
+                    Some("10-07.htm")
+                } else if npc_id == n(0) {
+                    Some("0-06.htm")
+                } else {
+                    None
+                }
+            }
+            20 => {
+                if npc_id == n(0) {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        self.finish(ctx);
+                        Some("0-09.htm")
+                    } else {
+                        Some("0-010.htm")
+                    }
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        };
+        Some(
+            html.map(str::to_string)
+                .unwrap_or_else(|| ctx.no_quest_html()),
+        )
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -358,182 +534,6 @@ impl QuestScript for SagaQuest {
         ctx.broadcast_npc_text(companion, COMPANION_TAUNTS[idx as usize]);
         ctx.set_var("SagaTauntIdx", (idx + 1).to_string());
         ctx.start_quest_timer(TAUNT_TIMER, TAUNT_EVERY_MS);
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc_id = ctx.npc_id;
-        if ctx.is_completed() {
-            if npc_id == self.npc(0) {
-                return Some(
-                    "<html><body>You have already completed this quest!</body></html>".to_string(),
-                );
-            }
-            return Some(ctx.no_quest_html());
-        }
-        // The whole ladder is gated on the player still being the 2nd class.
-        if ctx.player_class_id() != self.data.prev_class {
-            return Some(ctx.no_quest_html());
-        }
-        let cond = ctx.cond();
-        let n = |i: usize| self.npc(i);
-        let html: Option<&str> = match cond {
-            0 => (npc_id == n(0)).then_some("0-01.htm"),
-            1 => {
-                if npc_id == n(0) {
-                    Some("0-04.htm")
-                } else if npc_id == n(2) {
-                    Some("2-01.htm")
-                } else {
-                    None
-                }
-            }
-            2 => {
-                if npc_id == n(2) {
-                    Some("2-02.htm")
-                } else if npc_id == n(1) {
-                    Some("1-01.htm")
-                } else {
-                    None
-                }
-            }
-            3 => {
-                if npc_id == n(1) && ctx.quest_items_count(self.item(0)) != 0 {
-                    if self.item(11) == 0 || ctx.quest_items_count(self.item(11)) != 0 {
-                        Some("1-03.htm")
-                    } else {
-                        Some("1-02.htm")
-                    }
-                } else {
-                    None
-                }
-            }
-            4 => {
-                if npc_id == n(1) {
-                    Some("1-04.htm")
-                } else if npc_id == n(2) {
-                    Some("2-03.htm")
-                } else {
-                    None
-                }
-            }
-            5 => {
-                if npc_id == n(2) {
-                    Some("2-04.htm")
-                } else if npc_id == n(5) {
-                    Some("5-01.htm")
-                } else {
-                    None
-                }
-            }
-            6 => {
-                if npc_id == n(5) {
-                    Some("5-03.htm")
-                } else if npc_id == n(6) {
-                    Some("6-01.htm")
-                } else {
-                    None
-                }
-            }
-            7 => (npc_id == n(6)).then_some("6-02.htm"),
-            8 => {
-                if npc_id == n(6) {
-                    Some("6-04.htm")
-                } else if npc_id == n(7) {
-                    Some("7-01.htm")
-                } else {
-                    None
-                }
-            }
-            9 => (npc_id == n(7)).then_some("7-05.htm"),
-            10 => {
-                if npc_id == n(7) {
-                    Some("7-07.htm")
-                } else if npc_id == n(3) {
-                    Some("3-01.htm")
-                } else {
-                    None
-                }
-            }
-            11 | 12 => (npc_id == n(3)).then_some(if ctx.quest_items_count(self.item(2)) > 0 {
-                "3-05.htm"
-            } else {
-                "3-04.htm"
-            }),
-            13 => {
-                if npc_id == n(3) {
-                    Some("3-06.htm")
-                } else if npc_id == n(8) {
-                    Some("8-01.htm")
-                } else {
-                    None
-                }
-            }
-            14 => {
-                if npc_id == n(8) {
-                    Some("8-03.htm")
-                } else if npc_id == n(11) {
-                    Some("11-01.htm")
-                } else {
-                    None
-                }
-            }
-            15 => {
-                if npc_id == n(11) {
-                    Some("11-02.htm")
-                } else if npc_id == n(9) {
-                    Some("9-01.htm")
-                } else {
-                    None
-                }
-            }
-            16 => (npc_id == n(9)).then_some("9-02.htm"),
-            17 => {
-                if npc_id == n(9) {
-                    Some("9-04.htm")
-                } else if npc_id == n(10) {
-                    Some("10-01.htm")
-                } else if npc_id == n(4) {
-                    // The companion offers the reward only once the boss has
-                    // been driven off (Tab set by `on_attack`); otherwise it
-                    // urges the player back into the fight.
-                    if ctx.get_int("Tab") == 1 {
-                        Some("4-010.htm")
-                    } else {
-                        Some("10-02.htm")
-                    }
-                } else {
-                    None
-                }
-            }
-            18 => (npc_id == n(10)).then_some("10-05.htm"),
-            19 => {
-                if npc_id == n(10) {
-                    Some("10-07.htm")
-                } else if npc_id == n(0) {
-                    Some("0-06.htm")
-                } else {
-                    None
-                }
-            }
-            20 => {
-                if npc_id == n(0) {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        self.finish(ctx);
-                        Some("0-09.htm")
-                    } else {
-                        Some("0-010.htm")
-                    }
-                } else {
-                    None
-                }
-            }
-            _ => None,
-        };
-        Some(
-            html.map(str::to_string)
-                .unwrap_or_else(|| ctx.no_quest_html()),
-        )
     }
 }
 

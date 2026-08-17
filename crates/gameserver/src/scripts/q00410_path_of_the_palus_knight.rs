@@ -95,6 +95,25 @@ impl QuestScript for Q00410PathOfThePalusKnight {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == MASTER_VIRGIL {
+                return Some("30329-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            MASTER_VIRGIL => self.talk_virgil(ctx),
+            KALINTA => self.talk_kalinta(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -197,25 +216,6 @@ impl QuestScript for Q00410PathOfThePalusKnight {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == MASTER_VIRGIL {
-                return Some("30329-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            MASTER_VIRGIL => self.talk_virgil(ctx),
-            KALINTA => self.talk_kalinta(ctx),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

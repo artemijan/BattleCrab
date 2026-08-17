@@ -57,8 +57,6 @@ impl Subscriber for WarnSink {
     }
     fn record(&self, _: &tracing::Id, _: &tracing::span::Record<'_>) {}
     fn record_follows_from(&self, _: &tracing::Id, _: &tracing::Id) {}
-    fn enter(&self, _: &tracing::Id) {}
-    fn exit(&self, _: &tracing::Id) {}
     fn event(&self, event: &Event<'_>) {
         // `Level` orders inverted: TRACE is "greater" than WARN.
         if *event.metadata().level() > Level::WARN {
@@ -68,6 +66,8 @@ impl Subscriber for WarnSink {
         event.record(&mut MessageOnly(&mut message));
         self.0.lock().unwrap().push(message);
     }
+    fn enter(&self, _: &tracing::Id) {}
+    fn exit(&self, _: &tracing::Id) {}
 }
 
 #[test]

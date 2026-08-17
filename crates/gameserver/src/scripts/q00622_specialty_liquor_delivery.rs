@@ -56,6 +56,75 @@ impl QuestScript for Q00622SpecialtyLiquorDelivery {
         &[SPECIAL_DRINK, SPECIAL_DRINK_PRICE]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        match ctx.npc_id {
+            JEREMY => {
+                if ctx.is_created() {
+                    return Some(
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "31521-01.htm"
+                        } else {
+                            "31521-02.htm"
+                        }
+                        .to_string(),
+                    );
+                }
+                if ctx.is_started() {
+                    match ctx.cond() {
+                        1 => return Some("31521-04.html".to_string()),
+                        6 => {
+                            if ctx.quest_items_count(SPECIAL_DRINK_PRICE) > 0 {
+                                return Some("31521-05.html".to_string());
+                            }
+                        }
+                        7 if ctx.quest_items_count(SPECIAL_DRINK) == 0 => {
+                            return Some("31521-08.html".to_string());
+                        }
+                        _ => {}
+                    }
+                    return Some(ctx.no_quest_html());
+                }
+                if ctx.is_completed() {
+                    return Some(ctx.already_completed_html());
+                }
+                Some(ctx.no_quest_html())
+            }
+            BOELIN => {
+                if ctx.is_started() {
+                    match ctx.cond() {
+                        1 => {
+                            if ctx.quest_items_count(SPECIAL_DRINK) >= 5 {
+                                return Some("31547-01.html".to_string());
+                            }
+                        }
+                        2 => return Some("31547-04.html".to_string()),
+                        _ => {}
+                    }
+                }
+                Some(ctx.no_quest_html())
+            }
+            KUBER | CROCUS | NAFF | PULIN => {
+                if ctx.is_started() {
+                    let cond = talker_cond(ctx.npc_id).unwrap();
+                    if ctx.is_cond(cond) && ctx.quest_items_count(SPECIAL_DRINK_PRICE) > 0 {
+                        return Some(format!("{}-01.html", ctx.npc_id));
+                    } else if ctx.is_cond(cond + 1) {
+                        return Some(format!("{}-04.html", ctx.npc_id));
+                    }
+                }
+                Some(ctx.no_quest_html())
+            }
+            LIETTA => {
+                if ctx.is_started() && ctx.is_cond(7) {
+                    return Some("31267-01.html".to_string());
+                }
+                Some(ctx.no_quest_html())
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -128,75 +197,6 @@ impl QuestScript for Q00622SpecialtyLiquorDelivery {
                 Some(event.to_string())
             }
             _ => None,
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        match ctx.npc_id {
-            JEREMY => {
-                if ctx.is_created() {
-                    return Some(
-                        if ctx.player_level() >= MIN_LEVEL {
-                            "31521-01.htm"
-                        } else {
-                            "31521-02.htm"
-                        }
-                        .to_string(),
-                    );
-                }
-                if ctx.is_started() {
-                    match ctx.cond() {
-                        1 => return Some("31521-04.html".to_string()),
-                        6 => {
-                            if ctx.quest_items_count(SPECIAL_DRINK_PRICE) > 0 {
-                                return Some("31521-05.html".to_string());
-                            }
-                        }
-                        7 if ctx.quest_items_count(SPECIAL_DRINK) == 0 => {
-                            return Some("31521-08.html".to_string());
-                        }
-                        _ => {}
-                    }
-                    return Some(ctx.no_quest_html());
-                }
-                if ctx.is_completed() {
-                    return Some(ctx.already_completed_html());
-                }
-                Some(ctx.no_quest_html())
-            }
-            BOELIN => {
-                if ctx.is_started() {
-                    match ctx.cond() {
-                        1 => {
-                            if ctx.quest_items_count(SPECIAL_DRINK) >= 5 {
-                                return Some("31547-01.html".to_string());
-                            }
-                        }
-                        2 => return Some("31547-04.html".to_string()),
-                        _ => {}
-                    }
-                }
-                Some(ctx.no_quest_html())
-            }
-            KUBER | CROCUS | NAFF | PULIN => {
-                if ctx.is_started() {
-                    let cond = talker_cond(ctx.npc_id).unwrap();
-                    if ctx.is_cond(cond) && ctx.quest_items_count(SPECIAL_DRINK_PRICE) > 0 {
-                        return Some(format!("{}-01.html", ctx.npc_id));
-                    } else if ctx.is_cond(cond + 1) {
-                        return Some(format!("{}-04.html", ctx.npc_id));
-                    }
-                }
-                Some(ctx.no_quest_html())
-            }
-            LIETTA => {
-                if ctx.is_started() && ctx.is_cond(7) {
-                    return Some("31267-01.html".to_string());
-                }
-                Some(ctx.no_quest_html())
-            }
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

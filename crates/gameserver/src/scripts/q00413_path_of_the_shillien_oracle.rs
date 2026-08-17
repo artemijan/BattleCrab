@@ -122,6 +122,26 @@ impl QuestScript for Q00413PathOfTheShillienOracle {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == MAGISTER_SIDRA {
+                return Some("30330-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            MAGISTER_SIDRA => self.talk_sidra(ctx),
+            PRIEST_ADONIUS => self.talk_adonius(ctx),
+            MAGISTER_TALBOT => self.talk_talbot(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -190,26 +210,6 @@ impl QuestScript for Q00413PathOfTheShillienOracle {
             } else {
                 ctx.play_sound(quest_sounds::ITEMGET);
             }
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == MAGISTER_SIDRA {
-                return Some("30330-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            MAGISTER_SIDRA => self.talk_sidra(ctx),
-            PRIEST_ADONIUS => self.talk_adonius(ctx),
-            MAGISTER_TALBOT => self.talk_talbot(ctx),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

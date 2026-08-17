@@ -56,6 +56,35 @@ impl QuestScript for Q00306CrystalOfFireAndIce {
         (ctx.player_level() > 23).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30004-03.htm"
+                } else {
+                    "30004-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            let flame = ctx.quest_items_count(FLAME_SHARD);
+            let ice = ctx.quest_items_count(ICE_SHARD);
+            if flame > 0 || ice > 0 {
+                ctx.give_adena(
+                    flame * 15 + ice * 15 + if flame + ice >= 10 { 5000 } else { 0 },
+                    true,
+                );
+                ctx.take_items(FLAME_SHARD, -1);
+                ctx.take_items(ICE_SHARD, -1);
+                return Some("30004-07.html".to_string());
+            }
+            return Some("30004-05.html".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -88,34 +117,5 @@ impl QuestScript for Q00306CrystalOfFireAndIce {
         if let Some((item, chance)) = drop_for(ctx.npc_id) {
             ctx.give_item_randomly(item, 1, 0, chance, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30004-03.htm"
-                } else {
-                    "30004-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            let flame = ctx.quest_items_count(FLAME_SHARD);
-            let ice = ctx.quest_items_count(ICE_SHARD);
-            if flame > 0 || ice > 0 {
-                ctx.give_adena(
-                    flame * 15 + ice * 15 + if flame + ice >= 10 { 5000 } else { 0 },
-                    true,
-                );
-                ctx.take_items(FLAME_SHARD, -1);
-                ctx.take_items(ICE_SHARD, -1);
-                return Some("30004-07.html".to_string());
-            }
-            return Some("30004-05.html".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

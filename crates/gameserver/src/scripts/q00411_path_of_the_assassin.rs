@@ -116,6 +116,33 @@ impl QuestScript for Q00411PathOfTheAssassin {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == TRISKEL {
+                return Some(
+                    if self.has(ctx, IRON_HEART) {
+                        "30416-04.htm"
+                    } else {
+                        "30416-01.htm"
+                    }
+                    .to_string(),
+                );
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            TRISKEL => self.talk_triskel(ctx),
+            GUARD_LEIKAN => self.talk_leikan(ctx),
+            ARKENIA => self.talk_arkenia(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -180,33 +207,6 @@ impl QuestScript for Q00411PathOfTheAssassin {
                 ctx.set_cond(6, true);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == TRISKEL {
-                return Some(
-                    if self.has(ctx, IRON_HEART) {
-                        "30416-04.htm"
-                    } else {
-                        "30416-01.htm"
-                    }
-                    .to_string(),
-                );
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            TRISKEL => self.talk_triskel(ctx),
-            GUARD_LEIKAN => self.talk_leikan(ctx),
-            ARKENIA => self.talk_arkenia(ctx),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

@@ -34,23 +34,6 @@ impl QuestScript for Q00272WrathOfAncestors {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 16).then(|| ctx.no_quest_html())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event.eq_ignore_ascii_case("30572-04.htm") {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_cond(1) {
-            ctx.give_items(GRAVE_ROBBERS_HEAD, 1);
-            if ctx.quest_items_count(GRAVE_ROBBERS_HEAD) >= REQUIRED {
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -77,5 +60,22 @@ impl QuestScript for Q00272WrathOfAncestors {
             }
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event.eq_ignore_ascii_case("30572-04.htm") {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.is_cond(1) {
+            ctx.give_items(GRAVE_ROBBERS_HEAD, 1);
+            if ctx.quest_items_count(GRAVE_ROBBERS_HEAD) >= REQUIRED {
+                ctx.set_cond(2, true);
+            } else {
+                ctx.play_sound(quest_sounds::ITEMGET);
+            }
+        }
     }
 }

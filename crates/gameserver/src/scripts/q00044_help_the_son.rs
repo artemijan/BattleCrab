@@ -49,6 +49,46 @@ impl QuestScript for Q00044HelpTheSon {
         &[GEMSTONE, GEMSTONE_FRAGMENT]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let html = match ctx.npc_id {
+            LUNDY => {
+                if ctx.is_created() {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        "30827-00.htm".to_string()
+                    } else {
+                        "30827-00a.html".to_string()
+                    }
+                } else if ctx.is_completed() {
+                    ctx.already_completed_html()
+                } else {
+                    match ctx.cond() {
+                        1 => {
+                            if has(ctx, WORK_HAMMER) {
+                                "30827-02.html"
+                            } else {
+                                "30827-02a.html"
+                            }
+                        }
+                        2 => "30827-04.html",
+                        3 => "30827-05.html",
+                        4 => "30827-07.html",
+                        5 => "30827-08.html",
+                        _ => return Some(ctx.no_quest_html()),
+                    }
+                    .to_string()
+                }
+            }
+            DRIKUS if ctx.is_started() => match ctx.cond() {
+                4 => "30505-01.html".to_string(),
+                5 => "30505-03.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -97,45 +137,5 @@ impl QuestScript for Q00044HelpTheSon {
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
         ctx.collect_toward_on_cond(2, GEMSTONE_FRAGMENT, 30, 3);
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let html = match ctx.npc_id {
-            LUNDY => {
-                if ctx.is_created() {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        "30827-00.htm".to_string()
-                    } else {
-                        "30827-00a.html".to_string()
-                    }
-                } else if ctx.is_completed() {
-                    ctx.already_completed_html()
-                } else {
-                    match ctx.cond() {
-                        1 => {
-                            if has(ctx, WORK_HAMMER) {
-                                "30827-02.html"
-                            } else {
-                                "30827-02a.html"
-                            }
-                        }
-                        2 => "30827-04.html",
-                        3 => "30827-05.html",
-                        4 => "30827-07.html",
-                        5 => "30827-08.html",
-                        _ => return Some(ctx.no_quest_html()),
-                    }
-                    .to_string()
-                }
-            }
-            DRIKUS if ctx.is_started() => match ctx.cond() {
-                4 => "30505-01.html".to_string(),
-                5 => "30505-03.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }

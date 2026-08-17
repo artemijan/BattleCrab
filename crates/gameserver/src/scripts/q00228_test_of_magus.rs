@@ -170,6 +170,40 @@ impl QuestScript for Q00228TestOfMagus {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == BARD_RUKAL {
+                let class = ctx.player_class_id();
+                if class == WIZARD || class == ELVEN_WIZARD || class == DARK_WIZARD {
+                    return Some(if ctx.player_level() < MIN_LEVEL {
+                        "30629-02.html".to_string()
+                    } else {
+                        "30629-03.htm".to_string()
+                    });
+                }
+                return Some("30629-01.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == BARD_RUKAL {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            BARD_RUKAL => Some(rukal_talk(ctx)),
+            PARINA => Some(parina_talk(ctx)),
+            EARTH_SNAKE => Some(earth_talk(ctx)),
+            FLAME_SALAMANDER => Some(flame_talk(ctx)),
+            WIND_SYLPH => Some(sylph_talk(ctx)),
+            WATER_UNDINE => Some(undine_talk(ctx)),
+            ELDER_CASIAN => Some(casian_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -296,40 +330,6 @@ impl QuestScript for Q00228TestOfMagus {
                 gather(ctx, FLAME_CRYSTAL, 5);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == BARD_RUKAL {
-                let class = ctx.player_class_id();
-                if class == WIZARD || class == ELVEN_WIZARD || class == DARK_WIZARD {
-                    return Some(if ctx.player_level() < MIN_LEVEL {
-                        "30629-02.html".to_string()
-                    } else {
-                        "30629-03.htm".to_string()
-                    });
-                }
-                return Some("30629-01.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == BARD_RUKAL {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            BARD_RUKAL => Some(rukal_talk(ctx)),
-            PARINA => Some(parina_talk(ctx)),
-            EARTH_SNAKE => Some(earth_talk(ctx)),
-            FLAME_SALAMANDER => Some(flame_talk(ctx)),
-            WIND_SYLPH => Some(sylph_talk(ctx)),
-            WATER_UNDINE => Some(undine_talk(ctx)),
-            ELDER_CASIAN => Some(casian_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

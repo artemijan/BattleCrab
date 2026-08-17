@@ -59,6 +59,70 @@ impl QuestScript for Q00235MimirsElixir {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_completed() {
+            return Some(ctx.already_completed_html());
+        }
+        if ctx.is_created() {
+            // Java shows Ladd's intro regardless of which NPC is talked to.
+            return Some(
+                if ctx.player_level() < 75 {
+                    "30721-01b.htm"
+                } else if ctx.quest_items_count(STAR_OF_DESTINY) == 0 {
+                    "30721-01a.htm"
+                } else {
+                    "30721-01.htm"
+                }
+                .to_string(),
+            );
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        let cond = ctx.cond();
+        match ctx.npc_id {
+            LADD => {
+                if cond == 1 {
+                    if ctx.quest_items_count(PURE_SILVER) > 0 {
+                        ctx.set_cond(2, true);
+                        Some("30721-08.htm".to_string())
+                    } else {
+                        Some("30721-07.htm".to_string())
+                    }
+                } else if cond < 5 {
+                    Some("30721-10.htm".to_string())
+                } else if cond == 5 && ctx.quest_items_count(TRUE_GOLD) > 0 {
+                    Some("30721-11.htm".to_string())
+                } else if cond == 6 || cond == 7 {
+                    Some("30721-13.htm".to_string())
+                } else if cond == 8 && ctx.quest_items_count(MIMIR_ELIXIR) > 0 {
+                    Some("30721-14.htm".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            JOAN => {
+                if cond == 2 {
+                    Some("30718-01.htm".to_string())
+                } else if cond == 3 {
+                    Some("30718-04.htm".to_string())
+                } else if cond == 4 && ctx.quest_items_count(SAGE_STONE) > 0 {
+                    ctx.set_cond(5, true);
+                    ctx.take_items(SAGE_STONE, -1);
+                    ctx.give_items(TRUE_GOLD, 1);
+                    Some("30718-05.htm".to_string())
+                } else if cond > 4 {
+                    Some("30718-06.htm".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            MIXING_URN => Some("31149-01.htm".to_string()),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         // Java initialises `htmltext = event`, echoing anything it doesn't rewrite.
         if !ctx.has_qs() {
@@ -161,70 +225,6 @@ impl QuestScript for Q00235MimirsElixir {
                 ctx.set_cond(7, true);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_completed() {
-            return Some(ctx.already_completed_html());
-        }
-        if ctx.is_created() {
-            // Java shows Ladd's intro regardless of which NPC is talked to.
-            return Some(
-                if ctx.player_level() < 75 {
-                    "30721-01b.htm"
-                } else if ctx.quest_items_count(STAR_OF_DESTINY) == 0 {
-                    "30721-01a.htm"
-                } else {
-                    "30721-01.htm"
-                }
-                .to_string(),
-            );
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        let cond = ctx.cond();
-        match ctx.npc_id {
-            LADD => {
-                if cond == 1 {
-                    if ctx.quest_items_count(PURE_SILVER) > 0 {
-                        ctx.set_cond(2, true);
-                        Some("30721-08.htm".to_string())
-                    } else {
-                        Some("30721-07.htm".to_string())
-                    }
-                } else if cond < 5 {
-                    Some("30721-10.htm".to_string())
-                } else if cond == 5 && ctx.quest_items_count(TRUE_GOLD) > 0 {
-                    Some("30721-11.htm".to_string())
-                } else if cond == 6 || cond == 7 {
-                    Some("30721-13.htm".to_string())
-                } else if cond == 8 && ctx.quest_items_count(MIMIR_ELIXIR) > 0 {
-                    Some("30721-14.htm".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            JOAN => {
-                if cond == 2 {
-                    Some("30718-01.htm".to_string())
-                } else if cond == 3 {
-                    Some("30718-04.htm".to_string())
-                } else if cond == 4 && ctx.quest_items_count(SAGE_STONE) > 0 {
-                    ctx.set_cond(5, true);
-                    ctx.take_items(SAGE_STONE, -1);
-                    ctx.give_items(TRUE_GOLD, 1);
-                    Some("30718-05.htm".to_string())
-                } else if cond > 4 {
-                    Some("30718-06.htm".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            MIXING_URN => Some("31149-01.htm".to_string()),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

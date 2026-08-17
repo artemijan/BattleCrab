@@ -46,6 +46,30 @@ impl QuestScript for Q00324SweetestVenom {
         (ctx.player_level() > 23).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() < MIN_LEVEL {
+                    "30351-02.html"
+                } else {
+                    "30351-03.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some(if ctx.is_cond(2) {
+                ctx.give_adena(ADENA_COUNT, true);
+                ctx.exit_quest(true, true);
+                "30351-06.html".to_string()
+            } else {
+                "30351-05.html".to_string()
+            });
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if ctx.has_qs() && event == "30351-04.htm" {
             ctx.start_quest();
@@ -72,29 +96,5 @@ impl QuestScript for Q00324SweetestVenom {
                 ctx.set_cond(2, true);
             }
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() < MIN_LEVEL {
-                    "30351-02.html"
-                } else {
-                    "30351-03.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some(if ctx.is_cond(2) {
-                ctx.give_adena(ADENA_COUNT, true);
-                ctx.exit_quest(true, true);
-                "30351-06.html".to_string()
-            } else {
-                "30351-05.html".to_string()
-            });
-        }
-        Some(ctx.no_quest_html())
     }
 }

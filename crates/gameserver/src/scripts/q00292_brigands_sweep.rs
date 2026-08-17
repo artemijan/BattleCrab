@@ -78,67 +78,6 @@ impl QuestScript for Q00292BrigandsSweep {
         (ctx.player_level() > 18).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30532-03.htm" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            "30532-06.html" => {
-                if ctx.is_started() {
-                    ctx.exit_quest(true, true);
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            "30532-07.html" => {
-                if ctx.is_started() {
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            _ => None,
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        // `Util.checkIfInRange(ALT_PARTY_RANGE, npc, killer, true)` is trivially
-        // true for the killer; port is killer-only (G11 party deviation).
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let Some(item) = mob_item(ctx.npc_id) else {
-            return;
-        };
-        let chance = ctx.roll(10);
-        if chance > 5 {
-            ctx.give_item_randomly(item, 1, 0, 1.0, true);
-        } else if ctx.is_cond(1)
-            && chance > 4
-            && ctx.quest_items_count(SUSPICIOUS_CONTRACT) == 0
-            && ctx.quest_items_count(SUSPICIOUS_MEMO) < 3
-        {
-            // The third memo (limit 3) assembles the contract.
-            if ctx.give_item_randomly(SUSPICIOUS_MEMO, 1, 3, 1.0, false) {
-                ctx.play_sound(quest_sounds::ITEMGET);
-                ctx.give_items(SUSPICIOUS_CONTRACT, 1);
-                ctx.take_items(SUSPICIOUS_MEMO, -1);
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         match ctx.npc_id {
@@ -209,6 +148,67 @@ impl QuestScript for Q00292BrigandsSweep {
                 Some(ctx.no_quest_html())
             }
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30532-03.htm" => {
+                if ctx.is_created() {
+                    ctx.start_quest();
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            "30532-06.html" => {
+                if ctx.is_started() {
+                    ctx.exit_quest(true, true);
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            "30532-07.html" => {
+                if ctx.is_started() {
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        // `Util.checkIfInRange(ALT_PARTY_RANGE, npc, killer, true)` is trivially
+        // true for the killer; port is killer-only (G11 party deviation).
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        let Some(item) = mob_item(ctx.npc_id) else {
+            return;
+        };
+        let chance = ctx.roll(10);
+        if chance > 5 {
+            ctx.give_item_randomly(item, 1, 0, 1.0, true);
+        } else if ctx.is_cond(1)
+            && chance > 4
+            && ctx.quest_items_count(SUSPICIOUS_CONTRACT) == 0
+            && ctx.quest_items_count(SUSPICIOUS_MEMO) < 3
+        {
+            // The third memo (limit 3) assembles the contract.
+            if ctx.give_item_randomly(SUSPICIOUS_MEMO, 1, 3, 1.0, false) {
+                ctx.play_sound(quest_sounds::ITEMGET);
+                ctx.give_items(SUSPICIOUS_CONTRACT, 1);
+                ctx.take_items(SUSPICIOUS_MEMO, -1);
+                ctx.set_cond(2, true);
+            } else {
+                ctx.play_sound(quest_sounds::ITEMGET);
+            }
         }
     }
 }

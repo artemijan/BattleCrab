@@ -81,12 +81,6 @@ impl QuestScript for FirstClassTransferTalk {
         &NPC_IDS
     }
 
-    /// Java's `onEvent` returns the event unchanged — the pages link to each
-    /// other and nothing is transacted here.
-    fn on_event(&self, _ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        Some(event.to_string())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let npc = ctx.npc_id;
         let &(_, master_race) = MASTERS.iter().find(|(id, _)| *id == npc)?;
@@ -127,5 +121,11 @@ impl QuestScript for FirstClassTransferTalk {
             }
         };
         Some(format!("{npc}_{suffix}.html"))
+    }
+
+    /// Java's `onEvent` returns the event unchanged — the pages link to each
+    /// other and nothing is transacted here.
+    fn on_event(&self, _ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        Some(event.to_string())
     }
 }

@@ -22,7 +22,7 @@ const MIN_LEVEL: i32 = 75;
 fn tissue_chance(npc_id: i32) -> Option<f64> {
     Some(match npc_id {
         22196 | 22197 | 22198 | 22199 | 22218 | 22223 => 0.309,
-        22215 | 22216 | 22217 => 0.988,
+        22215..=22217 => 0.988,
         _ => return None,
     })
 }
@@ -65,6 +65,22 @@ impl QuestScript for Q00642APowerfulPrimevalCreature {
     }
     fn quest_items(&self) -> &[i32] {
         &[DINOSAUR_TISSUE, DINOSAUR_EGG]
+    }
+
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let html = if ctx.is_created() {
+            if ctx.player_level() < MIN_LEVEL {
+                "32105-01.htm".to_string()
+            } else {
+                "32105-02.htm".to_string()
+            }
+        } else if has_any_loot(ctx) {
+            "32105-08.html".to_string()
+        } else {
+            "32105-07.html".to_string()
+        };
+        Some(html)
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
@@ -116,21 +132,5 @@ impl QuestScript for Q00642APowerfulPrimevalCreature {
             // The Ancient Egg always yields a Dinosaur Egg.
             ctx.give_item_randomly(DINOSAUR_EGG, 1, 0, 1.0, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let html = if ctx.is_created() {
-            if ctx.player_level() < MIN_LEVEL {
-                "32105-01.htm".to_string()
-            } else {
-                "32105-02.htm".to_string()
-            }
-        } else if has_any_loot(ctx) {
-            "32105-08.html".to_string()
-        } else {
-            "32105-07.html".to_string()
-        };
-        Some(html)
     }
 }

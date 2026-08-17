@@ -176,6 +176,31 @@ impl QuestScript for Q00373SupplierOfReagents {
         &[MIXING_STONE, MIXING_MANUAL]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() < 57 {
+                    "30166-01.htm"
+                } else {
+                    "30166-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some(
+                if ctx.npc_id == WESLEY {
+                    "30166-05.htm"
+                } else {
+                    "31149-01.htm"
+                }
+                .to_string(),
+            );
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         // Java initialises `htmltext = event` and echoes it for anything it does
         // not specifically rewrite — including a null quest state.
@@ -290,30 +315,5 @@ impl QuestScript for Q00373SupplierOfReagents {
                 }
             }
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() < 57 {
-                    "30166-01.htm"
-                } else {
-                    "30166-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some(
-                if ctx.npc_id == WESLEY {
-                    "30166-05.htm"
-                } else {
-                    "31149-01.htm"
-                }
-                .to_string(),
-            );
-        }
-        Some(ctx.no_quest_html())
     }
 }

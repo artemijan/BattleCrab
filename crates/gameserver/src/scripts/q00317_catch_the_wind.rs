@@ -51,6 +51,31 @@ impl QuestScript for Q00317CatchTheWind {
         (ctx.player_level() > 23).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30361-03.htm"
+                } else {
+                    "30361-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some(
+                if ctx.quest_items_count(WIND_SHARD) > 0 {
+                    "30361-07.html"
+                } else {
+                    "30361-05.html"
+                }
+                .to_string(),
+            );
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -79,30 +104,5 @@ impl QuestScript for Q00317CatchTheWind {
         if ctx.has_qs() && ctx.is_started() {
             ctx.give_item_randomly(WIND_SHARD, 1, 0, DROP_CHANCE, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30361-03.htm"
-                } else {
-                    "30361-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some(
-                if ctx.quest_items_count(WIND_SHARD) > 0 {
-                    "30361-07.html"
-                } else {
-                    "30361-05.html"
-                }
-                .to_string(),
-            );
-        }
-        Some(ctx.no_quest_html())
     }
 }

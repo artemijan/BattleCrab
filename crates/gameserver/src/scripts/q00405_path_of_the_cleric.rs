@@ -120,32 +120,6 @@ impl QuestScript for Q00405PathOfTheCleric {
         &QUEST_ITEMS
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() || event != "ACCEPT" {
-            return None;
-        }
-        Some(match ctx.player_class_id() {
-            MAGE if ctx.player_level() < MIN_LEVEL => "30022-03.htm".to_string(),
-            MAGE if ctx.quest_items_count(MARK_OF_FAITH) > 0 => "30022-04.htm".to_string(),
-            MAGE => {
-                // `ACCEPT` starts and issues the first letter in one step.
-                ctx.start_quest();
-                ctx.give_items(LETTER_OF_ORDER_1ST, 1);
-                "30022-05.htm".to_string()
-            }
-            CLERIC => "30022-02a.htm".to_string(),
-            _ => "30022-02.htm".to_string(),
-        })
-    }
-
-    /// Ruin Zombies drop the pendant with **no roll** — but only while the
-    /// necklace is out on loan and the pendant is not already held.
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_started() && ctx.quest_items_count(NECKLACE_OF_MOTHER) > 0 {
-            ctx.award_once(PENDANT_OF_MOTHER);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let npc = ctx.npc_id;
@@ -181,6 +155,32 @@ impl QuestScript for Q00405PathOfTheCleric {
             GUARD_PRAGA => self.talk_praga(ctx),
             LIONEL => self.talk_lionel(ctx),
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() || event != "ACCEPT" {
+            return None;
+        }
+        Some(match ctx.player_class_id() {
+            MAGE if ctx.player_level() < MIN_LEVEL => "30022-03.htm".to_string(),
+            MAGE if ctx.quest_items_count(MARK_OF_FAITH) > 0 => "30022-04.htm".to_string(),
+            MAGE => {
+                // `ACCEPT` starts and issues the first letter in one step.
+                ctx.start_quest();
+                ctx.give_items(LETTER_OF_ORDER_1ST, 1);
+                "30022-05.htm".to_string()
+            }
+            CLERIC => "30022-02a.htm".to_string(),
+            _ => "30022-02.htm".to_string(),
+        })
+    }
+
+    /// Ruin Zombies drop the pendant with **no roll** — but only while the
+    /// necklace is out on loan and the pendant is not already held.
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.is_started() && ctx.quest_items_count(NECKLACE_OF_MOTHER) > 0 {
+            ctx.award_once(PENDANT_OF_MOTHER);
         }
     }
 }

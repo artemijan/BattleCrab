@@ -202,42 +202,6 @@ impl QuestScript for Change2 {
         self.npcs()
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        match self.0 {
-            // Orc: the event is the target class id.
-            Branch::Orc => {
-                if let Ok(class_id) = event.parse::<i32>() {
-                    if ctx.is_in_category("THIRD_CLASS_GROUP") {
-                        return Some(self.page(19));
-                    }
-                    if let Some(&row) = self
-                        .rows()
-                        .iter()
-                        .find(|(to, from, _, _)| *to == class_id && *from == ctx.player_class_id())
-                    {
-                        return Some(self.apply(ctx, row));
-                    }
-                }
-            }
-            // Dark Elf: the event is the row index.
-            Branch::DarkElf => {
-                if let Ok(i) = event.parse::<usize>() {
-                    let Some(&row) = self.rows().get(i) else {
-                        return Some(event.to_string());
-                    };
-                    if ctx.player_race() != RACE_DARK_ELF || ctx.player_class_id() != row.1 {
-                        return Some(event.to_string());
-                    }
-                    return Some(self.apply(ctx, row));
-                }
-            }
-        }
-        if event.ends_with(".htm") || event.ends_with(".html") {
-            return Some(event.to_string());
-        }
-        None
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         match self.0 {
             Branch::Orc => {
@@ -279,5 +243,41 @@ impl QuestScript for Change2 {
                 })
             }
         }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        match self.0 {
+            // Orc: the event is the target class id.
+            Branch::Orc => {
+                if let Ok(class_id) = event.parse::<i32>() {
+                    if ctx.is_in_category("THIRD_CLASS_GROUP") {
+                        return Some(self.page(19));
+                    }
+                    if let Some(&row) = self
+                        .rows()
+                        .iter()
+                        .find(|(to, from, _, _)| *to == class_id && *from == ctx.player_class_id())
+                    {
+                        return Some(self.apply(ctx, row));
+                    }
+                }
+            }
+            // Dark Elf: the event is the row index.
+            Branch::DarkElf => {
+                if let Ok(i) = event.parse::<usize>() {
+                    let Some(&row) = self.rows().get(i) else {
+                        return Some(event.to_string());
+                    };
+                    if ctx.player_race() != RACE_DARK_ELF || ctx.player_class_id() != row.1 {
+                        return Some(event.to_string());
+                    }
+                    return Some(self.apply(ctx, row));
+                }
+            }
+        }
+        if event.ends_with(".htm") || event.ends_with(".html") {
+            return Some(event.to_string());
+        }
+        None
     }
 }

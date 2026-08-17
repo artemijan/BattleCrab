@@ -53,6 +53,24 @@ impl QuestScript for Q00634InSearchOfFragmentsOfDimension {
         &[DIMENSION_FRAGMENT]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() < 20 {
+                    "01a.htm"
+                } else {
+                    "01.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some("03.htm".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         // Java returns the event html unconditionally (even when qs is null); the
         // side effects only fire when a quest state exists.
@@ -78,23 +96,5 @@ impl QuestScript for Q00634InSearchOfFragmentsOfDimension {
             ctx.give_items(DIMENSION_FRAGMENT, amount);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() < 20 {
-                    "01a.htm"
-                } else {
-                    "01.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some("03.htm".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

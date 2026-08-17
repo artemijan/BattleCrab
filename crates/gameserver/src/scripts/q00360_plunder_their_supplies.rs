@@ -41,6 +41,28 @@ impl QuestScript for Q00360PlunderTheirSupplies {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 59).then(|| ctx.no_quest_html())
     }
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30873-02.htm"
+                } else {
+                    "30873-01.html"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            if ctx.quest_items_count(SUPPLY_ITEMS) >= REQUIRED {
+                ctx.give_adena(14000, true);
+                ctx.take_items(SUPPLY_ITEMS, -1);
+                return Some("30873-06.html".to_string());
+            }
+            return Some("30873-05.html".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -63,27 +85,5 @@ impl QuestScript for Q00360PlunderTheirSupplies {
             ctx.give_items(SUPPLY_ITEMS, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30873-02.htm"
-                } else {
-                    "30873-01.html"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            if ctx.quest_items_count(SUPPLY_ITEMS) >= REQUIRED {
-                ctx.give_adena(14000, true);
-                ctx.take_items(SUPPLY_ITEMS, -1);
-                return Some("30873-06.html".to_string());
-            }
-            return Some("30873-05.html".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

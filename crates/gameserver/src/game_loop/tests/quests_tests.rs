@@ -15184,14 +15184,20 @@ fn servitor_arcana_duel_round_trip() {
         fn talk_npcs(&self) -> &[i32] {
             &[]
         }
-        fn attack_npcs(&self) -> &[i32] {
+        fn kill_npcs(&self) -> &[i32] {
             &[OPPONENT]
         }
-        fn kill_npcs(&self) -> &[i32] {
+        fn attack_npcs(&self) -> &[i32] {
             &[OPPONENT]
         }
         fn on_talk(&self, _ctx: &mut quests::QuestCtx) -> Option<String> {
             None
+        }
+        fn on_kill(&self, ctx: &mut quests::QuestCtx) {
+            if ctx.quest_items_count(INPROGRESS) > 0 {
+                ctx.take_items(INPROGRESS, -1);
+                ctx.give_items(VICTORY, 1);
+            }
         }
         fn on_attack(&self, ctx: &mut quests::QuestCtx) {
             match ctx.npc_script_value() {
@@ -15215,12 +15221,6 @@ fn servitor_arcana_duel_round_trip() {
                     ctx.delete_npc();
                 }
                 _ => {}
-            }
-        }
-        fn on_kill(&self, ctx: &mut quests::QuestCtx) {
-            if ctx.quest_items_count(INPROGRESS) > 0 {
-                ctx.take_items(INPROGRESS, -1);
-                ctx.give_items(VICTORY, 1);
             }
         }
         fn on_timer(&self, ctx: &mut quests::QuestCtx, name: &str) {

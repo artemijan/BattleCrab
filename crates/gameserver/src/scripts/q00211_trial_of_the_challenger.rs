@@ -74,6 +74,89 @@ impl QuestScript for Q00211TrialOfTheChallenger {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let cond = ctx.cond();
+        match ctx.npc_id {
+            KASH => {
+                if ctx.is_created() {
+                    if !ctx.is_in_category("WARRIOR_GROUP") {
+                        Some("30644-02.html".to_string())
+                    } else if ctx.player_level() < MIN_LEVEL {
+                        Some("30644-01.html".to_string())
+                    } else {
+                        Some("30644-03.htm".to_string())
+                    }
+                } else if ctx.is_completed() {
+                    Some(ctx.already_completed_html())
+                } else {
+                    match cond {
+                        1 => Some("30644-07.html".to_string()),
+                        2 if ctx.quest_items_count(SCROLL_OF_SHYSLASSYS) > 0 => {
+                            ctx.take_items(SCROLL_OF_SHYSLASSYS, -1);
+                            ctx.give_items(LETTER_OF_KASH, 1);
+                            ctx.set_cond(3, true);
+                            Some("30644-08.html".to_string())
+                        }
+                        3 if ctx.quest_items_count(LETTER_OF_KASH) > 0 => {
+                            Some("30644-09.html".to_string())
+                        }
+                        8..=10 => Some("30644-10.html".to_string()),
+                        _ => Some(ctx.no_quest_html()),
+                    }
+                }
+            }
+            MARTIAN => match cond {
+                3 if ctx.quest_items_count(LETTER_OF_KASH) > 0 => Some("30645-01.html".to_string()),
+                4 => Some("30645-03.html".to_string()),
+                5 if ctx.quest_items_count(WATCHERS_EYE1) > 0 => {
+                    ctx.take_items(WATCHERS_EYE1, -1);
+                    ctx.set_cond(6, true);
+                    Some("30645-04.html".to_string())
+                }
+                6 => Some("30645-05.html".to_string()),
+                7 => Some("30645-06.html".to_string()),
+                8 | 9 => Some("30645-09.html".to_string()),
+                _ => Some(ctx.no_quest_html()),
+            },
+            CHEST_OF_SHYSLASSYS => {
+                if ctx.is_started() {
+                    Some("30647-01.html".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            RALDO => match cond {
+                7 if ctx.quest_items_count(WATCHERS_EYE2) > 0 => Some("30646-01.html".to_string()),
+                8 => Some("30646-06.html".to_string()),
+                10 => {
+                    ctx.add_exp_and_sp(1067606, 69242);
+                    ctx.give_adena(194556, true);
+                    ctx.give_items(MARK_OF_CHALLENGER, 1);
+                    ctx.social_action(3);
+                    ctx.exit_quest(false, true);
+                    Some("30646-07.html".to_string())
+                }
+                _ => Some(ctx.no_quest_html()),
+            },
+            FILAUR => match cond {
+                8 => {
+                    ctx.set_cond(9, true);
+                    Some("30535-01.html".to_string())
+                }
+                9 => {
+                    // Java sends RadarControl(0, 2, ...) pointing at the Queen of
+                    // Succubus lair — the quest pin, not the red flag.
+                    ctx.add_quest_radar(151589, -174823, -1776);
+                    Some("30535-02.html".to_string())
+                }
+                10 => Some("30535-03.html".to_string()),
+                _ => Some(ctx.no_quest_html()),
+            },
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -137,89 +220,6 @@ impl QuestScript for Q00211TrialOfTheChallenger {
                 None
             }
             _ => None,
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let cond = ctx.cond();
-        match ctx.npc_id {
-            KASH => {
-                if ctx.is_created() {
-                    if !ctx.is_in_category("WARRIOR_GROUP") {
-                        Some("30644-02.html".to_string())
-                    } else if ctx.player_level() < MIN_LEVEL {
-                        Some("30644-01.html".to_string())
-                    } else {
-                        Some("30644-03.htm".to_string())
-                    }
-                } else if ctx.is_completed() {
-                    Some(ctx.already_completed_html())
-                } else {
-                    match cond {
-                        1 => Some("30644-07.html".to_string()),
-                        2 if ctx.quest_items_count(SCROLL_OF_SHYSLASSYS) > 0 => {
-                            ctx.take_items(SCROLL_OF_SHYSLASSYS, -1);
-                            ctx.give_items(LETTER_OF_KASH, 1);
-                            ctx.set_cond(3, true);
-                            Some("30644-08.html".to_string())
-                        }
-                        3 if ctx.quest_items_count(LETTER_OF_KASH) > 0 => {
-                            Some("30644-09.html".to_string())
-                        }
-                        8 | 9 | 10 => Some("30644-10.html".to_string()),
-                        _ => Some(ctx.no_quest_html()),
-                    }
-                }
-            }
-            MARTIAN => match cond {
-                3 if ctx.quest_items_count(LETTER_OF_KASH) > 0 => Some("30645-01.html".to_string()),
-                4 => Some("30645-03.html".to_string()),
-                5 if ctx.quest_items_count(WATCHERS_EYE1) > 0 => {
-                    ctx.take_items(WATCHERS_EYE1, -1);
-                    ctx.set_cond(6, true);
-                    Some("30645-04.html".to_string())
-                }
-                6 => Some("30645-05.html".to_string()),
-                7 => Some("30645-06.html".to_string()),
-                8 | 9 => Some("30645-09.html".to_string()),
-                _ => Some(ctx.no_quest_html()),
-            },
-            CHEST_OF_SHYSLASSYS => {
-                if ctx.is_started() {
-                    Some("30647-01.html".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            RALDO => match cond {
-                7 if ctx.quest_items_count(WATCHERS_EYE2) > 0 => Some("30646-01.html".to_string()),
-                8 => Some("30646-06.html".to_string()),
-                10 => {
-                    ctx.add_exp_and_sp(1067606, 69242);
-                    ctx.give_adena(194556, true);
-                    ctx.give_items(MARK_OF_CHALLENGER, 1);
-                    ctx.social_action(3);
-                    ctx.exit_quest(false, true);
-                    Some("30646-07.html".to_string())
-                }
-                _ => Some(ctx.no_quest_html()),
-            },
-            FILAUR => match cond {
-                8 => {
-                    ctx.set_cond(9, true);
-                    Some("30535-01.html".to_string())
-                }
-                9 => {
-                    // Java sends RadarControl(0, 2, ...) pointing at the Queen of
-                    // Succubus lair — the quest pin, not the red flag.
-                    ctx.add_quest_radar(151589, -174823, -1776);
-                    Some("30535-02.html".to_string())
-                }
-                10 => Some("30535-03.html".to_string()),
-                _ => Some(ctx.no_quest_html()),
-            },
-            _ => Some(ctx.no_quest_html()),
         }
     }
 

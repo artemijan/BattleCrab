@@ -49,6 +49,12 @@ impl QuestScript for NewbieGuide {
         NEWBIE_GUIDES
     }
 
+    /// The guide has no quest of its own; talking to it always lands on the
+    /// first-talk window.
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     /// `onFirstTalk`: a guide only speaks to its own race; otherwise the
     /// "go find your own people" page. A tutorial graduate (Q255 memoState 5)
     /// gets the second batch of newbie shots on their first visit.
@@ -76,12 +82,6 @@ impl QuestScript for NewbieGuide {
             }
         }
         Some(format!("{}.htm", ctx.npc_id))
-    }
-
-    /// The guide has no quest of its own; talking to it always lands on the
-    /// first-talk window.
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     /// `onEvent`: `"0"` returns to the menu, every other event opens advice

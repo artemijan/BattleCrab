@@ -48,6 +48,30 @@ impl QuestScript for Q00358IllegitimateChildOfTheGoddess {
         (ctx.player_level() > 67).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30862-01.htm"
+                } else {
+                    "30862-05.html"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            if ctx.quest_items_count(SNAKE_SCALE) < SNAKE_SCALE_COUNT {
+                return Some("30862-06.html".to_string());
+            }
+            let idx = ctx.roll(REWARDS.len() as i32) as usize;
+            ctx.reward_items(REWARDS[idx], 1);
+            ctx.exit_quest(true, true);
+            return Some("30862-07.html".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -74,29 +98,5 @@ impl QuestScript for Q00358IllegitimateChildOfTheGoddess {
         if ctx.give_item_randomly(SNAKE_SCALE, 1, SNAKE_SCALE_COUNT, chance, true) {
             ctx.set_cond(2, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30862-01.htm"
-                } else {
-                    "30862-05.html"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            if ctx.quest_items_count(SNAKE_SCALE) < SNAKE_SCALE_COUNT {
-                return Some("30862-06.html".to_string());
-            }
-            let idx = ctx.roll(REWARDS.len() as i32) as usize;
-            ctx.reward_items(REWARDS[idx], 1);
-            ctx.exit_quest(true, true);
-            return Some("30862-07.html".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

@@ -208,6 +208,55 @@ impl QuestScript for Q00220TestimonyOfGlory {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == PREFECT_VOKIAN {
+                if ctx.player_race() != RACE_ORC {
+                    return Some("30514-01.html".to_string());
+                } else if ctx.player_level() < MIN_LEVEL {
+                    return Some("30514-02.html".to_string());
+                } else if ctx.is_in_category("ORC_2ND_GROUP") {
+                    return Some("30514-03.htm".to_string());
+                }
+                return Some("30514-01a.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == PREFECT_VOKIAN {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            PREFECT_VOKIAN => Some(vokian_talk(ctx)),
+            PREFECT_KASMAN => Some(
+                if has(ctx, NECKLACE_OF_AUTHORITY) && has(ctx, CHIANTA_1ST_ORDER) {
+                    "30501-01.html".to_string()
+                } else {
+                    ctx.no_quest_html()
+                },
+            ),
+            SEER_MANAKIA => Some(
+                if has(ctx, NECKLACE_OF_AUTHORITY) && has(ctx, CHIANTA_1ST_ORDER) {
+                    "30515-01.html".to_string()
+                } else {
+                    ctx.no_quest_html()
+                },
+            ),
+            FLAME_LORD_KAKAI => Some(kakai_talk(ctx)),
+            SEER_TANAPI => Some(tanapi_talk(ctx)),
+            BREKA_CHIEF_VOLTAR => Some(voltar_talk(ctx)),
+            ENKU_CHIEF_KEPRA => Some(kepra_talk(ctx)),
+            TUREK_CHIEF_BURAI => Some(burai_talk(ctx)),
+            LEUNT_CHIEF_HARAK => Some(harak_talk(ctx)),
+            VUKU_CHIEF_DRIKO => Some(driko_talk(ctx)),
+            GANDI_CHIEF_CHIANTA => Some(chianta_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -436,55 +485,6 @@ impl QuestScript for Q00220TestimonyOfGlory {
                 ctx.set_cond(10, true);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == PREFECT_VOKIAN {
-                if ctx.player_race() != RACE_ORC {
-                    return Some("30514-01.html".to_string());
-                } else if ctx.player_level() < MIN_LEVEL {
-                    return Some("30514-02.html".to_string());
-                } else if ctx.is_in_category("ORC_2ND_GROUP") {
-                    return Some("30514-03.htm".to_string());
-                }
-                return Some("30514-01a.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == PREFECT_VOKIAN {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            PREFECT_VOKIAN => Some(vokian_talk(ctx)),
-            PREFECT_KASMAN => Some(
-                if has(ctx, NECKLACE_OF_AUTHORITY) && has(ctx, CHIANTA_1ST_ORDER) {
-                    "30501-01.html".to_string()
-                } else {
-                    ctx.no_quest_html()
-                },
-            ),
-            SEER_MANAKIA => Some(
-                if has(ctx, NECKLACE_OF_AUTHORITY) && has(ctx, CHIANTA_1ST_ORDER) {
-                    "30515-01.html".to_string()
-                } else {
-                    ctx.no_quest_html()
-                },
-            ),
-            FLAME_LORD_KAKAI => Some(kakai_talk(ctx)),
-            SEER_TANAPI => Some(tanapi_talk(ctx)),
-            BREKA_CHIEF_VOLTAR => Some(voltar_talk(ctx)),
-            ENKU_CHIEF_KEPRA => Some(kepra_talk(ctx)),
-            TUREK_CHIEF_BURAI => Some(burai_talk(ctx)),
-            LEUNT_CHIEF_HARAK => Some(harak_talk(ctx)),
-            VUKU_CHIEF_DRIKO => Some(driko_talk(ctx)),
-            GANDI_CHIEF_CHIANTA => Some(chianta_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

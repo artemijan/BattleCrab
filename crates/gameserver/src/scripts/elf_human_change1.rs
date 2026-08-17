@@ -181,16 +181,6 @@ impl QuestScript for ElfHumanChange1 {
         self.npcs()
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if let Ok(class_id) = event.parse::<i32>()
-            && self.targets().iter().any(|(to, ..)| *to == class_id)
-        {
-            return self.class_change(ctx, class_id);
-        }
-        // The dialog pages echo back.
-        echoed_page(event, self.npcs())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let npc = ctx.npc_id;
         let (category, human_page, elf_page) = self.talk_pages();
@@ -205,5 +195,15 @@ impl QuestScript for ElfHumanChange1 {
             return Some(format!("{npc}-{page:02}.htm"));
         }
         Some(format!("{npc}-{}.htm", self.mismatch_page()))
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if let Ok(class_id) = event.parse::<i32>()
+            && self.targets().iter().any(|(to, ..)| *to == class_id)
+        {
+            return self.class_change(ctx, class_id);
+        }
+        // The dialog pages echo back.
+        echoed_page(event, self.npcs())
     }
 }

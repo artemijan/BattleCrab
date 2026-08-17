@@ -44,6 +44,10 @@ impl QuestScript for ClanHallDoorManager {
         DOOR_MANAGERS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let (owner_id, _) = hall_ownership(ctx.world, ctx.npc_id)?;
         let page = if ctx.is_owning_clan(owner_id) {
@@ -54,10 +58,6 @@ impl QuestScript for ClanHallDoorManager {
             "03" // someone else's hall
         };
         Some(format!("ClanHallDoorManager-{page}.html"))
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

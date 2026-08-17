@@ -180,6 +180,46 @@ impl QuestScript for Q00233TestOfTheWarSpirit {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == SEER_SOMAK {
+                if ctx.player_race() != RACE_ORC {
+                    return Some("30510-01.html".to_string());
+                } else if ctx.player_class_id() != ORC_SHAMAN {
+                    return Some("30510-02.html".to_string());
+                } else if ctx.player_level() < MIN_LEVEL {
+                    return Some("30510-03.html".to_string());
+                }
+                return Some("30510-04.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == SEER_SOMAK {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            SEER_SOMAK => Some(somak_talk(ctx)),
+            PRIESTESS_VIVYAN => Some(vivyan_talk(ctx)),
+            TRADER_SARIEN => Some(sarien_talk(ctx)),
+            SEER_RACOY => Some(racoy_talk(ctx)),
+            SEER_MANAKIA => Some(manakia_talk(ctx)),
+            SHADOW_ORIM => Some(orim_talk(ctx)),
+            ANCESTOR_MARTANKUS => {
+                if has(ctx, WARSPIRIT_TOTEM) {
+                    Some("30649-01.html".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            SEER_PEKIRON => Some(pekiron_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -296,46 +336,6 @@ impl QuestScript for Q00233TestOfTheWarSpirit {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == SEER_SOMAK {
-                if ctx.player_race() != RACE_ORC {
-                    return Some("30510-01.html".to_string());
-                } else if ctx.player_class_id() != ORC_SHAMAN {
-                    return Some("30510-02.html".to_string());
-                } else if ctx.player_level() < MIN_LEVEL {
-                    return Some("30510-03.html".to_string());
-                }
-                return Some("30510-04.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == SEER_SOMAK {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            SEER_SOMAK => Some(somak_talk(ctx)),
-            PRIESTESS_VIVYAN => Some(vivyan_talk(ctx)),
-            TRADER_SARIEN => Some(sarien_talk(ctx)),
-            SEER_RACOY => Some(racoy_talk(ctx)),
-            SEER_MANAKIA => Some(manakia_talk(ctx)),
-            SHADOW_ORIM => Some(orim_talk(ctx)),
-            ANCESTOR_MARTANKUS => {
-                if has(ctx, WARSPIRIT_TOTEM) {
-                    Some("30649-01.html".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            SEER_PEKIRON => Some(pekiron_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

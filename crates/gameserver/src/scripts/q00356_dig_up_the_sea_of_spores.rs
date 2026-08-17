@@ -51,6 +51,37 @@ impl QuestScript for Q00356DigUpTheSeaOfSpores {
         (ctx.player_level() > 51).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30717-01.htm"
+                } else {
+                    "30717-06.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            let has_all_herb = ctx.quest_items_count(HERBIVOROUS_SPORE) >= REQUIRED_EACH;
+            let has_all_carn = ctx.quest_items_count(CARNIVORE_SPORE) >= REQUIRED_EACH;
+            return Some(
+                if has_all_herb && has_all_carn {
+                    "30717-13.html"
+                } else if has_all_carn {
+                    "30717-12.html"
+                } else if has_all_herb {
+                    "30717-08.html"
+                } else {
+                    "30717-07.html"
+                }
+                .to_string(),
+            );
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -109,36 +140,5 @@ impl QuestScript for Q00356DigUpTheSeaOfSpores {
                 ctx.set_cond(2, false);
             }
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30717-01.htm"
-                } else {
-                    "30717-06.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            let has_all_herb = ctx.quest_items_count(HERBIVOROUS_SPORE) >= REQUIRED_EACH;
-            let has_all_carn = ctx.quest_items_count(CARNIVORE_SPORE) >= REQUIRED_EACH;
-            return Some(
-                if has_all_herb && has_all_carn {
-                    "30717-13.html"
-                } else if has_all_carn {
-                    "30717-12.html"
-                } else if has_all_herb {
-                    "30717-08.html"
-                } else {
-                    "30717-07.html"
-                }
-                .to_string(),
-            );
-        }
-        Some(ctx.no_quest_html())
     }
 }

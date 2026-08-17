@@ -33,30 +33,6 @@ impl QuestScript for Q00109InSearchOfTheNest {
         &[SCOUTS_NOTE]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return Some(ctx.no_quest_html());
-        }
-        match event {
-            "31553-0.htm" => ctx.start_quest(),
-            "32015-2.html" => {
-                ctx.give_items(SCOUTS_NOTE, 1);
-                ctx.set_cond(2, true);
-            }
-            "31553-3.html" => {
-                ctx.take_items(SCOUTS_NOTE, -1);
-                ctx.set_cond(3, true);
-            }
-            "31554-2.html" => {
-                ctx.give_adena(161500, true);
-                ctx.add_exp_and_sp(701500, 50000);
-                ctx.exit_quest(false, true);
-            }
-            _ => {}
-        }
-        Some(event.to_string())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         match ctx.npc_id {
@@ -99,5 +75,29 @@ impl QuestScript for Q00109InSearchOfTheNest {
             _ => {}
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return Some(ctx.no_quest_html());
+        }
+        match event {
+            "31553-0.htm" => ctx.start_quest(),
+            "32015-2.html" => {
+                ctx.give_items(SCOUTS_NOTE, 1);
+                ctx.set_cond(2, true);
+            }
+            "31553-3.html" => {
+                ctx.take_items(SCOUTS_NOTE, -1);
+                ctx.set_cond(3, true);
+            }
+            "31554-2.html" => {
+                ctx.give_adena(161500, true);
+                ctx.add_exp_and_sp(701500, 50000);
+                ctx.exit_quest(false, true);
+            }
+            _ => {}
+        }
+        Some(event.to_string())
     }
 }

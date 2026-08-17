@@ -63,6 +63,46 @@ impl QuestScript for Q00043HelpTheSister {
         &[MAP, MAP_PIECE]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let html = match ctx.npc_id {
+            COOPER => {
+                if ctx.is_created() {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        "30829-00.htm".to_string()
+                    } else {
+                        "30829-00a.html".to_string()
+                    }
+                } else if ctx.is_completed() {
+                    ctx.already_completed_html()
+                } else {
+                    match ctx.cond() {
+                        1 => {
+                            if has(ctx, CRAFTED_DAGGER) {
+                                "30829-02.html"
+                            } else {
+                                "30829-02a.html"
+                            }
+                        }
+                        2 => "30829-04.html",
+                        3 => "30829-05.html",
+                        4 => "30829-07.html",
+                        5 => "30829-08.html",
+                        _ => return Some(ctx.no_quest_html()),
+                    }
+                    .to_string()
+                }
+            }
+            GALLADUCCI if ctx.is_started() => match ctx.cond() {
+                4 => "30097-01.html".to_string(),
+                5 => "30097-03.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -111,45 +151,5 @@ impl QuestScript for Q00043HelpTheSister {
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
         ctx.collect_toward_on_cond(2, MAP_PIECE, 30, 3);
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let html = match ctx.npc_id {
-            COOPER => {
-                if ctx.is_created() {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        "30829-00.htm".to_string()
-                    } else {
-                        "30829-00a.html".to_string()
-                    }
-                } else if ctx.is_completed() {
-                    ctx.already_completed_html()
-                } else {
-                    match ctx.cond() {
-                        1 => {
-                            if has(ctx, CRAFTED_DAGGER) {
-                                "30829-02.html"
-                            } else {
-                                "30829-02a.html"
-                            }
-                        }
-                        2 => "30829-04.html",
-                        3 => "30829-05.html",
-                        4 => "30829-07.html",
-                        5 => "30829-08.html",
-                        _ => return Some(ctx.no_quest_html()),
-                    }
-                    .to_string()
-                }
-            }
-            GALLADUCCI if ctx.is_started() => match ctx.cond() {
-                4 => "30097-01.html".to_string(),
-                5 => "30097-03.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }

@@ -39,26 +39,6 @@ impl QuestScript for Q00274SkirmishWithTheWerewolves {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 18).then(|| ctx.no_quest_html())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event.eq_ignore_ascii_case("30569-04.htm") {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_cond(1) {
-            ctx.give_items(WEREWOLF_HEAD, 1);
-            if ctx.roll(100) <= 5 {
-                ctx.give_items(WEREWOLF_TOTEM, 1);
-            }
-            if ctx.quest_items_count(WEREWOLF_HEAD) >= REQUIRED {
-                ctx.set_cond(2, true);
-            } else {
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -98,5 +78,25 @@ impl QuestScript for Q00274SkirmishWithTheWerewolves {
             }
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event.eq_ignore_ascii_case("30569-04.htm") {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.is_cond(1) {
+            ctx.give_items(WEREWOLF_HEAD, 1);
+            if ctx.roll(100) <= 5 {
+                ctx.give_items(WEREWOLF_TOTEM, 1);
+            }
+            if ctx.quest_items_count(WEREWOLF_HEAD) >= REQUIRED {
+                ctx.set_cond(2, true);
+            } else {
+                ctx.play_sound(quest_sounds::ITEMGET);
+            }
+        }
     }
 }

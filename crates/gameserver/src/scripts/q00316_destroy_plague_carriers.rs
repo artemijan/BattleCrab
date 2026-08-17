@@ -51,50 +51,6 @@ impl QuestScript for Q00316DestroyPlagueCarriers {
         (ctx.player_level() > 24).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30155-04.htm" if ctx.is_created() => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30155-08.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30155-09.html" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-
-    /// Varool Foulclaw complains on the first hit (`npc.isScriptValue(0)` →
-    /// NpcSay + `setScriptValue(1)`; a respawn is a fresh instance, so the
-    /// shout re-arms).
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if ctx.npc_script_value() == 0 {
-            ctx.npc_say(WHY_DO_YOU_OPPRESS_US_SO);
-            ctx.set_npc_script_value(1);
-        }
-    }
-
-    /// `getRandomPartyMemberState(killer, -1, 3, npc)` + the
-    /// `checkPartyMember` override — killer-only: started state, and
-    /// Varool never drops a second fang.
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        if ctx.npc_id == VAROOL_FOULCLAW {
-            if ctx.quest_items_count(VAROOL_FOULCLAW_FANG) == 0 {
-                ctx.give_item_randomly(VAROOL_FOULCLAW_FANG, 1, 1, 10.0 / 7.0, true);
-            }
-        } else if SUKAR_WERERATS.contains(&ctx.npc_id) {
-            ctx.give_item_randomly(WERERAT_FANG, 1, 0, 10.0 / 5.0, true);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -127,5 +83,49 @@ impl QuestScript for Q00316DestroyPlagueCarriers {
             });
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30155-04.htm" if ctx.is_created() => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30155-08.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30155-09.html" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+
+    /// `getRandomPartyMemberState(killer, -1, 3, npc)` + the
+    /// `checkPartyMember` override — killer-only: started state, and
+    /// Varool never drops a second fang.
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        if ctx.npc_id == VAROOL_FOULCLAW {
+            if ctx.quest_items_count(VAROOL_FOULCLAW_FANG) == 0 {
+                ctx.give_item_randomly(VAROOL_FOULCLAW_FANG, 1, 1, 10.0 / 7.0, true);
+            }
+        } else if SUKAR_WERERATS.contains(&ctx.npc_id) {
+            ctx.give_item_randomly(WERERAT_FANG, 1, 0, 10.0 / 5.0, true);
+        }
+    }
+
+    /// Varool Foulclaw complains on the first hit (`npc.isScriptValue(0)` →
+    /// NpcSay + `setScriptValue(1)`; a respawn is a fresh instance, so the
+    /// shout re-arms).
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if ctx.npc_script_value() == 0 {
+            ctx.npc_say(WHY_DO_YOU_OPPRESS_US_SO);
+            ctx.set_npc_script_value(1);
+        }
     }
 }

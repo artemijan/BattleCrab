@@ -97,26 +97,6 @@ impl QuestScript for Q00261CollectorsDream {
         (ctx.player_level() > 21).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event == "30222-03.htm" {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    /// Java gates on `checkIfInRange(ALT_PARTY_RANGE, npc, killer)`; the port
-    /// credits the killer only (the G11 party deviation), which reduces to the
-    /// cond-1 gate.
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs()
-            && ctx.is_cond(1)
-            && ctx.give_item_randomly(SPIDER_LEG, 1, MAX_LEG_COUNT, 1.0, true)
-        {
-            ctx.set_cond(2, false);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -142,5 +122,25 @@ impl QuestScript for Q00261CollectorsDream {
             }
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event == "30222-03.htm" {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    /// Java gates on `checkIfInRange(ALT_PARTY_RANGE, npc, killer)`; the port
+    /// credits the killer only (the G11 party deviation), which reduces to the
+    /// cond-1 gate.
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs()
+            && ctx.is_cond(1)
+            && ctx.give_item_randomly(SPIDER_LEG, 1, MAX_LEG_COUNT, 1.0, true)
+        {
+            ctx.set_cond(2, false);
+        }
     }
 }

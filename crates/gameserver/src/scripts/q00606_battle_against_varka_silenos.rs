@@ -62,6 +62,31 @@ impl QuestScript for Q00606BattleAgainstVarkaSilenos {
         &[MANE]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "31370-01.htm"
+                } else {
+                    "31370-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some(
+                if ctx.quest_items_count(MANE) > 0 {
+                    "31370-04.html"
+                } else {
+                    "31370-05.html"
+                }
+                .to_string(),
+            );
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -101,30 +126,5 @@ impl QuestScript for Q00606BattleAgainstVarkaSilenos {
             ctx.give_items(MANE, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "31370-01.htm"
-                } else {
-                    "31370-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some(
-                if ctx.quest_items_count(MANE) > 0 {
-                    "31370-04.html"
-                } else {
-                    "31370-05.html"
-                }
-                .to_string(),
-            );
-        }
-        Some(ctx.no_quest_html())
     }
 }

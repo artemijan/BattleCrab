@@ -72,30 +72,6 @@ impl QuestScript for Q00266PleasOfPixies {
         (ctx.player_level() > 8).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event == "31852-04.htm" {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_cond(1) {
-            return;
-        }
-        let chance = ctx.roll(10);
-        for &(threshold, count) in drops(ctx.npc_id) {
-            if chance < threshold {
-                // `giveItemRandomly(..., count, 100, 1, true)` — reaching 100 flips cond.
-                if ctx.give_item_randomly(PREDATORS_FANG, count, REQUIRED_FANGS, 1.0, true) {
-                    ctx.set_cond(2, false);
-                }
-                break;
-            }
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -135,5 +111,29 @@ impl QuestScript for Q00266PleasOfPixies {
             }
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event == "31852-04.htm" {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_cond(1) {
+            return;
+        }
+        let chance = ctx.roll(10);
+        for &(threshold, count) in drops(ctx.npc_id) {
+            if chance < threshold {
+                // `giveItemRandomly(..., count, 100, 1, true)` — reaching 100 flips cond.
+                if ctx.give_item_randomly(PREDATORS_FANG, count, REQUIRED_FANGS, 1.0, true) {
+                    ctx.set_cond(2, false);
+                }
+                break;
+            }
+        }
     }
 }

@@ -59,15 +59,15 @@ impl QuestScript for OlyBuffer {
         NPCS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     /// `onFirstTalk`: the menu, but only while the buffer has buffs left.
     /// Java returns `null` past the fifth, which shows no window at all — the
     /// NPC is already on its way out.
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.npc_script_value() < MAX_BUFFS).then(|| "OlyBuffer-index.html".to_string())
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     /// `onEvent`: `giveBuff;<index>` casts that buff on the talker and counts

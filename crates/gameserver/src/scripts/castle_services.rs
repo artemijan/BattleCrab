@@ -174,16 +174,16 @@ impl QuestScript for CastleBlacksmith {
         BLACKSMITHS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         Some(if blacksmith_rights(ctx) {
             format!("{}-01.html", ctx.npc_id)
         } else {
             "no.html".to_string()
         })
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     /// Java: the single `<npcId>-02.html` page, and only with rights.
@@ -243,12 +243,12 @@ impl QuestScript for CastleWarehouse {
         WAREHOUSE_KEEPERS
     }
 
-    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        Some("warehouse-01.html".to_string())
-    }
-
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        Some("warehouse-01.html".to_string())
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
@@ -348,12 +348,12 @@ impl QuestScript for CastleMercenaryManager {
         MERCENARY_MANAGERS
     }
 
-    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        Some(mercenary_main(ctx))
-    }
-
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        Some(mercenary_main(ctx))
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
@@ -457,6 +457,10 @@ impl QuestScript for CastleDoorManager {
         DOORMEN_ALL
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let base = doorman_html(ctx.npc_id);
         Some(
@@ -466,10 +470,6 @@ impl QuestScript for CastleDoorManager {
                 format!("{base}-no.html")
             },
         )
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
@@ -562,6 +562,10 @@ impl QuestScript for CastleSiegeManager {
         SIEGE_MANAGERS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let in_siege = siege_in_progress(ctx);
         // The owner's leader gets the console; everyone else gets the siege
@@ -582,10 +586,6 @@ impl QuestScript for CastleSiegeManager {
         if let Some(id) = castle_id(ctx) {
             crate::game_loop::siege::list_register_clan(ctx.world, ctx.client_id, ctx.player, id);
         }
-        None
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
     }
 }
@@ -642,6 +642,10 @@ impl QuestScript for CastleTeleporter {
         TELEPORTERS_ALL
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         if MASS_TELEPORTERS.contains(&ctx.npc_id) {
             // Already counting down → the "on its way" page; otherwise the
@@ -669,10 +673,6 @@ impl QuestScript for CastleTeleporter {
         } else {
             format!("{base}-no.html")
         })
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

@@ -137,14 +137,6 @@ impl QuestScript for DwarfChange2 {
         self.npcs()
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        let (_, to, _, _) = self.spec();
-        if event.parse::<i32>() == Ok(to) {
-            return self.class_change(ctx, to);
-        }
-        echoed_page(event, &[self.page_npc()])
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let page = self.page_npc();
         let (from, to, _, category) = self.spec();
@@ -163,5 +155,13 @@ impl QuestScript for DwarfChange2 {
             return Some(format!("{page}-06.htm"));
         }
         Some(format!("{page}-07.htm"))
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        let (_, to, _, _) = self.spec();
+        if event.parse::<i32>() == Ok(to) {
+            return self.class_change(ctx, to);
+        }
+        echoed_page(event, &[self.page_npc()])
     }
 }

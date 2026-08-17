@@ -119,6 +119,10 @@ impl QuestScript for CastleChamberlain {
         CHAMBERLAIN_IDS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         // Java `onFirstTalk`: the owner console, or the "not your castle" page.
         Some(
@@ -129,10 +133,6 @@ impl QuestScript for CastleChamberlain {
             }
             .to_string(),
         )
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

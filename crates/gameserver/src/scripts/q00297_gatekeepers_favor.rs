@@ -35,21 +35,6 @@ impl QuestScript for Q00297GatekeepersFavor {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 21).then(|| "30540-01.htm".to_string())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event.eq_ignore_ascii_case("30540-03.htm") {
-            if ctx.player_level() < MIN_LEVEL {
-                return Some("30540-01.htm".to_string());
-            }
-            ctx.start_quest();
-            return Some("30540-03.htm".to_string());
-        }
-        None
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_started() {
-            ctx.collect_capped(STARSTONE, STARSTONE_COUNT, 2);
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -66,5 +51,20 @@ impl QuestScript for Q00297GatekeepersFavor {
             }
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event.eq_ignore_ascii_case("30540-03.htm") {
+            if ctx.player_level() < MIN_LEVEL {
+                return Some("30540-01.htm".to_string());
+            }
+            ctx.start_quest();
+            return Some("30540-03.htm".to_string());
+        }
+        None
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.is_started() {
+            ctx.collect_capped(STARSTONE, STARSTONE_COUNT, 2);
+        }
     }
 }

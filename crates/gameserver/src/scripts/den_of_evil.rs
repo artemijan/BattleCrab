@@ -114,15 +114,22 @@ impl QuestScript for FrightenedRagnaOrc {
     fn talk_npcs(&self) -> &[i32] {
         &[]
     }
-    fn attack_npcs(&self) -> &[i32] {
+    fn kill_npcs(&self) -> &[i32] {
         &[FRIGHTENED_ORC]
     }
-    fn kill_npcs(&self) -> &[i32] {
+    fn attack_npcs(&self) -> &[i32] {
         &[FRIGHTENED_ORC]
     }
 
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        let msg = SAY_DEATH[ctx.roll(2) as usize];
+        ctx.npc_say(msg);
+        ctx.cancel_quest_timer("say");
+        ctx.cancel_quest_timer("reward");
     }
 
     fn on_attack(&self, ctx: &mut QuestCtx) {
@@ -146,13 +153,6 @@ impl QuestScript for FrightenedRagnaOrc {
             }
             _ => {}
         }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        let msg = SAY_DEATH[ctx.roll(2) as usize];
-        ctx.npc_say(msg);
-        ctx.cancel_quest_timer("say");
-        ctx.cancel_quest_timer("reward");
     }
 
     fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {

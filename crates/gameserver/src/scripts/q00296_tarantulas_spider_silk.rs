@@ -43,6 +43,36 @@ impl QuestScript for Q00296TarantulasSpiderSilk {
         (ctx.player_level() > 21).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() && ctx.npc_id == TRADER_MION {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30519-02.htm"
+                } else {
+                    "30519-01.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            if ctx.npc_id == TRADER_MION {
+                let silk = ctx.quest_items_count(TARANTULA_SPIDER_SILK);
+                if silk >= 1 {
+                    let bonus = if silk >= 10 { 1000 } else { 0 };
+                    ctx.give_adena(silk * 5 + bonus, true);
+                    ctx.take_items(TARANTULA_SPIDER_SILK, -1);
+                    return Some("30519-05.html".to_string());
+                }
+                return Some("30519-04.html".to_string());
+            }
+            if ctx.npc_id == DEFENDER_NATHAN {
+                return Some("30548-01.html".to_string());
+            }
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -86,35 +116,5 @@ impl QuestScript for Q00296TarantulasSpiderSilk {
         } else if chance > 45 {
             ctx.give_item_randomly(TARANTULA_SPIDER_SILK, 1, 0, 1.0, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() && ctx.npc_id == TRADER_MION {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30519-02.htm"
-                } else {
-                    "30519-01.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            if ctx.npc_id == TRADER_MION {
-                let silk = ctx.quest_items_count(TARANTULA_SPIDER_SILK);
-                if silk >= 1 {
-                    let bonus = if silk >= 10 { 1000 } else { 0 };
-                    ctx.give_adena(silk * 5 + bonus, true);
-                    ctx.take_items(TARANTULA_SPIDER_SILK, -1);
-                    return Some("30519-05.html".to_string());
-                }
-                return Some("30519-04.html".to_string());
-            }
-            if ctx.npc_id == DEFENDER_NATHAN {
-                return Some("30548-01.html".to_string());
-            }
-        }
-        Some(ctx.no_quest_html())
     }
 }

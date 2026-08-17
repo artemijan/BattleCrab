@@ -45,41 +45,6 @@ impl QuestScript for Q00273InvadersOfTheHolyLand {
         (ctx.player_level() > 14).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30566-04.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30566-08.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30566-09.html" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        let chance = MONSTERS
-            .iter()
-            .find(|(id, _)| *id == ctx.npc_id)
-            .map(|(_, c)| *c)
-            .unwrap_or(0);
-        if ctx.roll(100) <= chance {
-            ctx.give_items(BLACK_SOULSTONE, 1);
-        } else {
-            ctx.give_items(RED_SOULSTONE, 1);
-        }
-        ctx.play_sound(quest_sounds::ITEMGET);
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -115,5 +80,40 @@ impl QuestScript for Q00273InvadersOfTheHolyLand {
             });
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30566-04.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30566-08.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30566-09.html" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        let chance = MONSTERS
+            .iter()
+            .find(|(id, _)| *id == ctx.npc_id)
+            .map(|(_, c)| *c)
+            .unwrap_or(0);
+        if ctx.roll(100) <= chance {
+            ctx.give_items(BLACK_SOULSTONE, 1);
+        } else {
+            ctx.give_items(RED_SOULSTONE, 1);
+        }
+        ctx.play_sound(quest_sounds::ITEMGET);
     }
 }

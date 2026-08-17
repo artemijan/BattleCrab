@@ -36,6 +36,31 @@ impl QuestScript for Q00688DefeatTheElrokianRaiders {
         &[DINOSAUR_FANG_NECKLACE]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "32105-01.htm"
+                } else {
+                    "32105-04.html"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some(
+                if ctx.quest_items_count(DINOSAUR_FANG_NECKLACE) > 0 {
+                    "32105-05.html"
+                } else {
+                    "32105-12.html"
+                }
+                .to_string(),
+            );
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -97,30 +122,5 @@ impl QuestScript for Q00688DefeatTheElrokianRaiders {
             ctx.reward_items(DINOSAUR_FANG_NECKLACE, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "32105-01.htm"
-                } else {
-                    "32105-04.html"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some(
-                if ctx.quest_items_count(DINOSAUR_FANG_NECKLACE) > 0 {
-                    "32105-05.html"
-                } else {
-                    "32105-12.html"
-                }
-                .to_string(),
-            );
-        }
-        Some(ctx.no_quest_html())
     }
 }

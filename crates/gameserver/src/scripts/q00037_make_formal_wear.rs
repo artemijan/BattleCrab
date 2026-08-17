@@ -58,6 +58,62 @@ impl QuestScript for Q00037MakeFormalWear {
         &[SIGNET_RING, ICE_WINE, BOX_OF_COOKIES]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let cond = ctx.cond();
+        let html = match ctx.npc_id {
+            ALEXIS => {
+                if ctx.is_created() {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        "30842-01.htm".to_string()
+                    } else {
+                        "30842-02.html".to_string()
+                    }
+                } else if ctx.is_completed() {
+                    ctx.already_completed_html()
+                } else if cond == 1 {
+                    "30842-04.html".to_string()
+                } else {
+                    ctx.no_quest_html()
+                }
+            }
+            LEIKAR if ctx.is_started() => match cond {
+                1 => "31520-01.html".to_string(),
+                2 => "31520-03.html".to_string(),
+                5 => "31520-04.html".to_string(),
+                6 => {
+                    if has_components(ctx) {
+                        "31520-06.html".to_string()
+                    } else {
+                        "31520-07.html".to_string()
+                    }
+                }
+                7 => {
+                    if has(ctx, DRESS_SHOES_BOX) {
+                        "31520-10.html".to_string()
+                    } else {
+                        "31520-11.html".to_string()
+                    }
+                }
+                _ => ctx.no_quest_html(),
+            },
+            JEREMY if ctx.is_started() => match cond {
+                2 => "31521-01.html".to_string(),
+                3 => "31521-03.html".to_string(),
+                4 => "31521-04.html".to_string(),
+                5 => "31521-06.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            MIST if ctx.is_started() => match cond {
+                3 => "31627-01.html".to_string(),
+                4 => "31627-03.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -122,61 +178,5 @@ impl QuestScript for Q00037MakeFormalWear {
             }
             _ => None,
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let cond = ctx.cond();
-        let html = match ctx.npc_id {
-            ALEXIS => {
-                if ctx.is_created() {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        "30842-01.htm".to_string()
-                    } else {
-                        "30842-02.html".to_string()
-                    }
-                } else if ctx.is_completed() {
-                    ctx.already_completed_html()
-                } else if cond == 1 {
-                    "30842-04.html".to_string()
-                } else {
-                    ctx.no_quest_html()
-                }
-            }
-            LEIKAR if ctx.is_started() => match cond {
-                1 => "31520-01.html".to_string(),
-                2 => "31520-03.html".to_string(),
-                5 => "31520-04.html".to_string(),
-                6 => {
-                    if has_components(ctx) {
-                        "31520-06.html".to_string()
-                    } else {
-                        "31520-07.html".to_string()
-                    }
-                }
-                7 => {
-                    if has(ctx, DRESS_SHOES_BOX) {
-                        "31520-10.html".to_string()
-                    } else {
-                        "31520-11.html".to_string()
-                    }
-                }
-                _ => ctx.no_quest_html(),
-            },
-            JEREMY if ctx.is_started() => match cond {
-                2 => "31521-01.html".to_string(),
-                3 => "31521-03.html".to_string(),
-                4 => "31521-04.html".to_string(),
-                5 => "31521-06.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            MIST if ctx.is_started() => match cond {
-                3 => "31627-01.html".to_string(),
-                4 => "31627-03.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }

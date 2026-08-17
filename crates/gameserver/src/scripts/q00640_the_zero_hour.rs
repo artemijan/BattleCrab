@@ -54,6 +54,29 @@ impl QuestScript for Q00640TheZeroHour {
         &[FANG_OF_STAKATO]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.player_level() < MIN_LEVEL {
+                return Some("31554-00.htm".to_string());
+            }
+            // Requires In Search of the Nest (109) completed.
+            return Some(if ctx.other_quest_completed("Q00109_InSearchOfTheNest") {
+                "31554-01.htm".to_string()
+            } else {
+                "31554-10.htm".to_string()
+            });
+        }
+        if ctx.is_started() && ctx.cond() == 1 {
+            return Some(if ctx.quest_items_count(FANG_OF_STAKATO) >= 1 {
+                "31554-04.htm".to_string()
+            } else {
+                "31554-03.htm".to_string()
+            });
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -81,29 +104,6 @@ impl QuestScript for Q00640TheZeroHour {
                 }
             }
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.player_level() < MIN_LEVEL {
-                return Some("31554-00.htm".to_string());
-            }
-            // Requires In Search of the Nest (109) completed.
-            return Some(if ctx.other_quest_completed("Q00109_InSearchOfTheNest") {
-                "31554-01.htm".to_string()
-            } else {
-                "31554-10.htm".to_string()
-            });
-        }
-        if ctx.is_started() && ctx.cond() == 1 {
-            return Some(if ctx.quest_items_count(FANG_OF_STAKATO) >= 1 {
-                "31554-04.htm".to_string()
-            } else {
-                "31554-03.htm".to_string()
-            });
-        }
-        Some(ctx.no_quest_html())
     }
 
     fn on_kill(&self, ctx: &mut QuestCtx) {

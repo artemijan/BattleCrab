@@ -70,6 +70,71 @@ impl QuestScript for Q00032AnObviousLie {
         &[MAP_OF_GENTLER, MEDICINAL_HERB]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let cond = ctx.cond();
+        let html = match ctx.npc_id {
+            MAXIMILIAN => {
+                if ctx.is_created() {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        "30120-01.htm".to_string()
+                    } else {
+                        "30120-03.html".to_string()
+                    }
+                } else if ctx.is_completed() {
+                    ctx.already_completed_html()
+                } else if cond == 1 {
+                    "30120-04.html".to_string()
+                } else {
+                    ctx.no_quest_html()
+                }
+            }
+            GENTLER if ctx.is_started() => match cond {
+                1 => "30094-01.html".to_string(),
+                2 => "30094-03.html".to_string(),
+                4 => {
+                    if has_herbs(ctx) {
+                        "30094-04.html".to_string()
+                    } else {
+                        "30094-05.html".to_string()
+                    }
+                }
+                5 => {
+                    if has_spirit_ore(ctx) {
+                        "30094-07.html".to_string()
+                    } else {
+                        "30094-08.html".to_string()
+                    }
+                }
+                6 => "30094-10.html".to_string(),
+                7 => "30094-11.html".to_string(),
+                8 => {
+                    if has_thread_and_suede(ctx) {
+                        "30094-13.html".to_string()
+                    } else {
+                        "30094-14.html".to_string()
+                    }
+                }
+                _ => ctx.no_quest_html(),
+            },
+            MIKI_THE_CAT if ctx.is_started() => match cond {
+                2 => {
+                    if count(ctx, MAP_OF_GENTLER) > 0 {
+                        "31706-01.html".to_string()
+                    } else {
+                        ctx.no_quest_html()
+                    }
+                }
+                3..=5 => "31706-03.html".to_string(),
+                6 => "31706-04.html".to_string(),
+                7 => "31706-06.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -158,70 +223,5 @@ impl QuestScript for Q00032AnObviousLie {
         if ctx.give_item_randomly(MEDICINAL_HERB, 1, MEDICINAL_HERB_COUNT, 1.0, true) {
             ctx.set_cond(4, true);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let cond = ctx.cond();
-        let html = match ctx.npc_id {
-            MAXIMILIAN => {
-                if ctx.is_created() {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        "30120-01.htm".to_string()
-                    } else {
-                        "30120-03.html".to_string()
-                    }
-                } else if ctx.is_completed() {
-                    ctx.already_completed_html()
-                } else if cond == 1 {
-                    "30120-04.html".to_string()
-                } else {
-                    ctx.no_quest_html()
-                }
-            }
-            GENTLER if ctx.is_started() => match cond {
-                1 => "30094-01.html".to_string(),
-                2 => "30094-03.html".to_string(),
-                4 => {
-                    if has_herbs(ctx) {
-                        "30094-04.html".to_string()
-                    } else {
-                        "30094-05.html".to_string()
-                    }
-                }
-                5 => {
-                    if has_spirit_ore(ctx) {
-                        "30094-07.html".to_string()
-                    } else {
-                        "30094-08.html".to_string()
-                    }
-                }
-                6 => "30094-10.html".to_string(),
-                7 => "30094-11.html".to_string(),
-                8 => {
-                    if has_thread_and_suede(ctx) {
-                        "30094-13.html".to_string()
-                    } else {
-                        "30094-14.html".to_string()
-                    }
-                }
-                _ => ctx.no_quest_html(),
-            },
-            MIKI_THE_CAT if ctx.is_started() => match cond {
-                2 => {
-                    if count(ctx, MAP_OF_GENTLER) > 0 {
-                        "31706-01.html".to_string()
-                    } else {
-                        ctx.no_quest_html()
-                    }
-                }
-                3 | 4 | 5 => "31706-03.html".to_string(),
-                6 => "31706-04.html".to_string(),
-                7 => "31706-06.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }

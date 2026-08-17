@@ -165,59 +165,6 @@ impl QuestScript for Q00404PathOfTheHumanWizard {
         &QUEST_ITEMS
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "ACCEPT" => Some(match ctx.player_class_id() {
-                MAGE if ctx.player_level() < MIN_LEVEL => "30391-02.htm".to_string(),
-                MAGE if ctx.quest_items_count(BEAD_OF_SEASON) > 0 => "30391-03.htm".to_string(),
-                MAGE => {
-                    // `ACCEPT` starts the quest directly here — there is no
-                    // separate confirmation page as in 401/403.
-                    ctx.start_quest();
-                    "30391-07.htm".to_string()
-                }
-                WIZARD => "30391-02a.htm".to_string(),
-                _ => "30391-01.htm".to_string(),
-            }),
-            "30410-02.html" => Some(event.to_string()),
-            // Wind's collectable is handed over in dialog, not dropped.
-            "30410-03.html" => {
-                ctx.give_items(WIND_FEATHER, 1);
-                ctx.set_cond(6, true);
-                Some(event.to_string())
-            }
-            _ => None,
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let npc_id = ctx.npc_id;
-        let Some((_, token, collect, need, chance, cond)) =
-            DROPS.iter().find(|(mob, ..)| *mob == npc_id)
-        else {
-            return;
-        };
-        if ctx.quest_items_count(*token) == 0 || ctx.quest_items_count(*collect) >= *need {
-            return;
-        }
-        // `getRandom(100) < chance` — percent here, unlike quests 401/403.
-        if ctx.roll(100) >= *chance {
-            return;
-        }
-        ctx.give_items(*collect, 1);
-        if ctx.quest_items_count(*collect) == *need {
-            ctx.set_cond(*cond, true);
-        } else {
-            ctx.play_sound(quest_sounds::ITEMGET);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let npc = ctx.npc_id;
@@ -288,5 +235,58 @@ impl QuestScript for Q00404PathOfTheHumanWizard {
             return Some(format!("{npc}-04.html"));
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "ACCEPT" => Some(match ctx.player_class_id() {
+                MAGE if ctx.player_level() < MIN_LEVEL => "30391-02.htm".to_string(),
+                MAGE if ctx.quest_items_count(BEAD_OF_SEASON) > 0 => "30391-03.htm".to_string(),
+                MAGE => {
+                    // `ACCEPT` starts the quest directly here — there is no
+                    // separate confirmation page as in 401/403.
+                    ctx.start_quest();
+                    "30391-07.htm".to_string()
+                }
+                WIZARD => "30391-02a.htm".to_string(),
+                _ => "30391-01.htm".to_string(),
+            }),
+            "30410-02.html" => Some(event.to_string()),
+            // Wind's collectable is handed over in dialog, not dropped.
+            "30410-03.html" => {
+                ctx.give_items(WIND_FEATHER, 1);
+                ctx.set_cond(6, true);
+                Some(event.to_string())
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        let npc_id = ctx.npc_id;
+        let Some((_, token, collect, need, chance, cond)) =
+            DROPS.iter().find(|(mob, ..)| *mob == npc_id)
+        else {
+            return;
+        };
+        if ctx.quest_items_count(*token) == 0 || ctx.quest_items_count(*collect) >= *need {
+            return;
+        }
+        // `getRandom(100) < chance` — percent here, unlike quests 401/403.
+        if ctx.roll(100) >= *chance {
+            return;
+        }
+        ctx.give_items(*collect, 1);
+        if ctx.quest_items_count(*collect) == *need {
+            ctx.set_cond(*cond, true);
+        } else {
+            ctx.play_sound(quest_sounds::ITEMGET);
+        }
     }
 }

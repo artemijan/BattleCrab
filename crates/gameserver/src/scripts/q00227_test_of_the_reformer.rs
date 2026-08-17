@@ -153,6 +153,49 @@ impl QuestScript for Q00227TestOfTheReformer {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let memo = ctx.memo_state();
+        if ctx.is_created() {
+            if ctx.npc_id == PRIESTESS_PUPINA {
+                let class = ctx.player_class_id();
+                if class == CLERIC || class == SHILLIEN_ORACLE {
+                    return Some(if ctx.player_level() >= MIN_LEVEL {
+                        "30118-03.htm".to_string()
+                    } else {
+                        "30118-01.html".to_string()
+                    });
+                }
+                return Some("30118-02.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == PRIESTESS_PUPINA {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            PRIESTESS_PUPINA => Some(pupina_talk(ctx, memo)),
+            PREACHER_SLA => Some(sla_talk(ctx, memo)),
+            RAMUS => Some(ramus_talk(ctx, memo)),
+            KATARI => Some(katari_talk(ctx, memo)),
+            KAKAN => Some(kakan_talk(ctx, memo)),
+            NYAKURI => Some(nyakuri_talk(ctx, memo)),
+            OL_MAHUM_PILGRIM => {
+                if memo == 7 {
+                    ctx.give_items(OL_MAHUM_MONEY, 1);
+                    ctx.set_memo_state(8);
+                    Some("30732-01.html".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -216,40 +259,6 @@ impl QuestScript for Q00227TestOfTheReformer {
                 Some(event.to_string())
             }
             _ => None,
-        }
-    }
-
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        match ctx.npc_id {
-            NAMELESS_REVENANT => {
-                // Disrupt Undead marks it as "properly reformed" (scriptValue 1);
-                // any other skill spoils it (scriptValue 2). A melee swing (no
-                // skill) leaves it untouched, as in Java.
-                if let Some(skill) = ctx.attack_skill_id() {
-                    if skill == DISRUPT_UNDEAD {
-                        ctx.set_npc_script_value(1);
-                    } else {
-                        ctx.set_npc_script_value(2);
-                    }
-                }
-            }
-            CRIMSON_WEREWOLF => {
-                let engaged = ctx
-                    .attack_skill_id()
-                    .is_some_and(|s| MAGE_ATTACK_SKILLS.contains(&s));
-                if engaged {
-                    // Credit the mage who engaged it (Java stores the attacker's
-                    // object id in `scriptValue`).
-                    ctx.set_npc_script_value(ctx.player);
-                } else {
-                    // "Cowardly guy!" — a melee/non-mage hit makes it flee.
-                    ctx.delete_npc();
-                }
-            }
-            _ => {}
         }
     }
 
@@ -351,46 +360,37 @@ impl QuestScript for Q00227TestOfTheReformer {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let memo = ctx.memo_state();
-        if ctx.is_created() {
-            if ctx.npc_id == PRIESTESS_PUPINA {
-                let class = ctx.player_class_id();
-                if class == CLERIC || class == SHILLIEN_ORACLE {
-                    return Some(if ctx.player_level() >= MIN_LEVEL {
-                        "30118-03.htm".to_string()
-                    } else {
-                        "30118-01.html".to_string()
-                    });
-                }
-                return Some("30118-02.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == PRIESTESS_PUPINA {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
         }
         match ctx.npc_id {
-            PRIESTESS_PUPINA => Some(pupina_talk(ctx, memo)),
-            PREACHER_SLA => Some(sla_talk(ctx, memo)),
-            RAMUS => Some(ramus_talk(ctx, memo)),
-            KATARI => Some(katari_talk(ctx, memo)),
-            KAKAN => Some(kakan_talk(ctx, memo)),
-            NYAKURI => Some(nyakuri_talk(ctx, memo)),
-            OL_MAHUM_PILGRIM => {
-                if memo == 7 {
-                    ctx.give_items(OL_MAHUM_MONEY, 1);
-                    ctx.set_memo_state(8);
-                    Some("30732-01.html".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
+            NAMELESS_REVENANT => {
+                // Disrupt Undead marks it as "properly reformed" (scriptValue 1);
+                // any other skill spoils it (scriptValue 2). A melee swing (no
+                // skill) leaves it untouched, as in Java.
+                if let Some(skill) = ctx.attack_skill_id() {
+                    if skill == DISRUPT_UNDEAD {
+                        ctx.set_npc_script_value(1);
+                    } else {
+                        ctx.set_npc_script_value(2);
+                    }
                 }
             }
-            _ => Some(ctx.no_quest_html()),
+            CRIMSON_WEREWOLF => {
+                let engaged = ctx
+                    .attack_skill_id()
+                    .is_some_and(|s| MAGE_ATTACK_SKILLS.contains(&s));
+                if engaged {
+                    // Credit the mage who engaged it (Java stores the attacker's
+                    // object id in `scriptValue`).
+                    ctx.set_npc_script_value(ctx.player);
+                } else {
+                    // "Cowardly guy!" — a melee/non-mage hit makes it flee.
+                    ctx.delete_npc();
+                }
+            }
+            _ => {}
         }
     }
 }

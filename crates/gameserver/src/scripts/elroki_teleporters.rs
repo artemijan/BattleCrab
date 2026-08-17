@@ -33,10 +33,6 @@ impl QuestScript for ElrokiTeleporters {
         &[ORAHOCHIN, GARIACHIN]
     }
 
-    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        Some(format!("{}.html", ctx.npc_id))
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         // Java `talker.isInCombat()` — the attack stance is still running.
         let in_combat = ctx
@@ -54,5 +50,9 @@ impl QuestScript for ElrokiTeleporters {
         };
         ctx.teleport_to(x, y, z);
         None
+    }
+
+    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        Some(format!("{}.html", ctx.npc_id))
     }
 }

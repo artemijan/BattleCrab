@@ -285,6 +285,27 @@ impl QuestScript for Q00620FourGoblets {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let html = match ctx.npc_id {
+            NAMELESS_SPIRIT => nameless_talk(ctx),
+            GHOST_OF_WIGOTH_1 => match ctx.cond() {
+                1 if goblet_count(ctx) == 1 => "31452-01.html".to_string(),
+                1 if goblet_count(ctx) > 1 => "31452-02.html".to_string(),
+                2 => "31452-02.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            GHOST_OF_WIGOTH_2 => wigoth2_talk(ctx),
+            CONQ_SM => "31921-E.htm".to_string(),
+            EMPER_SM => "31922-E.htm".to_string(),
+            SAGES_SM => "31923-E.htm".to_string(),
+            JUDGE_SM => "31924-E.htm".to_string(),
+            GHOST_CHAMBERLAIN_1 => "31919-1.htm".to_string(),
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -412,27 +433,6 @@ impl QuestScript for Q00620FourGoblets {
         {
             ctx.give_items(g, 1);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let html = match ctx.npc_id {
-            NAMELESS_SPIRIT => nameless_talk(ctx),
-            GHOST_OF_WIGOTH_1 => match ctx.cond() {
-                1 if goblet_count(ctx) == 1 => "31452-01.html".to_string(),
-                1 if goblet_count(ctx) > 1 => "31452-02.html".to_string(),
-                2 => "31452-02.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            GHOST_OF_WIGOTH_2 => wigoth2_talk(ctx),
-            CONQ_SM => "31921-E.htm".to_string(),
-            EMPER_SM => "31922-E.htm".to_string(),
-            SAGES_SM => "31923-E.htm".to_string(),
-            JUDGE_SM => "31924-E.htm".to_string(),
-            GHOST_CHAMBERLAIN_1 => "31919-1.htm".to_string(),
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }
 

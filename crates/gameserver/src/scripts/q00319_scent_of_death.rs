@@ -33,22 +33,6 @@ impl QuestScript for Q00319ScentOfDeath {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 18).then(|| ctx.no_quest_html())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && event == "30138-04.htm" && ctx.player_level() >= MIN_LEVEL {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.quest_items_count(ZOMBIES_SKIN) < REQUIRED && ctx.roll(10) > 7 {
-            ctx.give_items(ZOMBIES_SKIN, 1);
-            // Java sets cond 2 on any skin below the target (a quirk).
-            if ctx.quest_items_count(ZOMBIES_SKIN) < REQUIRED {
-                ctx.set_cond(2, true);
-            }
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -71,5 +55,21 @@ impl QuestScript for Q00319ScentOfDeath {
             return Some("30138-05.html".to_string());
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && event == "30138-04.htm" && ctx.player_level() >= MIN_LEVEL {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.quest_items_count(ZOMBIES_SKIN) < REQUIRED && ctx.roll(10) > 7 {
+            ctx.give_items(ZOMBIES_SKIN, 1);
+            // Java sets cond 2 on any skin below the target (a quirk).
+            if ctx.quest_items_count(ZOMBIES_SKIN) < REQUIRED {
+                ctx.set_cond(2, true);
+            }
+        }
     }
 }

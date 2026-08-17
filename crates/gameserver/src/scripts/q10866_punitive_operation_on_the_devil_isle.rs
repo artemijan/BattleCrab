@@ -44,6 +44,36 @@ impl QuestScript for Q10866PunitiveOperationOnTheDevilIsle {
         &[RODEMAI, EIN, FETHIN, NIKIA]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        // Java's `getQuestState(player, true)` — talking creates the state, so
+        // `isCreated()` below is reached on the very first click.
+        ctx.ensure_qs();
+        let html = if ctx.is_created() {
+            // The level gate is inside `onTalk`, not an `addCond*`: an
+            // under-level player still gets a page, just a different one.
+            if ctx.player_level() >= MIN_LEVEL {
+                "30756-01.htm"
+            } else {
+                "no_lvl.html"
+            }
+        } else if ctx.is_started() {
+            match ctx.npc_id {
+                RODEMAI if ctx.is_cond(1) => "30756-02.html",
+                EIN if ctx.is_cond(1) => "34017-01.html",
+                EIN if ctx.is_cond(2) => "34017-02.html",
+                FETHIN if ctx.is_cond(2) => "34019-01.html",
+                FETHIN if ctx.is_cond(3) => "34019-02.html",
+                NIKIA if ctx.is_cond(3) => "34020-01.html",
+                _ => return Some(ctx.no_quest_html()),
+            }
+        } else if ctx.is_completed() && ctx.npc_id == RODEMAI {
+            return Some(ctx.already_completed_html());
+        } else {
+            return Some(ctx.no_quest_html());
+        };
+        Some(html.to_string())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -75,35 +105,5 @@ impl QuestScript for Q10866PunitiveOperationOnTheDevilIsle {
             }
             _ => None,
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        // Java's `getQuestState(player, true)` — talking creates the state, so
-        // `isCreated()` below is reached on the very first click.
-        ctx.ensure_qs();
-        let html = if ctx.is_created() {
-            // The level gate is inside `onTalk`, not an `addCond*`: an
-            // under-level player still gets a page, just a different one.
-            if ctx.player_level() >= MIN_LEVEL {
-                "30756-01.htm"
-            } else {
-                "no_lvl.html"
-            }
-        } else if ctx.is_started() {
-            match ctx.npc_id {
-                RODEMAI if ctx.is_cond(1) => "30756-02.html",
-                EIN if ctx.is_cond(1) => "34017-01.html",
-                EIN if ctx.is_cond(2) => "34017-02.html",
-                FETHIN if ctx.is_cond(2) => "34019-01.html",
-                FETHIN if ctx.is_cond(3) => "34019-02.html",
-                NIKIA if ctx.is_cond(3) => "34020-01.html",
-                _ => return Some(ctx.no_quest_html()),
-            }
-        } else if ctx.is_completed() && ctx.npc_id == RODEMAI {
-            return Some(ctx.already_completed_html());
-        } else {
-            return Some(ctx.no_quest_html());
-        };
-        Some(html.to_string())
     }
 }

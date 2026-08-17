@@ -128,6 +128,38 @@ impl QuestScript for Q00213TrialOfTheSeeker {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == MASTER_DUFNER {
+                let class = ctx.player_class_id();
+                if class == ROGUE || class == ELVEN_SCOUT || class == ASSASSIN {
+                    return Some(if ctx.player_level() < MIN_LEVEL {
+                        "30106-02.html".to_string()
+                    } else {
+                        "30106-03.htm".to_string()
+                    });
+                }
+                return Some("30106-01.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == MASTER_DUFNER {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            MASTER_DUFNER => Some(dufner_talk(ctx)),
+            MASTER_TERRY => Some(terry_talk(ctx)),
+            BLACKSMITH_BRUNON => Some(brunon_talk(ctx)),
+            TRADER_VIKTOR => Some(viktor_talk(ctx)),
+            MAGISTER_MARINA => Some(marina_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -296,38 +328,6 @@ impl QuestScript for Q00213TrialOfTheSeeker {
                 ctx.set_cond(3, true);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == MASTER_DUFNER {
-                let class = ctx.player_class_id();
-                if class == ROGUE || class == ELVEN_SCOUT || class == ASSASSIN {
-                    return Some(if ctx.player_level() < MIN_LEVEL {
-                        "30106-02.html".to_string()
-                    } else {
-                        "30106-03.htm".to_string()
-                    });
-                }
-                return Some("30106-01.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == MASTER_DUFNER {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            MASTER_DUFNER => Some(dufner_talk(ctx)),
-            MASTER_TERRY => Some(terry_talk(ctx)),
-            BLACKSMITH_BRUNON => Some(brunon_talk(ctx)),
-            TRADER_VIKTOR => Some(viktor_talk(ctx)),
-            MAGISTER_MARINA => Some(marina_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

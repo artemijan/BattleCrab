@@ -122,162 +122,6 @@ impl QuestScript for Q00226TestOfTheHealer {
         ]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        let memo = ctx.memo_state();
-        match event {
-            "ACCEPT" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    ctx.set_memo_state(1);
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                    ctx.give_items(REPORT_OF_PERRIN, 1);
-                }
-                None
-            }
-            "30473-08.html" => {
-                if memo == 10 && has(ctx, GOLDEN_STATUE) {
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            "30473-09.html" => {
-                if memo == 10 && has(ctx, GOLDEN_STATUE) {
-                    ctx.give_adena(233490, true);
-                    ctx.give_items(MARK_OF_HEALER, 1);
-                    ctx.add_exp_and_sp(738283, 50662);
-                    ctx.exit_quest(false, true);
-                    ctx.social_action(3);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30428-02.html" => {
-                if memo == 1 && has(ctx, REPORT_OF_PERRIN) {
-                    ctx.set_cond(2, true);
-                    // `if (npc.getSummonedNpcCount() < 1)`.
-                    if ctx.summoned_npc_count() < 1 {
-                        ctx.spawn_attacker(TATOMA, true);
-                    }
-                }
-                Some(event.to_string())
-            }
-            "30658-02.html" => {
-                if memo == 4
-                    && !has(ctx, PICTURE_OF_WINDY)
-                    && !has(ctx, WINDYS_PEBBLES)
-                    && !has(ctx, GOLDEN_STATUE)
-                {
-                    if ctx.quest_items_count(ADENA) >= 1000 {
-                        ctx.take_items(ADENA, 1000);
-                        ctx.give_items(PICTURE_OF_WINDY, 1);
-                        ctx.set_cond(7, true);
-                        return Some(event.to_string());
-                    }
-                    return Some("30658-05.html".to_string());
-                }
-                None
-            }
-            "30658-03.html" => {
-                if memo == 4
-                    && !has(ctx, PICTURE_OF_WINDY)
-                    && !has(ctx, WINDYS_PEBBLES)
-                    && !has(ctx, GOLDEN_STATUE)
-                {
-                    ctx.set_memo_state(5);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30658-07.html" => Some(event.to_string()),
-            "30660-02.html" => {
-                if has(ctx, PICTURE_OF_WINDY) {
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            "30660-03.html" => {
-                if has(ctx, PICTURE_OF_WINDY) {
-                    ctx.take_items(PICTURE_OF_WINDY, 1);
-                    ctx.give_items(WINDYS_PEBBLES, 1);
-                    ctx.set_cond(8, true);
-                    ctx.delete_npc();
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30665-02.html" => {
-                if secret_letters(ctx) == 4 {
-                    ctx.give_items(CRISTINAS_LETTER, 1);
-                    ctx.take_items(SECRET_LETTER1, 1);
-                    ctx.take_items(SECRET_LETTER2, 1);
-                    ctx.take_items(SECRET_LETTER3, 1);
-                    ctx.take_items(SECRET_LETTER4, 1);
-                    ctx.set_memo_state(9);
-                    ctx.set_cond(22, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30674-02.html" => {
-                if memo == 6 {
-                    ctx.set_cond(11, false);
-                    ctx.take_items(ORDER_OF_SORIUS, 1);
-                    ctx.spawn_near_npc(LERO_LIZARDMAN_AGENT, true);
-                    ctx.spawn_near_npc(LERO_LIZARDMAN_AGENT, true);
-                    ctx.spawn_near_npc(LERO_LIZARDMAN_LEADER, true);
-                    ctx.play_sound(quest_sounds::BEFORE_BATTLE);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            _ => None,
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let memo = ctx.memo_state();
-        match ctx.npc_id {
-            LERO_LIZARDMAN_LEADER => {
-                if memo == 6 && !has(ctx, SECRET_LETTER1) {
-                    ctx.give_items(SECRET_LETTER1, 1);
-                    ctx.set_cond(12, true);
-                }
-            }
-            LERO_LIZARDMAN_ASSASSIN => {
-                if memo == 8 && has(ctx, SECRET_LETTER1) && !has(ctx, SECRET_LETTER2) {
-                    ctx.give_items(SECRET_LETTER2, 1);
-                    ctx.set_cond(15, true);
-                }
-            }
-            LERO_LIZARDMAN_SNIPER => {
-                if memo == 8 && has(ctx, SECRET_LETTER1) && !has(ctx, SECRET_LETTER3) {
-                    ctx.give_items(SECRET_LETTER3, 1);
-                    ctx.set_cond(17, true);
-                }
-            }
-            LERO_LIZARDMAN_LORD => {
-                if memo == 8 && has(ctx, SECRET_LETTER1) && !has(ctx, SECRET_LETTER4) {
-                    ctx.give_items(SECRET_LETTER4, 1);
-                    ctx.set_cond(19, true);
-                }
-            }
-            TATOMA if memo == 1 => {
-                ctx.set_memo_state(2);
-                ctx.set_cond(3, true);
-                ctx.play_sound(quest_sounds::MIDDLE);
-            }
-            _ => {}
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let memo = ctx.memo_state();
@@ -476,6 +320,162 @@ impl QuestScript for Q00226TestOfTheHealer {
                 _ => Some(ctx.no_quest_html()),
             },
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        let memo = ctx.memo_state();
+        match event {
+            "ACCEPT" => {
+                if ctx.is_created() {
+                    ctx.start_quest();
+                    ctx.set_memo_state(1);
+                    ctx.play_sound(quest_sounds::MIDDLE);
+                    ctx.give_items(REPORT_OF_PERRIN, 1);
+                }
+                None
+            }
+            "30473-08.html" => {
+                if memo == 10 && has(ctx, GOLDEN_STATUE) {
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            "30473-09.html" => {
+                if memo == 10 && has(ctx, GOLDEN_STATUE) {
+                    ctx.give_adena(233490, true);
+                    ctx.give_items(MARK_OF_HEALER, 1);
+                    ctx.add_exp_and_sp(738283, 50662);
+                    ctx.exit_quest(false, true);
+                    ctx.social_action(3);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            "30428-02.html" => {
+                if memo == 1 && has(ctx, REPORT_OF_PERRIN) {
+                    ctx.set_cond(2, true);
+                    // `if (npc.getSummonedNpcCount() < 1)`.
+                    if ctx.summoned_npc_count() < 1 {
+                        ctx.spawn_attacker(TATOMA, true);
+                    }
+                }
+                Some(event.to_string())
+            }
+            "30658-02.html" => {
+                if memo == 4
+                    && !has(ctx, PICTURE_OF_WINDY)
+                    && !has(ctx, WINDYS_PEBBLES)
+                    && !has(ctx, GOLDEN_STATUE)
+                {
+                    if ctx.quest_items_count(ADENA) >= 1000 {
+                        ctx.take_items(ADENA, 1000);
+                        ctx.give_items(PICTURE_OF_WINDY, 1);
+                        ctx.set_cond(7, true);
+                        return Some(event.to_string());
+                    }
+                    return Some("30658-05.html".to_string());
+                }
+                None
+            }
+            "30658-03.html" => {
+                if memo == 4
+                    && !has(ctx, PICTURE_OF_WINDY)
+                    && !has(ctx, WINDYS_PEBBLES)
+                    && !has(ctx, GOLDEN_STATUE)
+                {
+                    ctx.set_memo_state(5);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            "30658-07.html" => Some(event.to_string()),
+            "30660-02.html" => {
+                if has(ctx, PICTURE_OF_WINDY) {
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            "30660-03.html" => {
+                if has(ctx, PICTURE_OF_WINDY) {
+                    ctx.take_items(PICTURE_OF_WINDY, 1);
+                    ctx.give_items(WINDYS_PEBBLES, 1);
+                    ctx.set_cond(8, true);
+                    ctx.delete_npc();
+                    return Some(event.to_string());
+                }
+                None
+            }
+            "30665-02.html" => {
+                if secret_letters(ctx) == 4 {
+                    ctx.give_items(CRISTINAS_LETTER, 1);
+                    ctx.take_items(SECRET_LETTER1, 1);
+                    ctx.take_items(SECRET_LETTER2, 1);
+                    ctx.take_items(SECRET_LETTER3, 1);
+                    ctx.take_items(SECRET_LETTER4, 1);
+                    ctx.set_memo_state(9);
+                    ctx.set_cond(22, true);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            "30674-02.html" => {
+                if memo == 6 {
+                    ctx.set_cond(11, false);
+                    ctx.take_items(ORDER_OF_SORIUS, 1);
+                    ctx.spawn_near_npc(LERO_LIZARDMAN_AGENT, true);
+                    ctx.spawn_near_npc(LERO_LIZARDMAN_AGENT, true);
+                    ctx.spawn_near_npc(LERO_LIZARDMAN_LEADER, true);
+                    ctx.play_sound(quest_sounds::BEFORE_BATTLE);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        let memo = ctx.memo_state();
+        match ctx.npc_id {
+            LERO_LIZARDMAN_LEADER => {
+                if memo == 6 && !has(ctx, SECRET_LETTER1) {
+                    ctx.give_items(SECRET_LETTER1, 1);
+                    ctx.set_cond(12, true);
+                }
+            }
+            LERO_LIZARDMAN_ASSASSIN => {
+                if memo == 8 && has(ctx, SECRET_LETTER1) && !has(ctx, SECRET_LETTER2) {
+                    ctx.give_items(SECRET_LETTER2, 1);
+                    ctx.set_cond(15, true);
+                }
+            }
+            LERO_LIZARDMAN_SNIPER => {
+                if memo == 8 && has(ctx, SECRET_LETTER1) && !has(ctx, SECRET_LETTER3) {
+                    ctx.give_items(SECRET_LETTER3, 1);
+                    ctx.set_cond(17, true);
+                }
+            }
+            LERO_LIZARDMAN_LORD => {
+                if memo == 8 && has(ctx, SECRET_LETTER1) && !has(ctx, SECRET_LETTER4) {
+                    ctx.give_items(SECRET_LETTER4, 1);
+                    ctx.set_cond(19, true);
+                }
+            }
+            TATOMA if memo == 1 => {
+                ctx.set_memo_state(2);
+                ctx.set_cond(3, true);
+                ctx.play_sound(quest_sounds::MIDDLE);
+            }
+            _ => {}
         }
     }
 }

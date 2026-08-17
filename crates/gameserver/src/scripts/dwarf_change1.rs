@@ -147,15 +147,6 @@ impl QuestScript for DwarfChange1 {
         self.npcs()
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        let target = self.target_class().to_string();
-        if event == target {
-            return self.class_change(ctx, self.target_class());
-        }
-        // The dialog pages echo back.
-        echoed_page(event, self.npcs())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let npc = ctx.npc_id;
         if ctx.is_in_category(self.talk_category()) {
@@ -163,5 +154,14 @@ impl QuestScript for DwarfChange1 {
         } else {
             Some(format!("{npc}-05.htm"))
         }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        let target = self.target_class().to_string();
+        if event == target {
+            return self.class_change(ctx, self.target_class());
+        }
+        // The dialog pages echo back.
+        echoed_page(event, self.npcs())
     }
 }

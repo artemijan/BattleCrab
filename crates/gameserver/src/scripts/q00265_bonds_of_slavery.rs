@@ -43,6 +43,33 @@ impl QuestScript for Q00265BondsOfSlavery {
         (ctx.player_level() > 11).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_race() != RACE_DARK_ELF {
+                    "30357-01.html"
+                } else if ctx.player_level() >= MIN_LEVEL {
+                    "30357-03.htm"
+                } else {
+                    "30357-02.html"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            let shackles = ctx.quest_items_count(IMP_SHACKLES);
+            return Some(if shackles > 0 {
+                ctx.give_adena((shackles * 5) + if shackles >= 10 { 500 } else { 0 }, true);
+                ctx.take_items(IMP_SHACKLES, -1);
+                "30357-06.html".to_string()
+            } else {
+                "30357-05.html".to_string()
+            });
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -76,32 +103,5 @@ impl QuestScript for Q00265BondsOfSlavery {
             ctx.give_items(IMP_SHACKLES, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_race() != RACE_DARK_ELF {
-                    "30357-01.html"
-                } else if ctx.player_level() >= MIN_LEVEL {
-                    "30357-03.htm"
-                } else {
-                    "30357-02.html"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            let shackles = ctx.quest_items_count(IMP_SHACKLES);
-            return Some(if shackles > 0 {
-                ctx.give_adena((shackles * 5) + if shackles >= 10 { 500 } else { 0 }, true);
-                ctx.take_items(IMP_SHACKLES, -1);
-                "30357-06.html".to_string()
-            } else {
-                "30357-05.html".to_string()
-            });
-        }
-        Some(ctx.no_quest_html())
     }
 }

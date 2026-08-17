@@ -181,6 +181,39 @@ impl QuestScript for Q00218TestimonyOfLife {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == MASTER_CARDIEN {
+                if ctx.player_race() != RACE_ELF {
+                    return Some("30460-01.html".to_string());
+                } else if ctx.player_level() < MIN_LEVEL {
+                    return Some("30460-02.html".to_string());
+                } else if ctx.is_in_category("ELF_2ND_GROUP") {
+                    return Some("30460-03.htm".to_string());
+                }
+                return Some("30460-01a.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == MASTER_CARDIEN {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            MASTER_CARDIEN => Some(cardien_talk(ctx)),
+            HIERARCH_ASTERIOS => Some(asterios_talk(ctx)),
+            BLACKSMITH_PUSHKIN => Some(pushkin_talk(ctx)),
+            THALIA => Some(thalia_talk(ctx)),
+            ARKENIA => Some(arkenia_talk(ctx)),
+            PRIEST_ADONIUS => Some(adonius_talk(ctx)),
+            ISAEL_SILVERSHADOW => Some(isael_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -329,39 +362,6 @@ impl QuestScript for Q00218TestimonyOfLife {
                 ctx.set_cond(19, true);
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == MASTER_CARDIEN {
-                if ctx.player_race() != RACE_ELF {
-                    return Some("30460-01.html".to_string());
-                } else if ctx.player_level() < MIN_LEVEL {
-                    return Some("30460-02.html".to_string());
-                } else if ctx.is_in_category("ELF_2ND_GROUP") {
-                    return Some("30460-03.htm".to_string());
-                }
-                return Some("30460-01a.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == MASTER_CARDIEN {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            MASTER_CARDIEN => Some(cardien_talk(ctx)),
-            HIERARCH_ASTERIOS => Some(asterios_talk(ctx)),
-            BLACKSMITH_PUSHKIN => Some(pushkin_talk(ctx)),
-            THALIA => Some(thalia_talk(ctx)),
-            ARKENIA => Some(arkenia_talk(ctx)),
-            PRIEST_ADONIUS => Some(adonius_talk(ctx)),
-            ISAEL_SILVERSHADOW => Some(isael_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

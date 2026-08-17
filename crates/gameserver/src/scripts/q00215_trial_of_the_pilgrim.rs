@@ -101,113 +101,6 @@ impl QuestScript for Q00215TrialOfThePilgrim {
         ]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        let memo = ctx.memo_state();
-        match event {
-            "ACCEPT" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    ctx.set_memo_state(1);
-                    ctx.give_items(VOUCHER_OF_TRIAL, 1);
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                }
-                None
-            }
-            "30648-05.html" | "30648-06.html" | "30648-07.html" | "30648-08.html" => {
-                Some(event.to_string())
-            }
-            "30362-05.html" => {
-                if memo == 15 && has(ctx, BOOK_OF_DARKNESS) {
-                    ctx.take_items(BOOK_OF_DARKNESS, 1);
-                    ctx.set_memo_state(16);
-                    ctx.set_cond(16, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30362-04.html" => {
-                if memo == 15 && has(ctx, BOOK_OF_DARKNESS) {
-                    ctx.set_memo_state(16);
-                    ctx.set_cond(16, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30649-04.html" => {
-                if memo == 4 && has(ctx, ESSENSE_OF_FLAME) {
-                    ctx.give_items(SPIRIT_OF_FLAME, 1);
-                    ctx.take_items(ESSENSE_OF_FLAME, 1);
-                    ctx.set_memo_state(5);
-                    ctx.set_cond(5, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            "30650-02.html" => {
-                if memo == 6 && has(ctx, TAG_OF_RUMOR) {
-                    if ctx.quest_items_count(ADENA) >= 5000 {
-                        ctx.give_items(BOOK_OF_GERALD, 1);
-                        ctx.take_items(ADENA, 5000);
-                        ctx.set_memo_state(7);
-                        return Some(event.to_string());
-                    }
-                    return Some("30650-03.html".to_string());
-                }
-                None
-            }
-            "30650-03.html" => {
-                if memo == 6 && has(ctx, TAG_OF_RUMOR) {
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            "30652-02.html" => {
-                if memo == 14 && has(ctx, DEBRIS_OF_WILLOW) {
-                    ctx.give_items(BOOK_OF_DARKNESS, 1);
-                    ctx.take_items(DEBRIS_OF_WILLOW, 1);
-                    ctx.set_memo_state(15);
-                    ctx.set_cond(15, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            _ => None,
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let memo = ctx.memo_state();
-        match ctx.npc_id {
-            LAVA_SALAMANDER => {
-                if memo == 3 && !has(ctx, ESSENSE_OF_FLAME) {
-                    ctx.set_memo_state(4);
-                    ctx.set_cond(4, true);
-                    ctx.give_items(ESSENSE_OF_FLAME, 1);
-                }
-            }
-            NAHIR => {
-                if memo == 10 && !has(ctx, HAIR_OF_NAHIR) {
-                    ctx.set_memo_state(11);
-                    ctx.set_cond(11, true);
-                    ctx.give_items(HAIR_OF_NAHIR, 1);
-                }
-            }
-            BLACK_WILLOW if memo == 13 && !has(ctx, DEBRIS_OF_WILLOW) => {
-                ctx.set_memo_state(14);
-                ctx.set_cond(14, true);
-                ctx.give_items(DEBRIS_OF_WILLOW, 1);
-            }
-            _ => {}
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let memo = ctx.memo_state();
@@ -386,6 +279,113 @@ impl QuestScript for Q00215TrialOfThePilgrim {
                 _ => Some(ctx.no_quest_html()),
             },
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        let memo = ctx.memo_state();
+        match event {
+            "ACCEPT" => {
+                if ctx.is_created() {
+                    ctx.start_quest();
+                    ctx.set_memo_state(1);
+                    ctx.give_items(VOUCHER_OF_TRIAL, 1);
+                    ctx.play_sound(quest_sounds::MIDDLE);
+                }
+                None
+            }
+            "30648-05.html" | "30648-06.html" | "30648-07.html" | "30648-08.html" => {
+                Some(event.to_string())
+            }
+            "30362-05.html" => {
+                if memo == 15 && has(ctx, BOOK_OF_DARKNESS) {
+                    ctx.take_items(BOOK_OF_DARKNESS, 1);
+                    ctx.set_memo_state(16);
+                    ctx.set_cond(16, true);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            "30362-04.html" => {
+                if memo == 15 && has(ctx, BOOK_OF_DARKNESS) {
+                    ctx.set_memo_state(16);
+                    ctx.set_cond(16, true);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            "30649-04.html" => {
+                if memo == 4 && has(ctx, ESSENSE_OF_FLAME) {
+                    ctx.give_items(SPIRIT_OF_FLAME, 1);
+                    ctx.take_items(ESSENSE_OF_FLAME, 1);
+                    ctx.set_memo_state(5);
+                    ctx.set_cond(5, true);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            "30650-02.html" => {
+                if memo == 6 && has(ctx, TAG_OF_RUMOR) {
+                    if ctx.quest_items_count(ADENA) >= 5000 {
+                        ctx.give_items(BOOK_OF_GERALD, 1);
+                        ctx.take_items(ADENA, 5000);
+                        ctx.set_memo_state(7);
+                        return Some(event.to_string());
+                    }
+                    return Some("30650-03.html".to_string());
+                }
+                None
+            }
+            "30650-03.html" => {
+                if memo == 6 && has(ctx, TAG_OF_RUMOR) {
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            "30652-02.html" => {
+                if memo == 14 && has(ctx, DEBRIS_OF_WILLOW) {
+                    ctx.give_items(BOOK_OF_DARKNESS, 1);
+                    ctx.take_items(DEBRIS_OF_WILLOW, 1);
+                    ctx.set_memo_state(15);
+                    ctx.set_cond(15, true);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        let memo = ctx.memo_state();
+        match ctx.npc_id {
+            LAVA_SALAMANDER => {
+                if memo == 3 && !has(ctx, ESSENSE_OF_FLAME) {
+                    ctx.set_memo_state(4);
+                    ctx.set_cond(4, true);
+                    ctx.give_items(ESSENSE_OF_FLAME, 1);
+                }
+            }
+            NAHIR => {
+                if memo == 10 && !has(ctx, HAIR_OF_NAHIR) {
+                    ctx.set_memo_state(11);
+                    ctx.set_cond(11, true);
+                    ctx.give_items(HAIR_OF_NAHIR, 1);
+                }
+            }
+            BLACK_WILLOW if memo == 13 && !has(ctx, DEBRIS_OF_WILLOW) => {
+                ctx.set_memo_state(14);
+                ctx.set_cond(14, true);
+                ctx.give_items(DEBRIS_OF_WILLOW, 1);
+            }
+            _ => {}
         }
     }
 }

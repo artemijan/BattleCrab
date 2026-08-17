@@ -81,6 +81,40 @@ impl QuestScript for Q00374WhisperOfDreamsPart1 {
         ctx.cond_level(MIN_LEVEL, MAX_LEVEL, "30938-02.html")
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        match ctx.npc_id {
+            VANUTU => {
+                if ctx.is_completed() {
+                    return Some(ctx.already_completed_html());
+                }
+                if ctx.is_created() {
+                    return Some("30938.htm".to_string());
+                }
+                if ctx.is_started() {
+                    return Some(
+                        match ctx.cond() {
+                            1 => "30938-03.html",
+                            2 => "30938-04.html",
+                            3 => "30938-07.html",
+                            4 => "30938-08.html",
+                            _ => return Some(ctx.no_quest_html()),
+                        }
+                        .to_string(),
+                    );
+                }
+                Some(ctx.no_quest_html())
+            }
+            GALMAN => {
+                if ctx.is_cond(4) {
+                    return Some("31044.html".to_string());
+                }
+                Some(ctx.no_quest_html())
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -138,40 +172,6 @@ impl QuestScript for Q00374WhisperOfDreamsPart1 {
         }
         if ctx.is_cond(3) && ctx.quest_items_count(SEALED_MYSTERIOUS_STONE) >= 1 {
             ctx.set_cond(4, true);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        match ctx.npc_id {
-            VANUTU => {
-                if ctx.is_completed() {
-                    return Some(ctx.already_completed_html());
-                }
-                if ctx.is_created() {
-                    return Some("30938.htm".to_string());
-                }
-                if ctx.is_started() {
-                    return Some(
-                        match ctx.cond() {
-                            1 => "30938-03.html",
-                            2 => "30938-04.html",
-                            3 => "30938-07.html",
-                            4 => "30938-08.html",
-                            _ => return Some(ctx.no_quest_html()),
-                        }
-                        .to_string(),
-                    );
-                }
-                Some(ctx.no_quest_html())
-            }
-            GALMAN => {
-                if ctx.is_cond(4) {
-                    return Some("31044.html".to_string());
-                }
-                Some(ctx.no_quest_html())
-            }
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

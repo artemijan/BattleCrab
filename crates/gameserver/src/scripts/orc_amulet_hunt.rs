@@ -94,29 +94,6 @@ impl QuestScript for OrcAmuletHunt {
         (ctx.player_level() > MAX_LEVEL).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        if event == self.page("04.htm") {
-            ctx.start_quest();
-        } else if event == self.page("07.html") {
-            ctx.exit_quest(true, true);
-        } else if event != self.page("08.html") {
-            return None;
-        }
-        Some(event.to_string())
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        if ctx.roll(10) > 4 {
-            ctx.give_table_drop(self.data.monsters, self.data.amulet);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -150,5 +127,28 @@ impl QuestScript for OrcAmuletHunt {
             });
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        if event == self.page("04.htm") {
+            ctx.start_quest();
+        } else if event == self.page("07.html") {
+            ctx.exit_quest(true, true);
+        } else if event != self.page("08.html") {
+            return None;
+        }
+        Some(event.to_string())
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        if ctx.roll(10) > 4 {
+            ctx.give_table_drop(self.data.monsters, self.data.amulet);
+        }
     }
 }

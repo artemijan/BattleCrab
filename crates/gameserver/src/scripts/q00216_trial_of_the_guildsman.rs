@@ -159,6 +159,38 @@ impl QuestScript for Q00216TrialOfTheGuildsman {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == WAREHOUSE_KEEPER_VALKON {
+                let class = ctx.player_class_id();
+                if class == ARTISAN || class == SCAVENGER {
+                    return Some(if ctx.player_level() < MIN_LEVEL {
+                        "30103-02.html".to_string()
+                    } else {
+                        "30103-03.htm".to_string()
+                    });
+                }
+                return Some("30103-01.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == WAREHOUSE_KEEPER_VALKON {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            WAREHOUSE_KEEPER_VALKON => Some(valkon_talk(ctx)),
+            WAREHOUSE_KEEPER_NORMAN => Some(norman_talk(ctx)),
+            BLACKSMITH_ALTRAN => Some(altran_talk(ctx)),
+            BLACKSMITH_PINTER => Some(pinter_talk(ctx)),
+            BLACKSMITH_DUNING => Some(duning_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -347,38 +379,6 @@ impl QuestScript for Q00216TrialOfTheGuildsman {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == WAREHOUSE_KEEPER_VALKON {
-                let class = ctx.player_class_id();
-                if class == ARTISAN || class == SCAVENGER {
-                    return Some(if ctx.player_level() < MIN_LEVEL {
-                        "30103-02.html".to_string()
-                    } else {
-                        "30103-03.htm".to_string()
-                    });
-                }
-                return Some("30103-01.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == WAREHOUSE_KEEPER_VALKON {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            WAREHOUSE_KEEPER_VALKON => Some(valkon_talk(ctx)),
-            WAREHOUSE_KEEPER_NORMAN => Some(norman_talk(ctx)),
-            BLACKSMITH_ALTRAN => Some(altran_talk(ctx)),
-            BLACKSMITH_PINTER => Some(pinter_talk(ctx)),
-            BLACKSMITH_DUNING => Some(duning_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

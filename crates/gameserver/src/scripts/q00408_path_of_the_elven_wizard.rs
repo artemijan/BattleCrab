@@ -242,6 +242,46 @@ impl QuestScript for Q00408PathOfTheElvenWizard {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == ROSSELA {
+                return Some("30414-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        if npc == ROSSELA {
+            return self.talk_rossela(ctx);
+        }
+        let Some(e) = ERRANDS.iter().find(|e| e.npc == npc) else {
+            return Some(ctx.no_quest_html());
+        };
+        // Northwind alone performs the swap here rather than via an event.
+        if e.swap_event.is_none() && self.has(ctx, e.intro) {
+            self.swap_intro_for_charm(ctx, e);
+            return Some(e.npc_intro.to_string());
+        }
+        if self.has(ctx, e.intro) {
+            return Some(e.npc_intro.to_string());
+        }
+        if self.has(ctx, e.charm) {
+            if ctx.quest_items_count(e.material) < e.need {
+                return Some(e.npc_collecting.to_string());
+            }
+            ctx.take_items(e.material, -1);
+            if !self.has(ctx, e.gem) {
+                ctx.give_items(e.gem, 1);
+            }
+            ctx.take_items(e.charm, 1);
+            return Some(e.npc_trade.to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -295,46 +335,6 @@ impl QuestScript for Q00408PathOfTheElvenWizard {
         } else {
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == ROSSELA {
-                return Some("30414-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        if npc == ROSSELA {
-            return self.talk_rossela(ctx);
-        }
-        let Some(e) = ERRANDS.iter().find(|e| e.npc == npc) else {
-            return Some(ctx.no_quest_html());
-        };
-        // Northwind alone performs the swap here rather than via an event.
-        if e.swap_event.is_none() && self.has(ctx, e.intro) {
-            self.swap_intro_for_charm(ctx, e);
-            return Some(e.npc_intro.to_string());
-        }
-        if self.has(ctx, e.intro) {
-            return Some(e.npc_intro.to_string());
-        }
-        if self.has(ctx, e.charm) {
-            if ctx.quest_items_count(e.material) < e.need {
-                return Some(e.npc_collecting.to_string());
-            }
-            ctx.take_items(e.material, -1);
-            if !self.has(ctx, e.gem) {
-                ctx.give_items(e.gem, 1);
-            }
-            ctx.take_items(e.charm, 1);
-            return Some(e.npc_trade.to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }
 

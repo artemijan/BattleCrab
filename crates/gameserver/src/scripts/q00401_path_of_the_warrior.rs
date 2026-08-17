@@ -88,6 +88,25 @@ impl QuestScript for Q00401PathOfTheWarrior {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == MASTER_AURON {
+                return Some("30010-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            MASTER_AURON => self.talk_auron(ctx),
+            TRADER_SIMPLON => self.talk_simplon(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -139,10 +158,6 @@ impl QuestScript for Q00401PathOfTheWarrior {
         }
     }
 
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        quest_common::tag_attacker_with_weapon(ctx, &[RUSTED_BRONZE_SWORD3]);
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || !ctx.is_started() {
             return;
@@ -167,23 +182,8 @@ impl QuestScript for Q00401PathOfTheWarrior {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == MASTER_AURON {
-                return Some("30010-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            MASTER_AURON => self.talk_auron(ctx),
-            TRADER_SIMPLON => self.talk_simplon(ctx),
-            _ => Some(ctx.no_quest_html()),
-        }
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        quest_common::tag_attacker_with_weapon(ctx, &[RUSTED_BRONZE_SWORD3]);
     }
 }
 

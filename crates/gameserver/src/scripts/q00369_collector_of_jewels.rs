@@ -61,6 +61,52 @@ impl QuestScript for Q00369CollectorOfJewels {
         (ctx.player_level() > 37).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30376-01.htm"
+                } else {
+                    "30376-03.html"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            return Some(
+                match ctx.memo_state() {
+                    1 => {
+                        if shard_total(ctx) >= 100 {
+                            ctx.give_adena(3000, true);
+                            ctx.take_items(FLARE_SHARD, -1);
+                            ctx.take_items(FREEZING_SHARD, -1);
+                            ctx.set_memo_state(2);
+                            "30376-04.html"
+                        } else {
+                            "30376-08.html"
+                        }
+                    }
+                    2 => "30376-09.html",
+                    3 => {
+                        if shard_total(ctx) >= 400 {
+                            ctx.give_adena(12000, true);
+                            ctx.take_items(FLARE_SHARD, -1);
+                            ctx.take_items(FREEZING_SHARD, -1);
+                            ctx.exit_quest(true, true);
+                            "30376-10.html"
+                        } else {
+                            "30376-11.html"
+                        }
+                    }
+                    _ => return Some(ctx.no_quest_html()),
+                }
+                .to_string(),
+            );
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -114,51 +160,5 @@ impl QuestScript for Q00369CollectorOfJewels {
                 ctx.set_cond(cond, false);
             }
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "30376-01.htm"
-                } else {
-                    "30376-03.html"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            return Some(
-                match ctx.memo_state() {
-                    1 => {
-                        if shard_total(ctx) >= 100 {
-                            ctx.give_adena(3000, true);
-                            ctx.take_items(FLARE_SHARD, -1);
-                            ctx.take_items(FREEZING_SHARD, -1);
-                            ctx.set_memo_state(2);
-                            "30376-04.html"
-                        } else {
-                            "30376-08.html"
-                        }
-                    }
-                    2 => "30376-09.html",
-                    3 => {
-                        if shard_total(ctx) >= 400 {
-                            ctx.give_adena(12000, true);
-                            ctx.take_items(FLARE_SHARD, -1);
-                            ctx.take_items(FREEZING_SHARD, -1);
-                            ctx.exit_quest(true, true);
-                            "30376-10.html"
-                        } else {
-                            "30376-11.html"
-                        }
-                    }
-                    _ => return Some(ctx.no_quest_html()),
-                }
-                .to_string(),
-            );
-        }
-        Some(ctx.no_quest_html())
     }
 }

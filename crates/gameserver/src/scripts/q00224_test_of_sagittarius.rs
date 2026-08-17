@@ -146,6 +146,46 @@ impl QuestScript for Q00224TestOfSagittarius {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let memo = ctx.memo_state();
+        if ctx.is_created() {
+            if ctx.npc_id == GUILD_PRESIDENT_BERNARD {
+                let class = ctx.player_class_id();
+                if class == ROGUE || class == ELVEN_SCOUT || class == ASSASSIN {
+                    return Some(if ctx.player_level() >= MIN_LEVEL {
+                        "30702-03.htm".to_string()
+                    } else {
+                        "30702-01.html".to_string()
+                    });
+                }
+                return Some("30702-02.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == GUILD_PRESIDENT_BERNARD {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        // Started.
+        match ctx.npc_id {
+            GUILD_PRESIDENT_BERNARD => {
+                if ctx.quest_items_count(BERNARDS_INTRODUCTION) > 0 {
+                    Some("30702-05.html".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            PREFECT_VOKIAN => Some(vokian_talk(ctx, memo)),
+            SAGITTARIUS_HAMIL => Some(hamil_talk(ctx, memo)),
+            SIR_ARON_TANFORD => Some(aron_talk(ctx, memo)),
+            MAGISTER_GAUEN => Some(gauen_talk(ctx, memo)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -311,46 +351,6 @@ impl QuestScript for Q00224TestOfSagittarius {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let memo = ctx.memo_state();
-        if ctx.is_created() {
-            if ctx.npc_id == GUILD_PRESIDENT_BERNARD {
-                let class = ctx.player_class_id();
-                if class == ROGUE || class == ELVEN_SCOUT || class == ASSASSIN {
-                    return Some(if ctx.player_level() >= MIN_LEVEL {
-                        "30702-03.htm".to_string()
-                    } else {
-                        "30702-01.html".to_string()
-                    });
-                }
-                return Some("30702-02.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == GUILD_PRESIDENT_BERNARD {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        // Started.
-        match ctx.npc_id {
-            GUILD_PRESIDENT_BERNARD => {
-                if ctx.quest_items_count(BERNARDS_INTRODUCTION) > 0 {
-                    Some("30702-05.html".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            PREFECT_VOKIAN => Some(vokian_talk(ctx, memo)),
-            SAGITTARIUS_HAMIL => Some(hamil_talk(ctx, memo)),
-            SIR_ARON_TANFORD => Some(aron_talk(ctx, memo)),
-            MAGISTER_GAUEN => Some(gauen_talk(ctx, memo)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

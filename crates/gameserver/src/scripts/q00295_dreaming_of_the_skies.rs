@@ -43,25 +43,6 @@ impl QuestScript for Q00295DreamingOfTheSkies {
         (ctx.player_level() > 15).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if ctx.has_qs() && ctx.is_created() && event == "30536-03.htm" {
-            ctx.start_quest();
-            return Some(event.to_string());
-        }
-        None
-    }
-
-    /// `giveItemRandomly(FLOATING_STONE, roll(100) > 25 ? 1 : 2, 50, 1, true)`:
-    /// mostly one stone, 25% two, capped at 50; reaching 50 flips cond.
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_cond(1) {
-            let amount = if ctx.roll(100) > 25 { 1 } else { 2 };
-            if ctx.give_item_randomly(FLOATING_STONE, amount, REQUIRED_STONES, 1.0, true) {
-                ctx.set_cond(2, false);
-            }
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -91,5 +72,24 @@ impl QuestScript for Q00295DreamingOfTheSkies {
             return Some("30536-04.html".to_string());
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if ctx.has_qs() && ctx.is_created() && event == "30536-03.htm" {
+            ctx.start_quest();
+            return Some(event.to_string());
+        }
+        None
+    }
+
+    /// `giveItemRandomly(FLOATING_STONE, roll(100) > 25 ? 1 : 2, 50, 1, true)`:
+    /// mostly one stone, 25% two, capped at 50; reaching 50 flips cond.
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs() && ctx.is_cond(1) {
+            let amount = if ctx.roll(100) > 25 { 1 } else { 2 };
+            if ctx.give_item_randomly(FLOATING_STONE, amount, REQUIRED_STONES, 1.0, true) {
+                ctx.set_cond(2, false);
+            }
+        }
     }
 }

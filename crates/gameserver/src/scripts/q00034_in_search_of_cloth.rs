@@ -58,6 +58,54 @@ impl QuestScript for Q00034InSearchOfCloth {
         &[SPIDERSILK, SPINNERET]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let cond = ctx.cond();
+        let html = match ctx.npc_id {
+            RADIA => {
+                if ctx.is_created() {
+                    if ctx.other_quest_cond(PARENT) < 6 {
+                        ctx.no_quest_html()
+                    } else if ctx.player_level() >= MIN_LEVEL {
+                        "30088-01.htm".to_string()
+                    } else {
+                        "30088-02.html".to_string()
+                    }
+                } else if ctx.is_completed() {
+                    ctx.already_completed_html()
+                } else {
+                    match cond {
+                        1 => "30088-04.html".to_string(),
+                        2 => "30088-05.html".to_string(),
+                        3 => "30088-07.html".to_string(),
+                        6 => {
+                            if has_mats(ctx) {
+                                "30088-08.html".to_string()
+                            } else {
+                                "30088-09.html".to_string()
+                            }
+                        }
+                        _ => ctx.no_quest_html(),
+                    }
+                }
+            }
+            VARAN if ctx.is_started() => match cond {
+                1 => "30294-01.html".to_string(),
+                2 => "30294-03.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            RALFORD if ctx.is_started() => match cond {
+                3 => "30165-01.html".to_string(),
+                4 => "30165-03.html".to_string(),
+                5 => "30165-04.html".to_string(),
+                6 => "30165-06.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -114,53 +162,5 @@ impl QuestScript for Q00034InSearchOfCloth {
         } else {
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let cond = ctx.cond();
-        let html = match ctx.npc_id {
-            RADIA => {
-                if ctx.is_created() {
-                    if ctx.other_quest_cond(PARENT) < 6 {
-                        ctx.no_quest_html()
-                    } else if ctx.player_level() >= MIN_LEVEL {
-                        "30088-01.htm".to_string()
-                    } else {
-                        "30088-02.html".to_string()
-                    }
-                } else if ctx.is_completed() {
-                    ctx.already_completed_html()
-                } else {
-                    match cond {
-                        1 => "30088-04.html".to_string(),
-                        2 => "30088-05.html".to_string(),
-                        3 => "30088-07.html".to_string(),
-                        6 => {
-                            if has_mats(ctx) {
-                                "30088-08.html".to_string()
-                            } else {
-                                "30088-09.html".to_string()
-                            }
-                        }
-                        _ => ctx.no_quest_html(),
-                    }
-                }
-            }
-            VARAN if ctx.is_started() => match cond {
-                1 => "30294-01.html".to_string(),
-                2 => "30294-03.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            RALFORD if ctx.is_started() => match cond {
-                3 => "30165-01.html".to_string(),
-                4 => "30165-03.html".to_string(),
-                5 => "30165-04.html".to_string(),
-                6 => "30165-06.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }

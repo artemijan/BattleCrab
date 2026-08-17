@@ -206,6 +206,51 @@ impl QuestScript for Q00232TestOfTheLord {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == FLAME_LORD_KAKAI {
+                if ctx.player_race() != RACE_ORC {
+                    return Some("30565-01.html".to_string());
+                } else if ctx.player_class_id() != ORC_SHAMAN {
+                    return Some("30565-02.html".to_string());
+                } else if ctx.player_level() < MIN_LEVEL {
+                    return Some("30565-03.html".to_string());
+                }
+                return Some("30565-04.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == FLAME_LORD_KAKAI {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            FLAME_LORD_KAKAI => Some(kakai_talk(ctx)),
+            SEER_SOMAK => Some(somak_talk(ctx)),
+            SEER_MANAKIA => Some(manakia_talk(ctx)),
+            TRADER_JAKAL => Some(jakal_talk(ctx)),
+            BLACKSMITH_SUMARI => Some(sumari_talk(ctx)),
+            ATUBA_CHIEF_VARKEES => Some(varkees_talk(ctx)),
+            NERUGA_CHIEF_TANTUS => Some(tantus_talk(ctx)),
+            URUTU_CHIEF_HATOS => Some(hatos_talk(ctx)),
+            DUDA_MARA_CHIEF_TAKUNA => Some(takuna_talk(ctx)),
+            GANDI_CHIEF_CHIANTA => Some(chianta_talk(ctx)),
+            FIRST_ORC => {
+                if has(ctx, MARTANKUS_CHARM) || has(ctx, IMMORTAL_FLAME) {
+                    ctx.set_cond(7, true);
+                    Some("30643-01.html".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            ANCESTOR_MARTANKUS => Some(martankus_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -319,51 +364,6 @@ impl QuestScript for Q00232TestOfTheLord {
                 }
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == FLAME_LORD_KAKAI {
-                if ctx.player_race() != RACE_ORC {
-                    return Some("30565-01.html".to_string());
-                } else if ctx.player_class_id() != ORC_SHAMAN {
-                    return Some("30565-02.html".to_string());
-                } else if ctx.player_level() < MIN_LEVEL {
-                    return Some("30565-03.html".to_string());
-                }
-                return Some("30565-04.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == FLAME_LORD_KAKAI {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            FLAME_LORD_KAKAI => Some(kakai_talk(ctx)),
-            SEER_SOMAK => Some(somak_talk(ctx)),
-            SEER_MANAKIA => Some(manakia_talk(ctx)),
-            TRADER_JAKAL => Some(jakal_talk(ctx)),
-            BLACKSMITH_SUMARI => Some(sumari_talk(ctx)),
-            ATUBA_CHIEF_VARKEES => Some(varkees_talk(ctx)),
-            NERUGA_CHIEF_TANTUS => Some(tantus_talk(ctx)),
-            URUTU_CHIEF_HATOS => Some(hatos_talk(ctx)),
-            DUDA_MARA_CHIEF_TAKUNA => Some(takuna_talk(ctx)),
-            GANDI_CHIEF_CHIANTA => Some(chianta_talk(ctx)),
-            FIRST_ORC => {
-                if has(ctx, MARTANKUS_CHARM) || has(ctx, IMMORTAL_FLAME) {
-                    ctx.set_cond(7, true);
-                    Some("30643-01.html".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
-                }
-            }
-            ANCESTOR_MARTANKUS => Some(martankus_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

@@ -115,104 +115,6 @@ impl QuestScript for Q00231TestOfTheMaestro {
         ]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "ACCEPT" => {
-                if ctx.is_created() {
-                    ctx.start_quest();
-                    ctx.set_memo_state(1);
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                }
-                None
-            }
-            "30533-02.html" => {
-                ctx.set_memo_state(2);
-                Some(event.to_string())
-            }
-            "30556-02.html" | "30556-03.html" | "30556-04.html" => Some(event.to_string()),
-            "30556-05.html" => {
-                if ctx.quest_items_count(PAINT_TELEPORT) > 0 {
-                    ctx.give_items(BROKEN_TELEPORT, 1);
-                    ctx.take_items(PAINT_TELEPORT, 1);
-                    ctx.teleport_to(140352, -194133, -3146);
-                    ctx.start_quest_timer("SPAWN_KING_BUGBEAR", 5000);
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            "30671-02.html" => {
-                ctx.give_items(PAINT_KAMURU, 1);
-                Some(event.to_string())
-            }
-            "30673-04.html" => {
-                if ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
-                    && ctx.quest_items_count(WASP_NEEDLE) >= 10
-                    && ctx.quest_items_count(SPIDER_WEB) >= 10
-                    && ctx.quest_items_count(LEECH_BLOOD) >= 10
-                {
-                    ctx.give_items(REPORT_CRUMA, 1);
-                    ctx.take_items(WASP_NEEDLE, -1);
-                    ctx.take_items(SPIDER_WEB, -1);
-                    ctx.take_items(LEECH_BLOOD, -1);
-                    ctx.take_items(INGREDIENTS_ANTIDOTE, 1);
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            _ => None,
-        }
-    }
-
-    fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
-        if name == "SPAWN_KING_BUGBEAR" {
-            for _ in 0..3 {
-                ctx.spawn_attacker_at(KING_BUGBEAR, 140395, -194147, -3146);
-            }
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let memo = ctx.memo_state();
-        match ctx.npc_id {
-            GIANT_MIST_LEECH => {
-                if memo == 4
-                    && ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
-                    && ctx.quest_items_count(LEECH_BLOOD) < 10
-                {
-                    collect(ctx, LEECH_BLOOD);
-                }
-            }
-            STINGER_WASP => {
-                if memo == 4
-                    && ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
-                    && ctx.quest_items_count(WASP_NEEDLE) < 10
-                {
-                    collect(ctx, WASP_NEEDLE);
-                }
-            }
-            MARSH_SPIDER => {
-                if memo == 4
-                    && ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
-                    && ctx.quest_items_count(SPIDER_WEB) < 10
-                {
-                    collect(ctx, SPIDER_WEB);
-                }
-            }
-            EVIL_EYE_LORD if memo == 2 && ctx.quest_items_count(PAINT_KAMURU) > 0 => {
-                ctx.award_once(NECKLACE_KAMUTU);
-            }
-            _ => {}
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_completed() {
@@ -419,6 +321,104 @@ impl QuestScript for Q00231TestOfTheMaestro {
                 Some(ctx.no_quest_html())
             }
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "ACCEPT" => {
+                if ctx.is_created() {
+                    ctx.start_quest();
+                    ctx.set_memo_state(1);
+                    ctx.play_sound(quest_sounds::MIDDLE);
+                }
+                None
+            }
+            "30533-02.html" => {
+                ctx.set_memo_state(2);
+                Some(event.to_string())
+            }
+            "30556-02.html" | "30556-03.html" | "30556-04.html" => Some(event.to_string()),
+            "30556-05.html" => {
+                if ctx.quest_items_count(PAINT_TELEPORT) > 0 {
+                    ctx.give_items(BROKEN_TELEPORT, 1);
+                    ctx.take_items(PAINT_TELEPORT, 1);
+                    ctx.teleport_to(140352, -194133, -3146);
+                    ctx.start_quest_timer("SPAWN_KING_BUGBEAR", 5000);
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            "30671-02.html" => {
+                ctx.give_items(PAINT_KAMURU, 1);
+                Some(event.to_string())
+            }
+            "30673-04.html" => {
+                if ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
+                    && ctx.quest_items_count(WASP_NEEDLE) >= 10
+                    && ctx.quest_items_count(SPIDER_WEB) >= 10
+                    && ctx.quest_items_count(LEECH_BLOOD) >= 10
+                {
+                    ctx.give_items(REPORT_CRUMA, 1);
+                    ctx.take_items(WASP_NEEDLE, -1);
+                    ctx.take_items(SPIDER_WEB, -1);
+                    ctx.take_items(LEECH_BLOOD, -1);
+                    ctx.take_items(INGREDIENTS_ANTIDOTE, 1);
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        let memo = ctx.memo_state();
+        match ctx.npc_id {
+            GIANT_MIST_LEECH => {
+                if memo == 4
+                    && ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
+                    && ctx.quest_items_count(LEECH_BLOOD) < 10
+                {
+                    collect(ctx, LEECH_BLOOD);
+                }
+            }
+            STINGER_WASP => {
+                if memo == 4
+                    && ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
+                    && ctx.quest_items_count(WASP_NEEDLE) < 10
+                {
+                    collect(ctx, WASP_NEEDLE);
+                }
+            }
+            MARSH_SPIDER => {
+                if memo == 4
+                    && ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
+                    && ctx.quest_items_count(SPIDER_WEB) < 10
+                {
+                    collect(ctx, SPIDER_WEB);
+                }
+            }
+            EVIL_EYE_LORD if memo == 2 && ctx.quest_items_count(PAINT_KAMURU) > 0 => {
+                ctx.award_once(NECKLACE_KAMUTU);
+            }
+            _ => {}
+        }
+    }
+
+    fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
+        if name == "SPAWN_KING_BUGBEAR" {
+            for _ in 0..3 {
+                ctx.spawn_attacker_at(KING_BUGBEAR, 140395, -194147, -3146);
+            }
         }
     }
 }

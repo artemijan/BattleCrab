@@ -48,6 +48,40 @@ impl QuestScript for Q00271ProofOfValor {
         (ctx.player_level() > MAX_LEVEL).then(|| "30577-02.htm".to_string())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_race() != RACE_ORC {
+                    "30577-01.htm"
+                } else if ctx.player_level() < MIN_LEVEL {
+                    "30577-02.htm"
+                } else if ctx.quest_items_count(NECKLACE_OF_VALOR) > 0 {
+                    "30577-07.htm"
+                } else {
+                    "30577-03.htm"
+                }
+                .to_string(),
+            );
+        }
+        if ctx.is_started() {
+            match ctx.cond() {
+                1 => return Some("30577-05.html".to_string()),
+                2 if ctx.quest_items_count(KASHA_WOLF_FANG) >= REQUIRED_FANGS => {
+                    ctx.reward_items(NECKLACE_OF_VALOR, 1);
+                    if ctx.roll(100) <= 13 {
+                        ctx.reward_items(HEALING_POTION, 1);
+                    }
+                    ctx.take_items(KASHA_WOLF_FANG, -1);
+                    ctx.exit_quest(true, true);
+                    return Some("30577-06.html".to_string());
+                }
+                _ => {}
+            }
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if ctx.has_qs() && event.eq_ignore_ascii_case("30577-04.htm") {
             ctx.start_quest();
@@ -81,39 +115,5 @@ impl QuestScript for Q00271ProofOfValor {
         } else {
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_race() != RACE_ORC {
-                    "30577-01.htm"
-                } else if ctx.player_level() < MIN_LEVEL {
-                    "30577-02.htm"
-                } else if ctx.quest_items_count(NECKLACE_OF_VALOR) > 0 {
-                    "30577-07.htm"
-                } else {
-                    "30577-03.htm"
-                }
-                .to_string(),
-            );
-        }
-        if ctx.is_started() {
-            match ctx.cond() {
-                1 => return Some("30577-05.html".to_string()),
-                2 if ctx.quest_items_count(KASHA_WOLF_FANG) >= REQUIRED_FANGS => {
-                    ctx.reward_items(NECKLACE_OF_VALOR, 1);
-                    if ctx.roll(100) <= 13 {
-                        ctx.reward_items(HEALING_POTION, 1);
-                    }
-                    ctx.take_items(KASHA_WOLF_FANG, -1);
-                    ctx.exit_quest(true, true);
-                    return Some("30577-06.html".to_string());
-                }
-                _ => {}
-            }
-        }
-        Some(ctx.no_quest_html())
     }
 }

@@ -37,6 +37,31 @@ impl QuestScript for Q00110ToThePrimevalIsle {
         (ctx.player_level() < MIN_LEVEL).then(String::new)
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == ANTON {
+                return Some("31338-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_started() {
+            if ctx.npc_id == ANTON && ctx.is_cond(1) {
+                // Java points at 32113-06.html (a Marquez-prefixed page the dist
+                // does not ship — kept verbatim; retail 404s to a blank window).
+                return Some("32113-06.html".to_string());
+            }
+            if ctx.npc_id == MARQUEZ && ctx.is_cond(1) {
+                return Some("32113-01.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            return Some(ctx.already_completed_html());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -68,30 +93,5 @@ impl QuestScript for Q00110ToThePrimevalIsle {
             }
             _ => None,
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == ANTON {
-                return Some("31338-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_started() {
-            if ctx.npc_id == ANTON && ctx.is_cond(1) {
-                // Java points at 32113-06.html (a Marquez-prefixed page the dist
-                // does not ship — kept verbatim; retail 404s to a blank window).
-                return Some("32113-06.html".to_string());
-            }
-            if ctx.npc_id == MARQUEZ && ctx.is_cond(1) {
-                return Some("32113-01.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            return Some(ctx.already_completed_html());
-        }
-        Some(ctx.no_quest_html())
     }
 }

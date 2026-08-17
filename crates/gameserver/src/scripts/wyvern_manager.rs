@@ -101,12 +101,12 @@ impl QuestScript for WyvernManager {
         MANAGER_IDS
     }
 
-    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        Some(main_page(ctx))
-    }
-
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        Some(main_page(ctx))
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

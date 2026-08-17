@@ -47,50 +47,6 @@ impl QuestScript for Q00293TheHiddenVeins {
         (ctx.player_level() > 15).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30535-04.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30535-07.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30535-08.html" => Some(event.to_string()),
-            // Chichirin combines 4 map fragments into one Hidden Ore Map.
-            "30539-03.html" => {
-                if ctx.quest_items_count(TORN_MAP_FRAGMENT) >= REQUIRED_TORN_MAP_FRAGMENT {
-                    ctx.give_items(HIDDEN_ORE_MAP, 1);
-                    ctx.take_items(TORN_MAP_FRAGMENT, REQUIRED_TORN_MAP_FRAGMENT);
-                    Some("30539-03.html".to_string())
-                } else {
-                    Some("30539-02.html".to_string())
-                }
-            }
-            _ => None,
-        }
-    }
-
-    /// One `getRandom(100)` roll decides both drops: `> 50` an ore, `< 5` a
-    /// (rare) map fragment, otherwise nothing.
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        let chance = ctx.roll(100);
-        if chance > 50 {
-            ctx.give_items(CHRYSOLITE_ORE, 1);
-            ctx.play_sound(quest_sounds::ITEMGET);
-        } else if chance < 5 {
-            ctx.give_items(TORN_MAP_FRAGMENT, 1);
-            ctx.play_sound(quest_sounds::ITEMGET);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         match ctx.npc_id {
@@ -133,6 +89,50 @@ impl QuestScript for Q00293TheHiddenVeins {
             }
             CHICHIRIN => Some("30539-01.html".to_string()),
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30535-04.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30535-07.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30535-08.html" => Some(event.to_string()),
+            // Chichirin combines 4 map fragments into one Hidden Ore Map.
+            "30539-03.html" => {
+                if ctx.quest_items_count(TORN_MAP_FRAGMENT) >= REQUIRED_TORN_MAP_FRAGMENT {
+                    ctx.give_items(HIDDEN_ORE_MAP, 1);
+                    ctx.take_items(TORN_MAP_FRAGMENT, REQUIRED_TORN_MAP_FRAGMENT);
+                    Some("30539-03.html".to_string())
+                } else {
+                    Some("30539-02.html".to_string())
+                }
+            }
+            _ => None,
+        }
+    }
+
+    /// One `getRandom(100)` roll decides both drops: `> 50` an ore, `< 5` a
+    /// (rare) map fragment, otherwise nothing.
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        let chance = ctx.roll(100);
+        if chance > 50 {
+            ctx.give_items(CHRYSOLITE_ORE, 1);
+            ctx.play_sound(quest_sounds::ITEMGET);
+        } else if chance < 5 {
+            ctx.give_items(TORN_MAP_FRAGMENT, 1);
+            ctx.play_sound(quest_sounds::ITEMGET);
         }
     }
 }

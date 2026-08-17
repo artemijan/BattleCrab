@@ -99,6 +99,60 @@ impl QuestScript for Q00325GrimCollector {
         &REGISTERED
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        match ctx.npc_id {
+            GUARD_CURTIZ => {
+                if ctx.is_created() {
+                    return Some(
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "30336-02.htm"
+                        } else {
+                            "30336-01.htm"
+                        }
+                        .to_string(),
+                    );
+                }
+                if ctx.is_started() {
+                    return Some(
+                        if ctx.quest_items_count(ANATOMY_DIAGRAM) > 0 {
+                            "30336-05.html"
+                        } else {
+                            "30336-04.html"
+                        }
+                        .to_string(),
+                    );
+                }
+                Some(ctx.no_quest_html())
+            }
+            VARSAK => {
+                if ctx.is_started() && ctx.quest_items_count(ANATOMY_DIAGRAM) > 0 {
+                    return Some("30342-01.html".to_string());
+                }
+                Some(ctx.no_quest_html())
+            }
+            SAMED => {
+                if ctx.is_started() {
+                    if ctx.quest_items_count(ANATOMY_DIAGRAM) == 0 {
+                        return Some("30434-01.html".to_string());
+                    }
+                    // `hasAtLeastOneQuestItem(registered)` — the diagram is
+                    // registered, so this is always true here; 30434-04 is
+                    // effectively unreachable (kept as Java has it).
+                    if !has_any_registered(ctx) {
+                        return Some("30434-04.html".to_string());
+                    }
+                    if ctx.quest_items_count(COMPLETE_SKELETON) == 0 {
+                        return Some("30434-05.html".to_string());
+                    }
+                    return Some("30434-08.html".to_string());
+                }
+                Some(ctx.no_quest_html())
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -199,60 +253,6 @@ impl QuestScript for Q00325GrimCollector {
                 ctx.give_item_randomly(item, 1, 0, 1.0, true);
                 break;
             }
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        match ctx.npc_id {
-            GUARD_CURTIZ => {
-                if ctx.is_created() {
-                    return Some(
-                        if ctx.player_level() >= MIN_LEVEL {
-                            "30336-02.htm"
-                        } else {
-                            "30336-01.htm"
-                        }
-                        .to_string(),
-                    );
-                }
-                if ctx.is_started() {
-                    return Some(
-                        if ctx.quest_items_count(ANATOMY_DIAGRAM) > 0 {
-                            "30336-05.html"
-                        } else {
-                            "30336-04.html"
-                        }
-                        .to_string(),
-                    );
-                }
-                Some(ctx.no_quest_html())
-            }
-            VARSAK => {
-                if ctx.is_started() && ctx.quest_items_count(ANATOMY_DIAGRAM) > 0 {
-                    return Some("30342-01.html".to_string());
-                }
-                Some(ctx.no_quest_html())
-            }
-            SAMED => {
-                if ctx.is_started() {
-                    if ctx.quest_items_count(ANATOMY_DIAGRAM) == 0 {
-                        return Some("30434-01.html".to_string());
-                    }
-                    // `hasAtLeastOneQuestItem(registered)` — the diagram is
-                    // registered, so this is always true here; 30434-04 is
-                    // effectively unreachable (kept as Java has it).
-                    if !has_any_registered(ctx) {
-                        return Some("30434-04.html".to_string());
-                    }
-                    if ctx.quest_items_count(COMPLETE_SKELETON) == 0 {
-                        return Some("30434-05.html".to_string());
-                    }
-                    return Some("30434-08.html".to_string());
-                }
-                Some(ctx.no_quest_html())
-            }
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

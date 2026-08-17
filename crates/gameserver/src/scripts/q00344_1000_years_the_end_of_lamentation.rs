@@ -76,6 +76,76 @@ impl QuestScript for Q003441000YearsTheEndOfLamentation {
         (ctx.player_level() > 52).then(|| ctx.no_quest_html())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        match ctx.npc_id {
+            GILMORE => {
+                if ctx.is_created() {
+                    return Some(
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "30754-02.htm"
+                        } else {
+                            "30754-01.htm"
+                        }
+                        .to_string(),
+                    );
+                }
+                if ctx.is_started() {
+                    if ctx.is_cond(1) {
+                        return Some(
+                            if ctx.quest_items_count(ARTICLES) > 0 {
+                                "30754-06.html"
+                            } else {
+                                "30754-05.html"
+                            }
+                            .to_string(),
+                        );
+                    }
+                    if has_any_relic(ctx) {
+                        return Some("30754-14.html".to_string());
+                    }
+                    // Relic already handed to a scholar — resume collecting.
+                    ctx.set_cond(1, false);
+                    return Some("30754-15.html".to_string());
+                }
+                Some(ctx.already_completed_html())
+            }
+            KAIEN => Some(self.exchange(
+                ctx,
+                1,
+                OLD_HILT,
+                &[(52, 1874, 25), (76, 1887, 10), (98, 951, 1), (100, 133, 1)],
+                "30623-01.html",
+                "30623-02.html",
+            )),
+            RODEMAI => Some(self.exchange(
+                ctx,
+                2,
+                OLD_KEY,
+                &[(39, 1879, 55), (89, 951, 1), (100, 885, 1)],
+                "30756-01.html",
+                "30756-02.html",
+            )),
+            GARVARENTZ => Some(self.exchange(
+                ctx,
+                3,
+                TOTEM_NECKLACE,
+                &[(47, 1882, 70), (97, 1881, 50), (100, 191, 1)],
+                "30704-01.html",
+                "30704-02.html",
+            )),
+            ORVEN => Some(self.exchange(
+                ctx,
+                4,
+                CRUCIFIX,
+                &[(49, 1875, 19), (69, 952, 5), (100, 2437, 1)],
+                "30857-01.html",
+                "30857-02.html",
+            )),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -147,76 +217,6 @@ impl QuestScript for Q003441000YearsTheEndOfLamentation {
         }
         if let Some(chance) = article_chance(ctx.npc_id) {
             ctx.give_item_randomly(ARTICLES, 1, 0, chance, true);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        match ctx.npc_id {
-            GILMORE => {
-                if ctx.is_created() {
-                    return Some(
-                        if ctx.player_level() >= MIN_LEVEL {
-                            "30754-02.htm"
-                        } else {
-                            "30754-01.htm"
-                        }
-                        .to_string(),
-                    );
-                }
-                if ctx.is_started() {
-                    if ctx.is_cond(1) {
-                        return Some(
-                            if ctx.quest_items_count(ARTICLES) > 0 {
-                                "30754-06.html"
-                            } else {
-                                "30754-05.html"
-                            }
-                            .to_string(),
-                        );
-                    }
-                    if has_any_relic(ctx) {
-                        return Some("30754-14.html".to_string());
-                    }
-                    // Relic already handed to a scholar — resume collecting.
-                    ctx.set_cond(1, false);
-                    return Some("30754-15.html".to_string());
-                }
-                Some(ctx.already_completed_html())
-            }
-            KAIEN => Some(self.exchange(
-                ctx,
-                1,
-                OLD_HILT,
-                &[(52, 1874, 25), (76, 1887, 10), (98, 951, 1), (100, 133, 1)],
-                "30623-01.html",
-                "30623-02.html",
-            )),
-            RODEMAI => Some(self.exchange(
-                ctx,
-                2,
-                OLD_KEY,
-                &[(39, 1879, 55), (89, 951, 1), (100, 885, 1)],
-                "30756-01.html",
-                "30756-02.html",
-            )),
-            GARVARENTZ => Some(self.exchange(
-                ctx,
-                3,
-                TOTEM_NECKLACE,
-                &[(47, 1882, 70), (97, 1881, 50), (100, 191, 1)],
-                "30704-01.html",
-                "30704-02.html",
-            )),
-            ORVEN => Some(self.exchange(
-                ctx,
-                4,
-                CRUCIFIX,
-                &[(49, 1875, 19), (69, 952, 5), (100, 2437, 1)],
-                "30857-01.html",
-                "30857-02.html",
-            )),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

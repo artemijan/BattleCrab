@@ -148,6 +148,62 @@ impl QuestScript for Q00222TestOfTheDuelist {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ELIGIBLE_CLASSES.contains(&ctx.player_class_id()) {
+                return Some(
+                    if ctx.player_level() >= MIN_LEVEL {
+                        "30623-03.htm"
+                    } else {
+                        "30623-01.html"
+                    }
+                    .to_string(),
+                );
+            }
+            return Some("30623-02.html".to_string());
+        }
+        if ctx.is_completed() {
+            return Some(ctx.already_completed_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        // Stage 1: still holding the five region Orders.
+        let has_orders = [
+            ORDER_GLUDIO,
+            ORDER_DION,
+            ORDER_GIRAN,
+            ORDER_OREN,
+            ORDER_ADEN,
+        ]
+        .iter()
+        .all(|&id| ctx.quest_items_count(id) > 0);
+        if has_orders {
+            return Some(
+                if total(ctx, &STAGE1_TROPHIES) == 100 {
+                    "30623-13.html"
+                } else {
+                    "30623-14.html"
+                }
+                .to_string(),
+            );
+        }
+        // Stage 2: the Final Order.
+        if ctx.quest_items_count(FINAL_ORDER) > 0 {
+            if total(ctx, &STAGE2_TROPHIES) == 15 {
+                ctx.give_adena(161806, true);
+                ctx.give_items(MARK_OF_DUELIST, 1);
+                ctx.add_exp_and_sp(894888, 61408);
+                ctx.exit_quest(false, true);
+                ctx.social_action(3);
+                return Some("30623-18.html".to_string());
+            }
+            return Some("30623-17.html".to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -240,61 +296,5 @@ impl QuestScript for Q00222TestOfTheDuelist {
                 ctx.set_memo_state_ex(1, 0);
             }
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ELIGIBLE_CLASSES.contains(&ctx.player_class_id()) {
-                return Some(
-                    if ctx.player_level() >= MIN_LEVEL {
-                        "30623-03.htm"
-                    } else {
-                        "30623-01.html"
-                    }
-                    .to_string(),
-                );
-            }
-            return Some("30623-02.html".to_string());
-        }
-        if ctx.is_completed() {
-            return Some(ctx.already_completed_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        // Stage 1: still holding the five region Orders.
-        let has_orders = [
-            ORDER_GLUDIO,
-            ORDER_DION,
-            ORDER_GIRAN,
-            ORDER_OREN,
-            ORDER_ADEN,
-        ]
-        .iter()
-        .all(|&id| ctx.quest_items_count(id) > 0);
-        if has_orders {
-            return Some(
-                if total(ctx, &STAGE1_TROPHIES) == 100 {
-                    "30623-13.html"
-                } else {
-                    "30623-14.html"
-                }
-                .to_string(),
-            );
-        }
-        // Stage 2: the Final Order.
-        if ctx.quest_items_count(FINAL_ORDER) > 0 {
-            if total(ctx, &STAGE2_TROPHIES) == 15 {
-                ctx.give_adena(161806, true);
-                ctx.give_items(MARK_OF_DUELIST, 1);
-                ctx.add_exp_and_sp(894888, 61408);
-                ctx.exit_quest(false, true);
-                ctx.social_action(3);
-                return Some("30623-18.html".to_string());
-            }
-            return Some("30623-17.html".to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

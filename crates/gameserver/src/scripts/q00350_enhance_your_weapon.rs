@@ -130,24 +130,6 @@ impl QuestScript for Q00350EnhanceYourWeapon {
         &self.leveling_npc_ids
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        if event.ends_with("-04.htm") {
-            ctx.start_quest();
-        } else if event.ends_with("-09.htm") {
-            ctx.give_items(RED_SOUL_CRYSTAL0, 1);
-        } else if event.ends_with("-10.htm") {
-            ctx.give_items(GREEN_SOUL_CRYSTAL0, 1);
-        } else if event.ends_with("-11.htm") {
-            ctx.give_items(BLUE_SOUL_CRYSTAL0, 1);
-        } else if event.eq_ignore_ascii_case("exit.htm") {
-            ctx.exit_quest(false, true);
-        }
-        Some(event.to_string())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let npc_id = ctx.npc_id;
@@ -172,6 +154,28 @@ impl QuestScript for Q00350EnhanceYourWeapon {
         Some(ctx.no_quest_html())
     }
 
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        if event.ends_with("-04.htm") {
+            ctx.start_quest();
+        } else if event.ends_with("-09.htm") {
+            ctx.give_items(RED_SOUL_CRYSTAL0, 1);
+        } else if event.ends_with("-10.htm") {
+            ctx.give_items(GREEN_SOUL_CRYSTAL0, 1);
+        } else if event.ends_with("-11.htm") {
+            ctx.give_items(BLUE_SOUL_CRYSTAL0, 1);
+        } else if event.eq_ignore_ascii_case("exit.htm") {
+            ctx.exit_quest(false, true);
+        }
+        Some(event.to_string())
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        self.level_soul_crystals(ctx);
+    }
+
     fn on_skill_see(&self, ctx: &mut QuestCtx, skill_id: i32) {
         // Only the Soul Crystal skill, and only on a mob that can level crystals.
         if skill_id != SOUL_CRYSTAL_SKILL {
@@ -181,9 +185,5 @@ impl QuestScript for Q00350EnhanceYourWeapon {
             return;
         }
         ctx.add_absorber();
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        self.level_soul_crystals(ctx);
     }
 }

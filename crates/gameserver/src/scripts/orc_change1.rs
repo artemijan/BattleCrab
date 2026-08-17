@@ -77,14 +77,6 @@ impl QuestScript for OrcChange1 {
         &NPCS
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        // The dialog pages echo back; the numeric events are transfers.
-        match event {
-            "45" | "47" | "50" => Self::class_change(ctx, event.parse().unwrap()),
-            _ => echoed_page(event, &NPCS),
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         const RACE_ORC: i32 = 3;
         let npc = ctx.npc_id;
@@ -98,5 +90,13 @@ impl QuestScript for OrcChange1 {
             return None;
         }
         Some(format!("{npc}-23.htm"))
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        // The dialog pages echo back; the numeric events are transfers.
+        match event {
+            "45" | "47" | "50" => Self::class_change(ctx, event.parse().unwrap()),
+            _ => echoed_page(event, &NPCS),
+        }
     }
 }

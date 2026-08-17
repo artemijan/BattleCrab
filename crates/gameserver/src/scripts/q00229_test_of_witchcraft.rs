@@ -193,6 +193,64 @@ impl QuestScript for Q00229TestOfWitchcraft {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == SHADOW_ORIM {
+                let class = ctx.player_class_id();
+                if class == WIZARD || class == KNIGHT || class == PALUS_KNIGHT {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        return Some(if class == WIZARD {
+                            "30630-03.htm".to_string()
+                        } else {
+                            "30630-05.htm".to_string()
+                        });
+                    }
+                    return Some("30630-02.htm".to_string());
+                }
+                return Some("30630-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == SHADOW_ORIM {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            SHADOW_ORIM => Some(orim_talk(ctx)),
+            GROCER_LARA => Some(lara_talk(ctx)),
+            TRADER_ALEXANDRIA => Some(alexandria_talk(ctx)),
+            MAGISTER_IKER => Some(iker_talk(ctx)),
+            PRIEST_VADIN => Some(vadin_talk(ctx)),
+            TRADER_NESTLE => Some(nestle_talk(ctx)),
+            SIR_KLAUS_VASPER => Some(vasper_talk(ctx)),
+            LEOPOLD => Some(leopold_talk(ctx)),
+            MAGISTER_KAIRA => Some(kaira_talk(ctx)),
+            WARDEN_RODERIK => {
+                if has(ctx, ALEXANDRIAS_BOOK)
+                    && (has(ctx, LARAS_MEMO) || has(ctx, AKLANTOTH_3RD_GEM))
+                {
+                    Some("30631-01.htm".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            WARDEN_ENDRIGO => {
+                if has(ctx, ALEXANDRIAS_BOOK)
+                    && (has(ctx, LARAS_MEMO) || has(ctx, AKLANTOTH_3RD_GEM))
+                {
+                    Some("30632-01.htm".to_string())
+                } else {
+                    Some(ctx.no_quest_html())
+                }
+            }
+            FISHER_EVERT => Some(evert_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -317,48 +375,6 @@ impl QuestScript for Q00229TestOfWitchcraft {
         }
     }
 
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        match ctx.npc_id {
-            NAMELESS_REVENANT => {
-                if ctx.npc_script_value() == 0
-                    && has(ctx, ALEXANDRIAS_BOOK)
-                    && has(ctx, LARAS_MEMO)
-                    && !has(ctx, AKLANTOTH_3RD_GEM)
-                {
-                    ctx.set_npc_script_value(1);
-                }
-            }
-            SKELETAL_MERCENARY => {
-                if ctx.npc_script_value() == 0
-                    && has(ctx, LEOPOLDS_JOURNAL)
-                    && !has(ctx, AKLANTOTH_4TH_GEM)
-                    && !has(ctx, AKLANTOTH_5TH_GEM)
-                    && !has(ctx, AKLANTOTH_6TH_GEM)
-                {
-                    ctx.set_npc_script_value(1);
-                }
-            }
-            DREVANUL_PRINCE_ZERUEL => {
-                if has(ctx, BRIMSTONE_1ST) {
-                    ctx.delete_npc();
-                    ctx.set_cond(5, true);
-                } else if has(ctx, ORIMS_INSTRUCTIONS)
-                    && has(ctx, BRIMSTONE_2ND)
-                    && has(ctx, SWORD_OF_BINDING)
-                    && has(ctx, SOULTRAP_CRYSTAL)
-                    && ctx.npc_script_value() == 0
-                    && ctx.equipped_weapon_id() == SWORD_OF_BINDING
-                {
-                    ctx.set_npc_script_value(1);
-                }
-            }
-            _ => {}
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || !ctx.is_started() {
             return;
@@ -446,61 +462,45 @@ impl QuestScript for Q00229TestOfWitchcraft {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == SHADOW_ORIM {
-                let class = ctx.player_class_id();
-                if class == WIZARD || class == KNIGHT || class == PALUS_KNIGHT {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        return Some(if class == WIZARD {
-                            "30630-03.htm".to_string()
-                        } else {
-                            "30630-05.htm".to_string()
-                        });
-                    }
-                    return Some("30630-02.htm".to_string());
-                }
-                return Some("30630-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == SHADOW_ORIM {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
         }
         match ctx.npc_id {
-            SHADOW_ORIM => Some(orim_talk(ctx)),
-            GROCER_LARA => Some(lara_talk(ctx)),
-            TRADER_ALEXANDRIA => Some(alexandria_talk(ctx)),
-            MAGISTER_IKER => Some(iker_talk(ctx)),
-            PRIEST_VADIN => Some(vadin_talk(ctx)),
-            TRADER_NESTLE => Some(nestle_talk(ctx)),
-            SIR_KLAUS_VASPER => Some(vasper_talk(ctx)),
-            LEOPOLD => Some(leopold_talk(ctx)),
-            MAGISTER_KAIRA => Some(kaira_talk(ctx)),
-            WARDEN_RODERIK => {
-                if has(ctx, ALEXANDRIAS_BOOK)
-                    && (has(ctx, LARAS_MEMO) || has(ctx, AKLANTOTH_3RD_GEM))
+            NAMELESS_REVENANT => {
+                if ctx.npc_script_value() == 0
+                    && has(ctx, ALEXANDRIAS_BOOK)
+                    && has(ctx, LARAS_MEMO)
+                    && !has(ctx, AKLANTOTH_3RD_GEM)
                 {
-                    Some("30631-01.htm".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
+                    ctx.set_npc_script_value(1);
                 }
             }
-            WARDEN_ENDRIGO => {
-                if has(ctx, ALEXANDRIAS_BOOK)
-                    && (has(ctx, LARAS_MEMO) || has(ctx, AKLANTOTH_3RD_GEM))
+            SKELETAL_MERCENARY => {
+                if ctx.npc_script_value() == 0
+                    && has(ctx, LEOPOLDS_JOURNAL)
+                    && !has(ctx, AKLANTOTH_4TH_GEM)
+                    && !has(ctx, AKLANTOTH_5TH_GEM)
+                    && !has(ctx, AKLANTOTH_6TH_GEM)
                 {
-                    Some("30632-01.htm".to_string())
-                } else {
-                    Some(ctx.no_quest_html())
+                    ctx.set_npc_script_value(1);
                 }
             }
-            FISHER_EVERT => Some(evert_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
+            DREVANUL_PRINCE_ZERUEL => {
+                if has(ctx, BRIMSTONE_1ST) {
+                    ctx.delete_npc();
+                    ctx.set_cond(5, true);
+                } else if has(ctx, ORIMS_INSTRUCTIONS)
+                    && has(ctx, BRIMSTONE_2ND)
+                    && has(ctx, SWORD_OF_BINDING)
+                    && has(ctx, SOULTRAP_CRYSTAL)
+                    && ctx.npc_script_value() == 0
+                    && ctx.equipped_weapon_id() == SWORD_OF_BINDING
+                {
+                    ctx.set_npc_script_value(1);
+                }
+            }
+            _ => {}
         }
     }
 }

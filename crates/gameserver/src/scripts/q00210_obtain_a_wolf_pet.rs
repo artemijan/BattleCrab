@@ -36,40 +36,6 @@ impl QuestScript for Q00210ObtainAWolfPet {
         &[LUNDY, BELLA, BYNN, SYDNIA]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        // Java bails to the raw event page when there is no quest state.
-        if !ctx.has_qs() {
-            return Some(event.to_string());
-        }
-        match event {
-            // Plain pages — shown as-is (`30827-04.htm` is dead: no button
-            // links it, but Java lists it, so it is kept).
-            "30827-02.htm" | "30827-04.htm" | "30256-02.html" => {}
-            "30827-03.htm" => ctx.start_quest(),
-            "30256-03.html" => {
-                if ctx.is_cond(1) {
-                    ctx.set_cond(2, true);
-                }
-            }
-            "30335-02.html" => {
-                if ctx.is_cond(2) {
-                    ctx.set_cond(3, true);
-                }
-            }
-            "30321-02.html" => {
-                if ctx.is_cond(3) {
-                    ctx.set_cond(4, true);
-                }
-            }
-            "30827-05.html" if ctx.is_cond(4) => {
-                ctx.reward_items(WOLF_COLLAR, 1);
-                ctx.exit_quest(false, true);
-            }
-            _ => {}
-        }
-        Some(event.to_string())
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -103,5 +69,39 @@ impl QuestScript for Q00210ObtainAWolfPet {
             return Some(ctx.already_completed_html());
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        // Java bails to the raw event page when there is no quest state.
+        if !ctx.has_qs() {
+            return Some(event.to_string());
+        }
+        match event {
+            // Plain pages — shown as-is (`30827-04.htm` is dead: no button
+            // links it, but Java lists it, so it is kept).
+            "30827-02.htm" | "30827-04.htm" | "30256-02.html" => {}
+            "30827-03.htm" => ctx.start_quest(),
+            "30256-03.html" => {
+                if ctx.is_cond(1) {
+                    ctx.set_cond(2, true);
+                }
+            }
+            "30335-02.html" => {
+                if ctx.is_cond(2) {
+                    ctx.set_cond(3, true);
+                }
+            }
+            "30321-02.html" => {
+                if ctx.is_cond(3) {
+                    ctx.set_cond(4, true);
+                }
+            }
+            "30827-05.html" if ctx.is_cond(4) => {
+                ctx.reward_items(WOLF_COLLAR, 1);
+                ctx.exit_quest(false, true);
+            }
+            _ => {}
+        }
+        Some(event.to_string())
     }
 }

@@ -77,6 +77,26 @@ impl QuestScript for Q00406PathOfTheElvenKnight {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == MASTER_SORIUS {
+                return Some("30327-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            // Completed (or anything else) falls through to the no-quest msg.
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            MASTER_SORIUS => self.talk_sorius(ctx),
+            BLACKSMITH_KLUTO => self.talk_kluto(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -139,26 +159,6 @@ impl QuestScript for Q00406PathOfTheElvenKnight {
             ctx.set_cond(cond, true);
         } else {
             ctx.play_sound(crate::network::server_packets::quest_sounds::ITEMGET);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == MASTER_SORIUS {
-                return Some("30327-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            // Completed (or anything else) falls through to the no-quest msg.
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            MASTER_SORIUS => self.talk_sorius(ctx),
-            BLACKSMITH_KLUTO => self.talk_kluto(ctx),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

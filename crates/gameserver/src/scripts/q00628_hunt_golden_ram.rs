@@ -60,6 +60,63 @@ impl QuestScript for Q00628HuntGoldenRam {
         &[SPLINTER_STAKATO_CHITIN, NEEDLE_STAKATO_CHITIN]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "31554-01.htm"
+                } else {
+                    "31554-02.htm"
+                }
+                .to_string(),
+            );
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        let splinter = ctx.quest_items_count(SPLINTER_STAKATO_CHITIN);
+        let needle = ctx.quest_items_count(NEEDLE_STAKATO_CHITIN);
+        // The "still gathering splinters" page, reused by several branches.
+        let gathering = |c: &QuestCtx| {
+            if c.quest_items_count(SPLINTER_STAKATO_CHITIN) >= REQUIRED_ITEM_COUNT {
+                "31554-07.html"
+            } else {
+                "31554-06.html"
+            }
+        };
+        match ctx.cond() {
+            1 => Some(gathering(ctx).to_string()),
+            2 => {
+                if ctx.quest_items_count(GOLDEN_RAM_BADGE_RECRUIT) > 0 {
+                    if splinter >= REQUIRED_ITEM_COUNT && needle >= REQUIRED_ITEM_COUNT {
+                        ctx.take_items(GOLDEN_RAM_BADGE_RECRUIT, -1);
+                        ctx.take_items(SPLINTER_STAKATO_CHITIN, -1);
+                        ctx.take_items(NEEDLE_STAKATO_CHITIN, -1);
+                        ctx.give_items(GOLDEN_RAM_BADGE_SOLDIER, 1);
+                        ctx.set_cond(3, true);
+                        Some("31554-10.html".to_string())
+                    } else {
+                        Some("31554-09.html".to_string())
+                    }
+                } else {
+                    // Lost the recruit badge — fall back to cond 1.
+                    ctx.set_cond(1, false);
+                    Some(gathering(ctx).to_string())
+                }
+            }
+            3 => {
+                if ctx.quest_items_count(GOLDEN_RAM_BADGE_SOLDIER) > 0 {
+                    Some("31554-11.html".to_string())
+                } else {
+                    ctx.set_cond(1, false);
+                    Some(gathering(ctx).to_string())
+                }
+            }
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -121,63 +178,6 @@ impl QuestScript for Q00628HuntGoldenRam {
         };
         if i64::from(count) <= i64::from(ctx.cond()) {
             ctx.give_item_randomly(item, 1, REQUIRED_ITEM_COUNT, chance, true);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            return Some(
-                if ctx.player_level() >= MIN_LEVEL {
-                    "31554-01.htm"
-                } else {
-                    "31554-02.htm"
-                }
-                .to_string(),
-            );
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        let splinter = ctx.quest_items_count(SPLINTER_STAKATO_CHITIN);
-        let needle = ctx.quest_items_count(NEEDLE_STAKATO_CHITIN);
-        // The "still gathering splinters" page, reused by several branches.
-        let gathering = |c: &QuestCtx| {
-            if c.quest_items_count(SPLINTER_STAKATO_CHITIN) >= REQUIRED_ITEM_COUNT {
-                "31554-07.html"
-            } else {
-                "31554-06.html"
-            }
-        };
-        match ctx.cond() {
-            1 => Some(gathering(ctx).to_string()),
-            2 => {
-                if ctx.quest_items_count(GOLDEN_RAM_BADGE_RECRUIT) > 0 {
-                    if splinter >= REQUIRED_ITEM_COUNT && needle >= REQUIRED_ITEM_COUNT {
-                        ctx.take_items(GOLDEN_RAM_BADGE_RECRUIT, -1);
-                        ctx.take_items(SPLINTER_STAKATO_CHITIN, -1);
-                        ctx.take_items(NEEDLE_STAKATO_CHITIN, -1);
-                        ctx.give_items(GOLDEN_RAM_BADGE_SOLDIER, 1);
-                        ctx.set_cond(3, true);
-                        Some("31554-10.html".to_string())
-                    } else {
-                        Some("31554-09.html".to_string())
-                    }
-                } else {
-                    // Lost the recruit badge — fall back to cond 1.
-                    ctx.set_cond(1, false);
-                    Some(gathering(ctx).to_string())
-                }
-            }
-            3 => {
-                if ctx.quest_items_count(GOLDEN_RAM_BADGE_SOLDIER) > 0 {
-                    Some("31554-11.html".to_string())
-                } else {
-                    ctx.set_cond(1, false);
-                    Some(gathering(ctx).to_string())
-                }
-            }
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

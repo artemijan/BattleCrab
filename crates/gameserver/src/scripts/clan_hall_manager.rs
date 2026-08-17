@@ -56,6 +56,10 @@ impl QuestScript for ClanHallManager {
         MANAGERS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let owner_id = hall_ownership(ctx.world, ctx.npc_id)
             .map(|(o, _)| o)
@@ -66,10 +70,6 @@ impl QuestScript for ClanHallManager {
         } else {
             "03"
         }))
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

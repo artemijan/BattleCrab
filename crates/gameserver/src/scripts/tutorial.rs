@@ -126,90 +126,19 @@ impl QuestScript for Tutorial {
     fn talk_npcs(&self) -> &[i32] {
         &HELPERS_AND_SUPERVISORS
     }
+    fn kill_npcs(&self) -> &[i32] {
+        GREMLINS
+    }
     fn first_talk_npcs(&self) -> &[i32] {
         // The same set: the script owns both groups' chat windows.
         &HELPERS_AND_SUPERVISORS
     }
-    fn kill_npcs(&self) -> &[i32] {
-        GREMLINS
-    }
     fn quest_items(&self) -> &[i32] {
         &[BLUE_GEM]
     }
-    fn handles_global_events(&self) -> bool {
-        true
-    }
-
-    /// `onPlayerLogin`: a fresh (or still-early) newbie queues the intro.
-    fn on_login(&self, ctx: &mut QuestCtx) {
-        if ctx.world.cfg.character.disable_tutorial || ctx.player_level() > 6 {
-            return;
-        }
-        // Java `getQuestState(player, true)` — materialize the CREATED state.
-        ctx.ensure_qs();
-        if ctx.memo_state() < 4 && class_row(ctx.player_class_id()).is_some() {
-            ctx.start_quest_timer("start_newbie_tutorial", 5000);
-        }
-    }
-
-    fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
-        if name == "start_newbie_tutorial" {
-            self.on_event(ctx, "start_newbie_tutorial");
-        }
-    }
-
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        match event {
-            "start_newbie_tutorial" => {
-                if ctx.memo_state() < 4
-                    && let Some((voice, html, _, _)) = class_row(ctx.player_class_id())
-                {
-                    ctx.start_quest();
-                    ctx.set_memo_state(1);
-                    ctx.play_tutorial_voice(voice);
-                    ctx.tutorial_show_html_file(html);
-                }
-                None
-            }
-            "tutorial_02.html" | "tutorial_03.html" => {
-                if ctx.is_memo_state(1) {
-                    ctx.tutorial_show_html_file(event);
-                }
-                None
-            }
-            "question_mark_1" => {
-                if ctx.is_memo_state(1) {
-                    ctx.tutorial_show_question_mark(1);
-                    ctx.tutorial_close_html();
-                }
-                None
-            }
-            "reward_2" => {
-                if !ctx.is_memo_state(4) {
-                    return None;
-                }
-                ctx.set_memo_state(5);
-                give_shots(ctx);
-                // Java derives the html's npc id from the packet npc or —
-                // on the npc-less bypass path — the player's target.
-                let npc_id = if ctx.npc_id != 0 {
-                    ctx.npc_id
-                } else {
-                    ctx.player_target_npc_id()
-                };
-                ctx.tutorial_show_question_mark(28);
-                if npc_id != 0 {
-                    Some(format!("{npc_id}-3.html"))
-                } else {
-                    None
-                }
-            }
-            "close_tutorial" => {
-                ctx.tutorial_close_html();
-                None
-            }
-            _ => None,
-        }
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        // The chat window is fully owned by `on_first_talk`.
+        None
     }
 
     /// `onFirstTalk` — the helpers/supervisors own their chat windows.
@@ -269,9 +198,58 @@ impl QuestScript for Tutorial {
         }
     }
 
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        // The chat window is fully owned by `on_first_talk`.
-        None
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        match event {
+            "start_newbie_tutorial" => {
+                if ctx.memo_state() < 4
+                    && let Some((voice, html, _, _)) = class_row(ctx.player_class_id())
+                {
+                    ctx.start_quest();
+                    ctx.set_memo_state(1);
+                    ctx.play_tutorial_voice(voice);
+                    ctx.tutorial_show_html_file(html);
+                }
+                None
+            }
+            "tutorial_02.html" | "tutorial_03.html" => {
+                if ctx.is_memo_state(1) {
+                    ctx.tutorial_show_html_file(event);
+                }
+                None
+            }
+            "question_mark_1" => {
+                if ctx.is_memo_state(1) {
+                    ctx.tutorial_show_question_mark(1);
+                    ctx.tutorial_close_html();
+                }
+                None
+            }
+            "reward_2" => {
+                if !ctx.is_memo_state(4) {
+                    return None;
+                }
+                ctx.set_memo_state(5);
+                give_shots(ctx);
+                // Java derives the html's npc id from the packet npc or —
+                // on the npc-less bypass path — the player's target.
+                let npc_id = if ctx.npc_id != 0 {
+                    ctx.npc_id
+                } else {
+                    ctx.player_target_npc_id()
+                };
+                ctx.tutorial_show_question_mark(28);
+                if npc_id != 0 {
+                    Some(format!("{npc_id}-3.html"))
+                } else {
+                    None
+                }
+            }
+            "close_tutorial" => {
+                ctx.tutorial_close_html();
+                None
+            }
+            _ => None,
+        }
     }
 
     /// `onKill`: a gremlin has a 30% chance to toss a Blue Gemstone, capped
@@ -289,15 +267,26 @@ impl QuestScript for Tutorial {
         ctx.drop_item_from_npc(BLUE_GEM, 1);
     }
 
-    /// `ON_PLAYER_ITEM_PICKUP` on the Blue Gemstone.
-    fn on_item_pickup(&self, ctx: &mut QuestCtx, item_id: i32) {
-        if item_id != BLUE_GEM || ctx.memo_state() >= 3 || !ctx.is_started() {
+    fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
+        if name == "start_newbie_tutorial" {
+            self.on_event(ctx, "start_newbie_tutorial");
+        }
+    }
+
+    fn handles_global_events(&self) -> bool {
+        true
+    }
+
+    /// `onPlayerLogin`: a fresh (or still-early) newbie queues the intro.
+    fn on_login(&self, ctx: &mut QuestCtx) {
+        if ctx.world.cfg.character.disable_tutorial || ctx.player_level() > 6 {
             return;
         }
-        ctx.set_memo_state(3);
-        ctx.play_sound("ItemSound.quest_tutorial");
-        ctx.play_tutorial_voice("tutorial_voice_013");
-        ctx.tutorial_show_question_mark(5);
+        // Java `getQuestState(player, true)` — materialize the CREATED state.
+        ctx.ensure_qs();
+        if ctx.memo_state() < 4 && class_row(ctx.player_class_id()).is_some() {
+            ctx.start_quest_timer("start_newbie_tutorial", 5000);
+        }
     }
 
     /// `ON_PLAYER_PRESS_TUTORIAL_MARK` — marks 1/5/28 belong to this quest.
@@ -321,5 +310,16 @@ impl QuestScript for Tutorial {
             }
             _ => {}
         }
+    }
+
+    /// `ON_PLAYER_ITEM_PICKUP` on the Blue Gemstone.
+    fn on_item_pickup(&self, ctx: &mut QuestCtx, item_id: i32) {
+        if item_id != BLUE_GEM || ctx.memo_state() >= 3 || !ctx.is_started() {
+            return;
+        }
+        ctx.set_memo_state(3);
+        ctx.play_sound("ItemSound.quest_tutorial");
+        ctx.play_tutorial_voice("tutorial_voice_013");
+        ctx.tutorial_show_question_mark(5);
     }
 }

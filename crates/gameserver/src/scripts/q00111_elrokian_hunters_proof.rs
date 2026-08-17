@@ -109,6 +109,102 @@ impl QuestScript for Q00111ElrokianHuntersProof {
         (ctx.player_level() < MIN_LEVEL).then(|| "32113-06.htm".to_string())
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_completed() {
+            return Some(if ctx.npc_id == MARQUEZ {
+                ctx.already_completed_html()
+            } else {
+                ctx.no_quest_html()
+            });
+        }
+        if ctx.is_created() {
+            return Some(if ctx.npc_id == MARQUEZ {
+                "32113-01.htm".to_string()
+            } else {
+                ctx.no_quest_html()
+            });
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        let memo = ctx.memo_state();
+        match ctx.npc_id {
+            MARQUEZ => Some(match memo {
+                1 => "32113-07.html".to_string(),
+                2 => "32113-08.html".to_string(),
+                3 => "32113-09.html".to_string(),
+                4 => {
+                    if ctx.quest_items_count(DIARY_FRAGMENT) < 50 {
+                        "32113-16.html".to_string()
+                    } else {
+                        ctx.take_items(DIARY_FRAGMENT, -1);
+                        ctx.set_memo_state(5);
+                        "32113-17.html".to_string()
+                    }
+                }
+                5 => "32113-26.html".to_string(),
+                6 => "32113-27.html".to_string(),
+                7 | 8 => "32113-28.html".to_string(),
+                9 => "32113-29.html".to_string(),
+                10..=12 => "32113-30.html".to_string(),
+                _ => ctx.no_quest_html(),
+            }),
+            MUSHIKA => {
+                if memo == 1 {
+                    ctx.set_cond(2, true);
+                    ctx.set_memo_state(2);
+                    Some("32114-01.html".to_string())
+                } else if memo > 1 && memo < 10 {
+                    Some("32114-02.html".to_string())
+                } else {
+                    Some("32114-03.html".to_string())
+                }
+            }
+            ASAMAH => Some(match memo {
+                1 => "32115-01.html".to_string(),
+                2 => "32115-02.html".to_string(),
+                3..=8 => "32115-04.html".to_string(),
+                9 => "32115-05.html".to_string(),
+                10 => "32115-07.html".to_string(),
+                11 => {
+                    if !has_trophies(ctx) {
+                        "32115-10.html".to_string()
+                    } else {
+                        ctx.set_memo_state(12);
+                        ctx.set_cond(12, true);
+                        ctx.give_items(PRACTICE_ELROKIAN_TRAP, 1);
+                        ctx.take_items(ORNITHOMINUS_CLAW, -1);
+                        ctx.take_items(DEINONYCHUS_BONE, -1);
+                        ctx.take_items(PACHYCEPHALOSAURUS_SKIN, -1);
+                        "32115-11.html".to_string()
+                    }
+                }
+                12 => "32115-12.html".to_string(),
+                _ => ctx.no_quest_html(),
+            }),
+            KIRIKACHIN => Some(match memo {
+                1..=5 => "32116-01.html".to_string(),
+                6 => {
+                    if ctx.quest_items_count(EXPEDITION_MEMBERS_LETTER) > 0 {
+                        ctx.set_memo_state(7);
+                        ctx.set_cond(7, true);
+                        ctx.take_items(EXPEDITION_MEMBERS_LETTER, -1);
+                        "32116-02.html".to_string()
+                    } else {
+                        ctx.no_quest_html()
+                    }
+                }
+                7 => "32116-05.html".to_string(),
+                8 => "32116-06.html".to_string(),
+                9..=11 => "32116-08.html".to_string(),
+                12 => "32116-09.html".to_string(),
+                _ => ctx.no_quest_html(),
+            }),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -233,102 +329,6 @@ impl QuestScript for Q00111ElrokianHuntersProof {
             && has_trophies(ctx)
         {
             ctx.set_cond(11, false);
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_completed() {
-            return Some(if ctx.npc_id == MARQUEZ {
-                ctx.already_completed_html()
-            } else {
-                ctx.no_quest_html()
-            });
-        }
-        if ctx.is_created() {
-            return Some(if ctx.npc_id == MARQUEZ {
-                "32113-01.htm".to_string()
-            } else {
-                ctx.no_quest_html()
-            });
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        let memo = ctx.memo_state();
-        match ctx.npc_id {
-            MARQUEZ => Some(match memo {
-                1 => "32113-07.html".to_string(),
-                2 => "32113-08.html".to_string(),
-                3 => "32113-09.html".to_string(),
-                4 => {
-                    if ctx.quest_items_count(DIARY_FRAGMENT) < 50 {
-                        "32113-16.html".to_string()
-                    } else {
-                        ctx.take_items(DIARY_FRAGMENT, -1);
-                        ctx.set_memo_state(5);
-                        "32113-17.html".to_string()
-                    }
-                }
-                5 => "32113-26.html".to_string(),
-                6 => "32113-27.html".to_string(),
-                7 | 8 => "32113-28.html".to_string(),
-                9 => "32113-29.html".to_string(),
-                10 | 11 | 12 => "32113-30.html".to_string(),
-                _ => ctx.no_quest_html(),
-            }),
-            MUSHIKA => {
-                if memo == 1 {
-                    ctx.set_cond(2, true);
-                    ctx.set_memo_state(2);
-                    Some("32114-01.html".to_string())
-                } else if memo > 1 && memo < 10 {
-                    Some("32114-02.html".to_string())
-                } else {
-                    Some("32114-03.html".to_string())
-                }
-            }
-            ASAMAH => Some(match memo {
-                1 => "32115-01.html".to_string(),
-                2 => "32115-02.html".to_string(),
-                3 | 4 | 5 | 6 | 7 | 8 => "32115-04.html".to_string(),
-                9 => "32115-05.html".to_string(),
-                10 => "32115-07.html".to_string(),
-                11 => {
-                    if !has_trophies(ctx) {
-                        "32115-10.html".to_string()
-                    } else {
-                        ctx.set_memo_state(12);
-                        ctx.set_cond(12, true);
-                        ctx.give_items(PRACTICE_ELROKIAN_TRAP, 1);
-                        ctx.take_items(ORNITHOMINUS_CLAW, -1);
-                        ctx.take_items(DEINONYCHUS_BONE, -1);
-                        ctx.take_items(PACHYCEPHALOSAURUS_SKIN, -1);
-                        "32115-11.html".to_string()
-                    }
-                }
-                12 => "32115-12.html".to_string(),
-                _ => ctx.no_quest_html(),
-            }),
-            KIRIKACHIN => Some(match memo {
-                1 | 2 | 3 | 4 | 5 => "32116-01.html".to_string(),
-                6 => {
-                    if ctx.quest_items_count(EXPEDITION_MEMBERS_LETTER) > 0 {
-                        ctx.set_memo_state(7);
-                        ctx.set_cond(7, true);
-                        ctx.take_items(EXPEDITION_MEMBERS_LETTER, -1);
-                        "32116-02.html".to_string()
-                    } else {
-                        ctx.no_quest_html()
-                    }
-                }
-                7 => "32116-05.html".to_string(),
-                8 => "32116-06.html".to_string(),
-                9 | 10 | 11 => "32116-08.html".to_string(),
-                12 => "32116-09.html".to_string(),
-                _ => ctx.no_quest_html(),
-            }),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

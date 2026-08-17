@@ -47,6 +47,46 @@ impl QuestScript for Q00042HelpTheUncle {
         &[MAP, MAP_PIECE]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let html = match ctx.npc_id {
+            WATERS => {
+                if ctx.is_created() {
+                    if ctx.player_level() >= MIN_LEVEL {
+                        "30828-00.htm".to_string()
+                    } else {
+                        "30828-00a.html".to_string()
+                    }
+                } else if ctx.is_completed() {
+                    ctx.already_completed_html()
+                } else {
+                    match ctx.cond() {
+                        1 => {
+                            if has(ctx, TRIDENT) {
+                                "30828-02.html"
+                            } else {
+                                "30828-02a.html"
+                            }
+                        }
+                        2 => "30828-04.html",
+                        3 => "30828-05.html",
+                        4 => "30828-07.html",
+                        5 => "30828-08.html",
+                        _ => return Some(ctx.no_quest_html()),
+                    }
+                    .to_string()
+                }
+            }
+            SOPHYA if ctx.is_started() => match ctx.cond() {
+                4 => "30735-01.html".to_string(),
+                5 => "30735-03.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -97,45 +137,5 @@ impl QuestScript for Q00042HelpTheUncle {
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
         ctx.collect_toward_on_cond(2, MAP_PIECE, 30, 3);
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let html = match ctx.npc_id {
-            WATERS => {
-                if ctx.is_created() {
-                    if ctx.player_level() >= MIN_LEVEL {
-                        "30828-00.htm".to_string()
-                    } else {
-                        "30828-00a.html".to_string()
-                    }
-                } else if ctx.is_completed() {
-                    ctx.already_completed_html()
-                } else {
-                    match ctx.cond() {
-                        1 => {
-                            if has(ctx, TRIDENT) {
-                                "30828-02.html"
-                            } else {
-                                "30828-02a.html"
-                            }
-                        }
-                        2 => "30828-04.html",
-                        3 => "30828-05.html",
-                        4 => "30828-07.html",
-                        5 => "30828-08.html",
-                        _ => return Some(ctx.no_quest_html()),
-                    }
-                    .to_string()
-                }
-            }
-            SOPHYA if ctx.is_started() => match ctx.cond() {
-                4 => "30735-01.html".to_string(),
-                5 => "30735-03.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }

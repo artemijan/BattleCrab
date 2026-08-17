@@ -128,115 +128,6 @@ impl QuestScript for Q00212TrialOfDuty {
         ]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "quest_accept" => {
-                if ctx.is_created()
-                    && ctx.player_level() >= MIN_LEVEL
-                    && ctx.is_in_category("KNIGHT_GROUP")
-                {
-                    ctx.start_quest();
-                    ctx.set_memo_state(1);
-                    ctx.set_var("flag", "0");
-                }
-                None
-            }
-            "30116-02.html" | "30116-03.html" | "30116-04.html" => {
-                if ctx.memo_state() == 10 && ctx.quest_items_count(TEAR_OF_LOYALTY) > 0 {
-                    Some(event.to_string())
-                } else {
-                    None
-                }
-            }
-            "30116-05.html" => {
-                if ctx.memo_state() == 10 && ctx.quest_items_count(TEAR_OF_LOYALTY) > 0 {
-                    ctx.take_items(TEAR_OF_LOYALTY, -1);
-                    ctx.set_memo_state(11);
-                    ctx.set_cond(14, true);
-                    return Some(event.to_string());
-                }
-                None
-            }
-            _ => None,
-        }
-    }
-
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        match ctx.npc_id {
-            SKELETON_MARAUDER | SKELETON_RAIDER => {
-                if ctx.memo_state() == 2 {
-                    let f = flag(ctx);
-                    if ctx.roll(100) < f * 10 {
-                        ctx.spawn_near_npc(SPIRIT_OF_SIR_HEROD, false);
-                        ctx.set_var("flag", "0");
-                    } else {
-                        ctx.set_var("flag", (f + 1).to_string());
-                    }
-                }
-            }
-            SPIRIT_OF_SIR_HEROD => {
-                if ctx.memo_state() == 2 && ctx.equipped_weapon_id() == OLD_KNIGHTS_SWORD {
-                    ctx.give_items(KNIGHTS_TEAR, 1);
-                    ctx.set_memo_state(3);
-                    ctx.set_cond(3, true);
-                }
-            }
-            STRAIN | GHOUL => {
-                if ctx.memo_state() == 5
-                    && ctx.quest_items_count(TALIANUSS_REPORT) == 0
-                    && ctx.give_item_randomly(REPORT_PIECE, 1, REPORT_PIECE_LIMIT, 1.0, true)
-                {
-                    ctx.take_items(REPORT_PIECE, -1);
-                    ctx.give_items(TALIANUSS_REPORT, 1);
-                    ctx.set_cond(6, false);
-                }
-            }
-            HANGMAN_TREE => {
-                if ctx.memo_state() == 6 {
-                    let f = flag(ctx);
-                    if ctx.roll(100) < (f - 3) * 33 {
-                        ctx.spawn_near_npc(SPIRIT_OF_SIR_TALIANUS, false);
-                        ctx.set_var("flag", "0");
-                        ctx.set_cond(8, true);
-                    } else {
-                        ctx.set_var("flag", (f + 1).to_string());
-                    }
-                }
-            }
-            LETO_LIZARDMAN
-            | LETO_LIZARDMAN_ARCHER
-            | LETO_LIZARDMAN_SOLDIER
-            | LETO_LIZARDMAN_WARRIOR
-            | LETO_LIZARDMAN_SHAMAN
-            | LETO_LIZARDMAN_OVERLORD => {
-                if ctx.memo_state() == 9
-                    && ctx.give_item_randomly(MILITAS_ARTICLE, 1, MILITAS_LIMIT, 1.0, true)
-                {
-                    ctx.set_cond(12, false);
-                }
-            }
-            BREKA_ORC_PREFECT if ctx.memo_state() == 11 => {
-                if ctx.quest_items_count(ATHEBALDTS_SKULL) == 0 {
-                    ctx.give_items(ATHEBALDTS_SKULL, 1);
-                    ctx.play_sound(quest_sounds::ITEMGET);
-                } else if ctx.quest_items_count(ATHEBALDTS_RIBS) == 0 {
-                    ctx.give_items(ATHEBALDTS_RIBS, 1);
-                    ctx.play_sound(quest_sounds::ITEMGET);
-                } else if ctx.quest_items_count(ATHEBALDTS_SHIN) == 0 {
-                    ctx.give_items(ATHEBALDTS_SHIN, 1);
-                    ctx.set_cond(15, true);
-                }
-            }
-            _ => {}
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let memo = ctx.memo_state();
@@ -409,6 +300,115 @@ impl QuestScript for Q00212TrialOfDuty {
                 _ => Some(ctx.no_quest_html()),
             },
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "quest_accept" => {
+                if ctx.is_created()
+                    && ctx.player_level() >= MIN_LEVEL
+                    && ctx.is_in_category("KNIGHT_GROUP")
+                {
+                    ctx.start_quest();
+                    ctx.set_memo_state(1);
+                    ctx.set_var("flag", "0");
+                }
+                None
+            }
+            "30116-02.html" | "30116-03.html" | "30116-04.html" => {
+                if ctx.memo_state() == 10 && ctx.quest_items_count(TEAR_OF_LOYALTY) > 0 {
+                    Some(event.to_string())
+                } else {
+                    None
+                }
+            }
+            "30116-05.html" => {
+                if ctx.memo_state() == 10 && ctx.quest_items_count(TEAR_OF_LOYALTY) > 0 {
+                    ctx.take_items(TEAR_OF_LOYALTY, -1);
+                    ctx.set_memo_state(11);
+                    ctx.set_cond(14, true);
+                    return Some(event.to_string());
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        match ctx.npc_id {
+            SKELETON_MARAUDER | SKELETON_RAIDER => {
+                if ctx.memo_state() == 2 {
+                    let f = flag(ctx);
+                    if ctx.roll(100) < f * 10 {
+                        ctx.spawn_near_npc(SPIRIT_OF_SIR_HEROD, false);
+                        ctx.set_var("flag", "0");
+                    } else {
+                        ctx.set_var("flag", (f + 1).to_string());
+                    }
+                }
+            }
+            SPIRIT_OF_SIR_HEROD => {
+                if ctx.memo_state() == 2 && ctx.equipped_weapon_id() == OLD_KNIGHTS_SWORD {
+                    ctx.give_items(KNIGHTS_TEAR, 1);
+                    ctx.set_memo_state(3);
+                    ctx.set_cond(3, true);
+                }
+            }
+            STRAIN | GHOUL => {
+                if ctx.memo_state() == 5
+                    && ctx.quest_items_count(TALIANUSS_REPORT) == 0
+                    && ctx.give_item_randomly(REPORT_PIECE, 1, REPORT_PIECE_LIMIT, 1.0, true)
+                {
+                    ctx.take_items(REPORT_PIECE, -1);
+                    ctx.give_items(TALIANUSS_REPORT, 1);
+                    ctx.set_cond(6, false);
+                }
+            }
+            HANGMAN_TREE => {
+                if ctx.memo_state() == 6 {
+                    let f = flag(ctx);
+                    if ctx.roll(100) < (f - 3) * 33 {
+                        ctx.spawn_near_npc(SPIRIT_OF_SIR_TALIANUS, false);
+                        ctx.set_var("flag", "0");
+                        ctx.set_cond(8, true);
+                    } else {
+                        ctx.set_var("flag", (f + 1).to_string());
+                    }
+                }
+            }
+            LETO_LIZARDMAN
+            | LETO_LIZARDMAN_ARCHER
+            | LETO_LIZARDMAN_SOLDIER
+            | LETO_LIZARDMAN_WARRIOR
+            | LETO_LIZARDMAN_SHAMAN
+            | LETO_LIZARDMAN_OVERLORD => {
+                if ctx.memo_state() == 9
+                    && ctx.give_item_randomly(MILITAS_ARTICLE, 1, MILITAS_LIMIT, 1.0, true)
+                {
+                    ctx.set_cond(12, false);
+                }
+            }
+            BREKA_ORC_PREFECT if ctx.memo_state() == 11 => {
+                if ctx.quest_items_count(ATHEBALDTS_SKULL) == 0 {
+                    ctx.give_items(ATHEBALDTS_SKULL, 1);
+                    ctx.play_sound(quest_sounds::ITEMGET);
+                } else if ctx.quest_items_count(ATHEBALDTS_RIBS) == 0 {
+                    ctx.give_items(ATHEBALDTS_RIBS, 1);
+                    ctx.play_sound(quest_sounds::ITEMGET);
+                } else if ctx.quest_items_count(ATHEBALDTS_SHIN) == 0 {
+                    ctx.give_items(ATHEBALDTS_SHIN, 1);
+                    ctx.set_cond(15, true);
+                }
+            }
+            _ => {}
         }
     }
 }

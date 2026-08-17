@@ -247,6 +247,65 @@ impl QuestScript for Q00402PathOfTheHumanKnight {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == SIR_KLAUS_VASPER {
+                return Some("30417-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        let has_mark = ctx.quest_items_count(SQUIRES_MARK) > 0;
+        if npc == SIR_KLAUS_VASPER {
+            if !has_mark {
+                return Some(ctx.no_quest_html());
+            }
+            return Some(match self.coin_count(ctx) {
+                0..=2 => "30417-09.html".to_string(),
+                3 => "30417-10.html".to_string(),
+                4 | 5 => "30417-11.html".to_string(),
+                // Six coins completes here and now — no confirm step.
+                _ => {
+                    self.award_sword(ctx, true);
+                    "30417-12.html".to_string()
+                }
+            });
+        }
+        if npc == SIR_ARON_TANFORD {
+            // Pure hint NPC.
+            return Some(if has_mark {
+                "30653-01.html".to_string()
+            } else {
+                ctx.no_quest_html()
+            });
+        }
+        let Some(b) = BRANCHES.iter().find(|b| b.npc == npc) else {
+            return Some(ctx.no_quest_html());
+        };
+        let has_badge = ctx.quest_items_count(b.badge) > 0;
+        let has_coin = ctx.quest_items_count(b.coin) > 0;
+        if has_mark && !has_badge && !has_coin {
+            return Some(b.offer.to_string());
+        }
+        if has_badge {
+            if ctx.quest_items_count(b.material) < b.required {
+                return Some(b.need_more.to_string());
+            }
+            ctx.give_items(b.coin, 1);
+            ctx.take_items(b.badge, 1);
+            ctx.take_items(b.material, -1);
+            return Some(b.turn_in.to_string());
+        }
+        if has_coin {
+            return Some(b.has_coin.to_string());
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -323,64 +382,5 @@ impl QuestScript for Q00402PathOfTheHumanKnight {
         } else {
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == SIR_KLAUS_VASPER {
-                return Some("30417-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        let has_mark = ctx.quest_items_count(SQUIRES_MARK) > 0;
-        if npc == SIR_KLAUS_VASPER {
-            if !has_mark {
-                return Some(ctx.no_quest_html());
-            }
-            return Some(match self.coin_count(ctx) {
-                0..=2 => "30417-09.html".to_string(),
-                3 => "30417-10.html".to_string(),
-                4 | 5 => "30417-11.html".to_string(),
-                // Six coins completes here and now — no confirm step.
-                _ => {
-                    self.award_sword(ctx, true);
-                    "30417-12.html".to_string()
-                }
-            });
-        }
-        if npc == SIR_ARON_TANFORD {
-            // Pure hint NPC.
-            return Some(if has_mark {
-                "30653-01.html".to_string()
-            } else {
-                ctx.no_quest_html()
-            });
-        }
-        let Some(b) = BRANCHES.iter().find(|b| b.npc == npc) else {
-            return Some(ctx.no_quest_html());
-        };
-        let has_badge = ctx.quest_items_count(b.badge) > 0;
-        let has_coin = ctx.quest_items_count(b.coin) > 0;
-        if has_mark && !has_badge && !has_coin {
-            return Some(b.offer.to_string());
-        }
-        if has_badge {
-            if ctx.quest_items_count(b.material) < b.required {
-                return Some(b.need_more.to_string());
-            }
-            ctx.give_items(b.coin, 1);
-            ctx.take_items(b.badge, 1);
-            ctx.take_items(b.material, -1);
-            return Some(b.turn_in.to_string());
-        }
-        if has_coin {
-            return Some(b.has_coin.to_string());
-        }
-        Some(ctx.no_quest_html())
     }
 }

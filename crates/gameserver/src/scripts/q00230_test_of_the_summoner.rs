@@ -329,16 +329,6 @@ impl QuestScript for Q00230TestOfTheSummoner {
             SUMMONER_BRYNTHEA,
         ]
     }
-    fn attack_npcs(&self) -> &[i32] {
-        &[
-            PAKO_THE_CAT,
-            UNICORN_RACER,
-            SHADOW_TUREN,
-            MIMI_THE_CAT,
-            UNICORN_PHANTASM,
-            SILHOUETTE_TILFO,
-        ]
-    }
     fn kill_npcs(&self) -> &[i32] {
         &[
             NOBLE_ANT,
@@ -362,6 +352,16 @@ impl QuestScript for Q00230TestOfTheSummoner {
             LETO_LIZARDMAN_SHAMAN,
             LETO_LIZARDMAN_OVERLORD,
             KARUL_BUGBEAR,
+            PAKO_THE_CAT,
+            UNICORN_RACER,
+            SHADOW_TUREN,
+            MIMI_THE_CAT,
+            UNICORN_PHANTASM,
+            SILHOUETTE_TILFO,
+        ]
+    }
+    fn attack_npcs(&self) -> &[i32] {
+        &[
             PAKO_THE_CAT,
             UNICORN_RACER,
             SHADOW_TUREN,
@@ -428,6 +428,43 @@ impl QuestScript for Q00230TestOfTheSummoner {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == HIGH_SUMMONER_GALATEA {
+                let class = ctx.player_class_id();
+                if class == WIZARD || class == ELVEN_WIZARD || class == DARK_WIZARD {
+                    return Some(if ctx.player_level() >= MIN_LEVEL {
+                        "30634-03.htm".to_string()
+                    } else {
+                        "30634-02.html".to_string()
+                    });
+                }
+                return Some("30634-01.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == HIGH_SUMMONER_GALATEA {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        // Started.
+        let html = match ctx.npc_id {
+            HIGH_SUMMONER_GALATEA => galatea_talk(ctx),
+            GROCER_LARA => lara_talk(ctx),
+            SUMMONER_ALMORS => summoner_talk(ctx, &SLOT_1ST, ALMORS_ARCANA, "30635"),
+            SUMMONER_CAMONIELL => summoner_talk(ctx, &SLOT_3RD, CAMONIELL_ARCANA, "30636"),
+            SUMMONER_BELTHUS => summoner_talk(ctx, &SLOT_5TH, BELTHUS_ARCANA, "30637"),
+            SUMMONER_BASILLA => summoner_talk(ctx, &SLOT_2ND, BASILLIA_ARCANA, "30638"),
+            SUMMONER_CELESTIEL => summoner_talk(ctx, &SLOT_4TH, CELESTIEL_ARCANA, "30639"),
+            SUMMONER_BRYNTHEA => summoner_talk(ctx, &SLOT_6TH, BRYNTHEA_ARCANA, "30640"),
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         // NPC-only duel timers fire with no player attached.
         match event {
@@ -491,12 +528,6 @@ impl QuestScript for Q00230TestOfTheSummoner {
         }
     }
 
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if let Some(slot) = slot_for_opponent(ctx.npc_id) {
-            self.duel_attack(ctx, slot);
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || !ctx.is_started() {
             return;
@@ -547,41 +578,10 @@ impl QuestScript for Q00230TestOfTheSummoner {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == HIGH_SUMMONER_GALATEA {
-                let class = ctx.player_class_id();
-                if class == WIZARD || class == ELVEN_WIZARD || class == DARK_WIZARD {
-                    return Some(if ctx.player_level() >= MIN_LEVEL {
-                        "30634-03.htm".to_string()
-                    } else {
-                        "30634-02.html".to_string()
-                    });
-                }
-                return Some("30634-01.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if let Some(slot) = slot_for_opponent(ctx.npc_id) {
+            self.duel_attack(ctx, slot);
         }
-        if ctx.is_completed() {
-            if ctx.npc_id == HIGH_SUMMONER_GALATEA {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        // Started.
-        let html = match ctx.npc_id {
-            HIGH_SUMMONER_GALATEA => galatea_talk(ctx),
-            GROCER_LARA => lara_talk(ctx),
-            SUMMONER_ALMORS => summoner_talk(ctx, &SLOT_1ST, ALMORS_ARCANA, "30635"),
-            SUMMONER_CAMONIELL => summoner_talk(ctx, &SLOT_3RD, CAMONIELL_ARCANA, "30636"),
-            SUMMONER_BELTHUS => summoner_talk(ctx, &SLOT_5TH, BELTHUS_ARCANA, "30637"),
-            SUMMONER_BASILLA => summoner_talk(ctx, &SLOT_2ND, BASILLIA_ARCANA, "30638"),
-            SUMMONER_CELESTIEL => summoner_talk(ctx, &SLOT_4TH, CELESTIEL_ARCANA, "30639"),
-            SUMMONER_BRYNTHEA => summoner_talk(ctx, &SLOT_6TH, BRYNTHEA_ARCANA, "30640"),
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }
 

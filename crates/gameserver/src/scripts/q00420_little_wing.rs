@@ -175,9 +175,6 @@ impl QuestScript for Q00420LittleWing {
             MARIA, CRONOS, BYRON, MIMYU, EXARION, ZWOV, KALIBRAN, SUZET, SHAMHAI, COOPER,
         ]
     }
-    fn attack_npcs(&self) -> &[i32] {
-        &DELUXE_STONE_BREAKERS
-    }
     fn kill_npcs(&self) -> &[i32] {
         &[
             TOAD_LORD,
@@ -187,6 +184,9 @@ impl QuestScript for Q00420LittleWing {
             ROAD_SCAVENGER,
             LETO_WARRIOR,
         ]
+    }
+    fn attack_npcs(&self) -> &[i32] {
+        &DELUXE_STONE_BREAKERS
     }
     fn quest_items(&self) -> &[i32] {
         &[
@@ -208,6 +208,38 @@ impl QuestScript for Q00420LittleWing {
             SHAMHAI_SCALE,
             SHAMHAI_EGG,
         ]
+    }
+
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == COOPER {
+                return Some(if ctx.player_level() >= MIN_LEVEL {
+                    "30829-01.htm".to_string()
+                } else {
+                    "30829-03.html".to_string()
+                });
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            return Some(ctx.already_completed_html());
+        }
+        let cond = ctx.cond();
+        let html = match ctx.npc_id {
+            COOPER => "30829-04.html".to_string(),
+            CRONOS => cronos_talk(ctx, cond),
+            MARIA => maria_talk(ctx, cond),
+            BYRON => byron_talk(ctx, cond),
+            MIMYU => mimyu_talk(ctx, cond),
+            EXARION => drake_talk(ctx, cond, EXARION_EGG, "30748", true),
+            ZWOV => drake_talk(ctx, cond, ZWOV_EGG, "30749", true),
+            KALIBRAN => drake_talk(ctx, cond, KALIBRAN_EGG, "30750", false),
+            SUZET => drake_talk(ctx, cond, SUZET_EGG, "30751", true),
+            SHAMHAI => drake_talk(ctx, cond, SHAMHAI_EGG, "30752", true),
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
@@ -355,16 +387,6 @@ impl QuestScript for Q00420LittleWing {
         }
     }
 
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        // A Deluxe Fairy Stone is fragile: striking one of the fae has a 30%
-        // chance to shatter it.
-        if ctx.has_qs() && has(ctx, DELUXE_FAIRY_STONE) && ctx.roll(100) < 30 {
-            ctx.take_items(DELUXE_FAIRY_STONE, -1);
-            ctx.play_sound(quest_sounds::MIDDLE);
-            ctx.npc_say(NS_STONE_BROKE);
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() {
             return;
@@ -384,36 +406,14 @@ impl QuestScript for Q00420LittleWing {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == COOPER {
-                return Some(if ctx.player_level() >= MIN_LEVEL {
-                    "30829-01.htm".to_string()
-                } else {
-                    "30829-03.html".to_string()
-                });
-            }
-            return Some(ctx.no_quest_html());
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        // A Deluxe Fairy Stone is fragile: striking one of the fae has a 30%
+        // chance to shatter it.
+        if ctx.has_qs() && has(ctx, DELUXE_FAIRY_STONE) && ctx.roll(100) < 30 {
+            ctx.take_items(DELUXE_FAIRY_STONE, -1);
+            ctx.play_sound(quest_sounds::MIDDLE);
+            ctx.npc_say(NS_STONE_BROKE);
         }
-        if ctx.is_completed() {
-            return Some(ctx.already_completed_html());
-        }
-        let cond = ctx.cond();
-        let html = match ctx.npc_id {
-            COOPER => "30829-04.html".to_string(),
-            CRONOS => cronos_talk(ctx, cond),
-            MARIA => maria_talk(ctx, cond),
-            BYRON => byron_talk(ctx, cond),
-            MIMYU => mimyu_talk(ctx, cond),
-            EXARION => drake_talk(ctx, cond, EXARION_EGG, "30748", true),
-            ZWOV => drake_talk(ctx, cond, ZWOV_EGG, "30749", true),
-            KALIBRAN => drake_talk(ctx, cond, KALIBRAN_EGG, "30750", false),
-            SUZET => drake_talk(ctx, cond, SUZET_EGG, "30751", true),
-            SHAMHAI => drake_talk(ctx, cond, SHAMHAI_EGG, "30752", true),
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }
 

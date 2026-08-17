@@ -250,6 +250,27 @@ impl QuestScript for Q00415PathOfTheOrcMonk {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == GANTAKI_ZU_URUTU {
+                return Some("30587-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            GANTAKI_ZU_URUTU => self.talk_gantaki(ctx),
+            PREFECT_KASMAN => self.talk_kasman(ctx),
+            KHAVATARI_ROSHEEK => self.talk_rosheek(ctx),
+            KHAVATARI_TORUKU => self.talk_toruku(ctx),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -335,29 +356,6 @@ impl QuestScript for Q00415PathOfTheOrcMonk {
         }
     }
 
-    /// The 0 → 1 → 2 tag, but gated on **fists or bare hands**.
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let ok = ctx.is_bare_or_fist_handed();
-        match ctx.npc_script_value() {
-            0 => {
-                if ok {
-                    ctx.set_npc_script_value(1);
-                    let attacker = ctx.player;
-                    ctx.set_npc_var_int(LAST_ATTACKER, attacker);
-                } else {
-                    ctx.set_npc_script_value(2);
-                }
-            }
-            1 if !ok || ctx.npc_var_int(LAST_ATTACKER) != ctx.player => {
-                ctx.set_npc_script_value(2);
-            }
-            _ => {}
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || !ctx.is_started() || ctx.npc_script_value() != 1 {
             return;
@@ -420,24 +418,26 @@ impl QuestScript for Q00415PathOfTheOrcMonk {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == GANTAKI_ZU_URUTU {
-                return Some("30587-01.htm".to_string());
+    /// The 0 → 1 → 2 tag, but gated on **fists or bare hands**.
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
+        let ok = ctx.is_bare_or_fist_handed();
+        match ctx.npc_script_value() {
+            0 => {
+                if ok {
+                    ctx.set_npc_script_value(1);
+                    let attacker = ctx.player;
+                    ctx.set_npc_var_int(LAST_ATTACKER, attacker);
+                } else {
+                    ctx.set_npc_script_value(2);
+                }
             }
-            return Some(ctx.no_quest_html());
-        }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            GANTAKI_ZU_URUTU => self.talk_gantaki(ctx),
-            PREFECT_KASMAN => self.talk_kasman(ctx),
-            KHAVATARI_ROSHEEK => self.talk_rosheek(ctx),
-            KHAVATARI_TORUKU => self.talk_toruku(ctx),
-            _ => Some(ctx.no_quest_html()),
+            1 if !ok || ctx.npc_var_int(LAST_ATTACKER) != ctx.player => {
+                ctx.set_npc_script_value(2);
+            }
+            _ => {}
         }
     }
 }

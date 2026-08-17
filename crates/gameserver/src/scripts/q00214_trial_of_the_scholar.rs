@@ -222,6 +222,47 @@ impl QuestScript for Q00214TrialOfTheScholar {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == MAGISTER_MIRIEN {
+                let class = ctx.player_class_id();
+                if class == WIZARD || class == ELVEN_WIZARD || class == DARK_WIZARD {
+                    return Some(if ctx.player_level() < MIN_LEVEL {
+                        "30461-02.html".to_string()
+                    } else {
+                        "30461-03.htm".to_string()
+                    });
+                }
+                return Some("30461-01.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == MAGISTER_MIRIEN {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            MAGISTER_MIRIEN => Some(mirien_talk(ctx)),
+            HIGH_PRIEST_SYLVAIN => Some(sylvain_talk(ctx)),
+            CAPTAIN_LUCAS => Some(lucas_talk(ctx)),
+            WAREHOUSE_KEEPER_VALKON => Some(valkon_talk(ctx)),
+            MAGISTER_DIETER => Some(dieter_talk(ctx)),
+            GRAND_MAGISTER_JUREK => Some(jurek_talk(ctx)),
+            TRADER_EDROC => Some(edroc_talk(ctx)),
+            WAREHOUSE_KEEPER_RAUT => Some(raut_talk(ctx)),
+            BLACKSMITH_POITAN => Some(poitan_talk(ctx)),
+            MARIA => Some(maria_talk(ctx)),
+            ASTROLOGER_CRETA => Some(creta_talk(ctx)),
+            ELDER_CRONOS => Some(cronos_talk(ctx)),
+            DRUNKARD_TRIFF => Some(triff_talk(ctx)),
+            ELDER_CASIAN => Some(casian_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -403,47 +444,6 @@ impl QuestScript for Q00214TrialOfTheScholar {
             FETTERED_SOUL => casian_kill(ctx, FETTERED_SOULS_ICHOR, 5),
             REINFORCED_GARGOYLE => casian_kill(ctx, REINFORCED_GARGOYLES_NAIL, 5),
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == MAGISTER_MIRIEN {
-                let class = ctx.player_class_id();
-                if class == WIZARD || class == ELVEN_WIZARD || class == DARK_WIZARD {
-                    return Some(if ctx.player_level() < MIN_LEVEL {
-                        "30461-02.html".to_string()
-                    } else {
-                        "30461-03.htm".to_string()
-                    });
-                }
-                return Some("30461-01.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == MAGISTER_MIRIEN {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            MAGISTER_MIRIEN => Some(mirien_talk(ctx)),
-            HIGH_PRIEST_SYLVAIN => Some(sylvain_talk(ctx)),
-            CAPTAIN_LUCAS => Some(lucas_talk(ctx)),
-            WAREHOUSE_KEEPER_VALKON => Some(valkon_talk(ctx)),
-            MAGISTER_DIETER => Some(dieter_talk(ctx)),
-            GRAND_MAGISTER_JUREK => Some(jurek_talk(ctx)),
-            TRADER_EDROC => Some(edroc_talk(ctx)),
-            WAREHOUSE_KEEPER_RAUT => Some(raut_talk(ctx)),
-            BLACKSMITH_POITAN => Some(poitan_talk(ctx)),
-            MARIA => Some(maria_talk(ctx)),
-            ASTROLOGER_CRETA => Some(creta_talk(ctx)),
-            ELDER_CRONOS => Some(cronos_talk(ctx)),
-            DRUNKARD_TRIFF => Some(triff_talk(ctx)),
-            ELDER_CASIAN => Some(casian_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

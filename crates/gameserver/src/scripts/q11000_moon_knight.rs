@@ -106,66 +106,6 @@ impl QuestScript for Q11000MoonKnight {
             .then(|| "no_level.html".to_string())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            // Pages the html buttons only navigate to.
-            "30208-01.html" | "30208-02.html" | "30437-02.html" | "30941-02.html"
-            | "30941-03.html" => Some(event.to_string()),
-            "30939-02.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30939-06.html" => step(ctx, 4, 5, event),
-            "30939-09.html" => step(ctx, 5, 6, event),
-            "30425-01.html" => step(ctx, 6, 7, event),
-            "30437-03.html" => {
-                if !ctx.is_cond(7) {
-                    return None;
-                }
-                ctx.set_cond(8, true);
-                ctx.take_items(ARMOR_TRADE_CONTRACT, 1);
-                // Both give nothing — the items are absent from the datapack,
-                // which is what strands the quest at cond 8.
-                ctx.give_items(ROLENTO_BAG, 1);
-                ctx.give_items(IRON_SCALE_GUILD_CERTIFICATE, 1);
-                Some(event.to_string())
-            }
-            "30941-04.html" => {
-                if !ctx.is_cond(8) {
-                    return None;
-                }
-                ctx.set_cond(9, true);
-                ctx.take_items(TUREK_ORC_ORDER, 1);
-                ctx.take_items(ROLENTO_BAG, 1);
-                ctx.take_items(IRON_SCALE_GUILD_CERTIFICATE, 1);
-                Some(event.to_string())
-            }
-            // The three armour weights. Java returns `null` from these, so the
-            // client keeps whatever page it was showing.
-            "reward1" => reward(
-                ctx,
-                &[MOON_HELMET, MOON_SHELL, MOON_LEATHER_GLOVES, MOON_SHOES],
-            ),
-            "reward2" => reward(
-                ctx,
-                &[
-                    MOON_HELMET,
-                    MOON_ARMOR,
-                    MOON_GAUNTLETS_HEAVY,
-                    MOON_BOOTS_HEAVY,
-                ],
-            ),
-            "reward3" => reward(
-                ctx,
-                &[MOON_HELMET, MOON_CAPE, MOON_SILK_GLOVES, MOON_SANDALS],
-            ),
-            _ => None,
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -294,6 +234,66 @@ impl QuestScript for Q11000MoonKnight {
             _ => return Some(ctx.no_quest_html()),
         };
         Some(html.to_string())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            // Pages the html buttons only navigate to.
+            "30208-01.html" | "30208-02.html" | "30437-02.html" | "30941-02.html"
+            | "30941-03.html" => Some(event.to_string()),
+            "30939-02.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30939-06.html" => step(ctx, 4, 5, event),
+            "30939-09.html" => step(ctx, 5, 6, event),
+            "30425-01.html" => step(ctx, 6, 7, event),
+            "30437-03.html" => {
+                if !ctx.is_cond(7) {
+                    return None;
+                }
+                ctx.set_cond(8, true);
+                ctx.take_items(ARMOR_TRADE_CONTRACT, 1);
+                // Both give nothing — the items are absent from the datapack,
+                // which is what strands the quest at cond 8.
+                ctx.give_items(ROLENTO_BAG, 1);
+                ctx.give_items(IRON_SCALE_GUILD_CERTIFICATE, 1);
+                Some(event.to_string())
+            }
+            "30941-04.html" => {
+                if !ctx.is_cond(8) {
+                    return None;
+                }
+                ctx.set_cond(9, true);
+                ctx.take_items(TUREK_ORC_ORDER, 1);
+                ctx.take_items(ROLENTO_BAG, 1);
+                ctx.take_items(IRON_SCALE_GUILD_CERTIFICATE, 1);
+                Some(event.to_string())
+            }
+            // The three armour weights. Java returns `null` from these, so the
+            // client keeps whatever page it was showing.
+            "reward1" => reward(
+                ctx,
+                &[MOON_HELMET, MOON_SHELL, MOON_LEATHER_GLOVES, MOON_SHOES],
+            ),
+            "reward2" => reward(
+                ctx,
+                &[
+                    MOON_HELMET,
+                    MOON_ARMOR,
+                    MOON_GAUNTLETS_HEAVY,
+                    MOON_BOOTS_HEAVY,
+                ],
+            ),
+            "reward3" => reward(
+                ctx,
+                &[MOON_HELMET, MOON_CAPE, MOON_SILK_GLOVES, MOON_SANDALS],
+            ),
+            _ => None,
+        }
     }
 
     fn on_kill(&self, ctx: &mut QuestCtx) {

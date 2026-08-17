@@ -80,6 +80,45 @@ impl QuestScript for Q00348AnArrogantSearch {
         (ctx.player_level() < MIN_LEVEL).then(|| ctx.get_htm("lvl.htm"))
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc_id = ctx.npc_id;
+        if ctx.is_created() {
+            return Some(if npc_id == HANELLIN {
+                "30864.htm".to_string()
+            } else {
+                ctx.no_quest_html()
+            });
+        }
+        if ctx.is_started() {
+            match npc_id {
+                HANELLIN => {
+                    return Some(match ctx.cond() {
+                        2 => "30864-09.htm".to_string(),
+                        3 => "30864-10.htm".to_string(),
+                        4 => "30864-04.htm".to_string(),
+                        5 => "30864-05.htm".to_string(),
+                        6 => "30864-11.htm".to_string(),
+                        7 => {
+                            if ctx.quest_items_count(HEALING_POTION) > 0 {
+                                "30864-12.htm".to_string()
+                            } else {
+                                "noz.htm".to_string()
+                            }
+                        }
+                        9 => "30864-07.htm".to_string(),
+                        10 | 11 => "30864-13.htm".to_string(),
+                        _ => ctx.no_quest_html(),
+                    });
+                }
+                CLAUDIA_ATHEBALT if ctx.cond() == 5 => return Some("31001.htm".to_string()),
+                TABLE_OF_VISION if ctx.cond() == 5 => return Some("31646.htm".to_string()),
+                _ => {}
+            }
+        }
+        Some(ctx.no_quest_html())
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -194,44 +233,5 @@ impl QuestScript for Q00348AnArrogantSearch {
             }
             _ => {}
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc_id = ctx.npc_id;
-        if ctx.is_created() {
-            return Some(if npc_id == HANELLIN {
-                "30864.htm".to_string()
-            } else {
-                ctx.no_quest_html()
-            });
-        }
-        if ctx.is_started() {
-            match npc_id {
-                HANELLIN => {
-                    return Some(match ctx.cond() {
-                        2 => "30864-09.htm".to_string(),
-                        3 => "30864-10.htm".to_string(),
-                        4 => "30864-04.htm".to_string(),
-                        5 => "30864-05.htm".to_string(),
-                        6 => "30864-11.htm".to_string(),
-                        7 => {
-                            if ctx.quest_items_count(HEALING_POTION) > 0 {
-                                "30864-12.htm".to_string()
-                            } else {
-                                "noz.htm".to_string()
-                            }
-                        }
-                        9 => "30864-07.htm".to_string(),
-                        10 | 11 => "30864-13.htm".to_string(),
-                        _ => ctx.no_quest_html(),
-                    });
-                }
-                CLAUDIA_ATHEBALT if ctx.cond() == 5 => return Some("31001.htm".to_string()),
-                TABLE_OF_VISION if ctx.cond() == 5 => return Some("31646.htm".to_string()),
-                _ => {}
-            }
-        }
-        Some(ctx.no_quest_html())
     }
 }

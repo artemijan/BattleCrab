@@ -210,6 +210,73 @@ impl QuestScript for Q00221TestimonyOfProsperity {
         ]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        if ctx.is_created() {
+            if ctx.npc_id == WAREHOUSE_KEEPER_PARMAN {
+                if ctx.player_race() != RACE_DWARF {
+                    return Some("30104-01.html".to_string());
+                } else if ctx.player_level() < MIN_LEVEL {
+                    return Some("30104-02.html".to_string());
+                } else if ctx.is_in_category("DWARF_2ND_GROUP") {
+                    return Some("30104-03.htm".to_string());
+                }
+                return Some("30104-01a.html".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if ctx.is_completed() {
+            if ctx.npc_id == WAREHOUSE_KEEPER_PARMAN {
+                return Some(ctx.already_completed_html());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        match ctx.npc_id {
+            WAREHOUSE_KEEPER_PARMAN => Some(parman_talk(ctx)),
+            WAREHOUSE_KEEPER_WILFORD => Some(wilford_talk(ctx)),
+            LILITH => Some(lilith_talk(ctx)),
+            GUARD_BRIGHT => Some(bright_talk(ctx)),
+            IRON_GATES_LOCKIRIN => Some(lockirin_talk(ctx)),
+            TRADER_SHARI => Some(contribution_giver(
+                ctx,
+                RECEIPT_OF_CONTRIBUTION_1ST,
+                CONTRIBUTION_OF_SHARI,
+                LOCKIRINS_1ST_NOTICE,
+                "30517-01.html",
+                "30517-02.html",
+            )),
+            TRADER_MION => Some(contribution_giver(
+                ctx,
+                RECEIPT_OF_CONTRIBUTION_2ND,
+                CONTRIBUTION_OF_MION,
+                LOCKIRINS_2ND_NOTICE,
+                "30519-01.html",
+                "30519-02.html",
+            )),
+            MASTER_TOMA => Some(contribution_giver(
+                ctx,
+                RECEIPT_OF_CONTRIBUTION_5TH,
+                CONTRIBUTION_OF_TOMA,
+                LOCKIRINS_5TH_NOTICE,
+                "30556-01.html",
+                "30556-02.html",
+            )),
+            GOLDEN_WHEELS_SPIRON => Some(spiron_talk(ctx)),
+            SILVER_SCALES_BALANKI => Some(balanki_talk(ctx)),
+            BRONZE_KEYS_KEEF => Some(keef_talk(ctx)),
+            GRAY_PILLAR_MEMBER_FILAUR => Some(filaur_talk(ctx)),
+            BLACK_ANVILS_ARIN => Some(arin_talk(ctx)),
+            MARYSE_REDBONNET => Some(maryse_talk(ctx)),
+            MINER_BOLTER => Some(bolter_talk(ctx)),
+            CARRIER_TOROCCO => Some(torocco_talk(ctx)),
+            PIOTUR => Some(piotur_talk(ctx)),
+            EMILY => Some(emily_talk(ctx)),
+            MAESTRO_NIKOLA => Some(nikola_talk(ctx)),
+            BOX_OF_TITAN => Some(box_talk(ctx)),
+            _ => Some(ctx.no_quest_html()),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -352,73 +419,6 @@ impl QuestScript for Q00221TestimonyOfProsperity {
                 );
             }
             _ => {}
-        }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        if ctx.is_created() {
-            if ctx.npc_id == WAREHOUSE_KEEPER_PARMAN {
-                if ctx.player_race() != RACE_DWARF {
-                    return Some("30104-01.html".to_string());
-                } else if ctx.player_level() < MIN_LEVEL {
-                    return Some("30104-02.html".to_string());
-                } else if ctx.is_in_category("DWARF_2ND_GROUP") {
-                    return Some("30104-03.htm".to_string());
-                }
-                return Some("30104-01a.html".to_string());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        if ctx.is_completed() {
-            if ctx.npc_id == WAREHOUSE_KEEPER_PARMAN {
-                return Some(ctx.already_completed_html());
-            }
-            return Some(ctx.no_quest_html());
-        }
-        match ctx.npc_id {
-            WAREHOUSE_KEEPER_PARMAN => Some(parman_talk(ctx)),
-            WAREHOUSE_KEEPER_WILFORD => Some(wilford_talk(ctx)),
-            LILITH => Some(lilith_talk(ctx)),
-            GUARD_BRIGHT => Some(bright_talk(ctx)),
-            IRON_GATES_LOCKIRIN => Some(lockirin_talk(ctx)),
-            TRADER_SHARI => Some(contribution_giver(
-                ctx,
-                RECEIPT_OF_CONTRIBUTION_1ST,
-                CONTRIBUTION_OF_SHARI,
-                LOCKIRINS_1ST_NOTICE,
-                "30517-01.html",
-                "30517-02.html",
-            )),
-            TRADER_MION => Some(contribution_giver(
-                ctx,
-                RECEIPT_OF_CONTRIBUTION_2ND,
-                CONTRIBUTION_OF_MION,
-                LOCKIRINS_2ND_NOTICE,
-                "30519-01.html",
-                "30519-02.html",
-            )),
-            MASTER_TOMA => Some(contribution_giver(
-                ctx,
-                RECEIPT_OF_CONTRIBUTION_5TH,
-                CONTRIBUTION_OF_TOMA,
-                LOCKIRINS_5TH_NOTICE,
-                "30556-01.html",
-                "30556-02.html",
-            )),
-            GOLDEN_WHEELS_SPIRON => Some(spiron_talk(ctx)),
-            SILVER_SCALES_BALANKI => Some(balanki_talk(ctx)),
-            BRONZE_KEYS_KEEF => Some(keef_talk(ctx)),
-            GRAY_PILLAR_MEMBER_FILAUR => Some(filaur_talk(ctx)),
-            BLACK_ANVILS_ARIN => Some(arin_talk(ctx)),
-            MARYSE_REDBONNET => Some(maryse_talk(ctx)),
-            MINER_BOLTER => Some(bolter_talk(ctx)),
-            CARRIER_TOROCCO => Some(torocco_talk(ctx)),
-            PIOTUR => Some(piotur_talk(ctx)),
-            EMILY => Some(emily_talk(ctx)),
-            MAESTRO_NIKOLA => Some(nikola_talk(ctx)),
-            BOX_OF_TITAN => Some(box_talk(ctx)),
-            _ => Some(ctx.no_quest_html()),
         }
     }
 }

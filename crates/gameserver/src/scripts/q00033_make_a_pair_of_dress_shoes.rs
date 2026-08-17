@@ -55,50 +55,6 @@ impl QuestScript for Q00033MakeAPairOfDressShoes {
         &[WOODLEY, IAN, LEIKAR]
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30838-03.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "31520-02.html" => {
-                ctx.set_cond(2, true);
-                Some(event.to_string())
-            }
-            "30838-06.html" => {
-                ctx.set_cond(3, true);
-                Some(event.to_string())
-            }
-            // Ian sells the leather and thread for his fee.
-            "30164-02.html" => {
-                if count(ctx, ADENA) < IAN_FEE {
-                    return Some("30164-03.html".to_string());
-                }
-                ctx.give_items(LEATHER, LEATHER_COUNT);
-                ctx.give_items(THREAD, THREAD_COUNT);
-                ctx.take_items(ADENA, IAN_FEE);
-                ctx.set_cond(5, true);
-                Some(event.to_string())
-            }
-            // Woodley makes the shoes for his fee.
-            "30838-13.html" => {
-                if count(ctx, ADENA) < WOODLEY_FEE {
-                    return Some("30838-10.html".to_string());
-                }
-                ctx.take_items(LEATHER, LEATHER_COUNT);
-                ctx.take_items(THREAD, THREAD_COUNT);
-                ctx.take_items(ADENA, WOODLEY_FEE);
-                ctx.give_items(DRESS_SHOES_BOX, 1);
-                ctx.exit_quest(false, true);
-                Some(event.to_string())
-            }
-            _ => None,
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         let cond = ctx.cond();
@@ -143,5 +99,49 @@ impl QuestScript for Q00033MakeAPairOfDressShoes {
             _ => ctx.no_quest_html(),
         };
         Some(html)
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30838-03.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "31520-02.html" => {
+                ctx.set_cond(2, true);
+                Some(event.to_string())
+            }
+            "30838-06.html" => {
+                ctx.set_cond(3, true);
+                Some(event.to_string())
+            }
+            // Ian sells the leather and thread for his fee.
+            "30164-02.html" => {
+                if count(ctx, ADENA) < IAN_FEE {
+                    return Some("30164-03.html".to_string());
+                }
+                ctx.give_items(LEATHER, LEATHER_COUNT);
+                ctx.give_items(THREAD, THREAD_COUNT);
+                ctx.take_items(ADENA, IAN_FEE);
+                ctx.set_cond(5, true);
+                Some(event.to_string())
+            }
+            // Woodley makes the shoes for his fee.
+            "30838-13.html" => {
+                if count(ctx, ADENA) < WOODLEY_FEE {
+                    return Some("30838-10.html".to_string());
+                }
+                ctx.take_items(LEATHER, LEATHER_COUNT);
+                ctx.take_items(THREAD, THREAD_COUNT);
+                ctx.take_items(ADENA, WOODLEY_FEE);
+                ctx.give_items(DRESS_SHOES_BOX, 1);
+                ctx.exit_quest(false, true);
+                Some(event.to_string())
+            }
+            _ => None,
+        }
     }
 }

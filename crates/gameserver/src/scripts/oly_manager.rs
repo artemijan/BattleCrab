@@ -40,14 +40,14 @@ impl QuestScript for OlyManager {
         NPCS
     }
 
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
     /// `onFirstTalk`: cursed-weapon carriers are turned away; otherwise the
     /// eligible get the main menu and everyone else the "not a noble" page.
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         Some(first_talk_page(ctx).to_string())
-    }
-
-    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        None
     }
 
     /// `onEvent`: the menu buttons. A `.htm`/`.html` event is a static

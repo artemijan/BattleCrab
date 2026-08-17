@@ -91,6 +91,61 @@ impl QuestScript for Q00126TheNameOfEvil2 {
         &[GAZKH_FRAGMENT, BONE_POWDER]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let cond = ctx.cond();
+        let html = match ctx.npc_id {
+            ASAMAH => asamah_talk(ctx, cond),
+            ULU_KAIMU if ctx.is_started() => match cond {
+                1 => "32119-1.html".to_string(),
+                2 => "32119-2.html".to_string(),
+                3 => "32119-3c.html".to_string(),
+                4 => "32119-4c.html".to_string(),
+                5 => "32119-5a.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            BALU_KAIMU if ctx.is_started() => match cond {
+                1..=4 => "32120-1.html".to_string(),
+                5 => "32120-2.html".to_string(),
+                6 => "32120-3c.html".to_string(),
+                7 => "32120-4c.html".to_string(),
+                _ => "32120-5a.html".to_string(),
+            },
+            CHUTA_KAIMU if ctx.is_started() => match cond {
+                1..=7 => "32121-1.html".to_string(),
+                8 => "32121-2.html".to_string(),
+                9 => "32121-3e.html".to_string(),
+                10 => "32121-4e.html".to_string(),
+                _ => "32121-5a.html".to_string(),
+            },
+            WARRIORS_GRAVE if ctx.is_started() => grave_talk(ctx, cond),
+            SHILENS_STONE_STATUE if ctx.is_started() => statue_talk(ctx, cond),
+            MUSHIKA if ctx.is_started() => {
+                if cond < 22 {
+                    "32114-4.html".to_string()
+                } else if cond == 22 {
+                    "32114-1.html".to_string()
+                } else {
+                    "32114-2.html".to_string()
+                }
+            }
+            _ => ctx.no_quest_html(),
+        };
+        // Java broadcasts the flourish from each of the three Kaimu brothers
+        // the moment their `-2` page is served (three separate
+        // `npc.broadcastPacket(new MagicSkillUse(npc, player, 5089, 1, 1000, 0))`
+        // calls). Keyed on the **page** rather than the cond on purpose: each
+        // brother's page sits at a different cond here (2 / 5 / 8), so a
+        // cond-based check would silently miss two of the three.
+        if matches!(
+            html.as_str(),
+            "32119-2.html" | "32120-2.html" | "32121-2.html"
+        ) {
+            ctx.cast_visual_at(ctx.npc, ctx.player, GRAVE_FLOURISH, 1, 1000);
+        }
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return Some(ctx.no_quest_html());
@@ -277,61 +332,6 @@ impl QuestScript for Q00126TheNameOfEvil2 {
             _ if event.ends_with(".html") || event.ends_with(".htm") => Some(event.to_string()),
             _ => None,
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let cond = ctx.cond();
-        let html = match ctx.npc_id {
-            ASAMAH => asamah_talk(ctx, cond),
-            ULU_KAIMU if ctx.is_started() => match cond {
-                1 => "32119-1.html".to_string(),
-                2 => "32119-2.html".to_string(),
-                3 => "32119-3c.html".to_string(),
-                4 => "32119-4c.html".to_string(),
-                5 => "32119-5a.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            BALU_KAIMU if ctx.is_started() => match cond {
-                1..=4 => "32120-1.html".to_string(),
-                5 => "32120-2.html".to_string(),
-                6 => "32120-3c.html".to_string(),
-                7 => "32120-4c.html".to_string(),
-                _ => "32120-5a.html".to_string(),
-            },
-            CHUTA_KAIMU if ctx.is_started() => match cond {
-                1..=7 => "32121-1.html".to_string(),
-                8 => "32121-2.html".to_string(),
-                9 => "32121-3e.html".to_string(),
-                10 => "32121-4e.html".to_string(),
-                _ => "32121-5a.html".to_string(),
-            },
-            WARRIORS_GRAVE if ctx.is_started() => grave_talk(ctx, cond),
-            SHILENS_STONE_STATUE if ctx.is_started() => statue_talk(ctx, cond),
-            MUSHIKA if ctx.is_started() => {
-                if cond < 22 {
-                    "32114-4.html".to_string()
-                } else if cond == 22 {
-                    "32114-1.html".to_string()
-                } else {
-                    "32114-2.html".to_string()
-                }
-            }
-            _ => ctx.no_quest_html(),
-        };
-        // Java broadcasts the flourish from each of the three Kaimu brothers
-        // the moment their `-2` page is served (three separate
-        // `npc.broadcastPacket(new MagicSkillUse(npc, player, 5089, 1, 1000, 0))`
-        // calls). Keyed on the **page** rather than the cond on purpose: each
-        // brother's page sits at a different cond here (2 / 5 / 8), so a
-        // cond-based check would silently miss two of the three.
-        if matches!(
-            html.as_str(),
-            "32119-2.html" | "32120-2.html" | "32121-2.html"
-        ) {
-            ctx.cast_visual_at(ctx.npc, ctx.player, GRAVE_FLOURISH, 1, 1000);
-        }
-        Some(html)
     }
 }
 

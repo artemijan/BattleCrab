@@ -70,14 +70,11 @@ impl QuestScript for PrimevalIsle {
     fn talk_npcs(&self) -> &[i32] {
         &[]
     }
-    fn spawn_npcs(&self) -> &[i32] {
-        &[SPRIGANT_ANESTHESIA, SPRIGANT_POISON]
-    }
     fn attack_npcs(&self) -> &[i32] {
         &ATTACK_NPCS
     }
-    fn creature_see_npcs(&self) -> &[i32] {
-        &CREATURE_SEE_NPCS
+    fn spawn_npcs(&self) -> &[i32] {
+        &[SPRIGANT_ANESTHESIA, SPRIGANT_POISON]
     }
     fn aggro_enter_npcs(&self) -> &[i32] {
         &TREX
@@ -85,9 +82,22 @@ impl QuestScript for PrimevalIsle {
     fn spell_finished_npcs(&self) -> &[i32] {
         &TREX
     }
+    fn creature_see_npcs(&self) -> &[i32] {
+        &CREATURE_SEE_NPCS
+    }
 
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if ctx.npc_id == EGG {
+            egg_on_attack(ctx);
+        } else if TREX.contains(&ctx.npc_id) {
+            trex_on_attack(ctx);
+        } else {
+            monster_on_attack(ctx);
+        }
     }
 
     fn on_spawn(&self, ctx: &mut QuestCtx) {
@@ -120,28 +130,6 @@ impl QuestScript for PrimevalIsle {
         );
     }
 
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if ctx.npc_id == EGG {
-            egg_on_attack(ctx);
-        } else if TREX.contains(&ctx.npc_id) {
-            trex_on_attack(ctx);
-        } else {
-            monster_on_attack(ctx);
-        }
-    }
-
-    /// Java `onCreatureSee`: an ordinary dinosaur noticing a *player* either
-    /// flees with the herd (Deino 30 %, Ornit once) or opens with an
-    /// `ag_type`-gated special; a Tyrannosaurus noticing a *herbivore* hunts
-    /// it with the Presentation - Tyranno crew skill.
-    fn on_creature_see(&self, ctx: &mut QuestCtx, creature: i32) {
-        if MONSTERS.contains(&ctx.npc_id) {
-            monster_on_creature_see(ctx, creature);
-        } else {
-            trex_on_creature_see(ctx, creature);
-        }
-    }
-
     /// Java `onSpellFinished`: a finished Berserk under 60% HP locks the
     /// ladder state (script value 3) and re-fixes the most hated. (The
     /// `< 30%` else-branch is unreachable — 30 < 60 — ported as written.)
@@ -167,6 +155,18 @@ impl QuestScript for PrimevalIsle {
                 }
                 ai::seed_attack(ctx.world, npc, target);
             }
+        }
+    }
+
+    /// Java `onCreatureSee`: an ordinary dinosaur noticing a *player* either
+    /// flees with the herd (Deino 30 %, Ornit once) or opens with an
+    /// `ag_type`-gated special; a Tyrannosaurus noticing a *herbivore* hunts
+    /// it with the Presentation - Tyranno crew skill.
+    fn on_creature_see(&self, ctx: &mut QuestCtx, creature: i32) {
+        if MONSTERS.contains(&ctx.npc_id) {
+            monster_on_creature_see(ctx, creature);
+        } else {
+            trex_on_creature_see(ctx, creature);
         }
     }
 }

@@ -166,6 +166,3 @@ type_complexity = "allow"
 field_reassign_with_default = "allow"
 # 2 sites. Boxing the large variant would put an allocation on the packet path.
 large_enum_variant = "allow"
-# Quest scripts mirror Java's switch-case cond lists (`2 | 3 | 4`) and nested
-# match shapes on purpose — the parity with the Java source must stay greppable.
-manual_range_patterns = "allow"

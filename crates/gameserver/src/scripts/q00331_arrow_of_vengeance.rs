@@ -42,37 +42,6 @@ impl QuestScript for Q00331ArrowOfVengeance {
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 39).then(|| ctx.no_quest_html())
     }
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30125-03.htm" => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30125-06.html" => {
-                ctx.exit_quest(true, true);
-                Some(event.to_string())
-            }
-            "30125-07.html" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() {
-            return;
-        }
-        if ctx.roll(100) < chance(ctx.npc_id) {
-            let item = match ctx.npc_id {
-                20145 => HARPY_FEATHER,
-                20158 => MEDUSA_VENOM,
-                20176 => WYRMS_TOOTH,
-                _ => return,
-            };
-            ctx.give_items(item, 1);
-        }
-    }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -104,5 +73,36 @@ impl QuestScript for Q00331ArrowOfVengeance {
             return Some("30125-04.html".to_string());
         }
         Some(ctx.no_quest_html())
+    }
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30125-03.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30125-06.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
+            "30125-07.html" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() {
+            return;
+        }
+        if ctx.roll(100) < chance(ctx.npc_id) {
+            let item = match ctx.npc_id {
+                20145 => HARPY_FEATHER,
+                20158 => MEDUSA_VENOM,
+                20176 => WYRMS_TOOTH,
+                _ => return,
+            };
+            ctx.give_items(item, 1);
+        }
     }
 }

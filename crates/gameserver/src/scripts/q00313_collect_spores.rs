@@ -40,30 +40,6 @@ impl QuestScript for Q00313CollectSpores {
         (ctx.player_level() > 13).then(|| ctx.no_quest_html())
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30150-05.htm" if ctx.is_created() => {
-                ctx.start_quest();
-                Some(event.to_string())
-            }
-            "30150-04.htm" => Some(event.to_string()),
-            _ => None,
-        }
-    }
-
-    /// The `ALT_PARTY_RANGE` corpse-distance check drops out killer-only.
-    fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs()
-            && ctx.is_cond(1)
-            && ctx.give_item_randomly(SPORE_SAC, 1, REQUIRED_SAC_COUNT, 0.4, true)
-        {
-            ctx.set_cond(2, false);
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -90,5 +66,29 @@ impl QuestScript for Q00313CollectSpores {
             }
         }
         Some(ctx.no_quest_html())
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30150-05.htm" if ctx.is_created() => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30150-04.htm" => Some(event.to_string()),
+            _ => None,
+        }
+    }
+
+    /// The `ALT_PARTY_RANGE` corpse-distance check drops out killer-only.
+    fn on_kill(&self, ctx: &mut QuestCtx) {
+        if ctx.has_qs()
+            && ctx.is_cond(1)
+            && ctx.give_item_randomly(SPORE_SAC, 1, REQUIRED_SAC_COUNT, 0.4, true)
+        {
+            ctx.set_cond(2, false);
+        }
     }
 }

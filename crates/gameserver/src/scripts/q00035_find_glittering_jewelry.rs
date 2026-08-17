@@ -58,6 +58,52 @@ impl QuestScript for Q00035FindGlitteringJewelry {
         &[ROUGH_JEWEL]
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let cond = ctx.cond();
+        let html = match ctx.npc_id {
+            ELLIE => {
+                if ctx.is_created() {
+                    if ctx.other_quest_cond(PARENT) < 6 {
+                        ctx.no_quest_html()
+                    } else if ctx.player_level() >= MIN_LEVEL {
+                        "30091-01.htm".to_string()
+                    } else {
+                        "30091-02.html".to_string()
+                    }
+                } else if ctx.is_completed() {
+                    ctx.already_completed_html()
+                } else {
+                    match cond {
+                        1 => "30091-04.html".to_string(),
+                        3 => {
+                            if ctx.quest_items_count(ROUGH_JEWEL) >= JEWEL_COUNT {
+                                "30091-06.html".to_string()
+                            } else {
+                                "30091-05.html".to_string()
+                            }
+                        }
+                        4 => {
+                            if has_mats(ctx) {
+                                "30091-09.html".to_string()
+                            } else {
+                                "30091-10.html".to_string()
+                            }
+                        }
+                        _ => ctx.no_quest_html(),
+                    }
+                }
+            }
+            FELTON if ctx.is_started() => match cond {
+                1 => "30879-01.html".to_string(),
+                2 => "30879-03.html".to_string(),
+                _ => ctx.no_quest_html(),
+            },
+            _ => ctx.no_quest_html(),
+        };
+        Some(html)
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -105,51 +151,5 @@ impl QuestScript for Q00035FindGlitteringJewelry {
         } else {
             ctx.play_sound(quest_sounds::ITEMGET);
         }
-    }
-
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let cond = ctx.cond();
-        let html = match ctx.npc_id {
-            ELLIE => {
-                if ctx.is_created() {
-                    if ctx.other_quest_cond(PARENT) < 6 {
-                        ctx.no_quest_html()
-                    } else if ctx.player_level() >= MIN_LEVEL {
-                        "30091-01.htm".to_string()
-                    } else {
-                        "30091-02.html".to_string()
-                    }
-                } else if ctx.is_completed() {
-                    ctx.already_completed_html()
-                } else {
-                    match cond {
-                        1 => "30091-04.html".to_string(),
-                        3 => {
-                            if ctx.quest_items_count(ROUGH_JEWEL) >= JEWEL_COUNT {
-                                "30091-06.html".to_string()
-                            } else {
-                                "30091-05.html".to_string()
-                            }
-                        }
-                        4 => {
-                            if has_mats(ctx) {
-                                "30091-09.html".to_string()
-                            } else {
-                                "30091-10.html".to_string()
-                            }
-                        }
-                        _ => ctx.no_quest_html(),
-                    }
-                }
-            }
-            FELTON if ctx.is_started() => match cond {
-                1 => "30879-01.html".to_string(),
-                2 => "30879-03.html".to_string(),
-                _ => ctx.no_quest_html(),
-            },
-            _ => ctx.no_quest_html(),
-        };
-        Some(html)
     }
 }

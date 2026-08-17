@@ -43,24 +43,6 @@ impl QuestScript for Q00127FishingSpecialistsRequest {
         ctx.cond_level(MIN_LEVEL, MAX_LEVEL, "30013-00.htm")
     }
 
-    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() {
-            return None;
-        }
-        match event {
-            "30013-02.html" => {
-                ctx.start_quest();
-                ctx.give_items(PIERRE_LETTER, 1);
-                Some(event.to_string())
-            }
-            "teleport_to_ferma" => {
-                ctx.teleport_to(TELEPORT.0, TELEPORT.1, TELEPORT.2);
-                None
-            }
-            _ => None,
-        }
-    }
-
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
@@ -115,6 +97,24 @@ impl QuestScript for Q00127FishingSpecialistsRequest {
                 _ => Some(ctx.no_quest_html()),
             },
             _ => Some(ctx.no_quest_html()),
+        }
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        if !ctx.has_qs() {
+            return None;
+        }
+        match event {
+            "30013-02.html" => {
+                ctx.start_quest();
+                ctx.give_items(PIERRE_LETTER, 1);
+                Some(event.to_string())
+            }
+            "teleport_to_ferma" => {
+                ctx.teleport_to(TELEPORT.0, TELEPORT.1, TELEPORT.2);
+                None
+            }
+            _ => None,
         }
     }
 }

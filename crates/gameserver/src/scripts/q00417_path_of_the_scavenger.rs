@@ -218,6 +218,39 @@ impl QuestScript for Q00417PathOfTheScavenger {
         &QUEST_ITEMS
     }
 
+    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        ctx.ensure_qs();
+        let npc = ctx.npc_id;
+        if ctx.is_created() {
+            if npc == COLLECTOR_PIPI {
+                return Some("30524-01.htm".to_string());
+            }
+            return Some(ctx.no_quest_html());
+        }
+        if !ctx.is_started() {
+            return Some(ctx.no_quest_html());
+        }
+        match npc {
+            COLLECTOR_PIPI => Some(
+                if self.has(ctx, PIPPIS_LETTER) {
+                    "30524-06.html"
+                } else {
+                    "30524-07.html"
+                }
+                .to_string(),
+            ),
+            TRADER_MION => self.talk_mion(ctx),
+            MASTER_TOMA => self.talk_toma(ctx),
+            WAREHOUSE_KEEPER_RAUT => self.talk_raut(ctx),
+            TORAI => Some(if self.has(ctx, ROUTS_TELEPORT_SCROLL) {
+                "30557-01.html".to_string()
+            } else {
+                ctx.no_quest_html()
+            }),
+            _ => self.talk_delivery(ctx, npc),
+        }
+    }
+
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         if !ctx.has_qs() {
             return None;
@@ -317,33 +350,6 @@ impl QuestScript for Q00417PathOfTheScavenger {
         }
     }
 
-    /// First-attacker tag, plus the Scavenger twist: spoiling the mob yourself
-    /// disqualifies it (`getSpoilerObjectId() == attacker` → value 2).
-    fn on_attack(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() {
-            return;
-        }
-        let player = ctx.player;
-        if ctx.npc_id == HUNTER_BEAR {
-            match ctx.npc_script_value() {
-                0 => {
-                    ctx.set_npc_script_value(1);
-                    ctx.set_npc_var_int(FIRST_ATTACKER, player);
-                }
-                1 if ctx.npc_var_int(FIRST_ATTACKER) != player => ctx.set_npc_script_value(2),
-                _ => {}
-            }
-            return;
-        }
-        if ctx.npc_script_value() == 0 {
-            ctx.set_npc_script_value(1);
-            ctx.set_npc_var_int(FIRST_ATTACKER, player);
-        }
-        if ctx.npc_spoiler_object_id() == player {
-            ctx.set_npc_script_value(2);
-        }
-    }
-
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if !ctx.has_qs() || !ctx.is_started() || !self.is_first_attacker(ctx) {
             return;
@@ -382,36 +388,30 @@ impl QuestScript for Q00417PathOfTheScavenger {
         }
     }
 
-    fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        ctx.ensure_qs();
-        let npc = ctx.npc_id;
-        if ctx.is_created() {
-            if npc == COLLECTOR_PIPI {
-                return Some("30524-01.htm".to_string());
-            }
-            return Some(ctx.no_quest_html());
+    /// First-attacker tag, plus the Scavenger twist: spoiling the mob yourself
+    /// disqualifies it (`getSpoilerObjectId() == attacker` → value 2).
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
         }
-        if !ctx.is_started() {
-            return Some(ctx.no_quest_html());
-        }
-        match npc {
-            COLLECTOR_PIPI => Some(
-                if self.has(ctx, PIPPIS_LETTER) {
-                    "30524-06.html"
-                } else {
-                    "30524-07.html"
+        let player = ctx.player;
+        if ctx.npc_id == HUNTER_BEAR {
+            match ctx.npc_script_value() {
+                0 => {
+                    ctx.set_npc_script_value(1);
+                    ctx.set_npc_var_int(FIRST_ATTACKER, player);
                 }
-                .to_string(),
-            ),
-            TRADER_MION => self.talk_mion(ctx),
-            MASTER_TOMA => self.talk_toma(ctx),
-            WAREHOUSE_KEEPER_RAUT => self.talk_raut(ctx),
-            TORAI => Some(if self.has(ctx, ROUTS_TELEPORT_SCROLL) {
-                "30557-01.html".to_string()
-            } else {
-                ctx.no_quest_html()
-            }),
-            _ => self.talk_delivery(ctx, npc),
+                1 if ctx.npc_var_int(FIRST_ATTACKER) != player => ctx.set_npc_script_value(2),
+                _ => {}
+            }
+            return;
+        }
+        if ctx.npc_script_value() == 0 {
+            ctx.set_npc_script_value(1);
+            ctx.set_npc_var_int(FIRST_ATTACKER, player);
+        }
+        if ctx.npc_spoiler_object_id() == player {
+            ctx.set_npc_script_value(2);
         }
     }
 }

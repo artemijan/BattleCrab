@@ -29,12 +29,12 @@ impl QuestScript for Tunatun {
         &[TUNATUN]
     }
 
-    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        Some("31537.html".into())
-    }
-
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        Some("31537.html".into())
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

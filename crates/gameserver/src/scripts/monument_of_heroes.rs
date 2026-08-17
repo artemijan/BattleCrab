@@ -52,12 +52,12 @@ impl QuestScript for MonumentOfHeroes {
         &[MONUMENT]
     }
 
-    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        Some(first_talk_page(ctx).to_string())
-    }
-
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        Some(first_talk_page(ctx).to_string())
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

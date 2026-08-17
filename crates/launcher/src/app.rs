@@ -193,12 +193,6 @@ impl LauncherApp {
 }
 
 impl eframe::App for LauncherApp {
-    /// The window is transparent; the backdrop is painted by us, not cleared to a
-    /// solid colour, so the rounded corners stay see-through.
-    fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
-        [0.0, 0.0, 0.0, 0.0]
-    }
-
     /// Runs before every repaint, including repaints the worker requests while the
     /// window is hidden — so progress keeps advancing when minimised.
     fn logic(&mut self, _ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -207,6 +201,12 @@ impl eframe::App for LauncherApp {
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.draw(ui);
+    }
+
+    /// The window is transparent; the backdrop is painted by us, not cleared to a
+    /// solid colour, so the rounded corners stay see-through.
+    fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
+        [0.0, 0.0, 0.0, 0.0]
     }
 }
 

@@ -43,12 +43,12 @@ impl QuestScript for ClanHallAuctioneer {
         &[AUCTIONEER]
     }
 
-    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
-        Some("ClanHallAuctioneer.html".to_string())
-    }
-
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
         None
+    }
+
+    fn on_first_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        Some("ClanHallAuctioneer.html".to_string())
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
