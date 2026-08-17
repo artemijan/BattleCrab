@@ -551,12 +551,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_CHARACTER_NAME_CREATABLE => {
             handle_request_character_name_creatable(world, client_id, ex_body)
         }
-        // RequestKeyMapping (ENTERING + IN_GAME): STORE_UI_SETTINGS is on, so
-        // reply with the (empty) stored UI key mapping.
-        exop::REQUEST_KEY_MAPPING => {
-            // `STORE_UI_SETTINGS` is on for this dist, so the stored layout (if
-            // any) is replayed; a character who never saved one gets Java's
-            // empty payload.
+        // `RequestKeyMapping` (ENTERING + IN_GAME): replay the stored UI key
+        // mapping. Java answers nothing at all when `StoreCharUiSettings` is
+        // off — not an empty layout — so the whole reply is gated, not just its
+        // contents. A character who never saved one gets Java's empty payload.
+        exop::REQUEST_KEY_MAPPING if world.cfg.character.store_ui_settings => {
             let mapping = super::settings::stored_key_mapping(world, client_id);
             if let Some(cs) = world.clients.get(&client_id)
                 && matches!(cs, ClientSession::Entering(_) | ClientSession::InGame(_))
@@ -564,7 +563,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 cs.send(server_packets::ex_ui_setting(&mapping));
             }
         }
-        exop::REQUEST_SAVE_KEY_MAPPING => {
+        // `RequestSaveKeyMapping` opens with `if (!STORE_UI_SETTINGS … ) return`
+        // — with the key off the layout is dropped rather than stored.
+        exop::REQUEST_SAVE_KEY_MAPPING if world.cfg.character.store_ui_settings => {
             super::settings::handle_save_key_mapping(world, client_id, ex_body)
         }
         exop::REQUEST_CONFIRM_TARGET_ITEM => {

@@ -664,3 +664,101 @@ fn a_roll_coexists_with_a_live_read_borrow_of_the_world() {
     };
     assert_eq!(bonus, 7);
 }
+
+// ---------------------------------------------------------------------------
+// Cluster 6 — cooldowns and what survives a session
+// ---------------------------------------------------------------------------
+
+/// The parse. `SkillReuseList` is a list key and ships **empty**, which is half
+/// of why the reuse-override pair is inert.
+#[test]
+fn the_cooldown_and_persistence_keys_parse_to_the_shipped_values() {
+    let c = CharacterConfig::load_from(crate::data::DIST_GAME);
+    assert_eq!(c.armor_set_equip_active_skill_reuse_ms, 60_000);
+    assert_eq!(c.item_equip_active_skill_reuse_ms, 300_000);
+    assert!(c.store_ui_settings);
+    assert!(!c.enable_modify_skill_reuse, "the override map is off…");
+    assert!(c.skill_reuse_list.is_empty(), "…and empty besides");
+    assert!(c.subclass_store_skill_cooltime);
+    assert!(c.summon_store_skill_cooltime);
+    assert!(
+        !c.store_recipe_shop_list,
+        "manufacture stores are transient"
+    );
+}
+
+/// Completing an armour set grants its active skills; Java stamps a reuse on
+/// them straight away (`Inventory.ArmorSetListener`), so the set cannot be
+/// re-equipped to refire them. The port granted the skills ready to use.
+///
+/// The skill's own reuse wins where it declares one — the config is only the
+/// fallback — so the test pins both arms.
+#[test]
+fn armour_set_actives_are_granted_on_cooldown() {
+    use crate::model::components::Reuses;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // Two granted actives: one with its own reuse, one without.
+    const OWN_REUSE: i32 = 9_401;
+    const NO_REUSE: i32 = 9_402;
+    for (id, reuse) in [(OWN_REUSE, 5_000), (NO_REUSE, 0)] {
+        world
+            .data
+            .skill_data
+            .insert_for_test(crate::model::skill::Skill {
+                id,
+                level: 1,
+                reuse_delay: reuse,
+                ..Default::default()
+            });
+    }
+
+    crate::game_loop::armor_sets::stamp_equip_reuse_for_test(
+        &mut world,
+        3001,
+        &[(OWN_REUSE, 1), (NO_REUSE, 1)],
+    );
+
+    let reuses = world
+        .objects
+        .get_component::<Reuses>(&3001)
+        .expect("the stamp created the component");
+    assert_eq!(
+        reuses.0.get(&OWN_REUSE).map(|r| r.total_ms),
+        Some(5_000),
+        "a skill with its own reuse keeps it"
+    );
+    assert_eq!(
+        reuses.0.get(&NO_REUSE).map(|r| r.total_ms),
+        Some(60_000),
+        "one without falls back to ArmorSetEquipActiveSkillReuse"
+    );
+}
+
+/// `0` disables the stamp outright, which is Java's `> 0` guard.
+#[test]
+fn a_zero_armour_set_reuse_stamps_nothing() {
+    use crate::model::components::Reuses;
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: 9_403,
+            level: 1,
+            reuse_delay: 0,
+            ..Default::default()
+        });
+    world.cfg.character.armor_set_equip_active_skill_reuse_ms = 0;
+    crate::game_loop::armor_sets::stamp_equip_reuse_for_test(&mut world, 3001, &[(9_403, 1)]);
+    assert!(
+        world
+            .objects
+            .get_component::<Reuses>(&3001)
+            .is_none_or(|r| r.0.is_empty()),
+        "the > 0 guard means no stamp at all"
+    );
+}

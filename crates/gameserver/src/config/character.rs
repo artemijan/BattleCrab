@@ -497,6 +497,45 @@ pub struct CharacterConfig {
     /// is no separate count to cap. Wiring it means adding that
     /// classification first.
     pub triggered_buffs_max_amount: i32,
+
+    // --- Cooldowns and what survives a session ----------------------------
+    /// `ArmorSetEquipActiveSkillReuse` (ms) — completing an armour set grants
+    /// its active skills, and Java stamps a reuse on them straight away so the
+    /// set cannot be re-equipped to refire them. The skill's own reuse wins
+    /// when it has one; this is the fallback for the ones that do not.
+    /// `0` disables the stamp entirely.
+    pub armor_set_equip_active_skill_reuse_ms: i32,
+    /// `ItemEquipActiveSkillReuse` (ms) — the same rule for a *single item's*
+    /// `ON_EQUIP` actives. Parsed and unwired: the port grants no per-item
+    /// equip skills (only armour-set ones), so there is nothing to stamp. It
+    /// becomes live the moment `ItemSkillType.NORMAL` grants land.
+    pub item_equip_active_skill_reuse_ms: i32,
+    /// `StoreCharUiSettings` — whether a character's saved keybindings are
+    /// replayed on `RequestKeyMapping` and accepted on `RequestSaveKeyMapping`.
+    pub store_ui_settings: bool,
+    /// `EnableModifySkillReuse` / `SkillReuseList` — an override map keyed by
+    /// skill id that replaces a skill's declared reuse. **The flag is False and
+    /// the list is empty**, and Java's guard is
+    /// `if (ENABLE_MODIFY_SKILL_REUSE && SKILL_REUSE_LIST.containsKey(id))`, so
+    /// neither half can fire. The list is parsed so a value put there is
+    /// visible; honouring it would go in `Skill`'s reuse lookup.
+    pub enable_modify_skill_reuse: bool,
+    pub skill_reuse_list: std::collections::HashMap<i32, i32>,
+    /// `SubclassStoreSkillCooltime` — Java's `setActiveClass` calls
+    /// `store(SUBCLASS_STORE_SKILL_COOLTIME)` to flush cooldowns *before*
+    /// `resetTimeStamps()` wipes them. The port saves memory-first on its own
+    /// interval and clears `Reuses` at the switch (same end state), so there is
+    /// no distinct "save with or without cooltimes" moment for this to gate —
+    /// a persistence-model difference, like `General.ini`'s save keys.
+    pub subclass_store_skill_cooltime: bool,
+    /// `SummonStoreSkillCooltime` — whether a pet/servitor's effects and skill
+    /// cooldowns survive an unsummon (`Pet.storeEffect`). The port does not
+    /// persist summon effects at all, so nothing reads this yet.
+    pub summon_store_skill_cooltime: bool,
+    /// `StoreRecipeShopList` — whether a manufacture store's contents survive a
+    /// logout. **False**, which is exactly the port's behaviour: manufacture
+    /// stores are transient. Turning it on would need the persistence added.
+    pub store_recipe_shop_list: bool,
     /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
     /// a castle town whose siege is running? **False** on this dist (Java's
     /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
@@ -687,6 +726,14 @@ impl Default for CharacterConfig {
             player_fake_death_up_protection: 0,
             effect_tick_ratio_ms: 666,
             triggered_buffs_max_amount: 12,
+            armor_set_equip_active_skill_reuse_ms: 60_000,
+            item_equip_active_skill_reuse_ms: 300_000,
+            store_ui_settings: true,
+            enable_modify_skill_reuse: false,
+            skill_reuse_list: std::collections::HashMap::new(),
+            subclass_store_skill_cooltime: true,
+            summon_store_skill_cooltime: true,
+            store_recipe_shop_list: false,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             teleport_watchdog_timeout_ticks: 0,
@@ -1050,6 +1097,28 @@ impl CharacterConfig {
             effect_tick_ratio_ms: p.get_long("EffectTickRatio", d.effect_tick_ratio_ms),
             triggered_buffs_max_amount: p
                 .get_int("MaxTriggeredBuffAmount", d.triggered_buffs_max_amount),
+            armor_set_equip_active_skill_reuse_ms: p.get_int(
+                "ArmorSetEquipActiveSkillReuse",
+                d.armor_set_equip_active_skill_reuse_ms,
+            ),
+            item_equip_active_skill_reuse_ms: p.get_int(
+                "ItemEquipActiveSkillReuse",
+                d.item_equip_active_skill_reuse_ms,
+            ),
+            store_ui_settings: p.get_bool("StoreCharUiSettings", d.store_ui_settings),
+            enable_modify_skill_reuse: p
+                .get_bool("EnableModifySkillReuse", d.enable_modify_skill_reuse),
+            // Same `id,value;…` shape the Olympiad items list uses.
+            skill_reuse_list: super::common::parse_tuples_separated_by_semicolon(
+                &p.get_string("SkillReuseList", ""),
+            ),
+            subclass_store_skill_cooltime: p.get_bool(
+                "SubclassStoreSkillCooltime",
+                d.subclass_store_skill_cooltime,
+            ),
+            summon_store_skill_cooltime: p
+                .get_bool("SummonStoreSkillCooltime", d.summon_store_skill_cooltime),
+            store_recipe_shop_list: p.get_bool("StoreRecipeShopList", d.store_recipe_shop_list),
             teleport_while_siege_in_progress: p.get_bool(
                 "TeleportWhileSiegeInProgress",
                 d.teleport_while_siege_in_progress,

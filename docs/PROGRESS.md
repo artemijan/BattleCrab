@@ -6709,3 +6709,56 @@ were themselves flaky ~7 % of runs, now pin the roll through `forced_rolls`.
 Stress-run 20× to confirm.
 
 3443 green, clippy clean with nine fewer allows, fmt clean.
+
+---
+
+## Character.ini, cluster 6 (row 14) — cooldowns and what survives a session
+
+Eight keys: one real gap, one hardcoded gate, six carried with reasons.
+
+**`ArmorSetEquipActiveSkillReuse` was a real gap.** Completing an armour set
+grants its active skills, and Java stamps a reuse on them the moment they land
+— its own comment is *"Active, non offensive, skills start with reuse on
+equip"*. The port granted them ready to fire, so completing a set handed you a
+loaded active and **re-equipping a piece handed it to you again**. The skill's
+own reuse wins where it declares one; the key is only the fallback for the ones
+that declare none, and `0` disables the stamp exactly as Java's `> 0` guard
+does. Both arms are pinned, and both falsify.
+
+Java additionally guards on `player.hasEnteredWorld()`, because its inventory
+restore runs the same listener during login and would otherwise put every set
+skill on cooldown at every login. The port's path is reached only from
+`refresh_after_paperdoll_change` — equip and unequip — so there is no login pass
+to exclude. Recorded rather than silently omitted, because it becomes necessary
+the moment armour-set skills are recomputed at load.
+
+**`StoreCharUiSettings`** gated two packets whose handlers had the shipped value
+written into a comment. The gate is the *whole reply*, not its contents: with
+the key off Java answers `RequestKeyMapping` with **nothing** rather than an
+empty layout, and drops `RequestSaveKeyMapping` on the floor. Both are now
+match-arm guards.
+
+### The six with no consumer, and why
+
+- `EnableModifySkillReuse` is **False** *and* `SkillReuseList` is **empty** —
+  the override map is dead from both ends. The list now parses through the
+  shared `id,value;…` helper extracted in 49e5f07a, which gave that helper its
+  second caller.
+- `ItemEquipActiveSkillReuse` is the per-item twin of the armour-set rule; the
+  port grants no per-item `ON_EQUIP` skills, so there is nothing to stamp.
+- `SummonStoreSkillCooltime` gates `Pet.storeEffect`; the port does not persist
+  summon effects across an unsummon at all.
+- `StoreRecipeShopList` is **False**, which is precisely the port's transient
+  manufacture stores — `crafting.rs` already said so in prose.
+- `SubclassStoreSkillCooltime` is a persistence-model difference rather than a
+  missing feature: Java flushes cooldowns with `store(...)` immediately before
+  `resetTimeStamps()` wipes them, while the port saves memory-first on its own
+  interval and clears `Reuses` at the switch. Same end state, no distinct
+  "save with or without cooltimes" moment for the flag to gate.
+
+3449 green, clippy clean, fmt clean. Three new tests; both wirings falsified —
+the fallback by making the skill's own reuse win unconditionally, and the `> 0`
+guard by removing it.
+
+Character.ini stands at **29** unread keys (82 → 72 → 64 → 56 → 44 → 37 → 29),
+and row 14 at **147**.

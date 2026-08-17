@@ -173,7 +173,89 @@ pub(crate) fn recompute_armor_set_skills(world: &mut World, oid: i32) -> bool {
     for &(id, level) in &desired {
         book.0.insert(id, level);
     }
+    // `Inventory.ArmorSetListener`: "Active, non offensive, skills start with
+    // reuse on equip" — otherwise completing a set hands you a ready active,
+    // and re-equipping a piece hands it to you again. The skill's own reuse
+    // wins when it has one; `ArmorSetEquipActiveSkillReuse` is the fallback
+    // for the ones that declare none.
+    //
+    // Java also guards on `player.hasEnteredWorld()`, because its inventory
+    // restore runs this listener during login. The port's path is
+    // equip-driven only (`refresh_after_paperdoll_change`), so there is no
+    // login pass to exclude.
+    let newly_granted: Vec<(i32, i32)> = desired
+        .iter()
+        .filter(|entry| !current.contains(entry))
+        .copied()
+        .collect();
+    stamp_equip_reuse(world, oid, &newly_granted);
     true
+}
+
+/// Test hook for [`stamp_equip_reuse`] — the grant path itself needs a full
+/// armour set worn, which is a lot of fixture for a rule about *one* number.
+#[cfg(test)]
+pub(crate) fn stamp_equip_reuse_for_test(world: &mut World, oid: i32, granted: &[(i32, i32)]) {
+    stamp_equip_reuse(world, oid, granted);
+}
+
+/// The reuse stamp above, split out so the borrow of `SkillBook` is finished
+/// before the `Reuses` write.
+fn stamp_equip_reuse(world: &mut World, oid: i32, granted: &[(i32, i32)]) {
+    let fallback_ms = world.cfg.character.armor_set_equip_active_skill_reuse_ms;
+    if fallback_ms <= 0 || granted.is_empty() {
+        return;
+    }
+    let stamps: Vec<(i32, i32, i32)> = granted
+        .iter()
+        .filter_map(|&(id, level)| {
+            let skill = world.data.skill_data.get(id, level)?;
+            // Java: `!isBad() && !isTransformation()`. A passive can pass this
+            // test in Java too — the stamp is simply never consulted for one.
+            if skill.is_bad()
+                || skill
+                    .effects
+                    .iter()
+                    .any(|e| matches!(e, crate::model::skill::SkillEffect::Transform { .. }))
+            {
+                return None;
+            }
+            let delay = if skill.reuse_delay > 0 {
+                skill.reuse_delay
+            } else {
+                fallback_ms
+            };
+            Some((skill.reuse_key(), level, delay))
+        })
+        .collect();
+    if stamps.is_empty() {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<crate::model::components::Reuses>(&oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&oid, crate::model::components::Reuses::default());
+    }
+    let now = world.tick;
+    if let Some(reuses) = world
+        .objects
+        .get_component_mut::<crate::model::components::Reuses>(&oid)
+    {
+        for (key, level, delay_ms) in stamps {
+            reuses.0.insert(
+                key,
+                crate::model::SkillReuse {
+                    skill_level: level,
+                    until_tick: now + (delay_ms.max(0) as u64).div_ceil(100),
+                    total_ms: delay_ms,
+                },
+            );
+        }
+    }
 }
 
 /// The flat base-stat bonus of every *complete* worn set (Java

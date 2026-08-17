@@ -199,7 +199,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **155** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and five of Character.ini's clusters with them**; what remains is Character 37, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **147** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini and Feature.ini are wired, and six of Character.ini's clusters with them**; what remains is Character 29, General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
@@ -526,7 +526,38 @@ the port has no such sweep, which is the same behaviour),
 caps `SkillBuffType.TRIGGER` buffs — a classification the port's buff list does
 not carry, so there is no count to cap yet.
 
-What is left is Character (27 live keys past these five clusters — enchant/augment
+**Cluster 6 — cooldowns and what survives a session (8 keys)** — one genuine
+gap and one hardcoded gate, with six carried for stated reasons.
+
+`ArmorSetEquipActiveSkillReuse`: completing an armour set grants its active
+skills, and Java stamps a reuse on them immediately
+(`Inventory.ArmorSetListener` — *"Active, non offensive, skills start with
+reuse on equip"*). The port granted them ready to fire, so a set could be
+re-equipped to refire them. The skill's own reuse wins where it declares one;
+the key is the fallback, and `0` disables the stamp exactly as Java's `> 0`
+guard does. Java also tests `player.hasEnteredWorld()` because its inventory
+restore runs the same listener during login — the port's path is equip-driven
+only, so there is no login pass to exclude.
+
+`StoreCharUiSettings` gated two packets that were hardcoded on. The gate is the
+whole reply, not its contents: with the key off Java answers `RequestKeyMapping`
+with **nothing** rather than an empty layout, and drops a `RequestSaveKeyMapping`
+on the floor.
+
+The other six are carried with the reason each has no consumer.
+`EnableModifySkillReuse` is **False** *and* `SkillReuseList` is **empty**, so
+the reuse-override map cannot fire from either side (the list now parses through
+the shared `id,value;…` helper). `ItemEquipActiveSkillReuse` is the per-item
+twin of the armour-set rule, and the port grants no per-item `ON_EQUIP` skills
+to stamp. `SummonStoreSkillCooltime` gates `Pet.storeEffect`, and the port does
+not persist summon effects across an unsummon at all. `StoreRecipeShopList` is
+**False**, which is precisely the port's transient manufacture stores. And
+`SubclassStoreSkillCooltime` is a persistence-model difference: Java flushes
+cooldowns with `store(...)` just before `resetTimeStamps()` wipes them, while
+the port saves memory-first on its own interval and clears `Reuses` at the
+switch — same end state, no distinct moment for the flag to gate.
+
+What is left is Character (19 live keys past these six clusters — enchant/augment
 gates, the karma trio, the clan/ally day penalties, character creation and
 auto-loot), General (71 — mostly dev tooling and persistence-model choices the
 port made differently: memory-first saves, no `HtmCache`, no grid on/off), and
