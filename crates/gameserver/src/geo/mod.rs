@@ -378,22 +378,22 @@ impl GeoEngine {
             std::mem::swap(&mut geo_y, &mut t_geo_y);
         }
 
-        let mut iter =
+        let mut line =
             LinePointIterator3D::new(geo_x, geo_y, nearest_from_z, t_geo_x, t_geo_y, nearest_to_z);
         // First point is guaranteed available — our own position.
-        iter.next();
-        let mut prev_x = iter.x();
-        let mut prev_y = iter.y();
-        let mut prev_geo_z = iter.z();
+        line.advance();
+        let mut prev_x = line.x();
+        let mut prev_y = line.y();
+        let mut prev_geo_z = line.z();
         let mut pt_index = 0;
 
-        while iter.next() {
-            let cur_x = iter.x();
-            let cur_y = iter.y();
+        while line.advance() {
+            let cur_x = line.x();
+            let cur_y = line.y();
             if cur_x == prev_x && cur_y == prev_y {
                 continue;
             }
-            let bee_cur_z = iter.z();
+            let bee_cur_z = line.z();
             let mut cur_geo_z = prev_geo_z;
 
             if self.has_geo_pos(cur_x, cur_y) {
@@ -534,15 +534,15 @@ impl GeoEngine {
             return (x, y, self.get_height(x, y, nearest_from_z));
         }
 
-        let mut iter = LinePointIterator::new(geo_x, geo_y, t_geo_x, t_geo_y);
-        iter.next(); // first point is our own cell
-        let mut prev_x = iter.x();
-        let mut prev_y = iter.y();
+        let mut line = LinePointIterator::new(geo_x, geo_y, t_geo_x, t_geo_y);
+        line.advance(); // first point is our own cell
+        let mut prev_x = line.x();
+        let mut prev_y = line.y();
         let mut prev_z = nearest_from_z;
 
-        while iter.next() {
-            let cur_x = iter.x();
-            let cur_y = iter.y();
+        while line.advance() {
+            let cur_x = line.x();
+            let cur_y = line.y();
             let cur_z = self.get_nearest_z(cur_x, cur_y, prev_z);
             if self.has_geo_pos(prev_x, prev_y)
                 && !self.check_nearest_nswe_anti_corner_cut(
@@ -586,15 +586,15 @@ impl GeoEngine {
             return false;
         }
 
-        let mut iter = LinePointIterator::new(geo_x, geo_y, t_geo_x, t_geo_y);
-        iter.next();
-        let mut prev_x = iter.x();
-        let mut prev_y = iter.y();
+        let mut line = LinePointIterator::new(geo_x, geo_y, t_geo_x, t_geo_y);
+        line.advance();
+        let mut prev_x = line.x();
+        let mut prev_y = line.y();
         let mut prev_z = nearest_from_z;
 
-        while iter.next() {
-            let cur_x = iter.x();
-            let cur_y = iter.y();
+        while line.advance() {
+            let cur_x = line.x();
+            let cur_y = line.y();
             let cur_z = self.get_nearest_z(cur_x, cur_y, prev_z);
             if self.has_geo_pos(prev_x, prev_y)
                 && !self.check_nearest_nswe_anti_corner_cut(

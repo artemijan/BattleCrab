@@ -1,10 +1,20 @@
 //! Ports of `util/LinePointIterator` and `util/LinePointIterator3D` — the
 //! Bresenham-style cell walkers the geo engine drives its LOS / move checks
-//! with. Kept as manual `next()` state machines (not `Iterator`) to match the
-//! Java call sites, which read `x()`/`y()`/`z()` after each `next()`.
+//! with.
+//!
+//! These are **not** `Iterator`s, and the stepping method is deliberately not
+//! called `next`. Java's is, but the two contracts differ in a way that would
+//! mislead here: `Iterator::next` *returns* the item and ends with `None`,
+//! whereas these return `bool` for "did I move?" and leave the caller to read
+//! `x()`/`y()`/`z()` afterwards. A method called `next` returning `bool` invites
+//! exactly the wrong reading. Hence [`advance`](LinePointIterator::advance),
+//! the same name on both types.
+//!
+//! (The struct names keep Java's `…Iterator` spelling because they are the
+//! citation — the doc line above is how you find the original.)
 
 /// `util/LinePointIterator`: walks geo cells from src to dst in 2D. The first
-/// `next()` yields the source point itself.
+/// [`advance`](Self::advance) yields the source point itself.
 pub struct LinePointIterator {
     src_x: i32,
     src_y: i32,
@@ -36,7 +46,9 @@ impl LinePointIterator {
         }
     }
 
-    pub fn next(&mut self) -> bool {
+    /// Step to the next cell along the line, or report that the destination
+    /// has been reached. Read the position off `x()`/`y()` after each `true`.
+    pub fn advance(&mut self) -> bool {
         if self.first {
             self.first = false;
             return true;
@@ -124,7 +136,10 @@ impl LinePointIterator3D {
         }
     }
 
-    pub fn next(&mut self) -> bool {
+    /// Step to the next cell along the line, or report that the destination
+    /// has been reached. Read the position off `x()`/`y()`/`z()` after each
+    /// `true`.
+    pub fn advance(&mut self) -> bool {
         if self.first {
             self.first = false;
             return true;
@@ -194,12 +209,12 @@ mod tests {
     use super::*;
 
     /// The 2D iterator must start at the source, end exactly on the
-    /// destination, and step one cell per `next()` along the driving axis.
+    /// destination, and step one cell per `advance()` along the driving axis.
     #[test]
     fn line_2d_walks_from_src_to_dst() {
         let mut it = LinePointIterator::new(0, 0, 5, 2);
         let mut points = Vec::new();
-        while it.next() {
+        while it.advance() {
             points.push((it.x(), it.y()));
         }
         assert_eq!(points.first(), Some(&(0, 0)));
@@ -215,9 +230,9 @@ mod tests {
     #[test]
     fn line_2d_single_point() {
         let mut it = LinePointIterator::new(3, 4, 3, 4);
-        assert!(it.next());
+        assert!(it.advance());
         assert_eq!((it.x(), it.y()), (3, 4));
-        assert!(!it.next());
+        assert!(!it.advance());
     }
 
     /// The 3D iterator interpolates z monotonically between the endpoints and
@@ -226,7 +241,7 @@ mod tests {
     fn line_3d_interpolates_z() {
         let mut it = LinePointIterator3D::new(0, 0, 0, 10, 0, 5);
         let mut points = Vec::new();
-        while it.next() {
+        while it.advance() {
             points.push((it.x(), it.y(), it.z()));
         }
         assert_eq!(points.first(), Some(&(0, 0, 0)));
