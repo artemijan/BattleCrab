@@ -188,11 +188,9 @@ impl QuestScript for Q00348AnArrogantSearch {
                     ctx.set_cond(11, false);
                 }
             }
-            STONE_WATCHMAN_EZEKIEL => {
-                if ctx.cond() == 5 {
-                    ctx.give_items(BOOK_OF_SAINT, 1);
-                    ctx.set_cond(6, false);
-                }
+            STONE_WATCHMAN_EZEKIEL if ctx.cond() == 5 => {
+                ctx.give_items(BOOK_OF_SAINT, 1);
+                ctx.set_cond(6, false);
             }
             _ => {}
         }

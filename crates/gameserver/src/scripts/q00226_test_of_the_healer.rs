@@ -269,12 +269,10 @@ impl QuestScript for Q00226TestOfTheHealer {
                     ctx.set_cond(19, true);
                 }
             }
-            TATOMA => {
-                if memo == 1 {
-                    ctx.set_memo_state(2);
-                    ctx.set_cond(3, true);
-                    ctx.play_sound(quest_sounds::MIDDLE);
-                }
+            TATOMA if memo == 1 => {
+                ctx.set_memo_state(2);
+                ctx.set_cond(3, true);
+                ctx.play_sound(quest_sounds::MIDDLE);
             }
             _ => {}
         }

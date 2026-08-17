@@ -287,14 +287,13 @@ impl QuestScript for Q00228TestOfMagus {
             SINGING_FLOWER_PHANTASM => seed(ctx, GOLDEN_SEED_1ST, GOLDEN_SEED_2ND, GOLDEN_SEED_3RD),
             SINGING_FLOWER_NIGTMATE => seed(ctx, GOLDEN_SEED_2ND, GOLDEN_SEED_1ST, GOLDEN_SEED_3RD),
             SINGING_FLOWER_DARKLING => seed(ctx, GOLDEN_SEED_3RD, GOLDEN_SEED_1ST, GOLDEN_SEED_2ND),
-            GHOST_FIRE => {
+            GHOST_FIRE
                 if has(ctx, SCORE_OF_ELEMENTS)
                     && has(ctx, SALAMANDER_CHARM)
                     && ctx.quest_items_count(FLAME_CRYSTAL) < 5
-                    && ctx.roll(2) == 0
-                {
-                    gather(ctx, FLAME_CRYSTAL, 5);
-                }
+                    && ctx.roll(2) == 0 =>
+            {
+                gather(ctx, FLAME_CRYSTAL, 5);
             }
             _ => {}
         }

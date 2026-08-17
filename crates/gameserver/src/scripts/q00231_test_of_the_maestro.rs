@@ -206,10 +206,8 @@ impl QuestScript for Q00231TestOfTheMaestro {
                     collect(ctx, SPIDER_WEB);
                 }
             }
-            EVIL_EYE_LORD => {
-                if memo == 2 && ctx.quest_items_count(PAINT_KAMURU) > 0 {
-                    ctx.award_once(NECKLACE_KAMUTU);
-                }
+            EVIL_EYE_LORD if memo == 2 && ctx.quest_items_count(PAINT_KAMURU) > 0 => {
+                ctx.award_once(NECKLACE_KAMUTU);
             }
             _ => {}
         }

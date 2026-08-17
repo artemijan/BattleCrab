@@ -199,12 +199,10 @@ impl QuestScript for Q00215TrialOfThePilgrim {
                     ctx.give_items(HAIR_OF_NAHIR, 1);
                 }
             }
-            BLACK_WILLOW => {
-                if memo == 13 && !has(ctx, DEBRIS_OF_WILLOW) {
-                    ctx.set_memo_state(14);
-                    ctx.set_cond(14, true);
-                    ctx.give_items(DEBRIS_OF_WILLOW, 1);
-                }
+            BLACK_WILLOW if memo == 13 && !has(ctx, DEBRIS_OF_WILLOW) => {
+                ctx.set_memo_state(14);
+                ctx.set_cond(14, true);
+                ctx.give_items(DEBRIS_OF_WILLOW, 1);
             }
             _ => {}
         }

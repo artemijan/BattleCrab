@@ -428,20 +428,19 @@ impl QuestScript for Q00229TestOfWitchcraft {
                     }
                 }
             }
-            DREVANUL_PRINCE_ZERUEL => {
+            DREVANUL_PRINCE_ZERUEL
                 if has(ctx, ORIMS_INSTRUCTIONS)
                     && has(ctx, BRIMSTONE_2ND)
                     && has(ctx, SWORD_OF_BINDING)
                     && has(ctx, SOULTRAP_CRYSTAL)
-                    && ctx.equipped_weapon_id() == SWORD_OF_BINDING
-                {
-                    ctx.take_items(SOULTRAP_CRYSTAL, 1);
-                    ctx.give_items(PURGATORY_KEY, 1);
-                    ctx.give_items(ZERUEL_BIND_CRYSTAL, 1);
-                    ctx.take_items(BRIMSTONE_2ND, 1);
-                    ctx.play_sound(quest_sounds::ITEMGET);
-                    ctx.set_cond(10, false);
-                }
+                    && ctx.equipped_weapon_id() == SWORD_OF_BINDING =>
+            {
+                ctx.take_items(SOULTRAP_CRYSTAL, 1);
+                ctx.give_items(PURGATORY_KEY, 1);
+                ctx.give_items(ZERUEL_BIND_CRYSTAL, 1);
+                ctx.take_items(BRIMSTONE_2ND, 1);
+                ctx.play_sound(quest_sounds::ITEMGET);
+                ctx.set_cond(10, false);
             }
             _ => {}
         }

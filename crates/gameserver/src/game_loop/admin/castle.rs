@@ -181,7 +181,7 @@ fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, r
         show_castle_menu(world, client_id, idx);
         return;
     }
-    let Some(side) = rest.first().and_then(|s| CastleSide::from_str(s)) else {
+    let Some(side) = rest.first().and_then(|s| CastleSide::from_string(s)) else {
         send_message(world, client_id, "Invalid parameters!!");
         show_castle_menu(world, client_id, idx);
         return;

@@ -306,14 +306,13 @@ impl QuestScript for Q00219TestimonyOfFate {
             GRANDIS => skull_kill(ctx, GRANDISS_SKULL),
             LETO_LIZARDMAN_OVERLORD => skull_kill(ctx, LETO_OVERLORD_SKULL),
             KARUL_BUGBEAR => skull_kill(ctx, KARUL_BUGBEAR_SKULL),
-            BLACK_WILLOW_LURKER => {
+            BLACK_WILLOW_LURKER
                 if has(ctx, PALUS_CHARM)
                     && has(ctx, ARKENIAS_NOTE)
                     && has(ctx, TIMIRIRAN_SEED)
-                    && !has(ctx, BLIGHT_TREANT_SAP)
-                {
-                    ctx.award_once(BLACK_WILLOW_LEAF);
-                }
+                    && !has(ctx, BLIGHT_TREANT_SAP) =>
+            {
+                ctx.award_once(BLACK_WILLOW_LEAF);
             }
             _ => {}
         }

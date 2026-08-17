@@ -316,18 +316,17 @@ impl QuestScript for Q00218TestimonyOfLife {
                     }
                 }
             }
-            UNICORN_OF_EVA => {
+            UNICORN_OF_EVA
                 if !has(ctx, TEARS_OF_UNICORN)
                     && has(ctx, MOONFLOWER_CHARM)
                     && has(ctx, TALINS_SPEAR)
                     && has(ctx, GRAIL_OF_PURITY)
-                    && ctx.equipped_weapon_id() == TALINS_SPEAR
-                {
-                    ctx.take_items(TALINS_SPEAR, 1);
-                    ctx.take_items(GRAIL_OF_PURITY, 1);
-                    ctx.give_items(TEARS_OF_UNICORN, 1);
-                    ctx.set_cond(19, true);
-                }
+                    && ctx.equipped_weapon_id() == TALINS_SPEAR =>
+            {
+                ctx.take_items(TALINS_SPEAR, 1);
+                ctx.take_items(GRAIL_OF_PURITY, 1);
+                ctx.give_items(TEARS_OF_UNICORN, 1);
+                ctx.set_cond(19, true);
             }
             _ => {}
         }

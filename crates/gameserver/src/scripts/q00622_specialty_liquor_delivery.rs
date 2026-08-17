@@ -153,10 +153,8 @@ impl QuestScript for Q00622SpecialtyLiquorDelivery {
                                 return Some("31521-05.html".to_string());
                             }
                         }
-                        7 => {
-                            if ctx.quest_items_count(SPECIAL_DRINK) == 0 {
-                                return Some("31521-08.html".to_string());
-                            }
+                        7 if ctx.quest_items_count(SPECIAL_DRINK) == 0 => {
+                            return Some("31521-08.html".to_string());
                         }
                         _ => {}
                     }

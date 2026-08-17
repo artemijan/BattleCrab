@@ -166,11 +166,6 @@ type_complexity = "allow"
 field_reassign_with_default = "allow"
 # 2 sites. Boxing the large variant would put an allocation on the packet path.
 large_enum_variant = "allow"
-# 3 sites: `from_name`/`default` style constructors that mirror Java's static
-# factories. Implementing `FromStr`/`Default` instead would break the parity
-# with the Java call sites.
-should_implement_trait = "allow"
 # Quest scripts mirror Java's switch-case cond lists (`2 | 3 | 4`) and nested
 # match shapes on purpose — the parity with the Java source must stay greppable.
 manual_range_patterns = "allow"
-collapsible_match = "allow"

@@ -79,7 +79,9 @@ impl QuestScript for Q00276TotemOfTheHestui {
                     ctx.give_item_randomly(KASHA_PARASITE, 1, 0, 1.0, true);
                 }
             }
-            KASHA_BEAR_TOTEM => {
+            KASHA_BEAR_TOTEM =>
+            {
+                #[allow(clippy::collapsible_match)]
                 if ctx.give_item_randomly(KASHA_CRYSTAL, 1, 1, 1.0, true) {
                     ctx.set_cond(2, false);
                 }
@@ -105,18 +107,16 @@ impl QuestScript for Q00276TotemOfTheHestui {
         if ctx.is_started() {
             match ctx.cond() {
                 1 => return Some("30571-04.html".to_string()),
-                2 => {
-                    if ctx.quest_items_count(KASHA_CRYSTAL) > 0 {
-                        // Java calls `Q00261_CollectorsDream.giveNewbieReward`
-                        // here — one of only two live callers on this dist
-                        // (it is commented out in every other newbie quest).
-                        crate::scripts::q00261_collectors_dream::give_newbie_reward(ctx);
-                        for reward in REWARDS {
-                            ctx.reward_items(reward, 1);
-                        }
-                        ctx.exit_quest(true, true);
-                        return Some("30571-05.html".to_string());
+                2 if ctx.quest_items_count(KASHA_CRYSTAL) > 0 => {
+                    // Java calls `Q00261_CollectorsDream.giveNewbieReward`
+                    // here — one of only two live callers on this dist
+                    // (it is commented out in every other newbie quest).
+                    crate::scripts::q00261_collectors_dream::give_newbie_reward(ctx);
+                    for reward in REWARDS {
+                        ctx.reward_items(reward, 1);
                     }
+                    ctx.exit_quest(true, true);
+                    return Some("30571-05.html".to_string());
                 }
                 _ => {}
             }

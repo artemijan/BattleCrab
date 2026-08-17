@@ -296,18 +296,18 @@ impl QuestScript for Q00224TestOfSagittarius {
                     }
                 }
             }
-            SERPENT_DEMON_KADESH => {
-                if ctx.memo_state() == 13 && ctx.quest_items_count(TALISMAN_OF_KADESH) == 0 {
-                    // Java gates on `npc.getKillingBlowWeapon()`; we approximate
-                    // with the killer's currently-equipped weapon at kill time,
-                    // which is the weapon that struck the finishing blow.
-                    if ctx.equipped_weapon_id() == CRESCENT_MOON_BOW {
-                        ctx.give_items(TALISMAN_OF_KADESH, 1);
-                        ctx.set_memo_state(14);
-                        ctx.set_cond(14, true);
-                    } else {
-                        ctx.spawn_near_npc(SERPENT_DEMON_KADESH, true);
-                    }
+            SERPENT_DEMON_KADESH
+                if ctx.memo_state() == 13 && ctx.quest_items_count(TALISMAN_OF_KADESH) == 0 =>
+            {
+                // Java gates on `npc.getKillingBlowWeapon()`; we approximate
+                // with the killer's currently-equipped weapon at kill time,
+                // which is the weapon that struck the finishing blow.
+                if ctx.equipped_weapon_id() == CRESCENT_MOON_BOW {
+                    ctx.give_items(TALISMAN_OF_KADESH, 1);
+                    ctx.set_memo_state(14);
+                    ctx.set_cond(14, true);
+                } else {
+                    ctx.spawn_near_npc(SERPENT_DEMON_KADESH, true);
                 }
             }
             _ => {}

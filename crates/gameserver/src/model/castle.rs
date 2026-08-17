@@ -23,7 +23,7 @@ pub enum CastleSide {
 
 impl CastleSide {
     /// Parse the `castle.side` column / the `setOwner` argument (case-insensitive).
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn from_string(s: &str) -> Option<Self> {
         match s.to_ascii_uppercase().as_str() {
             "NEUTRAL" => Some(Self::Neutral),
             "LIGHT" => Some(Self::Light),

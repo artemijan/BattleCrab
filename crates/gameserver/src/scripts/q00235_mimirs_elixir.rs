@@ -156,11 +156,9 @@ impl QuestScript for Q00235MimirsElixir {
                     ctx.set_cond(4, true);
                 }
             }
-            21090 => {
-                if ctx.is_cond(6) && ctx.roll(10) < 2 {
-                    ctx.give_items(BLOOD_FIRE, 1);
-                    ctx.set_cond(7, true);
-                }
+            21090 if ctx.is_cond(6) && ctx.roll(10) < 2 => {
+                ctx.give_items(BLOOD_FIRE, 1);
+                ctx.set_cond(7, true);
             }
             _ => {}
         }

@@ -294,15 +294,14 @@ impl QuestScript for Q00225TestOfTheSearcher {
                     }
                 }
             }
-            DELU_CHIEF_KALKIS => {
+            DELU_CHIEF_KALKIS
                 if ctx.quest_items_count(LEIRYNNS_2ND_ORDER) > 0
                     && ctx.quest_items_count(CHIEF_KALKIS_FANG) == 0
-                    && ctx.quest_items_count(STRINGE_MAP) == 0
-                {
-                    ctx.give_items(CHIEF_KALKIS_FANG, 1);
-                    ctx.give_items(STRINGE_MAP, 1);
-                    ctx.set_cond(6, true);
-                }
+                    && ctx.quest_items_count(STRINGE_MAP) == 0 =>
+            {
+                ctx.give_items(CHIEF_KALKIS_FANG, 1);
+                ctx.give_items(STRINGE_MAP, 1);
+                ctx.set_cond(6, true);
             }
             _ => {}
         }

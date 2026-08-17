@@ -74,13 +74,11 @@ impl QuestScript for Q00275DarkWingedSpies {
                     ctx.give_items(VARANGKAS_PARASITE, 1);
                 }
             }
-            VARANGKAS_TRACKER => {
-                if count < 66 && ctx.quest_items_count(VARANGKAS_PARASITE) > 0 {
-                    if ctx.give_item_randomly(DARKWING_BAT_FANG, 5, MAX_BAT_FANG_COUNT, 1.0, true) {
-                        ctx.set_cond(2, false);
-                    }
-                    ctx.take_items(VARANGKAS_PARASITE, -1);
+            VARANGKAS_TRACKER if count < 66 && ctx.quest_items_count(VARANGKAS_PARASITE) > 0 => {
+                if ctx.give_item_randomly(DARKWING_BAT_FANG, 5, MAX_BAT_FANG_COUNT, 1.0, true) {
+                    ctx.set_cond(2, false);
                 }
+                ctx.take_items(VARANGKAS_PARASITE, -1);
             }
             _ => {}
         }

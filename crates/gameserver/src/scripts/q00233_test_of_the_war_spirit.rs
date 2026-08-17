@@ -288,6 +288,7 @@ impl QuestScript for Q00233TestOfTheWarSpirit {
                 ],
             ),
             TAMLIN_ORC | TAMLIN_ORC_ARCHER => {
+                #[allow(clippy::collapsible_match)]
                 if has(ctx, VENDETTA_TOTEM)
                     && ctx.give_item_randomly(TAMLIN_ORC_HEAD, 1, 13, 1.0, true)
                 {

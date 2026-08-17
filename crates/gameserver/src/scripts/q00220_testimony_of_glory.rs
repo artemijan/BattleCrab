@@ -431,11 +431,9 @@ impl QuestScript for Q00220TestimonyOfGlory {
                     }
                 }
             }
-            REVENANT_OF_TANTOS_CHIEF => {
-                if has(ctx, TANAPIS_ORDER) && !has(ctx, SCEPTER_OF_TANTOS) {
-                    ctx.give_items(SCEPTER_OF_TANTOS, 1);
-                    ctx.set_cond(10, true);
-                }
+            REVENANT_OF_TANTOS_CHIEF if has(ctx, TANAPIS_ORDER) && !has(ctx, SCEPTER_OF_TANTOS) => {
+                ctx.give_items(SCEPTER_OF_TANTOS, 1);
+                ctx.set_cond(10, true);
             }
             _ => {}
         }

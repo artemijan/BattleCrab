@@ -309,6 +309,7 @@ impl QuestScript for Q00232TestOfTheLord {
             ),
             RAGNA_ORC_OVERLORD | RAGNA_ORC_SEER => {
                 // The notice first; the head only once the notice is in hand.
+                #[allow(clippy::collapsible_match)]
                 if has(ctx, MARTANKUS_CHARM)
                     && !ctx.award_once(RAGNA_CHIEF_NOTICE)
                     && !has(ctx, RAGNA_ORC_HEAD)

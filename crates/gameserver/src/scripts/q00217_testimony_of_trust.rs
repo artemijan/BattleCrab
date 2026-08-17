@@ -387,11 +387,9 @@ impl QuestScript for Q00217TestimonyOfTrust {
                     }
                 }
             }
-            PORTA => {
-                if memo == 16 && !has(ctx, HEART_OF_PORTA) {
-                    ctx.give_items(HEART_OF_PORTA, 1);
-                    ctx.set_cond(20, true);
-                }
+            PORTA if memo == 16 && !has(ctx, HEART_OF_PORTA) => {
+                ctx.give_items(HEART_OF_PORTA, 1);
+                ctx.set_cond(20, true);
             }
             _ => {}
         }

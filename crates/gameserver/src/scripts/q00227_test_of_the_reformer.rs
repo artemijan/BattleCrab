@@ -343,11 +343,9 @@ impl QuestScript for Q00227TestOfTheReformer {
                     ctx.set_cond(13, true);
                 }
             }
-            KRUDEL_LIZARDMAN => {
-                if ctx.memo_state() == 13 {
-                    ctx.set_memo_state(14);
-                    ctx.set_cond(16, true);
-                }
+            KRUDEL_LIZARDMAN if ctx.memo_state() == 13 => {
+                ctx.set_memo_state(14);
+                ctx.set_cond(16, true);
             }
             _ => {}
         }

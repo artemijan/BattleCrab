@@ -1377,7 +1377,7 @@ pub(crate) async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::c
         .map(|r| crate::model::castle::Castle {
             id: r.id,
             name: r.name,
-            side: crate::model::castle::CastleSide::from_str(&r.side).unwrap_or_default(),
+            side: crate::model::castle::CastleSide::from_string(&r.side).unwrap_or_default(),
             ticket_buy_count: r.ticket_buy_count,
             show_npc_crest: r.show_npc_crest == "true",
             // Runtime-only in Java too — a restart clears it.

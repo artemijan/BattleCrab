@@ -331,20 +331,19 @@ impl QuestScript for Q00216TrialOfTheGuildsman {
                 }
             }
             BREKA_ORC | BREKA_ORC_ARCHER | BREKA_ORC_SHAMAN | BREKA_ORC_OVERLORD
-            | BREKA_ORC_WARRIOR => {
+            | BREKA_ORC_WARRIOR
                 if has(ctx, ALLTRANS_INSTRUCTIONS)
                     && has(ctx, NORMANS_INSTRUCTIONS)
                     && has(ctx, DUNINGS_INSTRUCTIONS)
-                    && ctx.quest_items_count(DUNINGS_KEY) < 30
-                {
-                    if ctx.quest_items_count(DUNINGS_KEY) >= 29 {
-                        ctx.give_items(DUNINGS_KEY, 1);
-                        ctx.take_items(DUNINGS_INSTRUCTIONS, 1);
-                        ctx.play_sound(quest_sounds::MIDDLE);
-                    } else {
-                        ctx.give_items(DUNINGS_KEY, 1);
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    }
+                    && ctx.quest_items_count(DUNINGS_KEY) < 30 =>
+            {
+                if ctx.quest_items_count(DUNINGS_KEY) >= 29 {
+                    ctx.give_items(DUNINGS_KEY, 1);
+                    ctx.take_items(DUNINGS_INSTRUCTIONS, 1);
+                    ctx.play_sound(quest_sounds::MIDDLE);
+                } else {
+                    ctx.give_items(DUNINGS_KEY, 1);
+                    ctx.play_sound(quest_sounds::ITEMGET);
                 }
             }
             _ => {}
