@@ -402,7 +402,9 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
             "GameLoop: client {client_id} selected character '{}'.",
             s.player().player.name
         );
-        world.clients.insert(client_id, ClientSession::Entering(s));
+        world
+            .clients
+            .insert(client_id, ClientSession::Entering(Box::new(s)));
     }
 }
 

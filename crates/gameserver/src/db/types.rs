@@ -345,7 +345,11 @@ pub enum DbCommand {
     /// following `LoadCharacters` on this channel, so a restart's re-sent list
     /// already reflects the save.
     StorePlayer {
-        save: PlayerSaveData,
+        /// Boxed: this is the one large variant, and every *other* `DbCommand`
+        /// queued on the channel would otherwise be padded to its size. A
+        /// player save already writes to SQLite, so one allocation on the way
+        /// there does not register.
+        save: Box<PlayerSaveData>,
     },
     /// Reserve a block of object ids for the game thread (Java `IdManager`
     /// semantics without a cross-thread round trip per item — the DB thread
@@ -1484,3 +1488,21 @@ pub struct CursedWeaponRow {
 }
 
 pub type CmdTx = tokio::sync::mpsc::UnboundedSender<DbCommand>;
+
+#[cfg(test)]
+mod size_guards {
+    use super::*;
+
+    /// Every [`DbCommand`] queued on the channel costs the size of the largest
+    /// variant, so an id reservation used to occupy `StorePlayer`'s 608 B.
+    /// Boxing that one field brought the enum to 200 B.
+    #[test]
+    fn db_command_stays_small() {
+        let size = std::mem::size_of::<DbCommand>();
+        assert!(
+            size <= 256,
+            "DbCommand grew to {size} B — every queued command, however small, \
+             pays this. Box the new large field."
+        );
+    }
+}

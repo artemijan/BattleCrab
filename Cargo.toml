@@ -140,18 +140,6 @@ opt-level = 3
 [profile.dev.package.rsa]
 opt-level = 3
 
-# Grandfathered clippy lints: every entry below was already violated when the
-# linter gate was introduced (2026-07-23), in game code where the churn of
-# fixing them wholesale wasn't worth the review risk. The pre-commit hook runs
-# `clippy -D warnings`, so anything NOT in this list is enforced. Burn entries
-# down over time: delete one, fix what surfaces, commit both together.
-#
-# 2026-08-17: nine entries burned down (178 violations → 0). Removed —
-# `while_let_loop` (already at zero, stale), `assertions_on_constants`,
-# `drop_non_drop`, `if_same_then_else`, `explicit_counter_loop`,
-# `unnecessary_sort_by`, `unnecessary_get_then_check`, `question_mark` and
-# `doc_lazy_continuation`. What remains needs design decisions rather than
-# edits, so each carries its reason.
 [workspace.lints.clippy]
 # Wide signatures are deliberate: the stat finalizers and packet builders take
 # the inputs Java reads off `this`, and threading them through a struct would
@@ -164,5 +152,3 @@ type_complexity = "allow"
 # `..Default::default()` reads worse there, because the point is *which* fields
 # the case changes.
 field_reassign_with_default = "allow"
-# 2 sites. Boxing the large variant would put an allocation on the packet path.
-large_enum_variant = "allow"

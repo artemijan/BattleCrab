@@ -296,11 +296,18 @@ impl Session<InGame> {
 }
 
 /// Runtime-tagged wrapper stored in the client registry.
+///
+/// `Entering` is boxed because it is by far the largest state (it carries the
+/// whole loaded character bundle) *and* by far the shortest-lived: a client is
+/// `Entering` only between the enter-world request and the spawn, then spends
+/// the rest of the session `InGame`. Unboxed, every entry in
+/// `World::clients` — one per connected client, overwhelmingly `InGame` — paid
+/// the `Entering` size. The box moves that cost to one allocation per login.
 pub enum ClientSession {
     Connecting(Session<Connecting>),
     Authenticated(Session<Authenticated>),
     InLobby(Session<InLobby>),
-    Entering(Session<Entering>),
+    Entering(Box<Session<Entering>>),
     InGame(Session<InGame>),
 }
 
@@ -591,5 +598,28 @@ mod client_table_tests {
 
         t.remove(&2);
         assert_eq!(t.client_of_player(100), None);
+    }
+}
+
+#[cfg(test)]
+mod size_guards {
+    use super::*;
+
+    /// `World::clients` holds one [`ClientSession`] per connected client, and
+    /// an enum is as big as its largest variant — so every entry used to be
+    /// sized for `Entering` (3496 B) even though almost all of them are
+    /// `InGame` (408 B). Boxing `Entering` brought the whole enum to 408 B.
+    ///
+    /// The bound is deliberately loose: it is here to catch a *new* unboxed
+    /// bundle-sized field, not to pin the exact layout.
+    #[test]
+    fn client_session_stays_small() {
+        let size = std::mem::size_of::<ClientSession>();
+        assert!(
+            size <= 512,
+            "ClientSession grew to {size} B — an enum costs its largest \
+             variant on every entry in `World::clients`. If a state gained a \
+             big field, box that variant like `Entering`."
+        );
     }
 }

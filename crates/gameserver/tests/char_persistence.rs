@@ -591,7 +591,11 @@ async fn shortcuts_and_macros_persist() {
         acronym: String::new(),
         commands: vec![],
     }];
-    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
     cmd_tx
         .send(DbCommand::LoadCharacters {
             client_id: 1,
@@ -838,7 +842,11 @@ async fn quest_states_persist() {
         };
         qs.vars.insert("cond".into(), "2".into());
         save.quests.insert(quest.into(), qs);
-        cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+        cmd_tx
+            .send(DbCommand::StorePlayer {
+                save: Box::new(save),
+            })
+            .unwrap();
     }
     cmd_tx
         .send(DbCommand::LoadCharacters {
@@ -870,7 +878,11 @@ async fn quest_states_persist() {
                 ..Default::default()
             },
         );
-        cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+        cmd_tx
+            .send(DbCommand::StorePlayer {
+                save: Box::new(save),
+            })
+            .unwrap();
     }
     cmd_tx
         .send(DbCommand::LoadCharacters {
@@ -891,7 +903,7 @@ async fn quest_states_persist() {
     // reconcile delete every row for it.
     cmd_tx
         .send(DbCommand::StorePlayer {
-            save: save_from(&loaded),
+            save: Box::new(save_from(&loaded)),
         })
         .unwrap();
     cmd_tx
@@ -990,7 +1002,11 @@ async fn recommendations_persist() {
     let mut save = save_from(&loaded);
     save.base.rec_have = 7;
     save.base.rec_left = 13;
-    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
 
     // Reload → the flushed counts survive.
     cmd_tx
@@ -1113,7 +1129,11 @@ async fn skill_reuse_cooldowns_persist() {
             systime_ms: now - 5_000,
         },
     ];
-    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
     cmd_tx
         .send(DbCommand::LoadCharacters {
             client_id: 1,
@@ -1143,7 +1163,7 @@ async fn skill_reuse_cooldowns_persist() {
     // A flush with no live cooldowns clears the table (the reconcile always deletes).
     cmd_tx
         .send(DbCommand::StorePlayer {
-            save: save_from(&loaded),
+            save: Box::new(save_from(&loaded)),
         })
         .unwrap();
     cmd_tx
@@ -1254,7 +1274,11 @@ async fn active_buffs_persist_with_frozen_countdown() {
         reuse_delay: 300_000,
         systime_ms: now + 120_000,
     }];
-    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
     cmd_tx
         .send(DbCommand::LoadCharacters {
             client_id: 1,
@@ -1286,7 +1310,7 @@ async fn active_buffs_persist_with_frozen_countdown() {
     // A flush with no live buffs clears them (the reconcile always deletes).
     cmd_tx
         .send(DbCommand::StorePlayer {
-            save: save_from(&loaded),
+            save: Box::new(save_from(&loaded)),
         })
         .unwrap();
     cmd_tx
@@ -1412,7 +1436,11 @@ async fn pets_persist() {
             remaining_time_secs: 480,
         }],
     }];
-    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
     cmd_tx
         .send(DbCommand::LoadCharacters {
             client_id: 1,
@@ -1461,7 +1489,11 @@ async fn pets_persist() {
     save.pets[0].fed = 30;
     save.pets[0].level = 6;
     save.pets[0].restore = false;
-    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
     cmd_tx
         .send(DbCommand::LoadCharacters {
             client_id: 1,
@@ -1563,7 +1595,11 @@ async fn current_cp_persists() {
     let mut save = save_from(&loaded);
     save.base.max_cp = 210;
     save.base.cur_cp = 137.5;
-    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
 
     cmd_tx
         .send(DbCommand::LoadCharacters {

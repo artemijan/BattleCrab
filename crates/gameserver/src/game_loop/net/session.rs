@@ -236,7 +236,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             // items/skills-empty save here would wipe the just-loaded character.
             let b = s.player();
             let _ = world.db.send(db::DbCommand::StorePlayer {
-                save: db::PlayerSaveData {
+                save: Box::new(db::PlayerSaveData {
                     base: db::PlayerSnapshot::of(
                         &b.player,
                         &b.position,
@@ -293,7 +293,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                     // component) would silently drop every buff of anyone who
                     // disconnects between char-select and enter-world.
                     skill_buffs: b.pending_buffs.clone(),
-                },
+                }),
             });
         }
         _ => {}

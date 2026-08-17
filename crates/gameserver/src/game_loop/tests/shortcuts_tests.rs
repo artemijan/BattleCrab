@@ -399,7 +399,9 @@ fn enter_world_sends_macros_and_shortcut_panel() {
         .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![])
         .into_entering(bundle);
-    world.clients.insert(1, ClientSession::Entering(s));
+    world
+        .clients
+        .insert(1, ClientSession::Entering(Box::new(s)));
 
     handle_enter_world(&mut world, 1);
     let packets = drain(&mut rx);

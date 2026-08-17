@@ -1040,7 +1040,9 @@ fn friend_login_logout_notifications() {
         .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![])
         .into_entering(bundle);
-    world.clients.insert(2, ClientSession::Entering(s));
+    world
+        .clients
+        .insert(2, ClientSession::Entering(Box::new(s)));
     on_packet(&mut world, 2, vec![cop::ENTER_WORLD]);
 
     let b_pkts = drain(&mut b_rx);

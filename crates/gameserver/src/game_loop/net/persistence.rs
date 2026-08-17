@@ -58,7 +58,9 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
         // despawns, so a player left in the world keeps receiving broadcasts.
         world.unindex_player(player_object_id);
         world.objects.despawn(&player_object_id);
-        let _ = world.db.send(db::DbCommand::StorePlayer { save });
+        let _ = world.db.send(db::DbCommand::StorePlayer {
+            save: Box::new(save),
+        });
     }
 }
 
@@ -390,7 +392,9 @@ pub(crate) fn store_player_now(world: &mut World, player_object_id: i32) {
     // everything the pet did this session.
     crate::game_loop::servitor::sync_pet_row(world, player_object_id);
     if let Some(save) = build_save_data(world, player_object_id) {
-        let _ = world.db.send(db::DbCommand::StorePlayer { save });
+        let _ = world.db.send(db::DbCommand::StorePlayer {
+            save: Box::new(save),
+        });
     }
 }
 

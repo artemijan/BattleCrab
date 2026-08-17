@@ -1346,7 +1346,7 @@ fn validate_position_body(x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
 /// full save payload.
 fn expect_store_player(db_rx: &mut db::CmdRx) -> db::PlayerSaveData {
     match db_rx.try_recv() {
-        Ok(db::DbCommand::StorePlayer { save }) => save,
+        Ok(db::DbCommand::StorePlayer { save }) => *save,
         _ => panic!("expected a StorePlayer DB command"),
     }
 }
@@ -1381,7 +1381,9 @@ fn entering_player(
     let player = Player::from_char(&world.data, &chr);
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
     let s = get_test_session(client_id, out_tx, player);
-    world.clients.insert(client_id, ClientSession::Entering(s));
+    world
+        .clients
+        .insert(client_id, ClientSession::Entering(Box::new(s)));
     out_rx
 }
 
