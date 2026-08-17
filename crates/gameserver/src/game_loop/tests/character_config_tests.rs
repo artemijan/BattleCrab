@@ -623,3 +623,44 @@ fn the_effect_tick_ratio_drives_both_cadence_and_amount() {
     assert_eq!(dot_interval_ticks(0, 666), 0, "no ticks, no schedule");
     assert_eq!(dot_interval_ticks(5, 0), 0, "a zero ratio suppresses it");
 }
+
+// ---------------------------------------------------------------------------
+// `World::roll` takes `&self`
+// ---------------------------------------------------------------------------
+
+/// Compile-time proof that a roll no longer conflicts with a live **read**
+/// borrow of the world.
+///
+/// `roll` used to take `&mut self` — advancing the PRNG and popping the forced
+/// queue both need mutation — which meant any roll inside a `match` on
+/// something borrowed out of the world was a borrow-check error, and callers
+/// had to hoist the roll above the match. That is why `World::roll_augment`
+/// existed at all: a whole method pulled onto `World` so the `data.variations`
+/// read and the RNG draw could be destructured apart by hand.
+///
+/// The value asserted here is incidental; the point is that this shape
+/// compiles.
+#[test]
+fn a_roll_coexists_with_a_live_read_borrow_of_the_world() {
+    // Note there is no `mut` here: the whole body rolls twice through a shared
+    // reference, which would not have compiled before.
+    let (world, _db_rx, _link_rx) = combat_test_world();
+    world.force_rolls([3, 7]);
+
+    // `npcs_with_id` hands back a slice borrowed from `world`, held live across
+    // the match arms.
+    let picked = match world.npcs_with_id(40001) {
+        [] => world.roll(10),
+        live => live.len() as i32 + world.roll(10),
+    };
+    assert_eq!(picked, 3, "the forced roll came through the shared borrow");
+
+    // The same for a nested read: `data` borrowed while rolling.
+    let template = world.data.npc_data.get(40001);
+    let bonus = if template.is_some() {
+        world.roll(10)
+    } else {
+        0
+    };
+    assert_eq!(bonus, 7);
+}

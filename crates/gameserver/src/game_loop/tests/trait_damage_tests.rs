@@ -408,7 +408,7 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
             .get_component_mut::<crate::model::components::CombatStats>(&ATTACKER)
             .unwrap()
             .random_dmg = 0;
-        world.forced_rolls.extend([0, 99, 99, 99]);
+        world.force_rolls([0, 99, 99, 99]);
         crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, npc_oid);
         advance_ticks(&mut world, 40);
         max - world
@@ -496,7 +496,7 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
             .get_component_mut::<Vitals>(&npc_oid)
             .unwrap()
             .cur_hp = max;
-        world.forced_rolls.extend([0, 50]);
+        world.force_rolls([0, 50]);
         crate::game_loop::skills::effects::apply_skill_effects(
             &mut world, ATTACKER, npc_oid, &skill,
         );

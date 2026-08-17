@@ -53,10 +53,10 @@ fn hp_of(world: &World, oid: i32) -> f64 {
 /// of every comparison use the same tape, so crit/failure rolls cancel out.
 fn cast_damage(world: &mut World, caster: i32, target: i32, skill: &Skill) -> f64 {
     let before = hp_of(world, target);
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([0, 0, 0, 0, 0, 0]);
+    world.clear_forced_rolls();
+    world.force_rolls([0, 0, 0, 0, 0, 0]);
     crate::game_loop::skills::effects::apply_skill_effects(world, caster, target, skill);
-    world.forced_rolls.clear();
+    world.clear_forced_rolls();
     before - hp_of(world, target)
 }
 

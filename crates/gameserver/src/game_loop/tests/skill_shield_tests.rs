@@ -114,7 +114,7 @@ fn hit_for(world: &mut World, victim: i32, skill: &Skill, rolls: &[i32]) -> f64 
         .get_component_mut::<Vitals>(&victim)
         .unwrap()
         .cur_hp = full;
-    world.forced_rolls.extend(rolls.iter().copied());
+    world.force_rolls(rolls.iter().copied());
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, victim, skill);
     full - world
         .objects
@@ -255,21 +255,21 @@ fn the_shield_switch_adds_defence_or_signals_a_perfect_block() {
     equip_shield(&mut world, victim);
     // rate roll 0 always blocks (rate 20); perfect roll 0 keeps it ordinary —
     // `100 - 2·conBonus < perfectRoll` is what promotes it.
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     assert_eq!(
         defence_after_shield(&mut world, victim, 100.0, false),
         Some(228.0),
         "the shield's 128 sDef is added, unscaled"
     );
     // rate 0 blocks, perfect roll 99 → 98 < 99 → promoted.
-    world.forced_rolls.extend([0, 99]);
+    world.force_rolls([0, 99]);
     assert_eq!(
         defence_after_shield(&mut world, victim, 100.0, false),
         None,
         "a perfect block signals the flat-1 path"
     );
     // A losing rate roll leaves the defence alone.
-    world.forced_rolls.extend([99, 99]);
+    world.force_rolls([99, 99]);
     assert_eq!(
         defence_after_shield(&mut world, victim, 100.0, false),
         Some(100.0)
@@ -287,7 +287,7 @@ fn ignore_shield_defence_skips_the_block_and_its_rolls() {
     equip_shield(&mut world, victim);
 
     // These two would be a perfect block if they were read.
-    world.forced_rolls.extend([0, 99]);
+    world.force_rolls([0, 99]);
     assert_eq!(
         defence_after_shield(&mut world, victim, 100.0, true),
         Some(100.0),

@@ -189,7 +189,7 @@ impl<'w> QuestCtx<'w> {
     }
 
     /// `Rnd.get(bound)` through the world RNG (test-forceable).
-    pub fn roll(&mut self, bound: i32) -> i32 {
+    pub fn roll(&self, bound: i32) -> i32 {
         self.world.roll(bound)
     }
 

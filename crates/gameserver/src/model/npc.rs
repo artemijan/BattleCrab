@@ -644,7 +644,7 @@ pub(crate) fn spawn_one(
         let template = world.data.spawn_data.spawns.get(spawn_idx)?;
         let def = template.groups.get(group_idx)?.npcs.get(npc_idx)?;
         let loc = resolve_location(
-            &mut world.rng,
+            &mut world.rng.borrow_mut(),
             &world.geo,
             template,
             &template.groups[group_idx],

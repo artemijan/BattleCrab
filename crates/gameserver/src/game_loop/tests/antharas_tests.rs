@@ -60,7 +60,7 @@ fn the_first_wave_is_one_pair() {
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     crate::game_loop::antharas::begin_waves(&mut world, ANTHARAS_OID);
 
-    world.forced_rolls.push_back(50); // > 10: the multiplier grows
+    world.force_roll(50); // > 10: the multiplier grows
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(spawned(&mut world), 2, "one Behemoth and one Tarask");
     assert_eq!(
@@ -77,7 +77,7 @@ fn the_multiplier_stops_at_four() {
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     set_state(&mut world, 0, 4);
 
-    world.forced_rolls.push_back(50); // would grow, if it could
+    world.force_roll(50); // would grow, if it could
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(state(&world).multiplier, 4, "capped");
     assert_eq!(spawned(&mut world), 8, "four pairs is the largest wave");
@@ -91,7 +91,7 @@ fn a_low_roll_does_not_grow_the_wave() {
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     set_state(&mut world, 0, 1);
 
-    world.forced_rolls.push_back(5); // not > 10
+    world.force_roll(5); // not > 10
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(state(&world).multiplier, 1, "still one pair next time");
 }
@@ -105,7 +105,7 @@ fn a_full_wave_gives_way_to_a_pair_near_the_cap() {
     // multiplier 4 would want 8, but 100 - 8 = 92 and we are past it.
     set_state(&mut world, 95, 4);
 
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(spawned(&mut world), 2, "one pair, not eight");
     assert_eq!(state(&world).count, 97);
@@ -120,8 +120,8 @@ fn the_last_slot_takes_one_random_dragon() {
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     set_state(&mut world, 98, 1);
 
-    world.forced_rolls.push_back(0); // picks Behemoth
-    world.forced_rolls.push_back(5);
+    world.force_roll(0); // picks Behemoth
+    world.force_roll(5);
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(spawned(&mut world), 1, "exactly one more");
     assert_eq!(state(&world).count, 99, "filling the lair to 99");
@@ -136,7 +136,7 @@ fn a_full_lair_spawns_nothing_but_keeps_ticking() {
     set_state(&mut world, 99, 1);
 
     let before = world.scheduler.len();
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(spawned(&mut world), 0, "the lair is full");
     assert_eq!(
@@ -494,7 +494,7 @@ fn wound_to(world: &mut World, fraction: f64) {
 /// Force a run of rolls, then choose.
 fn choose(world: &mut World, rolls: &[i32]) -> Option<Choice> {
     for r in rolls {
-        world.forced_rolls.push_back(*r);
+        world.force_roll(*r);
     }
     crate::game_loop::antharas::choose_skill(world, ANTHARAS_OID, ATTACKER)
 }
@@ -653,9 +653,9 @@ fn a_hit_makes_antharas_cast() {
     while rx.try_recv().is_ok() {}
 
     // No jitter, then the tail's opening roll.
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
+    world.force_roll(0);
+    world.force_roll(0);
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
 
     let casts = std::iter::from_fn(|| rx.try_recv().ok())
@@ -692,13 +692,13 @@ fn a_second_hit_mid_cast_starts_nothing() {
             ..Default::default()
         });
     for _ in 0..3 {
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
     }
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
     while rx.try_recv().is_ok() {}
 
     for _ in 0..3 {
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
     }
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
     let casts = std::iter::from_fn(|| rx.try_recv().ok())

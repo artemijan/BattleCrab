@@ -233,7 +233,7 @@ fn mammon_spawn_announces_the_nearest_castle() {
     drain(&mut rx);
 
     // Haunt index 1 = Giran.
-    world.forced_rolls.push_back(1);
+    world.force_roll(1);
     area_npcs::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
 
     let said: Vec<Vec<u8>> = drain(&mut rx)
@@ -251,7 +251,7 @@ fn mammon_spawn_announces_the_nearest_castle() {
 
     // And with the config off, nothing is said.
     world.cfg.npc.announce_mammon_spawn = false;
-    world.forced_rolls.push_back(1);
+    world.force_roll(1);
     area_npcs::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
     assert!(
         !drain(&mut rx)
@@ -777,7 +777,7 @@ fn a_wounded_mob_polymorphs_into_its_next_form() {
     let _rx = ingame_player(&mut world, 1, 8830, 60, 0, 0);
 
     // 20% chance → a roll of 0 fires it; the bark group rolls next.
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     quests::notify_attack(&mut world, 8830, NPC_OID, TRANSCENDER_1, None, false);
 
     assert_eq!(
@@ -819,7 +819,7 @@ fn a_failed_chance_roll_leaves_the_mob_alone() {
     let _rx = ingame_player(&mut world, 1, 8831, 60, 0, 0);
 
     // chance is 20 — a roll of 20 misses.
-    world.forced_rolls.push_back(20);
+    world.force_roll(20);
     quests::notify_attack(&mut world, 8831, NPC_OID, TRANSCENDER_1, None, false);
 
     assert_eq!(
@@ -880,7 +880,7 @@ fn timak_leader_calls_privates_one_at_a_time() {
     let _rx = ingame_player(&mut world, 1, 8833, 60, 0, 0);
 
     // rate 100 always passes; the second roll picks the bark.
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     quests::notify_attack(&mut world, 8833, NPC_OID, LEADER, None, false);
     assert_eq!(npc_count(&mut world, PRIVATE_A), 1, "one private answered");
     assert_eq!(
@@ -889,7 +889,7 @@ fn timak_leader_calls_privates_one_at_a_time() {
         "only one per swing — not the whole group"
     );
 
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     quests::notify_attack(&mut world, 8833, NPC_OID, LEADER, None, false);
     assert_eq!(
         npc_count(&mut world, PRIVATE_B),

@@ -184,10 +184,8 @@ impl SoulCrystalData {
                         _ => {}
                     }
                 }
-                Event::End(e) => {
-                    if e.name().as_ref() == b"item" && in_npc_section {
-                        cur_npc = None;
-                    }
+                Event::End(e) if e.name().as_ref() == b"item" && in_npc_section => {
+                    cur_npc = None;
                 }
                 _ => {}
             }

@@ -672,7 +672,7 @@ fn target_cancel_clears_the_target_and_aborts() {
     // targetLevel`), so even a 100-chance skill has a threshold below 100 and
     // an unforced roll makes this flaky. Force the magic-crit throwaway and a
     // winning probability roll.
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     land(&mut world, TCANCEL_ID, VICTIM);
     assert_eq!(
         world
@@ -953,7 +953,7 @@ fn a_trait_resistance_lowers_the_target_cancel_chance() {
         }
         // Threshold is `0 + 100 - level` (~99 here); halve it and a 60 roll
         // stops landing.
-        world.forced_rolls.extend([0, 60]);
+        world.force_rolls([0, 60]);
         crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
         world
             .objects
@@ -1000,7 +1000,7 @@ fn an_element_resistance_lowers_the_target_cancel_chance() {
         }
         // `calcAttributeBonus` floors at 0.75, so the resisted threshold is
         // ~74 against ~99 unresisted — a roll of 80 separates them.
-        world.forced_rolls.extend([0, 80]);
+        world.force_rolls([0, 80]);
         crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
         world
             .objects
@@ -2043,8 +2043,8 @@ fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
         mods.add.insert(Stat::SkillMastery, stat as i32 as f64);
         mods.mul.insert(Stat::SkillMasteryRate, RATE);
         world.objects.add_components(&CASTER, mods);
-        world.forced_rolls.clear();
-        world.forced_rolls.push_back(roll);
+        world.clear_forced_rolls();
+        world.force_roll(roll);
         crate::game_loop::skills::effects::calc_skill_mastery(world, CASTER)
     };
 
@@ -2065,8 +2065,8 @@ fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
         .unwrap();
     mods.add.remove(&Stat::SkillMastery);
     world.objects.add_components(&CASTER, mods);
-    world.forced_rolls.clear();
-    world.forced_rolls.push_back(0);
+    world.clear_forced_rolls();
+    world.force_roll(0);
     assert!(
         !crate::game_loop::skills::effects::calc_skill_mastery(&mut world, CASTER),
         "Java's `getAdd(SKILL_MASTERY, -1) == -1` bail"
@@ -2338,8 +2338,8 @@ fn death_link_scales_with_the_casters_missing_hp() {
             v.max_hp = 1_000_000;
             v.cur_hp = 1_000_000.0;
         }
-        world.forced_rolls.clear();
-        world.forced_rolls.extend([50; 12]);
+        world.clear_forced_rolls();
+        world.force_rolls([50; 12]);
         land(world, 9401, NPC_OID);
         1_000_000.0
             - world
@@ -2399,7 +2399,7 @@ fn bluff_turns_the_target_but_not_a_raid_boss() {
     }
 
     // Pin the land roll — otherwise the chance gate makes this a coin flip.
-    world.forced_rolls.extend([0; 8]);
+    world.force_rolls([0; 8]);
     land(&mut world, 9402, NPC_OID);
     assert_eq!(
         heading_of(&world, NPC_OID),
@@ -2407,8 +2407,8 @@ fn bluff_turns_the_target_but_not_a_raid_boss() {
         "the mob is spun to face the caster's heading"
     );
 
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([0; 8]);
+    world.clear_forced_rolls();
+    world.force_rolls([0; 8]);
     land(&mut world, 9402, boss_oid);
     assert_eq!(
         heading_of(&world, boss_oid),
@@ -2447,8 +2447,8 @@ fn unlock_picks_a_by_skill_door_and_refuses_the_rest() {
     // A `BY_CLICK` door: refused outright, with its own message, and the roll
     // is never reached.
     drain(&mut out);
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([0; 4]);
+    world.clear_forced_rolls();
+    world.force_rolls([0; 4]);
     land(&mut world, 9403, plain_oid);
     let pkts = drain(&mut out);
     assert!(
@@ -2458,8 +2458,8 @@ fn unlock_picks_a_by_skill_door_and_refuses_the_rest() {
     assert!(!world.geo.doors.is_open(9902), "and it stays shut");
 
     // A `BY_SKILL` door with a failing roll: the softer message, still shut.
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([50; 4]);
+    world.clear_forced_rolls();
+    world.force_rolls([50; 4]);
     land(&mut world, 9403, pickable);
     let pkts = drain(&mut out);
     assert!(
@@ -2472,8 +2472,8 @@ fn unlock_picks_a_by_skill_door_and_refuses_the_rest() {
     assert!(!world.geo.doors.is_open(9901), "and the door is still shut");
 
     // Same door, a roll under the chance: it opens.
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([10; 4]);
+    world.clear_forced_rolls();
+    world.force_rolls([10; 4]);
     land(&mut world, 9403, pickable);
     assert!(world.geo.doors.is_open(9901), "a passing roll opens it");
 }
@@ -2902,8 +2902,8 @@ fn the_pvp_bonus_actually_reaches_a_nukes_damage() {
             v.cur_hp = 1_000_000.0;
             v.dead = false;
         }
-        world.forced_rolls.clear();
-        world.forced_rolls.extend([50; 12]);
+        world.clear_forced_rolls();
+        world.force_rolls([50; 12]);
         land(world, 9412, victim);
         1_000_000.0
             - world
@@ -2970,8 +2970,8 @@ fn fatal_counter_scales_with_the_archers_missing_hp() {
             v.cur_hp = 1_000_000.0;
             v.dead = false;
         }
-        world.forced_rolls.clear();
-        world.forced_rolls.extend([50; 12]);
+        world.clear_forced_rolls();
+        world.force_rolls([50; 12]);
         land(world, 9413, NPC_OID);
         1_000_000.0
             - world
@@ -3616,8 +3616,8 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
     let stunned = |world: &World| has_buff(world, victim, 9452);
 
     // Not casting: the stun lands.
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([0; 8]);
+    world.clear_forced_rolls();
+    world.force_rolls([0; 8]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
     assert!(stunned(&world), "an idle target takes the stun");
 
@@ -3637,8 +3637,8 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
             trigger_item_object_id: 0,
         }),
     );
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([0; 8]);
+    world.clear_forced_rolls();
+    world.force_rolls([0; 8]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
     assert!(
         !stunned(&world),
@@ -3827,23 +3827,23 @@ fn a_hit_can_break_a_stun_but_only_on_the_one_in_fourteen_roll() {
 
     // A losing roll (`Rnd.get(14) != 0`) leaves the stun in place.
     stun(&mut world);
-    world.forced_rolls.push_back(1);
+    world.force_roll(1);
     try_break_stun(&mut world, 3002);
     assert!(stunned(&world), "a non-zero roll does not free the victim");
 
     // The winning roll does.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     try_break_stun(&mut world, 3002);
     assert!(!stunned(&world), "`Rnd.get(14) == 0` shakes the stun off");
 
     // With the key off, even the winning roll is never reached.
     world.cfg.character.alt_game_stun_break = false;
     stun(&mut world);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     try_break_stun(&mut world, 3002);
     assert!(stunned(&world), "BreakStun=False leaves the stun alone");
     assert_eq!(
-        world.forced_rolls.len(),
+        world.forced_rolls_len(),
         1,
         "…and does not even consume the roll, because the key is checked first"
     );
@@ -3880,7 +3880,7 @@ fn breaking_a_stun_leaves_other_block_actions_debuffs_alone() {
     // Force the *winning* roll every time: even then the sleep must survive,
     // because the filter is the abnormal type and not the flag.
     for _ in 0..20 {
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         try_break_stun(&mut world, 3002);
     }
     assert!(

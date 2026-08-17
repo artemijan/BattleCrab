@@ -221,18 +221,16 @@ impl QuestScript for Q00212TrialOfDuty {
                     ctx.set_cond(12, false);
                 }
             }
-            BREKA_ORC_PREFECT => {
-                if ctx.memo_state() == 11 {
-                    if ctx.quest_items_count(ATHEBALDTS_SKULL) == 0 {
-                        ctx.give_items(ATHEBALDTS_SKULL, 1);
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    } else if ctx.quest_items_count(ATHEBALDTS_RIBS) == 0 {
-                        ctx.give_items(ATHEBALDTS_RIBS, 1);
-                        ctx.play_sound(quest_sounds::ITEMGET);
-                    } else if ctx.quest_items_count(ATHEBALDTS_SHIN) == 0 {
-                        ctx.give_items(ATHEBALDTS_SHIN, 1);
-                        ctx.set_cond(15, true);
-                    }
+            BREKA_ORC_PREFECT if ctx.memo_state() == 11 => {
+                if ctx.quest_items_count(ATHEBALDTS_SKULL) == 0 {
+                    ctx.give_items(ATHEBALDTS_SKULL, 1);
+                    ctx.play_sound(quest_sounds::ITEMGET);
+                } else if ctx.quest_items_count(ATHEBALDTS_RIBS) == 0 {
+                    ctx.give_items(ATHEBALDTS_RIBS, 1);
+                    ctx.play_sound(quest_sounds::ITEMGET);
+                } else if ctx.quest_items_count(ATHEBALDTS_SHIN) == 0 {
+                    ctx.give_items(ATHEBALDTS_SHIN, 1);
+                    ctx.set_cond(15, true);
                 }
             }
             _ => {}

@@ -265,7 +265,7 @@ fn melee_kill_rewards_and_decay() {
 
     // Swing rolls: hit (miss roll 0), no crit (99), random-damage delta 0
     // (roll(21) == 10 → ±0 on rndDam 10).
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
 
     let packets = drain(&mut a_rx);
@@ -303,7 +303,7 @@ fn melee_kill_rewards_and_decay() {
     // Hit lands at timeToHit = 1666 × 0.644 ≈ 1073 ms ⇒ 11 ticks. Queue the
     // drop rolls it will consume on death: level-gap pass (0), chance pass
     // (0 < 70%).
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     advance_world(&mut world, 12);
 
     // Monster died: Die broadcast, rewards granted.
@@ -511,7 +511,7 @@ fn ctrl_click_opcode_0x01_switches_target_and_attacks() {
 
     // A single Ctrl-click with no current target: routes to the handler,
     // switches the target AND engages the attack in one click (force attack).
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     let ctrl_click = [vec![cop::ATTACK], attack_request_body(npc_oid)].concat();
     on_packet(&mut world, 1, ctrl_click);
     assert_eq!(
@@ -660,7 +660,7 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     // — [0, 0, 0, 99, 10] = hit / no shield / no crit / random mul 1.0. Repeated
     // generously so all swings (player + monster) in the window stay deterministic.
     for _ in 0..8 {
-        world.forced_rolls.extend([0, 0, 0, 99, 10]);
+        world.force_rolls([0, 0, 0, 99, 10]);
     }
     let hp_before = pvit(&world, 3001).cur_hp;
     let cp_before = pcp(&world, 3001).cur_cp;
@@ -749,7 +749,7 @@ fn idle_monster_random_walks_near_spawn() {
 
     // Force the walk-rate hit (0) and a delta landing well within drift (300):
     // deltaX = 500, deltaY = 500 + 83 = 583 → √(583²−500²) ≈ 299 → (200, −1).
-    world.forced_rolls.extend([0, 500, 83]);
+    world.force_rolls([0, 500, 83]);
     ai::npc_ai_tick(&mut world);
 
     let mv = world
@@ -930,7 +930,7 @@ fn aggressive_monster_aggros_idle_player() {
     // 10 think seconds of calm (globalAggro −10 → 0), then the scan seeds hate
     // and the AI locks on, chases in, and swings (the first swings within the
     // 140-tick window forced to plain hits; later swings roll from the rng).
-    world.forced_rolls.extend([0, 99, 10, 0, 99, 10]);
+    world.force_rolls([0, 99, 10, 0, 99, 10]);
     advance_world(&mut world, 140);
     assert_eq!(
         world
@@ -1003,7 +1003,7 @@ fn player_death_penalty_and_revive_to_village() {
     drain(&mut a_rx);
 
     // Its swing kills the 1-HP player: force a clean hit.
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     advance_world(&mut world, 30);
 
     let p = pvit(&world, 3001);
@@ -1037,7 +1037,7 @@ fn player_death_penalty_and_revive_to_village() {
     );
 
     // To village: teleport to the region respawn point.
-    world.forced_rolls.push_back(0); // random respawn-point pick
+    world.force_roll(0); // random respawn-point pick
     handle_request_restart_point(&mut world, 1, &{
         let mut w = PacketWriter::new();
         w.write_i32(0); // TO_VILLAGE
@@ -1122,7 +1122,7 @@ fn dead_monster_decays_and_respawns() {
     drain(&mut a_rx);
 
     // Kill it outright (drop level-gap roll forced to fail: no loot noise).
-    world.forced_rolls.push_back(999_999);
+    world.force_roll(999_999);
     combat::npc_receive_damage(&mut world, npc_oid, 3001, 1_000_000.0, false);
     assert!(nvit(&world, npc_oid).dead);
 
@@ -2363,7 +2363,7 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
         .get_component_mut::<Vitals>(&3001)
         .unwrap()
         .dead = true;
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_restart_point(&mut world, 1, &restart_to(0));
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!(

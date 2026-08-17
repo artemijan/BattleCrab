@@ -385,8 +385,8 @@ fn a_shadow_item_is_never_dropped_on_death() {
         .set_mana_left(shadow_oid, 20);
     // Drop everything that is eligible.
     world.cfg.rates.karma_drop_limit = 10;
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([0; 32]);
+    world.clear_forced_rolls();
+    world.force_rolls([0; 32]);
 
     kill_by_player(&mut world);
 

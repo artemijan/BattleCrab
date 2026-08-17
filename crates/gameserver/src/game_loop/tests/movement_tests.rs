@@ -100,7 +100,7 @@ fn move_click_mid_swing_defers_to_swing_end() {
     world.objects.add_components(&npc_oid, cs);
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
     drain(&mut a_rx);
     let swing_end = world
@@ -880,7 +880,7 @@ fn idle_monster_without_random_walk_stays_put() {
     drain(&mut a_rx);
 
     // Even if a 0 were queued, the random_walk gate short-circuits before it.
-    world.forced_rolls.extend([0, 0, 0]);
+    world.force_rolls([0, 0, 0]);
     ai::npc_ai_tick(&mut world);
 
     assert!(
@@ -1245,7 +1245,7 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
     world.objects.add_components(&npc_oid, cs);
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
     assert!(
         crate::game_loop::combat::has_attack_stance(&world, 3001),

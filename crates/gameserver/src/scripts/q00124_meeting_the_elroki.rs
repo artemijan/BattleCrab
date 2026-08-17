@@ -40,31 +40,21 @@ impl QuestScript for Q00124MeetingTheElroki {
         }
         match event {
             "32113-03.html" => ctx.start_quest(),
-            "32113-04.html" => {
-                if ctx.is_cond(1) {
-                    ctx.set_cond(2, true);
-                }
+            "32113-04.html" if ctx.is_cond(1) => {
+                ctx.set_cond(2, true);
             }
-            "32114-04.html" => {
-                if ctx.is_cond(2) {
-                    ctx.set_cond(3, true);
-                }
+            "32114-04.html" if ctx.is_cond(2) => {
+                ctx.set_cond(3, true);
             }
-            "32115-06.html" => {
-                if ctx.is_cond(3) {
-                    ctx.set_cond(4, true);
-                }
+            "32115-06.html" if ctx.is_cond(3) => {
+                ctx.set_cond(4, true);
             }
-            "32117-05.html" => {
-                if ctx.is_cond(4) {
-                    ctx.set_cond(5, true);
-                }
+            "32117-05.html" if ctx.is_cond(4) => {
+                ctx.set_cond(5, true);
             }
-            "32118-04.html" => {
-                if ctx.is_cond(5) {
-                    ctx.give_items(MANTARASA_EGG, 1);
-                    ctx.set_cond(6, true);
-                }
+            "32118-04.html" if ctx.is_cond(5) => {
+                ctx.give_items(MANTARASA_EGG, 1);
+                ctx.set_cond(6, true);
             }
             _ => {}
         }
@@ -121,13 +111,11 @@ impl QuestScript for Q00124MeetingTheElroki {
                         3 => return Some("32115-02.html".to_string()),
                         4 => return Some("32115-07.html".to_string()),
                         5 => return Some("32115-08.html".to_string()),
-                        6 => {
-                            if ctx.quest_items_count(MANTARASA_EGG) > 0 {
-                                ctx.give_adena(100013, true);
-                                ctx.add_exp_and_sp(301922, 30294);
-                                ctx.exit_quest(false, true);
-                                return Some("32115-09.html".to_string());
-                            }
+                        6 if ctx.quest_items_count(MANTARASA_EGG) > 0 => {
+                            ctx.give_adena(100013, true);
+                            ctx.add_exp_and_sp(301922, 30294);
+                            ctx.exit_quest(false, true);
+                            return Some("32115-09.html".to_string());
                         }
                         _ => {}
                     }

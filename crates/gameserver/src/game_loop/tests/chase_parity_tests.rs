@@ -90,7 +90,7 @@ fn a_running_follow_engages_inside_the_100_unit_slack() {
     // Think 2 on the same tick: nothing has moved, but the follow latch is now
     // set, so the +100 band applies.
     for _ in 0..4 {
-        world.forced_rolls.extend([0, 0, 0, 99, 10]);
+        world.force_rolls([0, 0, 0, 99, 10]);
     }
     combat::player_combat_tick(&mut world);
     assert!(

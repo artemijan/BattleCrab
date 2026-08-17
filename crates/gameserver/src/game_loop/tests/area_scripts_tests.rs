@@ -238,7 +238,7 @@ fn cave_maiden_kill_can_spring_a_banshee() {
     let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
 
     // Roll under 20 → the proc fires.
-    world.forced_rolls.push_back(10);
+    world.force_roll(10);
     quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN, false);
     assert_eq!(count_npcs(&mut world, BANSHEE), 1, "banshee sprang");
     assert_eq!(count_npcs(&mut world, CAVE_MAIDEN), 0, "corpse consumed");
@@ -294,7 +294,7 @@ fn pagan_keys_honor_auto_loot() {
 
     // Auto-loot off: the key lands on the ground, killer-owned.
     world.cfg.character.auto_loot = false;
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     quests::notify_kill(&mut world, 5001, NPC_OID, ZOMBIE_WORKER, false);
     let mut ground = None;
     world
@@ -319,7 +319,7 @@ fn pagan_keys_honor_auto_loot() {
         0,
         0,
     );
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     quests::notify_kill(&mut world, 5001, NPC_OID + 1, ZOMBIE_WORKER, false);
     assert_eq!(item_count(&world, 5001, ANTEROOM_KEY), 1, "auto-looted");
 }
@@ -415,8 +415,8 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
     let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
 
     // First proc (malaria roll hits, type roll misses): level 1.
-    world.forced_rolls.push_back(5);
-    world.forced_rolls.push_back(50);
+    world.force_roll(5);
+    world.force_roll(50);
     quests::notify_attack(&mut world, 5001, NPC_OID, ATROX, None, false);
     let cast = world
         .objects
@@ -436,8 +436,8 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
         ..test_buff()
     });
     world.objects.add_components(&5001, buffs);
-    world.forced_rolls.push_back(5);
-    world.forced_rolls.push_back(50);
+    world.force_roll(5);
+    world.force_roll(50);
     quests::notify_attack(&mut world, 5001, NPC_OID, ATROX, None, false);
     let cast = world
         .objects
@@ -514,8 +514,8 @@ fn frightened_orc_bribe_pays_out_and_he_vanishes() {
     quests::notify_attack(&mut world, 5001, NPC_OID, ORC, None, false);
 
     // Jackpot roll (10-in-100 000) + message coin flip.
-    world.forced_rolls.push_back(5);
-    world.forced_rolls.push_back(0);
+    world.force_roll(5);
+    world.force_roll(0);
     advance_ticks(&mut world, 101);
     let mut stacks = 0;
     let mut total = 0i64;
@@ -669,19 +669,19 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
     // Kills 1 and 2: under MOBCOUNT_BONUS_MIN, nothing erupts even on a
     // lucky roll.
     for i in 0..2 {
-        world.forced_rolls.push_back(5);
+        world.force_roll(5);
         quests::notify_kill(&mut world, 5001, w(i), WORKER, false);
     }
     assert_eq!(count_npcs(&mut world, NEWBORN), 0, "streak too short");
 
     // Kill 3 with rand <= 20: the Newborn erupts, hating the killer.
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     quests::notify_kill(&mut world, 5001, w(2), WORKER, false);
     assert_eq!(count_npcs(&mut world, NEWBORN), 1, "the forge answers");
 
     // The refresh beat resets the streak: the next lucky kill is kill #1.
     crate::game_loop::area_npcs::handle_fog_refresh(&mut world);
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     quests::notify_kill(&mut world, 5001, w(3), WORKER, false);
     assert_eq!(
         count_npcs(&mut world, NEWBORN),
@@ -712,7 +712,7 @@ fn an_expiring_lavasaurus_dies_rather_than_vanishing() {
         add_test_npc(&mut world, w(i), WORKER, "Monster", 40, 100, 0, 0);
     }
     for i in 0..3 {
-        world.forced_rolls.push_back(5);
+        world.force_roll(5);
         quests::notify_kill(&mut world, 5001, w(i), WORKER, false);
     }
     let mut beast = 0;
@@ -779,7 +779,7 @@ fn spice_grows_the_beast_and_wrong_spice_does_not() {
 
     // talk roll (miss), growth roll (hit), stage pick (index 0 = 21452).
     for r in [1, 0, 0] {
-        world.forced_rolls.push_back(r);
+        world.force_roll(r);
     }
     quests::notify_skill_see(&mut world, 5001, NPC_OID + 900, HATCHLING, 2188);
     assert_eq!(count_npcs(&mut world, HATCHLING), 0, "hatchling grew up");
@@ -821,7 +821,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
 
     // talk (miss), growth 0<25 (hit), tame coin 0 (tamed), rare chat (miss).
     for r in [1, 0, 0, 1] {
-        world.forced_rolls.push_back(r);
+        world.force_roll(r);
     }
     quests::notify_skill_see(&mut world, 5001, NPC_OID + 900, TOP, 2188);
     assert_eq!(count_npcs(&mut world, TOP), 0, "the wild one is gone");
@@ -850,7 +850,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
         .get_component_mut::<crate::model::components::TamedBeastOf>(&beast_oid)
         .unwrap()
         .remaining_ticks = 5000;
-    world.forced_rolls.push_back(7); // bark pick (2031, no $s1)
+    world.force_roll(7); // bark pick (2031, no $s1)
     quests::notify_skill_see(&mut world, 5001, beast_oid, TAMED_FIGHTER, 2188);
     assert_eq!(
         world
@@ -998,8 +998,8 @@ fn ancient_egg_wakes_the_jungle() {
 
     // 80% roll hits; the one near raptor flips heads, the far one is out of
     // range entirely.
-    world.forced_rolls.push_back(10);
-    world.forced_rolls.push_back(0);
+    world.force_roll(10);
+    world.force_roll(0);
     quests::notify_attack(&mut world, 5001, NPC_OID + 700, EGG, None, false);
     let hates = |world: &World, oid: i32| {
         world
@@ -1329,7 +1329,7 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
         },
     );
 
-    world.forced_rolls.push_back(10); // under 20 → the proc fires
+    world.force_roll(10); // under 20 → the proc fires
     quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN, true);
 
     let oids_of = |world: &mut World, npc_id: i32| {
@@ -1369,7 +1369,7 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
         0,
         0,
     );
-    world.forced_rolls.push_back(10);
+    world.force_roll(10);
     quests::notify_kill(&mut world, 5001, NPC_OID + 1, CAVE_MAIDEN, false);
     let second = oids_of(&mut world, BANSHEE)
         .into_iter()
@@ -1457,7 +1457,7 @@ fn tamed_beast_buffs_its_underbuffed_owner() {
             .expect("beast spawned");
 
     // Unbuffed owner: 0 of 2 template buffs → the beast starts a cast.
-    world.forced_rolls.push_back(0); // the random pick
+    world.force_roll(0); // the random pick
     crate::game_loop::tamed_beast::handle_buff_check(&mut world, beast_oid);
     assert!(
         world.objects.has_component::<Casting>(&beast_oid),
@@ -1475,7 +1475,7 @@ fn tamed_beast_buffs_its_underbuffed_owner() {
             ..test_buff()
         }]),
     );
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     crate::game_loop::tamed_beast::handle_buff_check(&mut world, beast_oid);
     assert!(
         !world.objects.has_component::<Casting>(&beast_oid),
@@ -1586,8 +1586,8 @@ fn dinosaur_low_hp_pops_the_selfbuff_once() {
     crate::game_loop::ai::seed_attack(&mut world, NPC_OID + 700, 5001);
 
     // Both specials miss their rolls (99 > prob × 2).
-    world.forced_rolls.push_back(99);
-    world.forced_rolls.push_back(99);
+    world.force_roll(99);
+    world.force_roll(99);
     quests::notify_attack(&mut world, 5001, NPC_OID + 700, 22198, None, false);
 
     let var = |world: &World, name: &str| {

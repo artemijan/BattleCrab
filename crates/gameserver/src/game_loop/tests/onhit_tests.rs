@@ -111,7 +111,7 @@ fn a_melee_hit_absorbs_hp_for_the_attacker() {
     set_hp(&mut world, ATTACKER, 10.0);
 
     // The absorb rolls `roll_f64` (< chance); 0 always wins.
-    world.forced_rolls.extend([0]);
+    world.force_rolls([0]);
     crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 30.0, "50% of 40 damage came back");
 }
@@ -134,7 +134,7 @@ fn a_ranged_weapon_absorbs_nothing() {
         inv.equip_item(&data.item_data, oid);
     }
 
-    world.forced_rolls.extend([0]);
+    world.force_rolls([0]);
     crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 10.0, "a bow feeds no vampire");
 }
@@ -149,7 +149,7 @@ fn a_skill_hit_absorbs_nothing_on_this_dists_config() {
     add_stat(&mut world, ATTACKER, Stat::VampiricSum, 5_000.0);
     set_hp(&mut world, ATTACKER, 10.0);
 
-    world.forced_rolls.extend([0]);
+    world.force_rolls([0]);
     crate::game_loop::combat::apply_attack_damage(
         &mut world,
         ATTACKER,
@@ -162,7 +162,7 @@ fn a_skill_hit_absorbs_nothing_on_this_dists_config() {
 
     // Flip the config and the same skill hit does feed.
     world.cfg.character.vampiric_attack_works_with_skills = true;
-    world.forced_rolls.extend([0]);
+    world.force_rolls([0]);
     crate::game_loop::combat::apply_attack_damage(
         &mut world,
         ATTACKER,
@@ -193,14 +193,14 @@ fn the_absorb_never_overheals_and_is_capped_by_the_victim() {
         .unwrap()
         .max_hp as f64;
     set_hp(&mut world, ATTACKER, max - 3.0);
-    world.forced_rolls.extend([0]);
+    world.force_rolls([0]);
     crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
     assert_eq!(hp(&world, ATTACKER), max, "no overheal");
 
     // Victim down to 2 HP: a 100-damage swing can only take those 2.
     set_hp(&mut world, ATTACKER, 10.0);
     set_hp(&mut world, mob, 2.0);
-    world.forced_rolls.extend([0]);
+    world.force_rolls([0]);
     crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 12.0, "capped at the victim's HP");
 }
@@ -387,12 +387,12 @@ fn the_absorb_rolls_its_chance() {
     set_hp(&mut world, ATTACKER, 10.0);
 
     // `roll_f64` reads a forced value as `v / 1_000_000`: 0.6 loses the 0.5 roll.
-    world.forced_rolls.extend([600_000]);
+    world.force_rolls([600_000]);
     crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 10.0, "the roll was lost");
 
     // 0.4 wins it.
-    world.forced_rolls.extend([400_000]);
+    world.force_rolls([400_000]);
     crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 30.0, "and won on the next swing");
 }

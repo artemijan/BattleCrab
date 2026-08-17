@@ -197,7 +197,7 @@ fn a_landed_stun_accrues_and_a_resisted_one_does_not() {
     // Filling the queue with 99 makes the outcome independent of ordering:
     // the land rate is clamped to at most 90, and `resisted = rate <= roll`,
     // so a 99 resists wherever in the sequence it lands.
-    world.forced_rolls.extend([99; 8]);
+    world.force_rolls([99; 8]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, PLAYER, MOB, &skill);
     assert_eq!(
         resist_level(&world, MOB, BasicProperty::Physical),
@@ -206,8 +206,8 @@ fn a_landed_stun_accrues_and_a_resisted_one_does_not() {
     );
 
     // Same trick inverted: the rate is floored at 10, so a 0 never resists.
-    world.forced_rolls.clear();
-    world.forced_rolls.extend([0; 8]);
+    world.clear_forced_rolls();
+    world.force_rolls([0; 8]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, PLAYER, MOB, &skill);
     assert_eq!(
         resist_level(&world, MOB, BasicProperty::Physical),

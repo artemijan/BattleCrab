@@ -259,11 +259,11 @@ fn a_low_exp_kill_can_still_pay_one_point() {
     world.cfg.premium.pc_cafe_low_exp_kills_chance = 50;
 
     // A winning roll (49 < 50), then a losing one (50 is not < 50).
-    world.forced_rolls.extend([49]);
+    world.force_rolls([49]);
     pc_cafe::give_point(&mut world, PLAYER, 500.0);
     assert_eq!(points(&world), 1);
 
-    world.forced_rolls.extend([50]);
+    world.force_rolls([50]);
     pc_cafe::give_point(&mut world, PLAYER, 500.0);
     assert_eq!(points(&world), 1, "the losing roll pays nothing");
 
@@ -286,7 +286,7 @@ fn double_points_doubles_the_award_and_the_message() {
     world.cfg.premium.pc_cafe_enable_double_points = true;
     world.cfg.premium.pc_cafe_double_points_chance = 10;
 
-    world.forced_rolls.extend([9]); // 9 < 10 → doubled
+    world.force_rolls([9]); // 9 < 10 → doubled
     pc_cafe::give_retail_point(&mut world, PLAYER);
     assert_eq!(points(&world), 20);
     let msgs = drain(&mut out);
@@ -295,7 +295,7 @@ fn double_points_doubles_the_award_and_the_message() {
         sm_ids::DOUBLE_POINTS_YOU_EARNED_S1_PA_POINT_S
     ));
 
-    world.forced_rolls.extend([10]); // not < 10 → plain
+    world.force_rolls([10]); // not < 10 → plain
     pc_cafe::give_retail_point(&mut world, PLAYER);
     assert_eq!(points(&world), 30);
     let msgs = drain(&mut out);

@@ -110,7 +110,7 @@ fn a_premium_killer_gets_the_doubled_adena_count() {
     let loot = |world: &mut World| {
         let t = world.data.npc_data.get(40001).unwrap().clone();
         // chance roll pass, amount is fixed (min == max), gap gates pass.
-        world.forced_rolls.extend([0, 0]);
+        world.force_rolls([0, 0]);
         crate::game_loop::death::roll_drops_for_test(world, &t, PLAYER)
     };
 
@@ -193,7 +193,7 @@ fn the_premium_chance_multiplier_can_turn_a_miss_into_a_drop() {
     // adena's ×2 override takes it to 140.
     let loot = |world: &mut World| {
         let t = world.data.npc_data.get(40001).unwrap().clone();
-        world.forced_rolls.extend([0, 800_000]); // level-gap pass, then the chance roll
+        world.force_rolls([0, 800_000]); // level-gap pass, then the chance roll
         crate::game_loop::death::roll_drops_for_test(world, &t, PLAYER)
     };
 
@@ -217,7 +217,7 @@ fn the_premium_chance_multiplier_can_turn_a_miss_into_a_drop() {
 fn spoil_uses_the_flat_premium_spoil_rates() {
     let spoil = |world: &mut World| {
         let t = world.data.npc_data.get(40001).unwrap().clone();
-        world.forced_rolls.extend([0, 800_000]); // level-gap pass, then the chance roll
+        world.force_rolls([0, 800_000]); // level-gap pass, then the chance roll
         crate::game_loop::death::roll_spoil_drops_for_test(world, &t, PLAYER)
     };
 

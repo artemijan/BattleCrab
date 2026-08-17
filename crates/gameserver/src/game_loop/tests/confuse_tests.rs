@@ -206,7 +206,7 @@ fn a_confused_mob_turns_on_a_bystander() {
     // through to the real RNG and the assertion below passed or failed on a
     // coin flip. It happened to pass for two slices before a later change
     // shifted the draw and exposed it.
-    world.forced_rolls.extend([0, 0, 1]);
+    world.force_rolls([0, 0, 1]);
     cast(
         &mut world,
         9801,

@@ -118,7 +118,7 @@ fn cast(world: &mut World, skill_id: i32, target: i32) {
     // `MagicFailures` success roll (0 → lands). A resisted cast floors the
     // damage to 1, which would leave the wounded mob alive and trip the
     // must-kill assertion in `kill_for_exp`.
-    world.forced_rolls.extend([999, 0]);
+    world.force_rolls([999, 0]);
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 

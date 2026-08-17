@@ -201,7 +201,7 @@ fn core_says_its_intro_once_per_life() {
     );
 
     // A later hit: force the taunt roll to fail so only the intro could speak.
-    world.forced_rolls.push_back(7);
+    world.force_roll(7);
     crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
     assert_eq!(count_npc_say(&mut rx), 0, "the intro does not replay");
 }
@@ -216,11 +216,11 @@ fn the_taunt_is_rare() {
     crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID); // consume the intro
     while rx.try_recv().is_ok() {}
 
-    world.forced_rolls.push_back(0); // the 1-in-100 hit
+    world.force_roll(0); // the 1-in-100 hit
     crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
     assert_eq!(count_npc_say(&mut rx), 1, "taunted");
 
-    world.forced_rolls.push_back(50); // a miss
+    world.force_roll(50); // a miss
     crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
     assert_eq!(count_npc_say(&mut rx), 0, "silent");
 }

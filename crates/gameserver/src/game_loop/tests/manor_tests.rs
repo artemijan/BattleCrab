@@ -84,7 +84,7 @@ fn sow_then_harvest_yields_the_crop() {
         npc.seeder_object_id = 100;
     }
     // Sow: a forced roll of 0 is under any positive chance → success.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     drain(&mut rx);
     apply_sow(&mut world, 100, NPC_OID);
     {
@@ -118,7 +118,7 @@ fn sow_then_harvest_yields_the_crop() {
         .get_component_mut::<Vitals>(&NPC_OID)
         .unwrap()
         .dead = true;
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     apply_harvesting(&mut world, 100, NPC_OID);
     assert_eq!(
         inv_count(&world, 5073),
@@ -165,7 +165,7 @@ fn harvest_refused_when_not_the_seeder() {
 
     // A different, real player (999, not the seeder) tries to harvest.
     let mut rx2 = ingame_player(&mut world, 2, 999, 0, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     drain(&mut rx2);
     apply_harvesting(&mut world, 999, NPC_OID);
     assert_eq!(inv_count(&world, 5073), 0, "a non-seeder harvests nothing");
@@ -1137,12 +1137,12 @@ fn rollover_pays_crops_to_the_warehouse_and_refunds_the_treasury() {
 #[test]
 fn a_rounded_down_payout_is_one_item_ninety_percent_of_the_time() {
     let (mut world, _rx) = settlement_world(1, 0, 7);
-    world.forced_rolls.push_back(0); // < 90 → consolation item
+    world.force_roll(0); // < 90 → consolation item
     crate::game_loop::manor::advance_manor_mode(&mut world);
     assert_eq!(clan_wh_count(&world, 500, MATURE_ID), 1, "consolation item");
 
     let (mut world, _rx) = settlement_world(1, 0, 7);
-    world.forced_rolls.push_back(95); // ≥ 90 → nothing at all
+    world.force_roll(95); // ≥ 90 → nothing at all
     crate::game_loop::manor::advance_manor_mode(&mut world);
     assert_eq!(clan_wh_count(&world, 500, MATURE_ID), 0, "no payout");
 }

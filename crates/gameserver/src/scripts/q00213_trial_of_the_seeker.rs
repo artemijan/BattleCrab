@@ -287,11 +287,10 @@ impl QuestScript for Q00213TrialOfTheSeeker {
                     ctx.collect_toward(MEDUSA_SCALES, 10, 10);
                 }
             }
-            NEER_GHOUL_BERSERKER => {
-                if has(ctx, TERRYS_1ST_ORDER)
-                    && !has(ctx, MYSTERIOUS_SPIRIT_ORE)
-                    && ctx.roll(2) == 0
-                {
+            NEER_GHOUL_BERSERKER
+                if has(ctx, TERRYS_1ST_ORDER) && !has(ctx, MYSTERIOUS_SPIRIT_ORE) =>
+            {
+                if ctx.roll(2) == 0 {
                     ctx.give_items(MYSTERIOUS_SPIRIT_ORE, 1);
                     ctx.set_cond(3, true);
                 }

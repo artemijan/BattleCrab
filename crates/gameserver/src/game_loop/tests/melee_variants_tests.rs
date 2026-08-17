@@ -155,11 +155,9 @@ fn dual_weapon_strikes_twice_with_independent_rolls() {
 
     // Per hit: miss(1000), shield(100)×2, crit(100), random-damage. Hit 1
     // crits (roll 0), hit 2 doesn't (roll 99); everything else identical.
-    world
-        .forced_rolls
-        .extend([0, 99, 99, 0, 0, 0, 99, 99, 99, 0]);
+    world.force_rolls([0, 99, 99, 0, 0, 0, 99, 99, 99, 0]);
     crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
-    world.forced_rolls.clear();
+    world.clear_forced_rolls();
     let hits = attack_hits(&drain(&mut out));
 
     assert_eq!(hits.len(), 2, "a dual swing carries two hits: {hits:?}");

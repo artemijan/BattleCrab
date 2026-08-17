@@ -382,7 +382,7 @@ fn a_party_duel_fights_in_an_instance_and_returns_everyone() {
     }
 
     // Count 5 → 4: the teleport step (roll picks the arena template).
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     advance_ticks(&mut world, 11);
     let inst = world.duels.values().next().unwrap().instance_id;
     assert!(inst != 0, "arena instance created");
@@ -476,7 +476,7 @@ fn a_member_surrender_forfeits_the_whole_party_duel() {
     w.write_i32(0);
     w.write_i32(1);
     duel::handle_request_duel_answer(&mut world, 3, &w.into_bytes());
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     advance_ticks(&mut world, 11 + 200 + 31);
     let duel_id = *world.duels.keys().next().unwrap();
     assert!(world.duels[&duel_id].ends_at_tick > 0);

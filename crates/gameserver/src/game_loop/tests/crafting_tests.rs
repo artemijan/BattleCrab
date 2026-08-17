@@ -327,7 +327,7 @@ fn self_craft_rolls_masterwork_rare() {
         .push(RECIPE_LIST_RARE);
     give_item(&mut world, 3001, 9001, MATERIAL, 10);
     // roll order: success (< 100) then masterwork (<= 100). Force both to hit.
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     drain(&mut rx);
 
     crafting::handle_make_self(&mut world, 1, RECIPE_LIST_RARE);

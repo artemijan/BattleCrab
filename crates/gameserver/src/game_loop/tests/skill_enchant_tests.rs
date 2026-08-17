@@ -125,14 +125,14 @@ fn count_of(world: &World, oid: i32, item: i32) -> i64 {
 }
 
 fn enchant(world: &mut World, ty: i32, sub: i16, roll: i32) {
-    world.forced_rolls.clear();
-    world.forced_rolls.push_back(roll);
+    world.clear_forced_rolls();
+    world.force_roll(roll);
     crate::game_loop::skills::enchant::handle_request_enchant_skill(
         world,
         CID,
         &enchant_body(ty, SKILL, 40, sub),
     );
-    world.forced_rolls.clear();
+    world.clear_forced_rolls();
 }
 
 /// The +1 happy path: codex + adena + SP paid, the sub-level lands, and the
@@ -154,10 +154,10 @@ fn a_successful_enchant_applies_and_casts_stronger() {
 
     // Baseline damage at +0 (pinned RNG tape, same as the attribute tests).
     let hp0 = world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
-    world.forced_rolls.extend([0, 0, 0, 0]);
+    world.force_rolls([0, 0, 0, 0]);
     let plain = world.data.skill_data.get(SKILL, 40).unwrap().clone();
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, mob, &plain);
-    world.forced_rolls.clear();
+    world.clear_forced_rolls();
     let base_damage = hp0 - world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
 
     enchant(&mut world, 0, 1001, 0); // NORMAL, roll 0 ≤ 90 → success
@@ -180,7 +180,7 @@ fn a_successful_enchant_applies_and_casts_stronger() {
 
     // The cast pipeline resolves the +1 variant: same tape, bigger hit.
     let hp1 = world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
-    world.forced_rolls.extend([0, 0, 0, 0]);
+    world.force_rolls([0, 0, 0, 0]);
     crate::game_loop::skills::cast::use_magic_on(
         &mut world,
         CID,
@@ -192,7 +192,7 @@ fn a_successful_enchant_applies_and_casts_stronger() {
     );
     // The nuke has hit_time 0 → launch/finish next ticks.
     advance_ticks(&mut world, 12);
-    world.forced_rolls.clear();
+    world.clear_forced_rolls();
     let enchanted_damage = hp1 - world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
     assert!(
         enchanted_damage > base_damage * 5.0,

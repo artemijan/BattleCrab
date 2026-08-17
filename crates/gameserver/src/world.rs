@@ -556,7 +556,16 @@ pub struct World {
     pub auto_play_idle: HashMap<i32, u32>,
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
     /// which tests can force (`forced_rolls`) for deterministic combat.
-    pub rng: rand::rngs::StdRng,
+    ///
+    /// Behind a `RefCell` so [`roll`](Self::roll) can take `&self`. Advancing a
+    /// PRNG needs `&mut`, but a roll does not logically *mutate the world* —
+    /// it reads a number. Exposing that as `&mut World` made every roll
+    /// conflict with any live read borrow, which is why `roll_augment` below
+    /// exists at all and why callers could not roll inside a `match` on
+    /// something borrowed from the world. `World` is built inside the game
+    /// thread and never shared, so the cell is a borrow-check formality with
+    /// no synchronisation.
+    pub rng: std::cell::RefCell<rand::rngs::StdRng>,
     /// The skill id driving the damage currently being applied, so quest
     /// `onAttack` handlers can tell a skill hit from a melee swing (Java passes
     /// `Skill skill` to `onAttack`). Set by the skill-damage path around
@@ -566,7 +575,7 @@ pub struct World {
     /// Test hook: pre-queued values returned by `roll()` before touching the
     /// RNG. Cheaper and more explicit than seed archaeology in tests.
     #[cfg(test)]
-    pub forced_rolls: std::collections::VecDeque<i32>,
+    pub forced_rolls: std::cell::RefCell<std::collections::VecDeque<i32>>,
     /// Test hook: a fixed wall clock for handlers that read [`World::now_millis`].
     ///
     /// Some Java behaviour is calendar-gated — the teleport fee halves from
@@ -695,10 +704,10 @@ impl World {
             teleport_watchdog_due: HashMap::new(),
             auto_potion_players: std::collections::HashSet::new(),
             auto_play_idle: HashMap::new(),
-            rng: rand::rngs::StdRng::from_entropy(),
+            rng: std::cell::RefCell::new(rand::rngs::StdRng::from_entropy()),
             quest_attack_skill: None,
             #[cfg(test)]
-            forced_rolls: std::collections::VecDeque::new(),
+            forced_rolls: std::cell::RefCell::new(std::collections::VecDeque::new()),
             #[cfg(test)]
             forced_now_millis: None,
         }
@@ -1042,6 +1051,37 @@ impl World {
         self.id_pool.next().map(|id| id as i32)
     }
 
+    /// Queue one forced [`roll`](Self::roll) outcome (test hook).
+    #[cfg(test)]
+    pub fn force_roll(&self, value: i32) {
+        self.forced_rolls.borrow_mut().push_back(value);
+    }
+
+    /// Queue several, in order (test hook).
+    #[cfg(test)]
+    pub fn force_rolls(&self, values: impl IntoIterator<Item = i32>) {
+        self.forced_rolls.borrow_mut().extend(values);
+    }
+
+    /// Drop any queued outcomes, so a later phase rolls for real (test hook).
+    #[cfg(test)]
+    pub fn clear_forced_rolls(&self) {
+        self.forced_rolls.borrow_mut().clear();
+    }
+
+    /// Peek the next forced outcome without consuming it (test hook) — for
+    /// asserting that a code path did *not* reach the roll.
+    #[cfg(test)]
+    pub fn forced_rolls_front(&self) -> Option<i32> {
+        self.forced_rolls.borrow().front().copied()
+    }
+
+    /// How many forced outcomes are still queued (test hook).
+    #[cfg(test)]
+    pub fn forced_rolls_len(&self) -> usize {
+        self.forced_rolls.borrow().len()
+    }
+
     /// Java `Rnd.get(bound)`: uniform in `[0, bound)`. Tests can pre-queue
     /// outcomes via `forced_rolls`.
     /// The castle row for `castle_id` — Java `CastleManager.getCastleById`,
@@ -1061,18 +1101,18 @@ impl World {
         self.castles.iter_mut().find(|c| c.id == castle_id)
     }
 
-    pub fn roll(&mut self, bound: i32) -> i32 {
+    pub fn roll(&self, bound: i32) -> i32 {
         #[cfg(test)]
-        if let Some(v) = self.forced_rolls.pop_front() {
+        if let Some(v) = self.forced_rolls.borrow_mut().pop_front() {
             return v;
         }
-        self.rng.gen_range(0..bound.max(1))
+        self.rng.borrow_mut().gen_range(0..bound.max(1))
     }
 
     /// Java `Rnd.nextDouble()` in `[0, 1)`, quantized through `roll()` so
     /// tests can force it with the same `forced_rolls` queue (a forced value
     /// `v` reads as `v / 1_000_000`).
-    pub fn roll_f64(&mut self) -> f64 {
+    pub fn roll_f64(&self) -> f64 {
         self.roll(1_000_000) as f64 / 1_000_000.0
     }
 
@@ -1084,7 +1124,7 @@ impl World {
     /// same `forced_rolls` queue every other roll uses. The stream will not
     /// match Java's `java.util.Random` draw-for-draw — no RNG on this port
     /// does — only the distribution.
-    pub fn roll_gaussian(&mut self) -> f64 {
+    pub fn roll_gaussian(&self) -> f64 {
         // `u1` must be non-zero for `ln`; `roll_f64` is [0, 1).
         let u1 = self.roll_f64().max(f64::MIN_POSITIVE);
         let u2 = self.roll_f64();
@@ -1092,38 +1132,16 @@ impl World {
     }
 
     /// Roll an augmentation's two option ids (Java `generateRandomVariation`).
-    /// Lives here so the split borrow — `data.variations` (read) vs. the RNG
-    /// draw — stays disjoint; the closure mirrors [`roll_f64`] so tests can
-    /// force it via `forced_rolls`.
-    pub fn roll_augment(&mut self, mineral_id: i32, is_magic_weapon: bool) -> Option<(i32, i32)> {
-        #[cfg(test)]
-        {
-            let World {
-                data,
-                forced_rolls,
-                rng,
-                ..
-            } = self;
-            let mut roll = || {
-                if let Some(v) = forced_rolls.pop_front() {
-                    return v as f64 / 1_000_000.0;
-                }
-                use rand::Rng;
-                rng.gen_range(0..1_000_000) as f64 / 1_000_000.0
-            };
-            data.variations
-                .generate(mineral_id, is_magic_weapon, &mut roll)
-        }
-        #[cfg(not(test))]
-        {
-            let World { data, rng, .. } = self;
-            let mut roll = || {
-                use rand::Rng;
-                rng.gen_range(0..1_000_000) as f64 / 1_000_000.0
-            };
-            data.variations
-                .generate(mineral_id, is_magic_weapon, &mut roll)
-        }
+    ///
+    /// This used to take `&mut self` and destructure `World` by hand to keep
+    /// the `data.variations` read disjoint from the RNG draw. With
+    /// [`roll_f64`](Self::roll_f64) on `&self` that split is gone and the body
+    /// is the obvious one.
+    pub fn roll_augment(&self, mineral_id: i32, is_magic_weapon: bool) -> Option<(i32, i32)> {
+        let mut roll = || self.roll_f64();
+        self.data
+            .variations
+            .generate(mineral_id, is_magic_weapon, &mut roll)
     }
 
     /// Every task the scheduler says is due this tick, drained for the caller

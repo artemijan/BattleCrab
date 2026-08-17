@@ -78,7 +78,7 @@ fn a_mid_range_attacker_is_dragged_onto_orfen() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
     place_player_at(&mut world, 600); // inside the 300..1000 band
-    world.forced_rolls.push_back(0); // getRandom(10) == 0
+    world.force_roll(0); // getRandom(10) == 0
 
     crate::game_loop::orfen::on_orfen_attacked(&mut world, ORFEN_OID, PLAYER);
 
@@ -93,7 +93,7 @@ fn a_melee_attacker_is_not_dragged() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
     place_player_at(&mut world, 150);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
 
     crate::game_loop::orfen::on_orfen_attacked(&mut world, ORFEN_OID, PLAYER);
     assert_eq!(player_pos(&world), (150, 0), "melee range, left alone");
@@ -106,7 +106,7 @@ fn a_distant_attacker_is_not_dragged() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
     place_player_at(&mut world, 5000);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
 
     crate::game_loop::orfen::on_orfen_attacked(&mut world, ORFEN_OID, PLAYER);
     assert_eq!(player_pos(&world), (5000, 0), "out of reach");
@@ -119,7 +119,7 @@ fn the_drag_is_a_one_in_ten_chance() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
     place_player_at(&mut world, 600);
-    world.forced_rolls.push_back(3); // any non-zero
+    world.force_roll(3); // any non-zero
 
     crate::game_loop::orfen::on_orfen_attacked(&mut world, ORFEN_OID, PLAYER);
     assert_eq!(player_pos(&world), (600, 0), "the roll failed, no drag");
@@ -321,7 +321,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
             .unwrap();
         v.cur_hp = v.max_hp as f64 * 0.3;
     }
-    world.forced_rolls.push_back(9);
+    world.force_roll(9);
     crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(
         !world.objects.has_component::<Casting>(&riba),
@@ -329,7 +329,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
     );
 
     // Roll 0: the heal fires.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(
         world.objects.has_component::<Casting>(&riba),

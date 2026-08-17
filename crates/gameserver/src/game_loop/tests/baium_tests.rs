@@ -184,9 +184,9 @@ fn melee_threat_dwarfs_caster_threat_at_full_health() {
     let melee = PLAYER;
     let caster = PLAYER + 1;
     // No jitter, so the ladder alone decides.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     boss_threat::on_boss_damage(&mut world, BAIUM_OID, melee, 300, true);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     boss_threat::on_boss_damage(&mut world, BAIUM_OID, caster, 300, false);
 
     let t = threat(&world, BAIUM_OID);
@@ -209,7 +209,7 @@ fn caster_threat_climbs_as_baium_weakens() {
         let (mut world, _db, _l) = baium_world();
         add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
         wound_baium_to(&mut world, fraction);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         boss_threat::on_boss_damage(&mut world, BAIUM_OID, PLAYER, 300, false);
         threat(&world, BAIUM_OID)
             .iter()
@@ -240,11 +240,11 @@ fn a_fourth_attacker_displaces_the_weakest() {
     let (mut world, _db, _l) = baium_world();
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
     for (oid, dmg) in [(101, 500), (102, 100), (103, 400)] {
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         boss_threat::refresh_threat(&mut world, BAIUM_OID, oid, dmg, dmg);
     }
     // 102 is the weakest at 100.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     boss_threat::refresh_threat(&mut world, BAIUM_OID, 104, 300, 300);
 
     let ids: Vec<i32> = threat(&world, BAIUM_OID)
@@ -268,13 +268,13 @@ fn a_fourth_attacker_displaces_the_weakest() {
 fn an_existing_entry_is_not_ratcheted_by_small_hits() {
     let (mut world, _db, _l) = baium_world();
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 10_000, 10_000);
     let after_big = threat(&world, BAIUM_OID)[0].1;
 
     // A small follow-up: its floor (50 + 1000) is far below the stored value,
     // so nothing changes.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
     assert_eq!(
         threat(&world, BAIUM_OID)[0].1,
@@ -296,7 +296,7 @@ const GROUP_HOLD: i32 = 4131;
 /// Put an attacker on the table next to Baium so it survives pruning.
 fn seed_threat(world: &mut World, oid: i32, value: i32) {
     add_test_npc(world, oid, ARCHANGEL, "Monster", 75, 20, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     boss_threat::refresh_threat(world, BAIUM_OID, oid, value, value);
 }
 
@@ -309,9 +309,9 @@ fn baium_targets_the_highest_threat() {
     seed_threat(&mut world, 202, 9_000);
     seed_threat(&mut world, 203, 500);
 
-    world.forced_rolls.push_back(99); // skip the decay
-    world.forced_rolls.push_back(99); // and the skill rolls
-    world.forced_rolls.push_back(99);
+    world.force_roll(99); // skip the decay
+    world.force_roll(99); // and the skill rolls
+    world.force_roll(99);
     let (target, _) = baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
     assert_eq!(target, 202, "the biggest threat");
 }
@@ -325,9 +325,9 @@ fn the_top_threat_is_knocked_down_so_others_get_a_turn() {
     seed_threat(&mut world, 201, 9_000);
     seed_threat(&mut world, 202, 4_000);
 
-    world.forced_rolls.push_back(10); // < 70: the decay fires
+    world.force_roll(10); // < 70: the decay fires
     for _ in 0..4 {
-        world.forced_rolls.push_back(99);
+        world.force_roll(99);
     }
     baium::manage_skills(&mut world, BAIUM_OID);
 
@@ -353,9 +353,9 @@ fn dead_and_distant_attackers_are_pruned() {
     world.objects.get_component_mut::<Position>(&202).unwrap().x = 999_999;
     seed_threat(&mut world, 203, 100);
 
-    world.forced_rolls.push_back(99);
+    world.force_roll(99);
     for _ in 0..4 {
-        world.forced_rolls.push_back(99);
+        world.force_roll(99);
     }
     let (target, _) = baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
     assert_eq!(
@@ -381,8 +381,8 @@ fn the_skill_pool_widens_as_baium_weakens() {
                 .unwrap();
             v.cur_hp = v.max_hp as f64 * fraction;
         }
-        world.forced_rolls.push_back(99); // skip the decay
-        world.forced_rolls.push_back(5); // the first skill roll hits
+        world.force_roll(99); // skip the decay
+        world.force_roll(5); // the first skill roll hits
         baium::manage_skills(&mut world, BAIUM_OID).unwrap().1
     };
 
@@ -415,9 +415,9 @@ fn all_rolls_missing_falls_back_to_the_basic_attack() {
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
     seed_threat(&mut world, 201, 9_000);
 
-    world.forced_rolls.push_back(99); // no decay
+    world.force_roll(99); // no decay
     for _ in 0..4 {
-        world.forced_rolls.push_back(99); // every skill roll misses
+        world.force_roll(99); // every skill roll misses
     }
     let (_, skill) = baium::manage_skills(&mut world, BAIUM_OID).unwrap();
     assert_eq!(skill, BAIUM_ATTACK);
@@ -462,10 +462,10 @@ fn a_hit_makes_baium_cast() {
     while rx.try_recv().is_ok() {}
 
     // Jitter 0, no decay, then every ladder roll missing -> the basic attack.
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(99);
+    world.force_roll(0);
+    world.force_roll(99);
     for _ in 0..6 {
-        world.forced_rolls.push_back(99);
+        world.force_roll(99);
     }
     baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 500, true);
 
@@ -816,9 +816,9 @@ fn killing_baium_drops_the_exit_cube() {
 fn the_exit_scatters_to_a_surface_point() {
     let (mut world, _db, _l) = baium_world();
     // roll(3) -> point 1, then the two +100 jitters.
-    world.forced_rolls.push_back(1);
-    world.forced_rolls.push_back(40);
-    world.forced_rolls.push_back(60);
+    world.force_roll(1);
+    world.force_roll(40);
+    world.force_roll(60);
 
     let (x, y, z) = baium::random_exit(&mut world);
 
@@ -972,9 +972,9 @@ fn the_lair_is_emptied_after_the_kill() {
     assert!(world.scheduler.len() > before, "CLEAR_ZONE is armed");
 
     // The 900 s timer fires: cube gone, straggler ousted to the first exit.
-    world.forced_rolls.push_back(0); // exit point 0
-    world.forced_rolls.push_back(0); // x jitter
-    world.forced_rolls.push_back(0); // y jitter
+    world.force_roll(0); // exit point 0
+    world.force_roll(0); // x jitter
+    world.force_roll(0); // y jitter
     baium::handle_clear_zone(&mut world);
 
     assert_eq!(npc_count(&mut world, TELE_CUBE), 0, "the cube despawned");

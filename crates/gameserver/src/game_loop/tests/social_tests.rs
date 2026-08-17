@@ -684,7 +684,7 @@ fn party_kill_splits_xp_and_sp() {
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
-    world.forced_rolls.extend([0, 99, 10]); // hit, no crit, ±0 damage
+    world.force_rolls([0, 99, 10]); // hit, no crit, ±0 damage
     // Kill the drop roll chances deterministically: level-gap gate passes
     // (roll 0), drop chance fails (roll ~1.0 impossible via forced_rolls —
     // use the f64 hook by clearing the drop list instead).

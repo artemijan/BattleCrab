@@ -1112,7 +1112,7 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     // branch (both sides players, neither `isAttackable()`), which is only a
     // 98 % rate — left unforced, the nuke would be resisted ~2 % of runs and the
     // exact-damage assertions below would flake.
-    world.forced_rolls.extend([999, 0]);
+    world.force_rolls([999, 0]);
     world.tick += 5;
     apply_due_tasks(&mut world);
 
@@ -1693,7 +1693,7 @@ fn incoming_magic_damage_can_break_precast() {
     // Force the rolls: crit d1000 (rate 0 → miss regardless), the magic-success
     // d100 (PvP accuracy branch, rate 98 → 0 lands, so damage is unreduced),
     // then the atk-break d100 → 0 always breaks (rate ≥ 1).
-    world.forced_rolls.extend([999, 0, 0]);
+    world.force_rolls([999, 0, 0]);
 
     advance_ticks(&mut world, 45);
 
@@ -1922,9 +1922,7 @@ fn force_attack_mid_cast_engages_new_target_after_cast() {
 
     // When the nuke finishes, the parked attack engages the new mob.
     let hp_before = nvit(&world, next).cur_hp;
-    world
-        .forced_rolls
-        .extend(std::iter::repeat_n([0i32, 99, 10], 12).flatten());
+    world.force_rolls(std::iter::repeat_n([0i32, 99, 10], 12).flatten());
     advance_world(&mut world, 55);
     assert!(
         nvit(&world, next).cur_hp < hp_before,
@@ -1957,7 +1955,7 @@ fn skill_mid_swing_is_queued_until_swing_end() {
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     // Swing rolls: hit, no crit, ±0 random damage.
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
     drain(&mut a_rx);
     let swing_end = world
@@ -2346,7 +2344,7 @@ fn nuke_kills_monster_and_rewards() {
     // `MagicFailures` success roll (d100, 0 → lands at full damage against a
     // level-5 mob), then the drop roll at death (999_999 → fails, so no loot
     // noise in this test).
-    world.forced_rolls.extend([999_999, 0, 999_999]);
+    world.force_rolls([999_999, 0, 999_999]);
     advance_world(&mut world, 45);
 
     assert!(nvit(&world, npc_oid).dead, "the nuke killed it");
@@ -2388,7 +2386,7 @@ fn nuke_on_a_far_higher_level_monster_is_resisted_to_one_damage() {
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
     // Only the crit roll needs pinning — a magic crit would double the floored
     // damage to 2. The two success rolls fail on any value at this gap.
-    world.forced_rolls.extend([999]);
+    world.force_rolls([999]);
     advance_world(&mut world, 45);
 
     // The next regen tick is at 60, past the cast, so nothing heals the 1 back.
@@ -2447,7 +2445,7 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
     drain(&mut a_rx);
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
     // Crit misses; the success roll of 0 lands against the 97 % rate.
-    world.forced_rolls.extend([999, 0]);
+    world.force_rolls([999, 0]);
     advance_world(&mut world, 45);
 
     // Full damage overkills, so the mob dies — the exact figure is pinned by
@@ -2501,7 +2499,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
         .expect("Mortal Blow")
         .clone();
     let hp0 = nvit(&world, npc_oid).cur_hp;
-    world.forced_rolls.extend([999_999, 0, 999_999]); // top magic roll; success lands; crit-double fails
+    world.force_rolls([999_999, 0, 999_999]); // top magic roll; success lands; crit-double fails
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &mortal);
     assert!(
         nvit(&world, npc_oid).cur_hp < hp0,
@@ -2515,7 +2513,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
 
     // Backstab from behind — lands.
     let backstab = world.data.skill_data.get(30, 1).expect("Backstab").clone();
-    world.forced_rolls.extend([999_999, 0, 999_999]);
+    world.force_rolls([999_999, 0, 999_999]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
     assert!(
         nvit(&world, npc_oid).cur_hp < hp0,
@@ -2534,7 +2532,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
         .get_component_mut::<Position>(&npc_oid)
         .unwrap()
         .heading = 0x8000;
-    world.forced_rolls.extend([999_999, 0, 999_999]);
+    world.force_rolls([999_999, 0, 999_999]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &backstab);
     assert_eq!(
         nvit(&world, npc_oid).cur_hp,
@@ -2583,7 +2581,7 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
         .expect("Vampiric Touch")
         .clone();
     // magic-crit roll fails, then the `MagicFailures` success roll lands (0).
-    world.forced_rolls.extend([999_999, 0]);
+    world.force_rolls([999_999, 0]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     let dmg = npc_hp_before - nvit(&world, npc_oid).cur_hp;
@@ -2638,7 +2636,7 @@ fn single_target_debuff_lands_and_reports_chance() {
         .expect("Decrease Speed")
         .clone();
     assert!(skill.is_bad() && skill.affect_scope == AffectScope::Single);
-    world.forced_rolls.extend([0, 0]); // magic-crit roll, then land roll (0 < 90 → lands)
+    world.force_rolls([0, 0]); // magic-crit roll, then land roll (0 < 90 → lands)
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     // Debuff applied to the mob: run speed recomputed to base 120 × 0.80 = 96.
@@ -2680,7 +2678,7 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
         .get(1160, 1)
         .expect("Decrease Speed")
         .clone();
-    world.forced_rolls.extend([0, 90]); // magic-crit roll, then land roll (90 >= 90 → resisted)
+    world.force_rolls([0, 90]); // magic-crit roll, then land roll (90 >= 90 → resisted)
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
 
     // No debuff: run speed stays at the mob's base 120.
@@ -2730,7 +2728,7 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     skill.trait_type = TraitType::Shock;
 
     // Unprotected: (35 - 5 + 3)·30 + 80 + 30 clamps to the 90 cap.
-    world.forced_rolls.extend([0, 95]); // magic-crit roll, then a losing land roll
+    world.force_rolls([0, 95]); // magic-crit roll, then a losing land roll
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let msgs = drain(&mut a_rx);
     assert!(
@@ -2743,7 +2741,7 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
 
     // Invulnerable to SHOCK: the same cast is offered at the 10 floor.
     merge_defence_traits(&mut world, npc_oid, &[(TraitType::Shock, 1.0)]);
-    world.forced_rolls.extend([0, 95]);
+    world.force_rolls([0, 95]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let msgs = drain(&mut a_rx);
     assert!(
@@ -2803,7 +2801,7 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
     make_critter(&mut world);
     normalise(&mut world, npc_oid);
     let before = hp(&world, npc_oid);
-    world.forced_rolls.extend([0, 90]); // crit, then 90 >= the 90 rate -> resisted
+    world.force_rolls([0, 90]); // crit, then 90 >= the 90 rate -> resisted
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     assert_eq!(
         hp(&world, npc_oid),
@@ -2819,7 +2817,7 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
     make_critter(&mut world);
     normalise(&mut world, npc_oid);
     let before = hp(&world, npc_oid);
-    world.forced_rolls.extend([0, 0]); // crit, then 0 < 90 -> lands
+    world.force_rolls([0, 0]); // crit, then 0 < 90 -> lands
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     assert_eq!(
         before - hp(&world, npc_oid),
@@ -2860,7 +2858,7 @@ fn resisted_debuff_still_aggros_monster() {
     // resisted_leaves_target_and_reports`).
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
-    world.forced_rolls.extend([0, 90]);
+    world.force_rolls([0, 90]);
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1160, false));
 
     // Run the cast to completion (launch + finish phases).
@@ -3075,7 +3073,7 @@ mod hate_effects {
         // The first roll is `apply_skill_effects`' unconditional magic-crit
         // roll (999_999 → no crit, irrelevant here); the second is the
         // effect's own chance roll (0, well under the 80/100 chance).
-        world.forced_rolls.extend([999_999, 0]);
+        world.force_rolls([999_999, 0]);
 
         let skill = hate_skill(
             &world,
@@ -3121,7 +3119,7 @@ mod hate_effects {
             .get_component_mut::<NpcAi>(&npc_oid)
             .unwrap()
             .intention = NpcIntention::Attack;
-        world.forced_rolls.extend([999_999, 0]);
+        world.force_rolls([999_999, 0]);
 
         let skill = hate_skill(
             &world,
@@ -5646,7 +5644,7 @@ fn lethal_half_kill_sets_player_cp_to_1() {
 
     handle_action(&mut world, 1, &action_body(5602, 0));
     drain(&mut a_rx);
-    world.forced_rolls.extend(std::iter::repeat_n(0, 30));
+    world.force_rolls(std::iter::repeat_n(0, 30));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, true)); // ctrl: force a clean player target
     advance_world(&mut world, 30); // hitTime 1080 ms
 
@@ -5730,7 +5728,7 @@ fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
     handle_action(&mut world, 1, &action_body(5622, 0));
     drain(&mut a_rx);
     drain(&mut b_rx);
-    world.forced_rolls.extend(std::iter::repeat_n(0, 40));
+    world.force_rolls(std::iter::repeat_n(0, 40));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, true));
     advance_world(&mut world, 30);
 
@@ -5799,7 +5797,7 @@ fn lethal_spares_a_raid_boss() {
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
-    world.forced_rolls.extend(std::iter::repeat_n(0, 30));
+    world.force_rolls(std::iter::repeat_n(0, 30));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, false));
     advance_world(&mut world, 30); // hitTime 1080 ms
 
@@ -5976,7 +5974,7 @@ fn a_trait_resistance_lowers_the_lethal_chance() {
         }
         // magic-crit throwaway, then the full-lethal roll: 60 is under the
         // unresisted 100 but over the halved 50.
-        world.forced_rolls.extend([0, 60]);
+        world.force_rolls([0, 60]);
         effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
         world
             .objects
@@ -6040,8 +6038,8 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
             v.cur_hp = 1_000_000.0;
         }
         let skill = skill_by_id(world, skill_id, 1).expect("skill");
-        world.forced_rolls.clear();
-        world.forced_rolls.extend([50; 12]);
+        world.clear_forced_rolls();
+        world.force_rolls([50; 12]);
         effects::apply_skill_effects(world, CASTER, npc, &skill);
         1_000_000.0 - pvit_npc_hp(world, npc)
     };
@@ -6403,7 +6401,7 @@ fn own_summon_interact_fires_summon_talk() {
     drain(&mut rx);
 
     // 10 % roll hits (0 < 10), then the 25 % band picks string 42240.
-    world.forced_rolls.extend([5, 30]);
+    world.force_rolls([5, 30]);
     interact_with_npc(&mut world, 1, 3001, pet_oid);
     let pkts = drain(&mut rx);
     let said = pkts.iter().any(|p| {
@@ -6414,7 +6412,7 @@ fn own_summon_interact_fires_summon_talk() {
     assert!(said, "the Sin Eater grumbled string 42240 at its owner");
 
     // The 90 % miss stays quiet.
-    world.forced_rolls.push_back(50);
+    world.force_roll(50);
     interact_with_npc(&mut world, 1, 3001, pet_oid);
     assert!(
         !drain(&mut rx)

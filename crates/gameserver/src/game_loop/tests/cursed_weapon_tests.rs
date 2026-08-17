@@ -85,7 +85,7 @@ fn monster_kill_drops_cursed_weapon() {
 
     // Force the FIRST candidate's roll to land (0 < dropRate); the loop breaks
     // before the second weapon rolls.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     let idx = cw_idx(&world, ZARICHE);
@@ -124,8 +124,8 @@ fn missed_roll_drops_nothing() {
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     // dropRate is 50; a roll of 50 is NOT < 50. Both weapons miss.
-    world.forced_rolls.push_back(50);
-    world.forced_rolls.push_back(50);
+    world.force_roll(50);
+    world.force_roll(50);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     assert_eq!(ground_item_count(&world), 0, "nothing dropped");
@@ -150,7 +150,7 @@ fn cursed_killer_gets_no_drop() {
         .cursed_weapon_equipped_id = 8689;
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
-    world.forced_rolls.push_back(0); // would hit if the killer were eligible
+    world.force_roll(0); // would hit if the killer were eligible
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     assert_eq!(
@@ -159,7 +159,7 @@ fn cursed_killer_gets_no_drop() {
         "a cursed wielder triggers no new drop"
     );
     // The forced roll was never consumed (we bailed before rolling).
-    assert_eq!(world.forced_rolls.front(), Some(&0), "roll not reached");
+    assert_eq!(world.forced_rolls_front(), Some(0), "roll not reached");
 }
 
 /// A raid boss kill never drops a cursed weapon (Java excludes `GrandBoss`).
@@ -170,7 +170,7 @@ fn raid_kill_drops_nothing() {
     let _rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900002, "RaidBoss", 60, 500, 600, 0);
 
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     assert_eq!(ground_item_count(&world), 0, "raid boss is excluded");
@@ -188,7 +188,7 @@ fn pickup_curses_the_finder() {
     let mut picker_rx = ingame_player_access(&mut world, 2, PICKER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     drain(&mut killer_rx);
     drain(&mut picker_rx);
@@ -252,7 +252,7 @@ fn already_cursed_picker_consumes_the_weapon() {
         .cursed_weapon_equipped_id = 8689;
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     let idx = cw_idx(&world, ZARICHE);
     let ground_oid = world.cursed_weapons[idx].dropped_item_oid;
@@ -286,7 +286,7 @@ fn expiry_removes_ungrabbed_drop() {
     let mut rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     drain(&mut rx);
     while db_rx.try_recv().is_ok() {}
@@ -323,7 +323,7 @@ fn premature_expiry_is_ignored() {
     let _rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     let idx = cw_idx(&world, ZARICHE);
     world.cursed_weapons[idx].end_time = now_millis_test() + 10 * 60_000; // 10 min out
@@ -354,7 +354,7 @@ fn scheduled_expiry_fires_through_loop() {
     let _rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     let idx = cw_idx(&world, ZARICHE);
     // Make the deadline due now and re-arm a zero-delay task so a single tick
@@ -942,7 +942,7 @@ fn wielder_death_drops_the_weapon() {
     world.cursed_weapons[idx].player_pk_kills = 5;
 
     // dropRate roll: disapearChance is 50 and Java tests `<= 50`, so 51 misses.
-    world.forced_rolls.push_back(51);
+    world.force_roll(51);
     cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
 
     let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
@@ -996,7 +996,7 @@ fn wielder_death_resends_the_paperdoll_snapshot() {
     );
     drain(&mut v_rx);
 
-    world.forced_rolls.push_back(51); // 51 > disapearChance → drops, not destroyed
+    world.force_roll(51); // 51 > disapearChance → drops, not destroyed
     cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
 
     let packets = drain(&mut v_rx);
@@ -1018,7 +1018,7 @@ fn wielder_death_can_destroy_the_weapon() {
     let idx = cw_idx(&world, ZARICHE);
     admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
 
-    world.forced_rolls.push_back(0); // 0 <= disapearChance → destroyed
+    world.force_roll(0); // 0 <= disapearChance → destroyed
     cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
 
     assert!(
@@ -1079,7 +1079,7 @@ fn real_death_path_drops_the_cursed_weapon() {
     admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
     assert!(world.cursed_weapons[idx].is_activated, "wielded to start");
 
-    world.forced_rolls.push_back(51); // miss the disappear roll → it drops
+    world.force_roll(51); // miss the disappear roll → it drops
     death::player_do_die(&mut world, PICKER_OID, KILLER_OID);
 
     assert!(
@@ -1108,7 +1108,7 @@ fn pickup_inherits_the_drops_deadline() {
     let mut killer_rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
     let _picker = ingame_player_access(&mut world, 2, PICKER_OID, 0);
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
     drain(&mut killer_rx);
 
@@ -1225,7 +1225,7 @@ fn guard_kill_also_drops_the_cursed_weapon() {
     let idx = cw_idx(&world, ZARICHE);
     admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
 
-    world.forced_rolls.push_back(51); // miss the disappear roll → it drops
+    world.force_roll(51); // miss the disappear roll → it drops
     death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
 
     assert_eq!(
@@ -1338,7 +1338,7 @@ fn death_drop_takes_the_cursed_cp_back() {
         "cursed CP is up while the sword is held"
     );
 
-    world.forced_rolls.push_back(51); // miss the disappear roll → it drops
+    world.force_roll(51); // miss the disappear roll → it drops
     death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
 
     assert_eq!(
@@ -1436,7 +1436,7 @@ fn the_drop_announce_carries_the_zone_coordinates() {
         5678,
         -90,
     );
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
 
     cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 

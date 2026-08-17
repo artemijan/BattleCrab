@@ -127,7 +127,7 @@ fn a_baby_pet_heals_its_wounded_owner() {
     give_pet_magic_attack(&mut world, pet);
     set_owner_hp(&mut world, 100.0); // 10 % — under both thresholds
     // Both rolls succeed (`<= 25` and `<= 75`).
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
 
     baby_pets::handle_heal_tick(&mut world, pet);
 
@@ -151,7 +151,7 @@ fn the_ordered_heal_restores_hp_when_it_lands() {
     let pet = summon_baby(&mut world);
     give_pet_magic_attack(&mut world, pet);
     set_owner_hp(&mut world, 100.0);
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
 
     baby_pets::handle_heal_tick(&mut world, pet);
     advance_world(&mut world, 400);
@@ -174,7 +174,7 @@ fn the_greater_heal_is_held_back_for_an_emergency() {
     give_pet_magic_attack(&mut world, pet);
     set_owner_hp(&mut world, 500.0); // 50 %
     // Heal Trick's roll fails (> 25), Greater Heal Trick's succeeds (<= 75).
-    world.forced_rolls.extend([90, 0]);
+    world.force_rolls([90, 0]);
 
     baby_pets::handle_heal_tick(&mut world, pet);
 
@@ -196,7 +196,7 @@ fn a_hungry_baby_pet_does_not_heal() {
     give_pet_magic_attack(&mut world, pet);
     set_owner_hp(&mut world, 100.0);
     world.objects.get_component_mut::<PetOf>(&pet).unwrap().fed = 0;
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
 
     baby_pets::handle_heal_tick(&mut world, pet);
 

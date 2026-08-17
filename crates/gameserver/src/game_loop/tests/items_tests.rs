@@ -1447,8 +1447,8 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     // roulette roll: `roll_f64` reads a forced value `v` as `v / 1_000_000`,
     // so 600_000 -> 0.6 -> `100 * 0.6 = 60`, landing in the second slice
     // (30..80) below.
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(600_000);
+    world.force_roll(0);
+    world.force_roll(600_000);
 
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
@@ -1633,9 +1633,9 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     // Forced rolls, in consumption order: crit check (0), roulette `roll_f64`
     // (500_000 -> 0.5 -> 50, inside the single 0..100 slice), then the enchant
     // `roll(max-min+1)` = `roll(3)`; forcing 1 -> enchant = min(3) + 1 = 4.
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(500_000);
-    world.forced_rolls.push_back(1);
+    world.force_roll(0);
+    world.force_roll(500_000);
+    world.force_roll(1);
 
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
@@ -2058,7 +2058,7 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
     const SWING_ROLLS: [i32; 5] = [0, 0, 0, 99, 10];
 
     // Control swing (no shot): plain hit, no crit.
-    world.forced_rolls.extend(SWING_ROLLS);
+    world.force_rolls(SWING_ROLLS);
     combat::do_auto_attack(&mut world, 3001, npc_oid);
     let (base_dmg, base_flags) = attack_damage_and_flags(&drain(&mut a_rx));
     assert_eq!(base_flags & 0x08, 0, "no soulshot flag without a charge");
@@ -2069,7 +2069,7 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .charge_shot(ShotType::Soulshots);
-    world.forced_rolls.extend(SWING_ROLLS);
+    world.force_rolls(SWING_ROLLS);
     combat::do_auto_attack(&mut world, 3001, npc_oid);
     let (ss_dmg, ss_flags) = attack_damage_and_flags(&drain(&mut a_rx));
 
@@ -2120,7 +2120,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
     // Control cast (no shot), non-crit. The trailing 0 pins the `MagicFailures`
     // success roll — unforced it resists ~3 % of the time against this mob, and
     // the halved damage reads as "the shot did nothing".
-    world.forced_rolls.extend([999_999, 0]);
+    world.force_rolls([999_999, 0]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let base = start_hp - nvit(&world, npc_oid).cur_hp;
     assert!(base > 0.0, "control nuke dealt damage");
@@ -2136,7 +2136,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .charge_shot(ShotType::Spiritshots);
-    world.forced_rolls.extend([999_999, 0]);
+    world.force_rolls([999_999, 0]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 
@@ -2204,9 +2204,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
     // the real RNG and the two casts could disagree — the test then failed
     // about two full-suite runs in three while still passing in isolation.
     // Control cast (no shot).
-    world
-        .forced_rolls
-        .extend([999_999, 999_999, 999_999, 999_999]);
+    world.force_rolls([999_999, 999_999, 999_999, 999_999]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let base = start_hp - nvit(&world, npc_oid).cur_hp;
     assert!(
@@ -2225,9 +2223,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .charge_shot(ShotType::Soulshots);
-    world
-        .forced_rolls
-        .extend([999_999, 999_999, 999_999, 999_999]);
+    world.force_rolls([999_999, 999_999, 999_999, 999_999]);
     effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 
@@ -2315,12 +2311,12 @@ fn auto_soulshot_toggle_activates_and_recharges() {
     drain(&mut a_rx);
 
     // Swing 1 spends the activation charge (no item, just the flag).
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     combat::do_auto_attack(&mut world, 3001, npc_oid);
     drain(&mut a_rx);
     // Swing 2 finds no charge, auto-recharges (spends an item), then spends it:
     // the `SHOT_USED` flag on this swing proves the recharge fed it.
-    world.forced_rolls.extend([0, 99, 10]);
+    world.force_rolls([0, 99, 10]);
     combat::do_auto_attack(&mut world, 3001, npc_oid);
     let atk = drain(&mut a_rx)
         .into_iter()
@@ -3563,7 +3559,7 @@ fn enchant_scroll_success_and_failure() {
     // Java's anti-autoenchant guard punishes an Enchant pressed within 2 s of
     // the last window interaction, so the window has to age before the press.
     world.tick += 20;
-    world.forced_rolls.push_back(0); // roll_f64 = 0.0 < 100
+    world.force_roll(0); // roll_f64 = 0.0 < 100
     on_packet(&mut world, 1, do_enchant(sword_oid));
     let level = |w: &World| {
         w.objects
@@ -3607,7 +3603,7 @@ fn enchant_scroll_success_and_failure() {
         ),
     );
     world.tick += 20;
-    world.forced_rolls.push_back(900_000); // roll_f64 = 90.0 > 66.67 → fail
+    world.force_roll(900_000); // roll_f64 = 90.0 > 66.67 → fail
     on_packet(&mut world, 1, do_enchant(sword_oid));
     let inv = world.objects.get_component::<Inventory>(&9800).unwrap();
     assert_eq!(inv.count_of(69), 0, "failed enchant destroyed the sword");
@@ -3715,7 +3711,7 @@ fn enchant_support_item_bonus_and_consume() {
     // Roll 80%: bare chance 66.67 would fail, but +20 support → 86.67 succeeds.
     // Age the window past Java's 2 s anti-autoenchant guard first.
     world.tick += 20;
-    world.forced_rolls.push_back(800_000);
+    world.force_roll(800_000);
     let enchant = {
         let mut w = PacketWriter::new();
         w.write_u8(cop::REQUEST_ENCHANT_ITEM);
@@ -3853,7 +3849,7 @@ fn augment_make_and_cancel() {
     );
 
     // Refine: force low rolls so the augment always resolves.
-    world.forced_rolls.extend(std::iter::repeat_n(0, 8));
+    world.force_rolls(std::iter::repeat_n(0, 8));
     let mut refine = PacketWriter::new();
     refine.write_i32(weapon);
     refine.write_i32(lifestone);
@@ -5177,15 +5173,15 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
     // Java's anti-autoenchant guard punishes an Enchant pressed within 2 s of
     // the last window interaction, so the window has to age before the press.
     world.tick += 20;
-    world.forced_rolls.push_back(0); // success
-    world.forced_rolls.push_back(2); // index 2 → step 1 + 2 = 3
+    world.force_roll(0); // success
+    world.force_roll(2); // index 2 → step 1 + 2 = 3
     do_enchant(&mut world);
     assert_eq!(level(&world), 3, "the top of the range is +3, not +1");
 
     arm(&mut world);
     world.tick += 20;
-    world.forced_rolls.push_back(0); // success
-    world.forced_rolls.push_back(0); // index 0 → step 1
+    world.force_roll(0); // success
+    world.force_roll(0); // index 0 → step 1
     do_enchant(&mut world);
     assert_eq!(level(&world), 4, "the bottom of the range is +1");
 
@@ -5283,7 +5279,7 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
     // Straight from arming the window to pressing Enchant: 0 ticks elapsed.
     arm(&mut world);
     drain(&mut rx);
-    world.forced_rolls.push_back(0); // would be a guaranteed success
+    world.force_roll(0); // would be a guaranteed success
     press(&mut world);
 
     assert_eq!(level(&world), 0, "the enchant never happened");
@@ -5298,11 +5294,11 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
     );
     // The forced roll was never reached — the guard returns before the roll.
     assert_eq!(
-        world.forced_rolls.len(),
+        world.forced_rolls_len(),
         1,
         "the guard bails before the success roll is drawn"
     );
-    world.forced_rolls.clear();
+    world.clear_forced_rolls();
 
     // One tick short of the window is still a bot. This is what pins the
     // threshold at 2 s rather than "some delay": with only the 0-tick and
@@ -5317,7 +5313,7 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
     // makes the assertions above about the guard rather than about the setup.
     arm(&mut world);
     world.tick += 20;
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     press(&mut world);
     assert_eq!(level(&world), 1, "past the 2 s window it enchants normally");
     assert_eq!(scrolls_left(&world), 2, "and now a scroll is consumed");

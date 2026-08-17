@@ -201,7 +201,7 @@ fn crawl_trash_can_drop_a_dewdrop_of_destruction() {
     let mob = a_room_guard(&world, iid);
 
     // Force the 5% drop roll to hit; the trash kill then drops item 8556.
-    world.forced_rolls.push_back(3); // < 5
+    world.force_roll(3); // < 5
     frintezza::on_monster_killed(&mut world, 100, mob, TRASH);
 
     let dropped = world

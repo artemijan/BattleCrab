@@ -550,7 +550,7 @@ fn a_champion_pays_multiplied_adena_plus_the_reward_item() {
     let t = world.data.npc_data.get(40001).unwrap().clone();
 
     // Plain kill: gap gate + chance roll both forced to pass.
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     let plain = crate::game_loop::death::roll_drops_for_test(&mut world, &t, LOOTER);
     let plain_adena = plain
         .iter()
@@ -561,7 +561,7 @@ fn a_champion_pays_multiplied_adena_plus_the_reward_item() {
     // Champion kill: same two rolls, plus the reward-item suppression roll.
     // The mob (level 1 fixture) is below the level-40 looter, and
     // `ChampionRewardLowerLvlItemChance = 0`, so nothing suppresses the item.
-    world.forced_rolls.extend([0, 0, 50]);
+    world.force_rolls([0, 0, 50]);
     let champ = crate::game_loop::death::roll_champion_drops_for_test(&mut world, &t, LOOTER);
     let champ_adena = champ
         .iter()
@@ -635,7 +635,7 @@ fn a_champion_multiplies_the_quest_item_payout() {
             .get_component_mut::<Npc>(&mob)
             .unwrap()
             .champion = champion;
-        world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
+        world.force_roll(0); // give_item_randomly roll_f64 → hit
         crate::game_loop::death::npc_do_die(&mut world, mob, PLAYER);
         item_count(&world, PLAYER, SNAKE_SCALE)
     };
@@ -691,7 +691,7 @@ fn the_quest_item_multiplier_respects_the_master_gate() {
         .get_component_mut::<Npc>(&mob)
         .unwrap()
         .champion = true;
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     crate::game_loop::death::npc_do_die(&mut world, mob, PLAYER);
     assert_eq!(
         item_count(&world, PLAYER, SNAKE_SCALE),

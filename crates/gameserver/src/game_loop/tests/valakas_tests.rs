@@ -787,8 +787,8 @@ fn valakas_casts_a_skill_at_a_lair_target() {
     );
     let _rx = ingame_player(&mut world, 7, PLAYER, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
     insert_valakas_skill(&mut world, 4681, 40);
-    world.forced_rolls.push_back(0); // random target (only one alive)
-    world.forced_rolls.push_back(0); // regular-pool pick -> 4681
+    world.force_roll(0); // random target (only one alive)
+    world.force_roll(0); // regular-pool pick -> 4681
 
     crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
 
@@ -870,8 +870,8 @@ fn valakas_re_picks_a_dead_victim() {
         },
     );
     insert_valakas_skill(&mut world, 4681, 40);
-    world.forced_rolls.push_back(0); // random target among the living
-    world.forced_rolls.push_back(0); // skill pick
+    world.force_roll(0); // random target among the living
+    world.force_roll(0); // skill pick
 
     crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
 

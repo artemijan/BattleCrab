@@ -327,7 +327,7 @@ fn quest_q00258_accept_collect_turn_in() {
 
     // Turn-in: roll 0 → Cloth Cap; pelts destroyed; repeatable exit.
     drain_db(&mut db_rx);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -411,7 +411,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     add_test_npc(&mut world, skel, 20517, "Monster", 5, 30, 0, 0);
 
     // Roll 0.999999 > 0.18 → no drop.
-    world.forced_rolls.push_back(999_999);
+    world.force_roll(999_999);
     death::npc_do_die(&mut world, skel, 3001);
     let count_of = |world: &World, id: i32| {
         world
@@ -425,7 +425,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     // Roll 0 → drop.
     let skel2 = NPC_OID + 2;
     add_test_npc(&mut world, skel2, 20517, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, skel2, 3001);
     assert_eq!(count_of(&world, 809), 1);
     drain(&mut rx);
@@ -434,7 +434,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     super::items::add_inventory_item(&mut world, 3001, 809, 8).unwrap();
     let skel3 = NPC_OID + 3;
     add_test_npc(&mut world, skel3, 20517, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, skel3, 3001);
     let pkts = drain(&mut rx);
     assert_eq!(count_of(&world, 809), 10);
@@ -932,7 +932,7 @@ fn quest_q00303_collect_arrowheads_loop() {
     let mob = NPC_OID + 1;
     for i in 0..10 {
         add_test_npc(&mut world, mob + i, 20361, "Monster", 11, 30, 0, 0);
-        world.forced_rolls.push_back(0); // roll_f64 → 0.0 ≤ 0.4
+        world.force_roll(0); // roll_f64 → 0.0 ≤ 0.4
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 963), 10);
@@ -3283,7 +3283,7 @@ fn quest_q00406_drop_ignores_the_quest_drop_rate() {
 
     let mob = NPC_OID + 1;
     add_test_npc(&mut world, mob, 20035, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll(100) → 0 < 70
+    world.force_roll(0); // roll(100) → 0 < 70
     death::npc_do_die(&mut world, mob, 3001);
 
     assert_eq!(
@@ -3363,7 +3363,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     for i in 0..20 {
         let mob = NPC_OID + 100 + i;
         add_test_npc(&mut world, mob, 20035, "Monster", 20, 30, 0, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1205), 20);
@@ -3404,7 +3404,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     for i in 0..20 {
         let mob = NPC_OID + 200 + i;
         add_test_npc(&mut world, mob, 20782, "Monster", 20, 30, 0, 0);
-        world.forced_rolls.push_back(0); // roll(100) → 0 < 50
+        world.force_roll(0); // roll(100) → 0 < 50
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1206), 20);
@@ -3741,7 +3741,7 @@ fn quest_q00401_rusted_sword_chance_is_out_of_ten() {
 
         let mob = NPC_OID + 1;
         add_test_npc(&mut world, mob, 20035, "Monster", 20, 30, 0, 0);
-        world.forced_rolls.push_back(forced);
+        world.force_roll(forced);
         death::npc_do_die(&mut world, mob, 3001);
 
         assert_eq!(
@@ -3895,7 +3895,7 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
         "the taunt fires once"
     );
 
-    world.forced_rolls.push_back(0); // pick STOLEN_JEWELRY
+    world.force_roll(0); // pick STOLEN_JEWELRY
     death::npc_do_die(&mut world, bandit, 3001);
     assert_eq!(item_count(&world, 3001, 1186), 1, "one of the stolen goods");
     assert!(
@@ -4388,7 +4388,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     let mut kill = |world: &mut World, npc_id: i32| {
         mob_oid += 1;
         add_test_npc(world, mob_oid, npc_id, "Monster", 20, 30, 0, 0);
-        world.forced_rolls.push_back(0); // always inside the chance
+        world.force_roll(0); // always inside the chance
         death::npc_do_die(world, mob_oid, 3001);
     };
 
@@ -5049,7 +5049,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
         for _ in 0..need {
             mob_oid += 1;
             add_test_npc(&mut world, mob_oid, mob, "Monster", 20, 30, 0, 0);
-            world.forced_rolls.push_back(0); // inside every chance
+            world.force_roll(0); // inside every chance
             death::npc_do_die(&mut world, mob_oid, 3001);
         }
         assert_eq!(
@@ -5099,7 +5099,7 @@ fn quest_q00408_drops_need_the_charm() {
     let (mut world, _rx) = q408_world();
     let mob = NPC_OID + 400;
     add_test_npc(&mut world, mob, 20466, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob, 3001);
     assert_eq!(item_count(&world, 3001, 1219), 0, "no charm, no Red Down");
 }
@@ -5629,7 +5629,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
         for _ in 0..need {
             mob_oid += 1;
             add_test_npc(&mut world, mob_oid, mob, "Monster", 20, 30, 0, 0);
-            world.forced_rolls.push_back(0); // `getRandom(2) == 0`
+            world.force_roll(0); // `getRandom(2) == 0`
             death::npc_do_die(&mut world, mob_oid, 3001);
         }
         assert_eq!(
@@ -5678,7 +5678,7 @@ fn quest_q00412_drop_is_a_coin_flip_on_equality() {
         );
         let mob = NPC_OID + 400;
         add_test_npc(&mut world, mob, 20015, "Monster", 20, 30, 0, 0);
-        world.forced_rolls.push_back(forced);
+        world.force_roll(forced);
         death::npc_do_die(&mut world, mob, 3001);
         assert_eq!(
             item_count(&world, 3001, 1257),
@@ -5869,7 +5869,7 @@ fn quest_q00414_green_blood_is_a_summon_meter() {
     // blood 0, forced roll 5 → `0 <= 5` → gain.
     let mob = NPC_OID + 100;
     add_test_npc(&mut world, mob, 20320, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     death::npc_do_die(&mut world, mob, 3001);
     assert_eq!(item_count(&world, 3001, 1578), 1, "gained a green blood");
     assert!(npcs_of(&mut world, 27045).is_empty(), "no summon yet");
@@ -5877,7 +5877,7 @@ fn quest_q00414_green_blood_is_a_summon_meter() {
     // blood 1, forced roll 0 → `1 <= 0` is false → wipe and summon.
     let mob2 = NPC_OID + 101;
     add_test_npc(&mut world, mob2, 20320, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob2, 3001);
     assert_eq!(item_count(&world, 3001, 1578), 0, "the meter is wiped");
     let summoned = npcs_of(&mut world, 27045);
@@ -5899,7 +5899,7 @@ fn quest_q00414_teeth_come_from_kuruka_and_reset_the_meter() {
     // Stock a little blood first.
     let mob = NPC_OID + 100;
     add_test_npc(&mut world, mob, 20320, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(19);
+    world.force_roll(19);
     death::npc_do_die(&mut world, mob, 3001);
     assert_eq!(item_count(&world, 3001, 1578), 1);
 
@@ -5933,7 +5933,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     // A roll of 2 misses (`getRandom(10) < 2`).
     let miss = NPC_OID + 300;
     add_test_npc(&mut world, miss, 27054, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(2);
+    world.force_roll(2);
     death::npc_do_die(&mut world, miss, 3001);
     assert_eq!(
         item_count(&world, 3001, 1591),
@@ -5944,7 +5944,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     for i in 0..2 {
         let mob = NPC_OID + 310 + i;
         add_test_npc(&mut world, mob, 27054, "Monster", 20, 30, 0, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1591), 2, "two betrayer heads");
@@ -6585,7 +6585,7 @@ fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
     // Roll 0 with zero teeth: the `< 5` branch does nothing at all.
     oid += 1;
     add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, oid, 3001);
     assert_eq!(
         item_count(&world, 3001, 1637),
@@ -6596,14 +6596,14 @@ fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
     // Roll 5 with zero teeth: the `else` branch always pays.
     oid += 1;
     add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     death::npc_do_die(&mut world, oid, 3001);
     assert_eq!(item_count(&world, 3001, 1637), 1, "roll>=5 always pays");
 
     // Roll 0 with one tooth: now the `< 5` branch does pay.
     oid += 1;
     add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, oid, 3001);
     assert_eq!(
         item_count(&world, 3001, 1637),
@@ -6618,13 +6618,13 @@ fn quest_q00418_ratman_teeth_roll_is_seventy_percent() {
     let (mut world, _rx) = q418_world();
     let miss = NPC_OID + 200;
     add_test_npc(&mut world, miss, 20389, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(7);
+    world.force_roll(7);
     death::npc_do_die(&mut world, miss, 3001);
     assert_eq!(item_count(&world, 3001, 1636), 0, "roll 7 is outside `< 7`");
 
     let hit = NPC_OID + 201;
     add_test_npc(&mut world, hit, 20389, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(6);
+    world.force_roll(6);
     death::npc_do_die(&mut world, hit, 3001);
     assert_eq!(item_count(&world, 3001, 1636), 1, "roll 6 pays");
 }
@@ -6671,7 +6671,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
 
     let orc = NPC_OID + 300;
     add_test_npc(&mut world, orc, 20017, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(0); // `getRandom(10) < 2`
+    world.force_roll(0); // `getRandom(10) < 2`
     death::npc_do_die(&mut world, orc, 3001);
     assert_eq!(item_count(&world, 3001, 1640), 1, "the stolen secret box");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(6));
@@ -6860,7 +6860,7 @@ fn quest_q00417_honey_bear_summon_meter_escalates() {
     let b2 = NPC_OID + 301;
     add_test_npc(&mut world, b2, 20777, "Monster", 20, 30, 0, 0);
     combat::npc_receive_damage(&mut world, b2, 3001, 10.0, false);
-    world.forced_rolls.push_back(5); // 5 < 20
+    world.force_roll(5); // 5 < 20
     death::npc_do_die(&mut world, b2, 3001);
     assert_eq!(
         npcs_of(&mut world, 27058).len(),
@@ -7148,7 +7148,7 @@ fn quest_q00261_collectors_dream_loop() {
     for i in 0..8 {
         let species = [20308, 20460, 20466][(i % 3) as usize];
         add_test_npc(&mut world, mob + i, species, "Monster", 18, 30, 0, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1087), 8, "eight legs collected");
@@ -7225,7 +7225,7 @@ fn quest_q00261_collectors_dream_loop() {
     for i in 8..16 {
         let species = [20308, 20460, 20466][(i % 3) as usize];
         add_test_npc(&mut world, mob + i, species, "Monster", 18, 30, 0, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     handle_request_bypass_to_server(
@@ -7333,7 +7333,7 @@ fn quest_q00257_the_guard_is_busy_loop() {
     let mob = NPC_OID + 1;
     // Orc Archer 20006: first table entry (roll(10) < 2) wins → 2 amulets, one roll.
     add_test_npc(&mut world, mob, 20006, "Monster", 10, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob, 3001);
     assert_eq!(
         item_count(&world, 3001, 752),
@@ -7343,10 +7343,10 @@ fn quest_q00257_the_guard_is_busy_loop() {
 
     // Orc Fighter 20093 → 1 necklace; Werewolf Hunter 20343 → 1 fang.
     add_test_npc(&mut world, mob + 1, 20093, "Monster", 10, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob + 1, 3001);
     add_test_npc(&mut world, mob + 2, 20343, "Monster", 10, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob + 2, 3001);
     assert_eq!(item_count(&world, 3001, 1085), 1, "one necklace");
     assert_eq!(item_count(&world, 3001, 1086), 1, "one fang");
@@ -7644,12 +7644,12 @@ fn quest_q00293_hidden_veins_loop() {
     let mob = NPC_OID + 2;
     for i in 0..4 {
         add_test_npc(&mut world, mob + i, 20446, "Monster", 10, 30, 0, 0);
-        world.forced_rolls.push_back(2);
+        world.force_roll(2);
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     for i in 4..7 {
         add_test_npc(&mut world, mob + i, 20447, "Monster", 10, 30, 0, 0);
-        world.forced_rolls.push_back(60);
+        world.force_roll(60);
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1489), 4, "four map fragments");
@@ -7811,7 +7811,7 @@ fn quest_q00300_leto_loop() {
     let mob = NPC_OID + 1;
     // Drop gate: a roll >= 360 (Leto Lizardman's chance) yields nothing.
     add_test_npc(&mut world, mob, 20577, "Monster", 36, 30, 0, 0);
-    world.forced_rolls.push_back(360);
+    world.force_roll(360);
     death::npc_do_die(&mut world, mob, 3001);
     assert_eq!(
         item_count(&world, 3001, 7139),
@@ -7822,7 +7822,7 @@ fn quest_q00300_leto_loop() {
     // 59 hits, still cond 1.
     for i in 1..=59 {
         add_test_npc(&mut world, mob + i, 20577, "Monster", 36, 30, 0, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 7139), 59);
@@ -7834,7 +7834,7 @@ fn quest_q00300_leto_loop() {
 
     // The 60th bracelet flips cond to 2.
     add_test_npc(&mut world, mob + 60, 20577, "Monster", 36, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob + 60, 3001);
     assert_eq!(item_count(&world, 3001, 7139), 60);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at exactly 60");
@@ -7842,7 +7842,7 @@ fn quest_q00300_leto_loop() {
 
     // Turn in with the reward roll forced to the adena branch (< 500).
     let adena_before = item_count(&world, 3001, 57);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -7900,7 +7900,7 @@ fn quest_q00300_reward_skin_and_bone() {
                 .add_item(&data.item_data, obj, 7139, 60);
         }
         let before = item_count(&world, 3001, reward_item);
-        world.forced_rolls.push_back(reward_roll);
+        world.force_roll(reward_roll);
         handle_request_bypass_to_server(
             &mut world,
             1,
@@ -7989,15 +7989,15 @@ fn quest_q00296_spider_silk_loop() {
     // 2 rare spinnerettes (gate roll 96 > 95, then the give_item_randomly roll).
     for i in 0..2 {
         add_test_npc(&mut world, mob + i, 20394, "Monster", 18, 30, 0, 0);
-        world.forced_rolls.push_back(96);
-        world.forced_rolls.push_back(0);
+        world.force_roll(96);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     // 3 plain silks (gate 50).
     for i in 2..5 {
         add_test_npc(&mut world, mob + i, 20394, "Monster", 18, 30, 0, 0);
-        world.forced_rolls.push_back(50);
-        world.forced_rolls.push_back(0);
+        world.force_roll(50);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1494), 2, "two spinnerettes");
@@ -8005,7 +8005,7 @@ fn quest_q00296_spider_silk_loop() {
     drain(&mut rx);
 
     // Nathan spins: (15 + rnd(9)=0) * 2 spinnerettes = 30 silk; spinnerettes consumed.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -8111,12 +8111,12 @@ fn quest_q00266_pixies_loop() {
     // Gray Wolf two-entry table: gate 3 (<5) → 2 fangs; gate 7 (5..10) → 3 fangs.
     let mob = NPC_OID + 1;
     add_test_npc(&mut world, mob, 20525, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(3);
-    world.forced_rolls.push_back(0);
+    world.force_roll(3);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob, 3001);
     add_test_npc(&mut world, mob + 1, 20525, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(7);
-    world.forced_rolls.push_back(0);
+    world.force_roll(7);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 1334),
@@ -8133,8 +8133,8 @@ fn quest_q00266_pixies_loop() {
             .add_item(&data.item_data, 0x5100_0000, 1334, 93);
     }
     add_test_npc(&mut world, mob + 2, 20537, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob + 2, 3001);
     assert_eq!(item_count(&world, 3001, 1334), 100);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 100 fangs");
@@ -8142,7 +8142,7 @@ fn quest_q00266_pixies_loop() {
 
     // Turn in with the reward roll < 2 → bucket 0 (Glass Shard + 100a, jackpot chime).
     let adena_before = item_count(&world, 3001, 57);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -8204,12 +8204,12 @@ fn quest_q00266_reward_buckets() {
                 .add_item(&data.item_data, obj, 1334, 98);
         }
         add_test_npc(&mut world, mob + mi, 20537, "Monster", 5, 30, 0, 0);
-        world.forced_rolls.push_back(0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob + mi, 3001);
         assert_eq!(quest_cond(&world, 3001, q), Some(2));
         let adena_before = item_count(&world, 3001, 57);
-        world.forced_rolls.push_back(roll);
+        world.force_roll(roll);
         handle_request_bypass_to_server(
             &mut world,
             1,
@@ -8346,10 +8346,10 @@ fn quest_q00271_proof_of_valor_loop() {
     let mob = NPC_OID + 1;
     // roll 10 (<25) at count 0 → double drop; roll 50 → single.
     add_test_npc(&mut world, mob, 20475, "Monster", 6, 30, 0, 0);
-    world.forced_rolls.push_back(10);
+    world.force_roll(10);
     death::npc_do_die(&mut world, mob, 3001);
     add_test_npc(&mut world, mob + 1, 20475, "Monster", 6, 30, 0, 0);
-    world.forced_rolls.push_back(50);
+    world.force_roll(50);
     death::npc_do_die(&mut world, mob + 1, 3001);
     assert_eq!(item_count(&world, 3001, 1473), 3, "2 + 1 fangs");
 
@@ -8362,7 +8362,7 @@ fn quest_q00271_proof_of_valor_loop() {
             .add_item(&data.item_data, 0x5300_0000, 1473, 46);
     }
     add_test_npc(&mut world, mob + 2, 20475, "Monster", 6, 30, 0, 0);
-    world.forced_rolls.push_back(10);
+    world.force_roll(10);
     death::npc_do_die(&mut world, mob + 2, 3001);
     assert_eq!(
         item_count(&world, 3001, 1473),
@@ -8373,7 +8373,7 @@ fn quest_q00271_proof_of_valor_loop() {
     drain(&mut rx);
 
     // Turn in with the 13% roll hitting → necklace + potion.
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -8660,8 +8660,8 @@ fn quest_q00295_dreaming_loop() {
         }
         *obj += 1;
         add_test_npc(world, *mob, 20153, "Monster", 13, 30, 0, 0);
-        world.forced_rolls.push_back(10); // <=25 → amount 2
-        world.forced_rolls.push_back(0); // give_item_randomly roll
+        world.force_roll(10); // <=25 → amount 2
+        world.force_roll(0); // give_item_randomly roll
         death::npc_do_die(world, *mob, 3001);
         *mob += 1;
         assert_eq!(quest_cond(world, 3001, q), Some(2), "cond 2 at 50 stones");
@@ -8766,7 +8766,7 @@ fn quest_q00262_ivory_tower_loop() {
     let mut mob = NPC_OID + 1;
     let mut kill = |world: &mut World, species: i32, roll: i32| {
         add_test_npc(world, mob, species, "Monster", 12, 30, 0, 0);
-        world.forced_rolls.push_back(roll);
+        world.force_roll(roll);
         death::npc_do_die(world, mob, 3001);
         mob += 1;
     };
@@ -8871,7 +8871,7 @@ fn quest_q00267_wrath_of_verdure_loop() {
     let mut mob = NPC_OID + 1;
     let mut kill = |world: &mut World, roll: i32| {
         add_test_npc(world, mob, 20325, "Monster", 6, 30, 0, 0);
-        world.forced_rolls.push_back(roll);
+        world.force_roll(roll);
         death::npc_do_die(world, mob, 3001);
         mob += 1;
     };
@@ -9119,7 +9119,7 @@ fn quest_q00328_sense_for_business() {
     let mut m = NPC_OID + 1;
     let mut kill = |world: &mut World, sp: i32, roll: i32| {
         add_test_npc(world, m, sp, "Monster", 22, 30, 0, 0);
-        world.forced_rolls.push_back(roll);
+        world.force_roll(roll);
         death::npc_do_die(world, m, 3001);
         m += 1;
     };
@@ -9182,10 +9182,10 @@ fn quest_q00331_arrow_of_vengeance() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30125-03.htm")),
     );
     add_test_npc(&mut world, NPC_OID + 1, 20145, "Monster", 35, 30, 0, 0);
-    world.forced_rolls.push_back(58); // < 59 → feather
+    world.force_roll(58); // < 59 → feather
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     add_test_npc(&mut world, NPC_OID + 2, 20145, "Monster", 35, 30, 0, 0);
-    world.forced_rolls.push_back(59); // ≥ 59 → nothing
+    world.force_roll(59); // ≥ 59 → nothing
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 1452), 1);
     let a = item_count(&world, 3001, 57);
@@ -9230,8 +9230,8 @@ fn quest_q00294_covert_business() {
     inject(&mut world, 3001, 0x6200_0000, 1491, 96);
     // 20370 table [6,3,1,-1], roll 0 → count 4 → 96+4 = 100 → cond 2.
     add_test_npc(&mut world, NPC_OID + 1, 20370, "Monster", 12, 30, 0, 0);
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 100 fangs");
     handle_request_bypass_to_server(
@@ -9280,7 +9280,7 @@ fn quest_q00274_skirmish_with_the_werewolves() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6301_0000, 1477, 39);
     add_test_npc(&mut world, NPC_OID + 1, 20363, "Monster", 12, 30, 0, 0);
-    world.forced_rolls.push_back(50); // > 5 → no totem
+    world.force_roll(50); // > 5 → no totem
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 1477), 40);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 40 heads");
@@ -9329,7 +9329,7 @@ fn quest_q00326_vanquish_remnants() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30435-03.htm")),
     );
     add_test_npc(&mut world, NPC_OID + 1, 20053, "Monster", 25, 30, 0, 0);
-    world.forced_rolls.push_back(60); // < 61 → red badge
+    world.force_roll(60); // < 61 → red badge
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 1359), 1);
     // Push to 100 red badges to earn the Black Lion Mark.
@@ -9396,8 +9396,8 @@ fn quest_q00264_keen_claws() {
     inject(&mut world, 3001, 0x7000_0000, 1367, 42);
     // 20003 table [(2,25),(8,50)]: roll 30 → second entry → 8 claws → 50 → cond 2.
     add_test_npc(&mut world, NPC_OID + 1, 20003, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(30);
-    world.forced_rolls.push_back(0);
+    world.force_roll(30);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 1367),
@@ -9406,7 +9406,7 @@ fn quest_q00264_keen_claws() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // Reward roll(17) == 0 → item 734 (+ jackpot); 735 is unreachable.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9445,7 +9445,7 @@ fn quest_q00319_scent_of_death() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll 8 (> 7) → a skin, and count 1 < 5 sets cond 2 (the quirk).
     add_test_npc(&mut world, NPC_OID + 1, 20015, "Monster", 13, 30, 0, 0);
-    world.forced_rolls.push_back(8);
+    world.force_roll(8);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 1045), 1);
     assert_eq!(
@@ -9455,7 +9455,7 @@ fn quest_q00319_scent_of_death() {
     );
     // roll 5 (≤ 7) → nothing.
     add_test_npc(&mut world, NPC_OID + 2, 20015, "Monster", 13, 30, 0, 0);
-    world.forced_rolls.push_back(5);
+    world.force_roll(5);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 1045), 1, "roll ≤ 7 drops nothing");
     inject(&mut world, 3001, 0x7100_0000, 1045, 4);
@@ -9503,12 +9503,12 @@ fn quest_q00329_curiosity_of_a_dwarf() {
     );
     // roll 2 (< 3) → golem heartstone; roll 10 (3..54) → broken heartstone.
     add_test_npc(&mut world, NPC_OID + 1, 20083, "Monster", 35, 30, 0, 0);
-    world.forced_rolls.push_back(2);
-    world.forced_rolls.push_back(0);
+    world.force_roll(2);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     add_test_npc(&mut world, NPC_OID + 2, 20083, "Monster", 35, 30, 0, 0);
-    world.forced_rolls.push_back(10);
-    world.forced_rolls.push_back(0);
+    world.force_roll(10);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 1346), 1, "golem heartstone");
     assert_eq!(item_count(&world, 3001, 1365), 1, "broken heartstone");
@@ -9556,7 +9556,7 @@ fn quest_q00360_plunder_their_supplies() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30873-04.htm")),
     );
     add_test_npc(&mut world, NPC_OID + 1, 20666, "Monster", 55, 30, 0, 0);
-    world.forced_rolls.push_back(40); // < 50 → supply
+    world.force_roll(40); // < 50 → supply
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 5872), 1);
     inject(&mut world, 3001, 0x7200_0000, 5872, 499);
@@ -9611,8 +9611,8 @@ fn quest_q00619_relics_of_the_old_empire() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill: roll(2)=0 → 2 relics; roll(100)=50 (> 10) → no entrance pass.
     add_test_npc(&mut world, NPC_OID + 1, 21400, "Monster", 74, 30, 0, 0);
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(50);
+    world.force_roll(0);
+    world.force_roll(50);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 7254), 2, "2 relics from kill");
     assert_eq!(
@@ -9622,7 +9622,7 @@ fn quest_q00619_relics_of_the_old_empire() {
     );
     // Fast-forward to 1000 relics and turn in (force recipe index 0 → 6881).
     inject(&mut world, 3001, 0x7254_0000, 7254, 998);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9667,8 +9667,8 @@ fn quest_q00369_collector_of_jewels() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Stage-1 kill: death_fire drops 2 flare (roll(100)=0 < chance 100).
     add_test_npc(&mut world, NPC_OID + 1, 20749, "Monster", 30, 30, 0, 0);
-    world.forced_rolls.push_back(0); // outer roll(100) < chance
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
+    world.force_roll(0); // outer roll(100) < chance
+    world.force_roll(0); // give_item_randomly roll_f64 → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 5882),
@@ -9764,7 +9764,7 @@ fn quest_q00623_the_finest_food() {
     inject(&mut world, 3001, 0x7200_0000, 7200, 100);
     inject(&mut world, 3001, 0x7201_0000, 7201, 99);
     add_test_npc(&mut world, NPC_OID + 1, 21318, "Monster", 71, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
+    world.force_roll(0); // give_item_randomly roll_f64 → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 7201),
@@ -9778,7 +9778,7 @@ fn quest_q00623_the_finest_food() {
     );
     // Turn in: force reward roll 0 (< 120) → Ring of Aurakyra + 25000 adena, exit.
     let a = item_count(&world, 3001, 57);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9836,8 +9836,8 @@ fn quest_q00292_brigands_sweep() {
     let mob = NPC_OID + 2;
     for i in 0..3 {
         add_test_npc(&mut world, mob + i, 20322, "Monster", 10, 30, 0, 0);
-        world.forced_rolls.push_back(5); // roll(10)==5 → memo branch
-        world.forced_rolls.push_back(0); // give_item_randomly(MEMO) roll_f64 → hit
+        world.force_roll(5); // roll(10)==5 → memo branch
+        world.force_roll(0); // give_item_randomly(MEMO) roll_f64 → hit
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(
@@ -9913,8 +9913,8 @@ fn quest_q00276_totem_of_the_hestui() {
     // one parasite is paid instead.
     let bear = NPC_OID + 10;
     add_test_npc(&mut world, bear, 20479, "Monster", 18, 30, 0, 0);
-    world.forced_rolls.push_back(50); // roll(100) chance2 (irrelevant with 0 parasites)
-    world.forced_rolls.push_back(0); // give_item_randomly(PARASITE) roll_f64 → hit
+    world.force_roll(50); // roll(100) chance2 (irrelevant with 0 parasites)
+    world.force_roll(0); // give_item_randomly(PARASITE) roll_f64 → hit
     death::npc_do_die(&mut world, bear, 3001);
     assert_eq!(
         item_count(&world, 3001, 1480),
@@ -9930,7 +9930,7 @@ fn quest_q00276_totem_of_the_hestui() {
     inject(&mut world, 3001, 0x1480_0000, 1480, 78);
     let bear2 = NPC_OID + 11;
     add_test_npc(&mut world, bear2, 20479, "Monster", 18, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll(100)=0 ≤ 100 → spawn
+    world.force_roll(0); // roll(100)=0 ≤ 100 → spawn
     death::npc_do_die(&mut world, bear2, 3001);
     assert_eq!(
         item_count(&world, 3001, 1480),
@@ -9940,7 +9940,7 @@ fn quest_q00276_totem_of_the_hestui() {
     let totems = npcs_of(&mut world, 27044);
     assert_eq!(totems.len(), 1, "a Kasha Bear Totem was conjured");
     // Slaying the totem yields the Kasha Crystal and advances to cond 2.
-    world.forced_rolls.push_back(0); // give_item_randomly(CRYSTAL) roll_f64 → hit
+    world.force_roll(0); // give_item_randomly(CRYSTAL) roll_f64 → hit
     death::npc_do_die(&mut world, totems[0], 3001);
     assert_eq!(item_count(&world, 3001, 1481), 1, "totem drops the crystal");
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
@@ -9996,7 +9996,7 @@ fn quest_q00617_gather_the_flames() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill 22634 (threshold 639): roll(1000)=0 < 639 → 2 torches (plain giveItems).
     add_test_npc(&mut world, NPC_OID + 2, 22634, "Monster", 74, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(
         item_count(&world, 3001, 7264),
@@ -10005,7 +10005,7 @@ fn quest_q00617_gather_the_flames() {
     );
     // Vulcan: 1000 torches → one random S-grade recipe (force index 0 → 6881).
     inject(&mut world, 3001, 0x7264_0000, 7264, 998);
-    world.forced_rolls.push_back(0); // getRandomEntry index
+    world.force_roll(0); // getRandomEntry index
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10058,7 +10058,7 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
     // At 107 scales, one more kill tops to 108 (the cap) and flips cond → 2.
     inject(&mut world, 3001, 0x5868_0000, 5868, 107);
     add_test_npc(&mut world, NPC_OID + 1, 20672, "Monster", 65, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.71) → hit
+    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.71) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 5868),
@@ -10067,7 +10067,7 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cap reached → cond 2");
     // Turn in: 108 scales → one random recipe (force index 0 → 4975), exit.
-    world.forced_rolls.push_back(0); // REWARDS index
+    world.force_roll(0); // REWARDS index
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10112,7 +10112,7 @@ fn quest_q00354_conquest_of_alligator_island() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // crokian_lad (20804, 84%): one tooth.
     add_test_npc(&mut world, NPC_OID + 1, 20804, "Monster", 40, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.84) → hit
+    world.force_roll(0); // roll_f64 (0.0 < 0.84) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 5863),
@@ -10121,8 +10121,8 @@ fn quest_q00354_conquest_of_alligator_island() {
     );
     // nos_lad (20808): roll(100)=0 < 14 → double drop.
     add_test_npc(&mut world, NPC_OID + 2, 20808, "Monster", 40, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll(100) < 14 → count 2
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (chance 1.0) → hit
+    world.force_roll(0); // roll(100) < 14 → count 2
+    world.force_roll(0); // give_item_randomly roll_f64 (chance 1.0) → hit
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 5863), 3, "nos_lad drops 2 teeth");
     // 400 teeth → 2000 adena via the ADENA bypass, teeth cleared.
@@ -10181,7 +10181,7 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
     inject(&mut world, 3001, 0x5865_0000, 5865, 100);
     inject(&mut world, 3001, 0x5866_0000, 5866, 99);
     add_test_npc(&mut world, NPC_OID + 1, 20558, "Monster", 45, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.73) → hit
+    world.force_roll(0); // roll_f64 (0.0 < 0.73) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 5866),
@@ -10195,7 +10195,7 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
     );
     // FINISH: roll(100)=0 < 20 → 3000 adena, exit.
     let a = item_count(&world, 3001, 57);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10242,7 +10242,7 @@ fn quest_q00688_defeat_the_elrokian_raiders() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill Elroki: DROP_RATE 448 folded into the threshold, roll(1000)=0 < 448.
     add_test_npc(&mut world, NPC_OID + 1, 22214, "Monster", 75, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 8785), 1, "Elroki drops a necklace");
     // Per-necklace turn-in: 10 necklaces → 30000 adena.
@@ -10262,7 +10262,7 @@ fn quest_q00688_defeat_the_elrokian_raiders() {
     // Donation: 100 necklaces, roll(1000)=0 < 500 → 450000 adena.
     inject(&mut world, 3001, 0x0688_0001, 8785, 100);
     let b = item_count(&world, 3001, 57);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10313,14 +10313,14 @@ fn quest_q00355_family_honor() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // 20767: first 560 / second 684. roll(1000)=0 < 560 → a bust.
     add_test_npc(&mut world, NPC_OID + 2, 20767, "Monster", 40, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll(1000) → bust branch
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64
+    world.force_roll(0); // roll(1000) → bust branch
+    world.force_roll(0); // give_item_randomly roll_f64
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 4252), 1, "kill drops a bust");
     // roll(1000)=600 → 560..684 → a Sculptor Berona.
     add_test_npc(&mut world, NPC_OID + 3, 20767, "Monster", 40, 30, 0, 0);
-    world.forced_rolls.push_back(600); // roll(1000) → berona branch
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64
+    world.force_roll(600); // roll(1000) → berona branch
+    world.force_roll(0); // give_item_randomly roll_f64
     death::npc_do_die(&mut world, NPC_OID + 3, 3001);
     assert_eq!(item_count(&world, 3001, 4350), 1, "kill drops a berona");
     // Sell 100 busts at Galibredo → 100*20 = 2000 adena.
@@ -10338,7 +10338,7 @@ fn quest_q00355_family_honor() {
     );
     assert_eq!(item_count(&world, 3001, 4252), 0, "busts consumed");
     // Patrin appraises the berona: roll(100)=0 < 2 → the Prototype (4351).
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10448,7 +10448,7 @@ fn quest_q00622_specialty_liquor_delivery() {
     assert_eq!(item_count(&world, 3001, 7198), 0, "slips consumed");
     // Lietta: roll(1000)=0 < 800 → Quick Step Potion + 18800 adena, exit.
     let a = item_count(&world, 3001, 57);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10578,7 +10578,7 @@ fn quest_q00628_hunt_golden_ram() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Splinter (count 1) drops at cond 1; needle (count 2) does not.
     add_test_npc(&mut world, NPC_OID + 1, 21508, "Monster", 66, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.5) → hit
+    world.force_roll(0); // roll_f64 (0.0 < 0.5) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 7248),
@@ -10658,7 +10658,7 @@ fn quest_q00374_whisper_of_dreams_part1() {
     inject(&mut world, 3001, 0x0374_0000, 5884, 360);
     inject(&mut world, 3001, 0x0374_0001, 5885, 359);
     add_test_npc(&mut world, NPC_OID + 2, 20621, "Monster", 60, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly(light) roll_f64 (0.0 < 0.9)
+    world.force_roll(0); // give_item_randomly(light) roll_f64 (0.0 < 0.9)
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 5885), 360, "light topped to 360");
     assert_eq!(
@@ -10688,8 +10688,8 @@ fn quest_q00374_whisper_of_dreams_part1() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     add_test_npc(&mut world, NPC_OID + 3, 20620, "Monster", 60, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly(tooth) roll_f64
-    world.forced_rolls.push_back(0); // give_item_randomly(sealed stone) roll_f64 (0.0 < 0.2)
+    world.force_roll(0); // give_item_randomly(tooth) roll_f64
+    world.force_roll(0); // give_item_randomly(sealed stone) roll_f64 (0.0 < 0.2)
     death::npc_do_die(&mut world, NPC_OID + 3, 3001);
     assert_eq!(
         item_count(&world, 3001, 5886),
@@ -10754,7 +10754,7 @@ fn quest_q00306_crystal_of_fire_and_ice() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Chance is 1000/count > 1.0, so every kill drops a shard.
     add_test_npc(&mut world, NPC_OID + 1, 20109, "Monster", 20, 30, 0, 0); // Salamander → flame
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 1020),
@@ -10762,7 +10762,7 @@ fn quest_q00306_crystal_of_fire_and_ice() {
         "salamander always drops a flame shard"
     );
     add_test_npc(&mut world, NPC_OID + 2, 20110, "Monster", 20, 30, 0, 0); // Undine → ice
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(
         item_count(&world, 3001, 1021),
@@ -10921,7 +10921,7 @@ fn quest_q00375_whisper_of_dreams_part2() {
     inject(&mut world, 3001, 0x0375_0001, 5888, 325);
     inject(&mut world, 3001, 0x0375_0002, 5889, 324);
     add_test_npc(&mut world, NPC_OID + 1, 20628, "Monster", 65, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly(blood) roll_f64 (0.0 < 0.95)
+    world.force_roll(0); // give_item_randomly(blood) roll_f64 (0.0 < 0.95)
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 5889), 325, "blood topped to 325");
     assert_eq!(
@@ -10977,7 +10977,7 @@ fn quest_q00606_battle_against_varka_silenos() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll(1000)=0 < 500 → a mane.
     add_test_npc(&mut world, NPC_OID + 1, 21350, "Monster", 74, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 7233),
@@ -11026,7 +11026,7 @@ fn quest_q00612_battle_against_ketra_orcs() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     add_test_npc(&mut world, NPC_OID + 1, 21324, "Monster", 74, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 7234),
@@ -11072,7 +11072,7 @@ fn quest_q00634_in_search_of_fragments_of_dimension() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll(100)=0 < 80 → fragments, amount = (int)(40*0.15 + 2.6) = 8.
     add_test_npc(&mut world, NPC_OID + 1, 21139, "Monster", 40, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 7079),
@@ -11144,8 +11144,8 @@ fn quest_q00325_grim_collector() {
     assert_eq!(item_count(&world, 3001, 1349), 1, "diagram received");
     // Kill 20026: roll(100)=0 < 30 → the head branch of the ladder.
     add_test_npc(&mut world, NPC_OID + 3, 20026, "Monster", 20, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll(100) → head
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64
+    world.force_roll(0); // roll(100) → head
+    world.force_roll(0); // give_item_randomly roll_f64
     death::npc_do_die(&mut world, NPC_OID + 3, 3001);
     assert_eq!(
         item_count(&world, 3001, 1350),
@@ -11156,7 +11156,7 @@ fn quest_q00325_grim_collector() {
     for id in [1355, 1356, 1353, 1354, 1357] {
         inject(&mut world, 3001, 0x0325_0000 + id, id, 1);
     }
-    world.forced_rolls.push_back(0); // roll(5) < 4 → success
+    world.force_roll(0); // roll(5) < 4 → success
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -11295,7 +11295,7 @@ fn quest_q00643_rise_and_fall_of_the_elroki_tribe() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // MOBS1 always pays; roll(1000)=0 < 116 → 2 bones.
     add_test_npc(&mut world, NPC_OID + 1, 22200, "Monster", 75, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(
         item_count(&world, 3001, 8776),
@@ -11317,7 +11317,7 @@ fn quest_q00643_rise_and_fall_of_the_elroki_tribe() {
     assert_eq!(item_count(&world, 3001, 8776), 0, "bones consumed");
     // Exchange 300 bones for 5 of a random weapon piece (force index 0 → 8712).
     inject(&mut world, 3001, 0x0643_0000, 8776, 300);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -11387,7 +11387,7 @@ fn quest_q00111_elrokian_hunters_proof() {
     // Diary stage: 49 + one kill topping to 50 → cond 5.
     inject(&mut world, 3001, 0x0111_0000, 8768, 49);
     add_test_npc(&mut world, NPC_OID + 10, 22196, "Monster", 75, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.51)
+    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.51)
     death::npc_do_die(&mut world, NPC_OID + 10, 3001);
     assert_eq!(item_count(&world, 3001, 8768), 50, "diary tops to 50");
     assert_eq!(quest_cond(&world, 3001, q), Some(5));
@@ -11417,7 +11417,7 @@ fn quest_q00111_elrokian_hunters_proof() {
     inject(&mut world, 3001, 0x0111_2000, 8771, 10);
     inject(&mut world, 3001, 0x0111_3000, 8772, 10);
     add_test_npc(&mut world, NPC_OID + 11, 22200, "Monster", 75, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.66)
+    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.66)
     death::npc_do_die(&mut world, NPC_OID + 11, 3001);
     assert_eq!(item_count(&world, 3001, 8770), 10, "claws top to 10");
     assert_eq!(quest_cond(&world, 3001, q), Some(11));
@@ -11504,7 +11504,7 @@ fn quest_q00373_supplier_of_reagents() {
     assert_eq!(item_count(&world, 3001, 6317), 1, "mixing manual given");
     // Pair drop: Lava Wyrm, roll(1000)=0 < 505 → Wyrm's Blood.
     add_test_npc(&mut world, NPC_OID + 10, 21111, "Monster", 60, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 10, 3001);
     assert_eq!(
         item_count(&world, 3001, 6011),
@@ -11513,7 +11513,7 @@ fn quest_q00373_supplier_of_reagents() {
     );
     // Single drop: Platinum Guardian Shaman, roll(1_000_000)=0 < 442000 → Reagent Box.
     add_test_npc(&mut world, NPC_OID + 11, 21066, "Monster", 60, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 11, 3001);
     assert_eq!(
         item_count(&world, 3001, 6010),
@@ -11590,7 +11590,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill a Cave Servant → an Article.
     add_test_npc(&mut world, NPC_OID + 10, 20236, "Monster", 50, 30, 0, 0);
-    world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.58)
+    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.58)
     death::npc_do_die(&mut world, NPC_OID + 10, 3001);
     assert_eq!(
         item_count(&world, 3001, 4269),
@@ -11599,8 +11599,8 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     );
     // Turn-in gamble: 5 articles, roll(1000)=0 < 5 → relic; roll(4)=0 → Old Hilt (memo 1, cond 2).
     inject(&mut world, 3001, 0x0344_0000, 4269, 4); // 5 total
-    world.forced_rolls.push_back(0); // roll(1000) < count → relic path
-    world.forced_rolls.push_back(0); // roll(4) → Old Hilt
+    world.force_roll(0); // roll(1000) < count → relic path
+    world.force_roll(0); // roll(4) → Old Hilt
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -11622,7 +11622,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
         "articles consumed by the turn-in"
     );
     // Kaien exchanges the Old Hilt: roll(100)=0 ≤ 52 → 25 Oriharukon Ore, back to cond 1.
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -11638,7 +11638,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     // Adena path: 3 articles, roll(1000)=500 ≥ 3 → 3*60 = 180 adena.
     inject(&mut world, 3001, 0x0344_0001, 4269, 3);
     let a = item_count(&world, 3001, 57);
-    world.forced_rolls.push_back(500);
+    world.force_roll(500);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -11705,7 +11705,7 @@ fn quest_q00235_mimirs_elixir() {
     ev(&mut world, joan, "30718-03.htm");
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     add_test_npc(&mut world, NPC_OID + 10, 20965, "Monster", 75, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll(10) < 2 → Sage Stone
+    world.force_roll(0); // roll(10) < 2 → Sage Stone
     death::npc_do_die(&mut world, NPC_OID + 10, 3001);
     assert_eq!(item_count(&world, 3001, 6322), 1, "Sage Stone drops");
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
@@ -11720,7 +11720,7 @@ fn quest_q00235_mimirs_elixir() {
     assert_eq!(item_count(&world, 3001, 5905), 1, "Mixing Stone received");
     // A Blood Fire drop → cond 7.
     add_test_npc(&mut world, NPC_OID + 11, 21090, "Monster", 75, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 11, 3001);
     assert_eq!(item_count(&world, 3001, 6318), 1, "Blood Fire drops");
     assert_eq!(quest_cond(&world, 3001, q), Some(7));
@@ -12080,7 +12080,7 @@ fn quest_q00223_test_of_the_champion() {
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // onAttack ambush: first hit on an elite (ring held, heads<10, roll 0) conjures a second elite.
     add_test_npc(&mut world, NPC_OID + 20, 20780, "Monster", 40, 40, 0, 0);
-    world.forced_rolls.push_back(0); // roll(2) == 0 → spawn
+    world.force_roll(0); // roll(2) == 0 → spawn
     combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0, false);
     assert_eq!(
         npcs_of(&mut world, 20780).len(),
@@ -12296,7 +12296,7 @@ fn quest_q00224_test_of_sagittarius() {
     );
     let before = npcs_of(&mut world, 27090).len();
     inject(&mut world, 3001, 0x0224_0005, 3306, 24); // stack now 30
-    world.forced_rolls.push_back(0); // ((30-10)*5)=100 > 0 → spawn Kadesh
+    world.force_roll(0); // ((30-10)*5)=100 > 0 → spawn Kadesh
     kill(&mut world, 20577);
     assert_eq!(
         npcs_of(&mut world, 27090).len(),
@@ -12493,7 +12493,7 @@ fn quest_q00225_test_of_the_searcher() {
         Some(15),
         "one map is not enough"
     );
-    world.forced_rolls.push_back(0); // roll(100) < 50 → drop
+    world.force_roll(0); // roll(100) < 50 → drop
     kill(&mut world, 20144); // Hangman Tree: first torn 2nd piece
     assert_eq!(
         item_count(&world, 3001, 2802),
@@ -12501,7 +12501,7 @@ fn quest_q00225_test_of_the_searcher() {
         "Torn Map Piece 2nd accrues"
     );
     inject(&mut world, 3001, 0x0225_0003, 2802, 2); // → 3 pieces
-    world.forced_rolls.push_back(0); // roll(100) < 50 → convert
+    world.force_roll(0); // roll(100) < 50 → convert
     kill(&mut world, 20144); // at 3 → Makel's Map + cond 15 (Solt's held)
     assert_eq!(item_count(&world, 3001, 2804), 1, "Makel's Map");
     assert_eq!(quest_cond(&world, 3001, q), Some(15));
@@ -12647,8 +12647,8 @@ fn quest_q00211_trial_of_the_challenger() {
         "Shyslassys conjures a chest"
     );
     // Chest gamble: force the jackpot (roll(10) < 2), then the top reward tier (roll > 90).
-    world.forced_rolls.push_back(0); // roll(10) = 0 → jackpot
-    world.forced_rolls.push_back(95); // roll(100) = 95 → top tier
+    world.force_roll(0); // roll(10) = 0 → jackpot
+    world.force_roll(95); // roll(100) = 95 → top tier
     talk(&mut world, chest);
     ev(&mut world, chest, "30647-02.html");
     assert_eq!(
@@ -12775,7 +12775,7 @@ fn quest_q00212_trial_of_duty() {
         npcs_of(&mut world, 27119).is_empty(),
         "flag 0: no spawn yet"
     );
-    world.forced_rolls.push_back(5); // roll(100)=5 < flag(1)*10 → spawn
+    world.force_roll(5); // roll(100)=5 < flag(1)*10 → spawn
     kill(&mut world, 20190);
     assert_eq!(
         npcs_of(&mut world, 27119).len(),
@@ -12807,7 +12807,7 @@ fn quest_q00212_trial_of_duty() {
         npcs_of(&mut world, 30656).len() <= 1,
         "spirit not conjured below flag 4"
     );
-    world.forced_rolls.push_back(10); // roll(100)=10 < (flag(4)-3)*33=33 → spawn
+    world.force_roll(10); // roll(100)=10 < (flag(4)-3)*33=33 → spawn
     kill(&mut world, 20144);
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -12925,7 +12925,7 @@ fn quest_q00213_trial_of_the_seeker() {
     talk(&mut world, terry);
     ev(&mut world, terry, "30064-03.html"); // Dufner's Letter → 1st Order, cond 2
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
-    world.forced_rolls.push_back(0); // getRandomBoolean → true
+    world.force_roll(0); // getRandomBoolean → true
     kill(&mut world, 20198); // Neer Ghoul → Mysterious Spirit Ore, cond 3
     assert_eq!(item_count(&world, 3001, 2653), 1, "Mysterious Spirit Ore");
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
@@ -13249,7 +13249,7 @@ fn quest_q00216_trial_of_the_guildsman() {
     ev(&mut world, pinter, "30298-04.html"); // Artisan → Recipe + Pinter's Instructions
     assert_eq!(item_count(&world, 3001, 3135), 1, "Pinter's Instructions");
     inject(&mut world, 3001, 0x0216_0006, 3136, 65); // 65 Amber Beads
-    world.forced_rolls.push_back(0); // roll(2)==0 → Amber Lump (Artisan)
+    world.force_roll(0); // roll(2)==0 → Amber Lump (Artisan)
     kill(&mut world, 20079); // Ant: +5 amber → 70
     assert!(item_count(&world, 3001, 3136) >= 70, "70 Amber Beads");
     assert_eq!(
@@ -13511,7 +13511,7 @@ fn quest_q00228_test_of_magus() {
     // --- Fire (Salamander) ---
     talk(&mut world, flame); // gives Salamander Charm
     inject(&mut world, 3001, 0x0228_0003, 2849, 4);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     kill(&mut world, 27098); // Ghost Fire → 5 crystals
     talk(&mut world, flame); // → Tone of Fire
     assert_eq!(item_count(&world, 3001, 2857), 1, "Tone of Fire");
@@ -13521,10 +13521,10 @@ fn quest_q00228_test_of_magus() {
     inject(&mut world, 3001, 0x0228_0004, 2850, 19);
     kill(&mut world, 20145); // Harpy → 20 feathers
     inject(&mut world, 3001, 0x0228_0005, 2851, 9);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     kill(&mut world, 20176); // Wyrm → 10 wingbone
     inject(&mut world, 3001, 0x0228_0006, 2852, 9);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     kill(&mut world, 20553); // Windsus → 10 mane
     talk(&mut world, sylph); // → Tone of Wind
     assert_eq!(item_count(&world, 3001, 2858), 1, "Tone of Wind");
@@ -13758,7 +13758,7 @@ fn quest_q00233_test_of_the_war_spirit() {
     talk(&mut world, sarien); // letter → Insect Diagram Book
     assert_eq!(item_count(&world, 3001, 2904), 1, "Insect Diagram Book");
     for r in [70, 70, 50, 50, 10] {
-        world.forced_rolls.push_back(r); // thigh, arm, spine, rib, skull
+        world.force_roll(r); // thigh, arm, spine, rib, skull
         kill(&mut world, 20089);
     }
     talk(&mut world, racoy); // bones → Kiruna's Remains 1
@@ -13890,12 +13890,12 @@ fn quest_q00217_testimony_of_trust() {
     ev(&mut world, asterios, "30154-03.html"); // → Order of Asterios, memo 2, cond 2
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // --- Elf leg: conjure and slay Actea and Luell ---
-    world.forced_rolls.push_back(0); // roll(100)=0 < 33 → spawn Actea
+    world.force_roll(0); // roll(100)=0 < 33 → spawn Actea
     kill(&mut world, 20013); // Dryad
     assert_eq!(npcs_of(&mut world, 27121).len(), 1, "Actea conjured");
     kill(&mut world, 27121); // Actea → Seed of Verdure
     assert_eq!(item_count(&world, 3001, 2747), 1, "Seed of Verdure");
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     kill(&mut world, 20036); // Lirein → spawn Luell
     kill(&mut world, 27120); // Luell → Breath of Winds, memo 3, cond 3
     assert_eq!(item_count(&world, 3001, 2746), 1, "Breath of Winds");
@@ -14373,7 +14373,7 @@ fn quest_q00229_test_of_witchcraft() {
     talk(&mut world, vadin); // Vasper's Letter → Vadin's Crucifix
     assert_eq!(item_count(&world, 3001, 3328), 1, "Vadin's Crucifix");
     inject(&mut world, 3001, 0x0229_0003, 3329, 19); // 19 Tamlin amulets
-    world.forced_rolls.push_back(0); // roll(100)=0 < 50 → drop
+    world.force_roll(0); // roll(100)=0 < 50 → drop
     kill(&mut world, 20601); // +1 → 20
     talk(&mut world, vadin); // amulets → Vadin's Sanctions
     assert_eq!(item_count(&world, 3001, 3330), 1, "Vadin's Sanctions");
@@ -15497,7 +15497,7 @@ fn quest_q00230_test_of_the_summoner() {
     );
 
     // --- Lara hands out a hunting list (forced to the 1st), takes the Letter. ---
-    world.forced_rolls.push_back(0); // getRandom(5) → LARAS_1ST_LIST
+    world.force_roll(0); // getRandom(5) → LARAS_1ST_LIST
     ev(&mut world, lara, "30063-02.html");
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     assert_eq!(
@@ -15516,7 +15516,7 @@ fn quest_q00230_test_of_the_summoner() {
     let mut kill = |w: &mut World, npc_id: i32| {
         mob += 1;
         add_test_npc(w, mob, npc_id, "Monster", 40, 110, 200, 0);
-        w.forced_rolls.push_back(0); // give_item_randomly roll_f64 → 0.0 ≤ chance
+        w.force_roll(0); // give_item_randomly roll_f64 → 0.0 ≤ chance
         death::npc_do_die(w, mob, 3001);
     };
     kill(&mut world, LETO); // list1 held → Leto Lizardman Amulet drops
@@ -15538,7 +15538,7 @@ fn quest_q00230_test_of_the_summoner() {
         let held = item_count(&world, 3001, LETO_AMULET);
         let far = NPC_OID + 90;
         add_test_npc(&mut world, far, LETO, "Monster", 40, 5_000, 5_000, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, far, 3001);
         assert_eq!(
             item_count(&world, 3001, LETO_AMULET),
@@ -16454,7 +16454,7 @@ fn quest_q00036_make_a_sewing_kit() {
     for _ in 0..5 {
         mob += 1;
         add_test_npc(&mut world, mob, IRON_GOLEM, "Monster", 60, 110, 200, 0);
-        world.forced_rolls.push_back(0); // roll(2)==0 → the peel succeeds
+        world.force_roll(0); // roll(2)==0 → the peel succeeds
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(
@@ -16551,7 +16551,7 @@ fn quest_q00035_find_glittering_jewelry() {
     for _ in 0..10 {
         mob += 1;
         add_test_npc(&mut world, mob, ALLIGATOR, "Monster", 60, 110, 200, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, ROUGH_JEWEL), 10, "10 rough jewels");
@@ -16632,7 +16632,7 @@ fn quest_q00034_in_search_of_cloth() {
     for _ in 0..10 {
         mob += 1;
         add_test_npc(&mut world, mob, TRISALIM_SPIDER, "Monster", 46, 110, 200, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, SPINNERET), 10, "10 spinnerets");
@@ -16808,13 +16808,13 @@ fn quest_q00642_a_powerful_primeval_creature() {
     for _ in 0..3 {
         mob += 1;
         add_test_npc(&mut world, mob, TISSUE_MOB, "Monster", 78, 110, 200, 0);
-        world.forced_rolls.push_back(0);
+        world.force_roll(0);
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, DINOSAUR_TISSUE), 3, "3 tissues");
     mob += 1;
     add_test_npc(&mut world, mob, ANCIENT_EGG, "Monster", 78, 110, 200, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, mob, 3001);
     assert_eq!(
         item_count(&world, 3001, DINOSAUR_EGG),
@@ -17048,7 +17048,7 @@ fn quest_q00125_the_name_of_evil_1() {
     for id in [ORNITHO, ORNITHO, DEINO, DEINO] {
         mob += 1;
         add_test_npc(&mut world, mob, id, "Monster", 78, 110, 200, 0);
-        world.forced_rolls.push_back(0); // roll(1000)==0 < chance → drop
+        world.force_roll(0); // roll(1000)==0 < chance → drop
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, CLAW), 2, "2 claws");
@@ -17422,7 +17422,7 @@ fn quest_q00420_little_wing() {
     for _ in 0..20 {
         mob += 1;
         add_test_npc(&mut world, mob, LETO_WARRIOR, "Monster", 40, 110, 200, 0);
-        world.forced_rolls.push_back(0); // give_item_randomly roll → drop
+        world.force_roll(0); // give_item_randomly roll → drop
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, EXARION_EGG), 20, "20 eggs farmed");
@@ -17434,7 +17434,7 @@ fn quest_q00420_little_wing() {
     assert_eq!(item_count(&world, 3001, EXARION_SCALE), 0, "scale consumed");
 
     // Mimyu redeems the egg for a Dragonflute (forced roll 0 → Wind), completing.
-    world.forced_rolls.push_back(0); // give_reward roll(100) → Wind
+    world.force_roll(0); // give_reward roll(100) → Wind
     ev(&mut world, mimyu, "30747-12.html");
     assert_eq!(
         item_count(&world, 3001, DRAGONFLUTE_OF_WIND),
@@ -17462,7 +17462,7 @@ fn quest_q00420_little_wing() {
         qs.vars.insert("cond".to_string(), "6".to_string());
     }
     inject(&mut w2, 3001, 0x0420_9000, DELUXE_FAIRY_STONE, 1);
-    w2.forced_rolls.push_back(0); // onAttack roll(100)==0 < 30 → shatter
+    w2.force_roll(0); // onAttack roll(100)==0 < 30 → shatter
     combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0, false);
     assert_eq!(
         item_count(&w2, 3001, DELUXE_FAIRY_STONE),
@@ -17550,7 +17550,7 @@ fn quest_q00620_four_goblets() {
         200,
         0,
     );
-    world.forced_rolls.push_back(0); // roll(100) < 15 → Sealed Box
+    world.force_roll(0); // roll(100) < 15 → Sealed Box
     death::npc_do_die(&mut world, NPC_OID + 20, 3001);
     assert_eq!(item_count(&world, 3001, RELIC), 1, "Relic dropped");
     assert_eq!(
@@ -17592,7 +17592,7 @@ fn quest_q00620_four_goblets() {
     assert_eq!(item_count(&world, 3001, GOBLETS[0]), 0, "goblets consumed");
 
     // Open the Sealed Box (forced roll 0 → the 10,000 Adena reward).
-    world.forced_rolls.push_back(0); // roll(5) == 0
+    world.force_roll(0); // roll(5) == 0
     ev(&mut world, wigoth2, "11");
     assert_eq!(item_count(&world, 3001, SEALED_BOX), 0, "box consumed");
     assert!(
@@ -17681,7 +17681,7 @@ fn quest_q00032_an_obvious_lie() {
     for _ in 0..20 {
         mob += 1;
         add_test_npc(&mut world, mob, ALLIGATOR, "Monster", 46, 110, 200, 0);
-        world.forced_rolls.push_back(0); // give_item_randomly → drop
+        world.force_roll(0); // give_item_randomly → drop
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, MEDICINAL_HERB), 20, "20 herbs");
@@ -18869,7 +18869,7 @@ fn quest_q00421_little_wings_big_adventure() {
     // --- The four-tree grind: past each threshold, the bound pet drinks. ---
     for (i, (id, min_hits, value)) in TREES.iter().enumerate() {
         set_hits(&mut world, min_hits - 1); // next blow reaches the threshold
-        world.forced_rolls.push_back(0); // the 2% essence roll → success
+        world.force_roll(0); // the 2% essence roll → success
         let before = memo(&world);
         quests::notify_attack(&mut world, 3001, tree_oids[i], *id, None, true);
         assert_eq!(memo(&world), before + value, "tree {id} sets its memo bit");
@@ -19032,7 +19032,7 @@ fn quest_q00605_alliance_with_ketra_orcs() {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{wahkan}_Quest {q} {e}")));
     };
     let kill = |w: &mut World, roll: i32| {
-        w.forced_rolls.push_back(roll);
+        w.force_roll(roll);
         quests::notify_kill(w, 3001, mob, RECRUIT, false);
     };
 
@@ -19162,7 +19162,7 @@ fn quest_q00611_varka_mirror_and_exclusion() {
         "Varka alliance starts once the Ketra mark is gone"
     );
 
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     quests::notify_kill(&mut world, 3001, mob, FOOTMAN, false);
     assert_eq!(
         item_count(&world, 3001, KETRA_BADGE_SOLDIER),
@@ -19290,7 +19290,7 @@ fn quest_q00350_enhance_your_weapon() {
         .unwrap()
         .cur_hp = 40.0; // ≤ half HP, the absorb condition
     quests::notify_skill_see(&mut world, 3001, mob, MOB, SOUL_CRYSTAL_SKILL);
-    world.forced_rolls.push_back(0); // roll(100)=0 <= chance 100 → success
+    world.force_roll(0); // roll(100)=0 <= chance 100 → success
     drain(&mut rx);
     quests::notify_kill(&mut world, 3001, mob, MOB, false);
     assert_eq!(
@@ -19333,7 +19333,7 @@ fn quest_q00350_enhance_your_weapon() {
             chance: 50,
         },
     );
-    world.forced_rolls.push_back(99); // roll(100)=99 > chance 50 → failure
+    world.force_roll(99); // roll(100)=99 > chance 50 → failure
     drain(&mut rx);
     quests::notify_kill(&mut world, 3001, mob, MOB, false);
     assert_eq!(
@@ -19464,7 +19464,7 @@ fn quest_q00275_dark_winged_spies() {
 
     // Sitting at 69 fangs, one more bat kill reaches the 70 cap → cond 2.
     inject(&mut world, 3001, 0x0027_5000, FANG, 69);
-    world.forced_rolls.push_back(0); // roll_f64 → 0.0 ≤ chance, the fang drops
+    world.force_roll(0); // roll_f64 → 0.0 ≤ chance, the fang drops
     quests::notify_kill(&mut world, 3001, bat, BAT, false);
     assert_eq!(item_count(&world, 3001, FANG), 70, "the 70th fang dropped");
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "70 fangs → cond 2");
@@ -19539,8 +19539,8 @@ fn quest_q00370_an_elder_sows_seeds() {
     );
 
     // Kill an ant: the 9% roll succeeds and a page drops.
-    world.forced_rolls.push_back(0); // roll(100)=0 < 9
-    world.forced_rolls.push_back(0); // roll_f64=0.0 ≤ chance
+    world.force_roll(0); // roll(100)=0 < 9
+    world.force_roll(0); // roll_f64=0.0 ≤ chance
     quests::notify_kill(&mut world, 3001, ant, ANT, false);
     assert_eq!(
         item_count(&world, 3001, PAGE),
@@ -19635,8 +19635,8 @@ fn quest_q00327_recover_the_farmland() {
     );
 
     // --- An Archer kill drops a Dog Tag, and (forced) a relic fragment. ---
-    world.forced_rolls.push_back(0); // roll(100)=0 < 21 → a fragment drops
-    world.forced_rolls.push_back(0); // roll(4)=0 → Clay Urn Fragment (1848)
+    world.force_roll(0); // roll(100)=0 < 21 → a fragment drops
+    world.force_roll(0); // roll(4)=0 → Clay Urn Fragment (1848)
     quests::notify_kill(&mut world, 3001, mob, ARCHER, false);
     assert_eq!(
         item_count(&world, 3001, DOG_TAG),
@@ -19663,7 +19663,7 @@ fn quest_q00327_recover_the_farmland() {
     // --- Asha gambles 5 fragments into an Ancient Clay Urn (forced success).
     // The kill already dropped one Clay fragment, so top up by four to reach 5.
     inject(&mut world, 3001, 0x0032_7100, CLAY_FRAGMENT, 4);
-    world.forced_rolls.push_back(0); // roll(6)=0 < 5 → success
+    world.force_roll(0); // roll(6)=0 < 5 → success
     ev(&mut world, asha, "30313-03.html");
     assert_eq!(
         item_count(&world, 3001, ANCIENT_CLAY_URN),
@@ -19677,7 +19677,7 @@ fn quest_q00327_recover_the_farmland() {
     );
 
     // --- Nestle trades the relic for 70 Soulshot D (forced low roll). ---
-    world.forced_rolls.push_back(0); // roll(41)=0 → 70 shots
+    world.force_roll(0); // roll(41)=0 → 70 shots
     ev(&mut world, nestle, "30314-03.html");
     assert_eq!(
         item_count(&world, 3001, SOULSHOT_D),
@@ -19761,7 +19761,7 @@ fn quest_q00348_an_arrogant_search() {
     assert_eq!(cond(&world), Some(2), "accepted → cond 2");
 
     // A Drake kill (forced coin-flip) → Shell of Monsters, cond 3.
-    world.forced_rolls.push_back(0); // roll(2)=0 → the coin flip lands
+    world.force_roll(0); // roll(2)=0 → the coin flip lands
     quests::notify_kill(&mut world, 3001, drake, DRAKE, false);
     assert_eq!(
         item_count(&world, 3001, SHELL),
@@ -19836,7 +19836,7 @@ fn quest_q00348_an_arrogant_search() {
 
     // 100 White Cloth from the Platinum Tribe → cond 10.
     inject(&mut world, 3001, 0x0034_8100, WHITE_CLOTH_PLATINUM, 99); // top up to 100 on the kill
-    world.forced_rolls.push_back(0); // roll_f64 → the cloth drops
+    world.force_roll(0); // roll_f64 → the cloth drops
     quests::notify_kill(&mut world, 3001, platinum, PLATINUM, false);
     assert_eq!(
         item_count(&world, 3001, WHITE_CLOTH_PLATINUM),
@@ -19920,8 +19920,8 @@ fn quest_q00662_a_game_of_cards() {
     ev(&mut world, "30845-03.htm");
 
     // A Blood Queen kill (value 232 < forced roll 999) drops a chip.
-    world.forced_rolls.push_back(999); // roll(1000) → 999 > 232
-    world.forced_rolls.push_back(0); // roll_f64 for the give
+    world.force_roll(999); // roll(1000) → 999 > 232
+    world.force_roll(0); // roll_f64 for the give
     quests::notify_kill(&mut world, 3001, mob, BLOOD_QUEEN, false);
     assert_eq!(
         item_count(&world, 3001, RED_GEM),
@@ -19933,7 +19933,7 @@ fn quest_q00662_a_game_of_cards() {
     // [1,1,2,3,4] — a single pair (i1 == i2).
     inject(&mut world, 3001, 0x0066_2000, RED_GEM, 49); // top up to 50
     for r in [0, 14, 1, 2, 3] {
-        world.forced_rolls.push_back(r); // roll(70)+1 → the five raw cards
+        world.force_roll(r); // roll(70)+1 → the five raw cards
     }
     ev(&mut world, "30845-11.html");
     assert_eq!(item_count(&world, 3001, RED_GEM), 0, "50 chips staked");
@@ -20043,8 +20043,8 @@ fn quest_q00333_hunt_of_the_black_lion() {
     );
 
     // A Neer Crawler kill (order held) drops Undead Ash and a Cargo Box.
-    world.forced_rolls.push_back(0); // material roll 0 < 50
-    world.forced_rolls.push_back(0); // cargo roll 0 < 11
+    world.force_roll(0); // material roll 0 < 50
+    world.force_roll(0); // cargo roll 0 < 11
     quests::notify_kill(&mut world, 3001, mob, NEER_CRAWLER, false);
     assert_eq!(
         item_count(&world, 3001, UNDEAD_ASH),
@@ -20075,7 +20075,7 @@ fn quest_q00333_hunt_of_the_black_lion() {
     for p in [STATUE_HEAD, 3458, 3459, 3460] {
         inject(&mut world, 3001, 0x0033_3100 + p, p, 1);
     }
-    world.forced_rolls.push_back(0); // roll(100) 0 < 50 → assembly succeeds
+    world.force_roll(0); // roll(100) 0 < 50 → assembly succeeds
     ev(&mut world, rupio, "30471-03.html");
     assert_eq!(
         item_count(&world, 3001, COMPLETE_STATUE),
@@ -20201,8 +20201,8 @@ fn fishing_cast_hook_and_land_a_fish() {
     assert_eq!(item_count(&world, 3001, FISH), 0, "no catch mid-cast");
 
     // Force a win (roll ≤ 40) then the first catch (roll → Ugly Fish).
-    world.forced_rolls.push_back(0); // reel win roll
-    world.forced_rolls.push_back(0); // catch-table roll
+    world.force_roll(0); // reel win roll
+    world.force_roll(0); // catch-table roll
     advance_ticks(&mut world, 12); // past the 10-tick reel time
 
     assert_eq!(item_count(&world, 3001, FISH), 1, "landed a fish");
@@ -20216,8 +20216,8 @@ fn fishing_cast_hook_and_land_a_fish() {
         .x = 50_000; // out of the synthetic zones
     crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop (was still fishing)
     crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // try to start
-    world.forced_rolls.push_back(0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
+    world.force_roll(0);
     advance_ticks(&mut world, 12);
     assert_eq!(
         item_count(&world, 3001, FISH),
@@ -20326,8 +20326,8 @@ fn fishing_premium_and_underwater_gates() {
         .data
         .fishing_data
         .insert_bait_for_test(BAIT, bait(false));
-    world.forced_rolls.push_back(0); // win
-    world.forced_rolls.push_back(0); // catch
+    world.force_roll(0); // win
+    world.force_roll(0); // catch
     crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(
@@ -20425,7 +20425,7 @@ fn fishing_shots_double_the_win_chance() {
     insert_zone(&mut world, ZoneKind::Water, 160, 1000, 0, 1000);
 
     // --- No shots: the 40% chance loses on a roll of 41. ---
-    world.forced_rolls.push_back(41); // reel win roll: 41 > 40 → lose
+    world.force_roll(41); // reel win roll: 41 > 40 → lose
     crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(
@@ -20441,8 +20441,8 @@ fn fishing_shots_double_the_win_chance() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .auto_shots = vec![FISH_SHOT];
-    world.forced_rolls.push_back(41); // reel win roll: 41 ≤ 80 → win
-    world.forced_rolls.push_back(0); // catch-table roll
+    world.force_roll(41); // reel win roll: 41 ≤ 80 → win
+    world.force_roll(0); // catch-table roll
     crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(
@@ -20813,7 +20813,7 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
 
     // Gremlin kill with a forced sub-30 roll: the gem hits the ground.
     add_test_npc(&mut world, 9200, 20001, "Monster", 5, 10, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     quests::notify_kill(&mut world, 3001, 9200, 20001, false);
     let gem_oid = world
         .ground_item_regions
@@ -20902,7 +20902,7 @@ fn quest_kill_credit_reaches_a_party_member() {
     // candidate) and the 40% drop roll both forced.
     let mob = NPC_OID + 40;
     add_test_npc(&mut world, mob, 20361, "Monster", 11, 30, 0, 0);
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     death::npc_do_die(&mut world, mob, 3001);
     assert_eq!(
         item_count(&world, 3005, 963),
@@ -20918,7 +20918,7 @@ fn quest_kill_credit_reaches_a_party_member() {
         .unwrap()
         .x = 99_999;
     add_test_npc(&mut world, mob + 1, 20361, "Monster", 11, 30, 0, 0);
-    world.forced_rolls.extend([0, 0]);
+    world.force_rolls([0, 0]);
     death::npc_do_die(&mut world, mob + 1, 3001);
     assert_eq!(
         item_count(&world, 3005, 963),
@@ -21083,7 +21083,7 @@ fn quest_q11001_tombs_of_ancestors() {
     // Ten Broken Swords with no Fangs must NOT advance.
     inject(&mut world, 3001, 0x1100_1002, 90203, 9);
     add_test_npc(&mut world, NPC_OID + 2, 20093, "Monster", 10, 30, 0, 0);
-    world.forced_rolls.push_back(0); // roll(100)=0 < 89 → drops
+    world.force_roll(0); // roll(100)=0 < 89 → drops
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 90203), 10, "tenth sword collected");
     assert_eq!(
@@ -21095,7 +21095,7 @@ fn quest_q11001_tombs_of_ancestors() {
     // The tenth Fang closes the other half and now it advances.
     inject(&mut world, 3001, 0x1100_1003, 90202, 9);
     add_test_npc(&mut world, NPC_OID + 3, 20132, "Monster", 10, 30, 0, 0);
-    world.forced_rolls.push_back(0);
+    world.force_roll(0);
     death::npc_do_die(&mut world, NPC_OID + 3, 3001);
     assert_eq!(quest_cond(&world, 3001, q), Some(5), "both halves done");
 
@@ -21222,7 +21222,7 @@ fn quest_q11001_capped_stage_stops_at_the_requirement() {
     );
     inject(&mut world, 3001, 0x1100_1100, 90200, 10);
     add_test_npc(&mut world, NPC_OID + 10, 20120, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(0); // would drop if the cap were gone
+    world.force_roll(0); // would drop if the cap were gone
     death::npc_do_die(&mut world, NPC_OID + 10, 3001);
     assert_eq!(
         item_count(&world, 3001, 90200),
