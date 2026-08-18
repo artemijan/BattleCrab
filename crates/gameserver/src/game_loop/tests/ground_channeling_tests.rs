@@ -50,16 +50,6 @@ fn ground_body(x: i32, y: i32, z: i32, skill_id: i32, shift: bool) -> Vec<u8> {
     w.into_bytes()
 }
 
-fn learn(world: &mut World, oid: i32, skill: &Skill) {
-    world.data.skill_data.insert_for_test(skill.clone());
-    world
-        .objects
-        .get_component_mut::<SkillBook>(&oid)
-        .unwrap()
-        .0
-        .insert(skill.id, 1);
-}
-
 fn hp_of(world: &World, oid: i32) -> f64 {
     world.objects.get_component::<Vitals>(&oid).unwrap().cur_hp
 }
@@ -117,7 +107,7 @@ fn ground_channel_burns_the_point_not_the_caster() {
     let (mut world, _db, _l) = cast_test_world();
     let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let skill = volcano_like(9200);
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
     let (in_fire, outside) = (NPC_OID, NPC_OID + 1);
     add_test_npc(&mut world, in_fire, 20001, "Monster", 5, 500, 0, 0);
     add_test_npc(&mut world, outside, 20001, "Monster", 5, 900, 0, 0);
@@ -204,7 +194,7 @@ fn ticks_stop_when_the_cast_ends() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let skill = volcano_like(9201);
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
     let mob = NPC_OID;
     add_test_npc(&mut world, mob, 20001, "Monster", 5, 500, 0, 0);
     world
@@ -243,7 +233,7 @@ fn a_mob_walking_in_mid_channel_burns() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let skill = volcano_like(9202);
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
     let latecomer = NPC_OID;
     // Starts outside the 200 circle around (500, 0)…
     add_test_npc(&mut world, latecomer, 20001, "Monster", 5, 850, 0, 0);
@@ -290,7 +280,7 @@ fn mp_starvation_aborts_the_channel() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let mut skill = volcano_like(9203);
     skill.mp_per_channeling = 20;
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
     let mob = NPC_OID;
     add_test_npc(&mut world, mob, 20001, "Monster", 5, 500, 0, 0);
     // Enough MP for two ticks, nowhere near the full channel.
@@ -320,7 +310,7 @@ fn ground_cast_without_a_position_is_refused() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let skill = volcano_like(9204);
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
 
     use_magic(&mut world, CID, CASTER, 9204, false, false);
     assert!(
@@ -336,7 +326,7 @@ fn shift_refuses_a_far_ground_point() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let skill = volcano_like(9205);
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
 
     handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(1500, 0, 0, 9205, true));
     assert!(
@@ -424,7 +414,7 @@ fn reagent_is_required_and_consumed_at_cast_start() {
     let mut skill = volcano_like(9208);
     skill.item_consume_id = 8876;
     skill.item_consume_count = 1;
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
 
     handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, 9208, false));
     assert!(
@@ -547,7 +537,7 @@ fn a_single_channeler_applies_the_channeled_skill_at_level_one() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _ally = ingame_caster(&mut world, 2, ALLY, 50, 0);
     let stance = stance_skill();
-    learn(&mut world, CASTER, &stance);
+    learn_skill(&mut world, CASTER, &stance);
 
     start_stance(&mut world, CID, CASTER, ALLY);
     advance_ticks(&mut world, 10);
@@ -569,8 +559,8 @@ fn two_channelers_stack_the_channeled_skill_to_level_two() {
     let _out2 = ingame_caster(&mut world, 3, ALLY2, 10, 0);
     let _ally = ingame_caster(&mut world, 2, ALLY, 50, 0);
     let stance = stance_skill();
-    learn(&mut world, CASTER, &stance);
-    learn(&mut world, ALLY2, &stance);
+    learn_skill(&mut world, CASTER, &stance);
+    learn_skill(&mut world, ALLY2, &stance);
 
     start_stance(&mut world, CID, CASTER, ALLY);
     start_stance(&mut world, 3, ALLY2, ALLY);
@@ -594,7 +584,7 @@ fn the_channeled_level_is_capped_at_the_skills_max() {
     let stance = stance_skill();
     for (cid, oid) in casters {
         let _o = ingame_caster(&mut world, cid, oid, 10, 0);
-        learn(&mut world, oid, &stance);
+        learn_skill(&mut world, oid, &stance);
         start_stance(&mut world, cid, oid, ALLY);
     }
     advance_ticks(&mut world, 10);
@@ -617,8 +607,8 @@ fn stopping_a_channel_drops_that_channeler_from_the_stack() {
     let _out2 = ingame_caster(&mut world, 3, ALLY2, 10, 0);
     let _ally = ingame_caster(&mut world, 2, ALLY, 50, 0);
     let stance = stance_skill();
-    learn(&mut world, CASTER, &stance);
-    learn(&mut world, ALLY2, &stance);
+    learn_skill(&mut world, CASTER, &stance);
+    learn_skill(&mut world, ALLY2, &stance);
     start_stance(&mut world, CID, CASTER, ALLY);
     start_stance(&mut world, 3, ALLY2, ALLY);
     advance_ticks(&mut world, 10);

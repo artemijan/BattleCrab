@@ -9,15 +9,6 @@ use crate::game_loop::helpers::set_position;
 use crate::model::components::TargetRef;
 use commons::config::PropertiesParser;
 
-/// `RequestActionUse` body — actionId + ctrl + shift.
-fn action_use_body(action_id: i32) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_i32(action_id);
-    w.write_i32(0); // ctrl (an int, not a byte)
-    w.write_u8(0); // shift
-    w.into_bytes()
-}
-
 /// A world with bot reporting on, two players out in the open, and the
 /// reporter targeting the other.
 fn report_world() -> (World, UnboundedReceiver<bytes::Bytes>) {

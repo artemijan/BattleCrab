@@ -601,7 +601,7 @@ fn admin_editchar_info_commands_use_html() {
 /// `AdminGrandBoss`.
 #[test]
 fn admin_grandboss_status_panel_and_actions() {
-    use crate::model::grand_boss::GrandBoss;
+    use model::grand_boss::GrandBoss;
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     // Queen Ant alive (status 0); Antharas dead (status 3) with a known respawn.
@@ -1379,7 +1379,7 @@ fn admin_recall_brings_player_to_gm() {
 /// demand a live target, which is what the `//teleto` alias used to do.
 #[test]
 fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
-    use crate::model::components::Position;
+    use model::components::Position;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7305, 100);
     let mut other_rx = ingame_player_access(&mut world, 2, 7306, 0);
@@ -2253,7 +2253,7 @@ fn admin_buff_applies_skill_to_self() {
 /// schedules its stop) — it previously expired the same tick it landed.
 #[test]
 fn admin_superhaste_applies_and_persists() {
-    use crate::model::components::{Buffs, Speeds};
+    use model::components::{Buffs, Speeds};
     let (mut world, ..) = admin_world();
     // Full datapack, not just `skill_data`: Super Haste also carries
     // `MpConsumePerLevel` (G19) — Java's `AdminSuperHaste` casts it through
@@ -2330,7 +2330,7 @@ fn admin_superhaste_applies_and_persists() {
 /// because it scales through `move_multiplier`, which folds in via `move_speed`.
 #[test]
 fn client_move_multiplier_tracks_speed_buffs() {
-    use crate::model::components::Speeds;
+    use model::components::Speeds;
     // base template run 132, +35 RunSpeedBoost folded into run_spd → 167 at rest.
     let mut s = Speeds {
         run_spd: 167.0,
@@ -2367,7 +2367,7 @@ fn client_move_multiplier_tracks_speed_buffs() {
 /// base cadence.
 #[test]
 fn client_atk_speed_multiplier_tracks_haste() {
-    use crate::model::components::CombatStats;
+    use model::components::CombatStats;
     let mut c = CombatStats {
         p_atk_spd: 300,
         ..Default::default()
@@ -2988,7 +2988,7 @@ fn bare_teleto_still_teleports_to_the_target() {
 /// it onto the coordinate teleport, which made the two buttons identical.
 #[test]
 fn admin_walk_walks_instead_of_teleporting() {
-    use crate::model::components::{Movement, Speeds};
+    use model::components::{Movement, Speeds};
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8924, 100);
     {
@@ -3348,7 +3348,7 @@ fn dismount_skill_reverts_gm_ride_transform() {
     assert!(
         dismount.effects.iter().any(|e| matches!(
             e,
-            crate::model::skill::SkillEffect::DispelBySlot { dispel }
+            model::skill::SkillEffect::DispelBySlot { dispel }
                 if dispel.iter().any(|(ty, lvl)| ty == "TRANSFORM" && *lvl < 0)
         )),
         "Dismount carries DispelBySlot TRANSFORM,-1, got {:?}",
@@ -3474,7 +3474,7 @@ fn admin_mobgroup_lifecycle() {
     on_packet(&mut world, 1, build_admin("mobgroup_follow 1"));
     assert!(matches!(
         world.mob_groups.get(&1).unwrap().state,
-        crate::model::mob_group::MobGroupState::Follow(8940)
+        model::mob_group::MobGroupState::Follow(8940)
     ));
 
     // invul on → each member gets the invul flag
@@ -3654,8 +3654,8 @@ fn admin_sethero_toggles_status_skills_and_aura() {
 /// siege actions report unavailable. Port of AdminCastle.
 #[test]
 fn admin_castlemanage_ownership_and_side() {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
@@ -3832,9 +3832,9 @@ fn admin_castlemanage_ownership_and_side() {
 /// AdminCastle's siege branch over the model/siege slice.
 #[test]
 fn admin_castlemanage_siege_registration_and_state() {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::Siege;
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::Siege;
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
@@ -4037,8 +4037,8 @@ fn admin_castlemanage_siege_registration_and_state() {
 #[test]
 fn admin_give_clan_skills_command_grants_targeted_clan() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::{ClanSkills, TargetRef};
+    use model::clan::{Clan, ClanMember};
+    use model::components::{ClanSkills, TargetRef};
 
     let (mut world, _tx, mut db_rx, _link) = admin_world();
     world
@@ -4306,7 +4306,7 @@ fn admin_para_blocks_actions_until_unpara() {
 /// longer sets their target; toggling back restores it.
 #[test]
 fn admin_settargetable_blocks_selection() {
-    use crate::model::components::TargetRef;
+    use model::components::TargetRef;
 
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
@@ -4651,7 +4651,7 @@ fn oversized_html_is_clipped_to_java_limit() {
 /// re-describe the GM on the second press.
 #[test]
 fn admin_invis_menu_hides_and_reserves_panel() {
-    use crate::model::components::{AdminFlags, TargetRef};
+    use model::components::{AdminFlags, TargetRef};
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7101, 100);
@@ -4718,7 +4718,7 @@ fn admin_invis_menu_hides_and_reserves_panel() {
 /// `//invis` is likewise an idempotent set.
 #[test]
 fn vis_and_invis_are_sets_not_toggles() {
-    use crate::model::components::AdminFlags;
+    use model::components::AdminFlags;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7111, 100);
     drain(&mut gm_rx);
@@ -4745,7 +4745,7 @@ fn vis_and_invis_are_sets_not_toggles() {
 /// GM themself.
 #[test]
 fn setinvis_toggles_the_targeted_player() {
-    use crate::model::components::{AdminFlags, TargetRef};
+    use model::components::{AdminFlags, TargetRef};
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7121, 100);
     let mut victim_rx = ingame_player_access(&mut world, 2, 7122, 0);
@@ -4774,7 +4774,7 @@ fn setinvis_toggles_the_targeted_player() {
 /// targets; the aggro scan must skip them, with no raid exemption).
 #[test]
 fn npc_aggro_ignores_hidden_gm() {
-    use crate::model::components::AdminFlags;
+    use model::components::AdminFlags;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7131, 100);
     drain(&mut gm_rx);
@@ -4849,7 +4849,7 @@ fn debug_menu_renders_and_packet_toggle_works() {
 /// lists it; `//punishment_remove` lifts it.
 #[test]
 fn punishment_console_add_info_remove() {
-    use crate::model::punishment::{PunishmentAffect, PunishmentType};
+    use model::punishment::{PunishmentAffect, PunishmentType};
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7501, 100);
@@ -4937,7 +4937,7 @@ fn punishment_console_add_info_remove() {
 /// both players' leader flags/privileges, and the clan-wide SM.
 #[test]
 fn clan_changeleader_swaps_leader() {
-    use crate::model::components::TargetRef;
+    use model::components::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
     let mut old_rx = ingame_player_access(&mut world, 2, 7602, 0);
@@ -5328,7 +5328,7 @@ fn show_quests_lists_the_target_npcs_scripts() {
 /// `getTradeRefusal` in `TradeRequest`).
 #[test]
 fn tradeoff_refuses_trade_requests() {
-    use crate::model::components::TargetRef;
+    use model::components::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7901, 100);
     let mut other_rx = ingame_player_access(&mut world, 2, 7902, 0);
@@ -6071,7 +6071,7 @@ fn forge_send_cs_refuses_like_java() {
 /// outright (Java's `findByClientId` → catch → usage).
 #[test]
 fn playmovie_movie_holder_bookkeeping() {
-    use crate::model::components::InMovie;
+    use model::components::InMovie;
 
     let (mut world, ..) = admin_world();
     let mut rx = ingame_player_access(&mut world, 1, 6496, 100);
@@ -6246,7 +6246,7 @@ fn has_admin_html(pkts: &[Vec<u8>]) -> bool {
 /// quietly collapsing the two exits into one.
 #[test]
 fn pledge_setlevel_reopens_the_panel_except_when_the_parse_throws() {
-    use crate::model::components::TargetRef;
+    use model::components::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7801, 100);
     let _member_rx = ingame_player_access(&mut world, 2, 7802, 0);
@@ -6289,7 +6289,7 @@ fn pledge_setlevel_reopens_the_panel_except_when_the_parse_throws() {
 /// the counterexample that stops the tail from being read as "on success only".
 #[test]
 fn goto_char_reopens_the_page_except_on_an_unresolved_target() {
-    use crate::model::components::TargetRef;
+    use model::components::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7811, 100);
     drain(&mut gm_rx);
@@ -6326,7 +6326,7 @@ fn goto_char_reopens_the_page_except_on_an_unresolved_target() {
 /// guard — the refusal paths had no cover before, so a swapped id was silent.
 #[test]
 fn give_clan_skills_refuses_with_javas_two_distinct_messages() {
-    use crate::model::components::TargetRef;
+    use model::components::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7821, 100);
     let _clanless_rx = ingame_player_access(&mut world, 2, 7822, 0);
@@ -6428,7 +6428,7 @@ fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
 /// command has no other test and the branch order is easy to flatten.
 #[test]
 fn cw_goto_falls_through_from_the_holder_to_the_dropped_item() {
-    use crate::model::components::Position;
+    use model::components::Position;
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
@@ -6671,7 +6671,7 @@ fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
 /// can be sped up too, and it gets `broadcastInfo()` rather than `UserInfo`.
 #[test]
 fn admin_gmspeed_scales_a_targeted_npc() {
-    use crate::model::components::{Speeds, TargetRef};
+    use model::components::{Speeds, TargetRef};
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7110, 100);
     scan_npc(&mut world, NPC_OID, 7110, 50, 0, 0);
@@ -6706,7 +6706,7 @@ fn admin_gmspeed_scales_a_targeted_npc() {
 /// `YOU_CANNOT_USE_THIS_ON_YOURSELF` — neither moves anybody.
 #[test]
 fn admin_teleportto_moves_the_gm_to_a_named_player() {
-    use crate::model::components::Position;
+    use model::components::Position;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7120, 100);
     let _target_rx = ingame_player(&mut world, 2, 7121, 50_000, 60_000, -3000);
@@ -6765,7 +6765,7 @@ fn admin_teleportto_moves_the_gm_to_a_named_player() {
 /// from which a GM could not pick anything.
 #[test]
 fn admin_remove_skills_generates_the_targets_own_skill_list() {
-    use crate::model::components::{SkillBook, TargetRef};
+    use model::components::{SkillBook, TargetRef};
     let (mut world, ..) = admin_world();
     world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7130, 100);
@@ -6797,7 +6797,7 @@ fn admin_remove_skills_generates_the_targets_own_skill_list() {
 /// with no refund, because the character never asked to remove them.
 #[test]
 fn setclass_drops_a_dye_the_new_class_cannot_wear() {
-    use crate::model::components::HennaSlots;
+    use model::components::HennaSlots;
     let (mut world, ..) = admin_world();
     world.data.hennas = crate::data::HennaData::load_from(crate::data::DIST_GAME);
     world.data.player_templates = dist::player_templates_owned();

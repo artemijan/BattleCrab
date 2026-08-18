@@ -2,6 +2,52 @@
 //! shot visual broadcast.
 
 use super::*;
+/// Java `Player.addAutoSoulShot(itemId)` — arm auto-use for one shot item.
+///
+/// The list is a set: Java's `_activeSoulShots` is a `Set<Integer>`, and the
+/// toggle packet can arrive twice for the same item (the client re-sends on a
+/// re-login burst), so a second arm must not stack a duplicate that
+/// `recharge_shots` would then charge twice.
+pub(crate) fn add_auto_shot(world: &mut World, object_id: i32, item_id: i32) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&object_id)
+        && !p.auto_shots.contains(&item_id)
+    {
+        p.auto_shots.push(item_id);
+    }
+}
+
+/// Java `Player.removeAutoSoulShot(itemId)` — disarm auto-use for one shot
+/// item. `true` when it *was* armed.
+///
+/// Most callers drop the answer: running out of shots, or the item leaving the
+/// inventory, disarms silently. The summon path
+/// ([`servitor::shots`](crate::game_loop::servitor::shots)) needs it, because
+/// it only echoes `ExAutoSoulShot` + the deactivation message when the toggle
+/// actually went dark.
+pub(crate) fn remove_auto_shot(world: &mut World, object_id: i32, item_id: i32) -> bool {
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&object_id)
+        .is_some_and(|p| {
+            let before = p.auto_shots.len();
+            p.auto_shots.retain(|&id| id != item_id);
+            p.auto_shots.len() != before
+        })
+}
+
+/// The items armed for auto-use, cloned — every caller iterates the list while
+/// mutating the world (charging shots, dropping entries), which a borrow of the
+/// component cannot survive.
+pub(crate) fn auto_shots(world: &World, object_id: i32) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| p.auto_shots.clone())
+        .unwrap_or_default()
+}
+
 /// Port of `handlers/itemhandlers/{SoulShots,SpiritShot,BlessedSpiritShot}.useItem`:
 /// charge the matching shot on the equipped weapon. `auto` = true is the
 /// `rechargeShots` re-entry (an item toggled for auto-use): it suppresses the
@@ -107,9 +153,7 @@ pub(crate) fn charge_shot(
         .map(|inv| inv.count_of(shot_item_id))
         .unwrap_or(0);
     if have < shot_count as i64 {
-        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
-            p.auto_shots.retain(|&id| id != shot_item_id);
-        }
+        remove_auto_shot(world, object_id, shot_item_id);
         send(
             world,
             if physical {
@@ -149,8 +193,6 @@ pub(crate) fn charge_shot(
 /// summon shots aren't in scope): toggle a shot item into the auto-use set.
 /// Body: `itemId:i32, enable:i32(1/0), type:i32`.
 pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, ex_body: &[u8]) {
-    use crate::model::Player;
-
     if ex_body.len() < 12 {
         return;
     }
@@ -197,8 +239,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
     // are for the pet's swing, not the owner's.
     let is_summon_shot = matches!(
         handler,
-        crate::data::item_data::ItemHandler::BeastSoulShot
-            | crate::data::item_data::ItemHandler::BeastSpiritShot
+        ItemHandler::BeastSoulShot | ItemHandler::BeastSpiritShot
     );
     if enable && is_summon_shot {
         if crate::game_loop::servitor::pet_of(world, object_id).is_none()
@@ -207,11 +248,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             send(world, sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR_FOR_AUTO_USE, &[]);
             return;
         }
-        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id)
-            && !p.auto_shots.contains(&item_id)
-        {
-            p.auto_shots.push(item_id);
-        }
+        add_auto_shot(world, object_id, item_id);
         send(
             world,
             sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED,
@@ -253,11 +290,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             return;
         }
         // Activate.
-        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id)
-            && !p.auto_shots.contains(&item_id)
-        {
-            p.auto_shots.push(item_id);
-        }
+        add_auto_shot(world, object_id, item_id);
         send_to_client(
             world,
             client_id,
@@ -278,9 +311,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         );
     } else {
         // Deactivate.
-        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
-            p.auto_shots.retain(|&id| id != item_id);
-        }
+        remove_auto_shot(world, object_id, item_id);
         send_to_client(
             world,
             client_id,
@@ -306,12 +337,7 @@ pub(crate) fn recharge_shots(
     magic: bool,
     fish: bool,
 ) {
-    let auto = world
-        .objects
-        .get_component::<crate::model::Player>(&object_id)
-        .map(|p| p.auto_shots.clone())
-        .unwrap_or_default();
-    for item_id in auto {
+    for item_id in auto_shots(world, object_id) {
         if world
             .objects
             .get_component::<Inventory>(&object_id)
@@ -319,12 +345,7 @@ pub(crate) fn recharge_shots(
             .unwrap_or(0)
             == 0
         {
-            if let Some(p) = world
-                .objects
-                .get_component_mut::<crate::model::Player>(&object_id)
-            {
-                p.auto_shots.retain(|&id| id != item_id);
-            }
+            remove_auto_shot(world, object_id, item_id);
             continue;
         }
         let handler = world
@@ -359,9 +380,7 @@ pub(crate) fn charge_fish_shot(world: &mut World, object_id: i32, shot_item_id: 
         .map(|inv| inv.count_of(shot_item_id))
         .unwrap_or(0);
     if have < 1 {
-        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
-            p.auto_shots.retain(|&id| id != shot_item_id);
-        }
+        remove_auto_shot(world, object_id, shot_item_id);
         return false;
     }
     let changes = world

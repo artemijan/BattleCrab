@@ -9,7 +9,6 @@ use crate::data::item_data::ADENA_ID;
 use crate::data::manor_data::Seed;
 use crate::model::Player;
 use crate::model::components::LastFolkNpc;
-use crate::model::inventory::Inventory;
 use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
 
 /// Register + place a Manor Manager (a Merchant with a `manor_id` param) and
@@ -40,13 +39,6 @@ fn add_gludio(world: &mut World) {
         siege_date: 0,
         treasury: 0,
     }];
-}
-
-fn inv_count(world: &World, item_id: i32) -> i64 {
-    world
-        .objects
-        .get_component::<Inventory>(&100)
-        .map_or(0, |i| i.count_of(item_id))
 }
 
 /// Register + place a sowable monster (a `canBeSown` Monster) at the origin.

@@ -33,20 +33,6 @@ fn shadow_test_world() -> (World, db::CmdRx) {
     (world, db_rx)
 }
 
-fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_i32(list_id);
-    w.write_i32(entry_id);
-    w.write_i64(amount);
-    w.write_i16(0); // enchant level
-    w.write_i32(0); // augment 1
-    w.write_i32(0); // augment 2
-    for _ in 0..8 {
-        w.write_i16(0); // attack element + six defences
-    }
-    w.into_bytes()
-}
-
 /// Talk the desk: `bypass -h npc_<oid>_Quest ShadowWeapons`.
 fn talk_shadow_desk(world: &mut World) {
     handle_request_bypass_to_server(

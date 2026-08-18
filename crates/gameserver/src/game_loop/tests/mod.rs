@@ -1351,6 +1351,32 @@ fn expect_store_player(db_rx: &mut db::CmdRx) -> db::PlayerSaveData {
     }
 }
 
+/// `RequestActionUse` body — actionId + ctrl + shift.
+fn action_use_body(action_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(action_id);
+    w.write_i32(0); // ctrl (an int, not a byte)
+    w.write_u8(0); // shift
+    w.into_bytes()
+}
+
+fn inv_count(world: &World, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&100)
+        .map_or(0, |i| i.count_of(item_id))
+}
+
+fn learn_skill(world: &mut World, oid: i32, skill: &Skill) {
+    world.data.skill_data.insert_for_test(skill.clone());
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&oid)
+        .unwrap()
+        .0
+        .insert(skill.id, 1);
+}
+
 /// The object id carried by a `CharInfo` (opcode + GC byte + x/y/z/vehicle).
 fn char_info_object_id(pkt: &[u8]) -> i32 {
     assert_eq!(pkt[0], server_packets::opcodes::CHAR_INFO);

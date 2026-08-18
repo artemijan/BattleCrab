@@ -105,16 +105,6 @@ fn ground_body(x: i32, y: i32, z: i32, skill_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
-fn learn(world: &mut World, oid: i32, skill: &Skill) {
-    world.data.skill_data.insert_for_test(skill.clone());
-    world
-        .objects
-        .get_component_mut::<SkillBook>(&oid)
-        .unwrap()
-        .0
-        .insert(skill.id, 1);
-}
-
 // ---------------------------------------------------------------------------
 // Dist parse
 // ---------------------------------------------------------------------------
@@ -186,7 +176,7 @@ fn a_seal_pulses_its_aura_and_expires() {
     let _out2 = ingame_caster(&mut world, BID, BYSTANDER, 520, 0);
     register_totem_template(&mut world);
     world.data.skill_data.insert_for_test(aura_skill());
-    learn(&mut world, CASTER, &symbol_skill());
+    learn_skill(&mut world, CASTER, &symbol_skill());
 
     handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, SYMBOL_SKILL));
     assert!(
@@ -256,7 +246,7 @@ fn walking_into_a_live_seal_gets_cursed() {
         t
     });
     world.data.skill_data.insert_for_test(aura_skill());
-    learn(&mut world, CASTER, &symbol_skill());
+    learn_skill(&mut world, CASTER, &symbol_skill());
 
     handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, SYMBOL_SKILL));
     advance_ticks(&mut world, 15);
@@ -296,7 +286,7 @@ fn op_exist_npc_gates_recasting_next_to_a_seal() {
         range: 200,
         is_around: false,
     })];
-    learn(&mut world, CASTER, &skill);
+    learn_skill(&mut world, CASTER, &skill);
 
     // A live listed totem 150 from the caster.
     add_test_npc(&mut world, NPC_OID, TOTEM_NPC, "EffectPoint", 70, 150, 0, 0);
@@ -330,7 +320,7 @@ fn a_seal_is_titled_with_its_casters_name() {
     let _out = ingame_caster(&mut world, CID, CASTER, 400, 0);
     register_totem_template(&mut world);
     world.data.skill_data.insert_for_test(aura_skill());
-    learn(&mut world, CASTER, &symbol_skill());
+    learn_skill(&mut world, CASTER, &symbol_skill());
     let caster_name = world
         .objects
         .get_component::<Player>(&CASTER)

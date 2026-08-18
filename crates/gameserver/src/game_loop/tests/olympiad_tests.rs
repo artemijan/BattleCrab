@@ -1091,13 +1091,6 @@ fn monument_world() -> (
     (world, db_rx, link, rx)
 }
 
-fn inv_count(world: &World, item_id: i32) -> i64 {
-    world
-        .objects
-        .get_component::<Inventory>(&100)
-        .map_or(0, |inv| inv.count_of(item_id))
-}
-
 /// **A hero claims an Infinity weapon and the circlet at the Monument** — the
 /// circlet is granted only once.
 #[test]

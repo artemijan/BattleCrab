@@ -45,15 +45,7 @@ impl SummonShot {
 /// behalf, and without `ExAutoSoulShot` the client keeps showing auto-use
 /// armed for a shot that will never fire again.
 fn disable_auto_shot(world: &mut World, owner: i32, item_id: i32, shot_type: i32) {
-    let was_on = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&owner)
-        .is_some_and(|p| {
-            let before = p.auto_shots.len();
-            p.auto_shots.retain(|&id| id != item_id);
-            p.auto_shots.len() != before
-        });
-    if !was_on {
+    if !crate::game_loop::items::remove_auto_shot(world, owner, item_id) {
         return;
     }
     send_to_player(
@@ -127,12 +119,7 @@ fn recharge_summon_shot(world: &mut World, summon_oid: i32, kind: SummonShot) ->
 
     // Java iterates the owner's auto-shot list and picks the entries whose
     // `default_action` marks them as *summon* shots.
-    let shots: Vec<i32> = world
-        .objects
-        .get_component::<crate::model::Player>(&owner)
-        .map(|p| p.auto_shots.clone())
-        .unwrap_or_default();
-    for item_id in shots {
+    for item_id in crate::game_loop::items::auto_shots(world, owner) {
         if world.data.item_data.get(item_id).map(|t| t.default_action) != Some(kind.action()) {
             continue;
         }

@@ -22,14 +22,6 @@ const SOCIAL_HELLO: i32 = 2;
 /// `ActionData.xml` id 1 → `RunWalk`.
 const ACTION_RUN_WALK: i32 = 1;
 
-fn action_use_body(action_id: i32) -> Vec<u8> {
-    let mut w = PacketWriter::new();
-    w.write_i32(action_id);
-    w.write_i32(0); // ctrl
-    w.write_u8(0); // shift
-    w.into_bytes()
-}
-
 fn press(world: &mut World, client_id: u32, action_id: i32) {
     on_packet(
         world,
